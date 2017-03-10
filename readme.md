@@ -1,6 +1,6 @@
 # cozy sun bear
 
-ePub widgets and support
+ePub widgets and support based around and with code from [epub.js](https://github.com/futurepress/epub.js)
 
 ## Development
 
