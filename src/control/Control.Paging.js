@@ -40,7 +40,7 @@ var PageControl = Control.extend({
 
 export var PagePrevious = PageControl.extend({
   options: {
-    region: 'binding.previous',
+    region: 'edge.left',
     direction: 'previous',
     label: 'Prevous Page'
   },
@@ -52,7 +52,7 @@ export var PagePrevious = PageControl.extend({
 
 export var PageNext = PageControl.extend({
   options: {
-    region: 'binding.next',
+    region: 'edge.right',
     direction: 'next',
     label: 'Next Page'
   },
