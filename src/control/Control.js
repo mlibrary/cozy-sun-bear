@@ -1,4 +1,5 @@
 import {Class} from '../core/Class';
+import {Reader} from '../reader/Reader';
 import * as Util from '../core/Util';
 import * as DomUtil from '../dom/DomUtil';
 
@@ -7,7 +8,7 @@ import * as DomUtil from '../dom/DomUtil';
  * @aka L.Control
  * @inherits Class
  *
- * L.Control is a base class for implementing map controls. Handles positioning.
+ * L.Control is a base class for implementing reader controls. Handles regioning.
  * All other controls extend from this class.
  */
 
@@ -15,10 +16,10 @@ export var Control = Class.extend({
     // @section
     // @aka Control options
     options: {
-        // @option position: String = 'topright'
-        // The position of the control (one of the map corners). Possible values are `'topleft'`,
+        // @option region: String = 'topright'
+        // The region of the control (one of the reader corners). Possible values are `'topleft'`,
         // `'topright'`, `'bottomleft'` or `'bottomright'`
-        position: 'topright'
+        region: 'header'
     },
 
     initialize: function (options) {
@@ -28,26 +29,26 @@ export var Control = Class.extend({
     /* @section
      * Classes extending L.Control will inherit the following methods:
      *
-     * @method getPosition: string
-     * Returns the position of the control.
+     * @method getRegion: string
+     * Returns the region of the control.
      */
-    getPosition: function () {
-        return this.options.position;
+    getRegion: function () {
+        return this.options.region;
     },
 
-    // @method setPosition(position: string): this
-    // Sets the position of the control.
-    setPosition: function (position) {
-        var map = this._map;
+    // @method setRegion(region: string): this
+    // Sets the region of the control.
+    setRegion: function (region) {
+        var reader = this._reader;
 
-        if (map) {
-            map.removeControl(this);
+        if (reader) {
+            reader.removeControl(this);
         }
 
-        this.options.position = position;
+        this.options.region = region;
 
-        if (map) {
-            map.addControl(this);
+        if (reader) {
+            reader.addControl(this);
         }
 
         return this;
@@ -59,53 +60,123 @@ export var Control = Class.extend({
         return this._container;
     },
 
-    // @method addTo(map: Map): this
-    // Adds the control to the given map.
-    addTo: function (map) {
+    // @method addTo(reader: Map): this
+    // Adds the control to the given reader.
+    addTo: function (reader) {
         this.remove();
-        this._map = map;
+        this._reader = reader;
 
-        var container = this._container = this.onAdd(map),
-            pos = this.getPosition(),
-            corner = map._controlCorners[pos];
+        var container = this._container = this.onAdd(reader),
+            region = this.getRegion(),
+            area = reader.getControlRegion(region);
 
-        DomUtil.addClass(container, 'leaflet-control');
+        DomUtil.addClass(container, 'cozy-control');
 
-        if (pos.indexOf('bottom') !== -1) {
-            corner.insertBefore(container, corner.firstChild);
+        if (region.indexOf('bottom') !== -1) {
+            area.insertBefore(container, area.firstChild);
         } else {
-            corner.appendChild(container);
+            area.appendChild(container);
         }
 
         return this;
     },
 
     // @method remove: this
-    // Removes the control from the map it is currently active on.
+    // Removes the control from the reader it is currently active on.
     remove: function () {
-        if (!this._map) {
+        if (!this._reader) {
             return this;
         }
 
         DomUtil.remove(this._container);
 
         if (this.onRemove) {
-            this.onRemove(this._map);
+            this.onRemove(this._reader);
         }
 
-        this._map = null;
+        this._reader = null;
 
         return this;
     },
 
     _refocusOnMap: function (e) {
-        // if map exists and event is not a keyboard event
-        if (this._map && e && e.screenX > 0 && e.screenY > 0) {
-            this._map.getContainer().focus();
+        // if reader exists and event is not a keyboard event
+        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
+            this._reader.getContainer().focus();
         }
     }
 });
 
 export var control = function (options) {
     return new Control(options);
-};    
+};
+
+/* @section Extension methods
+ * @uninheritable
+ *
+ * Every control should extend from `L.Control` and (re-)implement the following methods.
+ *
+ * @method onAdd(reader: Map): HTMLElement
+ * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
+ *
+ * @method onRemove(reader: Map)
+ * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
+ */
+
+/* @namespace Map
+ * @section Methods for Layers and Controls
+ */
+Reader.include({
+    // @method addControl(control: Control): this
+    // Adds the given control to the reader
+    addControl: function (control) {
+        control.addTo(this);
+        return this;
+    },
+
+    // @method removeControl(control: Control): this
+    // Removes the given control from the reader
+    removeControl: function (control) {
+        control.remove();
+        return this;
+    },
+
+    getControlContainer: function() {
+        var l = 'cozy-';
+        if ( ! this._controlContainer ) {
+            this._controlContainer =
+                DomUtil.create('div', l + 'control-container', this._container);
+        }
+        return this._controlContainer;
+    },
+
+    getControlRegion: function (region) {
+        var regions = this._controlRegions = {},
+            l = 'cozy-',
+            container = this.getControlContainer();
+
+        function createRegion(region) {
+            if ( regions[region] ) { return ; }
+            var className = [];
+            var tmp = region.split(".");
+            for(var i in tmp) {
+                className.push(l + tmp[i]);
+            }
+            className = className.join(' ');
+
+            regions[region] = DomUtil.create('div', className, container);
+            return regions[region];
+        }
+
+        return createRegion(region);
+    },
+
+    _clearControlRegion: function () {
+        for (var i in this._controlRegions) {
+            DomUtil.remove(this._controlRegions[i]);
+        }
+        DomUtil.remove(this._controlContainer);
+        delete this._controlRegions;
+        delete this._controlContainer;
+    }
+});

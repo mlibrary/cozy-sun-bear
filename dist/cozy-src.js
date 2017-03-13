@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1489372592386) {
+if (false && (new Date()).getTime() > 1489415404155) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+roger-experiment.2b94959, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+roger-experiment.2207435, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1489372592386) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+roger-experiment.2b94959";
+var version = "1.0.0+roger-experiment.2207435";
 
 /*
  * @namespace Util
@@ -400,6 +400,443 @@ function checkDeprecatedMixinEvents(includes) {
 	}
 }
 
+var Evented = Class.extend({
+
+	/* @method on(type: String, fn: Function, context?: Object): this
+	 * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
+	 *
+	 * @alternative
+	 * @method on(eventMap: Object): this
+	 * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
+	 */
+	on: function (types, fn, context) {
+
+		// types can be a map of types/handlers
+		if (typeof types === 'object') {
+			for (var type in types) {
+				// we don't process space-separated events here for performance;
+				// it's a hot path since Layer uses the on(obj) syntax
+				this._on(type, types[type], fn);
+			}
+
+		} else {
+			// types can be a string of space-separated words
+			types = splitWords(types);
+
+			for (var i = 0, len = types.length; i < len; i++) {
+				this._on(types[i], fn, context);
+			}
+		}
+
+		return this;
+	},
+
+	/* @method off(type: String, fn?: Function, context?: Object): this
+	 * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
+	 *
+	 * @alternative
+	 * @method off(eventMap: Object): this
+	 * Removes a set of type/listener pairs.
+	 *
+	 * @alternative
+	 * @method off: this
+	 * Removes all listeners to all events on the object.
+	 */
+	off: function (types, fn, context) {
+
+		if (!types) {
+			// clear all listeners if called without arguments
+			delete this._events;
+
+		} else if (typeof types === 'object') {
+			for (var type in types) {
+				this._off(type, types[type], fn);
+			}
+
+		} else {
+			types = splitWords(types);
+
+			for (var i = 0, len = types.length; i < len; i++) {
+				this._off(types[i], fn, context);
+			}
+		}
+
+		return this;
+	},
+
+	// attach listener (without syntactic sugar now)
+	_on: function (type, fn, context) {
+		this._events = this._events || {};
+
+		/* get/init listeners for type */
+		var typeListeners = this._events[type];
+		if (!typeListeners) {
+			typeListeners = [];
+			this._events[type] = typeListeners;
+		}
+
+		if (context === this) {
+			// Less memory footprint.
+			context = undefined;
+		}
+		var newListener = {fn: fn, ctx: context},
+		    listeners = typeListeners;
+
+		// check if fn already there
+		for (var i = 0, len = listeners.length; i < len; i++) {
+			if (listeners[i].fn === fn && listeners[i].ctx === context) {
+				return;
+			}
+		}
+
+		listeners.push(newListener);
+	},
+
+	_off: function (type, fn, context) {
+		var listeners,
+		    i,
+		    len;
+
+		if (!this._events) { return; }
+
+		listeners = this._events[type];
+
+		if (!listeners) {
+			return;
+		}
+
+		if (!fn) {
+			// Set all removed listeners to noop so they are not called if remove happens in fire
+			for (i = 0, len = listeners.length; i < len; i++) {
+				listeners[i].fn = falseFn;
+			}
+			// clear all listeners for a type if function isn't specified
+			delete this._events[type];
+			return;
+		}
+
+		if (context === this) {
+			context = undefined;
+		}
+
+		if (listeners) {
+
+			// find fn and remove it
+			for (i = 0, len = listeners.length; i < len; i++) {
+				var l = listeners[i];
+				if (l.ctx !== context) { continue; }
+				if (l.fn === fn) {
+
+					// set the removed listener to noop so that's not called if remove happens in fire
+					l.fn = falseFn;
+
+					if (this._firingCount) {
+						/* copy array in case events are being fired */
+						this._events[type] = listeners = listeners.slice();
+					}
+					listeners.splice(i, 1);
+
+					return;
+				}
+			}
+		}
+	},
+
+	// @method fire(type: String, data?: Object, propagate?: Boolean): this
+	// Fires an event of the specified type. You can optionally provide an data
+	// object — the first argument of the listener function will contain its
+	// properties. The event can optionally be propagated to event parents.
+	fire: function (type, data, propagate) {
+		if (!this.listens(type, propagate)) { return this; }
+
+		var event = extend({}, data, {type: type, target: this});
+
+		if (this._events) {
+			var listeners = this._events[type];
+
+			if (listeners) {
+				this._firingCount = (this._firingCount + 1) || 1;
+				for (var i = 0, len = listeners.length; i < len; i++) {
+					var l = listeners[i];
+					l.fn.call(l.ctx || this, event);
+				}
+
+				this._firingCount--;
+			}
+		}
+
+		if (propagate) {
+			// propagate the event to parents (set with addEventParent)
+			this._propagateEvent(event);
+		}
+
+		return this;
+	},
+
+	// @method listens(type: String): Boolean
+	// Returns `true` if a particular event type has any listeners attached to it.
+	listens: function (type, propagate) {
+		var listeners = this._events && this._events[type];
+		if (listeners && listeners.length) { return true; }
+
+		if (propagate) {
+			// also check parents for listeners if event propagates
+			for (var id in this._eventParents) {
+				if (this._eventParents[id].listens(type, propagate)) { return true; }
+			}
+		}
+		return false;
+	},
+
+	// @method once(…): this
+	// Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
+	once: function (types, fn, context) {
+
+		if (typeof types === 'object') {
+			for (var type in types) {
+				this.once(type, types[type], fn);
+			}
+			return this;
+		}
+
+		var handler = bind(function () {
+			this
+			    .off(types, fn, context)
+			    .off(types, handler, context);
+		}, this);
+
+		// add a listener that's executed once and removed after that
+		return this
+		    .on(types, fn, context)
+		    .on(types, handler, context);
+	},
+
+	// @method addEventParent(obj: Evented): this
+	// Adds an event parent - an `Evented` that will receive propagated events
+	addEventParent: function (obj) {
+		this._eventParents = this._eventParents || {};
+		this._eventParents[stamp(obj)] = obj;
+		return this;
+	},
+
+	// @method removeEventParent(obj: Evented): this
+	// Removes an event parent, so it will stop receiving propagated events
+	removeEventParent: function (obj) {
+		if (this._eventParents) {
+			delete this._eventParents[stamp(obj)];
+		}
+		return this;
+	},
+
+	_propagateEvent: function (e) {
+		for (var id in this._eventParents) {
+			this._eventParents[id].fire(e.type, extend({layer: e.target}, e), true);
+		}
+	}
+});
+
+var proto = Evented.prototype;
+
+// aliases; we should ditch those eventually
+
+// @method addEventListener(…): this
+// Alias to [`on(…)`](#evented-on)
+proto.addEventListener = proto.on;
+
+// @method removeEventListener(…): this
+// Alias to [`off(…)`](#evented-off)
+
+// @method clearAllEventListeners(…): this
+// Alias to [`off()`](#evented-off)
+proto.removeEventListener = proto.clearAllEventListeners = proto.off;
+
+// @method addOneTimeEventListener(…): this
+// Alias to [`once(…)`](#evented-once)
+proto.addOneTimeEventListener = proto.once;
+
+// @method fireEvent(…): this
+// Alias to [`fire(…)`](#evented-fire)
+proto.fireEvent = proto.fire;
+
+// @method hasEventListeners(…): Boolean
+// Alias to [`listens(…)`](#evented-listens)
+proto.hasEventListeners = proto.listens;
+
+/*
+ * @namespace Browser
+ * @aka L.Browser
+ *
+ * A namespace with static properties for browser/feature detection used by Leaflet internally.
+ *
+ * @example
+ *
+ * ```js
+ * if (L.Browser.ielt9) {
+ *   alert('Upgrade your browser, dude!');
+ * }
+ * ```
+ */
+
+var style$1 = document.documentElement.style;
+
+// @property ie: Boolean; `true` for all Internet Explorer versions (not Edge).
+var ie = 'ActiveXObject' in window;
+
+// @property ielt9: Boolean; `true` for Internet Explorer versions less than 9.
+var ielt9 = ie && !document.addEventListener;
+
+// @property edge: Boolean; `true` for the Edge web browser.
+var edge = 'msLaunchUri' in navigator && !('documentMode' in document);
+
+// @property webkit: Boolean;
+// `true` for webkit-based browsers like Chrome and Safari (including mobile versions).
+var webkit = userAgentContains('webkit');
+
+// @property android: Boolean
+// `true` for any browser running on an Android platform.
+var android = userAgentContains('android');
+
+// @property android23: Boolean; `true` for browsers running on Android 2 or Android 3.
+var android23 = userAgentContains('android 2') || userAgentContains('android 3');
+
+// @property opera: Boolean; `true` for the Opera browser
+var opera = !!window.opera;
+
+// @property chrome: Boolean; `true` for the Chrome browser.
+var chrome = userAgentContains('chrome');
+
+// @property gecko: Boolean; `true` for gecko-based browsers like Firefox.
+var gecko = userAgentContains('gecko') && !webkit && !opera && !ie;
+
+// @property safari: Boolean; `true` for the Safari browser.
+var safari = !chrome && userAgentContains('safari');
+
+var phantom = userAgentContains('phantom');
+
+// @property opera12: Boolean
+// `true` for the Opera browser supporting CSS transforms (version 12 or later).
+var opera12 = 'OTransition' in style$1;
+
+// @property win: Boolean; `true` when the browser is running in a Windows platform
+var win = navigator.platform.indexOf('Win') === 0;
+
+// @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
+var ie3d = ie && ('transition' in style$1);
+
+// @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
+var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
+
+// @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
+var gecko3d = 'MozPerspective' in style$1;
+
+// @property any3d: Boolean
+// `true` for all browsers supporting CSS transforms.
+var any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom;
+
+// @property mobile: Boolean; `true` for all browsers running in a mobile device.
+var mobile = typeof orientation !== 'undefined' || userAgentContains('mobile');
+
+// @property mobileWebkit: Boolean; `true` for all webkit-based browsers in a mobile device.
+var mobileWebkit = mobile && webkit;
+
+// @property mobileWebkit3d: Boolean
+// `true` for all webkit-based browsers in a mobile device supporting CSS transforms.
+var mobileWebkit3d = mobile && webkit3d;
+
+// @property msPointer: Boolean
+// `true` for browsers implementing the Microsoft touch events model (notably IE10).
+var msPointer = !window.PointerEvent && window.MSPointerEvent;
+
+// @property pointer: Boolean
+// `true` for all browsers supporting [pointer events](https://msdn.microsoft.com/en-us/library/dn433244%28v=vs.85%29.aspx).
+var pointer = !!(window.PointerEvent || msPointer);
+
+// @property touch: Boolean
+// `true` for all browsers supporting [touch events](https://developer.mozilla.org/docs/Web/API/Touch_events).
+// This does not necessarily mean that the browser is running in a computer with
+// a touchscreen, it only means that the browser is capable of understanding
+// touch events.
+var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
+        (window.DocumentTouch && document instanceof window.DocumentTouch));
+
+// @property mobileOpera: Boolean; `true` for the Opera browser in a mobile device.
+var mobileOpera = mobile && opera;
+
+// @property mobileGecko: Boolean
+// `true` for gecko-based browsers running in a mobile device.
+var mobileGecko = mobile && gecko;
+
+// @property retina: Boolean
+// `true` for browsers on a high-resolution "retina" screen.
+var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
+
+
+// @property canvas: Boolean
+// `true` when the browser supports [`<canvas>`](https://developer.mozilla.org/docs/Web/API/Canvas_API).
+var canvas = (function () {
+    return !!document.createElement('canvas').getContext;
+}());
+
+// @property svg: Boolean
+// `true` when the browser supports [SVG](https://developer.mozilla.org/docs/Web/SVG).
+// export var svg = !!(document.createElementNS && svgCreate('svg').createSVGRect);
+var svg = true;
+
+// @property vml: Boolean
+// `true` if the browser supports [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language).
+var vml = !svg && (function () {
+    try {
+        var div = document.createElement('div');
+        div.innerHTML = '<v:shape adj="1"/>';
+
+        var shape = div.firstChild;
+        shape.style.behavior = 'url(#default#VML)';
+
+        return shape && (typeof shape.adj === 'object');
+
+    } catch (e) {
+        return false;
+    }
+}());
+
+
+function userAgentContains(str) {
+    return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
+}
+
+
+var Browser = (Object.freeze || Object)({
+	ie: ie,
+	ielt9: ielt9,
+	edge: edge,
+	webkit: webkit,
+	android: android,
+	android23: android23,
+	opera: opera,
+	chrome: chrome,
+	gecko: gecko,
+	safari: safari,
+	phantom: phantom,
+	opera12: opera12,
+	win: win,
+	ie3d: ie3d,
+	webkit3d: webkit3d,
+	gecko3d: gecko3d,
+	any3d: any3d,
+	mobile: mobile,
+	mobileWebkit: mobileWebkit,
+	mobileWebkit3d: mobileWebkit3d,
+	msPointer: msPointer,
+	pointer: pointer,
+	touch: touch,
+	mobileOpera: mobileOpera,
+	mobileGecko: mobileGecko,
+	retina: retina,
+	canvas: canvas,
+	svg: svg,
+	vml: vml
+});
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -580,181 +1017,6 @@ function toPoint(x, y, round) {
 	}
 	return new Point(x, y, round);
 }
-
-/*
- * @namespace Browser
- * @aka L.Browser
- *
- * A namespace with static properties for browser/feature detection used by Leaflet internally.
- *
- * @example
- *
- * ```js
- * if (L.Browser.ielt9) {
- *   alert('Upgrade your browser, dude!');
- * }
- * ```
- */
-
-var style$1 = document.documentElement.style;
-
-// @property ie: Boolean; `true` for all Internet Explorer versions (not Edge).
-var ie = 'ActiveXObject' in window;
-
-// @property ielt9: Boolean; `true` for Internet Explorer versions less than 9.
-var ielt9 = ie && !document.addEventListener;
-
-// @property edge: Boolean; `true` for the Edge web browser.
-var edge = 'msLaunchUri' in navigator && !('documentMode' in document);
-
-// @property webkit: Boolean;
-// `true` for webkit-based browsers like Chrome and Safari (including mobile versions).
-var webkit = userAgentContains('webkit');
-
-// @property android: Boolean
-// `true` for any browser running on an Android platform.
-var android = userAgentContains('android');
-
-// @property android23: Boolean; `true` for browsers running on Android 2 or Android 3.
-var android23 = userAgentContains('android 2') || userAgentContains('android 3');
-
-// @property opera: Boolean; `true` for the Opera browser
-var opera = !!window.opera;
-
-// @property chrome: Boolean; `true` for the Chrome browser.
-var chrome = userAgentContains('chrome');
-
-// @property gecko: Boolean; `true` for gecko-based browsers like Firefox.
-var gecko = userAgentContains('gecko') && !webkit && !opera && !ie;
-
-// @property safari: Boolean; `true` for the Safari browser.
-var safari = !chrome && userAgentContains('safari');
-
-var phantom = userAgentContains('phantom');
-
-// @property opera12: Boolean
-// `true` for the Opera browser supporting CSS transforms (version 12 or later).
-var opera12 = 'OTransition' in style$1;
-
-// @property win: Boolean; `true` when the browser is running in a Windows platform
-var win = navigator.platform.indexOf('Win') === 0;
-
-// @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
-var ie3d = ie && ('transition' in style$1);
-
-// @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
-var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
-
-// @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
-var gecko3d = 'MozPerspective' in style$1;
-
-// @property any3d: Boolean
-// `true` for all browsers supporting CSS transforms.
-var any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom;
-
-// @property mobile: Boolean; `true` for all browsers running in a mobile device.
-var mobile = typeof orientation !== 'undefined' || userAgentContains('mobile');
-
-// @property mobileWebkit: Boolean; `true` for all webkit-based browsers in a mobile device.
-var mobileWebkit = mobile && webkit;
-
-// @property mobileWebkit3d: Boolean
-// `true` for all webkit-based browsers in a mobile device supporting CSS transforms.
-var mobileWebkit3d = mobile && webkit3d;
-
-// @property msPointer: Boolean
-// `true` for browsers implementing the Microsoft touch events model (notably IE10).
-var msPointer = !window.PointerEvent && window.MSPointerEvent;
-
-// @property pointer: Boolean
-// `true` for all browsers supporting [pointer events](https://msdn.microsoft.com/en-us/library/dn433244%28v=vs.85%29.aspx).
-var pointer = !!(window.PointerEvent || msPointer);
-
-// @property touch: Boolean
-// `true` for all browsers supporting [touch events](https://developer.mozilla.org/docs/Web/API/Touch_events).
-// This does not necessarily mean that the browser is running in a computer with
-// a touchscreen, it only means that the browser is capable of understanding
-// touch events.
-var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
-        (window.DocumentTouch && document instanceof window.DocumentTouch));
-
-// @property mobileOpera: Boolean; `true` for the Opera browser in a mobile device.
-var mobileOpera = mobile && opera;
-
-// @property mobileGecko: Boolean
-// `true` for gecko-based browsers running in a mobile device.
-var mobileGecko = mobile && gecko;
-
-// @property retina: Boolean
-// `true` for browsers on a high-resolution "retina" screen.
-var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
-
-
-// @property canvas: Boolean
-// `true` when the browser supports [`<canvas>`](https://developer.mozilla.org/docs/Web/API/Canvas_API).
-var canvas = (function () {
-    return !!document.createElement('canvas').getContext;
-}());
-
-// @property svg: Boolean
-// `true` when the browser supports [SVG](https://developer.mozilla.org/docs/Web/SVG).
-// export var svg = !!(document.createElementNS && svgCreate('svg').createSVGRect);
-var svg = true;
-
-// @property vml: Boolean
-// `true` if the browser supports [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language).
-var vml = !svg && (function () {
-    try {
-        var div = document.createElement('div');
-        div.innerHTML = '<v:shape adj="1"/>';
-
-        var shape = div.firstChild;
-        shape.style.behavior = 'url(#default#VML)';
-
-        return shape && (typeof shape.adj === 'object');
-
-    } catch (e) {
-        return false;
-    }
-}());
-
-
-function userAgentContains(str) {
-    return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
-}
-
-
-var Browser = (Object.freeze || Object)({
-	ie: ie,
-	ielt9: ielt9,
-	edge: edge,
-	webkit: webkit,
-	android: android,
-	android23: android23,
-	opera: opera,
-	chrome: chrome,
-	gecko: gecko,
-	safari: safari,
-	phantom: phantom,
-	opera12: opera12,
-	win: win,
-	ie3d: ie3d,
-	webkit3d: webkit3d,
-	gecko3d: gecko3d,
-	any3d: any3d,
-	mobile: mobile,
-	mobileWebkit: mobileWebkit,
-	mobileWebkit3d: mobileWebkit3d,
-	msPointer: msPointer,
-	pointer: pointer,
-	touch: touch,
-	mobileOpera: mobileOpera,
-	mobileGecko: mobileGecko,
-	retina: retina,
-	canvas: canvas,
-	svg: svg,
-	vml: vml
-});
 
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
@@ -1592,369 +1854,6 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
-var Control = Class.extend({
-    // @section
-    // @aka Control options
-    options: {
-        // @option position: String = 'topright'
-        // The position of the control (one of the map corners). Possible values are `'topleft'`,
-        // `'topright'`, `'bottomleft'` or `'bottomright'`
-        position: 'topright'
-    },
-
-    initialize: function (options) {
-        setOptions(this, options);
-    },
-
-    /* @section
-     * Classes extending L.Control will inherit the following methods:
-     *
-     * @method getPosition: string
-     * Returns the position of the control.
-     */
-    getPosition: function () {
-        return this.options.position;
-    },
-
-    // @method setPosition(position: string): this
-    // Sets the position of the control.
-    setPosition: function (position) {
-        var map = this._map;
-
-        if (map) {
-            map.removeControl(this);
-        }
-
-        this.options.position = position;
-
-        if (map) {
-            map.addControl(this);
-        }
-
-        return this;
-    },
-
-    // @method getContainer: HTMLElement
-    // Returns the HTMLElement that contains the control.
-    getContainer: function () {
-        return this._container;
-    },
-
-    // @method addTo(map: Map): this
-    // Adds the control to the given map.
-    addTo: function (map) {
-        this.remove();
-        this._map = map;
-
-        var container = this._container = this.onAdd(map),
-            pos = this.getPosition(),
-            corner = map._controlCorners[pos];
-
-        addClass(container, 'leaflet-control');
-
-        if (pos.indexOf('bottom') !== -1) {
-            corner.insertBefore(container, corner.firstChild);
-        } else {
-            corner.appendChild(container);
-        }
-
-        return this;
-    },
-
-    // @method remove: this
-    // Removes the control from the map it is currently active on.
-    remove: function () {
-        if (!this._map) {
-            return this;
-        }
-
-        remove(this._container);
-
-        if (this.onRemove) {
-            this.onRemove(this._map);
-        }
-
-        this._map = null;
-
-        return this;
-    },
-
-    _refocusOnMap: function (e) {
-        // if map exists and event is not a keyboard event
-        if (this._map && e && e.screenX > 0 && e.screenY > 0) {
-            this._map.getContainer().focus();
-        }
-    }
-});
-
-var control = function (options) {
-    return new Control(options);
-};
-
-var Evented = Class.extend({
-
-	/* @method on(type: String, fn: Function, context?: Object): this
-	 * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
-	 *
-	 * @alternative
-	 * @method on(eventMap: Object): this
-	 * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
-	 */
-	on: function (types, fn, context) {
-
-		// types can be a map of types/handlers
-		if (typeof types === 'object') {
-			for (var type in types) {
-				// we don't process space-separated events here for performance;
-				// it's a hot path since Layer uses the on(obj) syntax
-				this._on(type, types[type], fn);
-			}
-
-		} else {
-			// types can be a string of space-separated words
-			types = splitWords(types);
-
-			for (var i = 0, len = types.length; i < len; i++) {
-				this._on(types[i], fn, context);
-			}
-		}
-
-		return this;
-	},
-
-	/* @method off(type: String, fn?: Function, context?: Object): this
-	 * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
-	 *
-	 * @alternative
-	 * @method off(eventMap: Object): this
-	 * Removes a set of type/listener pairs.
-	 *
-	 * @alternative
-	 * @method off: this
-	 * Removes all listeners to all events on the object.
-	 */
-	off: function (types, fn, context) {
-
-		if (!types) {
-			// clear all listeners if called without arguments
-			delete this._events;
-
-		} else if (typeof types === 'object') {
-			for (var type in types) {
-				this._off(type, types[type], fn);
-			}
-
-		} else {
-			types = splitWords(types);
-
-			for (var i = 0, len = types.length; i < len; i++) {
-				this._off(types[i], fn, context);
-			}
-		}
-
-		return this;
-	},
-
-	// attach listener (without syntactic sugar now)
-	_on: function (type, fn, context) {
-		this._events = this._events || {};
-
-		/* get/init listeners for type */
-		var typeListeners = this._events[type];
-		if (!typeListeners) {
-			typeListeners = [];
-			this._events[type] = typeListeners;
-		}
-
-		if (context === this) {
-			// Less memory footprint.
-			context = undefined;
-		}
-		var newListener = {fn: fn, ctx: context},
-		    listeners = typeListeners;
-
-		// check if fn already there
-		for (var i = 0, len = listeners.length; i < len; i++) {
-			if (listeners[i].fn === fn && listeners[i].ctx === context) {
-				return;
-			}
-		}
-
-		listeners.push(newListener);
-	},
-
-	_off: function (type, fn, context) {
-		var listeners,
-		    i,
-		    len;
-
-		if (!this._events) { return; }
-
-		listeners = this._events[type];
-
-		if (!listeners) {
-			return;
-		}
-
-		if (!fn) {
-			// Set all removed listeners to noop so they are not called if remove happens in fire
-			for (i = 0, len = listeners.length; i < len; i++) {
-				listeners[i].fn = falseFn;
-			}
-			// clear all listeners for a type if function isn't specified
-			delete this._events[type];
-			return;
-		}
-
-		if (context === this) {
-			context = undefined;
-		}
-
-		if (listeners) {
-
-			// find fn and remove it
-			for (i = 0, len = listeners.length; i < len; i++) {
-				var l = listeners[i];
-				if (l.ctx !== context) { continue; }
-				if (l.fn === fn) {
-
-					// set the removed listener to noop so that's not called if remove happens in fire
-					l.fn = falseFn;
-
-					if (this._firingCount) {
-						/* copy array in case events are being fired */
-						this._events[type] = listeners = listeners.slice();
-					}
-					listeners.splice(i, 1);
-
-					return;
-				}
-			}
-		}
-	},
-
-	// @method fire(type: String, data?: Object, propagate?: Boolean): this
-	// Fires an event of the specified type. You can optionally provide an data
-	// object — the first argument of the listener function will contain its
-	// properties. The event can optionally be propagated to event parents.
-	fire: function (type, data, propagate) {
-		if (!this.listens(type, propagate)) { return this; }
-
-		var event = extend({}, data, {type: type, target: this});
-
-		if (this._events) {
-			var listeners = this._events[type];
-
-			if (listeners) {
-				this._firingCount = (this._firingCount + 1) || 1;
-				for (var i = 0, len = listeners.length; i < len; i++) {
-					var l = listeners[i];
-					l.fn.call(l.ctx || this, event);
-				}
-
-				this._firingCount--;
-			}
-		}
-
-		if (propagate) {
-			// propagate the event to parents (set with addEventParent)
-			this._propagateEvent(event);
-		}
-
-		return this;
-	},
-
-	// @method listens(type: String): Boolean
-	// Returns `true` if a particular event type has any listeners attached to it.
-	listens: function (type, propagate) {
-		var listeners = this._events && this._events[type];
-		if (listeners && listeners.length) { return true; }
-
-		if (propagate) {
-			// also check parents for listeners if event propagates
-			for (var id in this._eventParents) {
-				if (this._eventParents[id].listens(type, propagate)) { return true; }
-			}
-		}
-		return false;
-	},
-
-	// @method once(…): this
-	// Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
-	once: function (types, fn, context) {
-
-		if (typeof types === 'object') {
-			for (var type in types) {
-				this.once(type, types[type], fn);
-			}
-			return this;
-		}
-
-		var handler = bind(function () {
-			this
-			    .off(types, fn, context)
-			    .off(types, handler, context);
-		}, this);
-
-		// add a listener that's executed once and removed after that
-		return this
-		    .on(types, fn, context)
-		    .on(types, handler, context);
-	},
-
-	// @method addEventParent(obj: Evented): this
-	// Adds an event parent - an `Evented` that will receive propagated events
-	addEventParent: function (obj) {
-		this._eventParents = this._eventParents || {};
-		this._eventParents[stamp(obj)] = obj;
-		return this;
-	},
-
-	// @method removeEventParent(obj: Evented): this
-	// Removes an event parent, so it will stop receiving propagated events
-	removeEventParent: function (obj) {
-		if (this._eventParents) {
-			delete this._eventParents[stamp(obj)];
-		}
-		return this;
-	},
-
-	_propagateEvent: function (e) {
-		for (var id in this._eventParents) {
-			this._eventParents[id].fire(e.type, extend({layer: e.target}, e), true);
-		}
-	}
-});
-
-var proto = Evented.prototype;
-
-// aliases; we should ditch those eventually
-
-// @method addEventListener(…): this
-// Alias to [`on(…)`](#evented-on)
-proto.addEventListener = proto.on;
-
-// @method removeEventListener(…): this
-// Alias to [`off(…)`](#evented-off)
-
-// @method clearAllEventListeners(…): this
-// Alias to [`off()`](#evented-off)
-proto.removeEventListener = proto.clearAllEventListeners = proto.off;
-
-// @method addOneTimeEventListener(…): this
-// Alias to [`once(…)`](#evented-once)
-proto.addOneTimeEventListener = proto.once;
-
-// @method fireEvent(…): this
-// Alias to [`fire(…)`](#evented-fire)
-proto.fireEvent = proto.fire;
-
-// @method hasEventListeners(…): Boolean
-// Alias to [`listens(…)`](#evented-listens)
-proto.hasEventListeners = proto.listens;
-
-var Mixin = {Events: Evented.prototype};
-
 var ePub = window.ePub;
 
 /*
@@ -1996,16 +1895,28 @@ var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    var book = ePub("https://s3.amazonaws.com/moby-dick/OPS/package.opf");
-    var rendition = book.renderTo(self._container, {
+    this.book = ePub(options.href);
+    this.rendition = this.book.renderTo(self._container, {
       width: "100%",
       height: "100%",
       ignoreClass: 'annotator-hl'
     });
-    rendition.display(1);
+    this.display(1);
 
-    console.log("AHOY", book);
+    console.log("AHOY", this.book);
 
+  },
+
+  next: function() {
+    this.rendition.next();
+  },
+
+  prev: function() {
+    this.rendition.prev();
+  },
+
+  display: function(index) {
+    this.rendition.display(index);
   },
 
   _initContainer: function (id) {
@@ -2173,6 +2084,249 @@ var Reader = Evented.extend({
 function createReader(id, options) {
   return new Reader(id, options);
 }
+
+var Control = Class.extend({
+    // @section
+    // @aka Control options
+    options: {
+        // @option region: String = 'topright'
+        // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+        // `'topright'`, `'bottomleft'` or `'bottomright'`
+        region: 'header'
+    },
+
+    initialize: function (options) {
+        setOptions(this, options);
+    },
+
+    /* @section
+     * Classes extending L.Control will inherit the following methods:
+     *
+     * @method getRegion: string
+     * Returns the region of the control.
+     */
+    getRegion: function () {
+        return this.options.region;
+    },
+
+    // @method setRegion(region: string): this
+    // Sets the region of the control.
+    setRegion: function (region) {
+        var reader = this._reader;
+
+        if (reader) {
+            reader.removeControl(this);
+        }
+
+        this.options.region = region;
+
+        if (reader) {
+            reader.addControl(this);
+        }
+
+        return this;
+    },
+
+    // @method getContainer: HTMLElement
+    // Returns the HTMLElement that contains the control.
+    getContainer: function () {
+        return this._container;
+    },
+
+    // @method addTo(reader: Map): this
+    // Adds the control to the given reader.
+    addTo: function (reader) {
+        this.remove();
+        this._reader = reader;
+
+        var container = this._container = this.onAdd(reader),
+            region = this.getRegion(),
+            area = reader.getControlRegion(region);
+
+        addClass(container, 'cozy-control');
+
+        if (region.indexOf('bottom') !== -1) {
+            area.insertBefore(container, area.firstChild);
+        } else {
+            area.appendChild(container);
+        }
+
+        return this;
+    },
+
+    // @method remove: this
+    // Removes the control from the reader it is currently active on.
+    remove: function () {
+        if (!this._reader) {
+            return this;
+        }
+
+        remove(this._container);
+
+        if (this.onRemove) {
+            this.onRemove(this._reader);
+        }
+
+        this._reader = null;
+
+        return this;
+    },
+
+    _refocusOnMap: function (e) {
+        // if reader exists and event is not a keyboard event
+        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
+            this._reader.getContainer().focus();
+        }
+    }
+});
+
+var control = function (options) {
+    return new Control(options);
+};
+
+/* @section Extension methods
+ * @uninheritable
+ *
+ * Every control should extend from `L.Control` and (re-)implement the following methods.
+ *
+ * @method onAdd(reader: Map): HTMLElement
+ * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
+ *
+ * @method onRemove(reader: Map)
+ * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
+ */
+
+/* @namespace Map
+ * @section Methods for Layers and Controls
+ */
+Reader.include({
+    // @method addControl(control: Control): this
+    // Adds the given control to the reader
+    addControl: function (control) {
+        control.addTo(this);
+        return this;
+    },
+
+    // @method removeControl(control: Control): this
+    // Removes the given control from the reader
+    removeControl: function (control) {
+        control.remove();
+        return this;
+    },
+
+    getControlContainer: function() {
+        var l = 'cozy-';
+        if ( ! this._controlContainer ) {
+            this._controlContainer =
+                create$1('div', l + 'control-container', this._container);
+        }
+        return this._controlContainer;
+    },
+
+    getControlRegion: function (region) {
+        var regions = this._controlRegions = {},
+            l = 'cozy-',
+            container = this.getControlContainer();
+
+        function createRegion(region) {
+            if ( regions[region] ) { return ; }
+            var className = [];
+            var tmp = region.split(".");
+            for(var i in tmp) {
+                className.push(l + tmp[i]);
+            }
+            className = className.join(' ');
+
+            regions[region] = create$1('div', className, container);
+            return regions[region];
+        }
+
+        return createRegion(region);
+    },
+
+    _clearControlRegion: function () {
+        for (var i in this._controlRegions) {
+            remove(this._controlRegions[i]);
+        }
+        remove(this._controlContainer);
+        delete this._controlRegions;
+        delete this._controlContainer;
+    }
+});
+
+var PageControl = Control.extend({
+  onAdd: function(reader) {
+    var className = 'cozy-control-' + this.options.direction,
+        container = create$1('div', className + ' cozy-control'),
+        options = this.options;
+
+    this._button  = this._createButton(options.html || options.label, options.label,
+            className, container, this._action);
+
+    return container;
+  },
+
+  _createButton: function (html, title, className, container, fn) {
+    var link = create$1('a', className, container);
+    link.innerHTML = html;
+    link.href = '#';
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+
+    disableClickPropagation(link);
+    on(link, 'click', stop); console.log("AHOY CREATE BUTTON", link, this);
+    on(link, 'click', fn, this); console.log("AHOY CREATE BUTTON", link, this);
+    // DomEvent.on(link, 'click', this._refocusOnMap, this);
+
+    return link;
+  },
+
+  EOT: true
+});
+
+var PagePrevious = PageControl.extend({
+  options: {
+    region: 'binding.previous',
+    direction: 'previous',
+    label: 'Prevous Page'
+  },
+
+  _action: function(e) {
+    this._reader.prev();
+  }
+});
+
+var PageNext = PageControl.extend({
+  options: {
+    region: 'binding.next',
+    direction: 'next',
+    label: 'Next Page'
+  },
+
+  _action: function(e) {
+    this._reader.next();
+  }
+});
+
+var pageNext = function(options) {
+  return new PageNext(options);
+};
+
+var pagePrevious = function(options) {
+  return new PagePrevious(options);
+};
+
+Control.PageNext = PageNext;
+Control.PagePrevious = PagePrevious;
+control.pagePrevious = pagePrevious;
+control.pageNext = pageNext;
+
+var Mixin = {Events: Evented.prototype};
 
 var oldCozy = window.cozy;
 function noConflict() {

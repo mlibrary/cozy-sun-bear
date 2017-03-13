@@ -45,16 +45,28 @@ export var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    var book = epubjs.ePub("https://s3.amazonaws.com/moby-dick/OPS/package.opf");
-    var rendition = book.renderTo(self._container, {
+    this.book = epubjs.ePub(options.href);
+    this.rendition = this.book.renderTo(self._container, {
       width: "100%",
       height: "100%",
       ignoreClass: 'annotator-hl'
     });
-    rendition.display(1);
+    this.display(1);
 
-    console.log("AHOY", book);
+    console.log("AHOY", this.book);
 
+  },
+
+  next: function() {
+    this.rendition.next();
+  },
+
+  prev: function() {
+    this.rendition.prev();
+  },
+
+  display: function(index) {
+    this.rendition.display(index);
   },
 
   _initContainer: function (id) {

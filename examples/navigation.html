@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Simple Example</title>
+    <title>Navigation Example</title>
     <script type="text/javascript" src="../lib/epub.js"></script>
     <script src="../dist/cozy-src.js"></script>
 
@@ -23,6 +23,8 @@
 
     <script type="text/javascript">
         var reader = cozy.reader('reader', { href: "https://s3.amazonaws.com/moby-dick/OPS/package.opf" });
+        cozy.control.pagePrevious().addTo(reader);
+        cozy.control.pageNext().addTo(reader);
     </script>
 
 </body>
