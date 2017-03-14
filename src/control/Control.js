@@ -151,12 +151,14 @@ Reader.include({
     },
 
     getControlRegion: function (region) {
-        var regions = this._controlRegions = {},
-            l = 'cozy-',
+        var l = 'cozy-',
             container = this.getControlContainer();
 
+        if ( ! this._controlRegions ) { this._controlRegions = {}; }
+        var regions = this._controlRegions;
+
         function createRegion(region) {
-            if ( regions[region] ) { return ; }
+            if ( regions[region] ) { return regions[region]; }
             var className = [];
             var tmp = region.split(".");
             for(var i in tmp) {
