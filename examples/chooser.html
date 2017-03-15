@@ -140,6 +140,7 @@
             book_href = location.search.substr(1);
             console.log("AHOY : READING", book_href);
             var reader = cozy.reader('reader', { href: book_href });
+            cozy.control.contents({ region: 'header.toolbar.top' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'main.toolbar.left' }).addTo(reader);
             cozy.control.pageNext({ region: 'main.toolbar.right' }).addTo(reader);
             reader.start();

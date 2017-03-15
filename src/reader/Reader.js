@@ -1,8 +1,10 @@
 import * as Util from '../core/Util';
-import {Evented} from '../core/Events';
+// import {Evented} from '../core/Events';
+import {Class} from '../core/Class';
 import * as Browser from '../core/Browser';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
+import {bus} from '../core/Bus';
 
 import * as epubjs from '../epubjs'
 
@@ -25,7 +27,7 @@ import * as epubjs from '../epubjs'
  *
  */
 
-export var Reader = Evented.extend({
+export var Reader = Class.extend({
   options: {
     regions: [
       'header',
@@ -68,7 +70,15 @@ export var Reader = Evented.extend({
     var x = panes['book-cover']; var xx = panes['book'];
     console.log("AHOY START", x.clientWidth, x.clientHeight, "/", xx.clientWidth, xx.clientHeight, "/", xx.style.width, xx.style.height)
 
+    bus().on('update-contents', function() { console.log("ON READER", arguments)});
+
     this.book = epubjs.ePub(this.options.href);
+    this.book.loaded.navigation.then(function(toc) {
+      self._contents = toc;
+      console.log("AHOY EMITTING", toc);
+      bus().fire('update-contents', toc);
+    })
+
     var rect = self._panes['book'].getBoundingClientRect();
     console.log("AHOY", rect, rect.width, rect.height, "/", self._panes['book'].clientWidth, self._panes['book'].clientHeight);
     this.rendition = this.book.renderTo(self._panes['book'], {
