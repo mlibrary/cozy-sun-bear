@@ -15,6 +15,10 @@ export var Contents = Control.extend({
     var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
     container.appendChild(control);
     this._control = control.getElementsByTagName('select')[0];
+    this._control.onchange = function() {
+      var target = this.value;
+      self._reader.gotoPage(target);
+    }
 
     bus().on('update-contents', function(data) {
       data.toc.forEach(function(chapter) {

@@ -101,6 +101,10 @@ export var Reader = Class.extend({
     this.rendition.display(index);
   },
 
+  gotoPage: function(target) {
+    this.rendition.display(target);
+  },
+
   _initContainer: function (id) {
     var container = this._container = DomUtil.get(id);
 

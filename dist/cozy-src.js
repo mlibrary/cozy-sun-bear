@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1489594944221) {
+if (false && (new Date()).getTime() > 1489595780000) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+roger-experiment.3ddf386, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+roger-experiment.da5221e, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1489594944221) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+roger-experiment.3ddf386";
+var version = "1.0.0+roger-experiment.da5221e";
 
 /*
  * @namespace Util
@@ -1866,6 +1866,26 @@ var bus = function() {
 
 var ePub = window.ePub;
 
+// import {Evented} from '../core/Events';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
+
 var Reader = Class.extend({
   options: {
     regions: [
@@ -1938,6 +1958,10 @@ var Reader = Class.extend({
 
   display: function(index) {
     this.rendition.display(index);
+  },
+
+  gotoPage: function(target) {
+    this.rendition.display(target);
   },
 
   _initContainer: function (id) {
@@ -2400,6 +2424,10 @@ var Contents = Control.extend({
     var control$$1 = new DOMParser().parseFromString(template, "text/html").body.firstChild;
     container.appendChild(control$$1);
     this._control = control$$1.getElementsByTagName('select')[0];
+    this._control.onchange = function() {
+      var target = this.value;
+      self._reader.gotoPage(target);
+    };
 
     bus().on('update-contents', function(data) {
       data.toc.forEach(function(chapter) {
