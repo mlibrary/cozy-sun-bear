@@ -28,8 +28,8 @@ var PageControl = Control.extend({
     link.setAttribute('aria-label', title);
 
     DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop); console.log("AHOY CREATE BUTTON", link, this);
-    DomEvent.on(link, 'click', fn, this); console.log("AHOY CREATE BUTTON", link, this);
+    DomEvent.on(link, 'click', DomEvent.stop);
+    DomEvent.on(link, 'click', fn, this);
     // DomEvent.on(link, 'click', this._refocusOnMap, this);
 
     return link;

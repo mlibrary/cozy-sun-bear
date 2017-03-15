@@ -27,7 +27,15 @@ import * as epubjs from '../epubjs'
 
 export var Reader = Evented.extend({
   options: {
-
+    regions: [
+      'header',
+      'toolbar.top',
+      'toolbar.left',
+      'main',
+      'toolbar.right',
+      'toolbar.bottom',
+      'footer'
+    ]
   },
 
   initialize: function(id, options) {
@@ -45,16 +53,30 @@ export var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    this.book = epubjs.ePub(options.href);
-    this.rendition = this.book.renderTo(self._container, {
-      width: "100%",
-      height: "100%",
+    var width = this._panes['book'].clientWidth;
+    var height = this._panes['book'].clientHeight;
+
+  },
+
+  start: function() {
+    var self = this;
+    var panes = self._panes;
+
+    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
+    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
+
+    var x = panes['book-cover']; var xx = panes['book'];
+    console.log("AHOY START", x.clientWidth, x.clientHeight, "/", xx.clientWidth, xx.clientHeight, "/", xx.style.width, xx.style.height)
+
+    this.book = epubjs.ePub(this.options.href);
+    var rect = self._panes['book'].getBoundingClientRect();
+    console.log("AHOY", rect, rect.width, rect.height, "/", self._panes['book'].clientWidth, self._panes['book'].clientHeight);
+    this.rendition = this.book.renderTo(self._panes['book'], {
+      width: '100%', // rect.width * 0.95,
+      height: '100%', // rect.height * 0.90,
       ignoreClass: 'annotator-hl'
     });
     this.display(1);
-
-    console.log("AHOY", this.book);
-
   },
 
   next: function() {
@@ -100,7 +122,7 @@ export var Reader = Evented.extend({
       container.style.position = 'relative';
     }
 
-    // this._initPanes();
+    this._initPanes();
 
     // if (this._initControlPos) {
     //   this._initControlPos();
@@ -108,8 +130,22 @@ export var Reader = Evented.extend({
   },
 
   _initPanes: function () {
+    var self = this;
+
     var panes = this._panes = {};
 
+    var l = 'cozy-';
+    var container = this._container;
+
+    DomUtil.addClass(container, 'cozy-container');
+    panes['header'] = DomUtil.create('div', 'cozy-header', container);
+    panes['main'] = DomUtil.create('div', 'cozy-main', container);
+    panes['footer'] = DomUtil.create('div', 'cozy-footer', container);
+
+    panes['book-cover'] = DomUtil.create('div', 'cozy-book-cover', panes['main']);
+    panes['book'] = DomUtil.create('div', 'cozy-book', panes['book-cover']);
+    // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
+    // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
   },
 
   _checkIfLoaded: function () {

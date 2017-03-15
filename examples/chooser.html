@@ -5,6 +5,7 @@
     <script type="text/javascript" src="../lib/epub.js"></script>
     <script src="../dist/cozy-src.js"></script>
 
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <style type="text/css">
 
     * {
@@ -101,17 +102,49 @@
 </head>
 <body>
 
-    <h1>Navigation Example</h1>
+    <h1>Choose Your Own Poison</h1>
+    <p>
+        <form>
+            <select size="1" name="book"></select>
+            <button>Read</button>
+        </form>
+    </p>
 
     <div id="reader"></div>
 
     <script type="text/javascript">
-        // var reader = cozy.reader('reader', { href: "https://s3.amazonaws.com/moby-dick/OPS/package.opf" });
-        // var reader = cozy.reader('reader', { href: "http://localhost:8080/books/haruko-html-jpeg/" });
-        var reader = cozy.reader('reader', { href: "http://localhost:8080/books/epub3-samples/30/linear-algebra/" });
-        cozy.control.pagePrevious({ region: 'main.toolbar.left' }).addTo(reader);
-        cozy.control.pageNext({ region: 'main.toolbar.right' }).addTo(reader);
-        reader.start();
+
+        var $form = $("form");
+        var $select = $("select[name=book]");
+        var book_href;
+
+        $.getJSON("/books", function(data) {
+            for(var i in data) {
+                var $option = $("<option></option>").appendTo($select);
+                var tmp = data[i].split("/"); tmp.pop();
+                var label = tmp.pop();
+                $option.text(label).attr('value', data[i]);
+                if ( data[i] == book_href ) {
+                    $option.attr('selected', 'selected');
+                }
+            }
+        })
+
+        $form.on('submit', function(e) {
+            e.preventDefault();
+            var target = $select.val();
+            window.location.href = location.origin + location.pathname + "?" + target;
+        })
+
+        if ( location.search ) {
+            book_href = location.search.substr(1);
+            console.log("AHOY : READING", book_href);
+            var reader = cozy.reader('reader', { href: book_href });
+            cozy.control.pagePrevious({ region: 'main.toolbar.left' }).addTo(reader);
+            cozy.control.pageNext({ region: 'main.toolbar.right' }).addTo(reader);
+            reader.start();
+        }
+
     </script>
 
 </body>

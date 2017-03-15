@@ -150,27 +150,58 @@ Reader.include({
         return this._controlContainer;
     },
 
-    getControlRegion: function (region) {
-        var l = 'cozy-',
-            container = this.getControlContainer();
+    getControlRegion: function (target) {
 
-        if ( ! this._controlRegions ) { this._controlRegions = {}; }
-        var regions = this._controlRegions;
+        var tmp = target.split('.');
+        var region = tmp.shift();
+        var slot = tmp.pop();
 
-        function createRegion(region) {
-            if ( regions[region] ) { return regions[region]; }
-            var className = [];
-            var tmp = region.split(".");
-            for(var i in tmp) {
-                className.push(l + tmp[i]);
+        var container = this._panes[region];
+        if ( ! this._panes[target] ) {
+            var className = 'cozy-' + region + '--item cozy-slot-' + slot
+            if ( ! this._panes[region + '.' + slot] ) {
+                var div = DomUtil.create('div', className);
+                if ( slot == 'left' || slot == 'bottom' ) {
+                    var childElement = this._panes[region].firstChild;
+                    this._panes[region].insertBefore(div, childElement);
+                } else {
+                    this._panes[region].appendChild(div);
+                }
+                this._panes[region + '.' + slot] = div;
             }
-            className = className.join(' ');
-
-            regions[region] = DomUtil.create('div', className, container);
-            return regions[region];
+            className = this._classify(tmp);
+            this._panes[target] = DomUtil.create('div', className, this._panes[region + '.' + slot]);
         }
 
-        return createRegion(region);
+        return this._panes[target];
+
+
+        // var l = 'cozy-';
+
+        // function createRegion(spec) {
+        //     if ( regions[region] ) { return regions[region]; }
+        //     var className = [];
+        //     var tmp = region.split(".");
+        //     for(var i in tmp) {
+        //         className.push(l + tmp[i]);
+        //     }
+        //     className = className.join(' ');
+
+        //     regions[region] = DomUtil.create('div', className, container);
+        //     return regions[region];
+        // }
+
+        // return createRegion(region);
+    },
+
+    _classify: function(tmp) {
+        var l = 'cozy-';
+        var className = [];
+        for(var i in tmp) {
+            className.push(l + tmp[i]);
+        }
+        className = className.join(' ');
+        return className;
     },
 
     _clearControlRegion: function () {

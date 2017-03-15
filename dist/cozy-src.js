@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1489439702704) {
+if (false && (new Date()).getTime() > 1489520668147) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+roger-experiment.f8aa22b, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+roger-experiment.be614ae, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1489439702704) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+roger-experiment.f8aa22b";
+var version = "1.0.0+roger-experiment.be614ae";
 
 /*
  * @namespace Util
@@ -1858,7 +1858,15 @@ var ePub = window.ePub;
 
 var Reader = Evented.extend({
   options: {
-
+    regions: [
+      'header',
+      'toolbar.top',
+      'toolbar.left',
+      'main',
+      'toolbar.right',
+      'toolbar.bottom',
+      'footer'
+    ]
   },
 
   initialize: function(id, options) {
@@ -1876,16 +1884,30 @@ var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    this.book = ePub(options.href);
-    this.rendition = this.book.renderTo(self._container, {
-      width: "100%",
-      height: "100%",
+    var width = this._panes['book'].clientWidth;
+    var height = this._panes['book'].clientHeight;
+
+  },
+
+  start: function() {
+    var self = this;
+    var panes = self._panes;
+
+    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
+    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
+
+    var x = panes['book-cover']; var xx = panes['book'];
+    console.log("AHOY START", x.clientWidth, x.clientHeight, "/", xx.clientWidth, xx.clientHeight, "/", xx.style.width, xx.style.height);
+
+    this.book = ePub(this.options.href);
+    var rect = self._panes['book'].getBoundingClientRect();
+    console.log("AHOY", rect, rect.width, rect.height, "/", self._panes['book'].clientWidth, self._panes['book'].clientHeight);
+    this.rendition = this.book.renderTo(self._panes['book'], {
+      width: '100%', // rect.width * 0.95,
+      height: '100%', // rect.height * 0.90,
       ignoreClass: 'annotator-hl'
     });
     this.display(1);
-
-    console.log("AHOY", this.book);
-
   },
 
   next: function() {
@@ -1931,7 +1953,7 @@ var Reader = Evented.extend({
       container.style.position = 'relative';
     }
 
-    // this._initPanes();
+    this._initPanes();
 
     // if (this._initControlPos) {
     //   this._initControlPos();
@@ -1939,8 +1961,22 @@ var Reader = Evented.extend({
   },
 
   _initPanes: function () {
+    var self = this;
+
     var panes = this._panes = {};
 
+    var l = 'cozy-';
+    var container = this._container;
+
+    addClass(container, 'cozy-container');
+    panes['header'] = create$1('div', 'cozy-header', container);
+    panes['main'] = create$1('div', 'cozy-main', container);
+    panes['footer'] = create$1('div', 'cozy-footer', container);
+
+    panes['book-cover'] = create$1('div', 'cozy-book-cover', panes['main']);
+    panes['book'] = create$1('div', 'cozy-book', panes['book-cover']);
+    // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
+    // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
   },
 
   _checkIfLoaded: function () {
@@ -2065,15 +2101,6 @@ var Reader = Evented.extend({
 function createReader(id, options) {
   return new Reader(id, options);
 }
-
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
 
 var Control = Class.extend({
     // @section
@@ -2213,27 +2240,58 @@ Reader.include({
         return this._controlContainer;
     },
 
-    getControlRegion: function (region) {
-        var l = 'cozy-',
-            container = this.getControlContainer();
+    getControlRegion: function (target) {
 
-        if ( ! this._controlRegions ) { this._controlRegions = {}; }
-        var regions = this._controlRegions;
+        var tmp = target.split('.');
+        var region = tmp.shift();
+        var slot = tmp.pop();
 
-        function createRegion(region) {
-            if ( regions[region] ) { return regions[region]; }
-            var className = [];
-            var tmp = region.split(".");
-            for(var i in tmp) {
-                className.push(l + tmp[i]);
+        var container = this._panes[region];
+        if ( ! this._panes[target] ) {
+            var className = 'cozy-' + region + '--item cozy-slot-' + slot;
+            if ( ! this._panes[region + '.' + slot] ) {
+                var div = create$1('div', className);
+                if ( slot == 'left' || slot == 'bottom' ) {
+                    var childElement = this._panes[region].firstChild;
+                    this._panes[region].insertBefore(div, childElement);
+                } else {
+                    this._panes[region].appendChild(div);
+                }
+                this._panes[region + '.' + slot] = div;
             }
-            className = className.join(' ');
-
-            regions[region] = create$1('div', className, container);
-            return regions[region];
+            className = this._classify(tmp);
+            this._panes[target] = create$1('div', className, this._panes[region + '.' + slot]);
         }
 
-        return createRegion(region);
+        return this._panes[target];
+
+
+        // var l = 'cozy-';
+
+        // function createRegion(spec) {
+        //     if ( regions[region] ) { return regions[region]; }
+        //     var className = [];
+        //     var tmp = region.split(".");
+        //     for(var i in tmp) {
+        //         className.push(l + tmp[i]);
+        //     }
+        //     className = className.join(' ');
+
+        //     regions[region] = DomUtil.create('div', className, container);
+        //     return regions[region];
+        // }
+
+        // return createRegion(region);
+    },
+
+    _classify: function(tmp) {
+        var l = 'cozy-';
+        var className = [];
+        for(var i in tmp) {
+            className.push(l + tmp[i]);
+        }
+        className = className.join(' ');
+        return className;
     },
 
     _clearControlRegion: function () {
@@ -2271,8 +2329,8 @@ var PageControl = Control.extend({
     link.setAttribute('aria-label', title);
 
     disableClickPropagation(link);
-    on(link, 'click', stop); console.log("AHOY CREATE BUTTON", link, this);
-    on(link, 'click', fn, this); console.log("AHOY CREATE BUTTON", link, this);
+    on(link, 'click', stop);
+    on(link, 'click', fn, this);
     // DomEvent.on(link, 'click', this._refocusOnMap, this);
 
     return link;
