@@ -1,10 +1,9 @@
 import * as Util from '../core/Util';
-// import {Evented} from '../core/Events';
-import {Class} from '../core/Class';
+import {Evented} from '../core/Events';
+// import {Class} from '../core/Class';
 import * as Browser from '../core/Browser';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
-import {bus} from '../core/Bus';
 
 import * as epubjs from '../epubjs'
 
@@ -27,7 +26,7 @@ import * as epubjs from '../epubjs'
  *
  */
 
-export var Reader = Class.extend({
+export var Reader = Evented.extend({
   options: {
     regions: [
       'header',
@@ -70,22 +69,63 @@ export var Reader = Class.extend({
     var x = panes['book-cover']; var xx = panes['book'];
     console.log("AHOY START", x.clientWidth, x.clientHeight, "/", xx.clientWidth, xx.clientHeight, "/", xx.style.width, xx.style.height)
 
-    bus().on('update-contents', function() { console.log("ON READER", arguments)});
+    // self.on('update-contents', function() { console.log("ON READER", arguments)});
 
     this.book = epubjs.ePub(this.options.href);
     this.book.loaded.navigation.then(function(toc) {
       self._contents = toc;
-      console.log("AHOY EMITTING", toc);
-      bus().fire('update-contents', toc);
+      self.fire('update-contents', toc);
+      self.fire('update-title', self.book.package.metadata);
     })
 
     var rect = self._panes['book'].getBoundingClientRect();
-    console.log("AHOY", rect, rect.width, rect.height, "/", self._panes['book'].clientWidth, self._panes['book'].clientHeight);
     this.rendition = this.book.renderTo(self._panes['book'], {
       width: '100%', // rect.width * 0.95,
       height: '100%', // rect.height * 0.90,
       ignoreClass: 'annotator-hl'
     });
+
+    // this.rendition.on("started", function() {
+    //   this.manager.on("added", function(view) {
+    //     console.log("AHOY ADDED", view);
+    //     var bounds = this.bounds();
+    //     var view_bounds = view.position();
+    //     if ( bounds.right > view_bounds.left ) {
+    //       console.log("AHOY RENDERED SECTION", view); //, section.href, current ? current.label : '-');
+    //       // self.fire("update-section", current);
+    //     } else {
+    //       console.log("AHOY NOT VISIBLE", view);
+    //     }
+    //   })
+    // })
+
+    this.rendition.on("locationChanged", function(location) {
+      // var section = this.book.spine.get(location.start);
+      var view = this.manager.current();
+      var section = view.section;
+      var current = self.book.navigation.get(section.href);
+      console.log("AHOY LOCATION CHANGED", location.start, section.href, current ? current.label : '-');
+      self.fire("update-section", current);
+    })
+
+
+    this.rendition.on("displayed", function(section) {
+      console.log("AHOY DISPLAYED", section);
+      var current = self.book.navigation.get(section.href);
+      var bounds = this.manager.bounds();
+      var section_bounds = this.manager.views.find(section);
+      if ( section_bounds ) { section_bounds = section_bounds.position(); ; }
+      else { console.log("AHOY BOO", section, this.manager.views.all() ); window.s = section; return; }
+      if ( bounds.right > section_bounds.left ) {
+        console.log("AHOY RENDERED SECTION", section.href, current ? current.label : '-');
+        self.fire("update-section", current);
+      }
+    });
+
+    this.rendition.hooks.layout.register(function() {
+      console.log("AHOY HOOK SHOW", arguments);
+    })
+
     this.display(1);
   },
 
@@ -102,6 +142,7 @@ export var Reader = Class.extend({
   },
 
   gotoPage: function(target) {
+    console.log("GOTING TO", target);
     this.rendition.display(target);
   },
 

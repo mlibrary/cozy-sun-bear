@@ -81,6 +81,18 @@
         align-items: center;
     }
 
+    .cozy-footer--item {
+        min-height: 50px;
+    }
+
+    .cozy-publisher {
+        float: left;
+    }
+
+    .cozy-rights {
+        float: right;
+    }
+
     .cozy-control a {
         width: 100px;
         display: inline-block;
@@ -140,9 +152,11 @@
             book_href = location.search.substr(1);
             console.log("AHOY : READING", book_href);
             var reader = cozy.reader('reader', { href: book_href });
+            cozy.control.title({ region: 'header.toolbar.header' }).addTo(reader);
             cozy.control.contents({ region: 'header.toolbar.top' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'main.toolbar.left' }).addTo(reader);
             cozy.control.pageNext({ region: 'main.toolbar.right' }).addTo(reader);
+            cozy.control.publicationMetadata({ region: 'footer.toolbar.toolbar' }).addTo(reader);
             reader.start();
         }
 

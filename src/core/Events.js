@@ -37,7 +37,6 @@ export var Evented = Class.extend({
 	 */
 	on: function (types, fn, context) {
 
-		console.log("AHOY ON", types, fn, context);
 		// types can be a map of types/handlers
 		if (typeof types === 'object') {
 			for (var type in types) {
@@ -174,7 +173,6 @@ export var Evented = Class.extend({
 	// object — the first argument of the listener function will contain its
 	// properties. The event can optionally be propagated to event parents.
 	fire: function (type, data, propagate) {
-		console.log("AHOY", type, propagate, this.listens(type, propagate));
 		if (!this.listens(type, propagate)) { return this; }
 
 		var event = Util.extend({}, data, {type: type, target: this});

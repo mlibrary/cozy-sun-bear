@@ -70,7 +70,7 @@ function listen(port) {
 
   if(!logger) app.use(morgan('dev'))
 
-  server.listen(port); // , '127.0.0.1');
+  server.listen(port, '127.0.0.1');
 
   log('Starting up Server, serving '.yellow
     + __dirname.replace("tools", '').green

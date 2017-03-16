@@ -3,30 +3,26 @@ import {Reader} from '../reader/Reader';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 
-export var Contents = Control.extend({
+// Title + Chapter
+
+export var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
     var self = this;
     var className = 'cozy-control-' + this.options.direction,
         container = DomUtil.create('div', className + ' cozy-control'),
         options = this.options;
 
-    var template = '<label><span class="sr-only">Contents: </span><select size="1" name="contents"></select></label>';
-    var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-    container.appendChild(control);
-    this._control = control.getElementsByTagName('select')[0];
-    this._control.onchange = function() {
-      var target = this.value;
-      self._reader.gotoPage(target);
-    }
+    // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
+    // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
 
-    this._reader.on('update-contents', function(data) {
-      console.log("AHOY UPDATE CONTENTS", data);
-      data.toc.forEach(function(chapter) {
-        var option = DomUtil.create('option');
-        option.textContent = chapter.label;
-        option.setAttribute('value', chapter.href);
-        self._control.appendChild(option);
-      });
+    this._publisher = DomUtil.create('div', 'cozy-publisher', container);
+    this._rights = DomUtil.create('div', 'cozy-rights', container);
+
+    this._reader.on('update-title', function(data) {
+      if ( data ) {
+        self._publisher.textContent = data.publisher;
+        self._rights.textContent = data.rights;
+      }
     })
 
     return container;
@@ -55,6 +51,6 @@ export var Contents = Control.extend({
   EOT: true
 });
 
-export var contents = function(options) {
-  return new Contents(options);
+export var publicationMetadata = function(options) {
+  return new PublicationMetadata(options);
 }
