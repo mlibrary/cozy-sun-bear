@@ -1,7 +1,9 @@
+var path = require('path');
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: './build',
+    path: path.resolve(__dirname, 'build'),
+    publicPath: '/assets/',
     filename: 'cozy-sun-bear.js'
   },
   module: {

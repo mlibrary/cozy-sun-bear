@@ -38,15 +38,39 @@ function listen(port) {
 
   var app = express();
   var staticServer = serveStatic(path.resolve(__dirname, '../'), {'index': ['index.html', 'index.htm']})
+  var indexPath = path.resolve(__dirname, '../books/epub3-samples');
+  var indexPathInfo = '/books/epub3-samples';
 
   var server = http.createServer(app);
 
   app.use(allowCrossDomain);
+  app.get('/books', function(req, res) {
+    var books = [];
+    var queue = [ indexPath ];
+    while ( queue.length ) {
+      var thisPath = queue.shift();
+      var items = fs.readdirSync(thisPath);
+      for(var i in items) {
+        if ( items[i][0] == '.' ) { continue; }
+        var fullPath = path.resolve(thisPath, items[i]);
+        var stat = fs.statSync(fullPath);
+        if ( stat.isDirectory() ) {
+          if ( fs.existsSync(path.resolve(fullPath, "mimetype")) ) {
+            // actual book
+            books.push(fullPath.replace(indexPath, indexPathInfo) + "/");
+          } else {
+            queue.push(fullPath);
+          }
+        }
+      }
+    }
+    res.send(books);
+  })
   app.use(staticServer);
 
   if(!logger) app.use(morgan('dev'))
 
-  server.listen(port);
+  server.listen(port, '127.0.0.1');
 
   log('Starting up Server, serving '.yellow
     + __dirname.replace("tools", '').green

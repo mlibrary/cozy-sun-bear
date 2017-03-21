@@ -2,9 +2,11 @@
   "name": "cozy-sun-bear",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/leaflet-src.js",
   "scripts": {
-    "build": "webpack",
+    "build": "npm run rollup",
+    "rollup": "rollup -c lib/rollup-config.js",
+    "watch": "rollup -w -c lib/rollup-watch-config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,16 +20,26 @@
     "connect": "^3.6.0",
     "express": "^4.15.2",
     "fs": "0.0.1-security",
+    "git-rev-sync": "^1.8.0",
     "http": "0.0.0",
+    "jquery": "^3.1.1",
     "morgan": "^1.8.1",
     "optimist": "^0.6.1",
     "pat": "0.0.1",
     "portfinder": "^1.0.13",
+    "rollup": "^0.41.5",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-git-version": "^0.2.1",
+    "rollup-plugin-json": "^2.1.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-watch": "^3.2.2",
     "serve-static": "^1.12.1",
+    "source-map": "^0.5.6",
     "webpack": "^2.2.1"
   },
   "dependencies": {
     "epubjs": "git://github.com/futurepress/epub.js.git#v0.3",
-    "jquery": "^3.1.1"
-  }
+    "event-emitter": "^0.3.4"
+  },
+  "style": "dist/leaflet.css"
 }
