@@ -5,8 +5,6 @@ import * as Browser from '../core/Browser';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
 
-import {engines} from '../renderer';
-
 /*
  * @class Reader
  * @aka cozy.Map
@@ -54,6 +52,7 @@ export var Reader = Evented.extend({
 
     this._initEvents();
 
+    console.log("AHOY ?");
     this.callInitHooks();
 
     this._mode = this.options.mode;
@@ -68,13 +67,7 @@ export var Reader = Evented.extend({
 
     var x = panes['book-cover']; var xx = panes['book'];
 
-    console.log("AHOY ENGINES", this, engines[this.options.engine]);
-    this.renderer = engines[this.options.engine](this, {
-      flow: this.options.flow, 
-      href: this.options.href,
-      container: this._panes['book']
-    });
-    this.renderer.open();
+    this.open();
 
     this.draw(1);
   },

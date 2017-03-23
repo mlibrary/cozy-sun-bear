@@ -1,22 +1,16 @@
 import * as Util from '../core/Util';
-import {Class} from '../core/Class';
+import {Reader} from './Reader';
 import * as epubjs from '../epubjs';
 
-export var EpubJS = Class.extend({
-  options: {
-      flow: 'auto',
-      href: null,
-      reader: null,
-      container: null
-  },
+Reader.EpubJS = Reader.extend({
 
-  initialize: function (reader, options) {
-      Util.setOptions(this, options);
-      this.settings = { flow: this.options.flow };
-      if ( this.options.flow == 'auto' ) {
-        this.settings.height = '100%';
-      }
-      this._reader = reader;
+  initialize: function(id, options) {
+    console.log("AHOY INITIALIZE");
+    Reader.prototype.initialize.apply(this, arguments);
+    this.settings = { flow: this.options.flow };
+    if ( this.options.flow == 'auto' ) {
+      this.settings.height = '100%';
+    }
   },
 
   open: function() {
@@ -24,13 +18,14 @@ export var EpubJS = Class.extend({
     this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
-      self._reader.fire('update-contents', toc);
-      self._reader.fire('update-title', self._book.package.metadata);
+      self.fire('update-contents', toc);
+      self.fire('update-title', self._book.package.metadata);
     })
   },
 
   draw: function(target) {
-    this._rendition = this._book.renderTo(this.options.container, this.settings);
+    console.log("AHOY DRAW", this.settings);
+    this._rendition = this._book.renderTo(this._panes['book'], this.settings);
     this._bindEvents();
     this._rendition.display(target);
   },
@@ -61,15 +56,14 @@ export var EpubJS = Class.extend({
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
-      self._reader.fire("update-section", current);
+      self.fire("update-section", current);
     })
   },
 
   EOT: true
 
+})
 
-});
-
-export function createRenderer(reader, options) {
-  return new EpubJS(reader, options);
+export function createReader(id, options) {
+  return new Reader.EpubJS(id, options);
 }

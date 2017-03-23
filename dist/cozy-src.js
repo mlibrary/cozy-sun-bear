@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1490297050530) {
+if (false && (new Date()).getTime() > 1490304694375) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+abstract-renderer.2f41b5d, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+abstract-renderer-simpler.187bf06, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1490297050530) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+abstract-renderer.2f41b5d";
+var version = "1.0.0+abstract-renderer-simpler.187bf06";
 
 /*
  * @namespace Util
@@ -259,7 +259,7 @@ function cancelAnimFrame(id) {
 }
 
 
-var Util$1 = (Object.freeze || Object)({
+var Util = (Object.freeze || Object)({
 	extend: extend,
 	create: create,
 	bind: bind,
@@ -1854,148 +1854,6 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
-var ePub = window.ePub;
-
-var EpubJS = Class.extend({
-  options: {
-      flow: 'auto',
-      href: null,
-      reader: null,
-      container: null
-  },
-
-  initialize: function (reader, options) {
-      setOptions(this, options);
-      this.settings = { flow: this.options.flow };
-      if ( this.options.flow == 'auto' ) {
-        this.settings.height = '100%';
-      }
-      this._reader = reader;
-  },
-
-  open: function() {
-    var self = this;
-    this._book = ePub(this.options.href);
-    this._book.loaded.navigation.then(function(toc) {
-      self._contents = toc;
-      self._reader.fire('update-contents', toc);
-      self._reader.fire('update-title', self._book.package.metadata);
-    });
-  },
-
-  draw: function(target) {
-    this._rendition = this._book.renderTo(this.options.container, this.settings);
-    this._bindEvents();
-    this._rendition.display(target);
-  },
-
-  next: function() {
-    this._rendition.next();
-  },
-
-  prev: function() {
-    this._rendition.prev();
-  },
-
-  gotoPage: function(target) {
-    this._rendition.display(target);
-  },
-
-  destroy: function() {
-    this._rendition.destroy();
-  },
-
-  _bindEvents: function() {
-    var self = this;
-    this._rendition.hooks.content.register(function(view) {
-      view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
-    });
-    this._rendition.on("locationChanged", function(location) {
-      // var section = this._book.spine.get(location.start);
-      var view = this.manager.current();
-      var section = view.section;
-      var current = this.book.navigation.get(section.href);
-      self._reader.fire("update-section", current);
-    });
-  },
-
-  EOT: true
-
-
-});
-
-function createRenderer(reader, options) {
-  return new EpubJS(reader, options);
-}
-
-var Readium$$1 = Class.extend({
-  options: {
-      flow: 'auto',
-      href: null,
-      reader: null,
-      container: null
-  },
-
-  initialize: function (options) {
-      Util.setOptions(this, options);
-  },
-
-  open: function() {
-    var self = this;
-    this.book = epubjs.ePub(this.options.href);
-    this.book.loaded.navigation.then(function(toc) {
-      self._contents = toc;
-      self.reader.fire('update-contents', toc);
-      self.reader.fire('update-title', self.book.package.metadata);
-    });
-  },
-
-  draw: function(target) {
-    this.rendition = this.book.renderTo(this.container, { flow: this.flow });
-    this._bindEvents();
-    this.rendition.display(target);
-  },
-
-  next: function() {
-    this.rendition.next();
-  },
-
-  prev: function() {
-    this.rendition.prev();
-  },
-
-  gotoPage: function(target) {
-    this.rendition.display(target);
-  },
-
-  destroy: function() {
-    this.rendition.destroy();
-  },
-
-  _bindEvents: function() {
-    this.rendition.on("locationChanged", function(location) {
-      // var section = this.book.spine.get(location.start);
-      var view = this.manager.current();
-      var section = view.section;
-      var current = self.book.navigation.get(section.href);
-      self.fire("update-section", current);
-    });
-  },
-
-  EOT: true
-
-
-});
-
-function createRenderer$1(options) {
-  return new Readium$$1(options);
-}
-
-var engines = {
-  epubjs: createRenderer,
-  readium: createRenderer$1
-};
-
 var Reader = Evented.extend({
   options: {
     regions: [
@@ -2024,6 +1882,7 @@ var Reader = Evented.extend({
 
     this._initEvents();
 
+    console.log("AHOY ?");
     this.callInitHooks();
 
     this._mode = this.options.mode;
@@ -2038,13 +1897,7 @@ var Reader = Evented.extend({
 
     var x = panes['book-cover']; var xx = panes['book'];
 
-    console.log("AHOY ENGINES", this, engines[this.options.engine]);
-    this.renderer = engines[this.options.engine](this, {
-      flow: this.options.flow, 
-      href: this.options.href,
-      container: this._panes['book']
-    });
-    this.renderer.open();
+    this.open();
 
     this.draw(1);
   },
@@ -2251,10 +2104,6 @@ var Reader = Evented.extend({
 
   EOT: true
 });
-
-function createReader(id, options) {
-  return new Reader(id, options);
-}
 
 var Control = Class.extend({
     // @section
@@ -2738,6 +2587,83 @@ var bus = function() {
 
 var Mixin = {Events: Evented.prototype};
 
+var ePub = window.ePub;
+
+Reader.EpubJS = Reader.extend({
+
+  initialize: function(id, options) {
+    console.log("AHOY INITIALIZE");
+    Reader.prototype.initialize.apply(this, arguments);
+    this.settings = { flow: this.options.flow };
+    if ( this.options.flow == 'auto' ) {
+      this.settings.height = '100%';
+    }
+  },
+
+  open: function() {
+    var self = this;
+    this._book = ePub(this.options.href);
+    this._book.loaded.navigation.then(function(toc) {
+      self._contents = toc;
+      self.fire('update-contents', toc);
+      self.fire('update-title', self._book.package.metadata);
+    });
+  },
+
+  draw: function(target) {
+    console.log("AHOY DRAW", this.settings);
+    this._rendition = this._book.renderTo(this._panes['book'], this.settings);
+    this._bindEvents();
+    this._rendition.display(target);
+  },
+
+  next: function() {
+    this._rendition.next();
+  },
+
+  prev: function() {
+    this._rendition.prev();
+  },
+
+  gotoPage: function(target) {
+    this._rendition.display(target);
+  },
+
+  destroy: function() {
+    this._rendition.destroy();
+  },
+
+  _bindEvents: function() {
+    var self = this;
+    this._rendition.hooks.content.register(function(view) {
+      view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+    });
+    this._rendition.on("locationChanged", function(location) {
+      // var section = this._book.spine.get(location.start);
+      var view = this.manager.current();
+      var section = view.section;
+      var current = this.book.navigation.get(section.href);
+      self.fire("update-section", current);
+    });
+  },
+
+  EOT: true
+
+});
+
+function createReader$1(id, options) {
+  return new Reader.EpubJS(id, options);
+}
+
+var engines = {
+  epubjs: createReader$1
+};
+
+var reader = function(id, options) {
+  var engine = options.engine || 'epubjs';
+  return engines[engine].apply(this, arguments);
+};
+
 var oldCozy = window.cozy;
 function noConflict() {
   window.cozy = oldCozy;
@@ -2751,7 +2677,7 @@ exports.control = control;
 exports.Browser = Browser;
 exports.Evented = Evented;
 exports.Mixin = Mixin;
-exports.Util = Util$1;
+exports.Util = Util;
 exports.Class = Class;
 exports.extend = extend;
 exports.bind = bind;
@@ -2760,8 +2686,7 @@ exports.setOptions = setOptions;
 exports.bus = bus;
 exports.DomEvent = DomEvent;
 exports.DomUtil = DomUtil;
-exports.Reader = Reader;
-exports.reader = createReader;
+exports.reader = reader;
 
 })));
 //# sourceMappingURL=cozy-src.js.map
