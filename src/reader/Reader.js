@@ -5,8 +5,7 @@ import * as Browser from '../core/Browser';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
 
-import * as epubjs from '../epubjs'
-// import ePub from 'epubjs';
+import {engines} from '../renderer';
 
 /*
  * @class Reader
@@ -38,7 +37,8 @@ export var Reader = Evented.extend({
       'toolbar.bottom',
       'footer'
     ],
-    mode: 'paginated'
+    flow: 'auto',
+    engine: 'epubjs'
   },
 
   initialize: function(id, options) {
@@ -56,33 +56,6 @@ export var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    var width = this._panes['book'].clientWidth;
-    var height = this._panes['book'].clientHeight;
-
-    this._modes = {};
-    this._modes.scrolled = {
-      width: '100%',
-      height: '100%',
-      ignoreClass: 'annotator-hl',
-      view: "iframe",
-      layout: "scrolled",
-      manager: "default", // default | continuous
-      flow: "scrolled",
-      spread: "none",
-      EOT: true
-    }
-
-    this._modes.paginated = {
-      width: '100%',
-      height: '100%',
-      ignoreClass: 'annotator-hl',
-      view: "iframe",
-      layout: "reflowable",
-      manager: "default", // default | continuous
-      flow: "paginated",
-      EOT: true
-    }
-
     this._mode = this.options.mode;
   },
 
@@ -95,40 +68,42 @@ export var Reader = Evented.extend({
 
     var x = panes['book-cover']; var xx = panes['book'];
 
-    this.book = epubjs.ePub(this.options.href);
-    this.book.loaded.navigation.then(function(toc) {
-      self._contents = toc;
-      self.fire('update-contents', toc);
-      self.fire('update-title', self.book.package.metadata);
-    })
+    console.log("AHOY ENGINES", this, engines[this.options.engine]);
+    this.renderer = engines[this.options.engine](this, {
+      flow: this.options.flow, 
+      href: this.options.href,
+      container: this._panes['book']
+    });
+    this.renderer.open();
 
-    var rect = self._panes['book'].getBoundingClientRect();
-
-    this._initRendition(1);
+    this.draw(1);
   },
 
   switch: function() {
     var target = this.rendition.currentLocation();
-    this.rendition.destroy();
+    // this.rendition.destroy();
     this._mode = ( this._mode == 'paginated' ) ? 'scrolled' : 'paginated';
-    this._initRendition(target.start);
+    // this._initRendition(target.start);
+  },
+
+  draw: function(target) {
+    this.renderer.draw(target);
   },
 
   next: function() {
-    this.rendition.next();
+    this.renderer.next();
   },
 
   prev: function() {
-    this.rendition.prev();
+    this.renderer.prev();
   },
 
   display: function(index) {
-    this.rendition.display(index);
+    this.renderer.display(index);
   },
 
   gotoPage: function(target) {
-    console.log("GOTING TO", target);
-    this.rendition.display(target);
+    this.renderer.gotoPage(target);
   },
 
   _initContainer: function (id) {
@@ -186,37 +161,6 @@ export var Reader = Evented.extend({
     panes['book'] = DomUtil.create('div', 'cozy-book', panes['book-cover']);
     // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
     // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
-  },
-
-  _initRendition: function(target) {
-    var self = this;
-
-    this.rendition = this.book.renderTo(this._panes['book'], this._modes[this._mode]);
-
-    this.rendition.on("locationChanged", function(location) {
-      // var section = this.book.spine.get(location.start);
-      var view = this.manager.current();
-      var section = view.section;
-      var current = self.book.navigation.get(section.href);
-      console.log("AHOY LOCATION CHANGED", location.start, section.href, current ? current.label : '-');
-      self.fire("update-section", current);
-    })
-
-
-    this.rendition.on("displayed", function(section) {
-      console.log("AHOY DISPLAYED", section);
-      var current = self.book.navigation.get(section.href);
-      var bounds = this.manager.bounds();
-      var section_bounds = this.manager.views.find(section);
-      if ( section_bounds ) { section_bounds = section_bounds.position(); ; }
-      else { console.log("AHOY BOO", section, this.manager.views.all() ); window.s = section; return; }
-      if ( bounds.right > section_bounds.left ) {
-        console.log("AHOY RENDERED SECTION", section.href, current ? current.label : '-');
-        self.fire("update-section", current);
-      }
-    });
-
-    this.display(target);
   },
 
   _checkIfLoaded: function () {
