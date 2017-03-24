@@ -52,7 +52,6 @@ export var Reader = Evented.extend({
 
     this._initEvents();
 
-    console.log("AHOY ?");
     this.callInitHooks();
 
     this._mode = this.options.mode;
@@ -73,30 +72,30 @@ export var Reader = Evented.extend({
   },
 
   switch: function() {
-    var target = this.rendition.currentLocation();
-    // this.rendition.destroy();
-    this._mode = ( this._mode == 'paginated' ) ? 'scrolled' : 'paginated';
-    // this._initRendition(target.start);
+    var target = this.currentLocation();
+    this.options.flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    this.destroy();
+    this.draw(target);
   },
 
   draw: function(target) {
-    this.renderer.draw(target);
+    // NOOP
   },
 
   next: function() {
-    this.renderer.next();
+    // NOOP
   },
 
   prev: function() {
-    this.renderer.prev();
+    // NOOP
   },
 
   display: function(index) {
-    this.renderer.display(index);
+    // NOOP
   },
 
   gotoPage: function(target) {
-    this.renderer.gotoPage(target);
+    // NOOP
   },
 
   _initContainer: function (id) {
@@ -152,8 +151,6 @@ export var Reader = Evented.extend({
 
     panes['book-cover'] = DomUtil.create('div', 'cozy-book-cover', panes['main']);
     panes['book'] = DomUtil.create('div', 'cozy-book', panes['book-cover']);
-    // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
-    // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
   },
 
   _checkIfLoaded: function () {

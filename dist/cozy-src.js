@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1490304694375) {
+if (false && (new Date()).getTime() > 1490360131752) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+abstract-renderer-simpler.187bf06, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+abstract-renderer-simpler.8dea545, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1490304694375) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+abstract-renderer-simpler.187bf06";
+var version = "1.0.0+abstract-renderer-simpler.8dea545";
 
 /*
  * @namespace Util
@@ -1854,6 +1854,26 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
+// import {Class} from '../core/Class';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
+
 var Reader = Evented.extend({
   options: {
     regions: [
@@ -1882,7 +1902,6 @@ var Reader = Evented.extend({
 
     this._initEvents();
 
-    console.log("AHOY ?");
     this.callInitHooks();
 
     this._mode = this.options.mode;
@@ -1903,30 +1922,30 @@ var Reader = Evented.extend({
   },
 
   switch: function() {
-    var target = this.rendition.currentLocation();
-    // this.rendition.destroy();
-    this._mode = ( this._mode == 'paginated' ) ? 'scrolled' : 'paginated';
-    // this._initRendition(target.start);
+    var target = this.currentLocation();
+    this.options.flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    this.destroy();
+    this.draw(target);
   },
 
   draw: function(target) {
-    this.renderer.draw(target);
+    // NOOP
   },
 
   next: function() {
-    this.renderer.next();
+    // NOOP
   },
 
   prev: function() {
-    this.renderer.prev();
+    // NOOP
   },
 
   display: function(index) {
-    this.renderer.display(index);
+    // NOOP
   },
 
   gotoPage: function(target) {
-    this.renderer.gotoPage(target);
+    // NOOP
   },
 
   _initContainer: function (id) {
@@ -1982,8 +2001,6 @@ var Reader = Evented.extend({
 
     panes['book-cover'] = create$1('div', 'cozy-book-cover', panes['main']);
     panes['book'] = create$1('div', 'cozy-book', panes['book-cover']);
-    // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
-    // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
   },
 
   _checkIfLoaded: function () {
@@ -2592,12 +2609,7 @@ var ePub = window.ePub;
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
-    console.log("AHOY INITIALIZE");
     Reader.prototype.initialize.apply(this, arguments);
-    this.settings = { flow: this.options.flow };
-    if ( this.options.flow == 'auto' ) {
-      this.settings.height = '100%';
-    }
   },
 
   open: function() {
@@ -2611,9 +2623,17 @@ Reader.EpubJS = Reader.extend({
   },
 
   draw: function(target) {
-    console.log("AHOY DRAW", this.settings);
+    this.settings = { flow: this.options.flow };
+    if ( this.options.flow == 'auto' ) {
+      this.settings.height = '100%';
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
     this._rendition = this._book.renderTo(this._panes['book'], this.settings);
     this._bindEvents();
+
+    if ( target.start ) { target = target.start; }
     this._rendition.display(target);
   },
 
@@ -2633,13 +2653,18 @@ Reader.EpubJS = Reader.extend({
     this._rendition.destroy();
   },
 
+  currentLocation: function() {
+    return this._rendition.currentLocation();
+  },
+
   _bindEvents: function() {
     var self = this;
+
+    // add a stylesheet to stop images from breaking their columns
     this._rendition.hooks.content.register(function(view) {
       view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
     });
     this._rendition.on("locationChanged", function(location) {
-      // var section = this._book.spine.get(location.start);
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);

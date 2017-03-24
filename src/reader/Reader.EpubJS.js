@@ -5,12 +5,7 @@ import * as epubjs from '../epubjs';
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
-    console.log("AHOY INITIALIZE");
     Reader.prototype.initialize.apply(this, arguments);
-    this.settings = { flow: this.options.flow };
-    if ( this.options.flow == 'auto' ) {
-      this.settings.height = '100%';
-    }
   },
 
   open: function() {
@@ -24,9 +19,17 @@ Reader.EpubJS = Reader.extend({
   },
 
   draw: function(target) {
-    console.log("AHOY DRAW", this.settings);
+    this.settings = { flow: this.options.flow };
+    if ( this.options.flow == 'auto' ) {
+      this.settings.height = '100%';
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
     this._rendition = this._book.renderTo(this._panes['book'], this.settings);
     this._bindEvents();
+
+    if ( target.start ) { target = target.start; }
     this._rendition.display(target);
   },
 
@@ -46,13 +49,18 @@ Reader.EpubJS = Reader.extend({
     this._rendition.destroy();
   },
 
+  currentLocation: function() {
+    return this._rendition.currentLocation();
+  },
+
   _bindEvents: function() {
     var self = this;
+
+    // add a stylesheet to stop images from breaking their columns
     this._rendition.hooks.content.register(function(view) {
       view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
     })
     this._rendition.on("locationChanged", function(location) {
-      // var section = this._book.spine.get(location.start);
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
