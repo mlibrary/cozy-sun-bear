@@ -154,7 +154,7 @@ Reader.include({
 
         var tmp = target.split('.');
         var region = tmp.shift();
-        var slot = tmp.pop();
+        var slot = tmp.pop() || '-slot';
 
         var container = this._panes[region];
         if ( ! this._panes[target] ) {

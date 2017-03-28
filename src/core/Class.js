@@ -60,7 +60,7 @@ Class.extend = function (props) {
 
 	// mix given properties into the prototype
 	Util.extend(proto, props);
-
+	
 	proto._initHooks = [];
 
 	// add method for calling all hooks

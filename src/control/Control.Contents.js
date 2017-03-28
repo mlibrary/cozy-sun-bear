@@ -20,16 +20,32 @@ export var Contents = Control.extend({
     }
 
     this._reader.on('update-contents', function(data) {
-      console.log("AHOY UPDATE CONTENTS", data);
-      data.toc.forEach(function(chapter) {
-        var option = DomUtil.create('option');
-        option.textContent = chapter.label;
-        option.setAttribute('value', chapter.href);
-        self._control.appendChild(option);
-      });
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ 0, value] });
+      while ( s.length ) {
+        var tuple = s.shift();
+        var chapter = tuple[1];
+        var tabindex = tuple[0];
+
+        self._createOption(tabindex, chapter);
+        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+          s.unshift([tabindex + 1, chapter_]);
+        });
+      }
     })
 
     return container;
+  },
+
+  _createOption(tabindex, chapter) {
+    
+    function pad(value, length) {
+        return (value.toString().length < length) ? pad("-"+value, length):value;
+    }
+    var option = DomUtil.create('option');
+    var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+    option.textContent = tab + chapter.label;
+    option.setAttribute('value', chapter.href);
+    this._control.appendChild(option);
   },
 
   _createButton: function (html, title, className, container, fn) {

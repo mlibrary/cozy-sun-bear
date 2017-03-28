@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1490099978444) {
+if (false && (new Date()).getTime() > 1490365298778) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+roger-experiment.2501279, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+abstract-renderer-simpler.2e53674, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1490099978444) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+roger-experiment.2501279";
+var version = "1.0.0+abstract-renderer-simpler.2e53674";
 
 /*
  * @namespace Util
@@ -283,6 +283,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -335,7 +343,7 @@ Class.extend = function (props) {
 
 	// mix given properties into the prototype
 	extend(proto, props);
-
+	
 	proto._initHooks = [];
 
 	// add method for calling all hooks
@@ -399,6 +407,31 @@ function checkDeprecatedMixinEvents(includes) {
 		}
 	}
 }
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -837,6 +870,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -1018,6 +1071,11 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
+
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
 var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
@@ -1142,6 +1200,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1222,6 +1284,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if (typeof types === 'object') {
@@ -1505,8 +1583,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 
@@ -1527,6 +1603,20 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(
     ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
@@ -1854,7 +1944,25 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
-var ePub = window.ePub;
+// import {Class} from '../core/Class';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
 
 var Reader = Evented.extend({
   options: {
@@ -1867,7 +1975,8 @@ var Reader = Evented.extend({
       'toolbar.bottom',
       'footer'
     ],
-    mode: 'paginated'
+    flow: 'auto',
+    engine: 'epubjs'
   },
 
   initialize: function(id, options) {
@@ -1885,33 +1994,6 @@ var Reader = Evented.extend({
 
     this.callInitHooks();
 
-    var width = this._panes['book'].clientWidth;
-    var height = this._panes['book'].clientHeight;
-
-    this._modes = {};
-    this._modes.scrolled = {
-      width: '100%',
-      height: '100%',
-      ignoreClass: 'annotator-hl',
-      view: "iframe",
-      layout: "scrolled",
-      manager: "default", // default | continuous
-      flow: "scrolled",
-      spread: "none",
-      EOT: true
-    };
-
-    this._modes.paginated = {
-      width: '100%',
-      height: '100%',
-      ignoreClass: 'annotator-hl',
-      view: "iframe",
-      layout: "reflowable",
-      manager: "default", // default | continuous
-      flow: "paginated",
-      EOT: true
-    };
-
     this._mode = this.options.mode;
   },
 
@@ -1924,40 +2006,36 @@ var Reader = Evented.extend({
 
     var x = panes['book-cover']; var xx = panes['book'];
 
-    this.book = ePub(this.options.href);
-    this.book.loaded.navigation.then(function(toc) {
-      self._contents = toc;
-      self.fire('update-contents', toc);
-      self.fire('update-title', self.book.package.metadata);
-    });
+    this.open();
 
-    var rect = self._panes['book'].getBoundingClientRect();
-
-    this._initRendition(1);
+    this.draw(1);
   },
 
   switch: function() {
-    var target = this.rendition.currentLocation();
-    this.rendition.destroy();
-    this._mode = ( this._mode == 'paginated' ) ? 'scrolled' : 'paginated';
-    this._initRendition(target.start);
+    var target = this.currentLocation();
+    this.options.flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    this.destroy();
+    this.draw(target);
+  },
+
+  draw: function(target) {
+    // NOOP
   },
 
   next: function() {
-    this.rendition.next();
+    // NOOP
   },
 
   prev: function() {
-    this.rendition.prev();
+    // NOOP
   },
 
   display: function(index) {
-    this.rendition.display(index);
+    // NOOP
   },
 
   gotoPage: function(target) {
-    console.log("GOTING TO", target);
-    this.rendition.display(target);
+    // NOOP
   },
 
   _initContainer: function (id) {
@@ -2013,39 +2091,6 @@ var Reader = Evented.extend({
 
     panes['book-cover'] = create$1('div', 'cozy-book-cover', panes['main']);
     panes['book'] = create$1('div', 'cozy-book', panes['book-cover']);
-    // panes['book'].setAttribute('width', panes['book-cover'].clientWidth * 0.95);
-    // panes['book'].setAttribute('height', panes['book-cover'].clientHeight * 0.95);
-  },
-
-  _initRendition: function(target) {
-    var self = this;
-
-    this.rendition = this.book.renderTo(this._panes['book'], this._modes[this._mode]);
-
-    this.rendition.on("locationChanged", function(location) {
-      // var section = this.book.spine.get(location.start);
-      var view = this.manager.current();
-      var section = view.section;
-      var current = self.book.navigation.get(section.href);
-      console.log("AHOY LOCATION CHANGED", location.start, section.href, current ? current.label : '-');
-      self.fire("update-section", current);
-    });
-
-
-    this.rendition.on("displayed", function(section) {
-      console.log("AHOY DISPLAYED", section);
-      var current = self.book.navigation.get(section.href);
-      var bounds = this.manager.bounds();
-      var section_bounds = this.manager.views.find(section);
-      if ( section_bounds ) { section_bounds = section_bounds.position();  }
-      else { console.log("AHOY BOO", section, this.manager.views.all() ); window.s = section; return; }
-      if ( bounds.right > section_bounds.left ) {
-        console.log("AHOY RENDERED SECTION", section.href, current ? current.label : '-');
-        self.fire("update-section", current);
-      }
-    });
-
-    this.display(target);
   },
 
   _checkIfLoaded: function () {
@@ -2167,9 +2212,14 @@ var Reader = Evented.extend({
   EOT: true
 });
 
-function createReader(id, options) {
-  return new Reader(id, options);
-}
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
 
 var Control = Class.extend({
     // @section
@@ -2313,7 +2363,7 @@ Reader.include({
 
         var tmp = target.split('.');
         var region = tmp.shift();
-        var slot = tmp.pop();
+        var slot = tmp.pop() || '-slot';
 
         var container = this._panes[region];
         if ( ! this._panes[target] ) {
@@ -2457,16 +2507,32 @@ var Contents = Control.extend({
     };
 
     this._reader.on('update-contents', function(data) {
-      console.log("AHOY UPDATE CONTENTS", data);
-      data.toc.forEach(function(chapter) {
-        var option = create$1('option');
-        option.textContent = chapter.label;
-        option.setAttribute('value', chapter.href);
-        self._control.appendChild(option);
-      });
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ 0, value] });
+      while ( s.length ) {
+        var tuple = s.shift();
+        var chapter = tuple[1];
+        var tabindex = tuple[0];
+
+        self._createOption(tabindex, chapter);
+        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+          s.unshift([tabindex + 1, chapter_]);
+        });
+      }
     });
 
     return container;
+  },
+
+  _createOption(tabindex, chapter) {
+    
+    function pad(value, length) {
+        return (value.toString().length < length) ? pad("-"+value, length):value;
+    }
+    var option = create$1('option');
+    var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+    option.textContent = tab + chapter.label;
+    option.setAttribute('value', chapter.href);
+    this._control.appendChild(option);
   },
 
   _createButton: function (html, title, className, container, fn) {
@@ -2495,6 +2561,8 @@ var Contents = Control.extend({
 var contents = function(options) {
   return new Contents(options);
 };
+
+// Title + Chapter
 
 var Title = Control.extend({
   onAdd: function(reader) {
@@ -2563,6 +2631,8 @@ var title = function(options) {
   return new Title(options);
 };
 
+// Title + Chapter
+
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
     var self = this;
@@ -2613,6 +2683,9 @@ var publicationMetadata = function(options) {
   return new PublicationMetadata(options);
 };
 
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
+
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
 control.pagePrevious = pagePrevious;
@@ -2637,6 +2710,93 @@ var bus = function() {
 
 var Mixin = {Events: Evented.prototype};
 
+var ePub = window.ePub;
+
+Reader.EpubJS = Reader.extend({
+
+  initialize: function(id, options) {
+    Reader.prototype.initialize.apply(this, arguments);
+  },
+
+  open: function() {
+    var self = this;
+    this._book = ePub(this.options.href);
+    this._book.loaded.navigation.then(function(toc) {
+      self._contents = toc;
+      self.fire('update-contents', toc);
+      self.fire('update-title', self._book.package.metadata);
+    });
+  },
+
+  draw: function(target) {
+    this.settings = { flow: this.options.flow };
+    if ( this.options.flow == 'auto' ) {
+      this.settings.height = '100%';
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+    this._rendition = this._book.renderTo(this._panes['book'], this.settings);
+    this._bindEvents();
+
+    if ( target.start ) { target = target.start; }
+    this._rendition.display(target);
+  },
+
+  next: function() {
+    this._rendition.next();
+  },
+
+  prev: function() {
+    this._rendition.prev();
+  },
+
+  gotoPage: function(target) {
+    this._rendition.display(target);
+  },
+
+  destroy: function() {
+    this._rendition.destroy();
+  },
+
+  currentLocation: function() {
+    return this._rendition.currentLocation();
+  },
+
+  _bindEvents: function() {
+    var self = this;
+
+    // add a stylesheet to stop images from breaking their columns
+    this._rendition.hooks.content.register(function(view) {
+      view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+    });
+    this._rendition.on("locationChanged", function(location) {
+      var view = this.manager.current();
+      var section = view.section;
+      var current = this.book.navigation.get(section.href);
+      self.fire("update-section", current);
+    });
+  },
+
+  EOT: true
+
+});
+
+function createReader$1(id, options) {
+  return new Reader.EpubJS(id, options);
+}
+
+var engines = {
+  epubjs: createReader$1
+};
+
+var reader = function(id, options) {
+  var engine = options.engine || 'epubjs';
+  return engines[engine].apply(this, arguments);
+};
+
+// misc
+
 var oldCozy = window.cozy;
 function noConflict() {
   window.cozy = oldCozy;
@@ -2659,8 +2819,7 @@ exports.setOptions = setOptions;
 exports.bus = bus;
 exports.DomEvent = DomEvent;
 exports.DomUtil = DomUtil;
-exports.Reader = Reader;
-exports.reader = createReader;
+exports.reader = reader;
 
 })));
 //# sourceMappingURL=cozy-src.js.map
