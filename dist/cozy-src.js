@@ -1,23 +1,14 @@
-
-if (false && (new Date()).getTime() > 1490365298778) {
-  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
-  alert(msg);
-  // throw new Error(msg);
-}
-
 /*
- * Leaflet 1.0.0+abstract-renderer-simpler.2e53674, a JS library for interactive maps. http://leafletjs.com
- * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
+ * Cozy Sun Bear 1.0.0+more-buttons.b2d3423, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * (c) 2017 Regents of the University of Michigan
  */
-
-
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+abstract-renderer-simpler.2e53674";
+var version = "1.0.0+more-buttons.b2d3423";
 
 /*
  * @namespace Util
@@ -2011,9 +2002,12 @@ var Reader = Evented.extend({
     this.draw(1);
   },
 
-  switch: function() {
+  switch: function(flow) {
     var target = this.currentLocation();
-    this.options.flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    if ( flow === undefined ) {
+      flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    }
+    this.options.flow = flow;
     this.destroy();
     this.draw(target);
   },
@@ -2085,11 +2079,13 @@ var Reader = Evented.extend({
     var container = this._container;
 
     addClass(container, 'cozy-container');
-    panes['header'] = create$1('div', 'cozy-header', container);
+    panes['top'] = create$1('div', 'cozy-top', container);
     panes['main'] = create$1('div', 'cozy-main', container);
-    panes['footer'] = create$1('div', 'cozy-footer', container);
+    panes['bottom'] = create$1('div', 'cozy-bottom', container);
 
+    panes['left'] = create$1('div', 'cozy-left', panes['main']);
     panes['book-cover'] = create$1('div', 'cozy-book-cover', panes['main']);
+    panes['right'] = create$1('div', 'cozy-right', panes['main']);
     panes['book'] = create$1('div', 'cozy-book', panes['book-cover']);
   },
 
@@ -2313,6 +2309,17 @@ var Control = Class.extend({
         if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
             this._reader.getContainer().focus();
         }
+    },
+
+    _className: function(widget) {
+        var className = [ 'cozy-control' ];
+        if ( this.options.direction ) {
+            className.push('cozy-control-' + this.options.direction);
+        }
+        if ( widget ) {
+            className.push('cozy-control-' + widget);
+        }
+        return className.join(' ');
     }
 });
 
@@ -2361,6 +2368,31 @@ Reader.include({
 
     getControlRegion: function (target) {
 
+        if ( ! this._panes[target] ) {
+            // target is dot-delimited string
+            // first dot is the panel
+            var parts = target.split('.');
+            var tmp = [];
+            var parent = this._container;
+            var x = 0;
+            while ( parts.length ) {
+                var slug = parts.shift();
+                tmp.push(slug);
+                var panel = tmp.join(".");
+                var className = 'cozy-' + tmp.join('-'); // or slug
+                if ( ! this._panes[panel] ) {
+                    this._panes[panel] = create$1('div', className, parent);
+                }
+                parent = this._panes[panel];
+                x += 1;
+                if ( x > 100 ) { break; }
+            }
+        }
+        return this._panes[target];
+    },
+
+    getControlRegion_1: function (target) {
+
         var tmp = target.split('.');
         var region = tmp.shift();
         var slot = tmp.pop() || '-slot';
@@ -2383,24 +2415,6 @@ Reader.include({
         }
 
         return this._panes[target];
-
-
-        // var l = 'cozy-';
-
-        // function createRegion(spec) {
-        //     if ( regions[region] ) { return regions[region]; }
-        //     var className = [];
-        //     var tmp = region.split(".");
-        //     for(var i in tmp) {
-        //         className.push(l + tmp[i]);
-        //     }
-        //     className = className.join(' ');
-
-        //     regions[region] = DomUtil.create('div', className, container);
-        //     return regions[region];
-        // }
-
-        // return createRegion(region);
     },
 
     _classify: function(tmp) {
@@ -2425,8 +2439,8 @@ Reader.include({
 
 var PageControl = Control.extend({
   onAdd: function(reader) {
-    var className = 'cozy-control-' + this.options.direction,
-        container = create$1('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = create$1('div', className),
         options = this.options;
 
     this._button  = this._createButton(options.html || options.label, options.label,
@@ -2493,8 +2507,8 @@ var pagePrevious = function(options) {
 var Contents = Control.extend({
   onAdd: function(reader) {
     var self = this;
-    var className = 'cozy-control-' + this.options.direction,
-        container = create$1('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = create$1('div', className),
         options = this.options;
 
     var template = '<label><span class="sr-only">Contents: </span><select size="1" name="contents"></select></label>';
@@ -2567,8 +2581,8 @@ var contents = function(options) {
 var Title = Control.extend({
   onAdd: function(reader) {
     var self = this;
-    var className = 'cozy-control-' + this.options.direction,
-        container = create$1('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = create$1('div', className),
         options = this.options;
 
     // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
@@ -2636,8 +2650,8 @@ var title = function(options) {
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
     var self = this;
-    var className = 'cozy-control-' + this.options.direction,
-        container = create$1('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = create$1('div', className),
         options = this.options;
 
     // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
@@ -2683,6 +2697,95 @@ var publicationMetadata = function(options) {
   return new PublicationMetadata(options);
 };
 
+var Preferences = Control.extend({
+  options: {
+    label: 'Preferences'
+  },
+
+  onAdd: function(reader) {
+    var self = this;
+    var className = this._className('preferences'),
+        container = create$1('div', className),
+        options = this.options;
+
+    this._activated = false;
+    this._control = this._createButton(options.html || options.label, options.label,
+            className, container, this._action);
+
+    this._createPanel();
+
+    return container;
+  },
+
+  _action: function() {
+    this._panel.style.display = 'block';
+  },
+
+  _createButton: function (html, title, className, container, fn) {
+    var link = create$1('button', className, container);
+    link.innerHTML = html;
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+
+    disableClickPropagation(link);
+    on(link, 'click', stop);
+    on(link, 'click', fn, this);
+
+    return link;
+  },
+
+  _createPanel: function() {
+    var template = `<div class="cozy-modal cozy-preferences-modal" style="position: fixed; width: 300px; margin-left: -150px; left: 50%; top: 50%; transform: translateY(-50%); z-index: 9000; display: none">
+      <header>
+        <h2>Preferences</h2>
+      </header>
+      <article>
+        <form>
+          <fieldset>
+            <legend>Flow</legend>
+            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" /> Auto</label>
+            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" /> Scroll</label>
+          </fieldset>
+        </form>
+      </article>
+      <footer>
+      </footer>
+    </div>`;
+    this._panel = new DOMParser().parseFromString(template, "text/html").body.firstChild;
+    this._reader._container.appendChild(this._panel);
+
+    var input_id = "preferences-input-" + ( this._reader.options.flow == 'scrollable' ? 'scrollable' : 'reflowable' );
+    var input = this._panel.querySelector("#" + input_id);
+    input.checked = true;
+
+    var footer = this._panel.querySelector("footer");
+    this._cancelButton = this._createButton('Cancel', 'Cancel Preferences', 'btn btn-default', footer, this._cancelAction);
+    this._saveButton = this._createButton('Save', 'Save Preferences', 'btn btn-primary', footer, this._saveAction);
+  },
+
+  _cancelAction: function() {
+    this._panel.style.display = 'none';
+  },
+
+  _saveAction: function() {
+    var input = this._panel.querySelector("input[type=radio]:checked");
+    var flow = input.value;
+    this._panel.style.display = 'none';
+    this._reader.switch(flow);
+  },
+
+  EOT: true
+});
+
+var preferences = function(options) {
+  return new Preferences(options);
+};
+
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
 
@@ -2699,6 +2802,9 @@ control.title = title;
 
 Control.PublicationMetadata = PublicationMetadata;
 control.publicationMetadata = publicationMetadata;
+
+Control.Preferences = Preferences;
+control.preferences = preferences;
 
 var Bus = Evented.extend({
 });

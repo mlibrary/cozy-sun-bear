@@ -5,8 +5,8 @@ import * as DomEvent from '../dom/DomEvent';
 
 var PageControl = Control.extend({
   onAdd: function(reader) {
-    var className = 'cozy-control-' + this.options.direction,
-        container = DomUtil.create('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = DomUtil.create('div', className),
         options = this.options;
 
     this._button  = this._createButton(options.html || options.label, options.label,

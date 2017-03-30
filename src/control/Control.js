@@ -104,6 +104,17 @@ export var Control = Class.extend({
         if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
             this._reader.getContainer().focus();
         }
+    },
+
+    _className: function(widget) {
+        var className = [ 'cozy-control' ];
+        if ( this.options.direction ) {
+            className.push('cozy-control-' + this.options.direction);
+        }
+        if ( widget ) {
+            className.push('cozy-control-' + widget);
+        }
+        return className.join(' ');
     }
 });
 
@@ -152,6 +163,31 @@ Reader.include({
 
     getControlRegion: function (target) {
 
+        if ( ! this._panes[target] ) {
+            // target is dot-delimited string
+            // first dot is the panel
+            var parts = target.split('.');
+            var tmp = [];
+            var parent = this._container;
+            var x = 0;
+            while ( parts.length ) {
+                var slug = parts.shift();
+                tmp.push(slug);
+                var panel = tmp.join(".");
+                var className = 'cozy-' + tmp.join('-'); // or slug
+                if ( ! this._panes[panel] ) {
+                    this._panes[panel] = DomUtil.create('div', className, parent);
+                }
+                parent = this._panes[panel];
+                x += 1;
+                if ( x > 100 ) { break; }
+            }
+        }
+        return this._panes[target];
+    },
+
+    getControlRegion_1: function (target) {
+
         var tmp = target.split('.');
         var region = tmp.shift();
         var slot = tmp.pop() || '-slot';
@@ -174,24 +210,6 @@ Reader.include({
         }
 
         return this._panes[target];
-
-
-        // var l = 'cozy-';
-
-        // function createRegion(spec) {
-        //     if ( regions[region] ) { return regions[region]; }
-        //     var className = [];
-        //     var tmp = region.split(".");
-        //     for(var i in tmp) {
-        //         className.push(l + tmp[i]);
-        //     }
-        //     className = className.join(' ');
-
-        //     regions[region] = DomUtil.create('div', className, container);
-        //     return regions[region];
-        // }
-
-        // return createRegion(region);
     },
 
     _classify: function(tmp) {

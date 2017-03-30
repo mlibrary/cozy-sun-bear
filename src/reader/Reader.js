@@ -71,9 +71,12 @@ export var Reader = Evented.extend({
     this.draw(1);
   },
 
-  switch: function() {
+  switch: function(flow) {
     var target = this.currentLocation();
-    this.options.flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    if ( flow === undefined ) {
+      flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    }
+    this.options.flow = flow;
     this.destroy();
     this.draw(target);
   },
@@ -145,11 +148,13 @@ export var Reader = Evented.extend({
     var container = this._container;
 
     DomUtil.addClass(container, 'cozy-container');
-    panes['header'] = DomUtil.create('div', 'cozy-header', container);
+    panes['top'] = DomUtil.create('div', 'cozy-top', container);
     panes['main'] = DomUtil.create('div', 'cozy-main', container);
-    panes['footer'] = DomUtil.create('div', 'cozy-footer', container);
+    panes['bottom'] = DomUtil.create('div', 'cozy-bottom', container);
 
+    panes['left'] = DomUtil.create('div', 'cozy-left', panes['main']);
     panes['book-cover'] = DomUtil.create('div', 'cozy-book-cover', panes['main']);
+    panes['right'] = DomUtil.create('div', 'cozy-right', panes['main']);
     panes['book'] = DomUtil.create('div', 'cozy-book', panes['book-cover']);
   },
 
