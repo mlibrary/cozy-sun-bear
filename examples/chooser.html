@@ -32,7 +32,7 @@
 
     }
 
-    .cozy-header {
+    .cozy-top {
       display: flex;
       flex-direction: column;
     }
@@ -59,7 +59,7 @@
         transform: translate(-50%, -50%);*/
     }
 
-    .cozy-footer {
+    .cozy-bottom {
       display: flex;
       flex-direction: column;
     }
@@ -70,18 +70,35 @@
 
     .epub-container {
         background: blue;
-        /* --- padding on this container messes with horizontal scrolling */
+        /* -- padding on this container messes with horizontal scrolling */
         /*padding: 20px;*/
 
     }
 
-    .cozy-slot-left, .cozy-slot-right {
+    div[class^='cozy-top-toolbar-'] {
+        display: flex;
+        flex-grow: 1;
+    }
+
+    .cozy-top-toolbar {
+        display: flex;
+    }
+
+    .cozy-top-toolbar-right {
+        justify-content: flex-end;
+    }
+
+    .cozy-left, .cozy-right {
+        display: flex;
+    }
+
+    .cozy-left-sidebar, .cozy-right-sidebar {
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
-    .cozy-footer--item {
+    .cozy-footer-item {
         min-height: 50px;
     }
 
@@ -101,6 +118,12 @@
         text-align: center;
         min-height: 60px;
         padding: 10px;
+    }
+
+    .cozy-modal {
+        background: #fff;
+        border: 4px solid black;
+        padding: 20px;
     }
 
     iframe {
@@ -155,13 +178,13 @@
 
         if ( location.search ) {
             book_href = location.search.substr(1);
-            console.log("AHOY : READING", book_href);
             var reader = cozy.reader('reader', { href: book_href });
-            cozy.control.title({ region: 'header.toolbar.header' }).addTo(reader);
-            cozy.control.contents({ region: 'header.toolbar.top' }).addTo(reader);
-            cozy.control.pagePrevious({ region: 'main.toolbar.left' }).addTo(reader);
-            cozy.control.pageNext({ region: 'main.toolbar.right' }).addTo(reader);
-            cozy.control.publicationMetadata({ region: 'footer.toolbar.toolbar' }).addTo(reader);
+            cozy.control.title({ region: 'top.header.left' }).addTo(reader);
+            cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
+            cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
+            cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
+            cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
+            cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
             reader.start();
         }
 

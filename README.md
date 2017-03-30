@@ -11,9 +11,18 @@ ePub widgets and support based around and with code from [epub.js](https://githu
 * `npm install`
 * `npm run build`
 
+Some of the examples use the IDPF epub3-samples examples; these are expected to 
+be checked out in same directory containing `cozy-sun-bear`:
+
+```bash
+$ cd .. # if you are in the cozy-sun-bear directory
+$ git clone https://github.com/IDPF/epub3-samples.git
+$ cd cozy-sun-bear
+```
+
 #### To run the examples
 
-* `pushd .; cd ..; git clone https://github.com/IDPF/epub3-samples.git; popd`
 * `./tools/serve`
 * Point your browser to http://0.0.0.0:8080/examples
 * When you make changes to /src, re-run `npm run build` to build your changes
+* ...or you can run `npm run watch` to have npm watch for changes to the javascript

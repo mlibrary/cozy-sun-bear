@@ -8,8 +8,8 @@ import * as DomEvent from '../dom/DomEvent';
 export var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
     var self = this;
-    var className = 'cozy-control-' + this.options.direction,
-        container = DomUtil.create('div', className + ' cozy-control'),
+    var className = this._className(),
+        container = DomUtil.create('div', className),
         options = this.options;
 
     // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
