@@ -147,15 +147,17 @@ export var Reader = Evented.extend({
     var l = 'cozy-';
     var container = this._container;
 
-    DomUtil.addClass(container, 'cozy-container');
-    panes['top'] = DomUtil.create('div', 'cozy-top', container);
-    panes['main'] = DomUtil.create('div', 'cozy-main', container);
-    panes['bottom'] = DomUtil.create('div', 'cozy-bottom', container);
+    var prefix = 'cozy-module-';
 
-    panes['left'] = DomUtil.create('div', 'cozy-left', panes['main']);
-    panes['book-cover'] = DomUtil.create('div', 'cozy-book-cover', panes['main']);
-    panes['right'] = DomUtil.create('div', 'cozy-right', panes['main']);
-    panes['book'] = DomUtil.create('div', 'cozy-book', panes['book-cover']);
+    DomUtil.addClass(container, 'cozy-container');
+    panes['top'] = DomUtil.create('div', prefix + 'top', container);
+    panes['main'] = DomUtil.create('div', prefix + 'main', container);
+    panes['bottom'] = DomUtil.create('div', prefix + 'bottom', container);
+
+    panes['left'] = DomUtil.create('div', prefix + 'left', panes['main']);
+    panes['book-cover'] = DomUtil.create('div', prefix + 'book-cover', panes['main']);
+    panes['right'] = DomUtil.create('div', prefix + 'right', panes['main']);
+    panes['book'] = DomUtil.create('div', prefix + 'book', panes['book-cover']);
   },
 
   _checkIfLoaded: function () {

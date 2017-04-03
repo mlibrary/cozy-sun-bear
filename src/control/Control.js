@@ -174,7 +174,7 @@ Reader.include({
                 var slug = parts.shift();
                 tmp.push(slug);
                 var panel = tmp.join(".");
-                var className = 'cozy-' + tmp.join('-'); // or slug
+                var className = 'cozy-panel-' + slug;
                 if ( ! this._panes[panel] ) {
                     this._panes[panel] = DomUtil.create('div', className, parent);
                 }
