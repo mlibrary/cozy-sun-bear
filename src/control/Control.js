@@ -22,13 +22,11 @@ export var Control = Class.extend({
     },
 
     initialize: function (options) {
-        if ( typeof(options) == "string" ) {
-            this._control = document.getElementById(options);
-            this._locked = true;
-            options = { id: this._control.getAttribute('id') };
-            console.log("AHOY LOCKED", this._control, options);
-        }
         Util.setOptions(this, options);
+        if ( options.container ) {
+            this._container = options.container;
+            this._locked = true;
+        }
     },
 
     /* @section
@@ -75,7 +73,7 @@ export var Control = Class.extend({
 
         DomUtil.addClass(container, 'cozy-control');
 
-        if ( ! this.options.id ) {
+        if ( ! this._locked ) {
             var region = this.getRegion();
             var area = reader.getControlRegion(region);
             area.appendChild(container);
@@ -95,6 +93,7 @@ export var Control = Class.extend({
             return this;
         }
 
+console.log("AHOY REMOVE", this._locked);
         if ( ! this._locked ) {
             DomUtil.remove(this._container);
         }
