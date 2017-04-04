@@ -51,8 +51,10 @@
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
+            cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
+            cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
             cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
             reader.start();
         }
