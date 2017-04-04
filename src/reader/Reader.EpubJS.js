@@ -42,6 +42,11 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target) {
+    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
+      while ( target.substr(0, 3) == '../' ) {
+        target = target.substr(3);
+      }
+    }
     this._rendition.display(target);
   },
 

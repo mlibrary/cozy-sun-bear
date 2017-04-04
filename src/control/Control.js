@@ -19,10 +19,15 @@ export var Control = Class.extend({
         // @option region: String = 'topright'
         // The region of the control (one of the reader corners). Possible values are `'topleft'`,
         // `'topright'`, `'bottomleft'` or `'bottomright'`
-        region: 'header'
     },
 
     initialize: function (options) {
+        if ( typeof(options) == "string" ) {
+            this._control = document.getElementById(options);
+            this._locked = true;
+            options = { id: this._control.getAttribute('id') };
+            console.log("AHOY LOCKED", this._control, options);
+        }
         Util.setOptions(this, options);
     },
 
@@ -66,15 +71,13 @@ export var Control = Class.extend({
         this.remove();
         this._reader = reader;
 
-        var container = this._container = this.onAdd(reader),
-            region = this.getRegion(),
-            area = reader.getControlRegion(region);
+        var container = this._container = this.onAdd(reader);
 
         DomUtil.addClass(container, 'cozy-control');
 
-        if (region.indexOf('bottom') !== -1) {
-            area.insertBefore(container, area.firstChild);
-        } else {
+        if ( ! this.options.id ) {
+            var region = this.getRegion();
+            var area = reader.getControlRegion(region);
             area.appendChild(container);
         }
 
@@ -88,7 +91,13 @@ export var Control = Class.extend({
             return this;
         }
 
-        DomUtil.remove(this._container);
+        if (! this._container) {
+            return this;
+        }
+
+        if ( ! this._locked ) {
+            DomUtil.remove(this._container);
+        }
 
         if (this.onRemove) {
             this.onRemove(this._reader);

@@ -5,12 +5,23 @@ import * as DomEvent from '../dom/DomEvent';
 
 var PageControl = Control.extend({
   onAdd: function(reader) {
-    var className = this._className(),
-        container = DomUtil.create('div', className),
-        options = this.options;
+    var container;
+    if ( ! this._control ) {
+      this._button = document.getElementById(this.options.id);
 
-    this._button  = this._createButton(options.html || options.label, options.label,
-            className, container, this._action);
+      var className = this._className(),
+          options = this.options;
+      container = DomUtil.create('div', className),
+
+      this._button  = this._createButton(options.html || options.label, options.label,
+              className, container, this._action);
+
+    } else {
+      DomEvent.disableClickPropagation(this._control);
+      DomEvent.on(this._control, 'click', DomEvent.stop);
+      DomEvent.on(this._control, 'click', this._action, this);
+      container = this._control.parentNode;
+    }
 
     return container;
   },

@@ -38,6 +38,7 @@ export var Contents = Control.extend({
 
   _createOption(tabindex, chapter) {
     
+    console.log("AHOY CHAPTER", chapter);
     function pad(value, length) {
         return (value.toString().length < length) ? pad("-"+value, length):value;
     }

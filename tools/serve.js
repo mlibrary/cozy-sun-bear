@@ -10,6 +10,7 @@ var	portfinder = require('portfinder');
 var path = require('path');
 var logger, port;
 var log = console.log;
+var proxy = require('express-http-proxy');
 
 function start(_port) {
  if (!_port) {
@@ -66,6 +67,13 @@ function listen(port) {
     }
     res.send(books);
   })
+  app.use('/common', proxy('https://babel.hathitrust.org/common', { 
+    https: true,
+    forwardPath: function(req) {
+      console.log("AHOY", require('url').parse(req.url).path);
+      return '/common' + require('url').parse(req.url).path;
+    }
+  }));
   app.use(staticServer);
 
   if(!logger) app.use(morgan('dev'))
