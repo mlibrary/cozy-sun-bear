@@ -39,15 +39,18 @@ function listen(port) {
 
   var app = express();
   var staticServer = serveStatic(path.resolve(__dirname, '../'), {'index': ['index.html', 'index.htm']})
-  var indexPath = path.resolve(__dirname, '../books/epub3-samples');
-  var indexPathInfo = '/books/epub3-samples';
+  var appPath = path.resolve(__dirname + '/../');
+  var indexPaths = [];
+  indexPaths.push(path.resolve(appPath, 'books/epub3-samples'));
+  indexPaths.push(path.resolve(appPath, 'books/epub3-local'));
+  // var indexPathInfo = '/books/epub3-samples';
 
   var server = http.createServer(app);
 
   app.use(allowCrossDomain);
   app.get('/books', function(req, res) {
     var books = [];
-    var queue = [ indexPath ];
+    var queue = indexPaths.slice(0);
     while ( queue.length ) {
       var thisPath = queue.shift();
       var items = fs.readdirSync(thisPath);
@@ -58,7 +61,8 @@ function listen(port) {
         if ( stat.isDirectory() ) {
           if ( fs.existsSync(path.resolve(fullPath, "mimetype")) ) {
             // actual book
-            books.push(fullPath.replace(indexPath, indexPathInfo) + "/");
+            var indexPathInfo = fullPath.replace(appPath, '');
+            books.push(indexPathInfo + "/");
           } else {
             queue.push(fullPath);
           }
@@ -70,7 +74,6 @@ function listen(port) {
   app.use('/common', proxy('https://babel.hathitrust.org/common', { 
     https: true,
     forwardPath: function(req) {
-      console.log("AHOY", require('url').parse(req.url).path);
       return '/common' + require('url').parse(req.url).path;
     }
   }));
