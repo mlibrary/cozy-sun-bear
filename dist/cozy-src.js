@@ -1,12 +1,12 @@
 
-if (false && (new Date()).getTime() > 1491225348130) {
+if (false && (new Date()).getTime() > 1491323885539) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
 }
 
 /*
- * Leaflet 1.0.0+master.bade23f, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.0.0+hathitrust.daf04f4, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1491225348130) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+master.bade23f";
+var version = "1.0.0+hathitrust.daf04f4";
 
 /*
  * @namespace Util
@@ -2109,15 +2109,6 @@ var Reader = Evented.extend({
   EOT: true
 });
 
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
-
 var Control = Class.extend({
     // @section
     // @aka Control options
@@ -2125,11 +2116,14 @@ var Control = Class.extend({
         // @option region: String = 'topright'
         // The region of the control (one of the reader corners). Possible values are `'topleft'`,
         // `'topright'`, `'bottomleft'` or `'bottomright'`
-        region: 'header'
     },
 
     initialize: function (options) {
         setOptions(this, options);
+        if ( options.container ) {
+            this._container = options.container;
+            this._locked = true;
+        }
     },
 
     /* @section
@@ -2172,15 +2166,13 @@ var Control = Class.extend({
         this.remove();
         this._reader = reader;
 
-        var container = this._container = this.onAdd(reader),
-            region = this.getRegion(),
-            area = reader.getControlRegion(region);
+        var container = this._container = this.onAdd(reader);
 
         addClass(container, 'cozy-control');
 
-        if (region.indexOf('bottom') !== -1) {
-            area.insertBefore(container, area.firstChild);
-        } else {
+        if ( ! this._locked ) {
+            var region = this.getRegion();
+            var area = reader.getControlRegion(region);
             area.appendChild(container);
         }
 
@@ -2194,7 +2186,14 @@ var Control = Class.extend({
             return this;
         }
 
-        remove(this._container);
+        if (! this._container) {
+            return this;
+        }
+
+console.log("AHOY REMOVE", this._locked);
+        if ( ! this._locked ) {
+            remove(this._container);
+        }
 
         if (this.onRemove) {
             this.onRemove(this._reader);
@@ -2340,17 +2339,25 @@ Reader.include({
 
 var PageControl = Control.extend({
   onAdd: function(reader) {
-    var className = this._className(),
-        container = create$1('div', className),
-        options = this.options;
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      this._control = document.getElementById(this.options.id);
 
-    this._button  = this._createButton(options.html || options.label, options.label,
-            className, container, this._action);
+      var className = this._className(),
+          options = this.options;
+      container = create$1('div', className),
+
+      this._control  = this._createButton(options.html || options.label, options.label,
+              className, container);
+    }
+    this._bindEvents();
 
     return container;
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function (html, title, className, container) {
     var link = create$1('a', className, container);
     link.innerHTML = html;
     link.href = '#';
@@ -2362,12 +2369,13 @@ var PageControl = Control.extend({
     link.setAttribute('role', 'button');
     link.setAttribute('aria-label', title);
 
-    disableClickPropagation(link);
-    on(link, 'click', stop);
-    on(link, 'click', fn, this);
-    // DomEvent.on(link, 'click', this._refocusOnMap, this);
-
     return link;
+  },
+
+  _bindEvents: function() {
+    disableClickPropagation(this._control);
+    on(this._control, 'click', stop);
+    on(this._control, 'click', this._action, this);
   },
 
   EOT: true
@@ -2397,6 +2405,26 @@ var PageNext = PageControl.extend({
   }
 });
 
+var PageFirst = PageControl.extend({
+  options: {
+    direction: 'first',
+    label: 'First Page'
+  },
+  _action: function(e) {
+      this._reader.first();
+  }
+});
+
+var PageLast = PageControl.extend({
+  options: {
+    direction: 'last',
+    label: 'Last Page'
+  },
+  _action: function(e) {
+      this._reader.last();
+  }
+});
+
 var pageNext = function(options) {
   return new PageNext(options);
 };
@@ -2405,32 +2433,67 @@ var pagePrevious = function(options) {
   return new PagePrevious(options);
 };
 
+var pageFirst = function(options) {
+  return new PageFirst(options);
+};
+
+var pageLast = function(options) {
+  return new PageLast(options);
+};
+
 var Contents = Control.extend({
+
+  defaultTemplate: `<button data-toggle="dropdown">Contents <span>▼</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+
   onAdd: function(reader) {
     var self = this;
-    var className = this._className(),
-        container = create$1('div', className),
-        options = this.options;
 
-    var template = '<label><span class="sr-only">Contents: </span><select size="1" name="contents"></select></label>';
-    var control$$1 = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-    container.appendChild(control$$1);
-    this._control = control$$1.getElementsByTagName('select')[0];
-    this._control.onchange = function() {
-      var target = this.value;
-      self._reader.gotoPage(target);
-    };
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = create$1('div', className);
+
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while ( body.children.length ) {
+        container.appendChild(body.children[0]);
+      }
+    }
+
+    this._control = container.querySelector("[data-toggle=dropdown]");
+    this._menu = container.querySelector("[data-target=menu]");
+    this._menu.style.display = 'none';
+    container.style.position = 'relative';
+
+    on(this._control, 'click', function(event) {
+      event.preventDefault();
+      this._menu.style.display = 'block';
+    }, this);
+
+    on(this._menu, 'click', function(event) {
+      event.preventDefault();
+      var target = event.target;
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      this._menu.style.display = 'none';
+    }, this);
 
     this._reader.on('update-contents', function(data) {
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ 0, value] });
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, self._menu ] });
       while ( s.length ) {
         var tuple = s.shift();
-        var chapter = tuple[1];
-        var tabindex = tuple[0];
+        var chapter = tuple[0];
+        var tabindex = tuple[1];
+        var parent = tuple[2];
 
-        self._createOption(tabindex, chapter);
+        var option = self._createOption(chapter, tabindex, parent);
         data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-          s.unshift([tabindex + 1, chapter_]);
+          s.unshift([chapter_, tabindex + 1, option]);
         });
       }
     });
@@ -2438,36 +2501,26 @@ var Contents = Control.extend({
     return container;
   },
 
-  _createOption(tabindex, chapter) {
+  _createOption(chapter, tabindex, parent) {
     
-    function pad(value, length) {
-        return (value.toString().length < length) ? pad("-"+value, length):value;
+    var option = create$1('li');
+    var anchor = create$1('a', null, option);
+    anchor.textContent = chapter.label;
+    // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+    // option.textContent = tab + chapter.label;
+    anchor.setAttribute('href', chapter.href);
+
+    if ( parent.tagName == 'LI' ) {
+      // need to nest
+      var tmp = parent.querySelector('ul');
+      if ( ! tmp ) {
+        tmp = create$1('ul', null, parent);
+      }
+      parent = tmp;
     }
-    var option = create$1('option');
-    var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
-    option.textContent = tab + chapter.label;
-    option.setAttribute('value', chapter.href);
-    this._control.appendChild(option);
-  },
 
-  _createButton: function (html, title, className, container, fn) {
-    var link = create$1('a', className, container);
-    link.innerHTML = html;
-    link.href = '#';
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-
-    disableClickPropagation(link);
-    on(link, 'click', stop);
-    on(link, 'click', fn, this);
-    // DomEvent.on(link, 'click', this._refocusOnMap, this);
-
-    return link;
+    parent.appendChild(option);
+    return option;
   },
 
   EOT: true
@@ -2685,8 +2738,12 @@ var preferences = function(options) {
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
+Control.PageFirst = PageFirst;
+Control.PageLast = PageLast;
 control.pagePrevious = pagePrevious;
 control.pageNext = pageNext;
+control.pageFirst = pageFirst;
+control.pageLast = pageLast;
 
 Control.Contents = Contents;
 control.contents = contents;
@@ -2751,7 +2808,29 @@ Reader.EpubJS = Reader.extend({
     this._rendition.prev();
   },
 
+  first: function() {
+    this._rendition.display(0);
+  },
+
+  last: function() {
+    var self = this;
+    var target = 0.9999999;
+    var promise;
+    // epub.js looks for floats, but Javascript treats 100.0 === 100
+    if ( this._book.locations.total == 0 ) {
+      promise = this._book.locations.generate(); 
+    } else {
+      promise = new Promise(function(fullfill){ fullfill();});
+    }
+    promise.then(function() { self._rendition.display(target); });
+  },
+
   gotoPage: function(target) {
+    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
+      while ( target.substr(0, 3) == '../' ) {
+        target = target.substr(3);
+      }
+    }
     this._rendition.display(target);
   },
 

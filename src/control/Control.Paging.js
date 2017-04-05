@@ -5,17 +5,25 @@ import * as DomEvent from '../dom/DomEvent';
 
 var PageControl = Control.extend({
   onAdd: function(reader) {
-    var className = this._className(),
-        container = DomUtil.create('div', className),
-        options = this.options;
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      this._control = document.getElementById(this.options.id);
 
-    this._button  = this._createButton(options.html || options.label, options.label,
-            className, container, this._action);
+      var className = this._className(),
+          options = this.options;
+      container = DomUtil.create('div', className),
+
+      this._control  = this._createButton(options.html || options.label, options.label,
+              className, container);
+    }
+    this._bindEvents();
 
     return container;
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function (html, title, className, container) {
     var link = DomUtil.create('a', className, container);
     link.innerHTML = html;
     link.href = '#';
@@ -27,12 +35,13 @@ var PageControl = Control.extend({
     link.setAttribute('role', 'button');
     link.setAttribute('aria-label', title);
 
-    DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop);
-    DomEvent.on(link, 'click', fn, this);
-    // DomEvent.on(link, 'click', this._refocusOnMap, this);
-
     return link;
+  },
+
+  _bindEvents: function() {
+    DomEvent.disableClickPropagation(this._control);
+    DomEvent.on(this._control, 'click', DomEvent.stop);
+    DomEvent.on(this._control, 'click', this._action, this);
   },
 
   EOT: true
@@ -62,10 +71,38 @@ export var PageNext = PageControl.extend({
   }
 });
 
+export var PageFirst = PageControl.extend({
+  options: {
+    direction: 'first',
+    label: 'First Page'
+  },
+  _action: function(e) {
+      this._reader.first();
+  }
+});
+
+export var PageLast = PageControl.extend({
+  options: {
+    direction: 'last',
+    label: 'Last Page'
+  },
+  _action: function(e) {
+      this._reader.last();
+  }
+});
+
 export var pageNext = function(options) {
   return new PageNext(options);
 }
 
 export var pagePrevious = function(options) {
   return new PagePrevious(options);
+}
+
+export var pageFirst = function(options) {
+  return new PageFirst(options);
+}
+
+export var pageLast = function(options) {
+  return new PageLast(options);
 }

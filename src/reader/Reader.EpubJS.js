@@ -41,7 +41,29 @@ Reader.EpubJS = Reader.extend({
     this._rendition.prev();
   },
 
+  first: function() {
+    this._rendition.display(0);
+  },
+
+  last: function() {
+    var self = this;
+    var target = 0.9999999;
+    var promise;
+    // epub.js looks for floats, but Javascript treats 100.0 === 100
+    if ( this._book.locations.total == 0 ) {
+      promise = this._book.locations.generate(); 
+    } else {
+      promise = new Promise(function(fullfill){ fullfill()});
+    }
+    promise.then(function() { self._rendition.display(target); })
+  },
+
   gotoPage: function(target) {
+    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
+      while ( target.substr(0, 3) == '../' ) {
+        target = target.substr(3);
+      }
+    }
     this._rendition.display(target);
   },
 
