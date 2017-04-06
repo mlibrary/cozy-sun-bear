@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+Detatched: c999623808a9711943f24315b1f3e987d9af6f1b.c999623, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+custom-widgets.f7b3d1c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+HEAD.c999623";
+var version = "1.0.0+custom-widgets.f7b3d1c";
 
 /*
  * @namespace Util
