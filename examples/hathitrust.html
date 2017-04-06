@@ -411,7 +411,7 @@
             var $scrolling = $("#scrolling");
             $scrolling.height($(window).height() - $(".navbar-static-top").height() - $(".navbar-static-bottom").height() - 40);
 
-            var book_href = '/books/epub3-samples/epub3-local/31924012345678/31924012345678/';
+            var book_href = '/books/epub3-local/31924012345678/31924012345678/';
             var reader = cozy.reader('content', { href: book_href });
 
             cozy.control.contents({ container: $(".table-of-contents").get(0) }).addTo(reader);
