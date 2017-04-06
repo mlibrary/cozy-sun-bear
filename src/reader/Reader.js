@@ -68,7 +68,7 @@ export var Reader = Evented.extend({
 
     this.open();
 
-    this.draw(1);
+    this.draw(0);
   },
 
   switch: function(flow) {
