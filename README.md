@@ -15,8 +15,12 @@ Some of the examples use the IDPF epub3-samples examples; these are expected to
 be checked out in same directory containing `cozy-sun-bear`:
 
 ```bash
-$ cd .. # if you are in the cozy-sun-bear directory
+# Start in your cozy-sun-bear directory...
+$ cd ..
+# ../cozy-sun-bear/books/epub3-samples links to ./epub3-samples so clone it...
 $ git clone https://github.com/IDPF/epub3-samples.git
+# ../cozy-sun-bear/books/epub3-local links to ./epub3-local so create it...
+$ mkdir epub3-local
 $ cd cozy-sun-bear
 ```
 
