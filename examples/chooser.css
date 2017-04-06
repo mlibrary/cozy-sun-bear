@@ -157,6 +157,16 @@ div.cozy-panel-footer {
   color: white;
 }
 
+.cozy-panel-header .cozy-panel-left {
+  align-items: center;
+}
+
+.chooser-metadata button {
+  font-size: 150%;
+  background: PapayaWhip;
+  border-radius: 8px;
+}
+
 iframe {
     background: white;
 }

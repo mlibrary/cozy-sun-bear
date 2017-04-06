@@ -4,6 +4,7 @@ import {Contents, contents} from './Control.Contents';
 import {Title, title} from './Control.Title';
 import {PublicationMetadata, publicationMetadata} from './Control.PublicationMetadata';
 import {Preferences, preferences} from './Control.Preferences';
+import {Widget, widget} from './Control.Widget';
 
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
@@ -28,5 +29,8 @@ control.publicationMetadata = publicationMetadata;
 
 Control.Preferences = Preferences;
 control.preferences = preferences;
+
+Control.Widget = Widget;
+control.widget = widget;
 
 export {Control, control};

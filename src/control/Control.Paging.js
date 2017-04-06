@@ -9,7 +9,6 @@ var PageControl = Control.extend({
     if ( container ) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
-      this._control = document.getElementById(this.options.id);
 
       var className = this._className(),
           options = this.options;

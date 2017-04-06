@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+examples.1fe8edb, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+Detatched: 18a8e9a5e00836266804b220a7edbb6899de9eca.18a8e9a, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+examples.1fe8edb";
+var version = "1.0.0+HEAD.18a8e9a";
 
 /*
  * @namespace Util
@@ -2453,7 +2453,6 @@ var PageControl = Control.extend({
     if ( container ) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
-      this._control = document.getElementById(this.options.id);
 
       var className = this._className(),
           options = this.options;
@@ -2850,6 +2849,81 @@ var preferences = function(options) {
   return new Preferences(options);
 };
 
+var Widget = Control.extend({
+
+  defaultTemplate: `<button data-toggle="button" data-slot="title"></button>`,
+
+  options: {
+      // @option region: String = 'topright'
+      // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+      // `'topright'`, `'bottomleft'` or `'bottomright'`
+  },
+
+  onAdd: function(reader) {
+    var container = this._container;
+    if ( container ) {
+      // NOOP
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = create$1('div', className);
+
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while ( body.children.length ) {
+        container.appendChild(body.children[0]);
+      }
+
+      this.state(this.options.states[0].stateName, container);
+
+    }
+
+    this._bindEvents(container);
+
+    return container;
+  },
+
+  state: function(stateName, container) {
+    container = container || this._container;
+    this._resetState();
+    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+    if ( this._state.className ) {
+      addClass(container, this._state.className);
+    }
+    if ( this._state.title ) {
+      var element = container.querySelector("[data-slot=title]");
+      element.innerHTML = this._state.title;
+    }
+  },
+
+  _resetState: function() {
+    if ( ! this._state ) { return; }
+    if ( this._state.className ) {
+      removeClass(this._container, this._state.className);
+    }
+  },
+
+  _bindEvents: function(container) {
+    var control$$1 = container.querySelector("[data-toggle=button]");
+    if ( ! control$$1 ) { return ; }
+    disableClickPropagation(control$$1);
+    on(control$$1, 'click', stop);
+    on(control$$1, 'click', this._action, this);
+  },
+
+  _action: function() {
+    this._state.onClick(this, this._reader);
+  },
+
+  EOT: true
+});
+
+var widget = function(options) {
+  return new Widget(options);
+};
+
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
 
@@ -2873,6 +2947,9 @@ control.publicationMetadata = publicationMetadata;
 
 Control.Preferences = Preferences;
 control.preferences = preferences;
+
+Control.Widget = Widget;
+control.widget = widget;
 
 var Bus = Evented.extend({
 });
