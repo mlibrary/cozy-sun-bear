@@ -11,7 +11,6 @@
 </head>
 <body>
 
-    <h1>Choose Your Own Poison</h1>
     <p>
         <form>
             <select size="1" name="book"></select>
@@ -49,30 +48,30 @@
             book_href = location.search.substr(1);
             var reader = cozy.reader('reader', { href: book_href });
 
-            cozy.control.widget({ 
-                region: 'top.header.left',
-                states: [{
-                  stateName: 'back-to-metadata',
-                  icon: null,
-                  className: 'chooser-metadata',
-                  title: 'Metadata',
-                  onClick: function(btn, reader) {
-                    console.log("AHOY CLICK", btn);
-                    alert("Take you back to the metadata page!");
-                    btn.state('back-to-results');
-                  }
-                },
-                {
-                    stateName: 'back-to-results',
-                    icon: null,
-                    className: 'chooser-metadata',
-                    title: 'Results',
-                    onClick: function(btn, reader) {
-                        alert("Take you back to the search results!");
-                        btn.state('back-to-metadata');
-                    }
-                }],
-            }).addTo(reader);
+            // cozy.control.widget({ 
+            //     region: 'top.header.left',
+            //     states: [{
+            //       stateName: 'back-to-metadata',
+            //       icon: null,
+            //       className: 'chooser-metadata',
+            //       title: 'Metadata',
+            //       onClick: function(btn, reader) {
+            //         console.log("AHOY CLICK", btn);
+            //         alert("Take you back to the metadata page!");
+            //         btn.state('back-to-results');
+            //       }
+            //     },
+            //     {
+            //         stateName: 'back-to-results',
+            //         icon: null,
+            //         className: 'chooser-metadata',
+            //         title: 'Results',
+            //         onClick: function(btn, reader) {
+            //             alert("Take you back to the search results!");
+            //             btn.state('back-to-metadata');
+            //         }
+            //     }],
+            // }).addTo(reader);
 
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
@@ -85,10 +84,10 @@
                 }]
             }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
-            cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
+            // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-            cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
+            // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
             cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
             reader.start();
         }
