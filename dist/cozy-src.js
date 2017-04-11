@@ -1,14 +1,23 @@
+
+if (false && (new Date()).getTime() > 1491939577476) {
+  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
+  alert(msg);
+  // throw new Error(msg);
+}
+
 /*
- * Cozy Sun Bear 1.0.0+custom-widgets.f7b3d1c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
- * (c) 2017 Regents of the University of Michigan
+ * Leaflet 1.0.0+debug-hathitrust.81aba97, a JS library for interactive maps. http://leafletjs.com
+ * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
+
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+custom-widgets.f7b3d1c";
+var version = "1.0.0+debug-hathitrust.81aba97";
 
 /*
  * @namespace Util
@@ -1967,7 +1976,8 @@ var Reader = Evented.extend({
       'footer'
     ],
     flow: 'auto',
-    engine: 'epubjs'
+    engine: 'epubjs',
+    trackResize: true
   },
 
   initialize: function(id, options) {
@@ -2000,6 +2010,7 @@ var Reader = Evented.extend({
     this.open();
 
     this.draw(0);
+    this._loaded = true;
   },
 
   switch: function(flow) {
@@ -2127,8 +2138,8 @@ var Reader = Evented.extend({
     // for a second (also called long press).
     // @event keypress: KeyboardEvent
     // Fired when the user presses a key from the keyboard while the map is focused.
-    onOff(this._container, 'click dblclick mousedown mouseup ' +
-      'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
+    // onOff(this._container, 'click dblclick mousedown mouseup ' +
+    //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
 
     if (this.options.trackResize) {
       onOff(window, 'resize', this._onResize, this);
@@ -2139,10 +2150,19 @@ var Reader = Evented.extend({
     }
   },
 
-  _onResize: function () {
-    cancelAnimFrame(this._resizeRequest);
-    this._resizeRequest = requestAnimFrame(
-            function () { this.invalidateSize({debounceMoveend: true}); }, this);
+  // _onResize: function () {
+  //   Util.cancelAnimFrame(this._resizeRequest);
+  //   this._resizeRequest = Util.requestAnimFrame(
+  //           function () { this.invalidateSize({debounceMoveend: true}); }, this);
+  // },
+
+  _onResize: function() {
+    if ( ! this._resizeRequest ) {
+      this._resizeRequest = requestAnimFrame(function() {
+        this.invalidateSize({});
+      }, this);
+      console.log("AHOY ON RESIZE", this._resizeRequest);
+    }
   },
 
   _onScroll: function () {
@@ -2205,6 +2225,30 @@ var Reader = Evented.extend({
       if (data.originalEvent._stopped ||
         (targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1)) { return; }
     }
+  },
+
+  invalidateSize: function(options) {
+    var self = this;
+
+    cancelAnimFrame(this._resizeRequest);
+    this._resizeRequest = null;
+
+    if (! this._loaded) { return this; }
+
+    var panes = this._panes;
+
+    var target = this.currentLocation();
+    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
+    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
+
+    if ( this._triggerRedraw ) {
+      clearTimeout(this._triggerRedraw);
+    }
+    this._triggerRedraw = setTimeout(function() {
+      self.destroy();
+      self.draw(target);
+    }, 150);
+
   },
 
   EOT: true
@@ -2552,7 +2596,7 @@ var pageLast = function(options) {
 
 var Contents = Control.extend({
 
-  defaultTemplate: `<button data-toggle="dropdown">Contents <span>▼</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button data-toggle="dropdown">Contents <span>&#9660;</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -2980,18 +3024,28 @@ Reader.EpubJS = Reader.extend({
   },
 
   draw: function(target) {
+    var self = this;
     this.settings = { flow: this.options.flow };
+    this.settings.height = '100%';
+    // this.settings.width = '100%';
     if ( this.options.flow == 'auto' ) {
-      this.settings.height = '100%';
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
-    this._rendition = this._book.renderTo(this._panes['book'], this.settings);
-    this._bindEvents();
+    // have to set this to prevent scrolling issues
+    // this.settings.height = this._panes['book'].clientHeight;
+    // this.settings.width = this._panes['book'].clientWidth;
 
-    if ( target.start ) { target = target.start; }
-    this._rendition.display(target);
+    // start the rendition after all the epub parts 
+    // have been loaded
+    this._book.ready.then(function() {
+      self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+      self._bindEvents();
+
+      if ( target && target.start ) { target = target.start; }
+      self._rendition.display(target);
+    });
   },
 
   next: function() {
@@ -3008,6 +3062,10 @@ Reader.EpubJS = Reader.extend({
 
   last: function() {
     var self = this;
+    var target = this._book.spine.length - 1;
+    this._rendition.display(target);
+    return;
+
     var target = 0.9999999;
     var promise;
     // epub.js looks for floats, but Javascript treats 100.0 === 100
@@ -3029,20 +3087,35 @@ Reader.EpubJS = Reader.extend({
   },
 
   destroy: function() {
-    this._rendition.destroy();
+    if ( this._rendition ) {
+      this._rendition.destroy();
+    }
+    this._rendition = null;
   },
 
   currentLocation: function() {
-    return this._rendition.currentLocation();
+    if ( this._rendition ) { 
+      return this._rendition.currentLocation();
+    }
+    return null;
   },
 
   _bindEvents: function() {
     var self = this;
 
     // add a stylesheet to stop images from breaking their columns
-    this._rendition.hooks.content.register(function(view) {
-      view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
-    });
+    var add_max_img_styles = false;
+    console.log("AHOY:", this._book.package);
+    if ( this._book.package.metadata.layout == 'pre-paginated' ) {
+      // NOOP
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+      add_max_img_styles = true;
+    }
+    if ( add_max_img_styles ) {
+      this._rendition.hooks.content.register(function(view) {
+        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+      });
+    }
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;
