@@ -63,12 +63,7 @@ export var Reader = Evented.extend({
     var self = this;
     var panes = self._panes;
 
-    console.log("AHOY START", panes['book-cover'].offsetHeight, (panes['book-cover'].offsetHeight * _padding));
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
-    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
-
-    panes['book'].dataset.height = panes['book'].style.height;
-    panes['book'].dataset.width = panes['book'].style.width;
+    self.setBookPanelSize();
 
     var x = panes['book-cover']; var xx = panes['book'];
 
@@ -315,9 +310,7 @@ export var Reader = Evented.extend({
     panes['book'].style.display = 'none';
 
     setTimeout(function() {
-      panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
-      panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
-      panes['book'].style.display = 'block';
+      self.setBookPanelSize();
 
       if ( self._triggerRedraw ) {
         clearTimeout(self._triggerRedraw);
