@@ -19,18 +19,28 @@ Reader.EpubJS = Reader.extend({
   },
 
   draw: function(target) {
+    var self = this;
     this.settings = { flow: this.options.flow };
+    this.settings.height = '100%';
+    // this.settings.width = '100%';
     if ( this.options.flow == 'auto' ) {
-      this.settings.height = '100%';
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
-    this._rendition = this._book.renderTo(this._panes['book'], this.settings);
-    this._bindEvents();
+    // have to set this to prevent scrolling issues
+    // this.settings.height = this._panes['book'].clientHeight;
+    // this.settings.width = this._panes['book'].clientWidth;
 
-    if ( target.start ) { target = target.start; }
-    this._rendition.display(target);
+    // start the rendition after all the epub parts 
+    // have been loaded
+    this._book.ready.then(function() {
+      self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+      self._bindEvents();
+
+      if ( target && target.start ) { target = target.start; }
+      self._rendition.display(target);
+    })
   },
 
   next: function() {
@@ -47,6 +57,10 @@ Reader.EpubJS = Reader.extend({
 
   last: function() {
     var self = this;
+    var target = this._book.spine.length - 1;
+    this._rendition.display(target);
+    return;
+
     var target = 0.9999999;
     var promise;
     // epub.js looks for floats, but Javascript treats 100.0 === 100
@@ -68,26 +82,41 @@ Reader.EpubJS = Reader.extend({
   },
 
   destroy: function() {
-    this._rendition.destroy();
+    if ( this._rendition ) {
+      this._rendition.destroy();
+    }
+    this._rendition = null;
   },
 
   currentLocation: function() {
-    return this._rendition.currentLocation();
+    if ( this._rendition ) { 
+      return this._rendition.currentLocation();
+    }
+    return null;
   },
 
   _bindEvents: function() {
     var self = this;
 
     // add a stylesheet to stop images from breaking their columns
-    this._rendition.hooks.content.register(function(view) {
-      view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
-    })
+    var add_max_img_styles = false;
+    console.log("AHOY:", this._book.package);
+    if ( this._book.package.metadata.layout == 'pre-paginated' ) {
+      // NOOP
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+      add_max_img_styles = true;
+    }
+    if ( add_max_img_styles ) {
+      this._rendition.hooks.content.register(function(view) {
+        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+      })
+    }
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
       self.fire("update-section", current);
-    })
+    });
   },
 
   EOT: true

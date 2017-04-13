@@ -8,6 +8,12 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <link rel="stylesheet" type="text/css" href="chooser.css" />
 
+    <style type="text/css">
+        .cozy-module-book {
+            background: #fff;
+        }
+    </style>
+
 </head>
 <body>
 
@@ -25,8 +31,19 @@
         var $form = $("form");
         var $select = $("select[name=book]");
         var book_href;
+        var book_prefix;
 
-        $.getJSON("/books", function(data) {
+        if ( location.hostname == 'localhost' ) {
+          book_prefix = '/books/';
+        } else {
+          var tmp = location.pathname.split("/");
+          tmp.pop(); // static.html
+          tmp.pop(); // examples
+          tmp.pop(); // cozy-sun-bear
+          book_prefix = tmp.join('/') + '/';
+        }
+
+        $.getJSON("static.json", function(data) {
             for(var i in data) {
                 var $option = $("<option></option>").appendTo($select);
                 var tmp = data[i].split("/"); tmp.pop();
@@ -45,7 +62,7 @@
         })
 
         if ( location.search ) {
-            book_href = location.search.substr(1);
+            book_href = book_prefix + location.search.substr(1);
             var reader = cozy.reader('reader', { href: book_href });
 
             // cozy.control.widget({ 

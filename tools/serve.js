@@ -48,6 +48,17 @@ function listen(port) {
   var server = http.createServer(app);
 
   app.use(allowCrossDomain);
+
+  if ( process.env.USE_DEV_EPUB ) {
+    var epubJsPath = path.resolve(process.env.USE_DEV_EPUB);
+    app.get('/lib/epub.js', function(req, res) {
+      res.sendFile(epubJsPath + '/epub.js');
+    });
+    app.get('/lib/epub.js.map', function(req, res) {
+      res.sendFile(epubJsPath + '/epub.js.map');
+    });
+  }
+
   app.get('/books', function(req, res) {
     var books = [];
     var queue = indexPaths.slice(0);

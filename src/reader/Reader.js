@@ -36,7 +36,8 @@ export var Reader = Evented.extend({
       'footer'
     ],
     flow: 'auto',
-    engine: 'epubjs'
+    engine: 'epubjs',
+    trackResize: true
   },
 
   initialize: function(id, options) {
@@ -69,6 +70,7 @@ export var Reader = Evented.extend({
     this.open();
 
     this.draw(0);
+    this._loaded = true;
   },
 
   switch: function(flow) {
@@ -196,8 +198,8 @@ export var Reader = Evented.extend({
     // for a second (also called long press).
     // @event keypress: KeyboardEvent
     // Fired when the user presses a key from the keyboard while the map is focused.
-    onOff(this._container, 'click dblclick mousedown mouseup ' +
-      'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
+    // onOff(this._container, 'click dblclick mousedown mouseup ' +
+    //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
 
     if (this.options.trackResize) {
       onOff(window, 'resize', this._onResize, this);
@@ -208,10 +210,19 @@ export var Reader = Evented.extend({
     }
   },
 
-  _onResize: function () {
-    Util.cancelAnimFrame(this._resizeRequest);
-    this._resizeRequest = Util.requestAnimFrame(
-            function () { this.invalidateSize({debounceMoveend: true}); }, this);
+  // _onResize: function () {
+  //   Util.cancelAnimFrame(this._resizeRequest);
+  //   this._resizeRequest = Util.requestAnimFrame(
+  //           function () { this.invalidateSize({debounceMoveend: true}); }, this);
+  // },
+
+  _onResize: function() {
+    if ( ! this._resizeRequest ) {
+      this._resizeRequest = Util.requestAnimFrame(function() {
+        this.invalidateSize({})
+      }, this);
+      console.log("AHOY ON RESIZE", this._resizeRequest);
+    }
   },
 
   _onScroll: function () {
@@ -274,6 +285,30 @@ export var Reader = Evented.extend({
       if (data.originalEvent._stopped ||
         (targets[i].options.nonBubblingEvents && Util.indexOf(targets[i].options.nonBubblingEvents, type) !== -1)) { return; }
     }
+  },
+
+  invalidateSize: function(options) {
+    var self = this;
+
+    Util.cancelAnimFrame(this._resizeRequest);
+    this._resizeRequest = null;
+
+    if (! this._loaded) { return this; }
+
+    var panes = this._panes;
+
+    var target = this.currentLocation();
+    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
+    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
+
+    if ( this._triggerRedraw ) {
+      clearTimeout(this._triggerRedraw);
+    }
+    this._triggerRedraw = setTimeout(function() {
+      self.destroy();
+      self.draw(target);
+    }, 150);
+
   },
 
   EOT: true
