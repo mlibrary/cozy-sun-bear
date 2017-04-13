@@ -24,6 +24,7 @@ import * as DomUtil from '../dom/DomUtil';
  *
  */
 
+var _padding = 1.0;
 export var Reader = Evented.extend({
   options: {
     regions: [
@@ -58,23 +59,28 @@ export var Reader = Evented.extend({
     this._mode = this.options.mode;
   },
 
-  start: function() {
+  start: function(target) {
     var self = this;
     var panes = self._panes;
 
-    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
-    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
+    console.log("AHOY START", panes['book-cover'].offsetHeight, (panes['book-cover'].offsetHeight * _padding));
+    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+
+    panes['book'].dataset.height = panes['book'].style.height;
+    panes['book'].dataset.width = panes['book'].style.width;
 
     var x = panes['book-cover']; var xx = panes['book'];
 
     this.open();
 
-    this.draw(0);
+    this.draw(target || 0);
     this._loaded = true;
   },
 
-  switch: function(flow) {
-    var target = this.currentLocation();
+  switch: function(flow, target) {
+    var target = target || this.currentLocation();
+    console.log("AHOY SWITCH", target.start);
     if ( flow === undefined ) {
       flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
     }
@@ -221,7 +227,6 @@ export var Reader = Evented.extend({
       this._resizeRequest = Util.requestAnimFrame(function() {
         this.invalidateSize({})
       }, this);
-      console.log("AHOY ON RESIZE", this._resizeRequest);
     }
   },
 
@@ -287,6 +292,14 @@ export var Reader = Evented.extend({
     }
   },
 
+  setBookPanelSize: function() {
+    var panes = this._panes;
+
+    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+    panes['book'].style.display = 'block';
+  },
+
   invalidateSize: function(options) {
     var self = this;
 
@@ -295,19 +308,30 @@ export var Reader = Evented.extend({
 
     if (! this._loaded) { return this; }
 
-    var panes = this._panes;
 
     var target = this.currentLocation();
-    panes['book'].style.height = (panes['book-cover'].clientHeight * 0.99) + 'px';
-    panes['book'].style.width = (panes['book-cover'].clientWidth * 0.99) + 'px';
 
-    if ( this._triggerRedraw ) {
-      clearTimeout(this._triggerRedraw);
-    }
-    this._triggerRedraw = setTimeout(function() {
-      self.destroy();
-      self.draw(target);
-    }, 150);
+    var panes = this._panes;
+    panes['book'].style.display = 'none';
+
+    setTimeout(function() {
+      panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+      panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+      panes['book'].style.display = 'block';
+
+      if ( self._triggerRedraw ) {
+        clearTimeout(self._triggerRedraw);
+      }
+
+      self._triggerRedraw = setTimeout(function() {
+        self.destroy();
+        self.draw(target);
+      }, 150);
+
+
+    }, 0);
+    
+
 
   },
 

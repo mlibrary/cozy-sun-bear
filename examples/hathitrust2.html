@@ -151,11 +151,6 @@
                     <span itemprop="author">Branlinger, Patrick.</span>
                     <span itemprop="url">https://hdl.handle.net/2027/loc.ark:/13960/t0sq9ck93</span>
                   </div>
-                  <div class="alert alert-notice alert-block">
-                    <p>
-                      This is a failed approach. See <a href="hathitrust2.html">more compatible</a> idea.
-                    </p>
-                  </div>
                   <div class="bibLinks">
                     <h2>About this Book</h2>
                     <h3 class="offscreen">Catalog Record Details</h3>
@@ -396,7 +391,7 @@
             }
 
             .cozy-container div[class^='cozy-'] {
-                border: 1px solid #666;
+                border: 0px solid #666;
             }
 
             .cozy-container .cozy-module-main {
@@ -407,6 +402,31 @@
             .cozy-container .cozy-module-main div[class^='cozy-module-book'] {
                 height: 100%;
                 width: 100%;
+            }
+
+            html, body {
+              overflow: hidden;
+            }
+
+            body {
+              height: 100vh;
+              width: 100vw;
+
+              padding-bottom: 0px;
+            }
+
+            .navbar-static-bottom {
+              position: fixed;
+              margin-bottom: 0;
+            }
+
+            .container.page.centered {
+              height: 81vh;
+            }
+
+            #main {
+              padding-right: 40px;
+              height: 100%;
             }
 
         </style>
@@ -421,12 +441,7 @@
               var margin_bottom = 80;
               var height = $(window).height() - $(".navbar-static-top").height() - $(".navbar-static-bottom").height() - margin_bottom;
 
-              $scrolling.height(height);
-
-              if ( reader && ! shallow ) {
-                console.log("AHOY RESIZE FRAME INVALIDATE");
-                reader.invalidateSize({});
-              }
+              // $scrolling.height(height);
             }
 
             resize_frame();
@@ -442,7 +457,7 @@
               tmp.push('epub3-local/31924012345678/31924012345678/');
               book_href = tmp.join('/');
             }
-            var reader = cozy.reader('content', { href: book_href, flow: 'scrolled-doc', trackResize: false });
+            var reader = cozy.reader('content', { href: book_href, flow: 'scrolled-doc', trackResize: true });
 
             cozy.control.contents({ container: $(".table-of-contents").get(0) }).addTo(reader);
             
@@ -457,12 +472,6 @@
               target = reader.currentLocation();
               $("a[data-target].active").removeClass("active");
               $(btn).addClass("active");
-              if ( $(btn).data('target') == '2up' ) {
-                reset_everything();
-                $(window).scrollTop(0);
-                // reader.setBookPanelSize();
-              }
-              console.log("AHOY RESET FLOW");
               reader.switch($(btn).data('flow'), target);
             }
 
@@ -479,49 +488,6 @@
             })
 
             reader.start("epubcfi(/6/16[Chapter03.xhtml]!/4/2/2/1:0)");
-
-            var reset_everything = function() {
-              var $book = $(".cozy-module-book");
-              $book.css({ 
-                height: $book.data('height'),
-                width: $book.data('width')
-              })
-              // $book.hide();
-              // $parent.height($parent.data('height'));
-              // $parent.width($parent.data('width'));
-              var $parent = $book.parent();
-              while ( $parent.attr("id") != 'scrolling' ) {
-                $parent.height('');
-                $parent = $parent.parent();
-              }
-              resize_frame(true);
-            }
-
-            var resize_everything = function() {
-              var height = 0;
-              if ( reader.options.flow != 'scrolled-doc' ) {  return ; }
-              var do_set = ( reader.options.flow == 'scrolled-doc' );
-              $(".epub-view").each(function() {
-                var height_ = $(this).height();
-                if ( do_set ) {
-                  $(this).height(height_ + 20);
-                  height += height_ + 20;
-                }
-              })
-              var $parent = $(".epub-container");
-              while ( $parent.attr("id") != 'main' ) {
-                if ( do_set ) {
-                  $parent.height(height);
-                } else if ( $parent.attr("id") == 'scrolling' ) {
-                  resize_frame();
-                } else {
-                  $parent.css({ height: '' });
-                }
-                $parent = $parent.parent();
-              }
-            }
-
-            reader.on("update-section", resize_everything);
 
             function debounce(func, wait, immediate) {
               var timeout;

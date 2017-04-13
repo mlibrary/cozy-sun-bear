@@ -18,7 +18,7 @@ Reader.EpubJS = Reader.extend({
     })
   },
 
-  draw: function(target) {
+  draw: function(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
     this.settings.height = '100%';
@@ -39,7 +39,9 @@ Reader.EpubJS = Reader.extend({
       self._bindEvents();
 
       if ( target && target.start ) { target = target.start; }
-      self._rendition.display(target);
+      self._rendition.display(target).then(function() {
+        if ( callback ) { callback(); }
+      });
     })
   },
 
@@ -100,7 +102,6 @@ Reader.EpubJS = Reader.extend({
 
     // add a stylesheet to stop images from breaking their columns
     var add_max_img_styles = false;
-    console.log("AHOY:", this._book.package);
     if ( this._book.package.metadata.layout == 'pre-paginated' ) {
       // NOOP
     } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
