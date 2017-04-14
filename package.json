@@ -7,7 +7,9 @@
     "build": "npm run rollup",
     "rollup": "rollup -c lib/rollup-config.js",
     "watch": "rollup -w -c lib/rollup-watch-config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-css": "./bin/build-css",
+    "watch-css": "./bin/watch-css"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +27,8 @@
     "http": "0.0.0",
     "jquery": "^3.1.1",
     "morgan": "^1.8.1",
+    "node-sass": "^4.5.2",
+    "nodemon": "^1.11.0",
     "optimist": "^0.6.1",
     "pat": "0.0.1",
     "portfinder": "^1.0.13",
