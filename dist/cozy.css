@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One");
 * {
   box-sizing: border-box; }
 
 body {
-  margin: 0; }
+  margin: 0;
+  font-family: 'Open Sans', sans-serif; }
 
 #reader {
   min-height: 90vh;
@@ -40,15 +42,15 @@ body {
 .cozy-module-book {
   margin-left: auto;
   margin-right: auto;
-  background: green;
+  background: #fff;
   position: relative;
-  padding: 20px; }
+  padding: 2em; }
 
 .cozy-container div[class^='cozy-'] {
-  border: 1px solid #666; }
+  /* border: 1px solid #fff; */ }
 
 .epub-container {
-  background: blue;
+  /* background: blue; */
   /* -- padding on this container messes with horizontal scrolling */
   /*padding: 20px;*/ }
 
@@ -57,7 +59,8 @@ div[class^='cozy-panel-'] {
   flex-grow: 1; }
 
 div.cozy-panel-footer {
-  display: block; }
+  display: block;
+  margin: .5em; }
 
 .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
   justify-content: flex-end; }
@@ -67,12 +70,23 @@ div.cozy-panel-footer {
   justify-content: center;
   align-items: center; }
 
+.cozy-control .cozy-h1 {
+  margin: .3em .5em;
+  font-size: 2em;
+  font-family: 'Scope One', Georgia, sans-serif; }
+
+.cozy-control button {
+  margin: .5em; }
+
 .cozy-panel-sidebar {
   display: flex;
   justify-content: center;
   align-items: center; }
 
 /* WIDGETS */
+.doi-label {
+  margin: .5em; }
+
 .cozy-publisher {
   float: left; }
 
@@ -114,7 +128,7 @@ div.cozy-panel-footer {
   list-style-type: none; }
 
 .cozy-dropdown-menu li {
-  list-style-top: none; }
+  list-style-type: none; }
 
 .cozy-dropdown-menu li > a {
   display: block;

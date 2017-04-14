@@ -1,9 +1,14 @@
+// typography
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
+
+// generic styles
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
+    font-family: 'Open Sans', sans-serif;
 }
 
 #reader {
@@ -40,6 +45,7 @@ body {
 
 .cozy-module-left, .cozy-module-right {
   display: flex;
+
 }
 
 .cozy-module-book-cover {
@@ -51,17 +57,17 @@ body {
 .cozy-module-book {
     margin-left: auto;
     margin-right: auto;
-    background: green;
+    background: #fff;
     position: relative;
-    padding: 20px;
+    padding: 2em;
 }
 
 .cozy-container div[class^='cozy-'] {
-    border: 1px solid #666;
+    /* border: 1px solid #fff; */
 }
 
 .epub-container {
-    background: blue;
+    /* background: blue; */
     /* -- padding on this container messes with horizontal scrolling */
     /*padding: 20px;*/
 
@@ -74,6 +80,7 @@ div[class^='cozy-panel-'] {
 
 div.cozy-panel-footer {
     display: block;
+    margin: .5em;
 }
 
 .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
@@ -86,6 +93,17 @@ div.cozy-panel-footer {
     align-items: center;
 }
 
+.cozy-control {
+  .cozy-h1 {
+    margin: .3em .5em;
+    font-size: 2em;
+    font-family: 'Scope One', Georgia, sans-serif;
+  }
+
+  button {
+    margin: .5em;
+  }
+}
 
 .cozy-panel-sidebar {
     display: flex;
@@ -94,6 +112,10 @@ div.cozy-panel-footer {
 }
 
 /* WIDGETS */
+
+.doi-label {
+  margin: .5em;
+}
 
 .cozy-publisher {
     float: left;
@@ -142,7 +164,7 @@ div.cozy-panel-footer {
 }
 
 .cozy-dropdown-menu li {
-  list-style-top: none;
+  list-style-type: none;
 }
 
 .cozy-dropdown-menu li > a {
