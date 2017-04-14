@@ -1,14 +1,23 @@
+
+if (false && (new Date()).getTime() > 1492117582143) {
+  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
+  alert(msg);
+  // throw new Error(msg);
+}
+
 /*
- * Cozy Sun Bear 1.0.0+sass.e5a9a73, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
- * (c) 2017 Regents of the University of Michigan
+ * Leaflet 1.0.0+obvious-widgets.08d40f2, a JS library for interactive maps. http://leafletjs.com
+ * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
+
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+sass.e5a9a73";
+var version = "1.0.0+master.56162e5";
 
 /*
  * @namespace Util
@@ -274,14 +283,6 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
-// @class Class
-// @aka L.Class
-
-// @section
-// @uninheritable
-
-// Thanks to John Resig and Dean Edwards for inspiration!
-
 function Class() {}
 
 Class.extend = function (props) {
@@ -398,31 +399,6 @@ function checkDeprecatedMixinEvents(includes) {
 		}
 	}
 }
-
-/*
- * @class Evented
- * @aka L.Evented
- * @inherits Class
- *
- * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
- *
- * @example
- *
- * ```js
- * map.on('click', function(e) {
- * 	alert(e.latlng);
- * } );
- * ```
- *
- * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
- *
- * ```js
- * function onClick(e) { ... }
- *
- * map.on('click', onClick);
- * map.off('click', onClick);
- * ```
- */
 
 var Evented = Class.extend({
 
@@ -861,26 +837,6 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
-/*
- * @class Point
- * @aka L.Point
- *
- * Represents a point with `x` and `y` coordinates in pixels.
- *
- * @example
- *
- * ```js
- * var point = L.point(200, 300);
- * ```
- *
- * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
- *
- * ```js
- * map.panBy([200, 300]);
- * map.panBy(L.point(200, 300));
- * ```
- */
-
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -1062,11 +1018,6 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
-/*
- * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
- */
-
-
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
 var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
@@ -1191,10 +1142,6 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
-/*
- * Extends the event handling code with double tap support for mobile browsers.
- */
-
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1275,22 +1222,6 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
-/*
- * @namespace DomEvent
- * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
- */
-
-// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
-
-// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
-// Adds a listener function (`fn`) to a particular DOM event type of the
-// element `el`. You can optionally specify the context of the listener
-// (object the `this` keyword will point to). You can also pass several
-// space-separated types (e.g. `'click dblclick'`).
-
-// @alternative
-// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
-// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if (typeof types === 'object') {
@@ -1574,6 +1505,8 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
+// @function addListener(…): this
+// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 
@@ -1594,20 +1527,6 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
-
-
-// @property TRANSFORM: String
-// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(
     ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
@@ -2262,15 +2181,6 @@ var Reader = Evented.extend({
   EOT: true
 });
 
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
-
 var Control = Class.extend({
     // @section
     // @aka Control options
@@ -2691,8 +2601,6 @@ var contents = function(options) {
   return new Contents(options);
 };
 
-// Title + Chapter
-
 var Title = Control.extend({
   onAdd: function(reader) {
     var self = this;
@@ -2759,8 +2667,6 @@ var Title = Control.extend({
 var title = function(options) {
   return new Title(options);
 };
-
-// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
@@ -2976,9 +2882,6 @@ var widget = function(options) {
   return new Widget(options);
 };
 
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
-
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
 Control.PageFirst = PageFirst;
@@ -3149,8 +3052,6 @@ var reader = function(id, options) {
   var engine = options.engine || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
-
-// misc
 
 var oldCozy = window.cozy;
 function noConflict() {
