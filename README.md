@@ -31,6 +31,8 @@ $ cd cozy-sun-bear
 * When you make changes to /src, re-run `npm run build` to build your changes
 * ...or you can run `npm run watch` to have npm watch for changes to the javascript
 
+[More about maintaining local EPUB3 examples in the wiki](https://github.com/mlibrary/cozy-sun-bear/wiki/EPUB-Test-Files).
+
 #### To run Sass compiler
 If you make changes to the generic stylesheet for cozy-sun-bear, you'll want to edit `scss/cozy.scss` and either run a one time build of the stylesheet (builds to `dist/cozy.css`)  or run a watcher that watches for changes to `scss/cozy.scss` and automatically re-builds the stylesheet.  
 
