@@ -1,24 +1,8 @@
-// typography
+///////////////////////////////////
+// imports
+///////////////////////////////////
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
-
-// reset buttons
-button {
-  overflow: visible;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  -webkit-appearance: none;
-  display: block;
-  outline: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-
-  &::-moz-focus-inner {
-    padding: 0;
-    border: 0
-  }
-}
-
+@import 'open-iconic';
 ///////////////////////////////////
 // variables
 ///////////////////////////////////
@@ -39,11 +23,6 @@ $shadow:        rgba($black, 0.33);
 $ui-success:    #43C59E;
 $ui-caution:    #FFE67A;
 $ui-warning:    #FF6663;
-
-$facebook-blue: #3b5998;
-$twitter-blue:  #00aced;
-$linkedin-blue: #0077B5;
-$google-red:    #DD4B39;
 
 
 // type sizes
@@ -70,16 +49,186 @@ $field-padding:      0.625em 0.825em;
 $section-padding:    2.5rem;
 $grid-padding:       1rem;
 
+///////////////////////////////////
+// typography
+///////////////////////////////////
 
+// google webfonts
+@mixin open-sans-light {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
 
+@mixin open-sans-book {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+@mixin open-sans-bold {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+@mixin scope-one {
+  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
+}
+
+///////////////////////////////////
+// icons
+///////////////////////////////////
+
+i[class^='icon-'] {
+  font-size: 2em;
+}
+
+i[class^='icon-chevron-'] {
+  font-size: 2.5em;
+  color: #e2e2e2;
+  transition: 0.2s ease-in;
+}
+
+i[class^='icon-chevron-']:hover {
+  color: $brand-color;
+  transition: 0.2s ease-in;
+}
+
+///////////////////////////////////
+// manual reset
+///////////////////////////////////
+
+// reset buttons
+button {
+  overflow: visible;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  display: block;
+  outline: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+
+  &::-moz-focus-inner {
+    padding: 0;
+    border: 0
+  }
+}
+
+///////////////////////////////////
+// utility classes
+///////////////////////////////////
+
+// Screen reader text
+.u-screenreader {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.u-screenreader--ignore {
+  speak: none;
+}
+
+.u-margins_off {
+  margin-top: 0 !important;
+}
+
+///////////////////////////////////
+// buttons
+///////////////////////////////////
+
+@mixin button {
+  @include open-sans-book;
+  display: inline-block;
+  border-bottom: none;
+  border-radius: $radius;
+  color: $white;
+  background: $accent-color;
+  background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
+  background-position: -100%;
+  background-size: 201%;
+  background-repeat: no-repeat;
+  text-shadow: none;
+  text-decoration: none;
+  transition: 0.2s ease-in;
+
+  &:hover, &:focus, &:active {
+    color: $white;
+    background-position: 0;
+    transition: 0.2s ease-in;
+  }
+
+  &:active {
+    box-shadow: inset 0 1px 12px $shadow;
+  }
+
+  &[disabled] {
+    cursor-events: none;
+    // does not pass a11y conrast check
+    background: $gray-2;
+    // background: $gray;
+
+    &:active {
+      box-shadow: none;
+    }
+  }
+
+}
+
+.button {
+  @include button;
+  padding: 0.3em 1.625em 0.4em 1.625em;
+}
+
+.button--lg {
+  @include button;
+  padding: 0.65em 1.75em 0.75em 1.75em;
+  font-size: $gamma;
+}
+
+.button--sm {
+  @include button;
+  padding: 0.75em 1.75em 0.825em 1.75em;
+  font-size: $milli;
+}
+
+///////////////////////////////////
+// fields
+///////////////////////////////////
+
+.doi-label form {
+  display: inline-block;
+}
+
+input[type='text'] {
+  @include open-sans-book;
+  width: 100%;
+  padding: $field-padding;
+  background: $white;
+  color: #555;
+  border: none;
+  font-size: .9em;
+}
+
+input[type='text']:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+}
+
+///////////////////////////////////
 // layout
+///////////////////////////////////
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: 'Open Sans', sans-serif;
+    @include open-sans-book;
 }
 
 #reader {
@@ -101,6 +250,10 @@ body {
 .cozy-module-top {
   display: flex;
   flex-direction: column;
+}
+
+.cozy-panel-header {
+  border-bottom: 1px solid $gray-2;
 }
 
 .cozy-module-bottom {
@@ -171,13 +324,17 @@ div.cozy-panel-footer {
 
 .cozy-control {
   .cozy-h1 {
-    margin: .3em .5em;
+    margin: .3em .5em 0;
     font-size: 2em;
-    font-family: 'Scope One', Georgia, sans-serif;
+    @include scope-one;
   }
 
-  button {
-    margin: .5em;
+  button.button--sm {
+    font-size: 1.2rem;
+    height: 100%;
+    border-radius: 0;
+    padding: 0 1em;
+    text-transform: uppercase;
   }
 }
 
@@ -187,11 +344,9 @@ div.cozy-panel-footer {
     align-items: center;
 }
 
-/* WIDGETS */
-
-.doi-label {
-  margin: .5em;
-}
+///////////////////////////////////
+// widgets
+///////////////////////////////////
 
 .cozy-publisher {
     float: left;
@@ -201,11 +356,11 @@ div.cozy-panel-footer {
     float: right;
 }
 
+// previous, next buttons
 .cozy-panel-sidebar .cozy-control a {
     width: 100px;
     display: inline-block;
-    background: black;
-    color: aliceblue;
+    background: transparent;
     text-align: center;
     min-height: 60px;
     padding: 10px;
@@ -227,11 +382,9 @@ div.cozy-panel-footer {
   top: 100%;
   left: 0;
   margin: 0;
-  margin-top: 2px;
   list-style-type: none;
   padding: 5px 0;
-  background: $white;
-  border-top: 1px solid $gray-2;
+  background: $brand-color;
   z-index: 9000;
 }
 
@@ -265,6 +418,12 @@ div.cozy-panel-footer {
   border-radius: 8px;
 }
 
+.cozy-control-preferences {
+  button {
+    padding: .6em 1em .6em .6em;
+  }
+}
+
 iframe {
     background: $white;
 }
@@ -272,62 +431,4 @@ iframe {
 body.scrolled .epub-view {
     height: auto !important;
     width: auto !important;
-}
-
-///////////////////////////////////
-// buttons
-///////////////////////////////////
-
-
-// buttons
-@mixin button {
-  display: inline-block;
-  border-bottom: none;
-  border-radius: $radius;
-  color: $white;
-  background: $accent-color;
-  background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
-  background-position: -100%;
-  background-size: 201%;
-  background-repeat: no-repeat;
-  text-shadow: none;
-  text-decoration: none;
-
-  &:hover, &:focus, &:active {
-    color: $white;
-    background-position: 0;
-  }
-
-  &:active {
-    box-shadow: inset 0 1px 12px $shadow;
-  }
-
-  &[disabled] {
-    cursor-events: none;
-    // does not pass a11y conrast check
-    background: $gray-2;
-    // background: $gray;
-
-    &:active {
-      box-shadow: none;
-    }
-  }
-
-}
-
-.button {
-  @include button;
-  padding: 0.3em 1.625em 0.4em 1.625em;
-}
-
-.button--lg {
-  @include button;
-  padding: 0.65em 1.75em 0.75em 1.75em;
-  font-size: $gamma;
-}
-
-.button--sm {
-  @include button;
-  padding: 0.75em 1.75em 0.825em 1.75em;
-  font-size: $milli;
 }

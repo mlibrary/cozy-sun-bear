@@ -77,10 +77,10 @@
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
             cozy.control.widget({
                 region: 'top.toolbar.left',
-                template: `<div class="doi-label"><span data-slot="title"></span></div>`,
+                template: `<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand('copy');"></form></div>`,
                 states: [{
                     stateName: 'doi',
-                    title: "DOI: 10.3998/fulcrum.12345"
+                    title: "https://doi.org/10.3998/fulcrum.12345"
                 }]
             }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
