@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+sass.e5a9a73, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+4_Testing_Framework.0339490, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+sass.e5a9a73";
+var version = "1.0.0+4_Testing_Framework.0339490";
 
 /*
  * @namespace Util
