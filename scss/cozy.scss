@@ -92,6 +92,10 @@ i[class^='icon-chevron-']:hover {
   transition: 0.2s ease-in;
 }
 
+i.icon-menu {
+  font-size: inherit;
+}
+
 ///////////////////////////////////
 // manual reset
 ///////////////////////////////////
@@ -384,7 +388,10 @@ div.cozy-panel-footer {
   margin: 0;
   list-style-type: none;
   padding: 5px 0;
-  background: $brand-color;
+  background: $white;
+  border-top: 1px solid $gray-2;
+  border-right: 1px solid $gray-2;
+  border-bottom: 1px solid $gray-2;
   z-index: 9000;
 }
 

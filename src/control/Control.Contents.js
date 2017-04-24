@@ -5,7 +5,7 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown">Contents <span>&#9660;</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
 
   onAdd: function(reader) {
     var self = this;

@@ -1,5 +1,5 @@
 
-if (false && (new Date()).getTime() > 1492795572100) {
+if (false && (new Date()).getTime() > 1493055697650) {
   var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
   alert(msg);
   // throw new Error(msg);
@@ -2496,7 +2496,7 @@ var pageLast = function(options) {
 
 var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown">Contents <span>&#9660;</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
 
   onAdd: function(reader) {
     var self = this;

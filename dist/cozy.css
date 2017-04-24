@@ -737,6 +737,9 @@ i[class^='icon-chevron-']:hover {
   color: #002C63;
   transition: 0.2s ease-in; }
 
+i.icon-menu {
+  font-size: inherit; }
+
 button {
   overflow: visible;
   cursor: pointer;
@@ -997,7 +1000,10 @@ div.cozy-panel-footer {
   margin: 0;
   list-style-type: none;
   padding: 5px 0;
-  background: #002C63;
+  background: #FFF;
+  border-top: 1px solid #E8E8E8;
+  border-right: 1px solid #E8E8E8;
+  border-bottom: 1px solid #E8E8E8;
   z-index: 9000; }
 
 .cozy-dropdown-menu ul {
