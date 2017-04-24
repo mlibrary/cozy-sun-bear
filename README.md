@@ -1,4 +1,9 @@
-# cozy sun bear
+
+# cozy sun bear 
+[![Build Status](https://travis-ci.org/mlibrary/cozy-sun-bear.svg?branch=master)](https://travis-ci.org/mlibrary/cozy-sun-bear)
+[![Coverage Status](https://coveralls.io/repos/github/mlibrary/cozy-sun-bear/badge.svg?branch=master)](https://coveralls.io/github/mlibrary/cozy-sun-bear?branch=master)
+[![Stories in Ready](https://badge.waffle.io/mlibrary/cozy-sun-bear.png?label=ready&title=Ready)](https://waffle.io/mlibrary/cozy-sun-bear)
+
 
 ePub widgets and support based around and with code from [epub.js](https://github.com/futurepress/epub.js)
 

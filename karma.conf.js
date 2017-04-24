@@ -36,6 +36,7 @@ module.exports = function (config) {
 			'karma-rollup-plugin',
 			'karma-mocha',
 			'karma-coverage',
+			'karma-coveralls',
 			'karma-phantomjs-launcher',
 			'karma-chrome-launcher',
 			'karma-safari-launcher',
@@ -53,7 +54,7 @@ module.exports = function (config) {
 
 		// Rollup the ES6 Cozy sources into just one file, before tests
 		preprocessors: {
-			'src/cozy.js': ['rollup']
+			'src/cozy.js': ['rollup', 'coverage']
 		},
 		rollupPreprocessor: {
 			plugins: [
@@ -66,7 +67,12 @@ module.exports = function (config) {
 
 		// test results reporter to use
 		// possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-		reporters: ['dots'],
+		reporters: ['dots', 'coverage', 'coveralls'],
+
+		coverageReporter: {
+			type: 'lcov',
+			dir: 'coverage/'
+		},
 
 		// web server port
 		port: 9876,
