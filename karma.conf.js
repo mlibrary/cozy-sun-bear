@@ -1,4 +1,6 @@
 var json = require('rollup-plugin-json');
+var buble = require('rollup-plugin-buble');
+
 
 // Karma configuration
 module.exports = function (config) {
@@ -55,7 +57,8 @@ module.exports = function (config) {
 		},
 		rollupPreprocessor: {
 			plugins: [
-				json()
+				json(),
+				buble()
 			],
 			format: 'umd',
 			moduleName: 'L'
@@ -87,7 +90,7 @@ module.exports = function (config) {
 		// - PhantomJS
 		// - IE (only Windows)
 		// browsers: ['PhantomJSCustom'],
-		browsers: ['Chrome'],
+		browsers: ['PhantomJS'],
 
 		customLaunchers: {
 			'PhantomJSCustom': {
