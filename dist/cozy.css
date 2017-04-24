@@ -1003,6 +1003,7 @@ div.cozy-panel-footer {
   background: #FFF;
   border-top: 1px solid #E8E8E8;
   border-right: 1px solid #E8E8E8;
+  box-shadow: 4px 0 6px 1px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid #E8E8E8;
   z-index: 9000; }
 
@@ -1016,11 +1017,13 @@ div.cozy-panel-footer {
   display: block;
   clear: both;
   white-space: nowrap;
-  padding: 3px 20px; }
+  padding: 3px 20px;
+  text-decoration: none;
+  color: #000; }
 
 .cozy-dropdown-menu li > a:hover {
-  background-color: black;
-  color: white; }
+  background-color: #E8E8E8;
+  color: #000; }
 
 .cozy-panel-header .cozy-panel-left {
   align-items: center; }

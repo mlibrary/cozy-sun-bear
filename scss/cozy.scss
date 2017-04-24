@@ -391,6 +391,7 @@ div.cozy-panel-footer {
   background: $white;
   border-top: 1px solid $gray-2;
   border-right: 1px solid $gray-2;
+  box-shadow: 4px 0 6px 1px rgba(0,0,0,0.1);
   border-bottom: 1px solid $gray-2;
   z-index: 9000;
 }
@@ -408,11 +409,13 @@ div.cozy-panel-footer {
   clear: both;
   white-space: nowrap;
   padding: 3px 20px;
+  text-decoration: none;
+  color: #000;
 }
 
 .cozy-dropdown-menu li > a:hover {
-  background-color: black;
-  color: white;
+  background-color: $gray-2;
+  color: #000;
 }
 
 .cozy-panel-header .cozy-panel-left {
