@@ -17,7 +17,7 @@ if (false && (new Date()).getTime() > 1492117582143) {
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+master.56162e5";
+var version = "1.0.0+4_Testing_Framework.0339490";
 
 /*
  * @namespace Util

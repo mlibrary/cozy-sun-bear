@@ -23,6 +23,7 @@ $ git clone https://github.com/IDPF/epub3-samples.git
 $ mkdir epub3-local
 $ cd cozy-sun-bear
 ```
+[More about maintaining local EPUB3 examples in the wiki](https://github.com/mlibrary/cozy-sun-bear/wiki/EPUB-Test-Files).
 
 #### To run the examples
 
@@ -36,9 +37,9 @@ If you make changes to the generic stylesheet for cozy-sun-bear, you'll want to 
 
 To do a one time build of the stylesheet:
 
-* `npm run build-sass`
+* `npm run build-css`
 
 To watch for changes to the stylesheet and run a build on save:
 
-* `npm run watch-sass`
+* `npm run watch-css`
 
