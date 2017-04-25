@@ -57,3 +57,7 @@ To do a one time run of the complete test suite:
 To watch for changes to the source and run the suite on save:
 
 * `npm run ?` TBD/TODO
+
+### Wiki
+  
+For additional details and helpful hints [read the wiki.](https://github.com/mlibrary/cozy-sun-bear/wiki)

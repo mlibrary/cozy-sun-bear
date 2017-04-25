@@ -112,15 +112,15 @@ Class.addInitHook = function (fn) { // (Function) || (String, args...)
 };
 
 function checkDeprecatedMixinEvents(includes) {
-	if (!L || !L.Mixin) { return; }
+	if (!cozy || !cozy.Mixin) { return; }
 
-	includes = L.Util.isArray(includes) ? includes : [includes];
+	includes = cozy.Util.isArray(includes) ? includes : [includes];
 
 	for (var i = 0; i < includes.length; i++) {
-		if (includes[i] === L.Mixin.Events) {
-			console.warn('Deprecated include of L.Mixin.Events: ' +
+		if (includes[i] === cozy.Mixin.Events) {
+			console.warn('Deprecated include of cozy.Mixin.Events: ' +
 				'this property will be removed in future releases, ' +
-				'please inherit from L.Evented instead.', new Error().stack);
+				'please inherit from cozy.Evented instead.', new Error().stack);
 		}
 	}
 }

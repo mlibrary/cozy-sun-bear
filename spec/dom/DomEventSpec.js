@@ -28,8 +28,8 @@ describe('DomEvent', function () {
 			var listener1 = sinon.spy(),
 			    listener2 = sinon.spy();
 
-			L.DomEvent.addListener(el, 'click', listener1);
-			L.DomEvent.addListener(el, 'click', listener2);
+			cozy.DomEvent.addListener(el, 'click', listener1);
+			cozy.DomEvent.addListener(el, 'click', listener2);
 
 			simulateClick(el);
 
@@ -41,7 +41,7 @@ describe('DomEvent', function () {
 			var obj = {foo: 'bar'},
 			    result;
 
-			L.DomEvent.addListener(el, 'click', function () {
+			cozy.DomEvent.addListener(el, 'click', function () {
 				result = this;
 			}, obj);
 
@@ -53,7 +53,7 @@ describe('DomEvent', function () {
 		it('passes an event object to the listener', function () {
 			var type;
 
-			L.DomEvent.addListener(el, 'click', function (e) {
+			cozy.DomEvent.addListener(el, 'click', function (e) {
 				type = e && e.type;
 			});
 			simulateClick(el);
@@ -66,8 +66,8 @@ describe('DomEvent', function () {
 		it('removes a previously added listener', function () {
 			var listener = sinon.spy();
 
-			L.DomEvent.addListener(el, 'click', listener);
-			L.DomEvent.removeListener(el, 'click', listener);
+			cozy.DomEvent.addListener(el, 'click', listener);
+			cozy.DomEvent.removeListener(el, 'click', listener);
 
 			simulateClick(el);
 
@@ -82,8 +82,8 @@ describe('DomEvent', function () {
 
 			el.appendChild(child);
 
-			L.DomEvent.addListener(child, 'click', L.DomEvent.stopPropagation);
-			L.DomEvent.addListener(el, 'click', listener);
+			cozy.DomEvent.addListener(child, 'click', cozy.DomEvent.stopPropagation);
+			cozy.DomEvent.addListener(el, 'click', listener);
 
 			simulateClick(child);
 
@@ -94,7 +94,7 @@ describe('DomEvent', function () {
 	});
 	describe('#preventDefault', function () {
 		it('prevents the default action of event', function () {
-			L.DomEvent.addListener(el, 'click', L.DomEvent.preventDefault);
+			cozy.DomEvent.addListener(el, 'click', cozy.DomEvent.preventDefault);
 
 			expect(simulateClick(el)).to.be(false);
 		});

@@ -9,7 +9,7 @@ describe("Class", function () {
 			constructor = sinon.spy();
 			method = sinon.spy();
 
-			Klass = L.Class.extend({
+			Klass = cozy.Class.extend({
 				statics: {bla: 1},
 				includes: {mixin: true},
 
@@ -68,7 +68,7 @@ describe("Class", function () {
 		});
 
 		it("includes multiple mixins", function () {
-			var Klass2 = L.Class.extend({
+			var Klass2 = cozy.Class.extend({
 				includes: [{mixin: true}, {mixin2: true}]
 			});
 			var a = new Klass2();
@@ -85,7 +85,7 @@ describe("Class", function () {
 		});
 
 		it("merges options instead of replacing them", function () {
-			var KlassWithOptions1 = L.Class.extend({
+			var KlassWithOptions1 = cozy.Class.extend({
 				options: {
 					foo1: 1,
 					foo2: 2
@@ -105,13 +105,13 @@ describe("Class", function () {
 		});
 
 		it("gives new classes a distinct options object", function () {
-			var K1 = L.Class.extend({options: {}});
+			var K1 = cozy.Class.extend({options: {}});
 			var K2 = K1.extend({});
 			expect(K2.prototype.options).not.to.equal(K1.prototype.options);
 		});
 
 		it("inherits options prototypally", function () {
-			var K1 = L.Class.extend({options: {}});
+			var K1 = cozy.Class.extend({options: {}});
 			var K2 = K1.extend({options: {}});
 			K1.prototype.options.foo = 'bar';
 			expect(K2.prototype.options.foo).to.eql('bar');
@@ -176,7 +176,7 @@ describe("Class", function () {
 		var Klass;
 
 		beforeEach(function () {
-			Klass = L.Class.extend({});
+			Klass = cozy.Class.extend({});
 		});
 
 		it("returns the class with the extra methods", function () {
