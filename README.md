@@ -48,3 +48,15 @@ To watch for changes to the stylesheet and run a build on save:
 
 * `npm run watch-css`
 
+### To run the tests
+
+To do a one time run of the complete test suite:
+
+* `npm test`
+
+To watch for changes to the source and run the suite on save:
+
+* `npm run ?` TBD/TODO
+
+
+
