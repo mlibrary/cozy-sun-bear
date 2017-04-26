@@ -6,7 +6,7 @@
     <script src="../dist/cozy-src.js"></script>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="chooser.css" />
+    <link rel="stylesheet" type="text/css" href="../dist/cozy.css" />
 
     <style type="text/css">
         .cozy-module-book {
@@ -20,7 +20,7 @@
     <p>
         <form>
             <select size="1" name="book"></select>
-            <button>Read</button>
+            <button class="button--sm">Read</button>
         </form>
     </p>
 
@@ -92,12 +92,12 @@
 
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
-            cozy.control.widget({ 
+            cozy.control.widget({
                 region: 'top.toolbar.left',
-                template: `<div class="doi-label"><span data-slot="title"></span></div>`,
+                template: `<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand('copy');"></form></div>`,
                 states: [{
                     stateName: 'doi',
-                    title: "DOI: 10.3998/fulcrum.12345"
+                    title: "https://doi.org/10.3998/fulcrum.12345"
                 }]
             }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
