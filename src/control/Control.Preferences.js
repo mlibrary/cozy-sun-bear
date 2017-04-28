@@ -5,7 +5,8 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Preferences = Control.extend({
   options: {
-    label: 'Preferences'
+    label: 'Preferences',
+    html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
   },
 
   onAdd: function(reader) {

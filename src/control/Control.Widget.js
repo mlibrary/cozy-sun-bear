@@ -49,6 +49,7 @@ export var Widget = Control.extend({
     if ( this._state.title ) {
       var element = container.querySelector("[data-slot=title]");
       element.innerHTML = this._state.title;
+      element.setAttribute('value', this._state.title);
     }
   },
 

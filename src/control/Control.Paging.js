@@ -50,7 +50,8 @@ export var PagePrevious = PageControl.extend({
   options: {
     region: 'edge.left',
     direction: 'previous',
-    label: 'Prevous Page'
+    label: 'Previous Page',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous Page" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -62,7 +63,8 @@ export var PageNext = PageControl.extend({
   options: {
     region: 'edge.right',
     direction: 'next',
-    label: 'Next Page'
+    label: 'Next Page',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next Page" aria-hidden="true"></i>'
   },
 
   _action: function(e) {

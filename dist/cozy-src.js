@@ -1,7 +1,16 @@
+
+if (false && (new Date()).getTime() > 1493070230231) {
+  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
+  alert(msg);
+  // throw new Error(msg);
+}
+
 /*
  * Cozy Sun Bear 1.0.0+4_Testing_Framework.0339490, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
+
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -334,7 +343,7 @@ Class.extend = function (props) {
 
 	// mix given properties into the prototype
 	extend(proto, props);
-	
+
 	proto._initHooks = [];
 
 	// add method for calling all hooks
@@ -2254,7 +2263,7 @@ var Reader = Evented.extend({
 
 
     }, 0);
-    
+
 
 
   },
@@ -2546,7 +2555,8 @@ var PagePrevious = PageControl.extend({
   options: {
     region: 'edge.left',
     direction: 'previous',
-    label: 'Prevous Page'
+    label: 'Previous Page',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous Page" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2558,7 +2568,8 @@ var PageNext = PageControl.extend({
   options: {
     region: 'edge.right',
     direction: 'next',
-    label: 'Next Page'
+    label: 'Next Page',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next Page" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2604,7 +2615,7 @@ var pageLast = function(options) {
 
 var Contents = Control.extend({
 
-  defaultTemplate: `<button data-toggle="dropdown">Contents <span>&#9660;</span></button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -2663,7 +2674,7 @@ var Contents = Control.extend({
   },
 
   _createOption(chapter, tabindex, parent) {
-    
+
     var option = create$1('li');
     var anchor = create$1('a', null, option);
     anchor.textContent = chapter.label;
@@ -2814,7 +2825,8 @@ var publicationMetadata = function(options) {
 
 var Preferences = Control.extend({
   options: {
-    label: 'Preferences'
+    label: 'Preferences',
+    html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
   },
 
   onAdd: function(reader) {
@@ -2947,6 +2959,7 @@ var Widget = Control.extend({
     if ( this._state.title ) {
       var element = container.querySelector("[data-slot=title]");
       element.innerHTML = this._state.title;
+      element.setAttribute('value', this._state.title);
     }
   },
 
@@ -3045,7 +3058,7 @@ Reader.EpubJS = Reader.extend({
     // this.settings.height = this._panes['book'].clientHeight;
     // this.settings.width = this._panes['book'].clientWidth;
 
-    // start the rendition after all the epub parts 
+    // start the rendition after all the epub parts
     // have been loaded
     this._book.ready.then(function() {
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
@@ -3080,7 +3093,7 @@ Reader.EpubJS = Reader.extend({
     var promise;
     // epub.js looks for floats, but Javascript treats 100.0 === 100
     if ( this._book.locations.total == 0 ) {
-      promise = this._book.locations.generate(); 
+      promise = this._book.locations.generate();
     } else {
       promise = new Promise(function(fullfill){ fullfill();});
     }
@@ -3104,7 +3117,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   currentLocation: function() {
-    if ( this._rendition ) { 
+    if ( this._rendition ) {
       return this._rendition.currentLocation();
     }
     return null;
