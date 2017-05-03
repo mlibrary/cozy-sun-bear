@@ -1,10 +1,10 @@
 describe("Reader", function () {
 
-  describe('#draw', function() {
-    it("has a target", function () {
-      expect(true).to.eql(false);
-    });
-  });
+  // describe('#draw', function() {
+  //   it("has a target", function () {
+  //     expect(true).to.eql(false);
+  //   });
+  // });
 
   // describe('constructor', function () {
   //

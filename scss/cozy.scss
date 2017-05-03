@@ -1,15 +1,244 @@
+///////////////////////////////////
+// imports
+///////////////////////////////////
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
+@import 'open-iconic';
+///////////////////////////////////
+// variables
+///////////////////////////////////
+
+// colors
+$brand-color:   #002C63;
+$accent-color:  #00AFEC;
+
+$white:         #FFF;
+$gray-1:        #F1F1F1;
+$gray-2:        #E8E8E8;
+$dark-1:        #565B63;
+$dark-2:        #31343B;
+$black:         #111417;
+
+$shadow:        rgba($black, 0.33);
+
+$ui-success:    #43C59E;
+$ui-caution:    #FFE67A;
+$ui-warning:    #FF6663;
+
+
+// type sizes
+$alpha:    2rem; // 40px
+$beta:  1.65rem; // 33px
+$gamma: 1.15rem; // 23px
+$delta: 0.95rem; // 19px
+$milli: 0.65rem; // 13px
+
+// border radius
+$radius:     4px;
+
+// reuseable measurements
+$nav-height:         3.45rem;
+
+$stroke-width:       3px;
+$stroke-width--lg:   5px;
+
+$button-padding:     0.325em 1.5em 0.5em;
+$button-padding--xl: 0.7em 1.75em 0.825em;
+$nav-padding:        1rem 0.5rem;
+$field-padding:      0.625em 0.825em;
+
+$section-padding:    2.5rem;
+$grid-padding:       1rem;
+
+///////////////////////////////////
+// typography
+///////////////////////////////////
+
+// google webfonts
+@mixin open-sans-light {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
+
+@mixin open-sans-book {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+@mixin open-sans-bold {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+@mixin scope-one {
+  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
+}
+
+///////////////////////////////////
+// icons
+///////////////////////////////////
+
+i[class^='icon-'] {
+  font-size: 2em;
+}
+
+i[class^='icon-chevron-'] {
+  font-size: 2.5em;
+  color: #e2e2e2;
+  transition: 0.2s ease-in;
+}
+
+i[class^='icon-chevron-']:hover {
+  color: $brand-color;
+  transition: 0.2s ease-in;
+}
+
+i.icon-menu {
+  font-size: inherit;
+}
+
+///////////////////////////////////
+// manual reset
+///////////////////////////////////
+
+// reset buttons
+button {
+  overflow: visible;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+  display: block;
+  outline: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+
+  &::-moz-focus-inner {
+    padding: 0;
+    border: 0
+  }
+}
+
+///////////////////////////////////
+// utility classes
+///////////////////////////////////
+
+// Screen reader text
+.u-screenreader {
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.u-screenreader--ignore {
+  speak: none;
+}
+
+.u-margins_off {
+  margin-top: 0 !important;
+}
+
+///////////////////////////////////
+// buttons
+///////////////////////////////////
+
+@mixin button {
+  @include open-sans-book;
+  display: inline-block;
+  border-bottom: none;
+  border-radius: $radius;
+  color: $white;
+  background: $accent-color;
+  background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
+  background-position: -100%;
+  background-size: 201%;
+  background-repeat: no-repeat;
+  text-shadow: none;
+  text-decoration: none;
+  transition: 0.2s ease-in;
+
+  &:hover, &:focus, &:active {
+    color: $white;
+    background-position: 0;
+    transition: 0.2s ease-in;
+  }
+
+  &:active {
+    box-shadow: inset 0 1px 12px $shadow;
+  }
+
+  &[disabled] {
+    cursor-events: none;
+    // does not pass a11y conrast check
+    background: $gray-2;
+    // background: $gray;
+
+    &:active {
+      box-shadow: none;
+    }
+  }
+
+}
+
+.button {
+  @include button;
+  padding: 0.3em 1.625em 0.4em 1.625em;
+}
+
+.button--lg {
+  @include button;
+  padding: 0.65em 1.75em 0.75em 1.75em;
+  font-size: $gamma;
+}
+
+.button--sm {
+  @include button;
+  padding: 0.75em 1.75em 0.825em 1.75em;
+  font-size: $milli;
+}
+
+///////////////////////////////////
+// fields
+///////////////////////////////////
+
+.doi-label form {
+  display: inline-block;
+}
+
+input[type='text'] {
+  @include open-sans-book;
+  width: 100%;
+  padding: $field-padding;
+  background: $white;
+  color: #555;
+  border: none;
+  font-size: .9em;
+}
+
+input[type='text']:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+}
+
+///////////////////////////////////
+// layout
+///////////////////////////////////
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
+    @include open-sans-book;
 }
 
 #reader {
     min-height: 90vh;
     width: 100vw;
-    background: #ddd;
+    background: $gray-1;
 }
 
 .cozy-container {
@@ -18,13 +247,17 @@ body {
 
   min-height: 90vh;
   width: 100vw;
-  background: #ddd;
+  background: $gray-1;
 
 }
 
 .cozy-module-top {
   display: flex;
   flex-direction: column;
+}
+
+.cozy-panel-header {
+  border-bottom: 1px solid $gray-2;
 }
 
 .cozy-module-bottom {
@@ -40,28 +273,31 @@ body {
 
 .cozy-module-left, .cozy-module-right {
   display: flex;
+
 }
 
 .cozy-module-book-cover {
   flex-grow: 1;
   background: #666;
   position: relative;
+  border-top: 1px solid $gray-2;
+  border-bottom: 1px solid $gray-2;
 }
 
 .cozy-module-book {
     margin-left: auto;
     margin-right: auto;
-    background: green;
+    background: $white;
     position: relative;
-    padding: 20px;
+    padding: 2em;
 }
 
 .cozy-container div[class^='cozy-'] {
-    border: 1px solid #666;
+    /* border: 1px solid #fff; */
 }
 
 .epub-container {
-    background: blue;
+    /* background: blue; */
     /* -- padding on this container messes with horizontal scrolling */
     /*padding: 20px;*/
 
@@ -74,6 +310,7 @@ div[class^='cozy-panel-'] {
 
 div.cozy-panel-footer {
     display: block;
+    margin: .5em;
 }
 
 .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
@@ -84,8 +321,26 @@ div.cozy-panel-footer {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: $white;
+    border-top: 1px solid $gray-2;
+    border-bottom: 1px solid $gray-2;
 }
 
+.cozy-control {
+  .cozy-h1 {
+    margin: .3em .5em 0;
+    font-size: 2em;
+    @include scope-one;
+  }
+
+  button.button--sm {
+    font-size: 1.2rem;
+    height: 100%;
+    border-radius: 0;
+    padding: 0 1em;
+    text-transform: uppercase;
+  }
+}
 
 .cozy-panel-sidebar {
     display: flex;
@@ -93,7 +348,9 @@ div.cozy-panel-footer {
     align-items: center;
 }
 
-/* WIDGETS */
+///////////////////////////////////
+// widgets
+///////////////////////////////////
 
 .cozy-publisher {
     float: left;
@@ -103,18 +360,18 @@ div.cozy-panel-footer {
     float: right;
 }
 
+// previous, next buttons
 .cozy-panel-sidebar .cozy-control a {
     width: 100px;
     display: inline-block;
-    background: black;
-    color: aliceblue;
+    background: transparent;
     text-align: center;
     min-height: 60px;
     padding: 10px;
 }
 
 .cozy-modal {
-    background: #fff;
+    background: $white;
     border: 4px solid black;
     padding: 20px;
 }
@@ -129,11 +386,13 @@ div.cozy-panel-footer {
   top: 100%;
   left: 0;
   margin: 0;
-  margin-top: 2px;
   list-style-type: none;
   padding: 5px 0;
-  background: white;
-  border: 1px solid #666;
+  background: $white;
+  border-top: 1px solid $gray-2;
+  border-right: 1px solid $gray-2;
+  box-shadow: 4px 0 6px 1px rgba(0,0,0,0.1);
+  border-bottom: 1px solid $gray-2;
   z-index: 9000;
 }
 
@@ -142,7 +401,7 @@ div.cozy-panel-footer {
 }
 
 .cozy-dropdown-menu li {
-  list-style-top: none;
+  list-style-type: none;
 }
 
 .cozy-dropdown-menu li > a {
@@ -150,11 +409,13 @@ div.cozy-panel-footer {
   clear: both;
   white-space: nowrap;
   padding: 3px 20px;
+  text-decoration: none;
+  color: #000;
 }
 
 .cozy-dropdown-menu li > a:hover {
-  background-color: black;
-  color: white;
+  background-color: $gray-2;
+  color: #000;
 }
 
 .cozy-panel-header .cozy-panel-left {
@@ -167,8 +428,14 @@ div.cozy-panel-footer {
   border-radius: 8px;
 }
 
+.cozy-control-preferences {
+  button {
+    padding: .8em 1em 0 .6em;
+  }
+}
+
 iframe {
-    background: white;
+    background: $white;
 }
 
 body.scrolled .epub-view {

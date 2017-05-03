@@ -14,7 +14,7 @@
     <p>
         <form>
             <select size="1" name="book"></select>
-            <button>Read</button>
+            <button class="button--sm">Read</button>
         </form>
     </p>
 
@@ -48,7 +48,7 @@
             book_href = location.search.substr(1);
             var reader = cozy.reader('reader', { href: book_href });
 
-            // cozy.control.widget({ 
+            // cozy.control.widget({
             //     region: 'top.header.left',
             //     states: [{
             //       stateName: 'back-to-metadata',
@@ -75,12 +75,12 @@
 
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
-            cozy.control.widget({ 
+            cozy.control.widget({
                 region: 'top.toolbar.left',
-                template: `<div class="doi-label"><span data-slot="title"></span></div>`,
+                template: `<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand('copy');"></form></div>`,
                 states: [{
                     stateName: 'doi',
-                    title: "DOI: 10.3998/fulcrum.12345"
+                    title: "https://doi.org/10.3998/fulcrum.12345"
                 }]
             }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);

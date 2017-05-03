@@ -1,12 +1,8 @@
 var json = require('rollup-plugin-json');
-var buble = require('rollup-plugin-buble');
-
+var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
 
 // Karma configuration
 module.exports = function (config) {
-
-// 	var libSources = require(__dirname + '/../build/build.js').getFiles();
-
   var files = [
     "src/cozy.js",
     "node_modules/sinon/pkg/sinon.js",
@@ -18,24 +14,18 @@ module.exports = function (config) {
   ];
 
 	var exclude = [
-    "spec/control/*Spec.js",
-    "spec/core/BrowserSpec.js",
-    "spec/core/BusSpec.js",
-    "spec/core/ClassSpec.js",
-    "spec/core/EventsSpec.js",
-    "spec/dom/*Spec.js",
-    "spec/geometry/*Spec.js",
-    "spec/reader/*Spec.js"
-	];
+  ];
 
 	config.set({
-		// base path, that will be used to resolve files and exclude
+    // base path, that will be used to resolve files and exclude
 		basePath: '',
 
+		// plugins
 		plugins: [
 			'karma-rollup-plugin',
 			'karma-mocha',
 			'karma-coverage',
+			'karma-coveralls',
 			'karma-phantomjs-launcher',
 			'karma-chrome-launcher',
 			'karma-safari-launcher',
@@ -46,14 +36,13 @@ module.exports = function (config) {
 
 		// list of files / patterns to load in the browser
 		files: files,
-		// proxies: {
-		// 	'/base/dist/images/': 'dist/images/'
-		// },
+
+		// list of files / patterns to exclude from invoking
 		exclude: exclude,
 
-		// Rollup the ES6 Cozy sources into just one file, before tests
+		// Rollup the ES6 Cozy sources into just one ES5 file, before tests
 		preprocessors: {
-			'src/cozy.js': ['rollup']
+			'src/cozy.js': ['rollup', 'coverage']
 		},
 		rollupPreprocessor: {
 			plugins: [
@@ -61,12 +50,15 @@ module.exports = function (config) {
 				buble()
 			],
 			format: 'umd',
-			moduleName: 'L'
+			moduleName: 'cozy'
 		},
 
-		// test results reporter to use
-		// possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-		reporters: ['dots'],
+		// test results reporter(s) to use possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+		reporters: ['dots', 'coverage', 'coveralls'],
+		coverageReporter: {
+			type: 'lcov',
+			dir: 'coverage/'
+		},
 
 		// web server port
 		port: 9876,
@@ -91,19 +83,18 @@ module.exports = function (config) {
 		// - IE (only Windows)
 		// browsers: ['PhantomJSCustom'],
 		browsers: ['PhantomJS'],
-
 		customLaunchers: {
-			'PhantomJSCustom': {
-				base: 'PhantomJS',
-				flags: ['--load-images=true'],
-				options: {
-					onCallback: function (data) {
-						if (data.render) {
-							page.render(data.render);
-						}
-					}
-				}
-			}
+			// 'PhantomJSCustom': {
+			// 	base: 'PhantomJS',
+			// 	flags: ['--load-images=true'],
+			// 	options: {
+			// 		onCallback: function (data) {
+			// 			if (data.render) {
+			// 				page.render(data.render);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		},
 
 		// If browser does not capture in given timeout [ms], kill it
