@@ -73,172 +73,11 @@ $grid-padding:       1rem;
   font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
 }
 
-///////////////////////////////////
-// icons
-///////////////////////////////////
-
-i[class^='icon-'] {
-  font-size: 2em;
-}
-
-i[class^='icon-chevron-'] {
-  font-size: 2.5em;
-  color: #e2e2e2;
-  transition: 0.2s ease-in;
-}
-
-i[class^='icon-chevron-']:hover {
-  color: $brand-color;
-  transition: 0.2s ease-in;
-}
-
-i.icon-menu {
-  font-size: inherit;
-}
-
-///////////////////////////////////
-// manual reset
-///////////////////////////////////
-
-// reset buttons
-button {
-  overflow: visible;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  -webkit-appearance: none;
-  display: block;
-  outline: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-
-  &::-moz-focus-inner {
-    padding: 0;
-    border: 0
-  }
-}
-
-///////////////////////////////////
-// utility classes
-///////////////////////////////////
-
-// Screen reader text
-.u-screenreader {
-  clip: rect(1px, 1px, 1px, 1px);
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-.u-screenreader--ignore {
-  speak: none;
-}
-
-.u-margins_off {
-  margin-top: 0 !important;
-}
-
-///////////////////////////////////
-// buttons
-///////////////////////////////////
-
-@mixin button {
-  @include open-sans-book;
-  display: inline-block;
-  border-bottom: none;
-  border-radius: $radius;
-  color: $white;
-  background: $accent-color;
-  background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
-  background-position: -100%;
-  background-size: 201%;
-  background-repeat: no-repeat;
-  text-shadow: none;
-  text-decoration: none;
-  transition: 0.2s ease-in;
-
-  &:hover, &:focus, &:active {
-    color: $white;
-    background-position: 0;
-    transition: 0.2s ease-in;
-  }
-
-  &:active {
-    box-shadow: inset 0 1px 12px $shadow;
-  }
-
-  &[disabled] {
-    cursor-events: none;
-    // does not pass a11y conrast check
-    background: $gray-2;
-    // background: $gray;
-
-    &:active {
-      box-shadow: none;
-    }
-  }
-
-}
-
-.button {
-  @include button;
-  padding: 0.3em 1.625em 0.4em 1.625em;
-}
-
-.button--lg {
-  @include button;
-  padding: 0.65em 1.75em 0.75em 1.75em;
-  font-size: $gamma;
-}
-
-.button--sm {
-  @include button;
-  padding: 0.75em 1.75em 0.825em 1.75em;
-  font-size: $milli;
-}
-
-///////////////////////////////////
-// fields
-///////////////////////////////////
-
-.doi-label form {
-  display: inline-block;
-}
-
-input[type='text'] {
-  @include open-sans-book;
-  width: 100%;
-  padding: $field-padding;
-  background: $white;
-  color: #555;
-  border: none;
-  font-size: .9em;
-}
-
-input[type='text']:focus {
-  border-color: #66afe9;
-  outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
-}
-
-///////////////////////////////////
-// layout
-///////////////////////////////////
-
-* {
-    box-sizing: border-box;
-}
-
 body {
     margin: 0;
-    @include open-sans-book;
 }
-
-#reader {
-    min-height: 90vh;
-    width: 100vw;
-    background: $gray-1;
+* {
+    box-sizing: border-box;
 }
 
 .cozy-container {
@@ -251,194 +90,356 @@ body {
 
 }
 
-.cozy-module-top {
-  display: flex;
-  flex-direction: column;
-}
-
-.cozy-panel-header {
-  border-bottom: 1px solid $gray-2;
-}
-
-.cozy-module-bottom {
-  display: flex;
-  flex-direction: column;
-}
-
-.cozy-module-main {
-  align-self: stretch;
-  flex-grow: 1;
-  display: flex;
-}
-
-.cozy-module-left, .cozy-module-right {
-  display: flex;
-
-}
-
-.cozy-module-book-cover {
-  flex-grow: 1;
-  background: #666;
-  position: relative;
-  border-top: 1px solid $gray-2;
-  border-bottom: 1px solid $gray-2;
-}
-
-.cozy-module-book {
-    margin-left: auto;
-    margin-right: auto;
-    background: $white;
-    position: relative;
-    padding: 2em;
-}
-
-.cozy-container div[class^='cozy-'] {
-    /* border: 1px solid #fff; */
-}
-
-.epub-container {
-    /* background: blue; */
-    /* -- padding on this container messes with horizontal scrolling */
-    /*padding: 20px;*/
-
-}
-
-div[class^='cozy-panel-'] {
-    display: flex;
-    flex-grow: 1;
-}
-
-div.cozy-panel-footer {
-    display: block;
-    margin: .5em;
-}
-
-.cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
-    justify-content: flex-end;
-}
-
-.cozy-module-main .cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: $white;
-    border-top: 1px solid $gray-2;
-    border-bottom: 1px solid $gray-2;
-}
-
-.cozy-control {
-  .cozy-h1 {
-    margin: .3em .5em 0;
-    font-size: 2em;
-    @include scope-one;
-  }
-
-  button.button--sm {
-    font-size: 1.2rem;
-    height: 100%;
-    border-radius: 0;
-    padding: 0 1em;
-    text-transform: uppercase;
-  }
-}
-
-.cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-///////////////////////////////////
-// widgets
-///////////////////////////////////
-
-.cozy-publisher {
-    float: left;
-}
-
-.cozy-rights {
-    float: right;
-}
-
-// previous, next buttons
-.cozy-panel-sidebar .cozy-control a {
-    width: 100px;
-    display: inline-block;
-    background: transparent;
-    text-align: center;
-    min-height: 60px;
-    padding: 10px;
-}
-
-.cozy-modal {
-    background: $white;
-    border: 4px solid black;
-    padding: 20px;
-}
-
-.cozy-dropdown-menu {
-  position: absolute;
-  white-space: nowrap;
-  max-height: 550px;
-  min-width: 160px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  top: 100%;
-  left: 0;
-  margin: 0;
-  list-style-type: none;
-  padding: 5px 0;
-  background: $white;
-  border-top: 1px solid $gray-2;
-  border-right: 1px solid $gray-2;
-  box-shadow: 4px 0 6px 1px rgba(0,0,0,0.1);
-  border-bottom: 1px solid $gray-2;
-  z-index: 9000;
-}
-
-.cozy-dropdown-menu ul {
-  list-style-type: none;
-}
-
-.cozy-dropdown-menu li {
-  list-style-type: none;
-}
-
-.cozy-dropdown-menu li > a {
-  display: block;
-  clear: both;
-  white-space: nowrap;
-  padding: 3px 20px;
-  text-decoration: none;
-  color: #000;
-}
-
-.cozy-dropdown-menu li > a:hover {
-  background-color: $gray-2;
-  color: #000;
-}
-
-.cozy-panel-header .cozy-panel-left {
-  align-items: center;
-}
-
-.chooser-metadata button {
-  font-size: 150%;
-  background: PapayaWhip;
-  border-radius: 8px;
-}
-
-.cozy-control-preferences {
-  button {
-    padding: .8em 1em 0 .6em;
-  }
-}
-
-iframe {
-    background: $white;
-}
-
 body.scrolled .epub-view {
     height: auto !important;
     width: auto !important;
+}
+// nest selectors inside #reader to avoid css conflicts
+#reader {
+    @include open-sans-book;
+    min-height: 90vh;
+    width: 100vw;
+    background: $gray-1;
+
+    ///////////////////////////////////
+    // icons
+    ///////////////////////////////////
+
+    i[class^='icon-'] {
+      font-size: 2em;
+    }
+
+    i[class^='icon-chevron-'] {
+      font-size: 2.5em;
+      color: #e2e2e2;
+      transition: 0.2s ease-in;
+    }
+
+    i[class^='icon-chevron-']:hover {
+      color: $brand-color;
+      transition: 0.2s ease-in;
+    }
+
+    i.icon-menu {
+      font-size: inherit;
+    }
+
+    ///////////////////////////////////
+    // manual reset
+    ///////////////////////////////////
+
+    // reset buttons
+    button {
+      overflow: visible;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      -webkit-appearance: none;
+      display: block;
+      outline: none;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+
+      &::-moz-focus-inner {
+        padding: 0;
+        border: 0
+      }
+    }
+
+    ///////////////////////////////////
+    // utility classes
+    ///////////////////////////////////
+
+    // Screen reader text
+    .u-screenreader {
+      clip: rect(1px, 1px, 1px, 1px);
+      position: absolute !important;
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+    }
+    .u-screenreader--ignore {
+      speak: none;
+    }
+
+    .u-margins_off {
+      margin-top: 0 !important;
+    }
+
+    ///////////////////////////////////
+    // buttons
+    ///////////////////////////////////
+
+    @mixin button {
+      @include open-sans-book;
+      display: inline-block;
+      border-bottom: none;
+      border-radius: $radius;
+      color: $white;
+      background: $accent-color;
+      background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
+      background-position: -100%;
+      background-size: 201%;
+      background-repeat: no-repeat;
+      text-shadow: none;
+      text-decoration: none;
+      transition: 0.2s ease-in;
+
+      &:hover, &:focus, &:active {
+        color: $white;
+        background-position: 0;
+        transition: 0.2s ease-in;
+      }
+
+      &:active {
+        box-shadow: inset 0 1px 12px $shadow;
+      }
+
+      &[disabled] {
+        cursor-events: none;
+        // does not pass a11y conrast check
+        background: $gray-2;
+        // background: $gray;
+
+        &:active {
+          box-shadow: none;
+        }
+      }
+
+    }
+
+    .button {
+      @include button;
+      padding: 0.3em 1.625em 0.4em 1.625em;
+    }
+
+    .button--lg {
+      @include button;
+      padding: 0.65em 1.75em 0.75em 1.75em;
+      font-size: $gamma;
+    }
+
+    .button--sm {
+      @include button;
+      padding: 0.75em 1.75em 0.825em 1.75em;
+      font-size: $milli;
+    }
+
+    ///////////////////////////////////
+    // fields
+    ///////////////////////////////////
+
+    .doi-label form {
+      display: inline-block;
+    }
+
+    input[type='text'] {
+      @include open-sans-book;
+      width: 100%;
+      padding: $field-padding;
+      background: $white;
+      color: #555;
+      border: none;
+      font-size: .9em;
+    }
+
+    input[type='text']:focus {
+      border-color: #66afe9;
+      outline: 0;
+      -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+    }
+
+    ///////////////////////////////////
+    // layout
+    ///////////////////////////////////
+
+    .cozy-module-top {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cozy-panel-header {
+      border-bottom: 1px solid $gray-2;
+    }
+
+    .cozy-module-bottom {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cozy-module-main {
+      align-self: stretch;
+      flex-grow: 1;
+      display: flex;
+    }
+
+    .cozy-module-left, .cozy-module-right {
+      display: flex;
+
+    }
+
+    .cozy-module-book-cover {
+      flex-grow: 1;
+      background: #666;
+      position: relative;
+      border-top: 1px solid $gray-2;
+      border-bottom: 1px solid $gray-2;
+    }
+
+    .cozy-module-book {
+        margin-left: auto;
+        margin-right: auto;
+        background: $white;
+        position: relative;
+        padding: 2em;
+    }
+
+    .cozy-container div[class^='cozy-'] {
+        /* border: 1px solid #fff; */
+    }
+
+    .epub-container {
+        /* background: blue; */
+        /* -- padding on this container messes with horizontal scrolling */
+        /*padding: 20px;*/
+
+    }
+
+    div[class^='cozy-panel-'] {
+        display: flex;
+        flex-grow: 1;
+    }
+
+    div.cozy-panel-footer {
+        display: block;
+        margin: .5em;
+    }
+
+    .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
+        justify-content: flex-end;
+    }
+
+    .cozy-module-main .cozy-panel-sidebar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: $white;
+        border-top: 1px solid $gray-2;
+        border-bottom: 1px solid $gray-2;
+    }
+
+    .cozy-control {
+      .cozy-h1 {
+        margin: .3em .5em 0;
+        font-size: 2em;
+        @include scope-one;
+      }
+
+      button.button--sm {
+        font-size: 1.2rem;
+        height: 100%;
+        border-radius: 0;
+        padding: 0 1em;
+        text-transform: uppercase;
+      }
+    }
+
+    .cozy-panel-sidebar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    ///////////////////////////////////
+    // widgets
+    ///////////////////////////////////
+
+    .cozy-publisher {
+        float: left;
+    }
+
+    .cozy-rights {
+        float: right;
+    }
+
+    // previous, next buttons
+    .cozy-panel-sidebar .cozy-control a {
+        width: 100px;
+        display: inline-block;
+        background: transparent;
+        text-align: center;
+        min-height: 60px;
+        padding: 10px;
+    }
+
+    .cozy-modal {
+        background: $white;
+        border: 4px solid black;
+        padding: 20px;
+    }
+
+    .cozy-dropdown-menu {
+      position: absolute;
+      white-space: nowrap;
+      max-height: 550px;
+      min-width: 160px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      top: 100%;
+      left: 0;
+      margin: 0;
+      list-style-type: none;
+      padding: 5px 0;
+      background: $white;
+      border-top: 1px solid $gray-2;
+      border-right: 1px solid $gray-2;
+      box-shadow: 4px 0 6px 1px rgba(0,0,0,0.1);
+      border-bottom: 1px solid $gray-2;
+      z-index: 9000;
+    }
+
+    .cozy-dropdown-menu ul {
+      list-style-type: none;
+    }
+
+    .cozy-dropdown-menu li {
+      list-style-type: none;
+    }
+
+    .cozy-dropdown-menu li > a {
+      display: block;
+      clear: both;
+      white-space: nowrap;
+      padding: 3px 20px;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .cozy-dropdown-menu li > a:hover {
+      background-color: $gray-2;
+      color: #000;
+    }
+
+    .cozy-panel-header .cozy-panel-left {
+      align-items: center;
+    }
+
+    .chooser-metadata button {
+      font-size: 150%;
+      background: PapayaWhip;
+      border-radius: 8px;
+    }
+
+    .cozy-control-preferences {
+      button {
+        padding: .8em 1em 0 .6em;
+      }
+    }
+
+    iframe {
+        background: $white;
+    }
+
+
 }
