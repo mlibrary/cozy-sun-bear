@@ -1,14 +1,23 @@
+
+if (false && (new Date()).getTime() > 1493920831722) {
+  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
+  alert(msg);
+  // throw new Error(msg);
+}
+
 /*
- * Cozy Sun Bear 1.0.0+bug/refactor-selectors.3559c41, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
- * (c) 2017 Regents of the University of Michigan
+ * Leaflet 1.0.0+fixup/css-typo.ae1ffd3, a JS library for interactive maps. http://leafletjs.com
+ * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
+
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+bug/refactor-selectors.3559c41";
+var version = "1.0.0+fixup/css-typo.ae1ffd3";
 
 /*
  * @namespace Util

@@ -726,13 +726,11 @@
   content: '\e0de'; }
 
 body {
-  margin: 0; }
+  margin: 0;
+  font-size: 16px; }
   body .scrolled .epub-view {
     height: auto !important;
     width: auto !important; }
-
-* {
-  box-sizing: border-box; }
 
 .cozy-container {
   font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -741,7 +739,10 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 90vh;
-  width: 100vw; }
+  width: 100vw;
+  box-sizing: border-box; }
+  .cozy-container * {
+    box-sizing: border-box; }
   .cozy-container i[class^='icon-'] {
     font-size: 2em; }
   .cozy-container i[class^='icon-chevron-'] {
@@ -791,6 +792,7 @@ body {
     text-shadow: none;
     text-decoration: none;
     transition: 0.2s ease-in;
+    line-height: normal;
     padding: 0.3em 1.625em 0.4em 1.625em; }
     .cozy-container .button:hover, .cozy-container .button:focus, .cozy-container .button:active {
       color: #fff;
@@ -818,6 +820,7 @@ body {
     text-shadow: none;
     text-decoration: none;
     transition: 0.2s ease-in;
+    line-height: normal;
     padding: 0.65em 1.75em 0.75em 1.75em;
     font-size: 1.15rem; }
     .cozy-container .button--lg:hover, .cozy-container .button--lg:focus, .cozy-container .button--lg:active {
@@ -846,6 +849,7 @@ body {
     text-shadow: none;
     text-decoration: none;
     transition: 0.2s ease-in;
+    line-height: normal;
     padding: 0.75em 1.75em 0.825em 1.75em;
     font-size: 0.65rem; }
     .cozy-container .button--sm:hover, .cozy-container .button--sm:focus, .cozy-container .button--sm:active {
@@ -945,9 +949,10 @@ div.cozy-panel-footer {
   border-bottom: 1px solid #e8e8e8; }
 
 .cozy-control .cozy-h1 {
+  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
   margin: .3em .5em 0;
   font-size: 2em;
-  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif; }
+  line-height: normal; }
 
 .cozy-control button.button--sm {
   font-size: 1.2em;
