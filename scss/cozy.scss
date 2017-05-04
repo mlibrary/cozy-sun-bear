@@ -102,12 +102,12 @@ body {
   // icons
   ///////////////////////////////////
   i[class^='icon-'] {
-    font-size: 2em;
+    font-size: 2rem;
   }
 
   i[class^='icon-chevron-'] {
     color: $gray-3;
-    font-size: 2.5em;
+    font-size: 2.5rem;
     transition: 0.2s ease-in;
   }
 
@@ -340,12 +340,12 @@ div.cozy-panel-footer {
   .cozy-h1 {
     @include scope-one;
     margin: .3em .5em 0;
-    font-size: 2em;
+    font-size: 2rem;
     line-height: normal;
   }
 
   button.button--sm {
-    font-size: 1.2em;
+    font-size: 1.2rem;
     height: 100%;
     border-radius: 0;
     padding: 0 1em;
