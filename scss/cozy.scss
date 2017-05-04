@@ -372,9 +372,9 @@ div.cozy-panel-footer {
 }
 
 .cozy-modal {
-  background: $white;
-  border: 4px solid black;
-  padding: 20px;
+  background: $gray-1;
+  border: 1px solid $gray-2;
+  padding: 1em;
 }
 
 .cozy-dropdown-menu {
@@ -433,4 +433,31 @@ div.cozy-panel-footer {
   button {
     padding: .8em 1em 0 .6em;
   }
+}
+
+.cozy-preferences-modal {
+  box-shadow: 4px 0 1px 1px rgba(0,0,0,0.1);
+
+  .close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 1em;
+    font-weight: bold;
+  }
+
+  .button--sm {
+    margin-top: 1em;
+    font-size: 1rem;
+  }
+
+  fieldset {
+    border: 1px solid $brand-color;
+  }
+
+  label {
+    display: block;
+    margin: 1em 0;
+  }
+
 }
