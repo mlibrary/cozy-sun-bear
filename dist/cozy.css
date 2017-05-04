@@ -727,70 +727,64 @@
 
 body {
   margin: 0; }
+  body .scrolled .epub-view {
+    height: auto !important;
+    width: auto !important; }
 
 * {
   box-sizing: border-box; }
 
 .cozy-container {
+  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  background: #f1f1f1;
   display: flex;
   flex-direction: column;
   min-height: 90vh;
-  width: 100vw;
-  background: #F1F1F1; }
-
-body.scrolled .epub-view {
-  height: auto !important;
-  width: auto !important; }
-
-#reader {
-  font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 400;
-  min-height: 90vh;
-  width: 100vw;
-  background: #F1F1F1; }
-  #reader i[class^='icon-'] {
+  width: 100vw; }
+  .cozy-container i[class^='icon-'] {
     font-size: 2em; }
-  #reader i[class^='icon-chevron-'] {
-    font-size: 2.5em;
+  .cozy-container i[class^='icon-chevron-'] {
     color: #e2e2e2;
+    font-size: 2.5em;
     transition: 0.2s ease-in; }
-  #reader i[class^='icon-chevron-']:hover {
-    color: #002C63;
+  .cozy-container i[class^='icon-chevron-']:hover {
+    color: #002c63;
     transition: 0.2s ease-in; }
-  #reader i.icon-menu {
+  .cozy-container i.icon-menu {
     font-size: inherit; }
-  #reader button {
-    overflow: visible;
-    cursor: pointer;
+  .cozy-container button {
+    -webkit-appearance: none;
     background: transparent;
     border: 0;
-    -webkit-appearance: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    cursor: pointer;
     display: block;
     outline: none;
-    -webkit-box-shadow: none;
-    box-shadow: none; }
-    #reader button::-moz-focus-inner {
-      padding: 0;
-      border: 0; }
-  #reader .u-screenreader {
+    overflow: visible; }
+    .cozy-container button::-moz-focus-inner {
+      border: 0;
+      padding: 0; }
+  .cozy-container .u-screenreader {
     clip: rect(1px, 1px, 1px, 1px);
-    position: absolute !important;
     height: 1px;
-    width: 1px;
-    overflow: hidden; }
-  #reader .u-screenreader--ignore {
+    overflow: hidden;
+    position: absolute !important;
+    width: 1px; }
+  .cozy-container .u-screenreader--ignore {
     speak: none; }
-  #reader .u-margins_off {
+  .cozy-container .u-margins_off {
     margin-top: 0 !important; }
-  #reader .button {
+  .cozy-container .button {
     font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
     display: inline-block;
     border-bottom: none;
     border-radius: 4px;
-    color: #FFF;
-    background: #00AFEC;
-    background-image: linear-gradient(to right, #002C63 50%, #00AFEC 50%);
+    color: #fff;
+    background: #00afec;
+    background-image: linear-gradient(to right, #002c63 50%, #00afec 50%);
     background-position: -100%;
     background-size: 201%;
     background-repeat: no-repeat;
@@ -798,26 +792,26 @@ body.scrolled .epub-view {
     text-decoration: none;
     transition: 0.2s ease-in;
     padding: 0.3em 1.625em 0.4em 1.625em; }
-    #reader .button:hover, #reader .button:focus, #reader .button:active {
-      color: #FFF;
+    .cozy-container .button:hover, .cozy-container .button:focus, .cozy-container .button:active {
+      color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
-    #reader .button:active {
+    .cozy-container .button:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
-    #reader .button[disabled] {
+    .cozy-container .button[disabled] {
       cursor-events: none;
-      background: #E8E8E8; }
-      #reader .button[disabled]:active {
+      background: #e8e8e8; }
+      .cozy-container .button[disabled]:active {
         box-shadow: none; }
-  #reader .button--lg {
+  .cozy-container .button--lg {
     font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
     display: inline-block;
     border-bottom: none;
     border-radius: 4px;
-    color: #FFF;
-    background: #00AFEC;
-    background-image: linear-gradient(to right, #002C63 50%, #00AFEC 50%);
+    color: #fff;
+    background: #00afec;
+    background-image: linear-gradient(to right, #002c63 50%, #00afec 50%);
     background-position: -100%;
     background-size: 201%;
     background-repeat: no-repeat;
@@ -826,26 +820,26 @@ body.scrolled .epub-view {
     transition: 0.2s ease-in;
     padding: 0.65em 1.75em 0.75em 1.75em;
     font-size: 1.15rem; }
-    #reader .button--lg:hover, #reader .button--lg:focus, #reader .button--lg:active {
-      color: #FFF;
+    .cozy-container .button--lg:hover, .cozy-container .button--lg:focus, .cozy-container .button--lg:active {
+      color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
-    #reader .button--lg:active {
+    .cozy-container .button--lg:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
-    #reader .button--lg[disabled] {
+    .cozy-container .button--lg[disabled] {
       cursor-events: none;
-      background: #E8E8E8; }
-      #reader .button--lg[disabled]:active {
+      background: #e8e8e8; }
+      .cozy-container .button--lg[disabled]:active {
         box-shadow: none; }
-  #reader .button--sm {
+  .cozy-container .button--sm {
     font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
     display: inline-block;
     border-bottom: none;
     border-radius: 4px;
-    color: #FFF;
-    background: #00AFEC;
-    background-image: linear-gradient(to right, #002C63 50%, #00AFEC 50%);
+    color: #fff;
+    background: #00afec;
+    background-image: linear-gradient(to right, #002c63 50%, #00afec 50%);
     background-position: -100%;
     background-size: 201%;
     background-repeat: no-repeat;
@@ -854,148 +848,177 @@ body.scrolled .epub-view {
     transition: 0.2s ease-in;
     padding: 0.75em 1.75em 0.825em 1.75em;
     font-size: 0.65rem; }
-    #reader .button--sm:hover, #reader .button--sm:focus, #reader .button--sm:active {
-      color: #FFF;
+    .cozy-container .button--sm:hover, .cozy-container .button--sm:focus, .cozy-container .button--sm:active {
+      color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
-    #reader .button--sm:active {
+    .cozy-container .button--sm:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
-    #reader .button--sm[disabled] {
+    .cozy-container .button--sm[disabled] {
       cursor-events: none;
-      background: #E8E8E8; }
-      #reader .button--sm[disabled]:active {
+      background: #e8e8e8; }
+      .cozy-container .button--sm[disabled]:active {
         box-shadow: none; }
-  #reader .doi-label form {
+  .cozy-container .doi-label form {
     display: inline-block; }
-  #reader input[type='text'] {
+  .cozy-container input[type='text'] {
     font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 400;
     width: 100%;
     padding: 0.625em 0.825em;
-    background: #FFF;
+    background: #fff;
     color: #555;
     border: none;
     font-size: .9em; }
-  #reader input[type='text']:focus {
+  .cozy-container input[type='text']:focus {
     border-color: #66afe9;
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }
-  #reader .cozy-module-top {
-    display: flex;
-    flex-direction: column; }
-  #reader .cozy-panel-header {
-    border-bottom: 1px solid #E8E8E8; }
-  #reader .cozy-module-bottom {
-    display: flex;
-    flex-direction: column; }
-  #reader .cozy-module-main {
-    align-self: stretch;
-    flex-grow: 1;
-    display: flex; }
-  #reader .cozy-module-left, #reader .cozy-module-right {
-    display: flex; }
-  #reader .cozy-module-book-cover {
-    flex-grow: 1;
-    background: #666;
-    position: relative;
-    border-top: 1px solid #E8E8E8;
-    border-bottom: 1px solid #E8E8E8; }
-  #reader .cozy-module-book {
-    margin-left: auto;
-    margin-right: auto;
-    background: #FFF;
-    position: relative;
-    padding: 2em; }
-  #reader .cozy-container div[class^='cozy-'] {
-    /* border: 1px solid #fff; */ }
-  #reader .epub-container {
-    /* background: blue; */
-    /* -- padding on this container messes with horizontal scrolling */
-    /*padding: 20px;*/ }
-  #reader div[class^='cozy-panel-'] {
-    display: flex;
-    flex-grow: 1; }
-  #reader div.cozy-panel-footer {
-    display: block;
-    margin: .5em; }
-  #reader .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
-    justify-content: flex-end; }
-  #reader .cozy-module-main .cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #FFF;
-    border-top: 1px solid #E8E8E8;
-    border-bottom: 1px solid #E8E8E8; }
-  #reader .cozy-control .cozy-h1 {
-    margin: .3em .5em 0;
-    font-size: 2em;
-    font-family: 'Scope One', Georgia, Times, "Times New Roman", serif; }
-  #reader .cozy-control button.button--sm {
-    font-size: 1.2rem;
-    height: 100%;
-    border-radius: 0;
-    padding: 0 1em;
-    text-transform: uppercase; }
-  #reader .cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center; }
-  #reader .cozy-publisher {
-    float: left; }
-  #reader .cozy-rights {
-    float: right; }
-  #reader .cozy-panel-sidebar .cozy-control a {
-    width: 100px;
-    display: inline-block;
-    background: transparent;
-    text-align: center;
-    min-height: 60px;
-    padding: 10px; }
-  #reader .cozy-modal {
-    background: #FFF;
-    border: 4px solid black;
-    padding: 20px; }
-  #reader .cozy-dropdown-menu {
-    position: absolute;
-    white-space: nowrap;
-    max-height: 550px;
-    min-width: 160px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    top: 100%;
-    left: 0;
-    margin: 0;
-    list-style-type: none;
-    padding: 5px 0;
-    background: #FFF;
-    border-top: 1px solid #E8E8E8;
-    border-right: 1px solid #E8E8E8;
-    box-shadow: 4px 0 6px 1px rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid #E8E8E8;
-    z-index: 9000; }
-  #reader .cozy-dropdown-menu ul {
-    list-style-type: none; }
-  #reader .cozy-dropdown-menu li {
-    list-style-type: none; }
-  #reader .cozy-dropdown-menu li > a {
-    display: block;
-    clear: both;
-    white-space: nowrap;
-    padding: 3px 20px;
-    text-decoration: none;
-    color: #000; }
-  #reader .cozy-dropdown-menu li > a:hover {
-    background-color: #E8E8E8;
-    color: #000; }
-  #reader .cozy-panel-header .cozy-panel-left {
-    align-items: center; }
-  #reader .chooser-metadata button {
-    font-size: 150%;
-    background: PapayaWhip;
-    border-radius: 8px; }
-  #reader .cozy-control-preferences button {
-    padding: .8em 1em 0 .6em; }
-  #reader iframe {
-    background: #FFF; }
+  .cozy-container iframe {
+    background: #fff; }
+
+.cozy-module-top {
+  display: flex;
+  flex-direction: column; }
+
+.cozy-panel-header {
+  border-bottom: 1px solid #e8e8e8; }
+
+.cozy-module-bottom {
+  display: flex;
+  flex-direction: column; }
+
+.cozy-module-main {
+  align-self: stretch;
+  display: flex;
+  flex-grow: 1; }
+
+.cozy-module-left,
+.cozy-module-right {
+  display: flex; }
+
+.cozy-module-book-cover {
+  background: #666;
+  border-bottom: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
+  flex-grow: 1;
+  position: relative; }
+
+.cozy-module-book {
+  margin-left: auto;
+  margin-right: auto;
+  background: #fff;
+  position: relative;
+  padding: 2em; }
+
+.cozy-container div[class^='cozy-'] {
+  /* border: 1px solid #fff; */ }
+
+.epub-container {
+  /* background: blue; */
+  /* -- padding on this container messes with horizontal scrolling */
+  /*padding: 20px;*/ }
+
+div[class^='cozy-panel-'] {
+  display: flex;
+  flex-grow: 1; }
+
+.cozy-panel-sidebar {
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+
+div.cozy-panel-footer {
+  display: block;
+  margin: .5em; }
+
+.cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
+  justify-content: flex-end; }
+
+.cozy-module-main .cozy-panel-sidebar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8; }
+
+.cozy-control .cozy-h1 {
+  margin: .3em .5em 0;
+  font-size: 2em;
+  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif; }
+
+.cozy-control button.button--sm {
+  font-size: 1.2em;
+  height: 100%;
+  border-radius: 0;
+  padding: 0 1em;
+  text-transform: uppercase; }
+
+.cozy-publisher {
+  float: left; }
+
+.cozy-rights {
+  float: right; }
+
+.cozy-panel-sidebar .cozy-control a {
+  width: 100px;
+  display: inline-block;
+  background: transparent;
+  text-align: center;
+  min-height: 60px;
+  padding: 10px; }
+
+.cozy-modal {
+  background: #fff;
+  border: 4px solid black;
+  padding: 20px; }
+
+.cozy-dropdown-menu {
+  position: absolute;
+  white-space: nowrap;
+  max-height: 550px;
+  min-width: 160px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  top: 100%;
+  left: 0;
+  margin: 0;
+  list-style-type: none;
+  padding: 5px 0;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  border-right: 1px solid #e8e8e8;
+  box-shadow: 4px 0 6px 1px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e8e8e8;
+  z-index: 9000; }
+
+.cozy-dropdown-menu ul {
+  list-style-type: none; }
+
+.cozy-dropdown-menu li {
+  list-style-type: none; }
+
+.cozy-dropdown-menu li > a {
+  display: block;
+  clear: both;
+  white-space: nowrap;
+  padding: 3px 20px;
+  text-decoration: none;
+  color: #000; }
+
+.cozy-dropdown-menu li > a:hover {
+  background-color: #e8e8e8;
+  color: #000; }
+
+.cozy-panel-header .cozy-panel-left {
+  align-items: center; }
+
+.chooser-metadata button {
+  font-size: 150%;
+  background: PapayaWhip;
+  border-radius: 8px; }
+
+.cozy-control-preferences button {
+  padding: .8em 1em 0 .6em; }
