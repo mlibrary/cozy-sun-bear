@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+fixup/css-typo.9090a88, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+fixup/css-typo.190e55f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+fixup/css-typo.9090a88";
+var version = "1.0.0+fixup/css-typo.190e55f";
 
 /*
  * @namespace Util

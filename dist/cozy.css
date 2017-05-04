@@ -747,7 +747,7 @@ body {
     font-size: 2rem; }
   .cozy-container i[class^='icon-chevron-'] {
     color: #e2e2e2;
-    font-size: 2.5rem;
+    font-size: 2.5em;
     transition: 0.2s ease-in; }
   .cozy-container i[class^='icon-chevron-']:hover {
     color: #002c63;
@@ -951,11 +951,11 @@ div.cozy-panel-footer {
 .cozy-control .cozy-h1 {
   font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
   margin: .3em .5em 0;
-  font-size: 2rem;
+  font-size: 2em;
   line-height: normal; }
 
 .cozy-control button.button--sm {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   height: 100%;
   border-radius: 0;
   padding: 0 1em;
