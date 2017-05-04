@@ -976,9 +976,9 @@ div.cozy-panel-footer {
   padding: 10px; }
 
 .cozy-modal {
-  background: #fff;
-  border: 4px solid black;
-  padding: 20px; }
+  background: #f1f1f1;
+  border: 1px solid #e8e8e8;
+  padding: 1em; }
 
 .cozy-dropdown-menu {
   position: absolute;
@@ -1027,3 +1027,20 @@ div.cozy-panel-footer {
 
 .cozy-control-preferences button {
   padding: .8em 1em 0 .6em; }
+
+.cozy-preferences-modal {
+  box-shadow: 4px 0 1px 1px rgba(0, 0, 0, 0.1); }
+  .cozy-preferences-modal .close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 1em;
+    font-weight: bold; }
+  .cozy-preferences-modal .button--sm {
+    margin-top: 1em;
+    font-size: 1rem; }
+  .cozy-preferences-modal fieldset {
+    border: 1px solid #002c63; }
+  .cozy-preferences-modal label {
+    display: block;
+    margin: 1em 0; }
