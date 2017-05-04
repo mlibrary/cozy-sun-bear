@@ -1,23 +1,14 @@
-
-if (false && (new Date()).getTime() > 1493070230231) {
-  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
-  alert(msg);
-  // throw new Error(msg);
-}
-
 /*
- * Cozy Sun Bear 1.0.0+4_Testing_Framework.0339490, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+bug/refactor-selectors.3559c41, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
-
-
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+4_Testing_Framework.0339490";
+var version = "1.0.0+bug/refactor-selectors.3559c41";
 
 /*
  * @namespace Util
@@ -343,7 +334,7 @@ Class.extend = function (props) {
 
 	// mix given properties into the prototype
 	extend(proto, props);
-
+	
 	proto._initHooks = [];
 
 	// add method for calling all hooks
@@ -395,15 +386,15 @@ Class.addInitHook = function (fn) { // (Function) || (String, args...)
 };
 
 function checkDeprecatedMixinEvents(includes) {
-	if (!L || !L.Mixin) { return; }
+	if (!cozy || !cozy.Mixin) { return; }
 
-	includes = L.Util.isArray(includes) ? includes : [includes];
+	includes = cozy.Util.isArray(includes) ? includes : [includes];
 
 	for (var i = 0; i < includes.length; i++) {
-		if (includes[i] === L.Mixin.Events) {
-			console.warn('Deprecated include of L.Mixin.Events: ' +
+		if (includes[i] === cozy.Mixin.Events) {
+			console.warn('Deprecated include of cozy.Mixin.Events: ' +
 				'this property will be removed in future releases, ' +
-				'please inherit from L.Evented instead.', new Error().stack);
+				'please inherit from cozy.Evented instead.', new Error().stack);
 		}
 	}
 }
@@ -2263,7 +2254,7 @@ var Reader = Evented.extend({
 
 
     }, 0);
-
+    
 
 
   },
@@ -3058,7 +3049,7 @@ Reader.EpubJS = Reader.extend({
     // this.settings.height = this._panes['book'].clientHeight;
     // this.settings.width = this._panes['book'].clientWidth;
 
-    // start the rendition after all the epub parts
+    // start the rendition after all the epub parts 
     // have been loaded
     this._book.ready.then(function() {
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
@@ -3093,7 +3084,7 @@ Reader.EpubJS = Reader.extend({
     var promise;
     // epub.js looks for floats, but Javascript treats 100.0 === 100
     if ( this._book.locations.total == 0 ) {
-      promise = this._book.locations.generate();
+      promise = this._book.locations.generate(); 
     } else {
       promise = new Promise(function(fullfill){ fullfill();});
     }
@@ -3117,7 +3108,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   currentLocation: function() {
-    if ( this._rendition ) {
+    if ( this._rendition ) { 
       return this._rendition.currentLocation();
     }
     return null;

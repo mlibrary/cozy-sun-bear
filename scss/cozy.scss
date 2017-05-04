@@ -8,21 +8,22 @@
 ///////////////////////////////////
 
 // colors
-$brand-color:   #002C63;
-$accent-color:  #00AFEC;
+$brand-color:   #002c63;
+$accent-color:  #00afec;
 
-$white:         #FFF;
-$gray-1:        #F1F1F1;
-$gray-2:        #E8E8E8;
-$dark-1:        #565B63;
-$dark-2:        #31343B;
+$white:         #fff;
+$gray-1:        #f1f1f1;
+$gray-2:        #e8e8e8;
+$gray-3:        #e2e2e2;
+$dark-1:        #565b63;
+$dark-2:        #31343b;
 $black:         #111417;
 
 $shadow:        rgba($black, 0.33);
 
-$ui-success:    #43C59E;
-$ui-caution:    #FFE67A;
-$ui-warning:    #FF6663;
+$ui-success:    #43C59e;
+$ui-caution:    #ffe67a;
+$ui-warning:    #ff6663;
 
 
 // type sizes
@@ -73,183 +74,184 @@ $grid-padding:       1rem;
   font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
 }
 
-///////////////////////////////////
-// icons
-///////////////////////////////////
+body {
+  margin: 0;
 
-i[class^='icon-'] {
-  font-size: 2em;
-}
-
-i[class^='icon-chevron-'] {
-  font-size: 2.5em;
-  color: #e2e2e2;
-  transition: 0.2s ease-in;
-}
-
-i[class^='icon-chevron-']:hover {
-  color: $brand-color;
-  transition: 0.2s ease-in;
-}
-
-i.icon-menu {
-  font-size: inherit;
-}
-
-///////////////////////////////////
-// manual reset
-///////////////////////////////////
-
-// reset buttons
-button {
-  overflow: visible;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  -webkit-appearance: none;
-  display: block;
-  outline: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-
-  &::-moz-focus-inner {
-    padding: 0;
-    border: 0
+  .scrolled .epub-view {
+    height: auto !important;
+    width: auto !important;
   }
 }
 
-///////////////////////////////////
-// utility classes
-///////////////////////////////////
-
-// Screen reader text
-.u-screenreader {
-  clip: rect(1px, 1px, 1px, 1px);
-  position: absolute !important;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-}
-.u-screenreader--ignore {
-  speak: none;
+* {
+  box-sizing: border-box;
 }
 
-.u-margins_off {
-  margin-top: 0 !important;
-}
-
-///////////////////////////////////
-// buttons
-///////////////////////////////////
-
-@mixin button {
+// nest selectors inside .cozy-container to avoid css conflicts
+.cozy-container {
   @include open-sans-book;
-  display: inline-block;
-  border-bottom: none;
-  border-radius: $radius;
-  color: $white;
-  background: $accent-color;
-  background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
-  background-position: -100%;
-  background-size: 201%;
-  background-repeat: no-repeat;
-  text-shadow: none;
-  text-decoration: none;
-  transition: 0.2s ease-in;
+  background: $gray-1;
+  display: flex;
+  flex-direction: column;
+  min-height: 90vh;
+  width: 100vw;
 
-  &:hover, &:focus, &:active {
-    color: $white;
-    background-position: 0;
+  ///////////////////////////////////
+  // icons
+  ///////////////////////////////////
+  i[class^='icon-'] {
+    font-size: 2em;
+  }
+
+  i[class^='icon-chevron-'] {
+    color: $gray-3;
+    font-size: 2.5em;
     transition: 0.2s ease-in;
   }
 
-  &:active {
-    box-shadow: inset 0 1px 12px $shadow;
+  i[class^='icon-chevron-']:hover {
+    color: $brand-color;
+    transition: 0.2s ease-in;
   }
 
-  &[disabled] {
-    cursor-events: none;
-    // does not pass a11y conrast check
-    background: $gray-2;
-    // background: $gray;
+  i.icon-menu {
+    font-size: inherit;
+  }
 
-    &:active {
-      box-shadow: none;
+  ///////////////////////////////////
+  // manual reset
+  ///////////////////////////////////
+
+  // reset buttons
+  button {
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    cursor: pointer;
+    display: block;
+    outline: none;
+    overflow: visible;
+
+    &::-moz-focus-inner {
+      border: 0;
+      padding: 0;
     }
   }
 
-}
+  ///////////////////////////////////
+  // utility classes
+  ///////////////////////////////////
 
-.button {
-  @include button;
-  padding: 0.3em 1.625em 0.4em 1.625em;
-}
+  // Screen reader text
+  .u-screenreader {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute !important;
+    width: 1px;
+  }
 
-.button--lg {
-  @include button;
-  padding: 0.65em 1.75em 0.75em 1.75em;
-  font-size: $gamma;
-}
+  .u-screenreader--ignore {
+    speak: none;
+  }
 
-.button--sm {
-  @include button;
-  padding: 0.75em 1.75em 0.825em 1.75em;
-  font-size: $milli;
-}
+  .u-margins_off {
+    margin-top: 0 !important;
+  }
 
-///////////////////////////////////
-// fields
-///////////////////////////////////
+  ///////////////////////////////////
+  // buttons
+  ///////////////////////////////////
 
-.doi-label form {
-  display: inline-block;
-}
+  @mixin button {
+    @include open-sans-book;
+    display: inline-block;
+    border-bottom: none;
+    border-radius: $radius;
+    color: $white;
+    background: $accent-color;
+    background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
+    background-position: -100%;
+    background-size: 201%;
+    background-repeat: no-repeat;
+    text-shadow: none;
+    text-decoration: none;
+    transition: 0.2s ease-in;
 
-input[type='text'] {
-  @include open-sans-book;
-  width: 100%;
-  padding: $field-padding;
-  background: $white;
-  color: #555;
-  border: none;
-  font-size: .9em;
-}
+    &:hover, &:focus, &:active {
+      color: $white;
+      background-position: 0;
+      transition: 0.2s ease-in;
+    }
 
-input[type='text']:focus {
-  border-color: #66afe9;
-  outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+    &:active {
+      box-shadow: inset 0 1px 12px $shadow;
+    }
+
+    &[disabled] {
+      cursor-events: none;
+      // does not pass a11y conrast check
+      background: $gray-2;
+      // background: $gray;
+
+      &:active {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .button {
+    @include button;
+    padding: 0.3em 1.625em 0.4em 1.625em;
+  }
+
+  .button--lg {
+    @include button;
+    padding: 0.65em 1.75em 0.75em 1.75em;
+    font-size: $gamma;
+  }
+
+  .button--sm {
+    @include button;
+    padding: 0.75em 1.75em 0.825em 1.75em;
+    font-size: $milli;
+  }
+
+  ///////////////////////////////////
+  // fields
+  ///////////////////////////////////
+
+  .doi-label form {
+    display: inline-block;
+  }
+
+  input[type='text'] {
+    @include open-sans-book;
+    width: 100%;
+    padding: $field-padding;
+    background: $white;
+    color: #555;
+    border: none;
+    font-size: .9em;
+  }
+
+  input[type='text']:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+  }
+
+  iframe {
+    background: $white;
+  }
 }
 
 ///////////////////////////////////
 // layout
 ///////////////////////////////////
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    @include open-sans-book;
-}
-
-#reader {
-    min-height: 90vh;
-    width: 100vw;
-    background: $gray-1;
-}
-
-.cozy-container {
-  display: flex;
-  flex-direction: column;
-
-  min-height: 90vh;
-  width: 100vw;
-  background: $gray-1;
-
-}
 
 .cozy-module-top {
   display: flex;
@@ -267,63 +269,68 @@ body {
 
 .cozy-module-main {
   align-self: stretch;
-  flex-grow: 1;
   display: flex;
+  flex-grow: 1;
 }
 
-.cozy-module-left, .cozy-module-right {
+.cozy-module-left,
+.cozy-module-right {
   display: flex;
-
 }
 
 .cozy-module-book-cover {
-  flex-grow: 1;
   background: #666;
-  position: relative;
-  border-top: 1px solid $gray-2;
   border-bottom: 1px solid $gray-2;
+  border-top: 1px solid $gray-2;
+  flex-grow: 1;
+  position: relative;
 }
 
 .cozy-module-book {
-    margin-left: auto;
-    margin-right: auto;
-    background: $white;
-    position: relative;
-    padding: 2em;
+  margin-left: auto;
+  margin-right: auto;
+  background: $white;
+  position: relative;
+  padding: 2em;
 }
 
 .cozy-container div[class^='cozy-'] {
-    /* border: 1px solid #fff; */
+  /* border: 1px solid #fff; */
 }
 
 .epub-container {
-    /* background: blue; */
-    /* -- padding on this container messes with horizontal scrolling */
-    /*padding: 20px;*/
-
+  /* background: blue; */
+  /* -- padding on this container messes with horizontal scrolling */
+  /*padding: 20px;*/
 }
 
 div[class^='cozy-panel-'] {
-    display: flex;
-    flex-grow: 1;
+  display: flex;
+  flex-grow: 1;
+}
+
+.cozy-panel-sidebar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 div.cozy-panel-footer {
-    display: block;
-    margin: .5em;
+  display: block;
+  margin: .5em;
 }
 
 .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 .cozy-module-main .cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: $white;
-    border-top: 1px solid $gray-2;
-    border-bottom: 1px solid $gray-2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $white;
+  border-top: 1px solid $gray-2;
+  border-bottom: 1px solid $gray-2;
 }
 
 .cozy-control {
@@ -334,7 +341,7 @@ div.cozy-panel-footer {
   }
 
   button.button--sm {
-    font-size: 1.2rem;
+    font-size: 1.2em;
     height: 100%;
     border-radius: 0;
     padding: 0 1em;
@@ -342,38 +349,32 @@ div.cozy-panel-footer {
   }
 }
 
-.cozy-panel-sidebar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 ///////////////////////////////////
 // widgets
 ///////////////////////////////////
 
 .cozy-publisher {
-    float: left;
+  float: left;
 }
 
 .cozy-rights {
-    float: right;
+  float: right;
 }
 
 // previous, next buttons
 .cozy-panel-sidebar .cozy-control a {
-    width: 100px;
-    display: inline-block;
-    background: transparent;
-    text-align: center;
-    min-height: 60px;
-    padding: 10px;
+  width: 100px;
+  display: inline-block;
+  background: transparent;
+  text-align: center;
+  min-height: 60px;
+  padding: 10px;
 }
 
 .cozy-modal {
-    background: $white;
-    border: 4px solid black;
-    padding: 20px;
+  background: $white;
+  border: 4px solid black;
+  padding: 20px;
 }
 
 .cozy-dropdown-menu {
@@ -432,13 +433,4 @@ div.cozy-panel-footer {
   button {
     padding: .8em 1em 0 .6em;
   }
-}
-
-iframe {
-    background: $white;
-}
-
-body.scrolled .epub-view {
-    height: auto !important;
-    width: auto !important;
 }
