@@ -102,12 +102,12 @@ body {
   // icons
   ///////////////////////////////////
   i[class^='icon-'] {
-    font-size: 2rem;
+    font-size: 2em;
   }
 
   i[class^='icon-chevron-'] {
     color: $gray-3;
-    font-size: 2.5em;
+    font-size: 2.5rem;
     transition: 0.2s ease-in;
   }
 
@@ -118,6 +118,10 @@ body {
 
   i.icon-menu {
     font-size: inherit;
+  }
+
+  i.icon-x {
+    font-size: initial;
   }
 
   ///////////////////////////////////
@@ -381,6 +385,7 @@ div.cozy-panel-footer {
   padding: 1em;
 }
 
+// table of contents
 .cozy-dropdown-menu {
   position: absolute;
   white-space: nowrap;
@@ -433,14 +438,15 @@ div.cozy-panel-footer {
   border-radius: 8px;
 }
 
+// preferences button
 .cozy-control-preferences {
   button {
     padding: .8em 1em 0 .6em;
   }
 }
 
+// preferences modal
 .cozy-preferences-modal {
-  box-shadow: 4px 0 1px 1px rgba(0,0,0,0.1);
 
   .close {
     position: absolute;

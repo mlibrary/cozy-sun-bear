@@ -55,8 +55,8 @@ export var Preferences = Control.extend({
         <form>
           <fieldset>
             <legend>Text Display</legend>
-            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" />Two Column</label>
-            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" />One Column</label>
+            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" />Page-by-Page</label>
+            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" />Scroll</label>
           </fieldset>
         </form>
       </article>
@@ -71,7 +71,7 @@ export var Preferences = Control.extend({
     input.checked = true;
 
     var footer = this._panel.querySelector("footer");
-    this._cancelButton = this._createButton('X', 'Close preferences without saving', 'close', footer, this._cancelAction);
+    this._cancelButton = this._createButton('<i class="icon-x oi" data-glyph="x" aria-hidden="true"></i>', 'Close preferences without saving', 'close', footer, this._cancelAction);
     this._saveButton = this._createButton('Save', 'Save Preferences', 'button--sm', footer, this._saveAction);
   },
 
