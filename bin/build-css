@@ -1,1 +1,1 @@
-node-sass --include-path scss scss/cozy.scss dist/cozy-sun-bear.css
+node-sass --include-path scss --functions lib/sass-functions.js scss/cozy.scss dist/cozy-sun-bear.css
