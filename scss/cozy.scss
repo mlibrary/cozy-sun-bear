@@ -76,15 +76,12 @@ $grid-padding:       1rem;
 
 body {
   margin: 0;
+  font-size: 16px;
 
   .scrolled .epub-view {
     height: auto !important;
     width: auto !important;
   }
-}
-
-* {
-  box-sizing: border-box;
 }
 
 // nest selectors inside .cozy-container to avoid css conflicts
@@ -95,12 +92,17 @@ body {
   flex-direction: column;
   min-height: 90vh;
   width: 100vw;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
 
   ///////////////////////////////////
   // icons
   ///////////////////////////////////
   i[class^='icon-'] {
-    font-size: 2em;
+    font-size: 2rem;
   }
 
   i[class^='icon-chevron-'] {
@@ -179,6 +181,7 @@ body {
     text-shadow: none;
     text-decoration: none;
     transition: 0.2s ease-in;
+    line-height: normal;
 
     &:hover, &:focus, &:active {
       color: $white;
@@ -335,9 +338,10 @@ div.cozy-panel-footer {
 
 .cozy-control {
   .cozy-h1 {
+    @include scope-one;
     margin: .3em .5em 0;
     font-size: 2em;
-    @include scope-one;
+    line-height: normal;
   }
 
   button.button--sm {
