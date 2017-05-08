@@ -1,2 +1,10 @@
 /node_modules
 /coverage
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
