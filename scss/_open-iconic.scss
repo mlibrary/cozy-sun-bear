@@ -2,8 +2,8 @@ $iconic-font-path: 'fonts/' !default;
 
 @font-face {
   font-family: 'Icons';
-  src: url('#{$iconic-font-path}open-iconic.eot');
-  src: url('#{$iconic-font-path}open-iconic.eot?#iconic-sm') format('embedded-opentype'), url('#{$iconic-font-path}open-iconic.woff') format('woff'), url('#{$iconic-font-path}open-iconic.ttf') format('truetype'), url('#{$iconic-font-path}open-iconic.otf') format('opentype'), url('#{$iconic-font-path}open-iconic.svg#iconic-sm') format('svg');
+  src: font-url('fonts/open-iconic.eot');
+  src: font-url('fonts/open-iconic.eot?#iconic-sm') format('embedded-opentype'), font-url('fonts/open-iconic.woff') format('woff'), font-url('fonts/open-iconic.ttf') format('truetype'), font-url('fonts/open-iconic.otf') format('opentype'), font-url('fonts/open-iconic.svg#iconic-sm') format('svg');
   font-weight: normal;
   font-style: normal;
 }

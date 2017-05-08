@@ -38,6 +38,7 @@
     "mocha": "^3.2.0",
     "morgan": "^1.8.1",
     "node-sass": "^4.5.2",
+    "node-sass-asset-functions": "^0.1.0",
     "nodemon": "^1.11.0",
     "optimist": "^0.6.1",
     "pat": "0.0.1",
