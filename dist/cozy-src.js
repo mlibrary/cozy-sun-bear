@@ -1,14 +1,23 @@
+
+if (false && (new Date()).getTime() > 1493996701359) {
+  var msg = "This rollupjs bundle is potentially old. Make sure you're running 'npm run-script watch' or 'yarn run watch'.";
+  alert(msg);
+  // throw new Error(msg);
+}
+
 /*
- * Cozy Sun Bear 1.0.0+fixup/css-typo.190e55f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
- * (c) 2017 Regents of the University of Michigan
+ * Leaflet 1.0.0+style-preferences.90a0e2f, a JS library for interactive maps. http://leafletjs.com
+ * (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
+
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+fixup/css-typo.190e55f";
+var version = "1.0.0+style-preferences.90a0e2f";
 
 /*
  * @namespace Util
@@ -1845,26 +1854,6 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
-// import {Class} from '../core/Class';
-/*
- * @class Reader
- * @aka cozy.Map
- * @inherits Evented
- *
- * The central class of the API — it is used to create a book on a page and manipulate it.
- *
- * @example
- *
- * ```js
- * // initialize the map on the "map" div with a given center and zoom
- * var map = L.map('map', {
- *  center: [51.505, -0.09],
- *  zoom: 13
- * });
- * ```
- *
- */
-
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
@@ -2762,9 +2751,9 @@ var Preferences = Control.extend({
       <article>
         <form>
           <fieldset>
-            <legend>Flow</legend>
-            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" /> Auto</label>
-            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" /> Scroll</label>
+            <legend>Text Display</legend>
+            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" />Page-by-Page</label>
+            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" />Scroll</label>
           </fieldset>
         </form>
       </article>
@@ -2779,8 +2768,8 @@ var Preferences = Control.extend({
     input.checked = true;
 
     var footer = this._panel.querySelector("footer");
-    this._cancelButton = this._createButton('Cancel', 'Cancel Preferences', 'btn btn-default', footer, this._cancelAction);
-    this._saveButton = this._createButton('Save', 'Save Preferences', 'btn btn-primary', footer, this._saveAction);
+    this._cancelButton = this._createButton('<i class="icon-x oi" data-glyph="x" aria-hidden="true"></i>', 'Close preferences without saving', 'close', footer, this._cancelAction);
+    this._saveButton = this._createButton('Save', 'Save Preferences', 'button--sm', footer, this._saveAction);
   },
 
   _cancelAction: function() {
