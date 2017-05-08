@@ -74,15 +74,15 @@ $grid-padding:       1rem;
   font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
 }
 
-body {
-  margin: 0;
-  font-size: 16px;
+// body {
+//   margin: 0;
+//   font-size: 16px;
 
-  .scrolled .epub-view {
-    height: auto !important;
-    width: auto !important;
-  }
-}
+//   .scrolled .epub-view {
+//     height: auto !important;
+//     width: auto !important;
+//   }
+// }
 
 // nest selectors inside .cozy-container to avoid css conflicts
 .cozy-container {
