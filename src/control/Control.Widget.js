@@ -45,7 +45,11 @@ export var Widget = Control.extend({
       if ( data.hasOwnProperty(slot) ) {
         var node = container.querySelector(`[data-slot=${slot}]`);
         if ( node ) {
-          node.innerHTML = data[slot];
+          if ( node.hasAttribute('value') ) {
+            node.setAttribute('value', data[slot]);
+          } else {
+            node.innerHTML = data[slot];
+          }
         }
       }
     }
