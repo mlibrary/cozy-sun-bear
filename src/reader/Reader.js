@@ -63,13 +63,13 @@ export var Reader = Evented.extend({
     var self = this;
     var panes = self._panes;
 
-    self.setBookPanelSize();
-
     var x = panes['book-cover']; var xx = panes['book'];
 
-    this.open();
+    this.open(function() {
+      self.setBookPanelSize();
+      self.draw(target || 0);
+    });
 
-    this.draw(target || 0);
     this._loaded = true;
   },
 
@@ -290,7 +290,7 @@ export var Reader = Evented.extend({
   setBookPanelSize: function() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
     panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
     panes['book'].style.display = 'block';
   },

@@ -8,7 +8,7 @@ Reader.EpubJS = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function() {
+  open: function(callback) {
     var self = this;
     this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
@@ -16,6 +16,7 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     })
+    this._book.ready.then(callback);
   },
 
   draw: function(target, callback) {
