@@ -28,7 +28,7 @@ export var Contents = Control.extend({
       }
     }
 
-    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents</h2><ul></ul></nav>`;
+    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
     body = new DOMParser().parseFromString(panel, "text/html").body;
     this._reader._container.appendChild(body.children[0]);
     this._menu = this._reader._container.querySelector('nav.st-menu');
@@ -37,8 +37,6 @@ export var Contents = Control.extend({
     DomUtil.addClass(this._reader._container, 'st-pusher');
 
     this._control = container.querySelector("[data-toggle=open]");
-    // this._menu = container.querySelector("[data-target=menu]");
-    // this._menu.style.display = 'none';
     container.style.position = 'relative';
 
     DomEvent.on(this._control, 'click', function(event) {
@@ -50,73 +48,31 @@ export var Contents = Control.extend({
       setTimeout(function() {
         DomUtil.addClass(self._reader._container, 'st-menu-open');
       }, 25);
-      // this._menu.style.display = 'block';
-    }, this)
-
-    // DomEvent.on(this._menu, 'click', function(event) {
-    //   event.preventDefault();
-    //   var target = event.target;
-    //   target = target.getAttribute('href');
-    //   this._reader.gotoPage(target);
-    //   this._menu.style.display = 'none';
-    // }, this);
-
-    this._reader.on('update-contents', function(data) {
-      var parent = self._menu.querySelector('ul');
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      while ( s.length ) {
-        var tuple = s.shift();
-        var chapter = tuple[0];
-        var tabindex = tuple[1];
-        var parent = tuple[2];
-
-        var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-          s.unshift([chapter_, tabindex + 1, option]);
-        });
-      }
-    })
-
-    return container;
-  },
-
-  onAddXX: function(reader) {
-    var self = this;
-
-    var container = this._container;
-    if ( container ) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-
-      var className = this._className(),
-          options = this.options;
-
-      container = DomUtil.create('div', className);
-
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
-        container.appendChild(body.children[0]);
-      }
-    }
-
-    this._control = container.querySelector("[data-toggle=dropdown]");
-    this._menu = container.querySelector("[data-target=menu]");
-    this._menu.style.display = 'none';
-    container.style.position = 'relative';
-
-    DomEvent.on(this._control, 'click', function(event) {
-      event.preventDefault();
-      this._menu.style.display = 'block';
     }, this)
 
     DomEvent.on(this._menu, 'click', function(event) {
       event.preventDefault();
       var target = event.target;
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      this._menu.style.display = 'none';
+      if ( target.tagName == 'A' ) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      DomUtil.removeClass(this._reader._container, 'st-menu-open');
     }, this);
+
+    DomEvent.on(this._reader._container, 'click', function(event) {
+      if ( ! DomUtil.hasClass(self._reader._container, 'st-menu-open') ) { return ; }
+      var target = event.target;
+      // find whether target or ancestor is in _menu
+      while ( target && target != self._reader._container ) {
+        if ( target == self._menu ) {
+          return;
+        }
+        target = target.parentNode;
+      }
+      event.preventDefault();
+      DomUtil.removeClass(self._reader._container, 'st-menu-open');
+    });
 
     this._reader.on('update-contents', function(data) {
       var parent = self._menu.querySelector('ul');

@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.09c1e85, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+contents-panel.51ba4ff, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.09c1e85";
+var version = "1.0.0+contents-panel.51ba4ff";
 
 /*
  * @namespace Util
@@ -1884,13 +1884,13 @@ var Reader = Evented.extend({
     var self = this;
     var panes = self._panes;
 
-    self.setBookPanelSize();
-
     var x = panes['book-cover']; var xx = panes['book'];
 
-    this.open();
+    this.open(function() {
+      self.setBookPanelSize();
+      self.draw(target || 0);
+    });
 
-    this.draw(target || 0);
     this._loaded = true;
   },
 
@@ -2111,7 +2111,7 @@ var Reader = Evented.extend({
   setBookPanelSize: function() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
     panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
     panes['book'].style.display = 'block';
   },
@@ -2510,7 +2510,7 @@ var Contents = Control.extend({
       }
     }
 
-    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents</h2><ul></ul></nav>`;
+    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
     body = new DOMParser().parseFromString(panel, "text/html").body;
     this._reader._container.appendChild(body.children[0]);
     this._menu = this._reader._container.querySelector('nav.st-menu');
@@ -2519,8 +2519,6 @@ var Contents = Control.extend({
     addClass(this._reader._container, 'st-pusher');
 
     this._control = container.querySelector("[data-toggle=open]");
-    // this._menu = container.querySelector("[data-target=menu]");
-    // this._menu.style.display = 'none';
     container.style.position = 'relative';
 
     on(this._control, 'click', function(event) {
@@ -2532,73 +2530,31 @@ var Contents = Control.extend({
       setTimeout(function() {
         addClass(self._reader._container, 'st-menu-open');
       }, 25);
-      // this._menu.style.display = 'block';
-    }, this);
-
-    // DomEvent.on(this._menu, 'click', function(event) {
-    //   event.preventDefault();
-    //   var target = event.target;
-    //   target = target.getAttribute('href');
-    //   this._reader.gotoPage(target);
-    //   this._menu.style.display = 'none';
-    // }, this);
-
-    this._reader.on('update-contents', function(data) {
-      var parent = self._menu.querySelector('ul');
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      while ( s.length ) {
-        var tuple = s.shift();
-        var chapter = tuple[0];
-        var tabindex = tuple[1];
-        var parent = tuple[2];
-
-        var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-          s.unshift([chapter_, tabindex + 1, option]);
-        });
-      }
-    });
-
-    return container;
-  },
-
-  onAddXX: function(reader) {
-    var self = this;
-
-    var container = this._container;
-    if ( container ) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-
-      var className = this._className(),
-          options = this.options;
-
-      container = create$1('div', className);
-
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
-        container.appendChild(body.children[0]);
-      }
-    }
-
-    this._control = container.querySelector("[data-toggle=dropdown]");
-    this._menu = container.querySelector("[data-target=menu]");
-    this._menu.style.display = 'none';
-    container.style.position = 'relative';
-
-    on(this._control, 'click', function(event) {
-      event.preventDefault();
-      this._menu.style.display = 'block';
     }, this);
 
     on(this._menu, 'click', function(event) {
       event.preventDefault();
       var target = event.target;
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      this._menu.style.display = 'none';
+      if ( target.tagName == 'A' ) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      removeClass(this._reader._container, 'st-menu-open');
     }, this);
+
+    on(this._reader._container, 'click', function(event) {
+      if ( ! hasClass(self._reader._container, 'st-menu-open') ) { return ; }
+      var target = event.target;
+      // find whether target or ancestor is in _menu
+      while ( target && target != self._reader._container ) {
+        if ( target == self._menu ) {
+          return;
+        }
+        target = target.parentNode;
+      }
+      event.preventDefault();
+      removeClass(self._reader._container, 'st-menu-open');
+    });
 
     this._reader.on('update-contents', function(data) {
       var parent = self._menu.querySelector('ul');
@@ -2857,7 +2813,6 @@ var preferences = function(options) {
 
 var Widget = Control.extend({
 
-  defaultTemplate: `<button data-toggle="button" data-slot="title"></button>`,
 
   options: {
       // @option region: String = 'topright'
@@ -2882,35 +2837,39 @@ var Widget = Control.extend({
         container.appendChild(body.children[0]);
       }
 
-      this.state(this.options.states[0].stateName, container);
-
     }
 
+    this._onAddExtra(container);
+    this._updateTemplate(container);
+    this._updateClass(container);
     this._bindEvents(container);
 
     return container;
   },
 
-  state: function(stateName, container) {
-    container = container || this._container;
-    this._resetState();
-    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
-    if ( this._state.className ) {
-      addClass(container, this._state.className);
-    }
-    if ( this._state.title ) {
-      var element = container.querySelector("[data-slot=title]");
-      element.innerHTML = this._state.title;
-      element.setAttribute('value', this._state.title);
+  _updateTemplate: function(container) {
+    var data = this.data();
+    for(var slot in data) {
+      if ( data.hasOwnProperty(slot) ) {
+        var node = container.querySelector(`[data-slot=${slot}]`);
+        if ( node ) {
+          if ( node.hasAttribute('value') ) {
+            node.setAttribute('value', data[slot]);
+          } else {
+            node.innerHTML = data[slot];
+          }
+        }
+      }
     }
   },
 
-  _resetState: function() {
-    if ( ! this._state ) { return; }
-    if ( this._state.className ) {
-      removeClass(this._container, this._state.className);
+  _updateClass: function(container) {
+    if ( this.options.className ) {
+      addClass(container, this.options.className);
     }
   },
+
+  _onAddExtra: function() { },
 
   _bindEvents: function(container) {
     var control$$1 = container.querySelector("[data-toggle=button]");
@@ -2921,14 +2880,81 @@ var Widget = Control.extend({
   },
 
   _action: function() {
-    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this.options.data || {};
   },
 
   EOT: true
 });
 
-var widget = function(options) {
-  return new Widget(options);
+Widget.Button = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+
+  _action: function() {
+    this.options.onClick(this, this._reader);
+  },
+
+  EOT: true
+});
+
+Widget.Panel = Widget.extend({
+  defaultTemplate: `<div><span data-slot="text"></span></div>`,
+
+
+  EOT: true
+});
+
+Widget.Toggle = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+
+  _onAddExtra: function(container) {
+    this.state(this.options.states[0].stateName, container);
+
+    return container;
+  },
+
+  state: function(stateName, container) {
+    container = container || this._container;
+    this._resetState(container);
+    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+    this._updateClass(container);
+    this._updateTemplate(container);
+  },
+
+  _resetState: function(container) {
+    if ( ! this._state ) { return; }
+    if ( this._state.className ) {
+      removeClass(container, this._state.className);
+    }
+  },
+
+  _updateClass: function(container) {
+    if ( this._state.className ) {
+      addClass(container, this._state.className);
+    }
+  },
+
+  _action: function() {
+    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this._state.data || {};
+  },
+
+  EOT: true
+});
+
+// export var widget = function(options) {
+//   return new Widget(options);
+// }
+
+var widget = {
+  button: function(options) { return new Widget.Button(options); },
+  panel: function(options) { return new Widget.Panel(options); },
+  toggle: function(options) { return new Widget.Toggle(options); }
 };
 
 Control.PageNext = PageNext;
@@ -2973,7 +2999,7 @@ Reader.EpubJS = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function() {
+  open: function(callback) {
     var self = this;
     this._book = ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
@@ -2981,6 +3007,7 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     });
+    this._book.ready.then(callback);
   },
 
   draw: function(target, callback) {
