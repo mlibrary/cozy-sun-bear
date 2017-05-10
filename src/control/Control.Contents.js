@@ -20,6 +20,79 @@ export var Contents = Control.extend({
 
       container = DomUtil.create('div', className);
 
+      var template = `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`;
+
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while ( body.children.length ) {
+        container.appendChild(body.children[0]);
+      }
+    }
+
+    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents</h2><ul></ul></nav>`;
+    body = new DOMParser().parseFromString(panel, "text/html").body;
+    this._reader._container.appendChild(body.children[0]);
+    this._menu = this._reader._container.querySelector('nav.st-menu');
+    this._menu.style.height = this._reader._container.offsetHeight + 'px';
+    this._menu.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
+    DomUtil.addClass(this._reader._container, 'st-pusher');
+
+    this._control = container.querySelector("[data-toggle=open]");
+    // this._menu = container.querySelector("[data-target=menu]");
+    // this._menu.style.display = 'none';
+    container.style.position = 'relative';
+
+    DomEvent.on(this._control, 'click', function(event) {
+      event.preventDefault();
+      self._menu.style.height = self._reader._container.offsetHeight + 'px';
+      self._menu.style.width = parseInt(self._reader._container.offsetWidth * 0.40) + 'px';
+
+      DomUtil.addClass(self._reader._container, 'st-effect-1');
+      setTimeout(function() {
+        DomUtil.addClass(self._reader._container, 'st-menu-open');
+      }, 25);
+      // this._menu.style.display = 'block';
+    }, this)
+
+    // DomEvent.on(this._menu, 'click', function(event) {
+    //   event.preventDefault();
+    //   var target = event.target;
+    //   target = target.getAttribute('href');
+    //   this._reader.gotoPage(target);
+    //   this._menu.style.display = 'none';
+    // }, this);
+
+    this._reader.on('update-contents', function(data) {
+      var parent = self._menu.querySelector('ul');
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
+      while ( s.length ) {
+        var tuple = s.shift();
+        var chapter = tuple[0];
+        var tabindex = tuple[1];
+        var parent = tuple[2];
+
+        var option = self._createOption(chapter, tabindex, parent);
+        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+          s.unshift([chapter_, tabindex + 1, option]);
+        });
+      }
+    })
+
+    return container;
+  },
+
+  onAddXX: function(reader) {
+    var self = this;
+
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = DomUtil.create('div', className);
+
       var template = this.options.template || this.defaultTemplate;
       var body = new DOMParser().parseFromString(template, "text/html").body;
       while ( body.children.length ) {
@@ -46,7 +119,8 @@ export var Contents = Control.extend({
     }, this);
 
     this._reader.on('update-contents', function(data) {
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, self._menu ] });
+      var parent = self._menu.querySelector('ul');
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
       while ( s.length ) {
         var tuple = s.shift();
         var chapter = tuple[0];
