@@ -37,13 +37,22 @@
         var $form = $("form");
         var $select = $("select[name=book]");
         var book_href;
+        var book_prefix;
 
-        var available_books = [];
+        if ( location.hostname == 'localhost' ) {
+          book_prefix = '';
+        } else {
+          var tmp = location.pathname.split("/");
+          tmp.pop(); // static.html
+          tmp.pop(); // examples
+          tmp.pop(); // cozy-sun-bear
+          book_prefix = tmp.join('/') + '/';
+        }
 
         if ( location.search ) {
             $("body").addClass("reading");
 
-            book_href = location.search.substr(1);
+            book_href = book_prefix + location.search.substr(1);
             var reader = cozy.reader('reader', { href: book_href });
 
 
@@ -91,7 +100,12 @@
             })
         };
 
-        $.getJSON("/books", function(data) {
+        var books_data_href = location.pathname.split("/");
+        books_data_href.pop();
+        books_data_href.push("books.json");
+        books_data_href = location.origin + books_data_href.join("/");
+
+        $.getJSON(books_data_href, function(data) {
             for(var i in data) {
                 var $option = $("<option></option>").appendTo($select);
                 var tmp = data[i].split("/"); tmp.pop();
