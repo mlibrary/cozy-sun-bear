@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.51ba4ff, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+contents-panel.2816ae1, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.51ba4ff";
+var version = "1.0.0+contents-panel.2816ae1";
 
 /*
  * @namespace Util
@@ -274,6 +274,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -390,6 +398,31 @@ function checkDeprecatedMixinEvents(includes) {
 		}
 	}
 }
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -828,6 +861,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -1009,6 +1062,11 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
+
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
 var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
@@ -1133,6 +1191,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1213,6 +1275,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if (typeof types === 'object') {
@@ -1496,8 +1574,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 
@@ -1518,6 +1594,20 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(
     ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
@@ -1845,6 +1935,26 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
+// import {Class} from '../core/Class';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
+
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
@@ -1901,6 +2011,13 @@ var Reader = Evented.extend({
       flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
     }
     this.options.flow = flow;
+    this.destroy();
+    this.draw(target);
+  },
+
+  reopen: function(options, target) {
+    var target = target || this.currentLocation();
+    extend(this.options, options);
     this.destroy();
     this.draw(target);
   },
@@ -2151,6 +2268,15 @@ var Reader = Evented.extend({
 
   EOT: true
 });
+
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
 
 var Control = Class.extend({
     // @section
@@ -2487,7 +2613,7 @@ var pageLast = function(options) {
 
 var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -2502,7 +2628,7 @@ var Contents = Control.extend({
 
       container = create$1('div', className);
 
-      var template = `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`;
+      var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
       while ( body.children.length ) {
@@ -2510,10 +2636,10 @@ var Contents = Control.extend({
       }
     }
 
-    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
+    var panel = `<nav class="st-panel st-panel-left st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
     body = new DOMParser().parseFromString(panel, "text/html").body;
     this._reader._container.appendChild(body.children[0]);
-    this._menu = this._reader._container.querySelector('nav.st-menu');
+    this._menu = this._reader._container.querySelector('nav.st-panel');
     this._menu.style.height = this._reader._container.offsetHeight + 'px';
     this._menu.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
     addClass(this._reader._container, 'st-pusher');
@@ -2528,7 +2654,7 @@ var Contents = Control.extend({
 
       addClass(self._reader._container, 'st-effect-1');
       setTimeout(function() {
-        addClass(self._reader._container, 'st-menu-open');
+        addClass(self._reader._container, 'st-panel-open');
       }, 25);
     }, this);
 
@@ -2539,11 +2665,13 @@ var Contents = Control.extend({
         target = target.getAttribute('href');
         this._reader.gotoPage(target);
       }
-      removeClass(this._reader._container, 'st-menu-open');
+      removeClass(this._reader._container, 'st-panel-open');
+      removeClass(this._reader._container, 'st-effect-1');
     }, this);
 
     on(this._reader._container, 'click', function(event) {
-      if ( ! hasClass(self._reader._container, 'st-menu-open') ) { return ; }
+      if ( ! hasClass(self._reader._container, 'st-panel-open') ) { return ; }
+      if ( ! hasClass(self._reader._container, 'st-effect-1') ) { return ; }
       var target = event.target;
       // find whether target or ancestor is in _menu
       while ( target && target != self._reader._container ) {
@@ -2553,7 +2681,8 @@ var Contents = Control.extend({
         target = target.parentNode;
       }
       event.preventDefault();
-      removeClass(self._reader._container, 'st-menu-open');
+      removeClass(self._reader._container, 'st-panel-open');
+      removeClass(self._reader._container, 'st-effect-1');
     });
 
     this._reader.on('update-contents', function(data) {
@@ -2603,6 +2732,8 @@ var Contents = Control.extend({
 var contents = function(options) {
   return new Contents(options);
 };
+
+// Title + Chapter
 
 var Title = Control.extend({
   onAdd: function(reader) {
@@ -2670,6 +2801,8 @@ var Title = Control.extend({
 var title = function(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
@@ -2743,7 +2876,12 @@ var Preferences = Control.extend({
   },
 
   _action: function() {
-    this._panel.style.display = 'block';
+    var self = this;
+    // this._panel.style.display = 'block';
+    addClass(self._reader._container, 'st-effect-2');
+    setTimeout(function() {
+      addClass(self._reader._container, 'st-panel-open');
+    }, 25);
   },
 
   _createButton: function (html, title, className, container, fn) {
@@ -2765,6 +2903,100 @@ var Preferences = Control.extend({
   },
 
   _createPanel: function() {
+    var self = this;
+
+    var panel = `<div class="st-panel st-panel-right st-effect-2 cozy-effect-1">
+      <header>
+        <h2>Preferences <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
+      </header>
+      <article class="cozy-preferences-modal">
+        <form>
+          <fieldset>
+            <legend>Text Size</legend>
+            <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>
+            <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>
+            <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>
+          </fieldset>          
+          <fieldset>
+            <legend>Text Display</legend>
+            <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>
+            <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
+          </fieldset>
+          <fieldset>
+            <legend>Theme</legend>
+            <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
+            <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
+          </fieldset>
+          <p>
+            <button id="action-save" class="button button--lg">Save Changes</button>
+          </p>
+        </form>
+      </article>
+    </div>`;
+    var body = new DOMParser().parseFromString(panel, "text/html").body;
+    this._reader._container.appendChild(body.children[0]);
+    this._panel = this._reader._container.querySelector('.st-panel.st-panel-right');
+    this._panel.style.height = this._reader._container.offsetHeight + 'px';
+    this._panel.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
+    addClass(this._reader._container, 'st-pusher');
+
+    var input, input_id;
+    /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
+    input_id = "preferences-input-" + ( this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc' );
+    console.log("AHOY PREFERENCES", input_id);
+    input = this._panel.querySelector("#" + input_id);
+    input.checked = true;
+
+    input_id = "preferences-input-size-" + ( this._reader.options.text_size || 'auto' );
+    input = this._panel.querySelector("#" + input_id);
+    input.checked = true;
+
+    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'light' );
+    input = this._panel.querySelector("#" + input_id);
+    input.checked = true;
+
+    input = this._panel.querySelector('#action-save');
+    on(input, 'click', function(event) {
+      event.preventDefault();
+      var options = {};
+      var input = self._panel.querySelector("input[name='flow']:checked");
+      options.flow = input.value;
+      input = self._panel.querySelector("input[name='text_size']:checked");
+      options.text_size = input.value;
+      input = self._panel.querySelector("input[name='theme']:checked");
+      options.theme = input.value;
+      removeClass(self._reader._container, 'st-panel-open');
+      removeClass(self._reader._container, 'st-effect-2');
+      setTimeout(function() {
+        self._reader.reopen(options);
+      }, 100);
+    });
+
+    input = this._panel.querySelector('h2 button');
+    on(input, 'click', function(event) {
+      event.preventDefault();
+      removeClass(self._reader._container, 'st-panel-open');
+      removeClass(self._reader._container, 'st-effect-2');
+    });
+
+    on(this._reader._container, 'click', function(event) {
+      if ( ! hasClass(self._reader._container, 'st-panel-open') ) { return ; }
+      if ( ! hasClass(self._reader._container, 'st-effect-2') ) { return ; }
+      var target = event.target;
+      // find whether target or ancestor is in _menu
+      while ( target && target != self._reader._container ) {
+        if ( target == self._panel ) {
+          return;
+        }
+        target = target.parentNode;
+      }
+      event.preventDefault();
+      removeClass(self._reader._container, 'st-panel-open');
+      removeClass(self._reader._container, 'st-effect-2');
+    });
+  },
+
+  _createPanelXX: function() {
     var template = `<div class="cozy-modal cozy-preferences-modal" style="position: fixed; width: 300px; margin-left: -150px; left: 50%; top: 50%; transform: translateY(-50%); z-index: 9000; display: none">
       <header>
         <h2>Preferences</h2>
@@ -2957,6 +3189,9 @@ var widget = {
   toggle: function(options) { return new Widget.Toggle(options); }
 };
 
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
+
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
 Control.PageFirst = PageFirst;
@@ -3096,14 +3331,44 @@ Reader.EpubJS = Reader.extend({
     var add_max_img_styles = false;
     if ( this._book.package.metadata.layout == 'pre-paginated' ) {
       // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;
     }
     if ( add_max_img_styles ) {
+      // WHY IN HEAVENS NAME?
+      var style = window.getComputedStyle(this._panes['book']);
+      var height = parseInt(style.getPropertyValue('height'));
+      height -= parseInt(style.getPropertyValue('padding-top'));
+      height -= parseInt(style.getPropertyValue('padding-bottom'));
       this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+        view.addStylesheetRules([ [ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]] ]);
       });
     }
+
+    if ( this.options.text_size == 'large' ) {
+      this._rendition.themes.fontSize('140%');
+      // this._rendition.hooks.content.register(function(view) {
+      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '120%' ] ] ]);
+      // })
+    }
+    if ( this.options.text_size == 'small' ) {
+      this._rendition.themes.fontSize('90%');
+      // this._rendition.hooks.content.register(function(view) {
+      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '90%' ] ] ]);
+      // })
+    }
+    if ( this.options.theme == 'dark' ) {
+      this._rendition.hooks.content.register(function(view) {
+        view.addStylesheetRules([ 
+          [ 'body', 
+            [ 'background-color', '#191919' ],
+            [ 'color', '#fff' ]
+          ],
+          [ 'a', [ 'color', '#d1d1d1' ] ]
+        ]);
+      });
+    }
+
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;
@@ -3128,6 +3393,8 @@ var reader = function(id, options) {
   var engine = options.engine || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

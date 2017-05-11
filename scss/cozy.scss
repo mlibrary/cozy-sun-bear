@@ -93,7 +93,10 @@ $grid-padding:       1rem;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  max-width: 100vw;
   box-sizing: border-box;
+
+  overflow: hidden;
 
   * {
     box-sizing: border-box;
@@ -464,6 +467,7 @@ div.cozy-panel-footer {
 
   fieldset {
     border: 1px solid $brand-color;
+    margin: 1rem;
   }
 
   label {

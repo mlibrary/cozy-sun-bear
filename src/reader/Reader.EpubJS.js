@@ -105,14 +105,44 @@ Reader.EpubJS = Reader.extend({
     var add_max_img_styles = false;
     if ( this._book.package.metadata.layout == 'pre-paginated' ) {
       // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;
     }
     if ( add_max_img_styles ) {
+      // WHY IN HEAVENS NAME?
+      var style = window.getComputedStyle(this._panes['book']);
+      var height = parseInt(style.getPropertyValue('height'));
+      height -= parseInt(style.getPropertyValue('padding-top'));
+      height -= parseInt(style.getPropertyValue('padding-bottom'));
       this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+        view.addStylesheetRules([ [ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]] ]);
       })
     }
+
+    if ( this.options.text_size == 'large' ) {
+      this._rendition.themes.fontSize('140%');
+      // this._rendition.hooks.content.register(function(view) {
+      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '120%' ] ] ]);
+      // })
+    }
+    if ( this.options.text_size == 'small' ) {
+      this._rendition.themes.fontSize('90%');
+      // this._rendition.hooks.content.register(function(view) {
+      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '90%' ] ] ]);
+      // })
+    }
+    if ( this.options.theme == 'dark' ) {
+      this._rendition.hooks.content.register(function(view) {
+        view.addStylesheetRules([ 
+          [ 'body', 
+            [ 'background-color', '#191919' ],
+            [ 'color', '#fff' ]
+          ],
+          [ 'a', [ 'color', '#d1d1d1' ] ]
+        ]);
+      })
+    }
+
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;

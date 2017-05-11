@@ -5,7 +5,7 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -20,7 +20,7 @@ export var Contents = Control.extend({
 
       container = DomUtil.create('div', className);
 
-      var template = `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`;
+      var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
       while ( body.children.length ) {
@@ -28,10 +28,10 @@ export var Contents = Control.extend({
       }
     }
 
-    var panel = `<nav class="st-menu st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
+    var panel = `<nav class="st-panel st-panel-left st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
     body = new DOMParser().parseFromString(panel, "text/html").body;
     this._reader._container.appendChild(body.children[0]);
-    this._menu = this._reader._container.querySelector('nav.st-menu');
+    this._menu = this._reader._container.querySelector('nav.st-panel');
     this._menu.style.height = this._reader._container.offsetHeight + 'px';
     this._menu.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
     DomUtil.addClass(this._reader._container, 'st-pusher');
@@ -46,7 +46,7 @@ export var Contents = Control.extend({
 
       DomUtil.addClass(self._reader._container, 'st-effect-1');
       setTimeout(function() {
-        DomUtil.addClass(self._reader._container, 'st-menu-open');
+        DomUtil.addClass(self._reader._container, 'st-panel-open');
       }, 25);
     }, this)
 
@@ -57,11 +57,13 @@ export var Contents = Control.extend({
         target = target.getAttribute('href');
         this._reader.gotoPage(target);
       }
-      DomUtil.removeClass(this._reader._container, 'st-menu-open');
+      DomUtil.removeClass(this._reader._container, 'st-panel-open');
+      DomUtil.removeClass(this._reader._container, 'st-effect-1');
     }, this);
 
     DomEvent.on(this._reader._container, 'click', function(event) {
-      if ( ! DomUtil.hasClass(self._reader._container, 'st-menu-open') ) { return ; }
+      if ( ! DomUtil.hasClass(self._reader._container, 'st-panel-open') ) { return ; }
+      if ( ! DomUtil.hasClass(self._reader._container, 'st-effect-1') ) { return ; }
       var target = event.target;
       // find whether target or ancestor is in _menu
       while ( target && target != self._reader._container ) {
@@ -71,7 +73,8 @@ export var Contents = Control.extend({
         target = target.parentNode;
       }
       event.preventDefault();
-      DomUtil.removeClass(self._reader._container, 'st-menu-open');
+      DomUtil.removeClass(self._reader._container, 'st-panel-open');
+      DomUtil.removeClass(self._reader._container, 'st-effect-1');
     });
 
     this._reader.on('update-contents', function(data) {

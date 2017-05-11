@@ -84,6 +84,13 @@ export var Reader = Evented.extend({
     this.draw(target);
   },
 
+  reopen: function(options, target) {
+    var target = target || this.currentLocation();
+    Util.extend(this.options, options);
+    this.destroy();
+    this.draw(target);
+  },
+
   draw: function(target) {
     // NOOP
   },
