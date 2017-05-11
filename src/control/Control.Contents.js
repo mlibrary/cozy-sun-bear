@@ -1,5 +1,6 @@
 import {Control} from './Control';
 import {Reader} from '../reader/Reader';
+import {Modal} from './Modal';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 
@@ -8,6 +9,76 @@ export var Contents = Control.extend({
   defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
 
   onAdd: function(reader) {
+    var self = this;
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = DomUtil.create('div', className);
+
+      var template = this.options.template || this.defaultTemplate;
+
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while ( body.children.length ) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    
+    this._modal = this._reader.modal({
+      template: '<ul></ul>',
+      title: 'Contents',
+      region: 'left'
+    });
+
+    this._control = container.querySelector("[data-toggle=open]");
+    container.style.position = 'relative';
+
+    DomEvent.on(this._control, 'click', function(event) {
+      event.preventDefault();
+      // DomUtil.addClass(self._reader._container, 'st-effect-1');
+      self._modal._activate();
+      // setTimeout(function() {
+      //   // DomUtil.addClass(self._reader._container, 'st-panel-open');
+      // }, 25);
+    }, this)
+
+    DomEvent.on(this._modal._container, 'click', function(event) {
+      event.preventDefault();
+      var target = event.target;
+      if ( target.tagName == 'A' ) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      this._modal._deactivate();
+      // DomUtil.removeClass(this._reader._container, 'st-panel-open');
+      // DomUtil.removeClass(this._reader._container, 'st-effect-1');
+    }, this);
+
+    this._reader.on('update-contents', function(data) {
+      var parent = self._modal._container.querySelector('ul');
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
+      while ( s.length ) {
+        var tuple = s.shift();
+        var chapter = tuple[0];
+        var tabindex = tuple[1];
+        var parent = tuple[2];
+
+        var option = self._createOption(chapter, tabindex, parent);
+        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+          s.unshift([chapter_, tabindex + 1, option]);
+        });
+      }
+    })
+
+
+    return container;
+  },
+
+  onAddXX: function(reader) {
     var self = this;
 
     var container = this._container;
