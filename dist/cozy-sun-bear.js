@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.41ad06c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+contents-panel.920e1e6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.41ad06c";
+var version = "1.0.0+contents-panel.920e1e6";
 
 /*
  * @namespace Util
@@ -2494,11 +2494,13 @@ var pageLast = function(options) {
   return new PageLast(options);
 };
 
+var activeModal;
+var dismissModalListener = false;
+
 var Modal = Class.extend({
   options: {
     // @option region: String = 'topright'
-    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-    // `'topright'`, `'bottomleft'` or `'bottomright'`
+    // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
     tag: 'div',
     fraction: 0.40,
     className: {},
@@ -2516,7 +2518,7 @@ var Modal = Class.extend({
     this._reader = reader;
     var template$$1 = this.options.template;
     var tag = this.options.tag;
-    var panelHTML = `<div class="st-panel st-panel-${this.options.region}">
+    var panelHTML = `<div class="st-modal st-modal-${this.options.region}">
       <header>
         <h2>${this.options.title} <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
       </header>
@@ -2553,32 +2555,39 @@ var Modal = Class.extend({
 
     if ( this._initializedEvents ) { return; }
     this._initializedEvents = true;
-    var container = this._reader._container;
-    on(container, 'click', function(event) {
-      if ( self._activating ) { return ; }
-      if ( ! hasClass(self._container, 'active') ) { return ; }
-      if ( ! hasClass(container, 'st-panel-open') ) { return ; }
 
-      var target = event.target;
-      console.log("AHOY MODAL CLOSE", target, target.getAttribute('data-toggle'));
-      if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+    var reader = this._reader;
+    var container = reader._container;
 
-      // find whether target or ancestor is in _menu
-      while ( target && ! hasClass(target, 'st-pusher') ) {
-        console.log("AHOY MODAL CLOSE WALK", target, hasClass(target, 'st-panel'));
-        if ( hasClass(target, 'st-panel') && hasClass(target, 'active') ) {
-          return;
+    if ( ! dismissModalListener ) {
+      dismissModalListener = true;
+      on(container, 'click', function(event) {
+        if ( hasClass(container, 'st-modal-activating') ) { return ; }
+        if ( ! hasClass(container, 'st-modal-open') ) { return ; }
+
+        var modal = activeModal;
+        if ( ! modal ) { return ; }
+        if ( ! hasClass(modal._container, 'active') ) { return ; }
+
+        var target = event.target;
+        if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+
+        // find whether target or ancestor is in _menu
+        while ( target && ! hasClass(target, 'st-pusher') ) {
+          if ( hasClass(target, 'st-modal') && hasClass(target, 'active') ) {
+            return;
+          }
+          target = target.parentNode;
         }
-        target = target.parentNode;
-      }
-      event.preventDefault();
+        event.preventDefault();
 
-      self._deactivate();
-    });
+        modal.deactivate();
+      });
+    }
 
     on(this._container.querySelector('h2 button'), 'click', function(event) {
       event.preventDefault();
-      self._deactivate();
+      self.deactivate();
     });
 
     // bind any actions
@@ -2586,7 +2595,6 @@ var Modal = Class.extend({
       for(var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_id = '#action-' + this._id + '-' + i;
-        console.log("AHOY WUT?", button_id);
         var button = this._container.querySelector(button_id);
         on(button, 'click', function(event) {
           action.callback(event);
@@ -2596,24 +2604,24 @@ var Modal = Class.extend({
 
   },
 
-  _deactivate: function() {
+  deactivate: function() {
     var self = this;
     var container = this._reader._container;
 
-    removeClass(container, 'st-panel-open');
+    removeClass(container, 'st-modal-open');
     removeClass(this._container, 'active');
-    console.log("AHOY MODAL DEACTIVATE", this._container, hasClass(this._container, 'active'));
+    activeModal = null;
   },
 
-  _activate: function() {
+  activate: function() {
     var self = this;
-    self._activating = true;
+    activeModal = this;
+    addClass(self._reader._container, 'st-modal-activating');
     this._resize();
-    addClass(this._reader._container, 'st-panel-open');
+    addClass(this._reader._container, 'st-modal-open');
     setTimeout(function() {
-      console.log("AHOY MODAL ACTIVATE");
       addClass(self._container, 'active');
-      self._activating = false;
+      removeClass(self._reader._container, 'st-modal-activating');
     }, 25);
   },
 
@@ -2679,11 +2687,7 @@ var Contents = Control.extend({
 
     on(this._control, 'click', function(event) {
       event.preventDefault();
-      // DomUtil.addClass(self._reader._container, 'st-effect-1');
-      self._modal._activate();
-      // setTimeout(function() {
-      //   // DomUtil.addClass(self._reader._container, 'st-panel-open');
-      // }, 25);
+      self._modal.activate();
     }, this);
 
     on(this._modal._container, 'click', function(event) {
@@ -2693,9 +2697,7 @@ var Contents = Control.extend({
         target = target.getAttribute('href');
         this._reader.gotoPage(target);
       }
-      this._modal._deactivate();
-      // DomUtil.removeClass(this._reader._container, 'st-panel-open');
-      // DomUtil.removeClass(this._reader._container, 'st-effect-1');
+      this._modal.deactivate();
     }, this);
 
     this._reader.on('update-contents', function(data) {
@@ -2714,95 +2716,6 @@ var Contents = Control.extend({
       }
     });
 
-
-    return container;
-  },
-
-  onAddXX: function(reader) {
-    var self = this;
-
-    var container = this._container;
-    if ( container ) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-
-      var className = this._className(),
-          options = this.options;
-
-      container = create$1('div', className);
-
-      var template = this.options.template || this.defaultTemplate;
-
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
-        container.appendChild(body.children[0]);
-      }
-    }
-
-    var panel = `<nav class="st-panel st-panel-left st-effect-1 cozy-effect-1"><h2>Contents <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2><ul></ul></nav>`;
-    body = new DOMParser().parseFromString(panel, "text/html").body;
-    this._reader._container.appendChild(body.children[0]);
-    this._menu = this._reader._container.querySelector('nav.st-panel');
-    this._menu.style.height = this._reader._container.offsetHeight + 'px';
-    this._menu.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
-    addClass(this._reader._container, 'st-pusher');
-
-    this._control = container.querySelector("[data-toggle=open]");
-    container.style.position = 'relative';
-
-    on(this._control, 'click', function(event) {
-      event.preventDefault();
-      self._menu.style.height = self._reader._container.offsetHeight + 'px';
-      self._menu.style.width = parseInt(self._reader._container.offsetWidth * 0.40) + 'px';
-
-      addClass(self._reader._container, 'st-effect-1');
-      setTimeout(function() {
-        addClass(self._reader._container, 'st-panel-open');
-      }, 25);
-    }, this);
-
-    on(this._menu, 'click', function(event) {
-      event.preventDefault();
-      var target = event.target;
-      if ( target.tagName == 'A' ) {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      removeClass(this._reader._container, 'st-panel-open');
-      removeClass(this._reader._container, 'st-effect-1');
-    }, this);
-
-    on(this._reader._container, 'click', function(event) {
-      if ( ! hasClass(self._reader._container, 'st-panel-open') ) { return ; }
-      if ( ! hasClass(self._reader._container, 'st-effect-1') ) { return ; }
-      var target = event.target;
-      // find whether target or ancestor is in _menu
-      while ( target && target != self._reader._container ) {
-        if ( target == self._menu ) {
-          return;
-        }
-        target = target.parentNode;
-      }
-      event.preventDefault();
-      removeClass(self._reader._container, 'st-panel-open');
-      removeClass(self._reader._container, 'st-effect-1');
-    });
-
-    this._reader.on('update-contents', function(data) {
-      var parent = self._menu.querySelector('ul');
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      while ( s.length ) {
-        var tuple = s.shift();
-        var chapter = tuple[0];
-        var tabindex = tuple[1];
-        var parent = tuple[2];
-
-        var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-          s.unshift([chapter_, tabindex + 1, option]);
-        });
-      }
-    });
 
     return container;
   },
@@ -2976,8 +2889,7 @@ var Preferences = Control.extend({
 
   _action: function() {
     var self = this;
-    // this._panel.style.display = 'block';
-    self._modal._activate();
+    self._modal.activate();
   },
 
   _createButton: function (html, title, className, container, fn) {
@@ -3059,7 +2971,6 @@ var Preferences = Control.extend({
   _updatePreferences: function(event) {
     var self = this;
     event.preventDefault();
-    console.log("AHOY AHOY UPDATING");
 
     var options = {};
     var input = this._form.querySelector("input[name='flow']:checked");
@@ -3068,144 +2979,10 @@ var Preferences = Control.extend({
     options.text_size = input.value;
     input = this._form.querySelector("input[name='theme']:checked");
     options.theme = input.value;
-    this._modal._deactivate();
+    this._modal.deactivate();
     setTimeout(function() {
       self._reader.reopen(options);
     }, 100);
-  },
-
-  _createPanelXX: function() {
-    var self = this;
-
-    var panel = `<div class="st-panel st-panel-right st-effect-2 cozy-effect-1">
-      <header>
-        <h2>Preferences <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
-      </header>
-      <article class="cozy-preferences-modal">
-        <form>
-          <fieldset>
-            <legend>Text Size</legend>
-            <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>
-            <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>
-            <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>
-          </fieldset>          
-          <fieldset>
-            <legend>Text Display</legend>
-            <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>
-            <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
-          </fieldset>
-          <fieldset>
-            <legend>Theme</legend>
-            <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
-            <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
-          </fieldset>
-          <p>
-            <button id="action-save" class="button button--lg">Save Changes</button>
-          </p>
-        </form>
-      </article>
-    </div>`;
-    var body = new DOMParser().parseFromString(panel, "text/html").body;
-    this._reader._container.appendChild(body.children[0]);
-    this._panel = this._reader._container.querySelector('.st-panel.st-panel-right');
-    this._panel.style.height = this._reader._container.offsetHeight + 'px';
-    this._panel.style.width = parseInt(this._reader._container.offsetWidth * 0.40) + 'px';
-    addClass(this._reader._container, 'st-pusher');
-
-    var input, input_id;
-    /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
-    input_id = "preferences-input-" + ( this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc' );
-    console.log("AHOY PREFERENCES", input_id);
-    input = this._panel.querySelector("#" + input_id);
-    input.checked = true;
-
-    input_id = "preferences-input-size-" + ( this._reader.options.text_size || 'auto' );
-    input = this._panel.querySelector("#" + input_id);
-    input.checked = true;
-
-    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'light' );
-    input = this._panel.querySelector("#" + input_id);
-    input.checked = true;
-
-    input = this._panel.querySelector('#action-save');
-    on(input, 'click', function(event) {
-      event.preventDefault();
-      var options = {};
-      var input = self._panel.querySelector("input[name='flow']:checked");
-      options.flow = input.value;
-      input = self._panel.querySelector("input[name='text_size']:checked");
-      options.text_size = input.value;
-      input = self._panel.querySelector("input[name='theme']:checked");
-      options.theme = input.value;
-      removeClass(self._reader._container, 'st-panel-open');
-      removeClass(self._reader._container, 'st-effect-2');
-      setTimeout(function() {
-        self._reader.reopen(options);
-      }, 100);
-    });
-
-    input = this._panel.querySelector('h2 button');
-    on(input, 'click', function(event) {
-      event.preventDefault();
-      removeClass(self._reader._container, 'st-panel-open');
-      removeClass(self._reader._container, 'st-effect-2');
-    });
-
-    on(this._reader._container, 'click', function(event) {
-      if ( ! hasClass(self._reader._container, 'st-panel-open') ) { return ; }
-      if ( ! hasClass(self._reader._container, 'st-effect-2') ) { return ; }
-      var target = event.target;
-      // find whether target or ancestor is in _menu
-      while ( target && target != self._reader._container ) {
-        if ( target == self._panel ) {
-          return;
-        }
-        target = target.parentNode;
-      }
-      event.preventDefault();
-      removeClass(self._reader._container, 'st-panel-open');
-      removeClass(self._reader._container, 'st-effect-2');
-    });
-  },
-
-  _createPanelXX: function() {
-    var template = `<div class="cozy-modal cozy-preferences-modal" style="position: fixed; width: 300px; margin-left: -150px; left: 50%; top: 50%; transform: translateY(-50%); z-index: 9000; display: none">
-      <header>
-        <h2>Preferences</h2>
-      </header>
-      <article>
-        <form>
-          <fieldset>
-            <legend>Text Display</legend>
-            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" />Page-by-Page</label>
-            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" />Scroll</label>
-          </fieldset>
-        </form>
-      </article>
-      <footer>
-      </footer>
-    </div>`;
-    this._panel = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-    this._reader._container.appendChild(this._panel);
-
-    var input_id = "preferences-input-" + ( this._reader.options.flow == 'scrollable' ? 'scrollable' : 'reflowable' );
-    var input = this._panel.querySelector("#" + input_id);
-    input.checked = true;
-
-    var footer = this._panel.querySelector("footer");
-    this._cancelButton = this._createButton('<i class="icon-x oi" data-glyph="x" aria-hidden="true"></i>', 'Close preferences without saving', 'close', footer, this._cancelAction);
-    this._saveButton = this._createButton('Save', 'Save Preferences', 'button--sm', footer, this._saveAction);
-  },
-
-  _cancelAction: function() {
-    this._panel.style.display = 'none';
-  },
-
-  _saveAction: function() {
-    var input = this._panel.querySelector("input[type=radio]:checked");
-    var flow = input.value;
-    this._panel.style.display = 'none';
-    this._reader.switch(flow);
   },
 
   EOT: true

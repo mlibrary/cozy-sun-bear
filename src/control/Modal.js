@@ -4,6 +4,10 @@ import * as Util from '../core/Util';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 
+
+var activeModal;
+var dismissModalListener = false;
+
 export var Modal = Class.extend({
   options: {
     // @option region: String = 'topright'
@@ -25,7 +29,7 @@ export var Modal = Class.extend({
     this._reader = reader;
     var template = this.options.template;
     var tag = this.options.tag
-    var panelHTML = `<div class="st-panel st-panel-${this.options.region}">
+    var panelHTML = `<div class="st-modal st-modal-${this.options.region}">
       <header>
         <h2>${this.options.title} <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
       </header>
@@ -62,30 +66,39 @@ export var Modal = Class.extend({
 
     if ( this._initializedEvents ) { return; }
     this._initializedEvents = true;
-    var container = this._reader._container;
-    DomEvent.on(container, 'click', function(event) {
-      if ( self._activating ) { return ; }
-      if ( ! DomUtil.hasClass(self._container, 'active') ) { return ; }
-      if ( ! DomUtil.hasClass(container, 'st-panel-open') ) { return ; }
 
-      var target = event.target;
-      if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+    var reader = this._reader;
+    var container = reader._container;
 
-      // find whether target or ancestor is in _menu
-      while ( target && ! DomUtil.hasClass(target, 'st-pusher') ) {
-        if ( DomUtil.hasClass(target, 'st-panel') && DomUtil.hasClass(target, 'active') ) {
-          return;
+    if ( ! dismissModalListener ) {
+      dismissModalListener = true;
+      DomEvent.on(container, 'click', function(event) {
+        if ( DomUtil.hasClass(container, 'st-modal-activating') ) { return ; }
+        if ( ! DomUtil.hasClass(container, 'st-modal-open') ) { return ; }
+
+        var modal = activeModal;
+        if ( ! modal ) { return ; }
+        if ( ! DomUtil.hasClass(modal._container, 'active') ) { return ; }
+
+        var target = event.target;
+        if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+
+        // find whether target or ancestor is in _menu
+        while ( target && ! DomUtil.hasClass(target, 'st-pusher') ) {
+          if ( DomUtil.hasClass(target, 'st-modal') && DomUtil.hasClass(target, 'active') ) {
+            return;
+          }
+          target = target.parentNode;
         }
-        target = target.parentNode;
-      }
-      event.preventDefault();
+        event.preventDefault();
 
-      self._deactivate();
-    });
+        modal.deactivate();
+      });
+    }
 
     DomEvent.on(this._container.querySelector('h2 button'), 'click', function(event) {
       event.preventDefault();
-      self._deactivate();
+      self.deactivate();
     })
 
     // bind any actions
@@ -93,7 +106,6 @@ export var Modal = Class.extend({
       for(var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_id = '#action-' + this._id + '-' + i;
-        console.log("AHOY WUT?", button_id);
         var button = this._container.querySelector(button_id);
         DomEvent.on(button, 'click', function(event) {
           action.callback(event);
@@ -103,22 +115,24 @@ export var Modal = Class.extend({
 
   },
 
-  _deactivate: function() {
+  deactivate: function() {
     var self = this;
     var container = this._reader._container;
 
-    DomUtil.removeClass(container, 'st-panel-open');
+    DomUtil.removeClass(container, 'st-modal-open');
     DomUtil.removeClass(this._container, 'active');
+    activeModal = null;
   },
 
-  _activate: function() {
+  activate: function() {
     var self = this;
-    self._activating = true;
+    activeModal = this;
+    DomUtil.addClass(self._reader._container, 'st-modal-activating');
     this._resize();
-    DomUtil.addClass(this._reader._container, 'st-panel-open');
+    DomUtil.addClass(this._reader._container, 'st-modal-open');
     setTimeout(function() {
       DomUtil.addClass(self._container, 'active');
-      self._activating = false;
+      DomUtil.removeClass(self._reader._container, 'st-modal-activating');
     }, 25);
   },
 
