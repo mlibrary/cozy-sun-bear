@@ -735,7 +735,7 @@
   right: 0;
   width: 0;
   height: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.6);
   content: '';
   opacity: 0;
   -webkit-transition: opacity 0.2s, width 0.1s 0.2s, height 0.1s 0.2s;
@@ -756,13 +756,13 @@
   visibility: hidden;
   width: 300px;
   height: 100%;
-  background: #666;
-  color: #eee;
+  background: #e0e0e0;
+  color: #1e1e1e;
   overflow: none;
   -webkit-transition: all 0.2s;
   transition: all 0.2s; }
   .st-panel a {
-    color: #eee; }
+    color: #1e1e1e; }
 
 .st-panel.st-panel-left {
   left: 0; }
@@ -796,10 +796,13 @@
   padding-left: 1.2rem;
   list-style: none; }
 
+.st-panel header {
+  padding: 1em;
+  background-color: #a3a3a3;
+  color: #000; }
+
 .st-panel h2 {
   margin: 0;
-  padding: 1em;
-  color: rgba(255, 255, 255, 0.4);
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
   font-weight: 300;
   font-size: 2em; }
@@ -813,14 +816,12 @@
 
 .st-panel > article {
   padding: 1em;
-  color: #fff;
   font-size: 1rem;
   overflow: auto; }
 
 .st-panel > footer {
   padding: 1em;
-  background: rgba(0, 0, 0, 0.75);
-  bottom: 0; }
+  background: #a3a3a3; }
 
 .st-panel.st-panel-right > footer {
   right: 0; }
@@ -831,24 +832,13 @@
 .st-panel ul li a {
   display: block;
   padding: 1em 1em 1em 1.2em;
-  outline: none;
-  box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
-  color: #f3efe0;
-  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
-  letter-spacing: 1px;
-  font-weight: 400;
-  -webkit-transition: background 0.3s, box-shadow 0.3s;
-  transition: background 0.3s, box-shadow 0.3s; }
-
-.st-panel ul li:first-child a {
-  box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2), inset 0 1px rgba(0, 0, 0, 0.2); }
+  border-top: 1px solid #ccc;
+  transition: background 0.2s, box-shadow 0.3s; }
 
 .st-panel ul li a:hover {
-  background: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 -1px transparent;
-  color: #fff; }
+  background-color: #e8e8e8;
+  font-weight: bold; }
 
-/* Individual effects */
 /* Effect 1: Slide in on top left */
 .st-panel.st-panel-left {
   visibility: visible;
@@ -866,12 +856,6 @@
   right: 0;
   visibility: visible; }
 
-.st-effect-1.st-panel::after {
-  display: none; }
-
-.st-effect-2.st-panel::after {
-  display: none; }
-
 .cozy-container {
   font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 400;
@@ -885,6 +869,8 @@
   overflow: hidden; }
   .cozy-container * {
     box-sizing: border-box; }
+  .cozy-container.cozy-theme-dark {
+    filter: invert(90%); }
   .cozy-container i[class^='icon-'] {
     font-size: 2em; }
   .cozy-container i[class^='icon-chevron-'] {

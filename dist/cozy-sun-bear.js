@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.4bc17c3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+contents-panel.41ad06c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.4bc17c3";
+var version = "1.0.0+contents-panel.41ad06c";
 
 /*
  * @namespace Util
@@ -1859,6 +1859,8 @@ var Reader = Evented.extend({
     ],
     flow: 'auto',
     engine: 'epubjs',
+    fontSizeLarge: '140%',
+    fontSizeSmall: '90%',
     trackResize: true
   },
 
@@ -2554,13 +2556,16 @@ var Modal = Class.extend({
     var container = this._reader._container;
     on(container, 'click', function(event) {
       if ( self._activating ) { return ; }
+      if ( ! hasClass(self._container, 'active') ) { return ; }
       if ( ! hasClass(container, 'st-panel-open') ) { return ; }
 
       var target = event.target;
+      console.log("AHOY MODAL CLOSE", target, target.getAttribute('data-toggle'));
       if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
 
       // find whether target or ancestor is in _menu
-      while ( target && target != container ) {
+      while ( target && ! hasClass(target, 'st-pusher') ) {
+        console.log("AHOY MODAL CLOSE WALK", target, hasClass(target, 'st-panel'));
         if ( hasClass(target, 'st-panel') && hasClass(target, 'active') ) {
           return;
         }
@@ -2597,6 +2602,7 @@ var Modal = Class.extend({
 
     removeClass(container, 'st-panel-open');
     removeClass(this._container, 'active');
+    console.log("AHOY MODAL DEACTIVATE", this._container, hasClass(this._container, 'active'));
   },
 
   _activate: function() {
@@ -2605,7 +2611,7 @@ var Modal = Class.extend({
     this._resize();
     addClass(this._reader._container, 'st-panel-open');
     setTimeout(function() {
-      // DomUtil.addClass(self._reader._container, 'st-panel-open');
+      console.log("AHOY MODAL ACTIVATE");
       addClass(self._container, 'active');
       self._activating = false;
     }, 25);
@@ -3497,38 +3503,36 @@ Reader.EpubJS = Reader.extend({
     } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;
     }
+
+    var custom_stylesheet_rules = [];
+
     if ( add_max_img_styles ) {
       // WHY IN HEAVENS NAME?
       var style = window.getComputedStyle(this._panes['book']);
       var height = parseInt(style.getPropertyValue('height'));
       height -= parseInt(style.getPropertyValue('padding-top'));
       height -= parseInt(style.getPropertyValue('padding-bottom'));
-      this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ [ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]] ]);
-      });
+      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]]);
     }
 
     if ( this.options.text_size == 'large' ) {
-      this._rendition.themes.fontSize('140%');
-      // this._rendition.hooks.content.register(function(view) {
-      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '120%' ] ] ]);
-      // })
+      this._rendition.themes.fontSize(this.options.fontSizeLarge);
     }
     if ( this.options.text_size == 'small' ) {
-      this._rendition.themes.fontSize('90%');
-      // this._rendition.hooks.content.register(function(view) {
-      //   view.addStylesheetRules([ [ 'html,body', [ 'font-size', '90%' ] ] ]);
-      // })
+      this._rendition.themes.fontSize(this.options.fontSizeSmall);
     }
     if ( this.options.theme == 'dark' ) {
+      addClass(this._container, 'cozy-theme-dark');
+      custom_stylesheet_rules.push([ 'img', [ 'filter', 'invert(100%)' ] ]);
+      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
+      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
+    } else {
+      removeClass(this._container, 'cozy-theme-dark');
+    }
+
+    if ( custom_stylesheet_rules.length ) {
       this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ 
-          [ 'body', 
-            [ 'background-color', '#191919' ],
-            [ 'color', '#fff' ]
-          ],
-          [ 'a', [ 'color', '#d1d1d1' ] ]
-        ]);
+        view.addStylesheetRules(custom_stylesheet_rules);
       });
     }
 

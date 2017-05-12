@@ -7,8 +7,7 @@ import * as DomEvent from '../dom/DomEvent';
 export var Modal = Class.extend({
   options: {
     // @option region: String = 'topright'
-    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-    // `'topright'`, `'bottomleft'` or `'bottomright'`
+    // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
     tag: 'div',
     fraction: 0.40,
     className: {},
@@ -66,13 +65,14 @@ export var Modal = Class.extend({
     var container = this._reader._container;
     DomEvent.on(container, 'click', function(event) {
       if ( self._activating ) { return ; }
+      if ( ! DomUtil.hasClass(self._container, 'active') ) { return ; }
       if ( ! DomUtil.hasClass(container, 'st-panel-open') ) { return ; }
 
       var target = event.target;
       if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
 
       // find whether target or ancestor is in _menu
-      while ( target && target != container ) {
+      while ( target && ! DomUtil.hasClass(target, 'st-pusher') ) {
         if ( DomUtil.hasClass(target, 'st-panel') && DomUtil.hasClass(target, 'active') ) {
           return;
         }
@@ -117,7 +117,6 @@ export var Modal = Class.extend({
     this._resize();
     DomUtil.addClass(this._reader._container, 'st-panel-open');
     setTimeout(function() {
-      // DomUtil.addClass(self._reader._container, 'st-panel-open');
       DomUtil.addClass(self._container, 'active');
       self._activating = false;
     }, 25);
