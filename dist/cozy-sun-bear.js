@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.340b4d6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+new-modals.7f98e0d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.340b4d6";
+var version = "1.0.0+new-modals.7f98e0d";
 
 /*
  * @namespace Util
@@ -3219,6 +3219,7 @@ Reader.EpubJS = Reader.extend({
     var self = this;
     this.settings = { flow: this.options.flow };
     this.settings.height = '100%';
+    this.settings.width = '99%';
     // this.settings.width = '100%';
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
