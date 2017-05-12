@@ -38,6 +38,8 @@ export var Reader = Evented.extend({
     ],
     flow: 'auto',
     engine: 'epubjs',
+    fontSizeLarge: '140%',
+    fontSizeSmall: '90%',
     trackResize: true
   },
 
