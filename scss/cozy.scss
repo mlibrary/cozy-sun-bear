@@ -3,7 +3,7 @@
 ///////////////////////////////////
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
 @import 'open-iconic';
-@import 'panels';
+@import 'modals';
 ///////////////////////////////////
 // variables
 ///////////////////////////////////
@@ -100,6 +100,10 @@ $grid-padding:       1rem;
 
   * {
     box-sizing: border-box;
+  }
+
+  &.cozy-theme-dark {
+    filter: invert(90%);
   }
 
   ///////////////////////////////////

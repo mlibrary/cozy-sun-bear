@@ -1,0 +1,176 @@
+$modal-transition: 0.2s;
+$modal-bgcolor: #e0e0e0;
+$modal-color: #1e1e1e;
+$modal-link-color: #1e1e1e;
+$modal-link-hover: #e8e8e8;
+$modal-header-bgcolor: #a3a3a3;
+$modal-header-color: #000;
+$modal-footer-bgcolor: #a3a3a3;
+$modal-backdrop-bgcolor: rgba(0,0,0,0.6);
+
+.st-pusher {
+  // position: relative;
+  // left: 0;
+  // z-index: 99;
+  // height: 100%;
+  -webkit-transition: -webkit-transform $modal-transition;
+  transition: transform $modal-transition;
+}
+
+.st-pusher::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  background: $modal-backdrop-bgcolor;
+  content: '';
+  opacity: 0;
+  -webkit-transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
+  transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
+}
+
+.st-panel-open.st-pusher::after {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  -webkit-transition: opacity $modal-transition;
+  transition: opacity $modal-transition;
+}
+
+.st-panel {
+  display: block;
+  position: absolute;
+  top: 0;
+  z-index: 100;
+  visibility: hidden;
+  width: 300px;
+  height: 100%;
+  background: $modal-bgcolor;
+  color: $modal-color;
+  overflow: none;
+  -webkit-transition: all $modal-transition;
+  transition: all $modal-transition;
+
+  a {
+    color: $modal-link-color;
+  }
+}
+
+.st-panel.st-panel-left {
+  left: 0;
+}
+
+.st-panel.st-panel-right {
+  right: 0;
+}
+
+.st-panel::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.2);
+  content: '';
+  opacity: 1;
+  -webkit-transition: opacity $modal-transition;
+  transition: opacity $modal-transition;
+}
+
+.st-panel-open .st-panel::after {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  -webkit-transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
+  transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
+}
+
+/* content style */
+
+.st-panel ul {
+  margin: 0;
+  padding: 0;
+  padding-left: 1.2rem;
+  list-style: none;
+}
+
+.st-panel header {
+  padding: 1em;
+  background-color: $modal-header-bgcolor;
+  color: $modal-header-color;
+}
+
+.st-panel h2 {
+  margin: 0;
+  // padding: 0.5em;
+  text-shadow: 0 0 1px rgba(0,0,0,0.1);
+  font-weight: 300;
+  font-size: 2em;
+
+  button {
+    float: right;
+    font-size: 1.2em;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.4);
+
+    &:hover {
+      color: rgba(255, 255, 255, 1.0);
+    }
+  }
+
+}
+
+.st-panel > article {
+  padding: 1em;
+  // color: #fff;
+  font-size: 1rem;
+  overflow: auto;
+}
+
+.st-panel > footer {
+  padding: 1em;
+  background: $modal-footer-bgcolor;
+}
+
+.st-panel.st-panel-right > footer {
+  right: 0;
+}
+
+.st-panel.st-panel-left > footer {
+  left: 0;
+}
+
+.st-panel ul li a {
+  display: block;
+  padding: 1em 1em 1em 1.2em;
+  border-top: 1px solid #ccc;
+  // border-bottom: 1px solid #ccc;
+  transition: background 0.2s, box-shadow 0.3s;
+}
+
+.st-panel ul li a:hover {
+  background-color: $modal-link-hover;
+  font-weight: bold;
+}
+
+/* Effect 1: Slide in on top left */
+.st-panel.st-panel-left {
+  visibility: visible;
+  left: -150%;
+}
+
+.st-panel.st-panel-right {
+  visibility: visible;
+  right: -150%;
+}
+
+.st-panel-open .st-panel.st-panel-left.active {
+  left: 0;
+  visibility: visible;
+}
+
+.st-panel-open .st-panel.st-panel-right.active {
+  right: 0;
+  visibility: visible;
+}
