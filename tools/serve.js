@@ -59,7 +59,7 @@ function listen(port) {
     });
   }
 
-  app.get('/books.json', function(req, res) {
+  app.get('/examples/books.json', function(req, res) {
     var books = [];
     var queue = indexPaths.slice(0);
     while ( queue.length ) {
