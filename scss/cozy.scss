@@ -3,6 +3,7 @@
 ///////////////////////////////////
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
 @import 'open-iconic';
+@import 'modals';
 ///////////////////////////////////
 // variables
 ///////////////////////////////////
@@ -90,12 +91,19 @@ $grid-padding:       1rem;
   background: $gray-1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   width: 100vw;
+  max-width: 100vw;
   box-sizing: border-box;
+
+  overflow: hidden;
 
   * {
     box-sizing: border-box;
+  }
+
+  &.cozy-theme-dark {
+    filter: invert(90%);
   }
 
   ///////////////////////////////////
@@ -463,6 +471,7 @@ div.cozy-panel-footer {
 
   fieldset {
     border: 1px solid $brand-color;
+    margin: 1rem;
   }
 
   label {

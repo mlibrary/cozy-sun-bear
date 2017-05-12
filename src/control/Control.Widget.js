@@ -5,7 +5,6 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Widget = Control.extend({
 
-  defaultTemplate: `<button data-toggle="button" data-slot="title"></button>`,
 
   options: {
       // @option region: String = 'topright'
@@ -30,35 +29,39 @@ export var Widget = Control.extend({
         container.appendChild(body.children[0]);
       }
 
-      this.state(this.options.states[0].stateName, container);
-
     }
 
+    this._onAddExtra(container);
+    this._updateTemplate(container);
+    this._updateClass(container);
     this._bindEvents(container);
 
     return container;
   },
 
-  state: function(stateName, container) {
-    container = container || this._container;
-    this._resetState();
-    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
-    if ( this._state.className ) {
-      DomUtil.addClass(container, this._state.className);
-    }
-    if ( this._state.title ) {
-      var element = container.querySelector("[data-slot=title]");
-      element.innerHTML = this._state.title;
-      element.setAttribute('value', this._state.title);
+  _updateTemplate: function(container) {
+    var data = this.data();
+    for(var slot in data) {
+      if ( data.hasOwnProperty(slot) ) {
+        var node = container.querySelector(`[data-slot=${slot}]`);
+        if ( node ) {
+          if ( node.hasAttribute('value') ) {
+            node.setAttribute('value', data[slot]);
+          } else {
+            node.innerHTML = data[slot];
+          }
+        }
+      }
     }
   },
 
-  _resetState: function() {
-    if ( ! this._state ) { return; }
-    if ( this._state.className ) {
-      DomUtil.removeClass(this._container, this._state.className);
+  _updateClass: function(container) {
+    if ( this.options.className ) {
+      DomUtil.addClass(container, this.options.className);
     }
   },
+
+  _onAddExtra: function() { },
 
   _bindEvents: function(container) {
     var control = container.querySelector("[data-toggle=button]");
@@ -69,12 +72,79 @@ export var Widget = Control.extend({
   },
 
   _action: function() {
-    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this.options.data || {};
   },
 
   EOT: true
 });
 
-export var widget = function(options) {
-  return new Widget(options);
+Widget.Button = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+
+  _action: function() {
+    this.options.onClick(this, this._reader);
+  },
+
+  EOT: true
+});
+
+Widget.Panel = Widget.extend({
+  defaultTemplate: `<div><span data-slot="text"></span></div>`,
+
+
+  EOT: true
+});
+
+Widget.Toggle = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+
+  _onAddExtra: function(container) {
+    this.state(this.options.states[0].stateName, container);
+
+    return container;
+  },
+
+  state: function(stateName, container) {
+    container = container || this._container;
+    this._resetState(container);
+    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+    this._updateClass(container);
+    this._updateTemplate(container);
+  },
+
+  _resetState: function(container) {
+    if ( ! this._state ) { return; }
+    if ( this._state.className ) {
+      DomUtil.removeClass(container, this._state.className);
+    }
+  },
+
+  _updateClass: function(container) {
+    if ( this._state.className ) {
+      DomUtil.addClass(container, this._state.className);
+    }
+  },
+
+  _action: function() {
+    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this._state.data || {};
+  },
+
+  EOT: true
+});
+
+// export var widget = function(options) {
+//   return new Widget(options);
+// }
+
+export var widget = {
+  button: function(options) { return new Widget.Button(options); },
+  panel: function(options) { return new Widget.Panel(options); },
+  toggle: function(options) { return new Widget.Toggle(options); }
 }

@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+gemify.dadbe91, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+new-modals.7f98e0d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+gemify.dadbe91";
+var version = "1.0.0+new-modals.7f98e0d";
 
 /*
  * @namespace Util
@@ -274,14 +274,6 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
-// @class Class
-// @aka L.Class
-
-// @section
-// @uninheritable
-
-// Thanks to John Resig and Dean Edwards for inspiration!
-
 function Class() {}
 
 Class.extend = function (props) {
@@ -398,31 +390,6 @@ function checkDeprecatedMixinEvents(includes) {
 		}
 	}
 }
-
-/*
- * @class Evented
- * @aka L.Evented
- * @inherits Class
- *
- * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
- *
- * @example
- *
- * ```js
- * map.on('click', function(e) {
- * 	alert(e.latlng);
- * } );
- * ```
- *
- * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
- *
- * ```js
- * function onClick(e) { ... }
- *
- * map.on('click', onClick);
- * map.off('click', onClick);
- * ```
- */
 
 var Evented = Class.extend({
 
@@ -861,26 +828,6 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
-/*
- * @class Point
- * @aka L.Point
- *
- * Represents a point with `x` and `y` coordinates in pixels.
- *
- * @example
- *
- * ```js
- * var point = L.point(200, 300);
- * ```
- *
- * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
- *
- * ```js
- * map.panBy([200, 300]);
- * map.panBy(L.point(200, 300));
- * ```
- */
-
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -1062,11 +1009,6 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
-/*
- * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
- */
-
-
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
 var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
@@ -1191,10 +1133,6 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
-/*
- * Extends the event handling code with double tap support for mobile browsers.
- */
-
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1275,22 +1213,6 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
-/*
- * @namespace DomEvent
- * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
- */
-
-// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
-
-// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
-// Adds a listener function (`fn`) to a particular DOM event type of the
-// element `el`. You can optionally specify the context of the listener
-// (object the `this` keyword will point to). You can also pass several
-// space-separated types (e.g. `'click dblclick'`).
-
-// @alternative
-// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
-// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if (typeof types === 'object') {
@@ -1574,6 +1496,8 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
+// @function addListener(…): this
+// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 
@@ -1594,20 +1518,6 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
-
-
-// @property TRANSFORM: String
-// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(
     ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
@@ -1935,26 +1845,6 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
-// import {Class} from '../core/Class';
-/*
- * @class Reader
- * @aka cozy.Map
- * @inherits Evented
- *
- * The central class of the API — it is used to create a book on a page and manipulate it.
- *
- * @example
- *
- * ```js
- * // initialize the map on the "map" div with a given center and zoom
- * var map = L.map('map', {
- *  center: [51.505, -0.09],
- *  zoom: 13
- * });
- * ```
- *
- */
-
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
@@ -1969,6 +1859,8 @@ var Reader = Evented.extend({
     ],
     flow: 'auto',
     engine: 'epubjs',
+    fontSizeLarge: '140%',
+    fontSizeSmall: '90%',
     trackResize: true
   },
 
@@ -1994,13 +1886,13 @@ var Reader = Evented.extend({
     var self = this;
     var panes = self._panes;
 
-    self.setBookPanelSize();
-
     var x = panes['book-cover']; var xx = panes['book'];
 
-    this.open();
+    this.open(function() {
+      self.setBookPanelSize();
+      self.draw(target || 0);
+    });
 
-    this.draw(target || 0);
     this._loaded = true;
   },
 
@@ -2013,6 +1905,14 @@ var Reader = Evented.extend({
     this.options.flow = flow;
     this.destroy();
     this.draw(target);
+  },
+
+  reopen: function(options, target) {
+    var target = target || this.currentLocation();
+    extend(this.options, options);
+    this.destroy();
+    this.draw(target);
+    this.fire('reopen');
   },
 
   draw: function(target) {
@@ -2221,7 +2121,7 @@ var Reader = Evented.extend({
   setBookPanelSize: function() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding) + 'px';
+    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
     panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
     panes['book'].style.display = 'block';
   },
@@ -2261,15 +2161,6 @@ var Reader = Evented.extend({
 
   EOT: true
 });
-
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
 
 var Control = Class.extend({
     // @section
@@ -2510,7 +2401,7 @@ var PageControl = Control.extend({
           options = this.options;
       container = create$1('div', className),
 
-      this._control  = this._createButton(options.html || options.label, options.label,
+      this._control  = this._createButton(this._fill(options.html || options.label), this._fill(options.label),
               className, container);
     }
     this._bindEvents();
@@ -2534,9 +2425,32 @@ var PageControl = Control.extend({
   },
 
   _bindEvents: function() {
+    var self = this;
     disableClickPropagation(this._control);
     on(this._control, 'click', stop);
     on(this._control, 'click', this._action, this);
+
+    this._reader.on('reopen', function(data) {
+      // update the button text / titles
+      var html = self.options.html || self.options.label;
+      self._control.innerHTML = self._fill(html);
+      self._control.setAttribute('title', self._fill(self.options.label));
+      self._control.setAttribteu('aria-label', self._fill(self.options.label));
+    });
+
+  },
+
+  _unit: function() {
+    return ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+  },
+
+  _fill: function(s) {
+    var unit = this._unit();
+    return s.replace(/\$\{unit\}/g, unit);
+  },
+
+  _label: function() {
+    return this.options.label + " " + ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
   },
 
   EOT: true
@@ -2546,8 +2460,8 @@ var PagePrevious = PageControl.extend({
   options: {
     region: 'edge.left',
     direction: 'previous',
-    label: 'Previous Page',
-    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous Page" aria-hidden="true"></i>'
+    label: 'Previous ${unit}',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2559,8 +2473,8 @@ var PageNext = PageControl.extend({
   options: {
     region: 'edge.right',
     direction: 'next',
-    label: 'Next Page',
-    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next Page" aria-hidden="true"></i>'
+    label: 'Next ${unit}',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2571,7 +2485,7 @@ var PageNext = PageControl.extend({
 var PageFirst = PageControl.extend({
   options: {
     direction: 'first',
-    label: 'First Page'
+    label: 'First ${unit}'
   },
   _action: function(e) {
       this._reader.first();
@@ -2581,7 +2495,7 @@ var PageFirst = PageControl.extend({
 var PageLast = PageControl.extend({
   options: {
     direction: 'last',
-    label: 'Last Page'
+    label: 'Last ${unit}'
   },
   _action: function(e) {
       this._reader.last();
@@ -2604,13 +2518,170 @@ var pageLast = function(options) {
   return new PageLast(options);
 };
 
+var activeModal;
+var dismissModalListener = false;
+
+var Modal = Class.extend({
+  options: {
+    // @option region: String = 'topright'
+    // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
+    tag: 'div',
+    fraction: 0.40,
+    className: {},
+    actions: null
+  },
+
+  initialize: function (options) {
+    setOptions(this, options);
+    this._id = (new Date()).getTime();
+    this._initializedEvents = false;
+  },
+
+  addTo: function(reader) {
+    var self = this;
+    this._reader = reader;
+    var template$$1 = this.options.template;
+    var tag = this.options.tag;
+    var panelHTML = `<div class="st-modal st-modal-${this.options.region}">
+      <header>
+        <h2>${this.options.title} <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
+      </header>
+      <article class="${this.options.className.article || this.options.className.article}">
+        ${template$$1}
+      </article>`;
+
+    if ( this.options.actions ) {
+      panelHTML += '<footer>';
+      for(var i in this.options.actions) {
+        var action = this.options.actions[i];
+        console.log("AHOY MODAL", i, action);
+        var button_cls = action.className || 'button--default';
+        panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
+      }
+      panelHTML += '</footer>';
+    }
+
+    panelHTML += '</div>';
+
+    var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
+
+    this._container = reader._container.appendChild(body.children[0]);
+    this._container.style.height = reader._container.offsetHeight + 'px';
+    this._container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
+    addClass(reader._container, 'st-pusher');
+
+    this._bindEvents();
+    return this;
+  },
+
+  _bindEvents: function() {
+    var self = this;
+
+    if ( this._initializedEvents ) { return; }
+    this._initializedEvents = true;
+
+    var reader = this._reader;
+    var container = reader._container;
+
+    if ( ! dismissModalListener ) {
+      dismissModalListener = true;
+      on(container, 'click', function(event) {
+        if ( hasClass(container, 'st-modal-activating') ) { return ; }
+        if ( ! hasClass(container, 'st-modal-open') ) { return ; }
+
+        var modal = activeModal;
+        if ( ! modal ) { return ; }
+        if ( ! hasClass(modal._container, 'active') ) { return ; }
+
+        var target = event.target;
+        if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+
+        // find whether target or ancestor is in _menu
+        while ( target && ! hasClass(target, 'st-pusher') ) {
+          if ( hasClass(target, 'st-modal') && hasClass(target, 'active') ) {
+            return;
+          }
+          target = target.parentNode;
+        }
+        event.preventDefault();
+
+        modal.deactivate();
+      });
+    }
+
+    on(this._container.querySelector('h2 button'), 'click', function(event) {
+      event.preventDefault();
+      self.deactivate();
+    });
+
+    // bind any actions
+    if ( this.options.actions ) {
+      for(var i in this.options.actions) {
+        var action = this.options.actions[i];
+        var button_id = '#action-' + this._id + '-' + i;
+        var button = this._container.querySelector(button_id);
+        on(button, 'click', function(event) {
+          action.callback(event);
+        });
+      }
+    }
+
+  },
+
+  deactivate: function() {
+    var self = this;
+    var container = this._reader._container;
+
+    removeClass(container, 'st-modal-open');
+    removeClass(this._container, 'active');
+    activeModal = null;
+  },
+
+  activate: function() {
+    var self = this;
+    activeModal = this;
+    addClass(self._reader._container, 'st-modal-activating');
+    this._resize();
+    addClass(this._reader._container, 'st-modal-open');
+    setTimeout(function() {
+      addClass(self._container, 'active');
+      removeClass(self._reader._container, 'st-modal-activating');
+    }, 25);
+  },
+
+  _resize: function() {
+    var container = this._reader._container;
+    this._container.style.height = container.offsetHeight + 'px';
+    this._container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    var header = this._container.querySelector('header');
+    var footer = this._container.querySelector('footer');
+    var article = this._container.querySelector('article');
+    var height = this._container.clientHeight - header.clientHeight;
+    if ( footer ) {
+      height -= footer.clientHeight;
+    }
+    article.style.height = height + 'px';
+  },
+
+  EOT: true
+});
+
+Reader.include({
+  modal: function (options) {
+    var modal = new Modal(options);
+    return modal.addTo(this);
+    // return this;
+  },
+
+  EOT: true
+});
+
 var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
 
   onAdd: function(reader) {
     var self = this;
-
     var container = this._container;
     if ( container ) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
@@ -2622,32 +2693,40 @@ var Contents = Control.extend({
       container = create$1('div', className);
 
       var template = this.options.template || this.defaultTemplate;
+
       var body = new DOMParser().parseFromString(template, "text/html").body;
       while ( body.children.length ) {
         container.appendChild(body.children[0]);
       }
     }
+    
+    this._modal = this._reader.modal({
+      template: '<ul></ul>',
+      title: 'Contents',
+      region: 'left'
+    });
 
-    this._control = container.querySelector("[data-toggle=dropdown]");
-    this._menu = container.querySelector("[data-target=menu]");
-    this._menu.style.display = 'none';
+    this._control = container.querySelector("[data-toggle=open]");
     container.style.position = 'relative';
 
     on(this._control, 'click', function(event) {
       event.preventDefault();
-      this._menu.style.display = 'block';
+      self._modal.activate();
     }, this);
 
-    on(this._menu, 'click', function(event) {
+    on(this._modal._container, 'click', function(event) {
       event.preventDefault();
       var target = event.target;
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      this._menu.style.display = 'none';
+      if ( target.tagName == 'A' ) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      this._modal.deactivate();
     }, this);
 
     this._reader.on('update-contents', function(data) {
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, self._menu ] });
+      var parent = self._modal._container.querySelector('ul');
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
       while ( s.length ) {
         var tuple = s.shift();
         var chapter = tuple[0];
@@ -2660,6 +2739,7 @@ var Contents = Control.extend({
         });
       }
     });
+
 
     return container;
   },
@@ -2692,8 +2772,6 @@ var Contents = Control.extend({
 var contents = function(options) {
   return new Contents(options);
 };
-
-// Title + Chapter
 
 var Title = Control.extend({
   onAdd: function(reader) {
@@ -2761,8 +2839,6 @@ var Title = Control.extend({
 var title = function(options) {
   return new Title(options);
 };
-
-// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
@@ -2836,7 +2912,8 @@ var Preferences = Control.extend({
   },
 
   _action: function() {
-    this._panel.style.display = 'block';
+    var self = this;
+    self._modal.activate();
   },
 
   _createButton: function (html, title, className, container, fn) {
@@ -2858,43 +2935,78 @@ var Preferences = Control.extend({
   },
 
   _createPanel: function() {
-    var template = `<div class="cozy-modal cozy-preferences-modal" style="position: fixed; width: 300px; margin-left: -150px; left: 50%; top: 50%; transform: translateY(-50%); z-index: 9000; display: none">
-      <header>
-        <h2>Preferences</h2>
-      </header>
-      <article>
-        <form>
-          <fieldset>
-            <legend>Text Display</legend>
-            <label><input name="flow" type="radio" id="preferences-input-reflowable" value="auto" />Page-by-Page</label>
-            <label><input name="flow" type="radio" id="preferences-input-scrollable" value="scrolled-doc" />Scroll</label>
-          </fieldset>
-        </form>
-      </article>
-      <footer>
-      </footer>
-    </div>`;
-    this._panel = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-    this._reader._container.appendChild(this._panel);
+    var self = this;
+    var template = `<form>
+      <fieldset>
+        <legend>Text Size</legend>
+        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>
+        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>
+        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>
+      </fieldset>          
+      <fieldset>
+        <legend>Text Display</legend>
+        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>
+        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
+      </fieldset>
+      <fieldset>
+        <legend>Theme</legend>
+        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
+        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
+      </fieldset>
+    </form>`;
 
-    var input_id = "preferences-input-" + ( this._reader.options.flow == 'scrollable' ? 'scrollable' : 'reflowable' );
-    var input = this._panel.querySelector("#" + input_id);
+    this._modal = this._reader.modal({
+      template: template,
+      title: 'Preferences',
+      className: { article: 'cozy-preferences-modal' },
+      actions: [
+        {
+          label: 'Save Changes',
+          callback: function(event) {
+            self._updatePreferences(event);
+          }
+        }
+      ],
+      region: 'right'
+    });
+
+    this._form = this._modal._container.querySelector('form');
+    this._initializeForm();
+
+    window.xmodal = this._modal;
+  },
+
+  _initializeForm: function() {
+    var input, input_id;
+    /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
+    input_id = "preferences-input-" + ( this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc' );
+    input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    var footer = this._panel.querySelector("footer");
-    this._cancelButton = this._createButton('<i class="icon-x oi" data-glyph="x" aria-hidden="true"></i>', 'Close preferences without saving', 'close', footer, this._cancelAction);
-    this._saveButton = this._createButton('Save', 'Save Preferences', 'button--sm', footer, this._saveAction);
+    input_id = "preferences-input-size-" + ( this._reader.options.text_size || 'auto' );
+    input = this._form.querySelector("#" + input_id);
+    input.checked = true;
+
+    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'light' );
+    input = this._form.querySelector("#" + input_id);
+    input.checked = true;
   },
 
-  _cancelAction: function() {
-    this._panel.style.display = 'none';
-  },
+  _updatePreferences: function(event) {
+    var self = this;
+    event.preventDefault();
 
-  _saveAction: function() {
-    var input = this._panel.querySelector("input[type=radio]:checked");
-    var flow = input.value;
-    this._panel.style.display = 'none';
-    this._reader.switch(flow);
+    var options = {};
+    var input = this._form.querySelector("input[name='flow']:checked");
+    options.flow = input.value;
+    input = this._form.querySelector("input[name='text_size']:checked");
+    options.text_size = input.value;
+    input = this._form.querySelector("input[name='theme']:checked");
+    options.theme = input.value;
+    this._modal.deactivate();
+    setTimeout(function() {
+      self._reader.reopen(options);
+    }, 100);
   },
 
   EOT: true
@@ -2906,7 +3018,6 @@ var preferences = function(options) {
 
 var Widget = Control.extend({
 
-  defaultTemplate: `<button data-toggle="button" data-slot="title"></button>`,
 
   options: {
       // @option region: String = 'topright'
@@ -2931,35 +3042,39 @@ var Widget = Control.extend({
         container.appendChild(body.children[0]);
       }
 
-      this.state(this.options.states[0].stateName, container);
-
     }
 
+    this._onAddExtra(container);
+    this._updateTemplate(container);
+    this._updateClass(container);
     this._bindEvents(container);
 
     return container;
   },
 
-  state: function(stateName, container) {
-    container = container || this._container;
-    this._resetState();
-    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
-    if ( this._state.className ) {
-      addClass(container, this._state.className);
-    }
-    if ( this._state.title ) {
-      var element = container.querySelector("[data-slot=title]");
-      element.innerHTML = this._state.title;
-      element.setAttribute('value', this._state.title);
+  _updateTemplate: function(container) {
+    var data = this.data();
+    for(var slot in data) {
+      if ( data.hasOwnProperty(slot) ) {
+        var node = container.querySelector(`[data-slot=${slot}]`);
+        if ( node ) {
+          if ( node.hasAttribute('value') ) {
+            node.setAttribute('value', data[slot]);
+          } else {
+            node.innerHTML = data[slot];
+          }
+        }
+      }
     }
   },
 
-  _resetState: function() {
-    if ( ! this._state ) { return; }
-    if ( this._state.className ) {
-      removeClass(this._container, this._state.className);
+  _updateClass: function(container) {
+    if ( this.options.className ) {
+      addClass(container, this.options.className);
     }
   },
+
+  _onAddExtra: function() { },
 
   _bindEvents: function(container) {
     var control$$1 = container.querySelector("[data-toggle=button]");
@@ -2970,18 +3085,82 @@ var Widget = Control.extend({
   },
 
   _action: function() {
-    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this.options.data || {};
   },
 
   EOT: true
 });
 
-var widget = function(options) {
-  return new Widget(options);
-};
+Widget.Button = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
 
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
+  _action: function() {
+    this.options.onClick(this, this._reader);
+  },
+
+  EOT: true
+});
+
+Widget.Panel = Widget.extend({
+  defaultTemplate: `<div><span data-slot="text"></span></div>`,
+
+
+  EOT: true
+});
+
+Widget.Toggle = Widget.extend({
+  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+
+  _onAddExtra: function(container) {
+    this.state(this.options.states[0].stateName, container);
+
+    return container;
+  },
+
+  state: function(stateName, container) {
+    container = container || this._container;
+    this._resetState(container);
+    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+    this._updateClass(container);
+    this._updateTemplate(container);
+  },
+
+  _resetState: function(container) {
+    if ( ! this._state ) { return; }
+    if ( this._state.className ) {
+      removeClass(container, this._state.className);
+    }
+  },
+
+  _updateClass: function(container) {
+    if ( this._state.className ) {
+      addClass(container, this._state.className);
+    }
+  },
+
+  _action: function() {
+    this._state.onClick(this, this._reader);
+  },
+
+  data: function() {
+    return this._state.data || {};
+  },
+
+  EOT: true
+});
+
+// export var widget = function(options) {
+//   return new Widget(options);
+// }
+
+var widget = {
+  button: function(options) { return new Widget.Button(options); },
+  panel: function(options) { return new Widget.Panel(options); },
+  toggle: function(options) { return new Widget.Toggle(options); }
+};
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -3025,7 +3204,7 @@ Reader.EpubJS = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function() {
+  open: function(callback) {
     var self = this;
     this._book = ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
@@ -3033,12 +3212,14 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     });
+    this._book.ready.then(callback);
   },
 
   draw: function(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
     this.settings.height = '100%';
+    this.settings.width = '99%';
     // this.settings.width = '100%';
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
@@ -3121,14 +3302,42 @@ Reader.EpubJS = Reader.extend({
     var add_max_img_styles = false;
     if ( this._book.package.metadata.layout == 'pre-paginated' ) {
       // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;
     }
+
+    var custom_stylesheet_rules = [];
+
     if ( add_max_img_styles ) {
+      // WHY IN HEAVENS NAME?
+      var style = window.getComputedStyle(this._panes['book']);
+      var height = parseInt(style.getPropertyValue('height'));
+      height -= parseInt(style.getPropertyValue('padding-top'));
+      height -= parseInt(style.getPropertyValue('padding-bottom'));
+      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]]);
+    }
+
+    if ( this.options.text_size == 'large' ) {
+      this._rendition.themes.fontSize(this.options.fontSizeLarge);
+    }
+    if ( this.options.text_size == 'small' ) {
+      this._rendition.themes.fontSize(this.options.fontSizeSmall);
+    }
+    if ( this.options.theme == 'dark' ) {
+      addClass(this._container, 'cozy-theme-dark');
+      custom_stylesheet_rules.push([ 'img', [ 'filter', 'invert(100%)' ] ]);
+      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
+      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
+    } else {
+      removeClass(this._container, 'cozy-theme-dark');
+    }
+
+    if ( custom_stylesheet_rules.length ) {
       this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+        view.addStylesheetRules(custom_stylesheet_rules);
       });
     }
+
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;
@@ -3153,8 +3362,6 @@ var reader = function(id, options) {
   var engine = options.engine || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
-
-// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

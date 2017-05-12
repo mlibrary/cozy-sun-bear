@@ -1,6 +1,7 @@
 import * as Util from '../core/Util';
 import {Reader} from './Reader';
 import * as epubjs from '../epubjs';
+import * as DomUtil from '../dom/DomUtil';
 
 Reader.EpubJS = Reader.extend({
 
@@ -8,7 +9,7 @@ Reader.EpubJS = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function() {
+  open: function(callback) {
     var self = this;
     this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
@@ -16,12 +17,14 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     })
+    this._book.ready.then(callback);
   },
 
   draw: function(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
     this.settings.height = '100%';
+    this.settings.width = '99%';
     // this.settings.width = '100%';
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
@@ -104,14 +107,42 @@ Reader.EpubJS = Reader.extend({
     var add_max_img_styles = false;
     if ( this._book.package.metadata.layout == 'pre-paginated' ) {
       // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'reflowable' ) {
+    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;
     }
+
+    var custom_stylesheet_rules = [];
+
     if ( add_max_img_styles ) {
+      // WHY IN HEAVENS NAME?
+      var style = window.getComputedStyle(this._panes['book']);
+      var height = parseInt(style.getPropertyValue('height'));
+      height -= parseInt(style.getPropertyValue('padding-top'));
+      height -= parseInt(style.getPropertyValue('padding-bottom'));
+      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]]);
+    }
+
+    if ( this.options.text_size == 'large' ) {
+      this._rendition.themes.fontSize(this.options.fontSizeLarge);
+    }
+    if ( this.options.text_size == 'small' ) {
+      this._rendition.themes.fontSize(this.options.fontSizeSmall);
+    }
+    if ( this.options.theme == 'dark' ) {
+      DomUtil.addClass(this._container, 'cozy-theme-dark');
+      custom_stylesheet_rules.push([ 'img', [ 'filter', 'invert(100%)' ] ]);
+      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
+      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
+    } else {
+      DomUtil.removeClass(this._container, 'cozy-theme-dark');
+    }
+
+    if ( custom_stylesheet_rules.length ) {
       this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules([ [ 'img', [ 'max-height', '100%' ], [ 'max-width', '100%'] ] ]);
+        view.addStylesheetRules(custom_stylesheet_rules);
       })
     }
+
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;

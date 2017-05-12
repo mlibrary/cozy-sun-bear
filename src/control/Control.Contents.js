@@ -1,15 +1,15 @@
 import {Control} from './Control';
 import {Reader} from '../reader/Reader';
+import {Modal} from './Modal';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 
 export var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="dropdown"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button><ul class="cozy-dropdown-menu" data-target="menu"></ul>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
 
   onAdd: function(reader) {
     var self = this;
-
     var container = this._container;
     if ( container ) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
@@ -21,32 +21,40 @@ export var Contents = Control.extend({
       container = DomUtil.create('div', className);
 
       var template = this.options.template || this.defaultTemplate;
+
       var body = new DOMParser().parseFromString(template, "text/html").body;
       while ( body.children.length ) {
         container.appendChild(body.children[0]);
       }
     }
+    
+    this._modal = this._reader.modal({
+      template: '<ul></ul>',
+      title: 'Contents',
+      region: 'left'
+    });
 
-    this._control = container.querySelector("[data-toggle=dropdown]");
-    this._menu = container.querySelector("[data-target=menu]");
-    this._menu.style.display = 'none';
+    this._control = container.querySelector("[data-toggle=open]");
     container.style.position = 'relative';
 
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
-      this._menu.style.display = 'block';
+      self._modal.activate();
     }, this)
 
-    DomEvent.on(this._menu, 'click', function(event) {
+    DomEvent.on(this._modal._container, 'click', function(event) {
       event.preventDefault();
       var target = event.target;
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      this._menu.style.display = 'none';
+      if ( target.tagName == 'A' ) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      this._modal.deactivate();
     }, this);
 
     this._reader.on('update-contents', function(data) {
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, self._menu ] });
+      var parent = self._modal._container.querySelector('ul');
+      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
       while ( s.length ) {
         var tuple = s.shift();
         var chapter = tuple[0];
@@ -59,6 +67,7 @@ export var Contents = Control.extend({
         });
       }
     })
+
 
     return container;
   },
