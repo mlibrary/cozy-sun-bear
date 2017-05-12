@@ -91,6 +91,7 @@ export var Reader = Evented.extend({
     Util.extend(this.options, options);
     this.destroy();
     this.draw(target);
+    this.fire('reopen');
   },
 
   draw: function(target) {

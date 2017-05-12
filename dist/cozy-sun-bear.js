@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+contents-panel.920e1e6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+contents-panel.340b4d6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+contents-panel.920e1e6";
+var version = "1.0.0+contents-panel.340b4d6";
 
 /*
  * @namespace Util
@@ -1912,6 +1912,7 @@ var Reader = Evented.extend({
     extend(this.options, options);
     this.destroy();
     this.draw(target);
+    this.fire('reopen');
   },
 
   draw: function(target) {
@@ -2400,7 +2401,7 @@ var PageControl = Control.extend({
           options = this.options;
       container = create$1('div', className),
 
-      this._control  = this._createButton(options.html || options.label, options.label,
+      this._control  = this._createButton(this._fill(options.html || options.label), this._fill(options.label),
               className, container);
     }
     this._bindEvents();
@@ -2424,9 +2425,32 @@ var PageControl = Control.extend({
   },
 
   _bindEvents: function() {
+    var self = this;
     disableClickPropagation(this._control);
     on(this._control, 'click', stop);
     on(this._control, 'click', this._action, this);
+
+    this._reader.on('reopen', function(data) {
+      // update the button text / titles
+      var html = self.options.html || self.options.label;
+      self._control.innerHTML = self._fill(html);
+      self._control.setAttribute('title', self._fill(self.options.label));
+      self._control.setAttribteu('aria-label', self._fill(self.options.label));
+    });
+
+  },
+
+  _unit: function() {
+    return ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+  },
+
+  _fill: function(s) {
+    var unit = this._unit();
+    return s.replace(/\$\{unit\}/g, unit);
+  },
+
+  _label: function() {
+    return this.options.label + " " + ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
   },
 
   EOT: true
@@ -2436,8 +2460,8 @@ var PagePrevious = PageControl.extend({
   options: {
     region: 'edge.left',
     direction: 'previous',
-    label: 'Previous Page',
-    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous Page" aria-hidden="true"></i>'
+    label: 'Previous ${unit}',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2449,8 +2473,8 @@ var PageNext = PageControl.extend({
   options: {
     region: 'edge.right',
     direction: 'next',
-    label: 'Next Page',
-    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next Page" aria-hidden="true"></i>'
+    label: 'Next ${unit}',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
   },
 
   _action: function(e) {
@@ -2461,7 +2485,7 @@ var PageNext = PageControl.extend({
 var PageFirst = PageControl.extend({
   options: {
     direction: 'first',
-    label: 'First Page'
+    label: 'First ${unit}'
   },
   _action: function(e) {
       this._reader.first();
@@ -2471,7 +2495,7 @@ var PageFirst = PageControl.extend({
 var PageLast = PageControl.extend({
   options: {
     direction: 'last',
-    label: 'Last Page'
+    label: 'Last ${unit}'
   },
   _action: function(e) {
       this._reader.last();
