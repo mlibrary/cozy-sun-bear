@@ -36,6 +36,7 @@ export var Reader = Evented.extend({
       'toolbar.bottom',
       'footer'
     ],
+    metadata: {},
     flow: 'auto',
     engine: 'epubjs',
     fontSizeLarge: '140%',
@@ -47,6 +48,7 @@ export var Reader = Evented.extend({
     var self = this
 
     options = Util.setOptions(this, options);
+    this.metadata = this.options.metadata; // initial seed
 
     this._initContainer(id);
     this._initLayout();
@@ -64,8 +66,6 @@ export var Reader = Evented.extend({
   start: function(target) {
     var self = this;
     var panes = self._panes;
-
-    var x = panes['book-cover']; var xx = panes['book'];
 
     this.open(function() {
       self.setBookPanelSize();

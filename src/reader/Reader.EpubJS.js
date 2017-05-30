@@ -14,6 +14,7 @@ Reader.EpubJS = Reader.extend({
     this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
+      self.metadata = self._book.package.metadata;
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     })
@@ -154,6 +155,18 @@ Reader.EpubJS = Reader.extend({
   EOT: true
 
 })
+
+Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._metadata;
+  },
+
+  set: function(data) {
+    this._metadata = Util.extend({}, data, this.options.metadata);
+    console.log("AHOY THE METADATA", this.metadata, this.options.metadata);
+  }
+});
 
 export function createReader(id, options) {
   return new Reader.EpubJS(id, options);
