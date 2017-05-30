@@ -1,5 +1,7 @@
 var json = require('rollup-plugin-json');
 var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
+var commonjs = require('rollup-plugin-commonjs');
+var nodeResolve = require('rollup-plugin-node-resolve');
 
 // Karma configuration
 module.exports = function (config) {
@@ -29,7 +31,8 @@ module.exports = function (config) {
 			'karma-phantomjs-launcher',
 			'karma-chrome-launcher',
 			'karma-safari-launcher',
-			'karma-firefox-launcher'],
+			'karma-firefox-launcher',
+			'karma-jsdom-launcher'],
 
 		// frameworks to use
 		frameworks: ['mocha'],
@@ -47,6 +50,8 @@ module.exports = function (config) {
 		rollupPreprocessor: {
 			plugins: [
 				json(),
+		    nodeResolve({ jsnext: true, main: true, browser: true, preferBuiltins: true }),
+				commonjs(),
 				buble()
 			],
 			format: 'umd',
@@ -82,7 +87,7 @@ module.exports = function (config) {
 		// - PhantomJS
 		// - IE (only Windows)
 		// browsers: ['PhantomJSCustom'],
-		browsers: ['PhantomJS'],
+		browsers: ['jsdom'],
 		customLaunchers: {
 			// 'PhantomJSCustom': {
 			// 	base: 'PhantomJS',
