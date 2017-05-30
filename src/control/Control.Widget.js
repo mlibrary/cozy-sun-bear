@@ -43,12 +43,14 @@ export var Widget = Control.extend({
     var data = this.data();
     for(var slot in data) {
       if ( data.hasOwnProperty(slot) ) {
+        var value = data[slot];
+        if ( typeof(value) == "function" ) { value = value(); }
         var node = container.querySelector(`[data-slot=${slot}]`);
         if ( node ) {
           if ( node.hasAttribute('value') ) {
-            node.setAttribute('value', data[slot]);
+            node.setAttribute('value', value);
           } else {
-            node.innerHTML = data[slot];
+            node.innerHTML = value;
           }
         }
       }
