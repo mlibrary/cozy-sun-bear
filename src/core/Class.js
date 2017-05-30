@@ -116,11 +116,11 @@ function checkDeprecatedMixinEvents(includes) {
 
 	includes = cozy.Util.isArray(includes) ? includes : [includes];
 
-	for (var i = 0; i < includes.length; i++) {
-		if (includes[i] === cozy.Mixin.Events) {
-			console.warn('Deprecated include of cozy.Mixin.Events: ' +
-				'this property will be removed in future releases, ' +
-				'please inherit from cozy.Evented instead.', new Error().stack);
-		}
-	}
+	// for (var i = 0; i < includes.length; i++) {
+	// 	if (includes[i] === cozy.Mixin.Events) {
+	// 		console.warn('Deprecated include of cozy.Mixin.Events: ' +
+	// 			'this property will be removed in future releases, ' +
+	// 			'please inherit from cozy.Evented instead.', new Error().stack);
+	// 	}
+	// }
 }
