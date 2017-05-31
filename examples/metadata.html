@@ -32,11 +32,11 @@
 
     <script type="text/javascript">
 
-        var book_id = "/books/epub3-local/Buell/";
+        var book_id = "/epub3-local/Buell/";
         var book_prefix;
 
         if ( location.hostname == 'localhost' ) {
-          book_prefix = '';
+          book_prefix = '/books';
         } else {
           var tmp = location.pathname.split("/");
           tmp.pop(); // static.html
@@ -56,8 +56,8 @@
                     doi: 'https://doi.org/10.3998/fulcrum.12345',
                     creator: [
                         'Hermione Granger',
-                        'Ginny Anne Weasley',
-                        'Cho Chang'
+                        'Ginny Anne Weasley' //,
+                        // 'Cho Chang'
                     ],
                     location: 'Ann Arbor, MI'
                 }

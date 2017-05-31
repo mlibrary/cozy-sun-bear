@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+issue-39.501c9fc, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+issue-39.f7b409e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+issue-39.501c9fc";
+var version = "1.0.0+issue-39.f7b409e";
 
 /*
  * @namespace Util
@@ -274,6 +274,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -382,14 +390,39 @@ function checkDeprecatedMixinEvents(includes) {
 
 	includes = cozy.Util.isArray(includes) ? includes : [includes];
 
-	for (var i = 0; i < includes.length; i++) {
-		if (includes[i] === cozy.Mixin.Events) {
-			console.warn('Deprecated include of cozy.Mixin.Events: ' +
-				'this property will be removed in future releases, ' +
-				'please inherit from cozy.Evented instead.', new Error().stack);
-		}
-	}
+	// for (var i = 0; i < includes.length; i++) {
+	// 	if (includes[i] === cozy.Mixin.Events) {
+	// 		console.warn('Deprecated include of cozy.Mixin.Events: ' +
+	// 			'this property will be removed in future releases, ' +
+	// 			'please inherit from cozy.Evented instead.', new Error().stack);
+	// 	}
+	// }
 }
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -828,6 +861,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = (round ? Math.round(x) : x);
@@ -1009,6 +1062,11 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
+
 var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
 var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
 var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
@@ -1133,6 +1191,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1213,6 +1275,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if (typeof types === 'object') {
@@ -1496,8 +1574,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 
@@ -1518,6 +1594,20 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(
     ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
@@ -1845,6 +1935,26 @@ var DomUtil = (Object.freeze || Object)({
 	restoreOutline: restoreOutline
 });
 
+// import {Class} from '../core/Class';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
+
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
@@ -2161,6 +2271,15 @@ var Reader = Evented.extend({
 
   EOT: true
 });
+
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
 
 var Control = Class.extend({
     // @section
@@ -2554,7 +2673,6 @@ var Modal = Class.extend({
       panelHTML += '<footer>';
       for(var i in this.options.actions) {
         var action = this.options.actions[i];
-        console.log("AHOY MODAL", i, action);
         var button_cls = action.className || 'button--default';
         panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
       }
@@ -2773,6 +2891,8 @@ var contents = function(options) {
   return new Contents(options);
 };
 
+// Title + Chapter
+
 var Title = Control.extend({
   onAdd: function(reader) {
     var self = this;
@@ -2839,6 +2959,8 @@ var Title = Control.extend({
 var title = function(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function(reader) {
@@ -3057,7 +3179,6 @@ var Widget = Control.extend({
     for(var slot in data) {
       if ( data.hasOwnProperty(slot) ) {
         var value = data[slot];
-        console.log("AHOY TEMPLATE", slot, value, typeof(value));
         if ( typeof(value) == "function" ) { value = value(); }
         var node = container.querySelector(`[data-slot=${slot}]`);
         if ( node ) {
@@ -3648,31 +3769,44 @@ var Citation = Control.extend({
     this._message.innerHTML = '';
   },
 
-  _formatCitation: function() {
-    var selected = this._form.querySelector("input:checked");
-    var format = selected.value;
+  _formatCitation: function(format) {
+    if ( format == null ) {
+      var selected = this._form.querySelector("input:checked");
+      format = selected.value;
+    }
     var fn = "_formatCitationAs" + format;
     return this[fn](this._reader.metadata);
+  },
+
+  _formatNames: function(names, suffix) {
+    var name = names.shift();
+    var tmp = name.last;
+    if ( name.first ) { tmp += ", " + name.first ; }
+    if ( name.middle ) { tmp += " " + name.middle ; }
+    if ( names.length == 1 ) {
+      name = names.shift();
+      tmp += ", and ";
+      if ( name.first ) { tmp += name.first + " " ; }
+      if ( name.middle ) { tmp += name.middle + " " ; }
+      tmp += name.last;
+    } else if ( names.length > 1 ) {
+      tmp += ", et al";
+    }
+    if ( suffix ) {
+      tmp += suffix;
+    }
+    return tmp + ".";
   },
 
   _formatCitationAsMLA: function(metadata) {
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
-    if ( creator.length ) { 
-      var name = creator.shift();
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
-        tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
-        tmp += name.last;
-      } else {
-        tmp += ", et al";
-      }
-      parts.push(tmp + ".");
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(this._formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(this._formatNames(editor, editor.length > 1 ? ', editors' : ', editor'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
     if ( metadata.publisher ) { 
@@ -3692,21 +3826,12 @@ var Citation = Control.extend({
   _formatCitationAsAPA: function(metadata) {
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
-    if ( creator.length ) { 
-      var name = creator.shift();
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-      if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
-        tmp += ", &amp; ";
-        tmp += name.last;
-        if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-        if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      } else {
-        tmp += ", et al.";
-      }
-      parts.push(tmp);
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(this._formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(this._formatNames(editor, editor.length > 1 ? ' (Eds.)' : ' (Ed.)'));
     }
     if ( metadata.pubdate ) {
       var d = new Date(metadata.pubdate);
@@ -3714,7 +3839,7 @@ var Citation = Control.extend({
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
     if ( metadata.location ) { 
-      parts.push(metadata.location + ": ");
+      parts.push(metadata.location + ":");
     }
     if ( metadata.publisher ) { 
       parts.push(metadata.publisher + ".");
@@ -3728,25 +3853,16 @@ var Citation = Control.extend({
   _formatCitationAsChicago: function(metadata) {
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
-    if ( creator.length ) { 
-      var name = creator.shift();
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
-        tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
-        tmp += name.last;
-      } else {
-        tmp += ", et al";
-      }
-      parts.push(tmp + ".");
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(this._formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(this._formatNames(editor, editor.length > 1 ? ', eds' : ', ed'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
     if ( metadata.location ) { 
-      parts.push(metadata.location + ": ");
+      parts.push(metadata.location + ":");
     }
     if ( metadata.publisher ) { 
       var part = metadata.publisher;
@@ -3766,12 +3882,26 @@ var Citation = Control.extend({
   _parseCreator: function(creator) {
     var retval = [];
     if ( creator ) {
-      if ( ! creator.constructor == Array ) {
+      if ( creator.constructor != Array ) {
         // make an array?
         creator = creator.split("; ");
       }
       for(var i in creator) {
         retval.push(parseFullName(creator[i]));
+      }
+    }
+    return retval;
+  },
+
+  _parseEditor: function(editor) {
+    var retval = [];
+    if ( editor ) {
+      if ( editor.constructor != Array ) {
+        // make an array?
+        editor = editor.split("; ");
+      }
+      for(var i in editor) {
+        retval.push(parseFullName(editor[i]));
       }
     }
     return retval;
@@ -3783,6 +3913,9 @@ var Citation = Control.extend({
 var citation = function(options) {
   return new Citation(options);
 };
+
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -3992,14 +4125,133 @@ function createReader$1(id, options) {
   return new Reader.EpubJS(id, options);
 }
 
+Reader.Mock = Reader.extend({
+
+  initialize: function(id, options) {
+    Reader.prototype.initialize.apply(this, arguments);
+  },
+
+  open: function(callback) {
+    var self = this;
+    this._book = {
+      metadata: {
+        title: 'The Mock Life',
+        creator: 'Alex Mock',
+        publisher: 'University Press',
+        location: 'Ann Arbor, MI',
+        pubdate: '2017-05-23'
+      },
+      contents: [
+      ]
+    };
+
+    this.fire('update-contents', this._book.contents);
+    this.metadata = this._book.metadata;
+    this.fire('update-title', this._metadata);
+    callback();
+  },
+
+  draw: function(target, callback) {
+    var self = this;
+    this.settings = { flow: this.options.flow };
+    this.settings.height = '100%';
+    this.settings.width = '99%';
+    // this.settings.width = '100%';
+    if ( this.options.flow == 'auto' ) {
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+    // have to set this to prevent scrolling issues
+    // this.settings.height = this._panes['book'].clientHeight;
+    // this.settings.width = this._panes['book'].clientWidth;
+
+    // // start the rendition after all the epub parts 
+    // // have been loaded
+    // this._book.ready.then(function() {
+    //   self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+    //   self._bindEvents();
+
+    //   if ( target && target.start ) { target = target.start; }
+    //   self._rendition.display(target).then(function() {
+    //     if ( callback ) { callback(); }
+    //   });
+    // })
+  },
+
+  next: function() {
+    // this._rendition.next();
+  },
+
+  prev: function() {
+    // this._rendition.prev();
+  },
+
+  first: function() {
+    // this._rendition.display(0);
+  },
+
+  last: function() {
+  },
+
+  gotoPage: function(target) {
+    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
+      while ( target.substr(0, 3) == '../' ) {
+        target = target.substr(3);
+      }
+    }
+    // this._rendition.display(target);
+  },
+
+  destroy: function() {
+    // if ( this._rendition ) {
+    //   this._rendition.destroy();
+    // }
+    // this._rendition = null;
+  },
+
+  currentLocation: function() {
+    if ( this._rendition ) { 
+      return this._rendition.currentLocation();
+    }
+    return null;
+  },
+
+  _bindEvents: function() {
+    var self = this;
+
+  },
+
+  EOT: true
+
+});
+
+Object.defineProperty(Reader.Mock.prototype, 'metadata', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._metadata;
+  },
+
+  set: function(data) {
+    this._metadata = extend({}, data, this.options.metadata);
+  }
+});
+
+function createReader$2(id, options) {
+  return new Reader.Mock(id, options);
+}
+
 var engines = {
-  epubjs: createReader$1
+  epubjs: createReader$1,
+  mock: createReader$2
 };
 
 var reader = function(id, options) {
   var engine = options.engine || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

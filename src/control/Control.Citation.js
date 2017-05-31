@@ -153,23 +153,35 @@ export var Citation = Control.extend({
   },
 
   _formatCitationAsMLA: function(metadata) {
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator)
-    if ( creator.length ) { 
-      var name = creator.shift()
+
+    var _formatNames = function(names, suffix) {
+      var name = names.shift()
       var tmp = name.last;
       if ( name.first ) { tmp += ", " + name.first ; }
       if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
+      if ( names.length == 1 ) {
+        name = names.shift();
         tmp += ", and ";
         if ( name.first ) { tmp += name.first + " " ; }
         if ( name.middle ) { tmp += name.middle + " " ; }
         tmp += name.last;
-      } else if ( creator.length > 1 ) {
+      } else if ( names.length > 1 ) {
         tmp += ", et al";
       }
-      parts.push(tmp + ".");
+      if ( suffix ) {
+        tmp += suffix;
+      }
+      return tmp + ".";
+    };
+
+    var parts = [];
+    var creator = this._parseCreator(metadata.creator);
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(_formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(_formatNames(editor, editor.length > 1 ? ', editors' : ', editor'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
     if ( metadata.publisher ) { 
@@ -177,6 +189,9 @@ export var Citation = Control.extend({
       if ( metadata.pubdate ) {
         var d = new Date(metadata.pubdate);
         part += `, ${d.getYear() + 1900}`;
+      }
+      if ( metadata.number_of_volumes ) {
+        part += `. ${metadata.number_of_volumes} vols`;
       }
       if ( metadata.doi ) {
         part += `, ${metadata.doi}`;
@@ -187,29 +202,48 @@ export var Citation = Control.extend({
   },
 
   _formatCitationAsAPA: function(metadata) {
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator)
-    if ( creator.length ) { 
-      var name = creator.shift()
+
+    var _formatNames = function(names, suffix) {
+      var name = names.shift()
       var tmp = name.last;
       if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
       if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
+      if ( names.length == 1 ) {
+        name = names.shift();
         tmp += ", &amp; ";
         tmp += name.last;
         if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
         if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      } else if ( creator.length > 1 ) {
+      } else if ( names.length > 1 ) {
         tmp += ", et al.";
       }
-      parts.push(tmp);
+      if ( suffix ) {
+        tmp += suffix + ".";
+      }
+      return tmp;
+    }
+
+    var parts = [];
+    var creator = this._parseCreator(metadata.creator);
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(_formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(_formatNames(editor, editor.length > 1 ? ' (Eds.)' : ' (Ed.)'));
     }
     if ( metadata.pubdate ) {
       var d = new Date(metadata.pubdate);
       parts.push("(" + ( d.getYear() + 1900 ) + ").");
     }
-    if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
+    if ( metadata.title ) { 
+      var part = "<em>" + metadata.title + "</em>";
+      if ( metadata.number_of_volumes ) {
+        part += ` (Vols. 1-${metadata.number_of_volumes})`;
+      }
+      part += ".";
+      parts.push(part);
+    }
     if ( metadata.location ) { 
       parts.push(metadata.location + ":");
     }
@@ -223,23 +257,36 @@ export var Citation = Control.extend({
   },
 
   _formatCitationAsChicago: function(metadata) {
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator)
-    if ( creator.length ) { 
-      var name = creator.shift()
+
+    var _formatNames = function(names, suffix) {
+      var name = names.shift()
       var tmp = name.last;
       if ( name.first ) { tmp += ", " + name.first ; }
       if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( creator.length == 1 ) {
-        name = creator.shift();
+      if ( names.length == 1 ) {
+        name = names.shift();
         tmp += ", and ";
         if ( name.first ) { tmp += name.first + " " ; }
         if ( name.middle ) { tmp += name.middle + " " ; }
         tmp += name.last;
-      } else if ( creator.length > 1 ) {
+      } else if ( names.length > 1 ) {
         tmp += ", et al";
       }
-      parts.push(tmp + ".");
+      if ( suffix ) {
+        tmp += suffix;
+      }
+      tmp += ".";
+      return tmp;
+    }
+
+    var parts = [];
+    var creator = this._parseCreator(metadata.creator);
+    var editor = this._parseEditor(metadata.editor);
+    if ( creator.length ) {
+      parts.push(_formatNames(creator));
+    }
+    if ( editor.length ) {
+      parts.push(_formatNames(editor, editor.length > 1 ? ', eds' : ', ed'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
     if ( metadata.location ) { 
@@ -269,6 +316,20 @@ export var Citation = Control.extend({
       }
       for(var i in creator) {
         retval.push(parseFullName(creator[i]));
+      }
+    }
+    return retval;
+  },
+
+  _parseEditor: function(editor) {
+    var retval = [];
+    if ( editor ) {
+      if ( editor.constructor != Array ) {
+        // make an array?
+        editor = editor.split("; ");
+      }
+      for(var i in editor) {
+        retval.push(parseFullName(editor[i]));
       }
     }
     return retval;
