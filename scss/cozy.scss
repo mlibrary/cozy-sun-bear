@@ -441,9 +441,15 @@ div.cozy-panel-footer {
 }
 
 .chooser-metadata button {
-  font-size: 150%;
   background: PapayaWhip;
   border-radius: 8px;
+  font-size: 150%;
+}
+
+// citation button
+.cozy-control button.button--sm.cozy-citation {
+  font-size: 1em;
+  text-transform: none;
 }
 
 // preferences button
