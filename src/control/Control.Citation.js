@@ -10,10 +10,10 @@ window.parseFullName = parseFullName;
 export var Citation = Control.extend({
   options: {
     label: 'Citation',
-    html: '<i class="icon-cog oi" data-glyph="cog" title="Citation" aria-hidden="true"></i><span>Citation</span>'
+    html: '<span>Get Citation</span>'
   },
 
-  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Citation" aria-hidden="true"></i>  Citation</button>`,
+  defaultTemplate: `<button class="button--sm cozy-citation" data-toggle="open">Get Citation</button>`,
 
 
   onAdd: function(reader) {
@@ -109,10 +109,10 @@ export var Citation = Control.extend({
             } catch(err) {
               console.log("AHOY COPY FAILED", err);
             }
-            
+
             self._message.innerHTML = 'Success! Citation copied to your clipboard.';
             self._message.style.display = 'block';
-            sel.removeAllRanges();            
+            sel.removeAllRanges();
             range.detach();
             document.designMode = "off";
           }
@@ -184,7 +184,7 @@ export var Citation = Control.extend({
       parts.push(_formatNames(editor, editor.length > 1 ? ', editors' : ', editor'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.publisher ) { 
+    if ( metadata.publisher ) {
       var part = metadata.publisher;
       if ( metadata.pubdate ) {
         var d = new Date(metadata.pubdate);
@@ -196,7 +196,7 @@ export var Citation = Control.extend({
       if ( metadata.doi ) {
         part += `, ${metadata.doi}`;
       }
-      parts.push(part + '.'); 
+      parts.push(part + '.');
     }
     return parts.join(' ');
   },
@@ -236,7 +236,7 @@ export var Citation = Control.extend({
       var d = new Date(metadata.pubdate);
       parts.push("(" + ( d.getYear() + 1900 ) + ").");
     }
-    if ( metadata.title ) { 
+    if ( metadata.title ) {
       var part = "<em>" + metadata.title + "</em>";
       if ( metadata.number_of_volumes ) {
         part += ` (Vols. 1-${metadata.number_of_volumes})`;
@@ -244,10 +244,10 @@ export var Citation = Control.extend({
       part += ".";
       parts.push(part);
     }
-    if ( metadata.location ) { 
+    if ( metadata.location ) {
       parts.push(metadata.location + ":");
     }
-    if ( metadata.publisher ) { 
+    if ( metadata.publisher ) {
       parts.push(metadata.publisher + ".");
     }
     if ( metadata.doi ) {
@@ -289,16 +289,16 @@ export var Citation = Control.extend({
       parts.push(_formatNames(editor, editor.length > 1 ? ', eds' : ', ed'));
     }
     if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.location ) { 
+    if ( metadata.location ) {
       parts.push(metadata.location + ":");
     }
-    if ( metadata.publisher ) { 
+    if ( metadata.publisher ) {
       var part = metadata.publisher;
       if ( metadata.pubdate ) {
         var d = new Date(metadata.pubdate);
         part += `, ${d.getYear() + 1900}`;
       }
-      parts.push(part + '.'); 
+      parts.push(part + '.');
     }
     if ( metadata.doi ) {
       parts.push(metadata.doi + ".");

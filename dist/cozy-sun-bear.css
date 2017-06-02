@@ -770,10 +770,6 @@
 .st-modal.st-modal-right {
   right: 0; }
 
-.st-modal.st-modal-full {
-  left: 0;
-  right: 0; }
-
 .st-modal::after {
   position: absolute;
   top: 0;
@@ -854,20 +850,12 @@
   visibility: visible;
   right: -150%; }
 
-.st-modal.st-modal-full {
-  visibility: visible;
-  left: -150%; }
-
 .st-modal-open .st-modal.st-modal-left.active {
   left: 0;
   visibility: visible; }
 
 .st-modal-open .st-modal.st-modal-right.active {
   right: 0;
-  visibility: visible; }
-
-.st-modal-open .st-modal.st-modal-full.active {
-  left: 0;
   visibility: visible; }
 
 .cozy-container {
@@ -1165,9 +1153,13 @@ div.cozy-panel-footer {
   align-items: center; }
 
 .chooser-metadata button {
-  font-size: 150%;
   background: PapayaWhip;
-  border-radius: 8px; }
+  border-radius: 8px;
+  font-size: 150%; }
+
+.cozy-control button.button--sm.cozy-citation {
+  font-size: 1em;
+  text-transform: none; }
 
 .cozy-control-preferences button {
   padding: .8em 1em 0 .6em; }
