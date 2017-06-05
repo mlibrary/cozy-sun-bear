@@ -84,6 +84,13 @@ Reader.EpubJS = Reader.extend({
         target = target.substr(3);
       }
     }
+    if ( typeof(target) == "string" ) {
+      if ( ! this._book.spine.spineByHref[target] ) {
+        if ( this._book.spine.spineByHref["Text/" + target] ) {
+          target = "Text/" + target;
+        }
+      }
+    }
     this._rendition.display(target);
   },
 

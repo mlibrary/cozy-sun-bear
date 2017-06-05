@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+fixup/citations.2b0ab84, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+fix-last-button.068659c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+fixup/citations.2b0ab84";
+var version = "1.0.0+fix-last-button.068659c";
 
 /*
  * @namespace Util
@@ -3507,7 +3507,6 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -3963,6 +3962,13 @@ Reader.EpubJS = Reader.extend({
     if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
       while ( target.substr(0, 3) == '../' ) {
         target = target.substr(3);
+      }
+    }
+    if ( typeof(target) == "string" ) {
+      if ( ! this._book.spine.spineByHref[target] ) {
+        if ( this._book.spine.spineByHref["Text/" + target] ) {
+          target = "Text/" + target;
+        }
       }
     }
     this._rendition.display(target);

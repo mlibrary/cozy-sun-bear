@@ -3,8 +3,8 @@
 <head>
     <title>HathiTrust Reader</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <script type="text/javascript" src="../lib/epub.js"></script>
-    <script src="../dist/cozy-src.js"></script>
+    <script type="text/javascript" src="../vendor/javascripts/engines/epub.js"></script>
+    <script src="../dist/cozy-sun-bear.js"></script>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 
@@ -163,7 +163,7 @@
                       <a target="_blank" href="http://test.www.hathitrust.org/access_use#pd">Public Domain. </a>
                     </p>
                   </div>
-                  <div class="scrollable" style="height: 440px;">
+                  <div class="scrollable" style="height: auto; padding-left: 0">
                     <div class="content">
                       <div class="getLinks">
                         <h3>Get this Book</h3>
@@ -172,7 +172,7 @@
                             <a data-toggle="tracking" data-tracking-category="outLinks" data-tracking-action="PT Find in a Library" data-tracking-label="5203756" href="http://www.worldcat.org/oclc/5203756" title="Link to OCLC Find in a Library">Find in a library</a>
                           </li>
                           <li style="display: none;">
-                            <a title="Download this page (PDF)" id="pagePdfLink" class="page-pdf-link" data-toggle="tracking" data-tracking-category="PT" data-tracking-action="PT Download PDF - this page" href="https://babel.hathitrust.org/cgi/imgsrv/download/pdf?id=loc.ark%3A%2F13960%2Ft0sq9ck93;orient=0;size=100;seq=76;attachment=0" target="pdf">Download this page (PDF)</a>
+                            <a title="Download this page (EPUB)" id="pagePdfLink" class="page-pdf-link" data-toggle="tracking" data-tracking-category="PT" data-tracking-action="PT Download PDF - this page" href="https://babel.hathitrust.org/cgi/imgsrv/download/pdf?id=loc.ark%3A%2F13960%2Ft0sq9ck93;orient=0;size=100;seq=76;attachment=0" target="pdf">Download this page (PDF)</a>
                           </li><li style="display: none;">
                             <a title="Download this page (PDF)" id="pagePdfLink1" class="page-pdf-link" data-toggle="tracking" data-tracking-category="PT" data-tracking-action="PT Download PDF - this page" href="https://babel.hathitrust.org/cgi/imgsrv/download/pdf?id=loc.ark%3A%2F13960%2Ft0sq9ck93;orient=0;size=100;seq=76;attachment=0" target="pdf">Download left page (PDF)</a>
                           </li><li style="display: none;">
@@ -186,7 +186,7 @@
                             </button>
                           </li>
                           <li>
-                            <a title="Download whole book (PDF)" id="fullPdfLink" data-toggle="tracking-action download" data-tracking-category="PT" data-tracking-action="PT Download PDF - whole book" rel="allow" href="https://babel.hathitrust.org/cgi/imgsrv/download/pdf?id=loc.ark%3A%2F13960%2Ft0sq9ck93;orient=0;size=100" class="interactive">Download whole book (PDF)</a>
+                            <a title="Download whole book (PDF)" id="fullPdfLink" data-toggle="tracking-action download" data-tracking-category="PT" data-tracking-action="PT Download PDF - whole book" rel="allow" href="https://babel.hathitrust.org/cgi/imgsrv/download/pdf?id=loc.ark%3A%2F13960%2Ft0sq9ck93;orient=0;size=100" class="interactive">Download whole book (EPUB)</a>
                           </li>
                         </ul>
                       </div>
@@ -438,28 +438,31 @@
             var resize_frame = function(shallow) {
               // if ( reader && reader.options.flow == 'scrolled-doc' ) { return ; }
 
-              var margin_bottom = 80;
+              var margin_bottom = 240;
               var height = $(window).height() - $(".navbar-static-top").height() - $(".navbar-static-bottom").height() - margin_bottom;
 
               // $scrolling.height(height);
+              $(".scrollable").height(height);
             }
 
             resize_frame();
 
-            var book_href; var target;
+            var book_href = location.search ? location.search.substr(1) : '31924012345678/31924012345678';
+
+            var target;
             if ( location.hostname == 'localhost' ) {
-              book_href = '/books/epub3-local/31924012345678/31924012345678/';
+              book_href = '/books/epub3-local/' + book_href + '/';
             } else {
               var tmp = location.pathname.split("/");
               tmp.pop(); // hathitrust.html
               tmp.pop(); // examples
               tmp.pop(); // cozy-sun-bear
-              tmp.push('epub3-local/31924012345678/31924012345678/');
+              tmp.push('epub3-local/' + book_href + '/');
               book_href = tmp.join('/');
             }
             var reader = cozy.reader('content', { href: book_href, flow: 'scrolled-doc', trackResize: true });
 
-            cozy.control.contents({ container: $(".table-of-contents").get(0) }).addTo(reader);
+            // cozy.control.contents({ container: $(".table-of-contents").get(0) }).addTo(reader);
             
             var $toolbar = $("#action-go-prev").parent();
             cozy.control.pageFirst({ container: $toolbar.get(0) }).addTo(reader);
@@ -487,7 +490,66 @@
               resetFlow(this);
             })
 
-            reader.start("epubcfi(/6/16[Chapter03.xhtml]!/4/2/2/1:0)");
+            reader.on('update-title', function(data) {
+              if ( data ) {
+                console.log("AHOY", data);
+                $("span[property='dc:title']").text(data.title);
+                $("span[property='cc:attributionName']").text(" / " + data.creator);
+              }              
+            });
+
+            var _filter = function(list, parent_id, tabindex, parent) {
+              var retval = [];
+              $.each(list, function() {
+                if ( this.parent == parent_id ) {
+                  retval.push([ this, tabindex, parent ]);
+                }
+              })
+              return retval;
+            };
+
+            var $menu = $(".table-of-contents ul");
+            reader.on('update-contents', function(data) {
+              if ( data ) {
+                var $ul = $menu;
+                var items = _filter(data.toc, null, 0, $ul);
+                while ( items.length ) {
+                  var tuple = items.shift();
+                  var item = tuple[0];
+                  var $ul = tuple[2];
+                  if ( $ul.get(0).tagName == 'LI' ) {
+                    var $tmp = $ul.parent("ul");
+                    if ( ! $tmp.size() ) {
+                      $tmp = $("<ul></ul>").appendTo($ul);
+                      $ul = $tmp;
+                    }
+                  }
+                  var $li = $("<li><a></a></li>").appendTo($ul);
+                  var $a = $li.find("a");
+                  $a.attr("href", item.href);
+                  $a.text(item.label);
+                  $.each(_filter(data.toc, item.id, tuple[1] + 1, $li).reverse(), function() {
+                    items.unshift(this);
+                  })
+                }
+
+                // $.each(data.toc, function() {
+                //   var $li = $("<li><a></a></li>").appendTo($menu);
+                //   var $a = $li.find("a");
+                //   $a.attr("href", this.href);
+                //   $a.text(this.label);
+                // })
+              }
+            });
+            $menu.on('click', 'a', function(e) {
+              e.preventDefault();
+              var target = $(this).attr("href");
+              console.log("AHOY GO TO", target);
+              reader.gotoPage(target);
+            })
+
+            // reader.start("epubcfi(/6/4!/4/2/2/1:0)");
+            reader.start();
 
             function debounce(func, wait, immediate) {
               var timeout;
