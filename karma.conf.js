@@ -28,6 +28,7 @@ module.exports = function (config) {
 			'karma-mocha',
 			'karma-coverage',
 			'karma-coveralls',
+			'karma-sourcemap-loader',
 			'karma-phantomjs-launcher',
 			'karma-chrome-launcher',
 			'karma-safari-launcher',
@@ -55,7 +56,8 @@ module.exports = function (config) {
 				buble()
 			],
 			format: 'umd',
-			moduleName: 'cozy'
+			moduleName: 'cozy' //,
+			// sourceMap: 'inline'
 		},
 
 		// test results reporter(s) to use possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'

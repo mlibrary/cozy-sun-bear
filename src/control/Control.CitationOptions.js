@@ -127,7 +127,7 @@ export var CitationOptions = Control.extend({
       }
       var text = document.createTextNode(" " + citation.format);
       label.appendChild(text);
-      input.dataset.text = citation.text;
+      input.setAttribute('data-text', citation.text);
     });
 
     this._formatted = this._modal._container.querySelector("#formatted");
@@ -150,8 +150,13 @@ export var CitationOptions = Control.extend({
   },
 
   _formatCitation: function(format) {
-    var selected = this._form.querySelector("input:checked");
-    return selected.dataset.text;
+    if ( format == null ) {
+      var selected = this._form.querySelector("input:checked");
+      format = selected.value;
+    }
+    var selected = this._form.querySelector("input[value=" + format + "]");
+    return selected.getAttribute('data-text');
+    // return selected.dataset.text;
   },
 
   EOT: true
