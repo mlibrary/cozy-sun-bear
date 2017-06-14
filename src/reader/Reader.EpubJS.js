@@ -49,33 +49,35 @@ Reader.EpubJS = Reader.extend({
     })
   },
 
+  _navigate: function(promise) {
+    var self = this;
+    var t = setTimeout(function() {
+      self._panes['loader'].style.display = 'block';
+    }, 100);
+    // promise.call(this._rendition).then(function() {
+    promise.then(function() {
+      clearTimeout(t);
+      self._panes['loader'].style.display = 'none';
+    });    
+  },
+
   next: function() {
-    this._rendition.next();
+    var self = this;
+    self._navigate(this._rendition.next());
   },
 
   prev: function() {
-    this._rendition.prev();
+    this._navigate(this._rendition.prev());
   },
 
   first: function() {
-    this._rendition.display(0);
+    this._navigate(this._rendition.display(0));
   },
 
   last: function() {
     var self = this;
     var target = this._book.spine.length - 1;
-    this._rendition.display(target);
-    return;
-
-    var target = 0.9999999;
-    var promise;
-    // epub.js looks for floats, but Javascript treats 100.0 === 100
-    if ( this._book.locations.total == 0 ) {
-      promise = this._book.locations.generate(); 
-    } else {
-      promise = new Promise(function(fullfill){ fullfill()});
-    }
-    promise.then(function() { self._rendition.display(target); })
+    this._navigate(this._rendition.display(target));
   },
 
   gotoPage: function(target) {
@@ -91,7 +93,7 @@ Reader.EpubJS = Reader.extend({
         }
       }
     }
-    this._rendition.display(target);
+    this._navigate(this._rendition.display(target));
   },
 
   destroy: function() {
@@ -171,7 +173,6 @@ Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 
   set: function(data) {
     this._metadata = Util.extend({}, data, this.options.metadata);
-    console.log("AHOY THE METADATA", this.metadata, this.options.metadata);
   }
 });
 

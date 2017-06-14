@@ -11,6 +11,7 @@ var path = require('path');
 var logger, port;
 var log = console.log;
 var proxy = require('express-http-proxy');
+var slow = require('connect-slow');
 
 function start(_port) {
  if (!_port) {
@@ -43,11 +44,16 @@ function listen(port) {
   var indexPaths = [];
   indexPaths.push(path.resolve(appPath, 'books/epub3-samples'));
   indexPaths.push(path.resolve(appPath, 'books/epub3-local'));
-  // var indexPathInfo = '/books/epub3-samples';
 
   var server = http.createServer(app);
 
   app.use(allowCrossDomain);
+  if ( process.env.USE_SLOW ) {
+    app.use(slow({
+      url: /books\/epub3/i,
+      delay: process.env.USE_SLOW
+    }));
+  }
 
   if ( process.env.USE_DEV_EPUB ) {
     var epubJsPath = path.resolve(process.env.USE_DEV_EPUB);
