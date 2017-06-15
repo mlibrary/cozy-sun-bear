@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
 @import 'open-iconic';
 @import 'modals';
+@import 'loader';
 ///////////////////////////////////
 // variables
 ///////////////////////////////////
@@ -306,7 +307,13 @@ $grid-padding:       1rem;
   margin-right: auto;
   background: $white;
   position: relative;
-  padding: 2em;
+  height: 100%;
+  padding: 2rem;
+}
+
+.cozy-module-book-loading {
+  height: 100%;
+  width: 100%;
 }
 
 .cozy-container div[class^='cozy-'] {
