@@ -22,7 +22,6 @@ export var Title = Control.extend({
     this._section = DomUtil.create('span', 'cozy-section', h1);
 
     this._reader.on('update-section', function(data) {
-      console.log("AHOY UPDATE SECTION", data, arguments);
       if ( data && data.label ) {
         self._section.textContent = data.label;
         DomUtil.setOpacity(self._section, 1.0);

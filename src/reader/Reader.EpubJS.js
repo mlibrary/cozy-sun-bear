@@ -24,9 +24,16 @@ Reader.EpubJS = Reader.extend({
   draw: function(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
-    this.settings.height = '100%';
-    this.settings.width = '99%';
+
+    // this.settings.height = '100%';
+    // this.settings.width = '99%';
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
+    this.settings.height = Math.ceil(h * 1.00) + 'px';
+    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
+
     // this.settings.width = '100%';
+    
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
     } else {
@@ -41,6 +48,7 @@ Reader.EpubJS = Reader.extend({
     this._book.ready.then(function() {
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
       self._bindEvents();
+      self._drawn = true;
 
       if ( target && target.start ) { target = target.start; }
       self._rendition.display(target).then(function() {
@@ -98,16 +106,19 @@ Reader.EpubJS = Reader.extend({
 
   destroy: function() {
     if ( this._rendition ) {
-      this._rendition.destroy();
+      try {
+        this._rendition.destroy();
+      } catch(e) {}
     }
     this._rendition = null;
+    this._drawn = false;
   },
 
   currentLocation: function() {
-    if ( this._rendition ) { 
-      return this._rendition.currentLocation();
+    if ( this._rendition && this._rendition.manager ) { 
+      this._cached_location = this._rendition.currentLocation();
     }
-    return null;
+    return this._cached_location;
   },
 
   _bindEvents: function() {

@@ -5,6 +5,8 @@ import * as Browser from '../core/Browser';
 import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
 
+import debounce from 'lodash/debounce';
+
 /*
  * @class Reader
  * @aka cozy.Map
@@ -76,6 +78,7 @@ export var Reader = Evented.extend({
     var self = this;
     target = target || 0;
 
+    // remove eventually
     var delay = 0;
     if ( window.location.hostname == 'localhost' ) {
       delay = 1000;
@@ -231,19 +234,15 @@ export var Reader = Evented.extend({
     //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
 
     if (this.options.trackResize) {
-      onOff(window, 'resize', this._onResize, this);
+      var self = this;
+      var fn = debounce(function(){ self.invalidateSize({}); }, 150);
+      onOff(window, 'resize', fn, this);
     }
 
     if (Browser.any3d && this.options.transform3DLimit) {
       (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
     }
   },
-
-  // _onResize: function () {
-  //   Util.cancelAnimFrame(this._resizeRequest);
-  //   this._resizeRequest = Util.requestAnimFrame(
-  //           function () { this.invalidateSize({debounceMoveend: true}); }, this);
-  // },
 
   _onResize: function() {
     if ( ! this._resizeRequest ) {
@@ -326,13 +325,16 @@ export var Reader = Evented.extend({
   invalidateSize: function(options) {
     var self = this;
 
+    if ( ! self._drawn ) { return; }
+
     Util.cancelAnimFrame(this._resizeRequest);
-    this._resizeRequest = null;
 
     if (! this._loaded) { return this; }
 
-
-    var target = this.currentLocation();
+    if ( ! this._resizeTarget ) {
+      this._resizeTarget = this.currentLocation();
+    }
+    self.destroy();
 
     var panes = this._panes;
     panes['book'].style.display = 'none';
@@ -345,8 +347,10 @@ export var Reader = Evented.extend({
       }
 
       self._triggerRedraw = setTimeout(function() {
-        self.destroy();
-        self.draw(target);
+        // self.destroy();
+        self.draw(self._resizeTarget);
+        self._resizeRequest = null;
+        self._resizeTarget = null;
       }, 150);
 
 
