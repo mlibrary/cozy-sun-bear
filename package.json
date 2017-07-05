@@ -61,6 +61,7 @@
   "dependencies": {
     "epubjs": "git://github.com/futurepress/epub.js.git#v0.3",
     "event-emitter": "^0.3.4",
+    "lodash": "^4.17.4",
     "mustache": "^2.3.0",
     "parse-full-name": "^1.2.3"
   },
