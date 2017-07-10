@@ -24,7 +24,7 @@ describe("Control.BibliographicInformation", function () {
     var container = control._modal._container;
     var keys = [ 'title', 'creator', 'doi' ];
     keys.forEach(function(key) {
-      var expr = "dd.info-value-" + key;
+      var expr = "dd.cozy-bib-info-value-" + key;
       var node = container.querySelector(expr);
       expect(node).not.to.be(null);
       expect(node.innerHTML).to.be(reader.metadata[key]);

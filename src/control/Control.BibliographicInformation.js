@@ -88,9 +88,9 @@ export var BibliographicInformation = Control.extend({
       var label = metadata_fields[idx][1];
       if ( metadata[key] ) {
         metadata_fields_seen[key] = true;
-        var dt = DomUtil.create('dt', 'info-label', dl);
+        var dt = DomUtil.create('dt', 'cozy-bib-info-label', dl);
         dt.innerHTML = label;
-        var dd = DomUtil.create('dd', 'info-value info-value-' + key, dl);
+        var dd = DomUtil.create('dd', 'cozy-bib-info-value cozy-bib-info-value-' + key, dl);
         var value = metadata[key];
         if ( key == 'pubdate' || key == 'modified_date' ) {
           var d = new Date(value);
