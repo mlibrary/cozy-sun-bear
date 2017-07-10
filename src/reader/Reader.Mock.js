@@ -22,8 +22,8 @@ Reader.Mock = Reader.extend({
       ]
     };
 
-    this.fire('update-contents', this._book.contents);
     this.metadata = this._book.metadata;
+    this.fire('update-contents', this._book.contents);
     this.fire('update-title', this._metadata);
     callback();
   },
