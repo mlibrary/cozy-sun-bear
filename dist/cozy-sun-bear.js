@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+issue-42.8062d23, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+issue-42.0ccfc64, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+issue-42.8062d23";
+var version = "1.0.0+issue-42.0ccfc64";
 
 /*
  * @namespace Util
@@ -4906,9 +4906,9 @@ var BibliographicInformation = Control.extend({
       var label = metadata_fields[idx][1];
       if ( metadata[key] ) {
         metadata_fields_seen[key] = true;
-        var dt = create$1('dt', 'info-label', dl);
+        var dt = create$1('dt', 'cozy-bib-info-label', dl);
         dt.innerHTML = label;
-        var dd = create$1('dd', 'info-value info-value-' + key, dl);
+        var dd = create$1('dd', 'cozy-bib-info-value cozy-bib-info-value-' + key, dl);
         var value = metadata[key];
         if ( key == 'pubdate' || key == 'modified_date' ) {
           var d = new Date(value);
