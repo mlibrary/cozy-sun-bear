@@ -90,7 +90,7 @@ export var BibliographicInformation = Control.extend({
         metadata_fields_seen[key] = true;
         var dt = DomUtil.create('dt', 'info-label', dl);
         dt.innerHTML = label;
-        var dd = DomUtil.create('dd', 'info-value', dl);
+        var dd = DomUtil.create('dd', 'info-value info-value-' + key, dl);
         var value = metadata[key];
         if ( key == 'pubdate' || key == 'modified_date' ) {
           var d = new Date(value);
