@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+issue-42.0ccfc64, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0+master.0a0fa4f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+issue-42.0ccfc64";
+var version = "1.0.0+master.0a0fa4f";
 
 /*
  * @namespace Util
@@ -4928,6 +4928,114 @@ var bibliographicInformation = function(options) {
   return new BibliographicInformation(options);
 };
 
+var Download = Control.extend({
+  options: {
+    label: 'Download Book',
+    html: '<span>Download Book</span>'
+  },
+
+  defaultTemplate: `<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>`,
+
+
+  onAdd: function(reader) {
+    var self = this;
+    var container = this._container;
+    if ( container ) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = create$1('div', className);
+
+      var template = this.options.template || this.defaultTemplate;
+
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while ( body.children.length ) {
+        container.appendChild(body.children[0]);
+      }
+    }
+
+    this._reader.on('update-contents', function(data) {
+      self._createPanel();
+    });
+
+
+    this._control = container.querySelector("[data-toggle=open]");
+    on(this._control, 'click', function(event) {
+      event.preventDefault();
+      self._modal.activate();
+    }, this);
+
+    return container;
+  },
+
+  _createPanel: function() {
+    var self = this;
+
+    var template = `<form>
+      <fieldset>
+        <legend>Choose File Format</legend>
+      </fieldset>
+    </form>`;
+
+    this._modal = this._reader.modal({
+      template: template,
+      title: 'Download Book',
+      className: { article: 'cozy-preferences-modal' },
+      actions: [
+        {
+          label: 'Download',
+          callback: function(event) {
+            var selected = self._form.querySelector("input:checked");
+            var href = selected.getAttribute('data-href');
+            self._configureDownloadForm(href);
+            self._form.submit();
+          }
+        }
+      ],
+      region: 'left',
+      fraction: 1.0
+    });
+
+    this._form = this._modal._container.querySelector('form');    
+    var fieldset = this._form.querySelector('fieldset');
+    this._reader.options.download_links.forEach(function(link, index) {
+      var label = create$1('label', null, fieldset);
+      var input = create$1('input', null, label);
+      input.setAttribute('name', 'format');
+      input.setAttribute('value', link.format);
+      input.setAttribute('data-href', link.href);
+      input.setAttribute('type', 'radio');
+      if ( index == 0 ) {
+        input.setAttribute('checked', 'checked');
+      }
+      var text = link.format;
+      if ( link.size ) {
+        text += " (" + link.size + ")";
+      }
+      var text = document.createTextNode(" " + text);
+      label.appendChild(text);
+    });
+
+  },
+
+  _configureDownloadForm: function(href) {
+    var self = this;
+    self._form.setAttribute('method', 'GET');
+    self._form.setAttribute('action', href);
+    self._form.setAttribute('target', '_blank');
+  },
+
+
+  EOT: true
+});
+
+var download = function(options) {
+  return new Download(options);
+};
+
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
 
@@ -4963,6 +5071,9 @@ control.citationOptions = citationOptions;
 
 Control.BibliographicInformation = BibliographicInformation;
 control.bibliographicInformation = bibliographicInformation;
+
+Control.Download = Download;
+control.download = download;
 
 var Bus = Evented.extend({
 });
