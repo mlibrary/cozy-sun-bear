@@ -7,6 +7,7 @@ import {Preferences, preferences} from './Control.Preferences';
 import {Widget, widget} from './Control.Widget';
 import {Citation, citation} from './Control.Citation';
 import {CitationOptions, citationOptions} from './Control.CitationOptions';
+import {BibliographicInformation, bibliographicInformation} from './Control.BibliographicInformation';
 import {Download, download} from './Control.Download';
 
 // import {Zoom, zoom} from './Control.Zoom';
@@ -41,6 +42,9 @@ control.citation = citation;
 
 Control.CitationOptions = CitationOptions;
 control.citationOptions = citationOptions;
+
+Control.BibliographicInformation = BibliographicInformation;
+control.bibliographicInformation = bibliographicInformation;
 
 Control.Download = Download;
 control.download = download;

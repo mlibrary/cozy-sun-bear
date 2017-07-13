@@ -32,11 +32,15 @@
 
     <script type="text/javascript">
 
-        var book_id = "/epub3-local/Buell/";
+        var book_id = "/books/epub3-local/Buell/";
+        if ( location.search ) {
+            book_id = location.search.substr(1);
+        }
         var book_prefix;
 
         if ( location.hostname == 'localhost' ) {
-          book_prefix = '/books';
+          // book_prefix = '/books';
+          book_prefix = '';
         } else {
           var tmp = location.pathname.split("/");
           tmp.pop(); // static.html
@@ -88,8 +92,8 @@
             }).addTo(reader);
 
             cozy.control.citationOptions({ region: 'top.toolbar.left' }).addTo(reader);
+            cozy.control.bibliographicInformation({ region: 'top.toolbar.left' }).addTo(reader);
             cozy.control.download({ region: 'top.toolbar.left' }).addTo(reader);
-
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
             // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
