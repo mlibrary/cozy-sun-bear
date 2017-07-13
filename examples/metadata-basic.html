@@ -65,7 +65,19 @@
                         { format: 'APA', text: "O'Neil, J. M. (1992). <em>Men's and women's gender role journeys: A metaphor for healing, transition, and transformation.</em> New York, NY: Springer." },
                         { format: 'Chicago', text: 'Faulkner, William. <em>Absalom, Absalom!</em>. New York: Vintage Books, 1990.' }
                     ]
-                }
+                },
+                download_links: [
+                    {
+                        format: 'EPUB',
+                        size: '22 MB',
+                        href: 'https://archive.org/download/greeklivesfrompl00plutuoft/greeklivesfrompl00plutuoft.epub'
+                    },
+                    {
+                        format: 'PDF',
+                        size: '12 MB',
+                        href: 'https://archive.org/download/greeklivesfrompl00plutuoft/greeklivesfrompl00plutuoft.pdf'
+                    }
+                ]
             });
 
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
@@ -81,8 +93,7 @@
 
             cozy.control.citationOptions({ region: 'top.toolbar.left' }).addTo(reader);
             cozy.control.bibliographicInformation({ region: 'top.toolbar.left' }).addTo(reader);
-
-
+            cozy.control.download({ region: 'top.toolbar.left' }).addTo(reader);
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
             // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
