@@ -1,9 +1,9 @@
 <%
     vendor_map = {
-        'epubjs': 'epub',
-        'epubjsv2': 'v2/epub'
+        'epubjs' => 'epub',
+        'epubjsv2' => 'v2/epub'
     }
-    engine = Rails.configuration.epub_engine || "epubjs"
+    engine = Rails.configuration.cozy_epub_engine || "epubjs"
     jslib = vendor_map[engine]
 %>
 <% require_asset "engines/#{jslib}" %>
