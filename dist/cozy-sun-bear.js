@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0+master.0a0fa4f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bar
+ * Cozy Sun Bear 1.0.0afa010e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -8,7 +8,7 @@
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.0.0+master.0a0fa4f";
+var version = "1.0.0";
 
 /*
  * @namespace Util
@@ -32,13 +32,13 @@ function extend(dest) {
 
 // @function create(proto: Object, properties?: Object): Object
 // Compatibility polyfill for [Object.create](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
-var create = Object.create || (function () {
+var create = Object.create || function () {
     function F() {}
     return function (proto) {
         F.prototype = proto;
         return new F();
     };
-})();
+}();
 
 // @function bind(fn: Function, …): Function
 // Returns a new function bound to the arguments passed, like [Function.prototype.bind](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
@@ -80,7 +80,7 @@ function stamp(obj) {
 function throttle(fn, time, context) {
     var lock, args, wrapperFn, later;
 
-    later = function () {
+    later = function later() {
         // reset lock and call if queued
         lock = false;
         if (args) {
@@ -89,11 +89,10 @@ function throttle(fn, time, context) {
         }
     };
 
-    wrapperFn = function () {
+    wrapperFn = function wrapperFn() {
         if (lock) {
             // called too soon, queue to call later
             args = arguments;
-
         } else {
             // call and lock until later
             fn.apply(context, arguments);
@@ -118,7 +117,9 @@ function wrapNum(x, range, includeMax) {
 
 // @function falseFn(): Function
 // Returns a function which always returns `false`.
-function falseFn() { return false; }
+function falseFn() {
+    return false;
+}
 
 // @function formatNum(num: Number, digits?: Number): Number
 // Returns the number `num` rounded to `digits` decimals, or to 5 decimals by default.
@@ -161,7 +162,7 @@ function getParamString(obj, existingUrl, uppercase) {
     for (var i in obj) {
         params.push(encodeURIComponent(uppercase ? i.toUpperCase() : i) + '=' + encodeURIComponent(obj[i]));
     }
-    return ((!existingUrl || existingUrl.indexOf('?') === -1) ? '?' : '&') + params.join('&');
+    return (!existingUrl || existingUrl.indexOf('?') === -1 ? '?' : '&') + params.join('&');
 }
 
 var templateRe = /\{ *([\w_\-]+) *\}/g;
@@ -177,7 +178,6 @@ function template(str, data) {
 
         if (value === undefined) {
             throw new Error('No value provided for variable ' + str);
-
         } else if (typeof value === 'function') {
             value = value(data);
         }
@@ -188,14 +188,16 @@ function template(str, data) {
 // @function isArray(obj): Boolean
 // Compatibility polyfill for [Array.isArray](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray)
 var isArray = Array.isArray || function (obj) {
-    return (Object.prototype.toString.call(obj) === '[object Array]');
+    return Object.prototype.toString.call(obj) === '[object Array]';
 };
 
 // @function indexOf(array: Array, el: Object): Number
 // Compatibility polyfill for [Array.prototype.indexOf](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
 function indexOf(array, el) {
     for (var i = 0; i < array.length; i++) {
-        if (array[i] === el) { return i; }
+        if (array[i] === el) {
+            return i;
+        }
     }
     return -1;
 }
@@ -224,8 +226,9 @@ function timeoutDefer(fn) {
 }
 
 var requestFn = window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
-var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
-        getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
+var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') || getPrefixed('CancelRequestAnimationFrame') || function (id) {
+    window.clearTimeout(id);
+};
 
 // @function requestAnimFrame(fn: Function, context?: Object, immediate?: Boolean): Number
 // Schedules `fn` to be executed when the browser repaints. `fn` is bound to
@@ -248,7 +251,6 @@ function cancelAnimFrame(id) {
         cancelFn.call(window, id);
     }
 }
-
 
 var Util = (Object.freeze || Object)({
 	extend: extend,
@@ -289,7 +291,7 @@ Class.extend = function (props) {
 	// @function extend(props: Object): Function
 	// [Extends the current class](#class-inheritance) given the properties to be included.
 	// Returns a Javascript function that is a class constructor (to be called with `new`).
-	var NewClass = function () {
+	var NewClass = function NewClass() {
 
 		// call the constructor
 		if (this.initialize) {
@@ -334,13 +336,15 @@ Class.extend = function (props) {
 
 	// mix given properties into the prototype
 	extend(proto, props);
-	
+
 	proto._initHooks = [];
 
 	// add method for calling all hooks
 	proto.callInitHooks = function () {
 
-		if (this._initHooksCalled) { return; }
+		if (this._initHooksCalled) {
+			return;
+		}
 
 		if (parentProto.callInitHooks) {
 			parentProto.callInitHooks.call(this);
@@ -355,7 +359,6 @@ Class.extend = function (props) {
 
 	return NewClass;
 };
-
 
 // @function include(properties: Object): this
 // [Includes a mixin](#class-includes) into the current class.
@@ -373,7 +376,8 @@ Class.mergeOptions = function (options) {
 
 // @function addInitHook(fn: Function): this
 // Adds a [constructor hook](#class-constructor-hooks) to the class.
-Class.addInitHook = function (fn) { // (Function) || (String, args...)
+Class.addInitHook = function (fn) {
+	// (Function) || (String, args...)
 	var args = Array.prototype.slice.call(arguments, 1);
 
 	var init = typeof fn === 'function' ? fn : function () {
@@ -386,7 +390,9 @@ Class.addInitHook = function (fn) { // (Function) || (String, args...)
 };
 
 function checkDeprecatedMixinEvents(includes) {
-	if (!cozy || !cozy.Mixin) { return; }
+	if (!cozy || !cozy.Mixin) {
+		return;
+	}
 
 	includes = cozy.Util.isArray(includes) ? includes : [includes];
 
@@ -398,6 +404,12 @@ function checkDeprecatedMixinEvents(includes) {
 	// 	}
 	// }
 }
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
 
 /*
  * @class Evented
@@ -427,22 +439,21 @@ function checkDeprecatedMixinEvents(includes) {
 var Evented = Class.extend({
 
 	/* @method on(type: String, fn: Function, context?: Object): this
-	 * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
-	 *
-	 * @alternative
-	 * @method on(eventMap: Object): this
-	 * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
-	 */
-	on: function (types, fn, context) {
+  * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
+  *
+  * @alternative
+  * @method on(eventMap: Object): this
+  * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
+  */
+	on: function on(types, fn, context) {
 
 		// types can be a map of types/handlers
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 			for (var type in types) {
 				// we don't process space-separated events here for performance;
 				// it's a hot path since Layer uses the on(obj) syntax
 				this._on(type, types[type], fn);
 			}
-
 		} else {
 			// types can be a string of space-separated words
 			types = splitWords(types);
@@ -456,27 +467,25 @@ var Evented = Class.extend({
 	},
 
 	/* @method off(type: String, fn?: Function, context?: Object): this
-	 * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
-	 *
-	 * @alternative
-	 * @method off(eventMap: Object): this
-	 * Removes a set of type/listener pairs.
-	 *
-	 * @alternative
-	 * @method off: this
-	 * Removes all listeners to all events on the object.
-	 */
-	off: function (types, fn, context) {
+  * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
+  *
+  * @alternative
+  * @method off(eventMap: Object): this
+  * Removes a set of type/listener pairs.
+  *
+  * @alternative
+  * @method off: this
+  * Removes all listeners to all events on the object.
+  */
+	off: function off(types, fn, context) {
 
 		if (!types) {
 			// clear all listeners if called without arguments
 			delete this._events;
-
-		} else if (typeof types === 'object') {
+		} else if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 			for (var type in types) {
 				this._off(type, types[type], fn);
 			}
-
 		} else {
 			types = splitWords(types);
 
@@ -489,7 +498,7 @@ var Evented = Class.extend({
 	},
 
 	// attach listener (without syntactic sugar now)
-	_on: function (type, fn, context) {
+	_on: function _on(type, fn, context) {
 		this._events = this._events || {};
 
 		/* get/init listeners for type */
@@ -503,7 +512,7 @@ var Evented = Class.extend({
 			// Less memory footprint.
 			context = undefined;
 		}
-		var newListener = {fn: fn, ctx: context},
+		var newListener = { fn: fn, ctx: context },
 		    listeners = typeListeners;
 
 		// check if fn already there
@@ -516,12 +525,12 @@ var Evented = Class.extend({
 		listeners.push(newListener);
 	},
 
-	_off: function (type, fn, context) {
-		var listeners,
-		    i,
-		    len;
+	_off: function _off(type, fn, context) {
+		var listeners, i, len;
 
-		if (!this._events) { return; }
+		if (!this._events) {
+			return;
+		}
 
 		listeners = this._events[type];
 
@@ -548,7 +557,9 @@ var Evented = Class.extend({
 			// find fn and remove it
 			for (i = 0, len = listeners.length; i < len; i++) {
 				var l = listeners[i];
-				if (l.ctx !== context) { continue; }
+				if (l.ctx !== context) {
+					continue;
+				}
 				if (l.fn === fn) {
 
 					// set the removed listener to noop so that's not called if remove happens in fire
@@ -570,16 +581,18 @@ var Evented = Class.extend({
 	// Fires an event of the specified type. You can optionally provide an data
 	// object — the first argument of the listener function will contain its
 	// properties. The event can optionally be propagated to event parents.
-	fire: function (type, data, propagate) {
-		if (!this.listens(type, propagate)) { return this; }
+	fire: function fire(type, data, propagate) {
+		if (!this.listens(type, propagate)) {
+			return this;
+		}
 
-		var event = extend({}, data, {type: type, target: this});
+		var event = extend({}, data, { type: type, target: this });
 
 		if (this._events) {
 			var listeners = this._events[type];
 
 			if (listeners) {
-				this._firingCount = (this._firingCount + 1) || 1;
+				this._firingCount = this._firingCount + 1 || 1;
 				for (var i = 0, len = listeners.length; i < len; i++) {
 					var l = listeners[i];
 					l.fn.call(l.ctx || this, event);
@@ -599,14 +612,18 @@ var Evented = Class.extend({
 
 	// @method listens(type: String): Boolean
 	// Returns `true` if a particular event type has any listeners attached to it.
-	listens: function (type, propagate) {
+	listens: function listens(type, propagate) {
 		var listeners = this._events && this._events[type];
-		if (listeners && listeners.length) { return true; }
+		if (listeners && listeners.length) {
+			return true;
+		}
 
 		if (propagate) {
 			// also check parents for listeners if event propagates
 			for (var id in this._eventParents) {
-				if (this._eventParents[id].listens(type, propagate)) { return true; }
+				if (this._eventParents[id].listens(type, propagate)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -614,9 +631,9 @@ var Evented = Class.extend({
 
 	// @method once(…): this
 	// Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
-	once: function (types, fn, context) {
+	once: function once(types, fn, context) {
 
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 			for (var type in types) {
 				this.once(type, types[type], fn);
 			}
@@ -624,20 +641,16 @@ var Evented = Class.extend({
 		}
 
 		var handler = bind(function () {
-			this
-			    .off(types, fn, context)
-			    .off(types, handler, context);
+			this.off(types, fn, context).off(types, handler, context);
 		}, this);
 
 		// add a listener that's executed once and removed after that
-		return this
-		    .on(types, fn, context)
-		    .on(types, handler, context);
+		return this.on(types, fn, context).on(types, handler, context);
 	},
 
 	// @method addEventParent(obj: Evented): this
 	// Adds an event parent - an `Evented` that will receive propagated events
-	addEventParent: function (obj) {
+	addEventParent: function addEventParent(obj) {
 		this._eventParents = this._eventParents || {};
 		this._eventParents[stamp(obj)] = obj;
 		return this;
@@ -645,16 +658,16 @@ var Evented = Class.extend({
 
 	// @method removeEventParent(obj: Evented): this
 	// Removes an event parent, so it will stop receiving propagated events
-	removeEventParent: function (obj) {
+	removeEventParent: function removeEventParent(obj) {
 		if (this._eventParents) {
 			delete this._eventParents[stamp(obj)];
 		}
 		return this;
 	},
 
-	_propagateEvent: function (e) {
+	_propagateEvent: function _propagateEvent(e) {
 		for (var id in this._eventParents) {
-			this._eventParents[id].fire(e.type, extend({layer: e.target}, e), true);
+			this._eventParents[id].fire(e.type, extend({ layer: e.target }, e), true);
 		}
 	}
 });
@@ -745,10 +758,10 @@ var opera12 = 'OTransition' in style$1;
 var win = navigator.platform.indexOf('Win') === 0;
 
 // @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
-var ie3d = ie && ('transition' in style$1);
+var ie3d = ie && 'transition' in style$1;
 
 // @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
-var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
+var webkit3d = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() && !android23;
 
 // @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
 var gecko3d = 'MozPerspective' in style$1;
@@ -780,8 +793,7 @@ var pointer = !!(window.PointerEvent || msPointer);
 // This does not necessarily mean that the browser is running in a computer with
 // a touchscreen, it only means that the browser is capable of understanding
 // touch events.
-var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
-        (window.DocumentTouch && document instanceof window.DocumentTouch));
+var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch);
 
 // @property mobileOpera: Boolean; `true` for the Opera browser in a mobile device.
 var mobileOpera = mobile && opera;
@@ -792,14 +804,13 @@ var mobileGecko = mobile && gecko;
 
 // @property retina: Boolean
 // `true` for browsers on a high-resolution "retina" screen.
-var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
-
+var retina = (window.devicePixelRatio || window.screen.deviceXDPI / window.screen.logicalXDPI) > 1;
 
 // @property canvas: Boolean
 // `true` when the browser supports [`<canvas>`](https://developer.mozilla.org/docs/Web/API/Canvas_API).
-var canvas = (function () {
+var canvas = function () {
     return !!document.createElement('canvas').getContext;
-}());
+}();
 
 // @property svg: Boolean
 // `true` when the browser supports [SVG](https://developer.mozilla.org/docs/Web/SVG).
@@ -808,7 +819,7 @@ var svg = true;
 
 // @property vml: Boolean
 // `true` if the browser supports [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language).
-var vml = !svg && (function () {
+var vml = !svg && function () {
     try {
         var div = document.createElement('div');
         div.innerHTML = '<v:shape adj="1"/>';
@@ -816,17 +827,16 @@ var vml = !svg && (function () {
         var shape = div.firstChild;
         shape.style.behavior = 'url(#default#VML)';
 
-        return shape && (typeof shape.adj === 'object');
-
+        return shape && _typeof(shape.adj) === 'object';
     } catch (e) {
         return false;
     }
-}());
-
+}();
 
 function userAgentContains(str) {
     return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
 }
+
 
 
 var Browser = (Object.freeze || Object)({
@@ -883,27 +893,27 @@ var Browser = (Object.freeze || Object)({
 
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
-	this.x = (round ? Math.round(x) : x);
+	this.x = round ? Math.round(x) : x;
 	// @property y: Number; The `y` coordinate of the point
-	this.y = (round ? Math.round(y) : y);
+	this.y = round ? Math.round(y) : y;
 }
 
 Point.prototype = {
 
 	// @method clone(): Point
 	// Returns a copy of the current point.
-	clone: function () {
+	clone: function clone() {
 		return new Point(this.x, this.y);
 	},
 
 	// @method add(otherPoint: Point): Point
 	// Returns the result of addition of the current and the given points.
-	add: function (point) {
+	add: function add(point) {
 		// non-destructive, returns a new point
 		return this.clone()._add(toPoint(point));
 	},
 
-	_add: function (point) {
+	_add: function _add(point) {
 		// destructive, used directly for performance in situations where it's safe to modify existing point
 		this.x += point.x;
 		this.y += point.y;
@@ -912,11 +922,11 @@ Point.prototype = {
 
 	// @method subtract(otherPoint: Point): Point
 	// Returns the result of subtraction of the given point from the current.
-	subtract: function (point) {
+	subtract: function subtract(point) {
 		return this.clone()._subtract(toPoint(point));
 	},
 
-	_subtract: function (point) {
+	_subtract: function _subtract(point) {
 		this.x -= point.x;
 		this.y -= point.y;
 		return this;
@@ -924,11 +934,11 @@ Point.prototype = {
 
 	// @method divideBy(num: Number): Point
 	// Returns the result of division of the current point by the given number.
-	divideBy: function (num) {
+	divideBy: function divideBy(num) {
 		return this.clone()._divideBy(num);
 	},
 
-	_divideBy: function (num) {
+	_divideBy: function _divideBy(num) {
 		this.x /= num;
 		this.y /= num;
 		return this;
@@ -936,11 +946,11 @@ Point.prototype = {
 
 	// @method multiplyBy(num: Number): Point
 	// Returns the result of multiplication of the current point by the given number.
-	multiplyBy: function (num) {
+	multiplyBy: function multiplyBy(num) {
 		return this.clone()._multiplyBy(num);
 	},
 
-	_multiplyBy: function (num) {
+	_multiplyBy: function _multiplyBy(num) {
 		this.x *= num;
 		this.y *= num;
 		return this;
@@ -951,24 +961,24 @@ Point.prototype = {
 	// `scale`. In linear algebra terms, multiply the point by the
 	// [scaling matrix](https://en.wikipedia.org/wiki/Scaling_%28geometry%29#Matrix_representation)
 	// defined by `scale`.
-	scaleBy: function (point) {
+	scaleBy: function scaleBy(point) {
 		return new Point(this.x * point.x, this.y * point.y);
 	},
 
 	// @method unscaleBy(scale: Point): Point
 	// Inverse of `scaleBy`. Divide each coordinate of the current point by
 	// each coordinate of `scale`.
-	unscaleBy: function (point) {
+	unscaleBy: function unscaleBy(point) {
 		return new Point(this.x / point.x, this.y / point.y);
 	},
 
 	// @method round(): Point
 	// Returns a copy of the current point with rounded coordinates.
-	round: function () {
+	round: function round() {
 		return this.clone()._round();
 	},
 
-	_round: function () {
+	_round: function _round() {
 		this.x = Math.round(this.x);
 		this.y = Math.round(this.y);
 		return this;
@@ -976,11 +986,11 @@ Point.prototype = {
 
 	// @method floor(): Point
 	// Returns a copy of the current point with floored coordinates (rounded down).
-	floor: function () {
+	floor: function floor() {
 		return this.clone()._floor();
 	},
 
-	_floor: function () {
+	_floor: function _floor() {
 		this.x = Math.floor(this.x);
 		this.y = Math.floor(this.y);
 		return this;
@@ -988,11 +998,11 @@ Point.prototype = {
 
 	// @method ceil(): Point
 	// Returns a copy of the current point with ceiled coordinates (rounded up).
-	ceil: function () {
+	ceil: function ceil() {
 		return this.clone()._ceil();
 	},
 
-	_ceil: function () {
+	_ceil: function _ceil() {
 		this.x = Math.ceil(this.x);
 		this.y = Math.ceil(this.y);
 		return this;
@@ -1000,7 +1010,7 @@ Point.prototype = {
 
 	// @method distanceTo(otherPoint: Point): Number
 	// Returns the cartesian distance between the current and the given points.
-	distanceTo: function (point) {
+	distanceTo: function distanceTo(point) {
 		point = toPoint(point);
 
 		var x = point.x - this.x,
@@ -1011,28 +1021,24 @@ Point.prototype = {
 
 	// @method equals(otherPoint: Point): Boolean
 	// Returns `true` if the given point has the same coordinates.
-	equals: function (point) {
+	equals: function equals(point) {
 		point = toPoint(point);
 
-		return point.x === this.x &&
-		       point.y === this.y;
+		return point.x === this.x && point.y === this.y;
 	},
 
 	// @method contains(otherPoint: Point): Boolean
 	// Returns `true` if both coordinates of the given point are less than the corresponding current point coordinates (in absolute values).
-	contains: function (point) {
+	contains: function contains(point) {
 		point = toPoint(point);
 
-		return Math.abs(point.x) <= Math.abs(this.x) &&
-		       Math.abs(point.y) <= Math.abs(this.y);
+		return Math.abs(point.x) <= Math.abs(this.x) && Math.abs(point.y) <= Math.abs(this.y);
 	},
 
 	// @method toString(): String
 	// Returns a string representation of the point for debugging purposes.
-	toString: function () {
-		return 'Point(' +
-		        formatNum(this.x) + ', ' +
-		        formatNum(this.y) + ')';
+	toString: function toString() {
+		return 'Point(' + formatNum(this.x) + ', ' + formatNum(this.y) + ')';
 	}
 };
 
@@ -1056,7 +1062,7 @@ function toPoint(x, y, round) {
 	if (x === undefined || x === null) {
 		return x;
 	}
-	if (typeof x === 'object' && 'x' in x && 'y' in x) {
+	if ((typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' && 'x' in x && 'y' in x) {
 		return new Point(x.x, x.y);
 	}
 	return new Point(x, y, round);
@@ -1066,10 +1072,9 @@ function toPoint(x, y, round) {
  * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
  */
 
-
-var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown';
-var POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove';
-var POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup';
+var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
+var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
+var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
 var POINTER_CANCEL = msPointer ? 'MSPointerCancel' : 'pointercancel';
 var TAG_WHITE_LIST = ['INPUT', 'SELECT', 'OPTION'];
 var _pointers = {};
@@ -1084,10 +1089,8 @@ var _pointersCount = 0;
 function addPointerListener(obj, type, handler, id) {
 	if (type === 'touchstart') {
 		_addPointerStart(obj, handler, id);
-
 	} else if (type === 'touchmove') {
 		_addPointerMove(obj, handler, id);
-
 	} else if (type === 'touchend') {
 		_addPointerEnd(obj, handler, id);
 	}
@@ -1100,10 +1103,8 @@ function removePointerListener(obj, type, id) {
 
 	if (type === 'touchstart') {
 		obj.removeEventListener(POINTER_DOWN, handler, false);
-
 	} else if (type === 'touchmove') {
 		obj.removeEventListener(POINTER_MOVE, handler, false);
-
 	} else if (type === 'touchend') {
 		obj.removeEventListener(POINTER_UP, handler, false);
 		obj.removeEventListener(POINTER_CANCEL, handler, false);
@@ -1170,9 +1171,11 @@ function _handlePointer(e, handler) {
 }
 
 function _addPointerMove(obj, handler, id) {
-	var onMove = function (e) {
+	var onMove = function onMove(e) {
 		// don't fire touch moves when mouse isn't down
-		if ((e.pointerType === e.MSPOINTER_TYPE_MOUSE || e.pointerType === 'mouse') && e.buttons === 0) { return; }
+		if ((e.pointerType === e.MSPOINTER_TYPE_MOUSE || e.pointerType === 'mouse') && e.buttons === 0) {
+			return;
+		}
 
 		_handlePointer(e, handler);
 	};
@@ -1182,7 +1185,7 @@ function _addPointerMove(obj, handler, id) {
 }
 
 function _addPointerEnd(obj, handler, id) {
-	var onUp = function (e) {
+	var onUp = function onUp(e) {
 		_handlePointer(e, handler);
 	};
 
@@ -1201,7 +1204,8 @@ var _pre = '_leaflet_';
 
 // inspired by Zepto touch code by Thomas Fuchs
 function addDoubleTapListener(obj, handler, id) {
-	var last, touch$$1,
+	var last,
+	    touch$$1,
 	    doubleTap = false,
 	    delay = 250;
 
@@ -1209,29 +1213,36 @@ function addDoubleTapListener(obj, handler, id) {
 		var count;
 
 		if (pointer) {
-			if ((!edge) || e.pointerType === 'mouse') { return; }
+			if (!edge || e.pointerType === 'mouse') {
+				return;
+			}
 			count = _pointersCount;
 		} else {
 			count = e.touches.length;
 		}
 
-		if (count > 1) { return; }
+		if (count > 1) {
+			return;
+		}
 
 		var now = Date.now(),
 		    delta = now - (last || now);
 
 		touch$$1 = e.touches ? e.touches[0] : e;
-		doubleTap = (delta > 0 && delta <= delay);
+		doubleTap = delta > 0 && delta <= delay;
 		last = now;
 	}
 
 	function onTouchEnd(e) {
 		if (doubleTap && !touch$$1.cancelBubble) {
 			if (pointer) {
-				if ((!edge) || e.pointerType === 'mouse') { return; }
+				if (!edge || e.pointerType === 'mouse') {
+					return;
+				}
 				// work around .type being readonly with MSPointer* events
 				var newTouch = {},
-				    prop, i;
+				    prop,
+				    i;
 
 				for (i in touch$$1) {
 					prop = touch$$1[i];
@@ -1293,7 +1304,7 @@ function removeDoubleTapListener(obj, id) {
 // Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
-	if (typeof types === 'object') {
+	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 		for (var type in types) {
 			addOne(obj, type, types[type], fn);
 		}
@@ -1325,7 +1336,7 @@ var eventsKey = '_leaflet_events';
 // Removes all known event listeners
 function off(obj, types, fn, context) {
 
-	if (typeof types === 'object') {
+	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 		for (var type in types) {
 			removeOne(obj, type, types[type], fn);
 		}
@@ -1346,9 +1357,11 @@ function off(obj, types, fn, context) {
 function addOne(obj, type, fn, context) {
 	var id = type + stamp(fn) + (context ? '_' + stamp(context) : '');
 
-	if (obj[eventsKey] && obj[eventsKey][id]) { return this; }
+	if (obj[eventsKey] && obj[eventsKey][id]) {
+		return this;
+	}
 
-	var handler = function (e) {
+	var handler = function handler(e) {
 		return fn.call(context || obj, e || window.event);
 	};
 
@@ -1357,36 +1370,30 @@ function addOne(obj, type, fn, context) {
 	if (pointer && type.indexOf('touch') === 0) {
 		// Needs DomEvent.Pointer.js
 		addPointerListener(obj, type, handler, id);
-
-	} else if (touch && (type === 'dblclick') && addDoubleTapListener &&
-	           !(pointer && chrome)) {
+	} else if (touch && type === 'dblclick' && addDoubleTapListener && !(pointer && chrome)) {
 		// Chrome >55 does not need the synthetic dblclicks from addDoubleTapListener
 		// See #5180
 		addDoubleTapListener(obj, handler, id);
-
 	} else if ('addEventListener' in obj) {
 
 		if (type === 'mousewheel') {
 			obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', handler, false);
-
-		} else if ((type === 'mouseenter') || (type === 'mouseleave')) {
-			handler = function (e) {
+		} else if (type === 'mouseenter' || type === 'mouseleave') {
+			handler = function handler(e) {
 				e = e || window.event;
 				if (isExternalTarget(obj, e)) {
 					originalHandler(e);
 				}
 			};
 			obj.addEventListener(type === 'mouseenter' ? 'mouseover' : 'mouseout', handler, false);
-
 		} else {
 			if (type === 'click' && android) {
-				handler = function (e) {
+				handler = function handler(e) {
 					filterClick(e, originalHandler);
 				};
 			}
 			obj.addEventListener(type, handler, false);
 		}
-
 	} else if ('attachEvent' in obj) {
 		obj.attachEvent('on' + type, handler);
 	}
@@ -1400,25 +1407,21 @@ function removeOne(obj, type, fn, context) {
 	var id = type + stamp(fn) + (context ? '_' + stamp(context) : ''),
 	    handler = obj[eventsKey] && obj[eventsKey][id];
 
-	if (!handler) { return this; }
+	if (!handler) {
+		return this;
+	}
 
 	if (pointer && type.indexOf('touch') === 0) {
 		removePointerListener(obj, type, id);
-
-	} else if (touch && (type === 'dblclick') && removeDoubleTapListener) {
+	} else if (touch && type === 'dblclick' && removeDoubleTapListener) {
 		removeDoubleTapListener(obj, id);
-
 	} else if ('removeEventListener' in obj) {
 
 		if (type === 'mousewheel') {
 			obj.removeEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', handler, false);
-
 		} else {
-			obj.removeEventListener(
-				type === 'mouseenter' ? 'mouseover' :
-				type === 'mouseleave' ? 'mouseout' : type, handler, false);
+			obj.removeEventListener(type === 'mouseenter' ? 'mouseover' : type === 'mouseleave' ? 'mouseout' : type, handler, false);
 		}
-
 	} else if ('detachEvent' in obj) {
 		obj.detachEvent('on' + type, handler);
 	}
@@ -1437,7 +1440,8 @@ function stopPropagation(e) {
 
 	if (e.stopPropagation) {
 		e.stopPropagation();
-	} else if (e.originalEvent) {  // In case of Leaflet event.
+	} else if (e.originalEvent) {
+		// In case of Leaflet event.
 		e.originalEvent._stopped = true;
 	} else {
 		e.cancelBubble = true;
@@ -1494,16 +1498,12 @@ function getMousePosition(e, container) {
 
 	var rect = container.getBoundingClientRect();
 
-	return new Point(
-		e.clientX - rect.left - container.clientLeft,
-		e.clientY - rect.top - container.clientTop);
+	return new Point(e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop);
 }
 
 // Chrome on Win scrolls double the pixels as in other platforms (see #4538),
 // and Firefox scrolls device pixels, not CSS pixels
-var wheelPxFactor =
-	(win && chrome) ? 2 :
-	gecko ? window.devicePixelRatio : 1;
+var wheelPxFactor = win && chrome ? 2 : gecko ? window.devicePixelRatio : 1;
 
 // @function getWheelDelta(ev: DOMEvent): Number
 // Gets normalized wheel delta from a mousewheel DOM event, in vertical
@@ -1511,15 +1511,15 @@ var wheelPxFactor =
 // Events from pointing devices without precise scrolling are mapped to
 // a best guess of 60 pixels.
 function getWheelDelta(e) {
-	return (edge) ? e.wheelDeltaY / 2 : // Don't trust window-geometry-based delta
-	       (e.deltaY && e.deltaMode === 0) ? -e.deltaY / wheelPxFactor : // Pixels
-	       (e.deltaY && e.deltaMode === 1) ? -e.deltaY * 20 : // Lines
-	       (e.deltaY && e.deltaMode === 2) ? -e.deltaY * 60 : // Pages
-	       (e.deltaX || e.deltaZ) ? 0 :	// Skip horizontal/depth wheel events
-	       e.wheelDelta ? (e.wheelDeltaY || e.wheelDelta) / 2 : // Legacy IE pixels
-	       (e.detail && Math.abs(e.detail) < 32765) ? -e.detail * 20 : // Legacy Moz lines
-	       e.detail ? e.detail / -32765 * 60 : // Legacy Moz pages
-	       0;
+	return edge ? e.wheelDeltaY / 2 : // Don't trust window-geometry-based delta
+	e.deltaY && e.deltaMode === 0 ? -e.deltaY / wheelPxFactor : // Pixels
+	e.deltaY && e.deltaMode === 1 ? -e.deltaY * 20 : // Lines
+	e.deltaY && e.deltaMode === 2 ? -e.deltaY * 60 : // Pages
+	e.deltaX || e.deltaZ ? 0 : // Skip horizontal/depth wheel events
+	e.wheelDelta ? (e.wheelDeltaY || e.wheelDelta) / 2 : // Legacy IE pixels
+	e.detail && Math.abs(e.detail) < 32765 ? -e.detail * 20 : // Legacy Moz lines
+	e.detail ? e.detail / -32765 * 60 : // Legacy Moz pages
+	0;
 }
 
 var skipEvents = {};
@@ -1541,31 +1541,33 @@ function isExternalTarget(el, e) {
 
 	var related = e.relatedTarget;
 
-	if (!related) { return true; }
+	if (!related) {
+		return true;
+	}
 
 	try {
-		while (related && (related !== el)) {
+		while (related && related !== el) {
 			related = related.parentNode;
 		}
 	} catch (err) {
 		return false;
 	}
-	return (related !== el);
+	return related !== el;
 }
 
 var lastClick;
 
 // this is a horrible workaround for a bug in Android where a single touch triggers two click events
 function filterClick(e, handler) {
-	var timeStamp = (e.timeStamp || (e.originalEvent && e.originalEvent.timeStamp)),
-	    elapsed = lastClick && (timeStamp - lastClick);
+	var timeStamp = e.timeStamp || e.originalEvent && e.originalEvent.timeStamp,
+	    elapsed = lastClick && timeStamp - lastClick;
 
 	// are they closer together than 500ms yet more than 100ms?
 	// Android typically triggers them ~300ms apart while multiple listeners
 	// on the same event should be triggered far faster;
 	// or check if click is simulated on the element, and if it is, reject any non-simulated events
 
-	if ((elapsed && elapsed > 100 && elapsed < 500) || (e.target._simulatedClick && !e._simulated)) {
+	if (elapsed && elapsed > 100 && elapsed < 500 || e.target._simulatedClick && !e._simulated) {
 		stop(e);
 		return;
 	}
@@ -1573,7 +1575,6 @@ function filterClick(e, handler) {
 
 	handler(e);
 }
-
 
 
 
@@ -1605,28 +1606,23 @@ var DomEvent = (Object.freeze || Object)({
  * in HTML and SVG classes in SVG.
  */
 
-
 // @property TRANSFORM: String
 // Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
-var TRANSFORM = testProp(
-    ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
+var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
 // the same for the transitionend event, in particular the Android 4.1 stock browser
 
 // @property TRANSITION: String
 // Vendor-prefixed transform style name.
-var TRANSITION = testProp(
-    ['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+var TRANSITION = testProp(['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
 
-var TRANSITION_END =
-    TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
-
+var TRANSITION_END = TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
 
 // @function get(id: String|HTMLElement): HTMLElement
 // Returns an element given its DOM id, or returns the element itself
 // if it was passed directly.
-function get(id) {
+function get$1(id) {
     return typeof id === 'string' ? document.getElementById(id) : id;
 }
 
@@ -1634,7 +1630,7 @@ function get(id) {
 // Returns the value for a certain style attribute on an element,
 // including computed values or values set through CSS.
 function getStyle(el, style) {
-    var value = el.style[style] || (el.currentStyle && el.currentStyle[style]);
+    var value = el.style[style] || el.currentStyle && el.currentStyle[style];
 
     if ((!value || value === 'auto') && document.defaultView) {
         var css = document.defaultView.getComputedStyle(el, null);
@@ -1757,13 +1753,15 @@ function _setOpacityIE(el, value) {
     } catch (e) {
         // don't set opacity to 1 if we haven't already set an opacity,
         // it isn't needed and breaks transparent pngs.
-        if (value === 1) { return; }
+        if (value === 1) {
+            return;
+        }
     }
 
     value = Math.round(value * 100);
 
     if (filter) {
-        filter.Enabled = (value !== 100);
+        filter.Enabled = value !== 100;
         filter.Opacity = value;
     } else {
         el.style.filter += ' progid:' + filterName + '(opacity=' + value + ')';
@@ -1792,11 +1790,7 @@ function testProp(props) {
 function setTransform(el, offset, scale) {
     var pos = offset || new Point(0, 0);
 
-    el.style[TRANSFORM] =
-        (ie3d ?
-            'translate(' + pos.x + 'px,' + pos.y + 'px)' :
-            'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') +
-        (scale ? ' scale(' + scale + ')' : '');
+    el.style[TRANSFORM] = (ie3d ? 'translate(' + pos.x + 'px,' + pos.y + 'px)' : 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') + (scale ? ' scale(' + scale + ')' : '');
 }
 
 // @function setPosition(el: HTMLElement, position: Point)
@@ -1838,24 +1832,23 @@ var disableTextSelection;
 var enableTextSelection;
 var _userSelect;
 if ('onselectstart' in document) {
-    disableTextSelection = function () {
+    disableTextSelection = function disableTextSelection() {
         on(window, 'selectstart', preventDefault);
     };
-    enableTextSelection = function () {
+    enableTextSelection = function enableTextSelection() {
         off(window, 'selectstart', preventDefault);
     };
 } else {
-    var userSelectProperty = testProp(
-        ['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+    var userSelectProperty = testProp(['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-    disableTextSelection = function () {
+    disableTextSelection = function disableTextSelection() {
         if (userSelectProperty) {
             var style = document.documentElement.style;
             _userSelect = style[userSelectProperty];
             style[userSelectProperty] = 'none';
         }
     };
-    enableTextSelection = function () {
+    enableTextSelection = function enableTextSelection() {
         if (userSelectProperty) {
             document.documentElement.style[userSelectProperty] = _userSelect;
             _userSelect = undefined;
@@ -1887,7 +1880,9 @@ function preventOutline(element) {
     while (element.tabIndex === -1) {
         element = element.parentNode;
     }
-    if (!element || !element.style) { return; }
+    if (!element || !element.style) {
+        return;
+    }
     restoreOutline();
     _outlineElement = element;
     _outlineStyle = element.style.outline;
@@ -1898,19 +1893,20 @@ function preventOutline(element) {
 // @function restoreOutline()
 // Cancels the effects of a previous [`L.DomUtil.preventOutline`]().
 function restoreOutline() {
-    if (!_outlineElement) { return; }
+    if (!_outlineElement) {
+        return;
+    }
     _outlineElement.style.outline = _outlineStyle;
     _outlineElement = undefined;
     _outlineStyle = undefined;
     off(window, 'keydown', restoreOutline);
 }
 
-
 var DomUtil = (Object.freeze || Object)({
 	TRANSFORM: TRANSFORM,
 	TRANSITION: TRANSITION,
 	TRANSITION_END: TRANSITION_END,
-	get: get,
+	get: get$1,
 	getStyle: getStyle,
 	create: create$1,
 	remove: remove,
@@ -2005,9 +2001,9 @@ var now = function() {
 var now_1 = now;
 
 /** Built-in value references. */
-var Symbol = _root.Symbol;
+var Symbol$1 = _root.Symbol;
 
-var _Symbol = Symbol;
+var _Symbol = Symbol$1;
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -2431,15 +2427,7 @@ var debounce_1 = debounce;
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
-    regions: [
-      'header',
-      'toolbar.top',
-      'toolbar.left',
-      'main',
-      'toolbar.right',
-      'toolbar.bottom',
-      'footer'
-    ],
+    regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
     metadata: {},
     flow: 'auto',
     engine: 'epubjs',
@@ -2448,7 +2436,7 @@ var Reader = Evented.extend({
     trackResize: true
   },
 
-  initialize: function(id, options) {
+  initialize: function initialize(id, options) {
     var self = this;
 
     options = setOptions(this, options);
@@ -2467,7 +2455,7 @@ var Reader = Evented.extend({
     this._mode = this.options.mode;
   },
 
-  start: function(target) {
+  start: function start(target) {
     var self = this;
     var panes = self._panes;
 
@@ -2476,38 +2464,37 @@ var Reader = Evented.extend({
     this._loaded = true;
   },
 
-  _start: function(target) {
+  _start: function _start(target) {
     var self = this;
     target = target || 0;
 
     // remove eventually
     var delay = 0;
-    if ( window.location.hostname == 'localhost' ) {
+    if (window.location.hostname == 'localhost') {
       delay = 1000;
     }
 
-    self.open(function() {
+    self.open(function () {
       self.setBookPanelSize();
-      setTimeout(function() {
-        self.draw(target, function() {
+      setTimeout(function () {
+        self.draw(target, function () {
           self._panes['loader'].style.display = 'none';
         });
       }, delay);
     });
-
   },
 
-  switch: function(flow, target) {
+  switch: function _switch(flow, target) {
     var target = target || this.currentLocation();
-    if ( flow === undefined ) {
-      flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
+    if (flow === undefined) {
+      flow = this.options.flow == 'auto' ? 'scrolled-doc' : 'auto';
     }
     this.options.flow = flow;
     this.destroy();
     this.draw(target);
   },
 
-  reopen: function(options, target) {
+  reopen: function reopen(options, target) {
     var target = target || this.currentLocation();
     extend(this.options, options);
     this.destroy();
@@ -2515,28 +2502,28 @@ var Reader = Evented.extend({
     this.fire('reopen');
   },
 
-  draw: function(target) {
+  draw: function draw(target) {
     // NOOP
   },
 
-  next: function() {
+  next: function next() {
     // NOOP
   },
 
-  prev: function() {
+  prev: function prev() {
     // NOOP
   },
 
-  display: function(index) {
+  display: function display(index) {
     // NOOP
   },
 
-  gotoPage: function(target) {
+  gotoPage: function gotoPage(target) {
     // NOOP
   },
 
-  _initContainer: function (id) {
-    var container = this._container = get(id);
+  _initContainer: function _initContainer(id) {
+    var container = this._container = get$1(id);
 
     if (!container) {
       throw new Error('Reader container not found.');
@@ -2548,17 +2535,12 @@ var Reader = Evented.extend({
     this._containerId = stamp(container);
   },
 
-  _initLayout: function () {
+  _initLayout: function _initLayout() {
     var container = this._container;
 
     this._fadeAnimated = this.options.fadeAnimation && any3d;
 
-    addClass(container, 'cozy-container' +
-      (touch ? ' cozy-touch' : '') +
-      (retina ? ' cozy-retina' : '') +
-      (ielt9 ? ' cozy-oldie' : '') +
-      (safari ? ' cozy-safari' : '') +
-      (this._fadeAnimated ? ' cozy-fade-anim' : ''));
+    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : ''));
 
     var position = getStyle(container, 'position');
 
@@ -2573,7 +2555,7 @@ var Reader = Evented.extend({
     // }
   },
 
-  _initPanes: function () {
+  _initPanes: function _initPanes() {
     var self = this;
 
     var panes = this._panes = {};
@@ -2596,7 +2578,7 @@ var Reader = Evented.extend({
     this._initLoader();
   },
 
-  _checkIfLoaded: function () {
+  _checkIfLoaded: function _checkIfLoaded() {
     if (!this._loaded) {
       throw new Error('Set map center and zoom first.');
     }
@@ -2605,7 +2587,7 @@ var Reader = Evented.extend({
   // DOM event handling
 
   // @section Interaction events
-  _initEvents: function (remove$$1) {
+  _initEvents: function _initEvents(remove$$1) {
     this._targets = {};
     this._targets[stamp(this._container)] = this;
 
@@ -2637,7 +2619,9 @@ var Reader = Evented.extend({
 
     if (this.options.trackResize) {
       var self = this;
-      var fn = debounce_1(function(){ self.invalidateSize({}); }, 150);
+      var fn = debounce_1(function () {
+        self.invalidateSize({});
+      }, 150);
       onOff(window, 'resize', fn, this);
     }
 
@@ -2646,21 +2630,23 @@ var Reader = Evented.extend({
     }
   },
 
-  _onResize: function() {
-    if ( ! this._resizeRequest ) {
-      this._resizeRequest = requestAnimFrame(function() {
+  _onResize: function _onResize() {
+    if (!this._resizeRequest) {
+      this._resizeRequest = requestAnimFrame(function () {
         this.invalidateSize({});
       }, this);
     }
   },
 
-  _onScroll: function () {
-    this._container.scrollTop  = 0;
+  _onScroll: function _onScroll() {
+    this._container.scrollTop = 0;
     this._container.scrollLeft = 0;
   },
 
-  _handleDOMEvent: function (e) {
-    if (!this._loaded || skipped(e)) { return; }
+  _handleDOMEvent: function _handleDOMEvent(e) {
+    if (!this._loaded || skipped(e)) {
+      return;
+    }
 
     var type = e.type === 'keypress' && e.keyCode === 13 ? 'click' : e.type;
 
@@ -2672,7 +2658,7 @@ var Reader = Evented.extend({
     this._fireDOMEvent(e, type);
   },
 
-  _fireDOMEvent: function (e, type, targets) {
+  _fireDOMEvent: function _fireDOMEvent(e, type, targets) {
 
     if (e.type === 'click') {
       // Fire a synthetic 'preclick' event which propagates up (mainly for closing popups).
@@ -2685,12 +2671,16 @@ var Reader = Evented.extend({
       this._fireDOMEvent(synth, synth.type, targets);
     }
 
-    if (e._stopped) { return; }
+    if (e._stopped) {
+      return;
+    }
 
     // Find the layer the event is propagating from and its parents.
     targets = (targets || []).concat(this._findEventTargets(e, type));
 
-    if (!targets.length) { return; }
+    if (!targets.length) {
+      return;
+    }
 
     var target = targets[0];
     if (type === 'contextmenu' && target.listens(type, true)) {
@@ -2702,38 +2692,42 @@ var Reader = Evented.extend({
     };
 
     if (e.type !== 'keypress') {
-      var isMarker = (target.options && 'icon' in target.options);
-      data.containerPoint = isMarker ?
-          this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
+      var isMarker = target.options && 'icon' in target.options;
+      data.containerPoint = isMarker ? this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
       data.layerPoint = this.containerPointToLayerPoint(data.containerPoint);
       data.latlng = isMarker ? target.getLatLng() : this.layerPointToLatLng(data.layerPoint);
     }
 
     for (var i = 0; i < targets.length; i++) {
       targets[i].fire(type, data, true);
-      if (data.originalEvent._stopped ||
-        (targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1)) { return; }
+      if (data.originalEvent._stopped || targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1) {
+        return;
+      }
     }
   },
 
-  setBookPanelSize: function() {
+  setBookPanelSize: function setBookPanelSize() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
-    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+    panes['book'].style.height = panes['book-cover'].offsetHeight * _padding * 0.99 + 'px';
+    panes['book'].style.width = panes['book-cover'].offsetWidth * _padding + 'px';
     panes['book'].style.display = 'block';
   },
 
-  invalidateSize: function(options) {
+  invalidateSize: function invalidateSize(options) {
     var self = this;
 
-    if ( ! self._drawn ) { return; }
+    if (!self._drawn) {
+      return;
+    }
 
     cancelAnimFrame(this._resizeRequest);
 
-    if (! this._loaded) { return this; }
+    if (!this._loaded) {
+      return this;
+    }
 
-    if ( ! this._resizeTarget ) {
+    if (!this._resizeTarget) {
       this._resizeTarget = this.currentLocation();
     }
     self.destroy();
@@ -2741,221 +2735,28 @@ var Reader = Evented.extend({
     var panes = this._panes;
     panes['book'].style.display = 'none';
 
-    setTimeout(function() {
+    setTimeout(function () {
       self.setBookPanelSize();
 
-      if ( self._triggerRedraw ) {
+      if (self._triggerRedraw) {
         clearTimeout(self._triggerRedraw);
       }
 
-      self._triggerRedraw = setTimeout(function() {
+      self._triggerRedraw = setTimeout(function () {
         // self.destroy();
         self.draw(self._resizeTarget);
         self._resizeRequest = null;
         self._resizeTarget = null;
       }, 150);
-
-
     }, 0);
-    
-
-
   },
 
-  _initLoader: function() {
+  _initLoader: function _initLoader() {
     // is this not awesome?
-    var template$$1 = `<div class="socket">
-      <div class="gel center-gel">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c1 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c2 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c3 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c4 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c5 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c6 r1">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      
-      <div class="gel c7 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      
-      <div class="gel c8 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c9 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c10 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c11 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c12 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c13 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c14 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c15 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c16 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c17 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c18 r2">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c19 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c20 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c21 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c22 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c23 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c24 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c25 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c26 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c28 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c29 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c30 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c31 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c32 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c33 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c34 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c35 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c36 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-      <div class="gel c37 r3">
-        <div class="hex-brick h1"></div>
-        <div class="hex-brick h2"></div>
-        <div class="hex-brick h3"></div>
-      </div>
-    </div>`;
+    var template$$1 = '<div class="socket">\n      <div class="gel center-gel">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c1 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c2 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c3 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c4 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c5 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c6 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c7 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c8 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c9 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c10 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c11 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c12 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c13 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c14 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c15 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c16 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c17 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c18 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c19 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c20 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c21 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c22 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c23 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c24 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c25 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c26 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c28 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c29 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c30 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c31 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c32 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c33 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c34 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c35 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c36 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c37 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n    </div>';
 
     var body = new DOMParser().parseFromString(template$$1, "text/html").body;
-    while ( body.children.length ) {
+    while (body.children.length) {
       this._panes['loader'].appendChild(body.children[0]);
     }
   },
@@ -2981,9 +2782,9 @@ var Control = Class.extend({
         // `'topright'`, `'bottomleft'` or `'bottomright'`
     },
 
-    initialize: function (options) {
+    initialize: function initialize(options) {
         setOptions(this, options);
-        if ( options.container ) {
+        if (options.container) {
             this._container = options.container;
             this._locked = true;
         }
@@ -2995,13 +2796,13 @@ var Control = Class.extend({
      * @method getRegion: string
      * Returns the region of the control.
      */
-    getRegion: function () {
+    getRegion: function getRegion() {
         return this.options.region;
     },
 
     // @method setRegion(region: string): this
     // Sets the region of the control.
-    setRegion: function (region) {
+    setRegion: function setRegion(region) {
         var reader = this._reader;
 
         if (reader) {
@@ -3019,13 +2820,13 @@ var Control = Class.extend({
 
     // @method getContainer: HTMLElement
     // Returns the HTMLElement that contains the control.
-    getContainer: function () {
+    getContainer: function getContainer() {
         return this._container;
     },
 
     // @method addTo(reader: Map): this
     // Adds the control to the given reader.
-    addTo: function (reader) {
+    addTo: function addTo(reader) {
         this.remove();
         this._reader = reader;
 
@@ -3033,7 +2834,7 @@ var Control = Class.extend({
 
         addClass(container, 'cozy-control');
 
-        if ( ! this._locked ) {
+        if (!this._locked) {
             var region = this.getRegion();
             var area = reader.getControlRegion(region);
             area.appendChild(container);
@@ -3044,17 +2845,17 @@ var Control = Class.extend({
 
     // @method remove: this
     // Removes the control from the reader it is currently active on.
-    remove: function () {
+    remove: function remove$$1() {
         if (!this._reader) {
             return this;
         }
 
-        if (! this._container) {
+        if (!this._container) {
             return this;
         }
 
-console.log("AHOY REMOVE", this._locked);
-        if ( ! this._locked ) {
+        console.log("AHOY REMOVE", this._locked);
+        if (!this._locked) {
             remove(this._container);
         }
 
@@ -3067,26 +2868,26 @@ console.log("AHOY REMOVE", this._locked);
         return this;
     },
 
-    _refocusOnMap: function (e) {
+    _refocusOnMap: function _refocusOnMap(e) {
         // if reader exists and event is not a keyboard event
         if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
             this._reader.getContainer().focus();
         }
     },
 
-    _className: function(widget) {
-        var className = [ 'cozy-control' ];
-        if ( this.options.direction ) {
+    _className: function _className(widget) {
+        var className = ['cozy-control'];
+        if (this.options.direction) {
             className.push('cozy-control-' + this.options.direction);
         }
-        if ( widget ) {
+        if (widget) {
             className.push('cozy-control-' + widget);
         }
         return className.join(' ');
     }
 });
 
-var control = function (options) {
+var control = function control(options) {
     return new Control(options);
 };
 
@@ -3108,64 +2909,65 @@ var control = function (options) {
 Reader.include({
     // @method addControl(control: Control): this
     // Adds the given control to the reader
-    addControl: function (control) {
+    addControl: function addControl(control) {
         control.addTo(this);
         return this;
     },
 
     // @method removeControl(control: Control): this
     // Removes the given control from the reader
-    removeControl: function (control) {
+    removeControl: function removeControl(control) {
         control.remove();
         return this;
     },
 
-    getControlContainer: function() {
+    getControlContainer: function getControlContainer() {
         var l = 'cozy-';
-        if ( ! this._controlContainer ) {
-            this._controlContainer =
-                create$1('div', l + 'control-container', this._container);
+        if (!this._controlContainer) {
+            this._controlContainer = create$1('div', l + 'control-container', this._container);
         }
         return this._controlContainer;
     },
 
-    getControlRegion: function (target) {
+    getControlRegion: function getControlRegion(target) {
 
-        if ( ! this._panes[target] ) {
+        if (!this._panes[target]) {
             // target is dot-delimited string
             // first dot is the panel
             var parts = target.split('.');
             var tmp = [];
             var parent = this._container;
             var x = 0;
-            while ( parts.length ) {
+            while (parts.length) {
                 var slug = parts.shift();
                 tmp.push(slug);
                 var panel = tmp.join(".");
                 var className = 'cozy-panel-' + slug;
-                if ( ! this._panes[panel] ) {
+                if (!this._panes[panel]) {
                     this._panes[panel] = create$1('div', className, parent);
                 }
                 parent = this._panes[panel];
                 x += 1;
-                if ( x > 100 ) { break; }
+                if (x > 100) {
+                    break;
+                }
             }
         }
         return this._panes[target];
     },
 
-    getControlRegion_1: function (target) {
+    getControlRegion_1: function getControlRegion_1(target) {
 
         var tmp = target.split('.');
         var region = tmp.shift();
         var slot = tmp.pop() || '-slot';
 
         var container = this._panes[region];
-        if ( ! this._panes[target] ) {
+        if (!this._panes[target]) {
             var className = 'cozy-' + region + '--item cozy-slot-' + slot;
-            if ( ! this._panes[region + '.' + slot] ) {
+            if (!this._panes[region + '.' + slot]) {
                 var div = create$1('div', className);
-                if ( slot == 'left' || slot == 'bottom' ) {
+                if (slot == 'left' || slot == 'bottom') {
                     var childElement = this._panes[region].firstChild;
                     this._panes[region].insertBefore(div, childElement);
                 } else {
@@ -3180,17 +2982,17 @@ Reader.include({
         return this._panes[target];
     },
 
-    _classify: function(tmp) {
+    _classify: function _classify(tmp) {
         var l = 'cozy-';
         var className = [];
-        for(var i in tmp) {
+        for (var i in tmp) {
             className.push(l + tmp[i]);
         }
         className = className.join(' ');
         return className;
     },
 
-    _clearControlRegion: function () {
+    _clearControlRegion: function _clearControlRegion() {
         for (var i in this._controlRegions) {
             remove(this._controlRegions[i]);
         }
@@ -3201,25 +3003,22 @@ Reader.include({
 });
 
 var PageControl = Control.extend({
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
       var className = this._className(),
           options = this.options;
-      container = create$1('div', className),
-
-      this._control  = this._createButton(this._fill(options.html || options.label), this._fill(options.label),
-              className, container);
+      container = create$1('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
     }
     this._bindEvents();
 
     return container;
   },
 
-  _createButton: function (html, title, className, container) {
+  _createButton: function _createButton(html, title, className, container) {
     var link = create$1('a', className, container);
     link.innerHTML = html;
     link.href = '#';
@@ -3234,33 +3033,32 @@ var PageControl = Control.extend({
     return link;
   },
 
-  _bindEvents: function() {
+  _bindEvents: function _bindEvents() {
     var self = this;
     disableClickPropagation(this._control);
     on(this._control, 'click', stop);
     on(this._control, 'click', this._action, this);
 
-    this._reader.on('reopen', function(data) {
+    this._reader.on('reopen', function (data) {
       // update the button text / titles
       var html = self.options.html || self.options.label;
       self._control.innerHTML = self._fill(html);
       self._control.setAttribute('title', self._fill(self.options.label));
       self._control.setAttribteu('aria-label', self._fill(self.options.label));
     });
-
   },
 
-  _unit: function() {
-    return ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+  _unit: function _unit() {
+    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
   },
 
-  _fill: function(s) {
+  _fill: function _fill(s) {
     var unit = this._unit();
     return s.replace(/\$\{unit\}/g, unit);
   },
 
-  _label: function() {
-    return this.options.label + " " + ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+  _label: function _label() {
+    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
   },
 
   EOT: true
@@ -3274,7 +3072,7 @@ var PagePrevious = PageControl.extend({
     html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
   },
 
-  _action: function(e) {
+  _action: function _action(e) {
     this._reader.prev();
   }
 });
@@ -3287,7 +3085,7 @@ var PageNext = PageControl.extend({
     html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
   },
 
-  _action: function(e) {
+  _action: function _action(e) {
     this._reader.next();
   }
 });
@@ -3297,8 +3095,8 @@ var PageFirst = PageControl.extend({
     direction: 'first',
     label: 'First ${unit}'
   },
-  _action: function(e) {
-      this._reader.first();
+  _action: function _action(e) {
+    this._reader.first();
   }
 });
 
@@ -3307,24 +3105,24 @@ var PageLast = PageControl.extend({
     direction: 'last',
     label: 'Last ${unit}'
   },
-  _action: function(e) {
-      this._reader.last();
+  _action: function _action(e) {
+    this._reader.last();
   }
 });
 
-var pageNext = function(options) {
+var pageNext = function pageNext(options) {
   return new PageNext(options);
 };
 
-var pagePrevious = function(options) {
+var pagePrevious = function pagePrevious(options) {
   return new PagePrevious(options);
 };
 
-var pageFirst = function(options) {
+var pageFirst = function pageFirst(options) {
   return new PageFirst(options);
 };
 
-var pageLast = function(options) {
+var pageLast = function pageLast(options) {
   return new PageLast(options);
 };
 
@@ -3341,31 +3139,25 @@ var Modal = Class.extend({
     actions: null
   },
 
-  initialize: function (options) {
+  initialize: function initialize(options) {
     setOptions(this, options);
-    this._id = (new Date()).getTime();
+    this._id = new Date().getTime();
     this._initializedEvents = false;
   },
 
-  addTo: function(reader) {
+  addTo: function addTo(reader) {
     var self = this;
     this._reader = reader;
     var template$$1 = this.options.template;
     var tag = this.options.tag;
-    var panelHTML = `<div class="st-modal st-modal-${this.options.region}">
-      <header>
-        <h2>${this.options.title} <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>
-      </header>
-      <article class="${this.options.className.article || this.options.className.article}">
-        ${template$$1}
-      </article>`;
+    var panelHTML = '<div class="st-modal st-modal-' + this.options.region + '">\n      <header>\n        <h2>' + this.options.title + ' <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>\n      </header>\n      <article class="' + (this.options.className.article || this.options.className.article) + '">\n        ' + template$$1 + '\n      </article>';
 
-    if ( this.options.actions ) {
+    if (this.options.actions) {
       panelHTML += '<footer>';
-      for(var i in this.options.actions) {
+      for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_cls = action.className || 'button--default';
-        panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
+        panelHTML += '<button id="action-' + this._id + '-' + i + '" class="button button--lg ' + button_cls + '">' + action.label + '</button>';
       }
       panelHTML += '</footer>';
     }
@@ -3383,31 +3175,43 @@ var Modal = Class.extend({
     return this;
   },
 
-  _bindEvents: function() {
+  _bindEvents: function _bindEvents() {
     var self = this;
 
-    if ( this._initializedEvents ) { return; }
+    if (this._initializedEvents) {
+      return;
+    }
     this._initializedEvents = true;
 
     var reader = this._reader;
     var container = reader._container;
 
-    if ( ! dismissModalListener ) {
+    if (!dismissModalListener) {
       dismissModalListener = true;
-      on(container, 'click', function(event) {
-        if ( hasClass(container, 'st-modal-activating') ) { return ; }
-        if ( ! hasClass(container, 'st-modal-open') ) { return ; }
+      on(container, 'click', function (event) {
+        if (hasClass(container, 'st-modal-activating')) {
+          return;
+        }
+        if (!hasClass(container, 'st-modal-open')) {
+          return;
+        }
 
         var modal = activeModal;
-        if ( ! modal ) { return ; }
-        if ( ! hasClass(modal._container, 'active') ) { return ; }
+        if (!modal) {
+          return;
+        }
+        if (!hasClass(modal._container, 'active')) {
+          return;
+        }
 
         var target = event.target;
-        if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
+        if (target.getAttribute('data-toggle') == 'open') {
+          return;
+        }
 
         // find whether target or ancestor is in _menu
-        while ( target && ! hasClass(target, 'st-pusher') ) {
-          if ( hasClass(target, 'st-modal') && hasClass(target, 'active') ) {
+        while (target && !hasClass(target, 'st-pusher')) {
+          if (hasClass(target, 'st-modal') && hasClass(target, 'active')) {
             return;
           }
           target = target.parentNode;
@@ -3418,26 +3222,25 @@ var Modal = Class.extend({
       });
     }
 
-    on(this._container.querySelector('h2 button'), 'click', function(event) {
+    on(this._container.querySelector('h2 button'), 'click', function (event) {
       event.preventDefault();
       self.deactivate();
     });
 
     // bind any actions
-    if ( this.options.actions ) {
-      for(var i in this.options.actions) {
+    if (this.options.actions) {
+      for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_id = '#action-' + this._id + '-' + i;
         var button = this._container.querySelector(button_id);
-        on(button, 'click', function(event) {
+        on(button, 'click', function (event) {
           action.callback(event);
         });
       }
     }
-
   },
 
-  deactivate: function() {
+  deactivate: function deactivate() {
     var self = this;
     var container = this._reader._container;
 
@@ -3446,19 +3249,19 @@ var Modal = Class.extend({
     activeModal = null;
   },
 
-  activate: function() {
+  activate: function activate() {
     var self = this;
     activeModal = this;
     addClass(self._reader._container, 'st-modal-activating');
     this._resize();
     addClass(this._reader._container, 'st-modal-open');
-    setTimeout(function() {
+    setTimeout(function () {
       addClass(self._container, 'active');
       removeClass(self._reader._container, 'st-modal-activating');
     }, 25);
   },
 
-  _resize: function() {
+  _resize: function _resize() {
     var container = this._reader._container;
     this._container.style.height = container.offsetHeight + 'px';
     this._container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
@@ -3466,7 +3269,7 @@ var Modal = Class.extend({
     var footer = this._container.querySelector('footer');
     var article = this._container.querySelector('article');
     var height = this._container.clientHeight - header.clientHeight;
-    if ( footer ) {
+    if (footer) {
       height -= footer.clientHeight;
     }
     article.style.height = height + 'px';
@@ -3476,7 +3279,7 @@ var Modal = Class.extend({
 });
 
 Reader.include({
-  modal: function (options) {
+  modal: function modal(options) {
     var modal = new Modal(options);
     return modal.addTo(this);
     // return this;
@@ -3487,12 +3290,12 @@ Reader.include({
 
 var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
+  defaultTemplate: '<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>',
 
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
@@ -3504,11 +3307,11 @@ var Contents = Control.extend({
       var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
     }
-    
+
     this._modal = this._reader.modal({
       template: '<ul></ul>',
       title: 'Contents',
@@ -3518,42 +3321,47 @@ var Contents = Control.extend({
     this._control = container.querySelector("[data-toggle=open]");
     container.style.position = 'relative';
 
-    on(this._control, 'click', function(event) {
+    on(this._control, 'click', function (event) {
       event.preventDefault();
       self._modal.activate();
     }, this);
 
-    on(this._modal._container, 'click', function(event) {
+    on(this._modal._container, 'click', function (event) {
       event.preventDefault();
       var target = event.target;
-      if ( target.tagName == 'A' ) {
+      if (target.tagName == 'A') {
         target = target.getAttribute('href');
         this._reader.gotoPage(target);
       }
       this._modal.deactivate();
     }, this);
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('update-contents', function (data) {
       var parent = self._modal._container.querySelector('ul');
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      while ( s.length ) {
+      var s = data.toc.filter(function (value) {
+        return value.parent == null;
+      }).map(function (value) {
+        return [value, 0, parent];
+      });
+      while (s.length) {
         var tuple = s.shift();
         var chapter = tuple[0];
         var tabindex = tuple[1];
         var parent = tuple[2];
 
         var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+        data.toc.filter(function (value) {
+          return value.parent == chapter.id;
+        }).reverse().forEach(function (chapter_) {
           s.unshift([chapter_, tabindex + 1, option]);
         });
       }
     });
 
-
     return container;
   },
 
-  _createOption(chapter, tabindex, parent) {
+  _createOption: function _createOption(chapter, tabindex, parent) {
 
     var option = create$1('li');
     var anchor = create$1('a', null, option);
@@ -3562,10 +3370,10 @@ var Contents = Control.extend({
     // option.textContent = tab + chapter.label;
     anchor.setAttribute('href', chapter.href);
 
-    if ( parent.tagName == 'LI' ) {
+    if (parent.tagName == 'LI') {
       // need to nest
       var tmp = parent.querySelector('ul');
-      if ( ! tmp ) {
+      if (!tmp) {
         tmp = create$1('ul', null, parent);
       }
       parent = tmp;
@@ -3575,17 +3383,18 @@ var Contents = Control.extend({
     return option;
   },
 
+
   EOT: true
 });
 
-var contents = function(options) {
+var contents = function contents(options) {
   return new Contents(options);
 };
 
 // Title + Chapter
 
 var Title = Control.extend({
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var className = this._className(),
         container = create$1('div', className),
@@ -3600,8 +3409,8 @@ var Title = Control.extend({
     this._divider.textContent = " / ";
     this._section = create$1('span', 'cozy-section', h1);
 
-    this._reader.on('update-section', function(data) {
-      if ( data && data.label ) {
+    this._reader.on('update-section', function (data) {
+      if (data && data.label) {
         self._section.textContent = data.label;
         setOpacity(self._section, 1.0);
         setOpacity(self._divider, 1.0);
@@ -3611,9 +3420,9 @@ var Title = Control.extend({
       }
     });
 
-    this._reader.on('update-title', function(data) {
+    this._reader.on('update-title', function (data) {
       console.log("UPDATE TITLE", data);
-      if ( data ) {
+      if (data) {
         self._title.textContent = data.title;
         setOpacity(self._section, 0);
         setOpacity(self._divider, 0);
@@ -3623,7 +3432,7 @@ var Title = Control.extend({
     return container;
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function _createButton(html, title, className, container, fn) {
     var link = create$1('a', className, container);
     link.innerHTML = html;
     link.href = '#';
@@ -3646,14 +3455,14 @@ var Title = Control.extend({
   EOT: true
 });
 
-var title = function(options) {
+var title = function title(options) {
   return new Title(options);
 };
 
 // Title + Chapter
 
 var PublicationMetadata = Control.extend({
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var className = this._className(),
         container = create$1('div', className),
@@ -3665,8 +3474,8 @@ var PublicationMetadata = Control.extend({
     this._publisher = create$1('div', 'cozy-publisher', container);
     this._rights = create$1('div', 'cozy-rights', container);
 
-    this._reader.on('update-title', function(data) {
-      if ( data ) {
+    this._reader.on('update-title', function (data) {
+      if (data) {
         self._publisher.textContent = data.publisher;
         self._rights.textContent = data.rights;
       }
@@ -3675,7 +3484,7 @@ var PublicationMetadata = Control.extend({
     return container;
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function _createButton(html, title, className, container, fn) {
     var link = create$1('a', className, container);
     link.innerHTML = html;
     link.href = '#';
@@ -3698,7 +3507,7 @@ var PublicationMetadata = Control.extend({
   EOT: true
 });
 
-var publicationMetadata = function(options) {
+var publicationMetadata = function publicationMetadata(options) {
   return new PublicationMetadata(options);
 };
 
@@ -3708,27 +3517,26 @@ var Preferences = Control.extend({
     html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
   },
 
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var className = this._className('preferences'),
         container = create$1('div', className),
         options = this.options;
 
     this._activated = false;
-    this._control = this._createButton(options.html || options.label, options.label,
-            className, container, this._action);
+    this._control = this._createButton(options.html || options.label, options.label, className, container, this._action);
 
     this._createPanel();
 
     return container;
   },
 
-  _action: function() {
+  _action: function _action() {
     var self = this;
     self._modal.activate();
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function _createButton(html, title, className, container, fn) {
     var link = create$1('button', className, container);
     link.innerHTML = html;
     link.title = title;
@@ -3746,39 +3554,20 @@ var Preferences = Control.extend({
     return link;
   },
 
-  _createPanel: function() {
+  _createPanel: function _createPanel() {
     var self = this;
-    var template = `<form>
-      <fieldset>
-        <legend>Text Size</legend>
-        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>
-        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>
-        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>
-      </fieldset>          
-      <fieldset>
-        <legend>Text Display</legend>
-        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>
-        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
-      </fieldset>
-      <fieldset>
-        <legend>Theme</legend>
-        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
-        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
-      </fieldset>
-    </form>`;
+    var template = '<form>\n      <fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>\n      <fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>\n      </fieldset>\n    </form>';
 
     this._modal = this._reader.modal({
       template: template,
       title: 'Preferences',
       className: { article: 'cozy-preferences-modal' },
-      actions: [
-        {
-          label: 'Save Changes',
-          callback: function(event) {
-            self._updatePreferences(event);
-          }
+      actions: [{
+        label: 'Save Changes',
+        callback: function callback(event) {
+          self._updatePreferences(event);
         }
-      ],
+      }],
       region: 'right'
     });
 
@@ -3788,23 +3577,23 @@ var Preferences = Control.extend({
     window.xmodal = this._modal;
   },
 
-  _initializeForm: function() {
+  _initializeForm: function _initializeForm() {
     var input, input_id;
     /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
-    input_id = "preferences-input-" + ( this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc' );
+    input_id = "preferences-input-" + (this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc');
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    input_id = "preferences-input-size-" + ( this._reader.options.text_size || 'auto' );
+    input_id = "preferences-input-size-" + (this._reader.options.text_size || 'auto');
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'light' );
+    input_id = "preferences-input-theme-" + (this._reader.options.theme || 'light');
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
   },
 
-  _updatePreferences: function(event) {
+  _updatePreferences: function _updatePreferences(event) {
     var self = this;
     event.preventDefault();
 
@@ -3816,7 +3605,7 @@ var Preferences = Control.extend({
     input = this._form.querySelector("input[name='theme']:checked");
     options.theme = input.value;
     this._modal.deactivate();
-    setTimeout(function() {
+    setTimeout(function () {
       self._reader.reopen(options);
     }, 100);
   },
@@ -3824,22 +3613,21 @@ var Preferences = Control.extend({
   EOT: true
 });
 
-var preferences = function(options) {
+var preferences = function preferences(options) {
   return new Preferences(options);
 };
 
 var Widget = Control.extend({
 
-
   options: {
-      // @option region: String = 'topright'
-      // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-      // `'topright'`, `'bottomleft'` or `'bottomright'`
+    // @option region: String = 'topright'
+    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+    // `'topright'`, `'bottomleft'` or `'bottomright'`
   },
 
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var container = this._container;
-    if ( container ) {
+    if (container) {
       // NOOP
     } else {
 
@@ -3850,10 +3638,9 @@ var Widget = Control.extend({
 
       var template = this.options.template || this.defaultTemplate;
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
-
     }
 
     this._onAddExtra(container);
@@ -3864,15 +3651,17 @@ var Widget = Control.extend({
     return container;
   },
 
-  _updateTemplate: function(container) {
+  _updateTemplate: function _updateTemplate(container) {
     var data = this.data();
-    for(var slot in data) {
-      if ( data.hasOwnProperty(slot) ) {
+    for (var slot in data) {
+      if (data.hasOwnProperty(slot)) {
         var value = data[slot];
-        if ( typeof(value) == "function" ) { value = value(); }
-        var node = container.querySelector(`[data-slot=${slot}]`);
-        if ( node ) {
-          if ( node.hasAttribute('value') ) {
+        if (typeof value == "function") {
+          value = value();
+        }
+        var node = container.querySelector('[data-slot=' + slot + ']');
+        if (node) {
+          if (node.hasAttribute('value')) {
             node.setAttribute('value', value);
           } else {
             node.innerHTML = value;
@@ -3882,26 +3671,27 @@ var Widget = Control.extend({
     }
   },
 
-  _updateClass: function(container) {
-    if ( this.options.className ) {
+  _updateClass: function _updateClass(container) {
+    if (this.options.className) {
       addClass(container, this.options.className);
     }
   },
 
-  _onAddExtra: function() { },
+  _onAddExtra: function _onAddExtra() {},
 
-  _bindEvents: function(container) {
+  _bindEvents: function _bindEvents(container) {
     var control$$1 = container.querySelector("[data-toggle=button]");
-    if ( ! control$$1 ) { return ; }
+    if (!control$$1) {
+      return;
+    }
     disableClickPropagation(control$$1);
     on(control$$1, 'click', stop);
     on(control$$1, 'click', this._action, this);
   },
 
-  _action: function() {
-  },
+  _action: function _action() {},
 
-  data: function() {
+  data: function data() {
     return this.options.data || {};
   },
 
@@ -3909,9 +3699,9 @@ var Widget = Control.extend({
 });
 
 Widget.Button = Widget.extend({
-  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-  _action: function() {
+  _action: function _action() {
     this.options.onClick(this, this._reader);
   },
 
@@ -3919,47 +3709,50 @@ Widget.Button = Widget.extend({
 });
 
 Widget.Panel = Widget.extend({
-  defaultTemplate: `<div><span data-slot="text"></span></div>`,
-
+  defaultTemplate: '<div><span data-slot="text"></span></div>',
 
   EOT: true
 });
 
 Widget.Toggle = Widget.extend({
-  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-  _onAddExtra: function(container) {
+  _onAddExtra: function _onAddExtra(container) {
     this.state(this.options.states[0].stateName, container);
 
     return container;
   },
 
-  state: function(stateName, container) {
+  state: function state(stateName, container) {
     container = container || this._container;
     this._resetState(container);
-    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+    this._state = this.options.states.filter(function (s) {
+      return s.stateName == stateName;
+    })[0];
     this._updateClass(container);
     this._updateTemplate(container);
   },
 
-  _resetState: function(container) {
-    if ( ! this._state ) { return; }
-    if ( this._state.className ) {
+  _resetState: function _resetState(container) {
+    if (!this._state) {
+      return;
+    }
+    if (this._state.className) {
       removeClass(container, this._state.className);
     }
   },
 
-  _updateClass: function(container) {
-    if ( this._state.className ) {
+  _updateClass: function _updateClass(container) {
+    if (this._state.className) {
       addClass(container, this._state.className);
     }
   },
 
-  _action: function() {
+  _action: function _action() {
     this._state.onClick(this, this._reader);
   },
 
-  data: function() {
+  data: function data() {
     return this._state.data || {};
   },
 
@@ -3971,9 +3764,15 @@ Widget.Toggle = Widget.extend({
 // }
 
 var widget = {
-  button: function(options) { return new Widget.Button(options); },
-  panel: function(options) { return new Widget.Panel(options); },
-  toggle: function(options) { return new Widget.Toggle(options); }
+  button: function button(options) {
+    return new Widget.Button(options);
+  },
+  panel: function panel(options) {
+    return new Widget.Panel(options);
+  },
+  toggle: function toggle(options) {
+    return new Widget.Toggle(options);
+  }
 };
 
 var parseFullName = function parseFullName(
@@ -4329,13 +4128,12 @@ var Citation = Control.extend({
     html: '<span>Get Citation</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-citation" data-toggle="open">Get Citation</button>`,
+  defaultTemplate: '<button class="button--sm cozy-citation" data-toggle="open">Get Citation</button>',
 
-
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
@@ -4347,18 +4145,17 @@ var Citation = Control.extend({
       var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
     }
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('update-contents', function (data) {
       self._createPanel();
     });
 
-
     this._control = container.querySelector("[data-toggle=open]");
-    on(this._control, 'click', function(event) {
+    on(this._control, 'click', function (event) {
       event.preventDefault();
       self._modal.activate();
     }, this);
@@ -4366,12 +4163,12 @@ var Citation = Control.extend({
     return container;
   },
 
-  _action: function() {
+  _action: function _action() {
     var self = this;
     self._modal.activate();
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function _createButton(html, title, className, container, fn) {
     var link = create$1('button', className, container);
     link.innerHTML = html;
     link.title = title;
@@ -4386,54 +4183,43 @@ var Citation = Control.extend({
     return link;
   },
 
-  _createPanel: function() {
+  _createPanel: function _createPanel() {
     var self = this;
 
-    var template = `<form>
-      <fieldset>
-        <legend>Select Citation Format</legend>
-        <label><input name="format" type="radio" value="MLA" checked="checked" /> MLA</label>
-        <label><input name="format" type="radio" value="APA" /> APA</label>
-        <label><input name="format" type="radio" value="Chicago" /> Chicago</label>
-      </fieldset>
-    </form>
-    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>
-    <div class="alert alert-info" id="message" style="display: none"></div>`;
+    var template = '<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n        <label><input name="format" type="radio" value="MLA" checked="checked" /> MLA</label>\n        <label><input name="format" type="radio" value="APA" /> APA</label>\n        <label><input name="format" type="radio" value="Chicago" /> Chicago</label>\n      </fieldset>\n    </form>\n    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>\n    <div class="alert alert-info" id="message" style="display: none"></div>';
 
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
       className: { article: 'cozy-preferences-modal' },
-      actions: [
-        {
-          label: 'Copy Citation',
-          callback: function(event) {
-            document.designMode = "on";
-            var formatted = self._modal._container.querySelector("#formatted");
-            // formatted.style.backgroundColor = 'rgba(255,255,255,1.0)';
+      actions: [{
+        label: 'Copy Citation',
+        callback: function callback(event) {
+          document.designMode = "on";
+          var formatted = self._modal._container.querySelector("#formatted");
+          // formatted.style.backgroundColor = 'rgba(255,255,255,1.0)';
 
-            var range = document.createRange();
-            range.selectNode(formatted);
-            var sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
+          var range = document.createRange();
+          range.selectNode(formatted);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
 
-            // formatted.select();
+          // formatted.select();
 
-            try {
-              var flag = document.execCommand('copy');
-            } catch(err) {
-              console.log("AHOY COPY FAILED", err);
-            }
-
-            self._message.innerHTML = 'Success! Citation copied to your clipboard.';
-            self._message.style.display = 'block';
-            sel.removeAllRanges();
-            range.detach();
-            document.designMode = "off";
+          try {
+            var flag = document.execCommand('copy');
+          } catch (err) {
+            console.log("AHOY COPY FAILED", err);
           }
+
+          self._message.innerHTML = 'Success! Citation copied to your clipboard.';
+          self._message.style.display = 'block';
+          sel.removeAllRanges();
+          range.detach();
+          document.designMode = "off";
         }
-      ],
+      }],
       region: 'left',
       fraction: 1.0
     });
@@ -4441,9 +4227,9 @@ var Citation = Control.extend({
     this._form = this._modal._container.querySelector('form');
     this._formatted = this._modal._container.querySelector("#formatted");
     this._message = this._modal._container.querySelector("#message");
-    on(this._form, 'change', function(event) {
+    on(this._form, 'change', function (event) {
       var target = event.target;
-      if ( target.tagName == 'INPUT' ) {
+      if (target.tagName == 'INPUT') {
         this._initializeForm();
       }
     }, this);
@@ -4451,7 +4237,7 @@ var Citation = Control.extend({
     this._initializeForm();
   },
 
-  _initializeForm: function() {
+  _initializeForm: function _initializeForm() {
     var formatted = this._formatCitation();
     this._formatted.innerHTML = formatted;
     // this._formatted.value = formatted;
@@ -4459,8 +4245,8 @@ var Citation = Control.extend({
     this._message.innerHTML = '';
   },
 
-  _formatCitation: function(format) {
-    if ( format == null ) {
+  _formatCitation: function _formatCitation(format) {
+    if (format == null) {
       var selected = this._form.querySelector("input:checked");
       format = selected.value;
     }
@@ -4468,23 +4254,31 @@ var Citation = Control.extend({
     return this[fn](this._reader.metadata);
   },
 
-  _formatCitationAsMLA: function(metadata) {
+  _formatCitationAsMLA: function _formatCitationAsMLA(metadata) {
 
-    var _formatNames = function(names, suffix) {
+    var _formatNames = function _formatNames(names, suffix) {
       var name = names.shift();
       var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( names.length == 1 ) {
+      if (name.first) {
+        tmp += ", " + name.first;
+      }
+      if (name.middle) {
+        tmp += " " + name.middle;
+      }
+      if (names.length == 1) {
         name = names.shift();
         tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
+        if (name.first) {
+          tmp += name.first + " ";
+        }
+        if (name.middle) {
+          tmp += name.middle + " ";
+        }
         tmp += name.last;
-      } else if ( names.length > 1 ) {
+      } else if (names.length > 1) {
         tmp += ", et al";
       }
-      if ( suffix ) {
+      if (suffix) {
         tmp += suffix;
       }
       return tmp + ".";
@@ -4493,47 +4287,57 @@ var Citation = Control.extend({
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
     var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
+    if (creator.length) {
       parts.push(_formatNames(creator));
     }
-    if ( editor.length ) {
+    if (editor.length) {
       parts.push(_formatNames(editor, editor.length > 1 ? ', editors' : ', editor'));
     }
-    if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.publisher ) {
+    if (metadata.title) {
+      parts.push("<em>" + metadata.title + "</em>" + ".");
+    }
+    if (metadata.publisher) {
       var part = metadata.publisher;
-      if ( metadata.pubdate ) {
+      if (metadata.pubdate) {
         var d = new Date(metadata.pubdate);
-        part += `, ${d.getYear() + 1900}`;
+        part += ', ' + (d.getYear() + 1900);
       }
-      if ( metadata.number_of_volumes ) {
-        part += `. ${metadata.number_of_volumes} vols`;
+      if (metadata.number_of_volumes) {
+        part += '. ' + metadata.number_of_volumes + ' vols';
       }
-      if ( metadata.doi ) {
-        part += `, ${metadata.doi}`;
+      if (metadata.doi) {
+        part += ', ' + metadata.doi;
       }
       parts.push(part + '.');
     }
     return parts.join(' ');
   },
 
-  _formatCitationAsAPA: function(metadata) {
+  _formatCitationAsAPA: function _formatCitationAsAPA(metadata) {
 
-    var _formatNames = function(names, suffix) {
+    var _formatNames = function _formatNames(names, suffix) {
       var name = names.shift();
       var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-      if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      if ( names.length == 1 ) {
+      if (name.first) {
+        tmp += ", " + name.first.substr(0, 1) + ".";
+      }
+      if (name.middle) {
+        tmp += name.middle.substr(0, 1) + ".";
+      }
+      if (names.length == 1) {
         name = names.shift();
         tmp += ", &amp; ";
         tmp += name.last;
-        if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-        if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      } else if ( names.length > 1 ) {
+        if (name.first) {
+          tmp += ", " + name.first.substr(0, 1) + ".";
+        }
+        if (name.middle) {
+          tmp += name.middle.substr(0, 1) + ".";
+        }
+      } else if (names.length > 1) {
         tmp += ", et al.";
       }
-      if ( suffix ) {
+      if (suffix) {
         tmp += suffix + ".";
       }
       return tmp;
@@ -4542,53 +4346,61 @@ var Citation = Control.extend({
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
     var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
+    if (creator.length) {
       parts.push(_formatNames(creator));
     }
-    if ( editor.length ) {
+    if (editor.length) {
       parts.push(_formatNames(editor, editor.length > 1 ? ' (Eds.)' : ' (Ed.)'));
     }
-    if ( metadata.pubdate ) {
+    if (metadata.pubdate) {
       var d = new Date(metadata.pubdate);
-      parts.push("(" + ( d.getYear() + 1900 ) + ").");
+      parts.push("(" + (d.getYear() + 1900) + ").");
     }
-    if ( metadata.title ) {
+    if (metadata.title) {
       var part = "<em>" + metadata.title + "</em>";
-      if ( metadata.number_of_volumes ) {
-        part += ` (Vols. 1-${metadata.number_of_volumes})`;
+      if (metadata.number_of_volumes) {
+        part += ' (Vols. 1-' + metadata.number_of_volumes + ')';
       }
       part += ".";
       parts.push(part);
     }
-    if ( metadata.location ) {
+    if (metadata.location) {
       parts.push(metadata.location + ":");
     }
-    if ( metadata.publisher ) {
+    if (metadata.publisher) {
       parts.push(metadata.publisher + ".");
     }
-    if ( metadata.doi ) {
+    if (metadata.doi) {
       parts.push(metadata.doi + ".");
     }
     return parts.join(' ');
   },
 
-  _formatCitationAsChicago: function(metadata) {
+  _formatCitationAsChicago: function _formatCitationAsChicago(metadata) {
 
-    var _formatNames = function(names, suffix) {
+    var _formatNames = function _formatNames(names, suffix) {
       var name = names.shift();
       var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( names.length == 1 ) {
+      if (name.first) {
+        tmp += ", " + name.first;
+      }
+      if (name.middle) {
+        tmp += " " + name.middle;
+      }
+      if (names.length == 1) {
         name = names.shift();
         tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
+        if (name.first) {
+          tmp += name.first + " ";
+        }
+        if (name.middle) {
+          tmp += name.middle + " ";
+        }
         tmp += name.last;
-      } else if ( names.length > 1 ) {
+      } else if (names.length > 1) {
         tmp += ", et al";
       }
-      if ( suffix ) {
+      if (suffix) {
         tmp += suffix;
       }
       tmp += ".";
@@ -4598,53 +4410,55 @@ var Citation = Control.extend({
     var parts = [];
     var creator = this._parseCreator(metadata.creator);
     var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
+    if (creator.length) {
       parts.push(_formatNames(creator));
     }
-    if ( editor.length ) {
+    if (editor.length) {
       parts.push(_formatNames(editor, editor.length > 1 ? ', eds' : ', ed'));
     }
-    if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.location ) {
+    if (metadata.title) {
+      parts.push("<em>" + metadata.title + "</em>" + ".");
+    }
+    if (metadata.location) {
       parts.push(metadata.location + ":");
     }
-    if ( metadata.publisher ) {
+    if (metadata.publisher) {
       var part = metadata.publisher;
-      if ( metadata.pubdate ) {
+      if (metadata.pubdate) {
         var d = new Date(metadata.pubdate);
-        part += `, ${d.getYear() + 1900}`;
+        part += ', ' + (d.getYear() + 1900);
       }
       parts.push(part + '.');
     }
-    if ( metadata.doi ) {
+    if (metadata.doi) {
       parts.push(metadata.doi + ".");
     }
     return parts.join(' ');
   },
 
   // possibly more magic than is good for the soul
-  _parseCreator: function(creator) {
+  _parseCreator: function _parseCreator(creator) {
     var retval = [];
-    if ( creator ) {
-      if ( creator.constructor != Array ) {
+    if (creator) {
+      if (creator.constructor != Array) {
         // make an array?
         creator = creator.split("; ");
       }
-      for(var i in creator) {
+      for (var i in creator) {
         retval.push(parseFullName(creator[i]));
       }
     }
     return retval;
   },
 
-  _parseEditor: function(editor) {
+  _parseEditor: function _parseEditor(editor) {
     var retval = [];
-    if ( editor ) {
-      if ( editor.constructor != Array ) {
+    if (editor) {
+      if (editor.constructor != Array) {
         // make an array?
         editor = editor.split("; ");
       }
-      for(var i in editor) {
+      for (var i in editor) {
         retval.push(parseFullName(editor[i]));
       }
     }
@@ -4654,7 +4468,7 @@ var Citation = Control.extend({
   EOT: true
 });
 
-var citation = function(options) {
+var citation = function citation(options) {
   return new Citation(options);
 };
 
@@ -4664,13 +4478,12 @@ var CitationOptions = Control.extend({
     html: '<span>Get Citation</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-citation" data-toggle="open">Get Citation</button>`,
+  defaultTemplate: '<button class="button--sm cozy-citation" data-toggle="open">Get Citation</button>',
 
-
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
@@ -4682,18 +4495,17 @@ var CitationOptions = Control.extend({
       var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
     }
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('update-contents', function (data) {
       self._createPanel();
     });
 
-
     this._control = container.querySelector("[data-toggle=open]");
-    on(this._control, 'click', function(event) {
+    on(this._control, 'click', function (event) {
       event.preventDefault();
       self._modal.activate();
     }, this);
@@ -4701,12 +4513,12 @@ var CitationOptions = Control.extend({
     return container;
   },
 
-  _action: function() {
+  _action: function _action() {
     var self = this;
     self._modal.activate();
   },
 
-  _createButton: function (html, title, className, container, fn) {
+  _createButton: function _createButton(html, title, className, container, fn) {
     var link = create$1('button', className, container);
     link.innerHTML = html;
     link.title = title;
@@ -4721,63 +4533,55 @@ var CitationOptions = Control.extend({
     return link;
   },
 
-  _createPanel: function() {
+  _createPanel: function _createPanel() {
     var self = this;
 
-    var template = `<form>
-      <fieldset>
-        <legend>Select Citation Format</legend>
-      </fieldset>
-    </form>
-    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>
-    <div class="alert alert-info" id="message" style="display: none"></div>`;
+    var template = '<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n      </fieldset>\n    </form>\n    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>\n    <div class="alert alert-info" id="message" style="display: none"></div>';
 
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
       className: { article: 'cozy-preferences-modal' },
-      actions: [
-        {
-          label: 'Copy Citation',
-          callback: function(event) {
-            document.designMode = "on";
-            var formatted = self._modal._container.querySelector("#formatted");
+      actions: [{
+        label: 'Copy Citation',
+        callback: function callback(event) {
+          document.designMode = "on";
+          var formatted = self._modal._container.querySelector("#formatted");
 
-            var range = document.createRange();
-            range.selectNode(formatted);
-            var sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
+          var range = document.createRange();
+          range.selectNode(formatted);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
 
-            // formatted.select();
+          // formatted.select();
 
-            try {
-              var flag = document.execCommand('copy');
-            } catch(err) {
-              console.log("AHOY COPY FAILED", err);
-            }
-
-            self._message.innerHTML = 'Success! Citation copied to your clipboard.';
-            self._message.style.display = 'block';
-            sel.removeAllRanges();
-            range.detach();
-            document.designMode = "off";
+          try {
+            var flag = document.execCommand('copy');
+          } catch (err) {
+            console.log("AHOY COPY FAILED", err);
           }
+
+          self._message.innerHTML = 'Success! Citation copied to your clipboard.';
+          self._message.style.display = 'block';
+          sel.removeAllRanges();
+          range.detach();
+          document.designMode = "off";
         }
-      ],
+      }],
       region: 'left',
       fraction: 1.0
     });
 
     this._form = this._modal._container.querySelector('form');
     var fieldset = this._form.querySelector('fieldset');
-    this._reader.metadata.citations.forEach(function(citation, index) {
+    this._reader.metadata.citations.forEach(function (citation, index) {
       var label = create$1('label', null, fieldset);
       var input = create$1('input', null, label);
       input.setAttribute('name', 'format');
       input.setAttribute('value', citation.format);
       input.setAttribute('type', 'radio');
-      if ( index == 0 ) {
+      if (index == 0) {
         input.setAttribute('checked', 'checked');
       }
       var text = document.createTextNode(" " + citation.format);
@@ -4787,9 +4591,9 @@ var CitationOptions = Control.extend({
 
     this._formatted = this._modal._container.querySelector("#formatted");
     this._message = this._modal._container.querySelector("#message");
-    on(this._form, 'change', function(event) {
+    on(this._form, 'change', function (event) {
       var target = event.target;
-      if ( target.tagName == 'INPUT' ) {
+      if (target.tagName == 'INPUT') {
         this._initializeForm();
       }
     }, this);
@@ -4797,15 +4601,15 @@ var CitationOptions = Control.extend({
     this._initializeForm();
   },
 
-  _initializeForm: function() {
+  _initializeForm: function _initializeForm() {
     var formatted = this._formatCitation();
     this._formatted.innerHTML = formatted;
     this._message.style.display = 'none';
     this._message.innerHTML = '';
   },
 
-  _formatCitation: function(format) {
-    if ( format == null ) {
+  _formatCitation: function _formatCitation(format) {
+    if (format == null) {
       var selected = this._form.querySelector("input:checked");
       format = selected.value;
     }
@@ -4817,7 +4621,7 @@ var CitationOptions = Control.extend({
   EOT: true
 });
 
-var citationOptions = function(options) {
+var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
@@ -4830,12 +4634,12 @@ var BibliographicInformation = Control.extend({
     html: '<span class="oi" data-glyph="info">Info</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open"> Info</button>`,
+  defaultTemplate: '<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open"> Info</button>',
 
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
@@ -4847,18 +4651,17 @@ var BibliographicInformation = Control.extend({
       var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
     }
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('update-contents', function (data) {
       self._createPanel();
     });
 
-
     this._control = container.querySelector("[data-toggle=open]");
-    on(this._control, 'click', function(event) {
+    on(this._control, 'click', function (event) {
       event.preventDefault();
       self._modal.activate();
     }, this);
@@ -4866,11 +4669,10 @@ var BibliographicInformation = Control.extend({
     return container;
   },
 
-  _createPanel: function() {
+  _createPanel: function _createPanel() {
     var self = this;
 
-    var template = `<dl>
-    </dl>`;
+    var template = '<dl>\n    </dl>';
 
     this._modal = this._reader.modal({
       template: template,
@@ -4882,16 +4684,7 @@ var BibliographicInformation = Control.extend({
 
     var dl = this._modal._container.querySelector('dl');
 
-    var metadata_fields = [
-      [ 'title', 'Title' ],
-      [ 'creator', 'Author' ],
-      [ 'pubdate', 'Publication Date' ],
-      [ 'modified_date', 'Modified Date' ],
-      [ 'publisher', 'Publisher' ],
-      [ 'rights', 'Rights' ],
-      [ 'doi', 'DOI' ],
-      [ 'description', 'Description' ],
-    ];
+    var metadata_fields = [['title', 'Title'], ['creator', 'Author'], ['pubdate', 'Publication Date'], ['modified_date', 'Modified Date'], ['publisher', 'Publisher'], ['rights', 'Rights'], ['doi', 'DOI'], ['description', 'Description']];
 
     var metadata_fields_seen = {};
 
@@ -4901,16 +4694,16 @@ var BibliographicInformation = Control.extend({
       year: 'numeric', month: '2-digit', day: '2-digit'
     });
 
-    for(var idx in metadata_fields) {
+    for (var idx in metadata_fields) {
       var key = metadata_fields[idx][0];
       var label = metadata_fields[idx][1];
-      if ( metadata[key] ) {
+      if (metadata[key]) {
         metadata_fields_seen[key] = true;
         var dt = create$1('dt', 'cozy-bib-info-label', dl);
         dt.innerHTML = label;
         var dd = create$1('dd', 'cozy-bib-info-value cozy-bib-info-value-' + key, dl);
         var value = metadata[key];
-        if ( key == 'pubdate' || key == 'modified_date' ) {
+        if (key == 'pubdate' || key == 'modified_date') {
           var d = new Date(value);
           value = dateFormat.format(d);
           // value = d.toISOString().slice(0,10); // for YYYY-MM-DD
@@ -4918,13 +4711,12 @@ var BibliographicInformation = Control.extend({
         dd.innerHTML = value;
       }
     }
-
   },
 
   EOT: true
 });
 
-var bibliographicInformation = function(options) {
+var bibliographicInformation = function bibliographicInformation(options) {
   return new BibliographicInformation(options);
 };
 
@@ -4934,13 +4726,12 @@ var Download = Control.extend({
     html: '<span>Download Book</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>`,
+  defaultTemplate: '<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>',
 
-
-  onAdd: function(reader) {
+  onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    if ( container ) {
+    if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
@@ -4952,18 +4743,17 @@ var Download = Control.extend({
       var template = this.options.template || this.defaultTemplate;
 
       var body = new DOMParser().parseFromString(template, "text/html").body;
-      while ( body.children.length ) {
+      while (body.children.length) {
         container.appendChild(body.children[0]);
       }
     }
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('update-contents', function (data) {
       self._createPanel();
     });
 
-
     this._control = container.querySelector("[data-toggle=open]");
-    on(this._control, 'click', function(event) {
+    on(this._control, 'click', function (event) {
       event.preventDefault();
       self._modal.activate();
     }, this);
@@ -4971,68 +4761,60 @@ var Download = Control.extend({
     return container;
   },
 
-  _createPanel: function() {
+  _createPanel: function _createPanel() {
     var self = this;
 
-    var template = `<form>
-      <fieldset>
-        <legend>Choose File Format</legend>
-      </fieldset>
-    </form>`;
+    var template = '<form>\n      <fieldset>\n        <legend>Choose File Format</legend>\n      </fieldset>\n    </form>';
 
     this._modal = this._reader.modal({
       template: template,
       title: 'Download Book',
       className: { article: 'cozy-preferences-modal' },
-      actions: [
-        {
-          label: 'Download',
-          callback: function(event) {
-            var selected = self._form.querySelector("input:checked");
-            var href = selected.getAttribute('data-href');
-            self._configureDownloadForm(href);
-            self._form.submit();
-          }
+      actions: [{
+        label: 'Download',
+        callback: function callback(event) {
+          var selected = self._form.querySelector("input:checked");
+          var href = selected.getAttribute('data-href');
+          self._configureDownloadForm(href);
+          self._form.submit();
         }
-      ],
+      }],
       region: 'left',
       fraction: 1.0
     });
 
-    this._form = this._modal._container.querySelector('form');    
+    this._form = this._modal._container.querySelector('form');
     var fieldset = this._form.querySelector('fieldset');
-    this._reader.options.download_links.forEach(function(link, index) {
+    this._reader.options.download_links.forEach(function (link, index) {
       var label = create$1('label', null, fieldset);
       var input = create$1('input', null, label);
       input.setAttribute('name', 'format');
       input.setAttribute('value', link.format);
       input.setAttribute('data-href', link.href);
       input.setAttribute('type', 'radio');
-      if ( index == 0 ) {
+      if (index == 0) {
         input.setAttribute('checked', 'checked');
       }
       var text = link.format;
-      if ( link.size ) {
+      if (link.size) {
         text += " (" + link.size + ")";
       }
       var text = document.createTextNode(" " + text);
       label.appendChild(text);
     });
-
   },
 
-  _configureDownloadForm: function(href) {
+  _configureDownloadForm: function _configureDownloadForm(href) {
     var self = this;
     self._form.setAttribute('method', 'GET');
     self._form.setAttribute('action', href);
     self._form.setAttribute('target', '_blank');
   },
 
-
   EOT: true
 });
 
-var download = function(options) {
+var download = function download(options) {
   return new Download(options);
 };
 
@@ -5075,28 +4857,27 @@ control.bibliographicInformation = bibliographicInformation;
 Control.Download = Download;
 control.download = download;
 
-var Bus = Evented.extend({
-});
+var Bus = Evented.extend({});
 
 var instance;
-var bus = function() {
-  return instance || ( instance = new Bus() );
+var bus = function bus() {
+  return instance || (instance = new Bus());
 };
 
-var Mixin = {Events: Evented.prototype};
+var Mixin = { Events: Evented.prototype };
 
 var ePub = window.ePub;
 
 Reader.EpubJS = Reader.extend({
 
-  initialize: function(id, options) {
+  initialize: function initialize(id, options) {
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function(callback) {
+  open: function open(callback) {
     var self = this;
     this._book = ePub(this.options.href);
-    this._book.loaded.navigation.then(function(toc) {
+    this._book.loaded.navigation.then(function (toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
       self.fire('update-contents', toc);
@@ -5105,7 +4886,7 @@ Reader.EpubJS = Reader.extend({
     this._book.ready.then(callback);
   },
 
-  draw: function(target, callback) {
+  draw: function draw(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
 
@@ -5117,8 +4898,8 @@ Reader.EpubJS = Reader.extend({
     this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
 
     // this.settings.width = '100%';
-    
-    if ( this.options.flow == 'auto' ) {
+
+    if (this.options.flow == 'auto') {
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
@@ -5129,58 +4910,62 @@ Reader.EpubJS = Reader.extend({
 
     // start the rendition after all the epub parts 
     // have been loaded
-    this._book.ready.then(function() {
+    this._book.ready.then(function () {
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
       self._bindEvents();
       self._drawn = true;
 
-      if ( target && target.start ) { target = target.start; }
-      self._rendition.display(target).then(function() {
-        if ( callback ) { callback(); }
+      if (target && target.start) {
+        target = target.start;
+      }
+      self._rendition.display(target).then(function () {
+        if (callback) {
+          callback();
+        }
       });
     });
   },
 
-  _navigate: function(promise) {
+  _navigate: function _navigate(promise) {
     var self = this;
-    var t = setTimeout(function() {
+    var t = setTimeout(function () {
       self._panes['loader'].style.display = 'block';
     }, 100);
     // promise.call(this._rendition).then(function() {
-    promise.then(function() {
+    promise.then(function () {
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
-    });    
+    });
   },
 
-  next: function() {
+  next: function next() {
     var self = this;
     self._navigate(this._rendition.next());
   },
 
-  prev: function() {
+  prev: function prev() {
     this._navigate(this._rendition.prev());
   },
 
-  first: function() {
+  first: function first() {
     this._navigate(this._rendition.display(0));
   },
 
-  last: function() {
+  last: function last() {
     var self = this;
     var target = this._book.spine.length - 1;
     this._navigate(this._rendition.display(target));
   },
 
-  gotoPage: function(target) {
-    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
-      while ( target.substr(0, 3) == '../' ) {
+  gotoPage: function gotoPage(target) {
+    if (typeof target == "string" && target.substr(0, 3) == '../') {
+      while (target.substr(0, 3) == '../') {
         target = target.substr(3);
       }
     }
-    if ( typeof(target) == "string" ) {
-      if ( ! this._book.spine.spineByHref[target] ) {
-        if ( this._book.spine.spineByHref["Text/" + target] ) {
+    if (typeof target == "string") {
+      if (!this._book.spine.spineByHref[target]) {
+        if (this._book.spine.spineByHref["Text/" + target]) {
           target = "Text/" + target;
         }
       }
@@ -5188,67 +4973,67 @@ Reader.EpubJS = Reader.extend({
     this._navigate(this._rendition.display(target));
   },
 
-  destroy: function() {
-    if ( this._rendition ) {
+  destroy: function destroy() {
+    if (this._rendition) {
       try {
         this._rendition.destroy();
-      } catch(e) {}
+      } catch (e) {}
     }
     this._rendition = null;
     this._drawn = false;
   },
 
-  currentLocation: function() {
-    if ( this._rendition && this._rendition.manager ) { 
+  currentLocation: function currentLocation() {
+    if (this._rendition && this._rendition.manager) {
       this._cached_location = this._rendition.currentLocation();
     }
     return this._cached_location;
   },
 
-  _bindEvents: function() {
+  _bindEvents: function _bindEvents() {
     var self = this;
 
     // add a stylesheet to stop images from breaking their columns
     var add_max_img_styles = false;
-    if ( this._book.package.metadata.layout == 'pre-paginated' ) {
+    if (this._book.package.metadata.layout == 'pre-paginated') {
       // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
+    } else if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
       add_max_img_styles = true;
     }
 
     var custom_stylesheet_rules = [];
 
-    if ( add_max_img_styles ) {
+    if (add_max_img_styles) {
       // WHY IN HEAVENS NAME?
       var style = window.getComputedStyle(this._panes['book']);
       var height = parseInt(style.getPropertyValue('height'));
       height -= parseInt(style.getPropertyValue('padding-top'));
       height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]]);
+      custom_stylesheet_rules.push(['img', ['max-height', height + 'px'], ['max-width', '100%'], ['height', 'auto']]);
     }
 
-    if ( this.options.text_size == 'large' ) {
+    if (this.options.text_size == 'large') {
       this._rendition.themes.fontSize(this.options.fontSizeLarge);
     }
-    if ( this.options.text_size == 'small' ) {
+    if (this.options.text_size == 'small') {
       this._rendition.themes.fontSize(this.options.fontSizeSmall);
     }
-    if ( this.options.theme == 'dark' ) {
+    if (this.options.theme == 'dark') {
       addClass(this._container, 'cozy-theme-dark');
-      custom_stylesheet_rules.push([ 'img', [ 'filter', 'invert(100%)' ] ]);
+      custom_stylesheet_rules.push(['img', ['filter', 'invert(100%)']]);
       // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
       // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
     } else {
       removeClass(this._container, 'cozy-theme-dark');
     }
 
-    if ( custom_stylesheet_rules.length ) {
-      this._rendition.hooks.content.register(function(view) {
+    if (custom_stylesheet_rules.length) {
+      this._rendition.hooks.content.register(function (view) {
         view.addStylesheetRules(custom_stylesheet_rules);
       });
     }
 
-    this._rendition.on("locationChanged", function(location) {
+    this._rendition.on("locationChanged", function (location) {
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
@@ -5261,12 +5046,12 @@ Reader.EpubJS = Reader.extend({
 });
 
 Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
-  get: function() {
+  get: function get$$1() {
     // return the combined metadata of configured + book metadata
     return this._metadata;
   },
 
-  set: function(data) {
+  set: function set(data) {
     this._metadata = extend({}, data, this.options.metadata);
   }
 });
@@ -5277,11 +5062,11 @@ function createReader$1(id, options) {
 
 Reader.Mock = Reader.extend({
 
-  initialize: function(id, options) {
+  initialize: function initialize(id, options) {
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function(callback) {
+  open: function open(callback) {
     var self = this;
     this._book = {
       metadata: {
@@ -5291,8 +5076,7 @@ Reader.Mock = Reader.extend({
         location: 'Ann Arbor, MI',
         pubdate: '2017-05-23'
       },
-      contents: [
-      ]
+      contents: []
     };
 
     this.metadata = this._book.metadata;
@@ -5301,13 +5085,13 @@ Reader.Mock = Reader.extend({
     callback();
   },
 
-  draw: function(target, callback) {
+  draw: function draw(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
     this.settings.height = '100%';
     this.settings.width = '99%';
     // this.settings.width = '100%';
-    if ( this.options.flow == 'auto' ) {
+    if (this.options.flow == 'auto') {
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
@@ -5329,47 +5113,45 @@ Reader.Mock = Reader.extend({
     // })
   },
 
-  next: function() {
+  next: function next() {
     // this._rendition.next();
   },
 
-  prev: function() {
+  prev: function prev() {
     // this._rendition.prev();
   },
 
-  first: function() {
+  first: function first() {
     // this._rendition.display(0);
   },
 
-  last: function() {
-  },
+  last: function last() {},
 
-  gotoPage: function(target) {
-    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
-      while ( target.substr(0, 3) == '../' ) {
+  gotoPage: function gotoPage(target) {
+    if (typeof target == "string" && target.substr(0, 3) == '../') {
+      while (target.substr(0, 3) == '../') {
         target = target.substr(3);
       }
     }
     // this._rendition.display(target);
   },
 
-  destroy: function() {
+  destroy: function destroy() {
     // if ( this._rendition ) {
     //   this._rendition.destroy();
     // }
     // this._rendition = null;
   },
 
-  currentLocation: function() {
-    if ( this._rendition ) { 
+  currentLocation: function currentLocation() {
+    if (this._rendition) {
       return this._rendition.currentLocation();
     }
     return null;
   },
 
-  _bindEvents: function() {
+  _bindEvents: function _bindEvents() {
     var self = this;
-
   },
 
   EOT: true
@@ -5377,12 +5159,12 @@ Reader.Mock = Reader.extend({
 });
 
 Object.defineProperty(Reader.Mock.prototype, 'metadata', {
-  get: function() {
+  get: function get$$1() {
     // return the combined metadata of configured + book metadata
     return this._metadata;
   },
 
-  set: function(data) {
+  set: function set(data) {
     this._metadata = extend({}, data, this.options.metadata);
   }
 });
@@ -5396,7 +5178,7 @@ var engines = {
   mock: createReader$2
 };
 
-var reader = function(id, options) {
+var reader = function reader(id, options) {
   var engine = options.engine || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
