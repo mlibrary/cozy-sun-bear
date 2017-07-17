@@ -84,6 +84,7 @@ Reader.EpubJSv2 = Reader.extend({
 
   _navigate: function(promise) {
     var self = this;
+    console.log("AHOY NAVIGATING");
     var t = setTimeout(function() {
       self._panes['loader'].style.display = 'block';
     }, 100);
@@ -96,11 +97,11 @@ Reader.EpubJSv2 = Reader.extend({
 
   next: function() {
     var self = this;
-    self._book.nextPage();
+    this._navigate(self._book.nextPage());
   },
 
   prev: function() {
-    this._book.prevPage();
+    this._navigate(this._book.prevPage());
   },
 
   first: function() {

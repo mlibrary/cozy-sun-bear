@@ -50,7 +50,7 @@ function listen(port) {
   app.use(allowCrossDomain);
   if ( process.env.USE_SLOW ) {
     app.use(slow({
-      url: /books\/epub3/i,
+      url: /\/epub3/i,
       delay: process.env.USE_SLOW
     }));
   }
