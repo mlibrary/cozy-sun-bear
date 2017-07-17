@@ -42,16 +42,15 @@
         var $form = $("form");
         var $select = $("select[name=book]");
         var book_href;
-        var book_prefix;
+        var book_prefix = '';
 
-        if ( location.hostname == 'localhost' ) {
-          book_prefix = '';
-        } else {
-          var tmp = location.pathname.split("/");
-          tmp.pop(); // static.html
-          tmp.pop(); // examples
-          tmp.pop(); // cozy-sun-bear
-          book_prefix = tmp.join('/') + '/';
+        var tmp = location.pathname.split("/");
+        tmp.shift(); // leading slash
+        tmp.pop(); // example.html
+        tmp.pop(); // examples
+        tmp.pop(); // cozy-sun-bear
+        if ( tmp.length ) {
+            book_prefix = tmp.join('/') + '/';
         }
 
         if ( location.search ) {
@@ -60,20 +59,19 @@
             book_href = book_prefix + location.search.substr(1);
             var reader = cozy.reader('reader', { href: book_href });
 
-
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
 
             cozy.control.widget.panel({ 
                 region: 'top.toolbar.left',
-                template: `<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand('copy');"></form></div>`,
+                template: '<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
                 data: { title: "https://doi.org/10.3998/fulcrum.12345" }
             }).addTo(reader);
 
 
             cozy.control.widget.panel({
                 region: 'top.toolbar.right',
-                template: `<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>`,
+                template: '<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>',
                 data: {}
             }).addTo(reader);
 

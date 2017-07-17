@@ -39,11 +39,11 @@ function allowCrossDomain(req, res, next) {
 function listen(port) {
 
   var app = express();
-  var staticServer = serveStatic(path.resolve(__dirname, '../'), {'index': ['index.html', 'index.htm']})
-  var appPath = path.resolve(__dirname + '/../');
+  var staticServer = serveStatic(path.resolve(__dirname, '../../'), {'index': ['index.html', 'index.htm']})
+  var appPath = path.resolve(__dirname + '/../../');
   var indexPaths = [];
-  indexPaths.push(path.resolve(appPath, 'books/epub3-samples'));
-  indexPaths.push(path.resolve(appPath, 'books/epub3-local'));
+  indexPaths.push(path.resolve(appPath, 'epub3-samples'));
+  indexPaths.push(path.resolve(appPath, 'epub3-local'));
 
   var server = http.createServer(app);
 
@@ -57,15 +57,15 @@ function listen(port) {
 
   if ( process.env.USE_DEV_EPUB ) {
     var epubJsPath = path.resolve(process.env.USE_DEV_EPUB);
-    app.get('/vendor/javascripts/engines/epub.js', function(req, res) {
+    app.get('/cozy-sun-bear//vendor/javascripts/engines/epub.js', function(req, res) {
       res.sendFile(epubJsPath + '/epub.js');
     });
-    app.get('/vendor/javascripts/engines/epub.js.map', function(req, res) {
+    app.get('/cozy-sun-bear//vendor/javascripts/engines/epub.js.map', function(req, res) {
       res.sendFile(epubJsPath + '/epub.js.map');
     });
   }
 
-  app.get('/examples/books.json', function(req, res) {
+  app.get('/cozy-sun-bear/examples/books.json', function(req, res) {
     var books = [];
     var queue = indexPaths.slice(0);
     while ( queue.length ) {

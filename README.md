@@ -33,7 +33,7 @@ $ cd cozy-sun-bear
 ### To run the examples
 
 * `./tools/serve`
-* Point your browser to http://0.0.0.0:8080/examples
+* Point your browser to http://127.0.0.1:8080/cozy-sun-bear/examples
 * When you make changes to /src, re-run `npm run build` to build your changes
 * ...or you can run `npm run watch` to have npm watch for changes to the javascript
 
