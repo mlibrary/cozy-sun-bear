@@ -10,6 +10,6 @@ var engines = {
 }
 
 export var reader = function(id, options) {
-  var engine = options.engine || 'epubjs';
+  var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   return engines[engine].apply(this, arguments);
 }
