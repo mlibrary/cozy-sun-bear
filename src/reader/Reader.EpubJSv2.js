@@ -164,10 +164,10 @@ Reader.EpubJSv2 = Reader.extend({
     }
 
     if ( this.options.text_size == 'large' ) {
-      this._rendition.themes.fontSize(this.options.fontSizeLarge);
+      this._book.setStyle('fontSize', this.options.fontSizeLarge);
     }
     if ( this.options.text_size == 'small' ) {
-      this._rendition.themes.fontSize(this.options.fontSizeSmall);
+      this._book.setStyle('fontSize', this.options.fontSizeSmall);
     }
     if ( this.options.theme == 'dark' ) {
       DomUtil.addClass(this._container, 'cozy-theme-dark');
@@ -178,18 +178,25 @@ Reader.EpubJSv2 = Reader.extend({
       DomUtil.removeClass(this._container, 'cozy-theme-dark');
     }
 
-    if ( false && custom_stylesheet_rules.length ) {
-      this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules(custom_stylesheet_rules);
-      })
-    }
+    // -- this does not work
+    // if ( custom_stylesheet_rules.length ) {
+    //   this._rendition.hooks.content.register(function(view) {
+    //     view.addStylesheetRules(custom_stylesheet_rules);
+    //   })
+    // }
 
-    this._book.on("book:pageChanged", function(location) {
+    this._book.on("renderer:locationChanged", function(location) {
       // var view = this.manager.current();
       // var section = view.section;
       // var current = this.book.navigation.get(section.href);
-      var current = location.anchorPage;
-      self.fire("update-section", current);
+      var epubjs = new EPUBJS.EpubCFI();
+      var parts = epubjs.parse(location);
+      var spine = self._book.spine[parts.spinePos];
+      var checked = self._contents.toc.filter(function(value) { return value.href == spine.href });
+      if ( checked.length ) {
+        var current = checked[0];
+        self.fire('update-section', current);
+      }
     });
   },
 
