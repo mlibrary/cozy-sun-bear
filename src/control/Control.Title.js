@@ -35,7 +35,7 @@ export var Title = Control.extend({
     this._reader.on('update-title', function(data) {
       console.log("UPDATE TITLE", data);
       if ( data ) {
-        self._title.textContent = data.title;
+        self._title.textContent = data.title || data.bookTitle;
         DomUtil.setOpacity(self._section, 0);
         DomUtil.setOpacity(self._divider, 0);
       }

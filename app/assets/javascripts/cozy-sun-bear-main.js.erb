@@ -1,3 +1,11 @@
-<% engine = "epub" %>
-<% require_asset "engines/#{engine}" %>
+<%
+    vendor_map = {
+        'epubjs' => 'epub',
+        'epubjsv2' => 'v2/epub'
+    }
+    engine = Rails.configuration.cozy_epub_engine || "epubjs"
+    jslib = vendor_map[engine]
+%>
+<% require_asset "engines/#{jslib}" %>
+COZY_EPUB_ENGINE = '<%= engine %>';
 <% require_asset "cozy-sun-bear" %>
