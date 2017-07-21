@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.02682a33, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.08980299, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5025,11 +5025,14 @@ function createReader$2(id, options) {
 Reader.EpubJSv2 = Reader.extend({
 
   initialize: function initialize(id, options) {
+    this._setupHooks();
+
     Reader.prototype.initialize.apply(this, arguments);
   },
 
   open: function open(callback) {
     var self = this;
+
     this._book = ePub(this.options.href, { restore: false });
     this._book.getMetadata().then(function (meta) {
       self.metadata = meta;
@@ -5168,6 +5171,25 @@ Reader.EpubJSv2 = Reader.extend({
 
   _bindEvents: function _bindEvents() {
     var self = this;
+    var custom_stylesheet_rules = [];
+    this.custom_stylesheet_rules = custom_stylesheet_rules;
+
+    // EPUBJS.Hooks.register("beforeChapterDisplay").styles = function(callback, renderer) {
+    //   console.log("AHOY RENDERING", custom_stylesheet_rules.length);
+    //   var s = document.createElement("style");
+    //   s.type = "text/css";
+    //   var innerHTML = '';
+    //   custom_stylesheet_rules.forEach(function(rule) {
+    //     var css = rule[0] + '{ ';
+    //     for(var i = 1; i < rule.length; i++) {
+    //       css += rule[i][0] + ": " + rule[i][1] + ";";
+    //     }
+    //     innerHTML += css + "}\n";
+    //   })
+    //   renderer.doc.head.appendChild(s);
+    //   if (callback) { callback(); }
+
+    // }
 
     // add a stylesheet to stop images from breaking their columns
     var add_max_img_styles = false;
@@ -5176,8 +5198,6 @@ Reader.EpubJSv2 = Reader.extend({
     } else if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
       add_max_img_styles = true;
     }
-
-    var custom_stylesheet_rules = [];
 
     if (add_max_img_styles) {
       // WHY IN HEAVENS NAME?
@@ -5204,11 +5224,12 @@ Reader.EpubJSv2 = Reader.extend({
     }
 
     // -- this does not work
-    // if ( custom_stylesheet_rules.length ) {
-    //   this._rendition.hooks.content.register(function(view) {
-    //     view.addStylesheetRules(custom_stylesheet_rules);
-    //   })
-    // }
+    if (custom_stylesheet_rules.length) {
+      console.log("AHOY RENDITION", this._rendition);
+      // this._rendition.hooks.content.register(function(view) {
+      //   view.addStylesheetRules(custom_stylesheet_rules);
+      // })
+    }
 
     this._book.on("renderer:locationChanged", function (location) {
       // var view = this.manager.current();
@@ -5225,6 +5246,82 @@ Reader.EpubJSv2 = Reader.extend({
         self.fire('update-section', current);
       }
     });
+  },
+
+  _setupHooks: function _setupHooks() {
+    // hooks have to be configured before any EPUBJS object is instantiated
+    EPUBJS.Hooks.register("beforeChapterDisplay").smartimages = function (callback, renderer) {
+      var images = renderer.contents.querySelectorAll('img'),
+          items = Array.prototype.slice.call(images),
+          iheight = renderer.height,
+          //chapter.bodyEl.clientHeight,//chapter.doc.body.getBoundingClientRect().height,
+      oheight;
+
+      if (renderer.layoutSettings.layout != "reflowable") {
+        callback();
+        return; //-- Only adjust images for reflowable text
+      }
+
+      items.forEach(function (item) {
+
+        var size = function size() {
+          var itemRect = item.getBoundingClientRect(),
+              rectHeight = itemRect.height,
+              top = itemRect.top,
+              oHeight = item.getAttribute('data-height'),
+              height = oHeight || rectHeight,
+              newHeight,
+              fontSize = Number(getComputedStyle(item, "").fontSize.match(/(\d*(\.\d*)?)px/)[1]),
+              fontAdjust = fontSize ? fontSize / 2 : 0;
+
+          iheight = renderer.contents.clientHeight;
+          if (top < 0) top = 0;
+
+          item.style.maxWidth = "100%";
+
+          if (height + top >= iheight) {
+
+            if (top < iheight / 2) {
+              // Remove top and half font-size from height to keep container from overflowing
+              newHeight = iheight - top - fontAdjust;
+              item.style.maxHeight = newHeight + "px";
+              item.style.width = "auto";
+            } else {
+              if (height > iheight) {
+                item.style.maxHeight = iheight + "px";
+                item.style.width = "auto";
+                itemRect = item.getBoundingClientRect();
+                height = itemRect.height;
+              }
+              item.style.display = "block";
+              item.style["WebkitColumnBreakBefore"] = "always";
+              item.style["breakBefore"] = "column";
+            }
+
+            item.setAttribute('data-height', newHeight);
+          } else {
+            item.style.removeProperty('max-height');
+            item.style.removeProperty('margin-top');
+          }
+        };
+
+        var unloaded = function unloaded() {
+          // item.removeEventListener('load', size); // crashes in IE
+          renderer.off("renderer:resized", size);
+          renderer.off("renderer:chapterUnload", this);
+        };
+
+        item.addEventListener('load', size, false);
+
+        renderer.on("renderer:resized", size);
+
+        renderer.on("renderer:chapterUnload", unloaded);
+
+        size();
+      });
+
+      if (callback) callback();
+    };
   },
 
   EOT: true
