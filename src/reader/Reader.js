@@ -7,6 +7,8 @@ import * as DomUtil from '../dom/DomUtil';
 
 import debounce from 'lodash/debounce';
 
+import {screenfull} from '../screenfull';
+
 /*
  * @class Reader
  * @aka cozy.Map
@@ -133,6 +135,17 @@ export var Reader = Evented.extend({
     // NOOP
   },
 
+  requestFullscreen: function() {
+    if ( screenfull.enabled ) {
+      // this._preResize();
+      screenfull.toggle(this._panes['book']);
+    }
+  },
+
+  _preResize: function() {
+
+  },
+
   _initContainer: function (id) {
     var container = this._container = DomUtil.get(id);
 
@@ -241,6 +254,18 @@ export var Reader = Evented.extend({
 
     if (Browser.any3d && this.options.transform3DLimit) {
       (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
+    }
+
+    console.log("AHOY WHAT", screenfull.enabled);
+    var self = this;
+    if (screenfull.enabled) {
+      console.log("AHOY", screenfull);
+      screenfull.on('change', function() {
+        setTimeout(function() {
+          self.invalidateSize({});
+        }, 100);
+        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
+      });
     }
   },
 

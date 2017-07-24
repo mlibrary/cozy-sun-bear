@@ -75,6 +75,14 @@
                 data: {}
             }).addTo(reader);
 
+            cozy.control.widget.button({
+                region: 'top.toolbar.right',
+                data: { label: 'FULLSCREEN' },
+                onClick: function() {
+                    reader.requestFullscreen();
+                }
+            }).addTo(reader);
+
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
             // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
@@ -126,6 +134,14 @@
             var target = $select.val();
             window.location.href = location.origin + location.pathname + "?" + target;
         })
+
+        var $reader = $("#reader");
+        $reader.on('fullscreenChange', function() {
+            console.log("AHOY AHOY", document.fullscreenElement ? "ENTERINT FULL SCREEN" : "EXITING FULL SCREEN");
+        })
+        var go_big = function() {
+            $reader.get(0).webkitRequestFullscreen();
+        }
 
     </script>
 

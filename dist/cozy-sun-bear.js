@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.08980299, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0eaaedae, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2292,6 +2292,128 @@ function debounce(func, wait, options) {
 
 var debounce_1 = debounce;
 
+var document$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
+var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
+
+var fn = function () {
+  var val;
+
+  var fnMap = [['requestFullscreen', 'exitFullscreen', 'fullscreenElement', 'fullscreenEnabled', 'fullscreenchange', 'fullscreenerror'],
+  // New WebKit
+  ['webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitFullscreenElement', 'webkitFullscreenEnabled', 'webkitfullscreenchange', 'webkitfullscreenerror'],
+  // Old WebKit (Safari 5.1)
+  ['webkitRequestFullScreen', 'webkitCancelFullScreen', 'webkitCurrentFullScreenElement', 'webkitCancelFullScreen', 'webkitfullscreenchange', 'webkitfullscreenerror'], ['mozRequestFullScreen', 'mozCancelFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled', 'mozfullscreenchange', 'mozfullscreenerror'], ['msRequestFullscreen', 'msExitFullscreen', 'msFullscreenElement', 'msFullscreenEnabled', 'MSFullscreenChange', 'MSFullscreenError']];
+
+  var i = 0;
+  var l = fnMap.length;
+  var ret = {};
+
+  for (; i < l; i++) {
+    val = fnMap[i];
+    if (val && val[1] in document$1) {
+      for (i = 0; i < val.length; i++) {
+        ret[fnMap[0][i]] = val[i];
+      }
+      return ret;
+    }
+  }
+
+  return false;
+}();
+
+var eventNameMap = {
+  change: fn.fullscreenchange,
+  error: fn.fullscreenerror
+};
+
+var screenfull = {
+  request: function request(elem) {
+    var request = fn.requestFullscreen;
+
+    elem = elem || document$1.documentElement;
+
+    // Work around Safari 5.1 bug: reports support for
+    // keyboard in fullscreen even though it doesn't.
+    // Browser sniffing, since the alternative with
+    // setTimeout is even worse.
+    if (/5\.1[.\d]* Safari/.test(navigator.userAgent)) {
+      elem[request]();
+    } else {
+      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+    }
+  },
+  exit: function exit() {
+    document$1[fn.exitFullscreen]();
+  },
+  toggle: function toggle(elem) {
+    if (this.isFullscreen) {
+      this.exit();
+    } else {
+      this.request(elem);
+    }
+  },
+  onchange: function onchange(callback) {
+    this.on('change', callback);
+  },
+  onerror: function onerror(callback) {
+    this.on('error', callback);
+  },
+  on: function on(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.addEventListener(eventName, callback, false);
+    }
+  },
+  off: function off(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.removeEventListener(eventName, callback, false);
+    }
+  },
+  raw: fn
+};
+
+Object.defineProperties(screenfull, {
+  isFullscreen: {
+    get: function get() {
+      return Boolean(document$1[fn.fullscreenElement]);
+    }
+  },
+  element: {
+    enumerable: true,
+    get: function get() {
+      return document$1[fn.fullscreenElement];
+    }
+  },
+  enabled: {
+    enumerable: true,
+    get: function get() {
+      // Coerce to boolean in case of old WebKit
+      return Boolean(document$1[fn.fullscreenEnabled]);
+    }
+  }
+});
+
+// import {Class} from '../core/Class';
+/*
+ * @class Reader
+ * @aka cozy.Map
+ * @inherits Evented
+ *
+ * The central class of the API — it is used to create a book on a page and manipulate it.
+ *
+ * @example
+ *
+ * ```js
+ * // initialize the map on the "map" div with a given center and zoom
+ * var map = L.map('map', {
+ *  center: [51.505, -0.09],
+ *  zoom: 13
+ * });
+ * ```
+ *
+ */
+
 var _padding = 1.0;
 var Reader = Evented.extend({
   options: {
@@ -2389,6 +2511,15 @@ var Reader = Evented.extend({
   gotoPage: function gotoPage(target) {
     // NOOP
   },
+
+  requestFullscreen: function requestFullscreen() {
+    if (screenfull.enabled) {
+      // this._preResize();
+      screenfull.toggle(this._panes['book']);
+    }
+  },
+
+  _preResize: function _preResize() {},
 
   _initContainer: function _initContainer(id) {
     var container = this._container = get$1(id);
@@ -2495,6 +2626,18 @@ var Reader = Evented.extend({
 
     if (any3d && this.options.transform3DLimit) {
       (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
+    }
+
+    console.log("AHOY WHAT", screenfull.enabled);
+    var self = this;
+    if (screenfull.enabled) {
+      console.log("AHOY", screenfull);
+      screenfull.on('change', function () {
+        setTimeout(function () {
+          self.invalidateSize({});
+        }, 100);
+        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
+      });
     }
   },
 
@@ -5033,7 +5176,22 @@ Reader.EpubJSv2 = Reader.extend({
   open: function open(callback) {
     var self = this;
 
-    this._book = ePub(this.options.href, { restore: false });
+    this.settings = { flow: this.options.flow };
+
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
+    this.settings.height = Math.ceil(h * 1.00) + 'px';
+    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
+
+    // this.settings.width = '100%';
+
+    if (this.options.flow == 'auto') {
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+
+    this._book = ePub(this.options.href, { restore: false, height: this.settings.height, width: this.settings.width });
     this._book.getMetadata().then(function (meta) {
       self.metadata = meta;
       self.fire('update-title', self.metadata);
@@ -5055,8 +5213,6 @@ Reader.EpubJSv2 = Reader.extend({
         }
       }
       self._contents = data;
-      console.log("AHOY CONTENTS", data);
-      window.toc = data;
       self.fire('update-contents', data);
     });
     this._book.ready.all.then(callback);
@@ -5064,35 +5220,18 @@ Reader.EpubJSv2 = Reader.extend({
 
   draw: function draw(target, callback) {
     var self = this;
-    this.settings = { flow: this.options.flow };
-
-    // this.settings.height = '100%';
-    // this.settings.width = '99%';
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
-
-    // this.settings.width = '100%';
-
-    if (this.options.flow == 'auto') {
-      this._panes['book'].style.overflow = 'hidden';
-    } else {
-      this._panes['book'].style.overflow = 'auto';
-    }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
 
     // start the rendition after all the epub parts 
     // have been loaded
     this._book.ready.all.then(function () {
       // self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-      self._rendition = self._book.renderTo(self._panes['book']);
+      var promise = self._book.renderTo(self._panes['book']);
       self._bindEvents();
       self._drawn = true;
 
-      self._rendition.then(function () {
+      promise.then(function (renderer) {
+        console.log("AHOY WHAT RENDITION", arguments);
+        self._rendition = renderer;
         if (target && target.start) {
           target = target.start;
         }
@@ -5121,6 +5260,11 @@ Reader.EpubJSv2 = Reader.extend({
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
     });
+  },
+
+  _preResize: function _preResize() {
+    var self = this;
+    self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function next() {
