@@ -25,27 +25,26 @@ Reader.EpubJS = Reader.extend({
     var self = this;
     this.settings = { flow: this.options.flow };
 
-    // this.settings.height = '100%';
-    // this.settings.width = '99%';
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
-
-    // this.settings.width = '100%';
-    
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
 
     // start the rendition after all the epub parts 
     // have been loaded
+    window._loaded = false;
     this._book.ready.then(function() {
+
+      // have to set fixed dimensions to avoid edge clipping
+      var size = self.getFixedBookPanelSize();
+      self.settings.height = size.height; //  + 'px';
+      self.settings.width = size.width; //  + 'px';
+      self.settings.height = '100%';
+      self.settings.width = '100%';
+
+      console.log("AHOY DRAW", size);
+
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
       self._bindEvents();
       self._drawn = true;
@@ -53,6 +52,8 @@ Reader.EpubJS = Reader.extend({
       if ( target && target.start ) { target = target.start; }
       self._rendition.display(target).then(function() {
         if ( callback ) { callback(); }
+        console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
+        window._loaded = true;
       });
     })
   },
@@ -170,6 +171,18 @@ Reader.EpubJS = Reader.extend({
       var current = this.book.navigation.get(section.href);
       self.fire("update-section", current);
     });
+  },
+
+  _resizeBookPane: function() {
+    var self = this;
+    return;
+    setTimeout(function() {
+      var size = self.getFixedBookPanelSize();
+      self.settings.height = size.height + 'px';
+      self.settings.width = size.width + 'px';
+      console.log("AHOY RESIZING?", size, self._panes['book'].getBoundingClientRect());
+      self._rendition.manager.resize(size.width, size.height);
+    }, 150);
   },
 
   EOT: true

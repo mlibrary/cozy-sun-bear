@@ -2,8 +2,7 @@
 <html>
 <head>
     <title>Navigation Example</title>
-    <!-- <script type="text/javascript" src="../vendor/javascripts/engines/epub.js"></script>-->
-    <script type="text/javascript" src="/epub.js-v.03/dist/epub.js"></script>
+    <script type="text/javascript" src="../vendor/javascripts/engines/readium-js_all.js"></script>
     <script src="../dist/cozy-sun-bear.js"></script>
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -22,6 +21,16 @@
         #select-available-books {
             font-size: 1.1rem;
             margin-top: 0.4rem;
+        }
+
+        .book-frame {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .reflowable-content-frame {
+            position: absolute;
         }
 
     </style>
@@ -58,7 +67,7 @@
             $("body").addClass("reading");
 
             book_href = book_prefix + location.search.substr(1);
-            var reader = cozy.reader('reader', { href: book_href });
+            var reader = cozy.reader('reader', { href: book_href, engine: 'readium' });
 
             cozy.control.title({ region: 'top.header.left' }).addTo(reader);
             cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
@@ -76,13 +85,20 @@
                 data: {}
             }).addTo(reader);
 
+            cozy.control.widget.button({
+                region: 'top.toolbar.right',
+                template: '<button class="button--sm" data-toggle="button" data-slot="label"></button>',
+                data: { label: 'FULLSCREEN' },
+                onClick: function() {
+                    reader.requestFullscreen();
+                }
+            }).addTo(reader);
+
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
-            // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-            // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
             cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
-            reader.start("epubcfi(/6/14[Tanizaki2-0007]!/4/2[intro]/2/6/1:0)");
+            reader.start();
 
         }
 

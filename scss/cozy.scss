@@ -284,22 +284,36 @@ $grid-padding:       1rem;
 }
 
 .cozy-module-main {
-  align-self: stretch;
-  display: flex;
   flex-grow: 1;
+  position: relative;
 }
 
 .cozy-module-left,
 .cozy-module-right {
-  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5%;
+  z-index: 10;
+ }
+
+.cozy-module-left {
+  left: 0;
+}
+
+.cozy-module-right {
+  right: 0;
 }
 
 .cozy-module-book-cover {
   background: #666;
   border-bottom: 1px solid $gray-2;
   border-top: 1px solid $gray-2;
-  flex-grow: 1;
-  position: relative;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  bottom: 0;
 }
 
 .cozy-module-book {
@@ -308,7 +322,16 @@ $grid-padding:       1rem;
   background: $white;
   position: relative;
   height: 100%;
+  width: 90%;
+  margin: 0 auto;
+  // background: PAPAYAWHIP;
+  background: white;
   padding: 2rem;
+
+  > div {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .cozy-module-book-loading {
@@ -335,6 +358,7 @@ div[class^='cozy-panel-'] {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 
 div.cozy-panel-footer {
@@ -347,9 +371,9 @@ div.cozy-panel-footer {
 }
 
 .cozy-module-main .cozy-panel-sidebar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  // display: block;
+  // justify-content: center;
+  // align-items: center;
   background: $white;
   border-top: 1px solid $gray-2;
   border-bottom: 1px solid $gray-2;

@@ -4439,6 +4439,8 @@ var DefaultViewManager = function () {
 
 			this._stageSize = this.stage.size(width, height);
 			this._bounds = this.bounds();
+			console.log("EPUBJS MANAGER RESIZE", width, height, "/", this._stageSize);
+
 
 			// Update for new views
 			this.viewSettings.width = this._stageSize.width;
@@ -4884,6 +4886,7 @@ var DefaultViewManager = function () {
 			}
 
 			this._stageSize = this.stage.size();
+			console.log("EPUBJS UPDLAYOUT STAGESIZE", this._stageSize);
 
 			if (this.settings.axis === "vertical") {
 				this.layout.calculate(this._stageSize.width, this._stageSize.height);
@@ -4899,6 +4902,7 @@ var DefaultViewManager = function () {
 			// Set the dimensions for views
 			this.viewSettings.width = this.layout.width;
 			this.viewSettings.height = this.layout.height;
+			console.log("EPUBJS UPDATELAYOUT", this.viewSettings.width, "x", this.viewSettings.height);
 
 			this.setLayout(this.layout);
 		}
@@ -7396,6 +7400,8 @@ var IframeView = function () {
 			var width = _width || this.settings.width;
 			var height = _height || this.settings.height;
 
+			console.log("EPUBJS VIEW SIZE", width, "x", height, this.layout.name);
+
 			if (this.layout.name === "pre-paginated") {
 				this.lock("both", width, height);
 			} else if (this.settings.axis === "horizontal") {
@@ -8902,7 +8908,9 @@ var Stage = function () {
 		value: function onResize(func) {
 			// Only listen to window for resize event if width and height are not fixed.
 			// This applies if it is set to a percent or auto.
+			console.log("EPUBJS", this.settings.width, this.settings.height, "/", !(0, _core.isNumber)(this.settings.width), !(0, _core.isNumber)(this.settings.height));
 			if (!(0, _core.isNumber)(this.settings.width) || !(0, _core.isNumber)(this.settings.height)) {
+				console.log("EPUBJS LISTENING", func);
 				window.addEventListener("resize", func, false);
 			}
 		}
@@ -8913,9 +8921,12 @@ var Stage = function () {
 			// var width = _width || this.settings.width;
 			// var height = _height || this.settings.height;
 
+			console.log("EPUBJS STAGE", width, "x", height, "/", this.element, this.element.getBoundingClientRect());
+
 			// If width or height are set to false, inherit them from containing element
 			if (width === null) {
 				bounds = this.element.getBoundingClientRect();
+				console.log("EPUBJS STAGE SIZE WIDTH", bounds.width);
 
 				if (bounds.width) {
 					width = bounds.width;
@@ -8925,6 +8936,7 @@ var Stage = function () {
 
 			if (height === null) {
 				bounds = bounds || this.element.getBoundingClientRect();
+				console.log("EPUBJS STAGE SIZE HEIGHT", bounds.height);
 
 				if (bounds.height) {
 					height = bounds.height;
@@ -8952,6 +8964,8 @@ var Stage = function () {
 				top: parseFloat(this.containerStyles["padding-top"]) || 0,
 				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
 			};
+
+			console.log("EPUBJS SIZE FINAL", bounds, this.container, width - this.containerPadding.left - this.containerPadding.right, "x", height - this.containerPadding.top - this.containerPadding.bottom);
 
 			return {
 				width: width - this.containerPadding.left - this.containerPadding.right,

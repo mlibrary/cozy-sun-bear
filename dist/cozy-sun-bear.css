@@ -1302,20 +1302,32 @@
   flex-direction: column; }
 
 .cozy-module-main {
-  align-self: stretch;
-  display: flex;
-  flex-grow: 1; }
+  flex-grow: 1;
+  position: relative; }
 
 .cozy-module-left,
 .cozy-module-right {
-  display: flex; }
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5%;
+  z-index: 10; }
+
+.cozy-module-left {
+  left: 0; }
+
+.cozy-module-right {
+  right: 0; }
 
 .cozy-module-book-cover {
   background: #666;
   border-bottom: 1px solid #e8e8e8;
   border-top: 1px solid #e8e8e8;
-  flex-grow: 1;
-  position: relative; }
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  bottom: 0; }
 
 .cozy-module-book {
   margin-left: auto;
@@ -1323,7 +1335,13 @@
   background: #fff;
   position: relative;
   height: 100%;
+  width: 90%;
+  margin: 0 auto;
+  background: white;
   padding: 2rem; }
+  .cozy-module-book > div {
+    margin-left: auto;
+    margin-right: auto; }
 
 .cozy-module-book-loading {
   height: 100%;
@@ -1344,7 +1362,8 @@ div[class^='cozy-panel-'] {
 .cozy-panel-sidebar {
   display: flex;
   justify-content: center;
-  align-items: center; }
+  align-items: center;
+  height: 100%; }
 
 div.cozy-panel-footer {
   display: block;
@@ -1354,9 +1373,6 @@ div.cozy-panel-footer {
   justify-content: flex-end; }
 
 .cozy-module-main .cozy-panel-sidebar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background: #fff;
   border-top: 1px solid #e8e8e8;
   border-bottom: 1px solid #e8e8e8; }

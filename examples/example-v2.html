@@ -45,12 +45,12 @@
         var book_prefix = '';
 
         var tmp = location.pathname.split("/");
-        tmp.shift(); // leading slash
+        // tmp.shift(); // leading slash
         tmp.pop(); // example.html
         tmp.pop(); // examples
         tmp.pop(); // cozy-sun-bear
         if ( tmp.length ) {
-            book_prefix = tmp.join('/') + '/';
+            book_prefix = tmp.join('/');
         }
 
         if ( location.search ) {
@@ -77,6 +77,7 @@
 
             cozy.control.widget.button({
                 region: 'top.toolbar.right',
+                template: '<button class="button--sm" data-toggle="button" data-slot="label"></button>',
                 data: { label: 'FULLSCREEN' },
                 onClick: function() {
                     reader.requestFullscreen();
@@ -84,10 +85,8 @@
             }).addTo(reader);
 
             cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
-            // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
             cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-            // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
             cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
             reader.start();
 

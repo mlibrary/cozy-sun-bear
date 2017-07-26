@@ -18,8 +18,8 @@ Reader.EpubJSv2 = Reader.extend({
 
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
+    // this.settings.height = '100%'; // Math.ceil(h * 1.00) + 'px';
+    // this.settings.width = '100%'; // Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
 
     // this.settings.width = '100%';
     
@@ -96,7 +96,7 @@ Reader.EpubJSv2 = Reader.extend({
 
   _preResize: function() {
     var self = this;
-    self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
+    // self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function() {
@@ -136,6 +136,7 @@ Reader.EpubJSv2 = Reader.extend({
 
   destroy: function() {
     this._drawn = false;
+    this._reader.unload();
   },
 
   currentLocation: function() {

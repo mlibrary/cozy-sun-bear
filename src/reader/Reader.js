@@ -138,7 +138,7 @@ export var Reader = Evented.extend({
   requestFullscreen: function() {
     if ( screenfull.enabled ) {
       // this._preResize();
-      screenfull.toggle(this._panes['book']);
+      screenfull.toggle(this._container);
     }
   },
 
@@ -342,9 +342,20 @@ export var Reader = Evented.extend({
   setBookPanelSize: function() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
-    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
-    panes['book'].style.display = 'block';
+    // panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
+    // panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+    // panes['book'].style.width = '100%';
+    // panes['book'].style.height = '100%';
+    // panes['book'].style.display = 'block';
+  },
+
+  getFixedBookPanelSize: function() {
+    // have to make the book 
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
+    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
+    // console.log("AHOY", this._panes['book'].clientWidth, parseFloat(style.paddingRight), parseFloat(style.paddingLeft), ">", w);
   },
 
   invalidateSize: function(options) {
@@ -359,10 +370,10 @@ export var Reader = Evented.extend({
     if ( ! this._resizeTarget ) {
       this._resizeTarget = this.currentLocation();
     }
-    self.destroy();
+    // self.destroy();
 
     var panes = this._panes;
-    panes['book'].style.display = 'none';
+    // panes['book'].style.display = 'none';
 
     setTimeout(function() {
       self.setBookPanelSize();
@@ -373,7 +384,8 @@ export var Reader = Evented.extend({
 
       self._triggerRedraw = setTimeout(function() {
         // self.destroy();
-        self.draw(self._resizeTarget);
+        // self.draw(self._resizeTarget);
+        self._resizeBookPane();
         self._resizeRequest = null;
         self._resizeTarget = null;
       }, 150);
@@ -382,6 +394,10 @@ export var Reader = Evented.extend({
     }, 0);
     
 
+
+  },
+
+  _resizeBookPane: function() {
 
   },
 
