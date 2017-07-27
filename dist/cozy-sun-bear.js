@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0075cc5b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.01cbfeaa, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -276,6 +276,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -402,6 +410,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -838,6 +871,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1015,6 +1068,10 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1137,6 +1194,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1225,6 +1286,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1499,8 +1576,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1520,6 +1595,19 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
@@ -1877,10 +1965,12 @@ var isObject_1 = isObject;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
+/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -1888,16 +1978,34 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
+/**
+ * Gets the timestamp of the number of milliseconds that have elapsed since
+ * the Unix epoch (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Date
+ * @returns {number} Returns the timestamp.
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => Logs the number of milliseconds it took for the deferred invocation.
+ */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
+/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -1965,6 +2073,7 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
+/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2019,6 +2128,7 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
+/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -2045,6 +2155,7 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
+/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -2108,6 +2219,7 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
+/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2394,6 +2506,7 @@ Object.defineProperties(screenfull, {
   }
 });
 
+// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -2645,10 +2758,8 @@ var Reader = Evented.extend({
       (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
     }
 
-    console.log("AHOY WHAT", screenfull.enabled);
     var self = this;
     if (screenfull.enabled) {
-      console.log("AHOY", screenfull);
       screenfull.on('change', function () {
         setTimeout(function () {
           self.invalidateSize({});
@@ -2750,7 +2861,6 @@ var Reader = Evented.extend({
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
     return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
-    // console.log("AHOY", this._panes['book'].clientWidth, parseFloat(style.paddingRight), parseFloat(style.paddingLeft), ">", w);
   },
 
   invalidateSize: function invalidateSize(options) {
@@ -2793,6 +2903,8 @@ var Reader = Evented.extend({
 
   _resizeBookPane: function _resizeBookPane() {},
 
+  _setupHooks: function _setupHooks() {},
+
   _initLoader: function _initLoader() {
     // is this not awesome?
     var template$$1 = '<div class="socket">\n      <div class="gel center-gel">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c1 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c2 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c3 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c4 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c5 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c6 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c7 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c8 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c9 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c10 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c11 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c12 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c13 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c14 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c15 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c16 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c17 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c18 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c19 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c20 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c21 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c22 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c23 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c24 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c25 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c26 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c28 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c29 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c30 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c31 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c32 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c33 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c34 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c35 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c36 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c37 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n    </div>';
@@ -2805,6 +2917,15 @@ var Reader = Evented.extend({
 
   EOT: true
 });
+
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
 
 var Control = Class.extend({
     // @section
@@ -3424,6 +3545,8 @@ var contents = function contents(options) {
   return new Contents(options);
 };
 
+// Title + Chapter
+
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -3489,6 +3612,8 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -4148,6 +4273,7 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
+// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -4653,6 +4779,8 @@ var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
+// Title + Chapter
+
 var BibliographicInformation = Control.extend({
   options: {
     label: 'Info',
@@ -4843,6 +4971,9 @@ var Download = Control.extend({
 var download = function download(options) {
   return new Download(options);
 };
+
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -5582,6 +5713,7 @@ function createReader$3(id, options) {
   return new Reader.EpubJSv2(id, options);
 }
 
+// import {Readium} from '../readium';
 Reader.Readium = Reader.extend({
 
   initialize: function initialize(id, options) {
@@ -5608,65 +5740,17 @@ Reader.Readium = Reader.extend({
         callback();
       });
     });
-    // this._book.getMetadata().then(function(meta) {
-    //   self.metadata = meta;
-    //   self.fire('update-title', self.metadata);
-    // })
-    // this._book.getToc().then(function(toc) {
-    //   var data = { toc : [] };
-    //   var toc_idx = 0;
-    //   var tmp = toc.slice(0);
-    //   while(tmp.length) {
-    //     var item = tmp.shift();
-    //     toc_idx += 1;
-    //     item.id = toc_idx;
-    //     data.toc.push(item);
-    //     if ( item.subitems && item.subitems.length ) {
-    //       item.subitems.reverse().forEach(function(item_) {
-    //         item_.parent = item.id;
-    //         tmp.unshift(item_);
-    //       })
-    //     }
-    //   }
-    //   self._contents = data;
-    //   self.fire('update-contents', data);
-    // })
-    // this._book.ready.all.then(callback);
   },
 
   draw: function draw(target, callback) {
     var self = this;
 
-    // start the rendition after all the epub parts 
-    // have been loaded
-    // this._book.ready.all.then(function() {
-    //   // self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-    //   var promise = self._book.renderTo(self._panes['book']);
-    //   self._bindEvents();
-    //   self._drawn = true;
-
-    //   promise.then(function(renderer) {
-    //     console.log("AHOY WHAT RENDITION", arguments);
-    //     self._rendition = renderer;
-    //     if ( target && target.start ) { target = target.start; }
-    //     if ( target === undefined ) { console.log("AHOY UNDEFINED START"); target = 0; }
-    //     if ( typeof(target) == 'number' ) { console.log("AHOY NUMBER", target); target = self._book.toc[target].cfi; }
-    //     self._book.goto(target);
-    //     if ( callback ) {
-    //       setTimeout(callback, 100);
-    //     }
-    //   })
-    // })
-
-    console.log("AHOY OPENING", self.options.href);
     var readiumOptions = { useSimpleLoader: true };
     self._book = new self.Readium(readiumOptions, { el: '.cozy-module-book' });
     self._book.openPackageDocument(self.options.href, function (packageDocument, options) {
       if (callback) {
         setTimeout(callback, 100);
       }
-      console.log("AHOY PACKAGE", packageDocument);
-      console.log("AHOY OPTIONS", options);
       self.metadata = options.metadata;
       self.fire('update-title', self.metadata);
       packageDocument.generateTocListDOM(function (dom) {
@@ -5694,15 +5778,6 @@ Reader.Readium = Reader.extend({
 
   _navigate: function _navigate(target) {
     var self = this;
-    console.log("AHOY NAVIGATING");
-    // var t = setTimeout(function() {
-    //   self._panes['loader'].style.display = 'block';
-    // }, 100);
-    // // promise.call(this._rendition).then(function() {
-    // promise.then(function() {
-    //   clearTimeout(t);
-    //   self._panes['loader'].style.display = 'none';
-    // });
     if (parseInt(target) == target) {
       self._book.reader.openPageIndex(target);
     } else {
@@ -5712,7 +5787,6 @@ Reader.Readium = Reader.extend({
 
   _preResize: function _preResize() {
     var self = this;
-    // self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function next() {
@@ -5801,7 +5875,6 @@ Reader.Readium = Reader.extend({
         });
       }
     }
-    console.log("AHOY STYLES", bookStyles);
     this._book.reader.setBookStyles(bookStyles);
   },
 
@@ -5809,83 +5882,7 @@ Reader.Readium = Reader.extend({
     var self = this;
     var custom_stylesheet_rules = [];
     this.custom_stylesheet_rules = custom_stylesheet_rules;
-
-    // EPUBJS.Hooks.register("beforeChapterDisplay").styles = function(callback, renderer) {
-    //   console.log("AHOY RENDERING", custom_stylesheet_rules.length);
-    //   var s = document.createElement("style");
-    //   s.type = "text/css";
-    //   var innerHTML = '';
-    //   custom_stylesheet_rules.forEach(function(rule) {
-    //     var css = rule[0] + '{ ';
-    //     for(var i = 1; i < rule.length; i++) {
-    //       css += rule[i][0] + ": " + rule[i][1] + ";";
-    //     }
-    //     innerHTML += css + "}\n";
-    //   })
-    //   renderer.doc.head.appendChild(s);
-    //   if (callback) { callback(); }
-
-    // }
-
-    // add a stylesheet to stop images from breaking their columns
-    var add_max_img_styles = false;
-    if (this._book.metadata.layout == 'pre-paginated') {
-      // NOOP
-    } else if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
-      add_max_img_styles = true;
-    }
-
-    if (add_max_img_styles) {
-      // WHY IN HEAVENS NAME?
-      var style = window.getComputedStyle(this._panes['book']);
-      var height = parseInt(style.getPropertyValue('height'));
-      height -= parseInt(style.getPropertyValue('padding-top'));
-      height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push(['img', ['max-height', height + 'px'], ['max-width', '100%'], ['height', 'auto']]);
-    }
-
-    if (this.options.text_size == 'large') {
-      this._book.setStyle('fontSize', this.options.fontSizeLarge);
-    }
-    if (this.options.text_size == 'small') {
-      this._book.setStyle('fontSize', this.options.fontSizeSmall);
-    }
-    if (this.options.theme == 'dark') {
-      addClass(this._container, 'cozy-theme-dark');
-      custom_stylesheet_rules.push(['img', ['filter', 'invert(100%)']]);
-      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
-      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
-    } else {
-      removeClass(this._container, 'cozy-theme-dark');
-    }
-
-    // -- this does not work
-    if (custom_stylesheet_rules.length) {
-      console.log("AHOY RENDITION", this._rendition);
-      // this._rendition.hooks.content.register(function(view) {
-      //   view.addStylesheetRules(custom_stylesheet_rules);
-      // })
-    }
-
-    this._book.on("renderer:locationChanged", function (location) {
-      // var view = this.manager.current();
-      // var section = view.section;
-      // var current = this.book.navigation.get(section.href);
-      var epubjs = new EPUBJS.EpubCFI();
-      var parts = epubjs.parse(location);
-      var spine = self._book.spine[parts.spinePos];
-      var checked = self._contents.toc.filter(function (value) {
-        return value.href == spine.href;
-      });
-      if (checked.length) {
-        var current = checked[0];
-        self.fire('update-section', current);
-      }
-    });
-  },
-
-  _setupHooks: function _setupHooks() {
-    // hooks have to be configured before any EPUBJS object is instantiated
+    // TODO - bind page change to update section
   },
 
   EOT: true
@@ -5918,6 +5915,8 @@ var reader = function reader(id, options) {
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

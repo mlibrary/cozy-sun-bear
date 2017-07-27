@@ -296,10 +296,8 @@ export var Reader = Evented.extend({
       (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
     }
 
-    console.log("AHOY WHAT", screenfull.enabled);
     var self = this;
     if (screenfull.enabled) {
-      console.log("AHOY", screenfull);
       screenfull.on('change', function() {
         setTimeout(function() {
           self.invalidateSize({});
@@ -395,7 +393,6 @@ export var Reader = Evented.extend({
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
     return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
-    // console.log("AHOY", this._panes['book'].clientWidth, parseFloat(style.paddingRight), parseFloat(style.paddingLeft), ">", w);
   },
 
   invalidateSize: function(options) {
@@ -438,6 +435,10 @@ export var Reader = Evented.extend({
   },
 
   _resizeBookPane: function() {
+
+  },
+
+  _setupHooks: function() {
 
   },
 

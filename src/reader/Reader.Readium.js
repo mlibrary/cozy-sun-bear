@@ -29,57 +29,11 @@ Reader.Readium = Reader.extend({
         callback();
       });
     });
-    // this._book.getMetadata().then(function(meta) {
-    //   self.metadata = meta;
-    //   self.fire('update-title', self.metadata);
-    // })
-    // this._book.getToc().then(function(toc) {
-    //   var data = { toc : [] };
-    //   var toc_idx = 0;
-    //   var tmp = toc.slice(0);
-    //   while(tmp.length) {
-    //     var item = tmp.shift();
-    //     toc_idx += 1;
-    //     item.id = toc_idx;
-    //     data.toc.push(item);
-    //     if ( item.subitems && item.subitems.length ) {
-    //       item.subitems.reverse().forEach(function(item_) {
-    //         item_.parent = item.id;
-    //         tmp.unshift(item_);
-    //       })
-    //     }
-    //   }
-    //   self._contents = data;
-    //   self.fire('update-contents', data);
-    // })
-    // this._book.ready.all.then(callback);
   },
 
   draw: function(target, callback) {
     var self = this;
 
-    // start the rendition after all the epub parts 
-    // have been loaded
-    // this._book.ready.all.then(function() {
-    //   // self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-    //   var promise = self._book.renderTo(self._panes['book']);
-    //   self._bindEvents();
-    //   self._drawn = true;
-
-    //   promise.then(function(renderer) {
-    //     console.log("AHOY WHAT RENDITION", arguments);
-    //     self._rendition = renderer;
-    //     if ( target && target.start ) { target = target.start; }
-    //     if ( target === undefined ) { console.log("AHOY UNDEFINED START"); target = 0; }
-    //     if ( typeof(target) == 'number' ) { console.log("AHOY NUMBER", target); target = self._book.toc[target].cfi; }
-    //     self._book.goto(target);
-    //     if ( callback ) {
-    //       setTimeout(callback, 100);
-    //     }
-    //   })
-    // })
-
-    console.log("AHOY OPENING", self.options.href);
     var readiumOptions = { useSimpleLoader: true };
     self._book = new self.Readium(readiumOptions, { el: '.cozy-module-book' });
     self._book.openPackageDocument(
@@ -88,8 +42,6 @@ Reader.Readium = Reader.extend({
         if ( callback ) {
           setTimeout(callback, 100);
         }
-        console.log("AHOY PACKAGE", packageDocument);
-        console.log("AHOY OPTIONS", options);
         self.metadata = options.metadata;
         self.fire('update-title', self.metadata);
         packageDocument.generateTocListDOM(function(dom) {
@@ -119,15 +71,6 @@ Reader.Readium = Reader.extend({
 
   _navigate: function(target) {
     var self = this;
-    console.log("AHOY NAVIGATING");
-    // var t = setTimeout(function() {
-    //   self._panes['loader'].style.display = 'block';
-    // }, 100);
-    // // promise.call(this._rendition).then(function() {
-    // promise.then(function() {
-    //   clearTimeout(t);
-    //   self._panes['loader'].style.display = 'none';
-    // });
     if (parseInt(target) == target) {
       self._book.reader.openPageIndex(target);
     } else {
@@ -137,7 +80,6 @@ Reader.Readium = Reader.extend({
 
   _preResize: function() {
     var self = this;
-    // self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function() {
@@ -223,7 +165,6 @@ Reader.Readium = Reader.extend({
         });
       }
     }
-    console.log("AHOY STYLES", bookStyles);
     this._book.reader.setBookStyles(bookStyles);
   },
 
@@ -231,82 +172,7 @@ Reader.Readium = Reader.extend({
     var self = this;
     var custom_stylesheet_rules = [];
     this.custom_stylesheet_rules = custom_stylesheet_rules;
-
-
-    // EPUBJS.Hooks.register("beforeChapterDisplay").styles = function(callback, renderer) {
-    //   console.log("AHOY RENDERING", custom_stylesheet_rules.length);
-    //   var s = document.createElement("style");
-    //   s.type = "text/css";
-    //   var innerHTML = '';
-    //   custom_stylesheet_rules.forEach(function(rule) {
-    //     var css = rule[0] + '{ ';
-    //     for(var i = 1; i < rule.length; i++) {
-    //       css += rule[i][0] + ": " + rule[i][1] + ";";
-    //     }
-    //     innerHTML += css + "}\n";
-    //   })
-    //   renderer.doc.head.appendChild(s);
-    //   if (callback) { callback(); }
-
-    // }
-
-    // add a stylesheet to stop images from breaking their columns
-    var add_max_img_styles = false;
-    if ( this._book.metadata.layout == 'pre-paginated' ) {
-      // NOOP
-    } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
-      add_max_img_styles = true;
-    }
-
-    if ( add_max_img_styles ) {
-      // WHY IN HEAVENS NAME?
-      var style = window.getComputedStyle(this._panes['book']);
-      var height = parseInt(style.getPropertyValue('height'));
-      height -= parseInt(style.getPropertyValue('padding-top'));
-      height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ]]);
-    }
-
-    if ( this.options.text_size == 'large' ) {
-      this._book.setStyle('fontSize', this.options.fontSizeLarge);
-    }
-    if ( this.options.text_size == 'small' ) {
-      this._book.setStyle('fontSize', this.options.fontSizeSmall);
-    }
-    if ( this.options.theme == 'dark' ) {
-      DomUtil.addClass(this._container, 'cozy-theme-dark');
-      custom_stylesheet_rules.push([ 'img', [ 'filter', 'invert(100%)' ] ]);
-      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
-      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
-    } else {
-      DomUtil.removeClass(this._container, 'cozy-theme-dark');
-    }
-
-    // -- this does not work
-    if ( custom_stylesheet_rules.length ) {
-      console.log("AHOY RENDITION", this._rendition);
-      // this._rendition.hooks.content.register(function(view) {
-      //   view.addStylesheetRules(custom_stylesheet_rules);
-      // })
-    }
-
-    this._book.on("renderer:locationChanged", function(location) {
-      // var view = this.manager.current();
-      // var section = view.section;
-      // var current = this.book.navigation.get(section.href);
-      var epubjs = new EPUBJS.EpubCFI();
-      var parts = epubjs.parse(location);
-      var spine = self._book.spine[parts.spinePos];
-      var checked = self._contents.toc.filter(function(value) { return value.href == spine.href });
-      if ( checked.length ) {
-        var current = checked[0];
-        self.fire('update-section', current);
-      }
-    });
-  },
-
-  _setupHooks: function() {
-    // hooks have to be configured before any EPUBJS object is instantiated
+    // TODO - bind page change to update section
   },
 
   EOT: true
