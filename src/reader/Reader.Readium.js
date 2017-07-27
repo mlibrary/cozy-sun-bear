@@ -110,6 +110,7 @@ Reader.Readium = Reader.extend({
             __walk(dom.querySelectorAll("nav > ol > li"));
             self._contents = data;
             self.fire('update-contents', data);
+            self._book.reader.updateSettings({ columnGap: 60 });
         })
       }
     )
@@ -180,7 +181,22 @@ Reader.Readium = Reader.extend({
 
   destroy: function() {
     this._drawn = false;
-    this._reader.unload();
+    this._book.closePackageDocument();
+  },
+
+  reopen: function(options) {
+    // different per reader?
+    var target = target || this.currentLocation();
+    Util.extend(this.options, options);
+    var readerSettings = {}; // this._book.reader.viewerSettings();
+
+    readerSettings.scroll = ( options.flow == 'scrolled-doc' ? 'scroll-doc' : 'auto' );
+    readerSettings.fontSize = 100;
+    if ( options.text_size == 'large' ) { readerSettings.fontSize = parseInt(this.options.fontSizeLarge); }
+    else if ( options.text_size == 'small' ) { readerSettings.fontSize = this.options.fontSizeSmall; }
+    this._book.reader.updateSettings(readerSettings);
+    this._updateTheme();
+    this._updateReaderStyles();
   },
 
   currentLocation: function() {
@@ -188,6 +204,27 @@ Reader.Readium = Reader.extend({
       this._cached_location = this._rendition.currentLocation();
     }
     return this._cached_location;
+  },
+
+  _updateReaderStyles: function() {
+    var isAuthorTheme = false;
+
+    var styles = this._getThemeStyles();
+    var bookStyles = [];
+    for(var selector in styles) {
+      bookStyles.push({
+        selector: selector,
+        declarations: styles[selector]
+      });
+      if ( selector == 'a' ) {
+        bookStyles.push({
+          selector: selector + ' *',
+          declarations: styles[selector]
+        });
+      }
+    }
+    console.log("AHOY STYLES", bookStyles);
+    this._book.reader.setBookStyles(bookStyles);
   },
 
   _bindEvents: function() {

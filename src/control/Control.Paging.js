@@ -48,7 +48,7 @@ var PageControl = Control.extend({
       var html = self.options.html || self.options.label;
       self._control.innerHTML = self._fill(html);
       self._control.setAttribute('title', self._fill(self.options.label));
-      self._control.setAttribteu('aria-label', self._fill(self.options.label));
+      self._control.setAttribute('aria-label', self._fill(self.options.label));
     });
 
   },

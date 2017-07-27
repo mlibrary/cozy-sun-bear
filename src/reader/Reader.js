@@ -45,7 +45,9 @@ export var Reader = Evented.extend({
     engine: 'epubjs',
     fontSizeLarge: '140%',
     fontSizeSmall: '90%',
-    trackResize: true
+    fontSizeDefault: '100%',
+    trackResize: true,
+    theme: 'default'
   },
 
   initialize: function(id, options) {
@@ -56,6 +58,7 @@ export var Reader = Evented.extend({
 
     this._initContainer(id);
     this._initLayout();
+    this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
     this._onResize = Util.bind(this._onResize, this);
@@ -115,6 +118,41 @@ export var Reader = Evented.extend({
     this.fire('reopen');
   },
 
+  _updateTheme: function() {
+    DomUtil.removeClass(this._container, 'cozy-theme-' + ( this._container.dataset.theme || 'light' ));
+    DomUtil.addClass(this._container, 'cozy-theme-' + this.options.theme);
+    this._container.dataset.theme = this.options.theme;
+  },
+
+  _getThemeStyles: function() {
+    // it would be more useful to be able to get these from CSS
+    if ( this.options.theme == 'light' ) {
+      return {
+        body: {
+          backgroundColor: '#ffffff',
+          color: '#000000'
+        },
+        a: {
+          color: '#4682B4'
+        }
+      }
+    }
+
+    if ( this.options.theme == 'dark' ) {
+      return {
+        body: {
+          backgroundColor: '#002b36',
+          color: '#839496'
+        },
+        a: {
+          color: '#E0FFFF'
+        }
+      }
+    }
+
+    return { body: { backgroundColor: '', color: '' }, a: { color: '' } };
+  },
+
   draw: function(target) {
     // NOOP
   },
@@ -169,7 +207,9 @@ export var Reader = Evented.extend({
       (Browser.retina ? ' cozy-retina' : '') +
       (Browser.ielt9 ? ' cozy-oldie' : '') +
       (Browser.safari ? ' cozy-safari' : '') +
-      (this._fadeAnimated ? ' cozy-fade-anim' : ''));
+      (this._fadeAnimated ? ' cozy-fade-anim' : '') +
+      ' cozy-engine-' + this.options.engine + 
+      ' cozy-theme-' + this.options.theme);
 
     var position = DomUtil.getStyle(container, 'position');
 
