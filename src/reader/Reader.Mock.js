@@ -99,6 +99,10 @@ Reader.Mock = Reader.extend({
 
   },
 
+  _updateTheme: function() {
+
+  },
+
   EOT: true
 
 })

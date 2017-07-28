@@ -63,6 +63,7 @@ export var Preferences = Control.extend({
       </fieldset>
       <fieldset>
         <legend>Theme</legend>
+        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>
         <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
         <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
       </fieldset>

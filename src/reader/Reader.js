@@ -7,6 +7,8 @@ import * as DomUtil from '../dom/DomUtil';
 
 import debounce from 'lodash/debounce';
 
+import {screenfull} from '../screenfull';
+
 /*
  * @class Reader
  * @aka cozy.Map
@@ -43,7 +45,9 @@ export var Reader = Evented.extend({
     engine: 'epubjs',
     fontSizeLarge: '140%',
     fontSizeSmall: '90%',
-    trackResize: true
+    fontSizeDefault: '100%',
+    trackResize: true,
+    theme: 'default'
   },
 
   initialize: function(id, options) {
@@ -54,6 +58,7 @@ export var Reader = Evented.extend({
 
     this._initContainer(id);
     this._initLayout();
+    this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
     this._onResize = Util.bind(this._onResize, this);
@@ -113,6 +118,41 @@ export var Reader = Evented.extend({
     this.fire('reopen');
   },
 
+  _updateTheme: function() {
+    DomUtil.removeClass(this._container, 'cozy-theme-' + ( this._container.dataset.theme || 'light' ));
+    DomUtil.addClass(this._container, 'cozy-theme-' + this.options.theme);
+    this._container.dataset.theme = this.options.theme;
+  },
+
+  _getThemeStyles: function() {
+    // it would be more useful to be able to get these from CSS
+    if ( this.options.theme == 'light' ) {
+      return {
+        body: {
+          backgroundColor: '#ffffff',
+          color: '#000000'
+        },
+        a: {
+          color: '#4682B4'
+        }
+      }
+    }
+
+    if ( this.options.theme == 'dark' ) {
+      return {
+        body: {
+          backgroundColor: '#002b36',
+          color: '#839496'
+        },
+        a: {
+          color: '#E0FFFF'
+        }
+      }
+    }
+
+    return { body: { backgroundColor: '', color: '' }, a: { color: '' } };
+  },
+
   draw: function(target) {
     // NOOP
   },
@@ -131,6 +171,17 @@ export var Reader = Evented.extend({
 
   gotoPage: function(target) {
     // NOOP
+  },
+
+  requestFullscreen: function() {
+    if ( screenfull.enabled ) {
+      // this._preResize();
+      screenfull.toggle(this._container);
+    }
+  },
+
+  _preResize: function() {
+
   },
 
   _initContainer: function (id) {
@@ -156,7 +207,9 @@ export var Reader = Evented.extend({
       (Browser.retina ? ' cozy-retina' : '') +
       (Browser.ielt9 ? ' cozy-oldie' : '') +
       (Browser.safari ? ' cozy-safari' : '') +
-      (this._fadeAnimated ? ' cozy-fade-anim' : ''));
+      (this._fadeAnimated ? ' cozy-fade-anim' : '') +
+      ' cozy-engine-' + this.options.engine + 
+      ' cozy-theme-' + this.options.theme);
 
     var position = DomUtil.getStyle(container, 'position');
 
@@ -242,6 +295,16 @@ export var Reader = Evented.extend({
     if (Browser.any3d && this.options.transform3DLimit) {
       (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
     }
+
+    var self = this;
+    if (screenfull.enabled) {
+      screenfull.on('change', function() {
+        setTimeout(function() {
+          self.invalidateSize({});
+        }, 100);
+        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
+      });
+    }
   },
 
   _onResize: function() {
@@ -317,9 +380,19 @@ export var Reader = Evented.extend({
   setBookPanelSize: function() {
     var panes = this._panes;
 
-    panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
-    panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
-    panes['book'].style.display = 'block';
+    // panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
+    // panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+    // panes['book'].style.width = '100%';
+    // panes['book'].style.height = '100%';
+    // panes['book'].style.display = 'block';
+  },
+
+  getFixedBookPanelSize: function() {
+    // have to make the book 
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
+    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
   },
 
   invalidateSize: function(options) {
@@ -334,10 +407,10 @@ export var Reader = Evented.extend({
     if ( ! this._resizeTarget ) {
       this._resizeTarget = this.currentLocation();
     }
-    self.destroy();
+    // self.destroy();
 
     var panes = this._panes;
-    panes['book'].style.display = 'none';
+    // panes['book'].style.display = 'none';
 
     setTimeout(function() {
       self.setBookPanelSize();
@@ -348,7 +421,8 @@ export var Reader = Evented.extend({
 
       self._triggerRedraw = setTimeout(function() {
         // self.destroy();
-        self.draw(self._resizeTarget);
+        // self.draw(self._resizeTarget);
+        self._resizeBookPane();
         self._resizeRequest = null;
         self._resizeTarget = null;
       }, 150);
@@ -357,6 +431,14 @@ export var Reader = Evented.extend({
     }, 0);
     
 
+
+  },
+
+  _resizeBookPane: function() {
+
+  },
+
+  _setupHooks: function() {
 
   },
 

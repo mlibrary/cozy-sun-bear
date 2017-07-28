@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.08980299, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.01cbfeaa, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -276,6 +276,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -402,6 +410,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -838,6 +871,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1015,6 +1068,10 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1137,6 +1194,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1225,6 +1286,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1499,8 +1576,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1520,6 +1595,19 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
@@ -1877,10 +1965,12 @@ var isObject_1 = isObject;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
+/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -1888,16 +1978,34 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
+/**
+ * Gets the timestamp of the number of milliseconds that have elapsed since
+ * the Unix epoch (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Date
+ * @returns {number} Returns the timestamp.
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => Logs the number of milliseconds it took for the deferred invocation.
+ */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
+/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -1965,6 +2073,7 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
+/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2019,6 +2128,7 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
+/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -2045,6 +2155,7 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
+/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -2108,6 +2219,7 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
+/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2292,7 +2404,109 @@ function debounce(func, wait, options) {
 
 var debounce_1 = debounce;
 
-var _padding = 1.0;
+var document$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
+var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
+
+var fn = function () {
+  var val;
+
+  var fnMap = [['requestFullscreen', 'exitFullscreen', 'fullscreenElement', 'fullscreenEnabled', 'fullscreenchange', 'fullscreenerror'],
+  // New WebKit
+  ['webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitFullscreenElement', 'webkitFullscreenEnabled', 'webkitfullscreenchange', 'webkitfullscreenerror'],
+  // Old WebKit (Safari 5.1)
+  ['webkitRequestFullScreen', 'webkitCancelFullScreen', 'webkitCurrentFullScreenElement', 'webkitCancelFullScreen', 'webkitfullscreenchange', 'webkitfullscreenerror'], ['mozRequestFullScreen', 'mozCancelFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled', 'mozfullscreenchange', 'mozfullscreenerror'], ['msRequestFullscreen', 'msExitFullscreen', 'msFullscreenElement', 'msFullscreenEnabled', 'MSFullscreenChange', 'MSFullscreenError']];
+
+  var i = 0;
+  var l = fnMap.length;
+  var ret = {};
+
+  for (; i < l; i++) {
+    val = fnMap[i];
+    if (val && val[1] in document$1) {
+      for (i = 0; i < val.length; i++) {
+        ret[fnMap[0][i]] = val[i];
+      }
+      return ret;
+    }
+  }
+
+  return false;
+}();
+
+var eventNameMap = {
+  change: fn.fullscreenchange,
+  error: fn.fullscreenerror
+};
+
+var screenfull = {
+  request: function request(elem) {
+    var request = fn.requestFullscreen;
+
+    elem = elem || document$1.documentElement;
+
+    // Work around Safari 5.1 bug: reports support for
+    // keyboard in fullscreen even though it doesn't.
+    // Browser sniffing, since the alternative with
+    // setTimeout is even worse.
+    if (/5\.1[.\d]* Safari/.test(navigator.userAgent)) {
+      elem[request]();
+    } else {
+      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+    }
+  },
+  exit: function exit() {
+    document$1[fn.exitFullscreen]();
+  },
+  toggle: function toggle(elem) {
+    if (this.isFullscreen) {
+      this.exit();
+    } else {
+      this.request(elem);
+    }
+  },
+  onchange: function onchange(callback) {
+    this.on('change', callback);
+  },
+  onerror: function onerror(callback) {
+    this.on('error', callback);
+  },
+  on: function on(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.addEventListener(eventName, callback, false);
+    }
+  },
+  off: function off(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.removeEventListener(eventName, callback, false);
+    }
+  },
+  raw: fn
+};
+
+Object.defineProperties(screenfull, {
+  isFullscreen: {
+    get: function get() {
+      return Boolean(document$1[fn.fullscreenElement]);
+    }
+  },
+  element: {
+    enumerable: true,
+    get: function get() {
+      return document$1[fn.fullscreenElement];
+    }
+  },
+  enabled: {
+    enumerable: true,
+    get: function get() {
+      // Coerce to boolean in case of old WebKit
+      return Boolean(document$1[fn.fullscreenEnabled]);
+    }
+  }
+});
+
+// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -2301,7 +2515,9 @@ var Reader = Evented.extend({
     engine: 'epubjs',
     fontSizeLarge: '140%',
     fontSizeSmall: '90%',
-    trackResize: true
+    fontSizeDefault: '100%',
+    trackResize: true,
+    theme: 'default'
   },
 
   initialize: function initialize(id, options) {
@@ -2312,6 +2528,7 @@ var Reader = Evented.extend({
 
     this._initContainer(id);
     this._initLayout();
+    this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
     this._onResize = bind(this._onResize, this);
@@ -2370,6 +2587,41 @@ var Reader = Evented.extend({
     this.fire('reopen');
   },
 
+  _updateTheme: function _updateTheme() {
+    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'light'));
+    addClass(this._container, 'cozy-theme-' + this.options.theme);
+    this._container.dataset.theme = this.options.theme;
+  },
+
+  _getThemeStyles: function _getThemeStyles() {
+    // it would be more useful to be able to get these from CSS
+    if (this.options.theme == 'light') {
+      return {
+        body: {
+          backgroundColor: '#ffffff',
+          color: '#000000'
+        },
+        a: {
+          color: '#4682B4'
+        }
+      };
+    }
+
+    if (this.options.theme == 'dark') {
+      return {
+        body: {
+          backgroundColor: '#002b36',
+          color: '#839496'
+        },
+        a: {
+          color: '#E0FFFF'
+        }
+      };
+    }
+
+    return { body: { backgroundColor: '', color: '' }, a: { color: '' } };
+  },
+
   draw: function draw(target) {
     // NOOP
   },
@@ -2390,6 +2642,15 @@ var Reader = Evented.extend({
     // NOOP
   },
 
+  requestFullscreen: function requestFullscreen() {
+    if (screenfull.enabled) {
+      // this._preResize();
+      screenfull.toggle(this._container);
+    }
+  },
+
+  _preResize: function _preResize() {},
+
   _initContainer: function _initContainer(id) {
     var container = this._container = get$1(id);
 
@@ -2408,7 +2669,7 @@ var Reader = Evented.extend({
 
     this._fadeAnimated = this.options.fadeAnimation && any3d;
 
-    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : ''));
+    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
 
     var position = getStyle(container, 'position');
 
@@ -2496,6 +2757,16 @@ var Reader = Evented.extend({
     if (any3d && this.options.transform3DLimit) {
       (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
     }
+
+    var self = this;
+    if (screenfull.enabled) {
+      screenfull.on('change', function () {
+        setTimeout(function () {
+          self.invalidateSize({});
+        }, 100);
+        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
+      });
+    }
   },
 
   _onResize: function _onResize() {
@@ -2577,9 +2848,19 @@ var Reader = Evented.extend({
   setBookPanelSize: function setBookPanelSize() {
     var panes = this._panes;
 
-    panes['book'].style.height = panes['book-cover'].offsetHeight * _padding * 0.99 + 'px';
-    panes['book'].style.width = panes['book-cover'].offsetWidth * _padding + 'px';
-    panes['book'].style.display = 'block';
+    // panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
+    // panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
+    // panes['book'].style.width = '100%';
+    // panes['book'].style.height = '100%';
+    // panes['book'].style.display = 'block';
+  },
+
+  getFixedBookPanelSize: function getFixedBookPanelSize() {
+    // have to make the book 
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
+    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
   },
 
   invalidateSize: function invalidateSize(options) {
@@ -2598,10 +2879,10 @@ var Reader = Evented.extend({
     if (!this._resizeTarget) {
       this._resizeTarget = this.currentLocation();
     }
-    self.destroy();
+    // self.destroy();
 
     var panes = this._panes;
-    panes['book'].style.display = 'none';
+    // panes['book'].style.display = 'none';
 
     setTimeout(function () {
       self.setBookPanelSize();
@@ -2612,12 +2893,17 @@ var Reader = Evented.extend({
 
       self._triggerRedraw = setTimeout(function () {
         // self.destroy();
-        self.draw(self._resizeTarget);
+        // self.draw(self._resizeTarget);
+        self._resizeBookPane();
         self._resizeRequest = null;
         self._resizeTarget = null;
       }, 150);
     }, 0);
   },
+
+  _resizeBookPane: function _resizeBookPane() {},
+
+  _setupHooks: function _setupHooks() {},
 
   _initLoader: function _initLoader() {
     // is this not awesome?
@@ -2631,6 +2917,15 @@ var Reader = Evented.extend({
 
   EOT: true
 });
+
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
 
 var Control = Class.extend({
     // @section
@@ -2903,7 +3198,7 @@ var PageControl = Control.extend({
       var html = self.options.html || self.options.label;
       self._control.innerHTML = self._fill(html);
       self._control.setAttribute('title', self._fill(self.options.label));
-      self._control.setAttribteu('aria-label', self._fill(self.options.label));
+      self._control.setAttribute('aria-label', self._fill(self.options.label));
     });
   },
 
@@ -3250,6 +3545,8 @@ var contents = function contents(options) {
   return new Contents(options);
 };
 
+// Title + Chapter
+
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -3315,6 +3612,8 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -3411,7 +3710,7 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
-    var template = '<form>\n      <fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>\n      <fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>\n      </fieldset>\n    </form>';
+    var template = '<form>\n      <fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>\n      <fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>\n      </fieldset>\n    </form>';
 
     this._modal = this._reader.modal({
       template: template,
@@ -3974,6 +4273,7 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
+// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -4479,6 +4779,8 @@ var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
+// Title + Chapter
+
 var BibliographicInformation = Control.extend({
   options: {
     label: 'Info',
@@ -4670,6 +4972,9 @@ var download = function download(options) {
   return new Download(options);
 };
 
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
+
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
 Control.PageFirst = PageFirst;
@@ -4715,7 +5020,12 @@ var bus = function bus() {
 
 var Mixin = { Events: Evented.prototype };
 
-var ePub = window.ePub;
+// var ePub = window.ePub;
+// export {ePub};
+
+function ePub(options) {
+  return window.ePub(options);
+}
 
 Reader.EpubJS = Reader.extend({
 
@@ -4739,27 +5049,26 @@ Reader.EpubJS = Reader.extend({
     var self = this;
     this.settings = { flow: this.options.flow };
 
-    // this.settings.height = '100%';
-    // this.settings.width = '99%';
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
-
-    // this.settings.width = '100%';
-
     if (this.options.flow == 'auto') {
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
 
     // start the rendition after all the epub parts 
     // have been loaded
+    window._loaded = false;
     this._book.ready.then(function () {
+
+      // have to set fixed dimensions to avoid edge clipping
+      var size = self.getFixedBookPanelSize();
+      self.settings.height = size.height; //  + 'px';
+      self.settings.width = size.width; //  + 'px';
+      self.settings.height = '100%';
+      self.settings.width = '100%';
+
+      console.log("AHOY DRAW", size);
+
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
       self._bindEvents();
       self._drawn = true;
@@ -4771,6 +5080,9 @@ Reader.EpubJS = Reader.extend({
         if (callback) {
           callback();
         }
+        console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
+        window._loaded = true;
+        self._updateReaderStyles();
       });
     });
   },
@@ -4832,6 +5144,28 @@ Reader.EpubJS = Reader.extend({
     this._drawn = false;
   },
 
+  reopen: function reopen(options, target) {
+    // different per reader?
+    var target = target || this.currentLocation();
+    if (target.start) {
+      target = target.start;
+    }
+    if (target.cfi) {
+      target = target.cfi;
+    }
+
+    extend(this.options, options);
+
+    this._rendition.flow(this.options.flow);
+    this._updateFontSize();
+
+    this._updateTheme();
+    this._updateReaderStyles();
+    this._rendition.manager.clear();
+    console.log("AHOY TARGET", target);
+    this._rendition.display(target);
+  },
+
   currentLocation: function currentLocation() {
     if (this._rendition && this._rendition.manager) {
       this._cached_location = this._rendition.currentLocation();
@@ -4858,23 +5192,10 @@ Reader.EpubJS = Reader.extend({
       var height = parseInt(style.getPropertyValue('height'));
       height -= parseInt(style.getPropertyValue('padding-top'));
       height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push(['img', ['max-height', height + 'px'], ['max-width', '100%'], ['height', 'auto']]);
+      custom_stylesheet_rules.push(['img', ['max-height', height + 'px'], ['max-width', '100%'], ['height', 'auto'], ['width', 'auto']]);
     }
 
-    if (this.options.text_size == 'large') {
-      this._rendition.themes.fontSize(this.options.fontSizeLarge);
-    }
-    if (this.options.text_size == 'small') {
-      this._rendition.themes.fontSize(this.options.fontSizeSmall);
-    }
-    if (this.options.theme == 'dark') {
-      addClass(this._container, 'cozy-theme-dark');
-      custom_stylesheet_rules.push(['img', ['filter', 'invert(100%)']]);
-      // custom_stylesheet_rules.push([ 'body', [ 'background-color', '#191919' ], [ 'color', '#fff' ] ]);
-      // custom_stylesheet_rules.push([ 'a', [ 'color', '#d1d1d1' ] ]);
-    } else {
-      removeClass(this._container, 'cozy-theme-dark');
-    }
+    this._updateFontSize();
 
     if (custom_stylesheet_rules.length) {
       this._rendition.hooks.content.register(function (view) {
@@ -4888,6 +5209,53 @@ Reader.EpubJS = Reader.extend({
       var current = this.book.navigation.get(section.href);
       self.fire("update-section", current);
     });
+  },
+
+  _updateReaderStyles: function _updateReaderStyles() {
+    var isAuthorTheme = false;
+
+    var custom_stylesheet_rules = [];
+    var styles = this._getThemeStyles();
+    for (var selector in styles) {
+      var rules = [];
+      for (var prop in styles[selector]) {
+        rules.push([prop, styles[selector][prop] || 'inherit']);
+      }
+      custom_stylesheet_rules.push([selector, rules]);
+      if (selector == 'a') {
+        custom_stylesheet_rules.push([selector + ' *', rules]);
+      } else if (selector == 'body') {
+        ['body::after', 'body::before', 'body *', 'body *::after', 'body *::before'].forEach(function (alt) {
+          custom_stylesheet_rules.push([alt, rules]);
+        });
+      }
+    }
+    console.log("AHOY THEMES", styles, custom_stylesheet_rules);
+    this._rendition.hooks.content.register(function (view) {
+      view.addStylesheetRules(custom_stylesheet_rules);
+    });
+  },
+
+  _updateFontSize: function _updateFontSize() {
+    if (this.options.text_size == 'large') {
+      this._rendition.themes.fontSize(this.options.fontSizeLarge);
+    } else if (this.options.text_size == 'small') {
+      this._rendition.themes.fontSize(this.options.fontSizeSmall);
+    } else {
+      this._rendition.themes.fontSize(this.options.fontSizeDefault);
+    }
+  },
+
+  _resizeBookPane: function _resizeBookPane() {
+    var self = this;
+    return;
+    setTimeout(function () {
+      var size = self.getFixedBookPanelSize();
+      self.settings.height = size.height + 'px';
+      self.settings.width = size.width + 'px';
+      console.log("AHOY RESIZING?", size, self._panes['book'].getBoundingClientRect());
+      self._rendition.manager.resize(size.width, size.height);
+    }, 150);
   },
 
   EOT: true
@@ -5033,7 +5401,22 @@ Reader.EpubJSv2 = Reader.extend({
   open: function open(callback) {
     var self = this;
 
-    this._book = ePub(this.options.href, { restore: false });
+    this.settings = { flow: this.options.flow };
+
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
+    // this.settings.height = '100%'; // Math.ceil(h * 1.00) + 'px';
+    // this.settings.width = '100%'; // Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
+
+    // this.settings.width = '100%';
+
+    if (this.options.flow == 'auto') {
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+
+    this._book = ePub(this.options.href, { restore: false, height: this.settings.height, width: this.settings.width });
     this._book.getMetadata().then(function (meta) {
       self.metadata = meta;
       self.fire('update-title', self.metadata);
@@ -5055,8 +5438,6 @@ Reader.EpubJSv2 = Reader.extend({
         }
       }
       self._contents = data;
-      console.log("AHOY CONTENTS", data);
-      window.toc = data;
       self.fire('update-contents', data);
     });
     this._book.ready.all.then(callback);
@@ -5064,35 +5445,18 @@ Reader.EpubJSv2 = Reader.extend({
 
   draw: function draw(target, callback) {
     var self = this;
-    this.settings = { flow: this.options.flow };
-
-    // this.settings.height = '100%';
-    // this.settings.width = '99%';
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
-
-    // this.settings.width = '100%';
-
-    if (this.options.flow == 'auto') {
-      this._panes['book'].style.overflow = 'hidden';
-    } else {
-      this._panes['book'].style.overflow = 'auto';
-    }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
 
     // start the rendition after all the epub parts 
     // have been loaded
     this._book.ready.all.then(function () {
       // self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-      self._rendition = self._book.renderTo(self._panes['book']);
+      var promise = self._book.renderTo(self._panes['book']);
       self._bindEvents();
       self._drawn = true;
 
-      self._rendition.then(function () {
+      promise.then(function (renderer) {
+        console.log("AHOY WHAT RENDITION", arguments);
+        self._rendition = renderer;
         if (target && target.start) {
           target = target.start;
         }
@@ -5121,6 +5485,11 @@ Reader.EpubJSv2 = Reader.extend({
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
     });
+  },
+
+  _preResize: function _preResize() {
+    var self = this;
+    // self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function next() {
@@ -5160,6 +5529,7 @@ Reader.EpubJSv2 = Reader.extend({
 
   destroy: function destroy() {
     this._drawn = false;
+    this._reader.unload();
   },
 
   currentLocation: function currentLocation() {
@@ -5343,9 +5713,201 @@ function createReader$3(id, options) {
   return new Reader.EpubJSv2(id, options);
 }
 
+// import {Readium} from '../readium';
+Reader.Readium = Reader.extend({
+
+  initialize: function initialize(id, options) {
+    this._setupHooks();
+
+    Reader.prototype.initialize.apply(this, arguments);
+  },
+
+  open: function open(callback) {
+    var self = this;
+
+    this.settings = { flow: this.options.flow };
+
+    if (this.options.flow == 'auto') {
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+
+    var readiumOptions = { useSimpleLoader: true };
+    require(["readium_shared_js/globalsSetup", "readium_shared_js/globals"], function (GlobalsSetup, Globals) {
+      require(['jquery', 'readium_js/Readium'], function ($, Readium) {
+        self.Readium = Readium;
+        callback();
+      });
+    });
+  },
+
+  draw: function draw(target, callback) {
+    var self = this;
+
+    var readiumOptions = { useSimpleLoader: true };
+    self._book = new self.Readium(readiumOptions, { el: '.cozy-module-book' });
+    self._book.openPackageDocument(self.options.href, function (packageDocument, options) {
+      if (callback) {
+        setTimeout(callback, 100);
+      }
+      self.metadata = options.metadata;
+      self.fire('update-title', self.metadata);
+      packageDocument.generateTocListDOM(function (dom) {
+        var data = { toc: [] };
+        var toc_idx = 0;
+        var __walk = function __walk(items, parent) {
+          items.forEach(function (item) {
+            toc_idx += 1;
+            var link = item.querySelector("a[href]");
+            var chapter = { href: link.getAttribute('href'), label: link.innerText, id: toc_idx, parent: parent };
+            data.toc.push(chapter);
+            var subitems = item.querySelectorAll("ol > li");
+            if (subitems) {
+              __walk(subitems, chapter.id);
+            }
+          });
+        };
+        __walk(dom.querySelectorAll("nav > ol > li"));
+        self._contents = data;
+        self.fire('update-contents', data);
+        self._book.reader.updateSettings({ columnGap: 60 });
+      });
+    });
+  },
+
+  _navigate: function _navigate(target) {
+    var self = this;
+    if (parseInt(target) == target) {
+      self._book.reader.openPageIndex(target);
+    } else {
+      self._book.reader.openSpineItemPage(target);
+    }
+  },
+
+  _preResize: function _preResize() {
+    var self = this;
+  },
+
+  next: function next() {
+    var self = this;
+    // this._navigate(self._book.nextPage());
+    this._book.reader.openPageRight();
+  },
+
+  prev: function prev() {
+    // this._navigate(this._book.prevPage());
+    this._book.reader.openPageLeft();
+  },
+
+  first: function first() {
+    this._navigate(this._book.goto(0));
+  },
+
+  last: function last() {
+    var self = this;
+    var target = this._contents.toc.length - 1;
+    this._navigate(this._book.goto(target.cfi));
+  },
+
+  gotoPage: function gotoPage(target) {
+    if (typeof target == "string" && target.substr(0, 3) == '../') {
+      while (target.substr(0, 3) == '../') {
+        target = target.substr(3);
+      }
+    }
+    if (typeof target == "string") {
+      var spine = this._book.reader.spine();
+      if (!spine.getItemByHref(target)) {
+        if (spine.getItemByHref("Text/" + target)) {
+          target = "Text/" + target;
+        }
+      }
+      target = spine.getItemByHref(target).idref;
+    }
+    this._navigate(target);
+  },
+
+  destroy: function destroy() {
+    this._drawn = false;
+    this._book.closePackageDocument();
+  },
+
+  reopen: function reopen(options) {
+    // different per reader?
+    var target = target || this.currentLocation();
+    extend(this.options, options);
+    var readerSettings = {}; // this._book.reader.viewerSettings();
+
+    readerSettings.scroll = options.flow == 'scrolled-doc' ? 'scroll-doc' : 'auto';
+    readerSettings.fontSize = 100;
+    if (options.text_size == 'large') {
+      readerSettings.fontSize = parseInt(this.options.fontSizeLarge);
+    } else if (options.text_size == 'small') {
+      readerSettings.fontSize = this.options.fontSizeSmall;
+    }
+    this._book.reader.updateSettings(readerSettings);
+    this._updateTheme();
+    this._updateReaderStyles();
+  },
+
+  currentLocation: function currentLocation() {
+    if (this._rendition && this._rendition.manager) {
+      this._cached_location = this._rendition.currentLocation();
+    }
+    return this._cached_location;
+  },
+
+  _updateReaderStyles: function _updateReaderStyles() {
+    var isAuthorTheme = false;
+
+    var styles = this._getThemeStyles();
+    var bookStyles = [];
+    for (var selector in styles) {
+      bookStyles.push({
+        selector: selector,
+        declarations: styles[selector]
+      });
+      if (selector == 'a') {
+        bookStyles.push({
+          selector: selector + ' *',
+          declarations: styles[selector]
+        });
+      }
+    }
+    this._book.reader.setBookStyles(bookStyles);
+  },
+
+  _bindEvents: function _bindEvents() {
+    var self = this;
+    var custom_stylesheet_rules = [];
+    this.custom_stylesheet_rules = custom_stylesheet_rules;
+    // TODO - bind page change to update section
+  },
+
+  EOT: true
+
+});
+
+Object.defineProperty(Reader.Readium.prototype, 'metadata', {
+  get: function get$$1() {
+    // return the combined metadata of configured + book metadata
+    return this._metadata;
+  },
+
+  set: function set(data) {
+    this._metadata = extend({}, data, this.options.metadata);
+  }
+});
+
+function createReader$4(id, options) {
+  return new Reader.Readium(id, options);
+}
+
 var engines = {
   epubjs: createReader$1,
   epubjsv2: createReader$3,
+  readium: createReader$4,
   mock: createReader$2
 };
 
@@ -5353,6 +5915,8 @@ var reader = function reader(id, options) {
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

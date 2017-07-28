@@ -14,7 +14,22 @@ Reader.EpubJSv2 = Reader.extend({
   open: function(callback) {
     var self = this;
 
-    this._book = epubjs.ePub(this.options.href, { restore: false });
+    this.settings = { flow: this.options.flow };
+
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
+    // this.settings.height = '100%'; // Math.ceil(h * 1.00) + 'px';
+    // this.settings.width = '100%'; // Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
+
+    // this.settings.width = '100%';
+    
+    if ( this.options.flow == 'auto' ) {
+      this._panes['book'].style.overflow = 'hidden';
+    } else {
+      this._panes['book'].style.overflow = 'auto';
+    }
+
+    this._book = epubjs.ePub(this.options.href, { restore: false, height: this.settings.height, width: this.settings.width });
     this._book.getMetadata().then(function(meta) {
       self.metadata = meta;
       self.fire('update-title', self.metadata);
@@ -36,8 +51,6 @@ Reader.EpubJSv2 = Reader.extend({
         }
       }
       self._contents = data;
-      console.log("AHOY CONTENTS", data);
-      window.toc = data;
       self.fire('update-contents', data);
     })
     this._book.ready.all.then(callback);
@@ -45,35 +58,18 @@ Reader.EpubJSv2 = Reader.extend({
 
   draw: function(target, callback) {
     var self = this;
-    this.settings = { flow: this.options.flow };
-
-    // this.settings.height = '100%';
-    // this.settings.width = '99%';
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseInt(style.paddingTop) - parseInt(style.paddingBottom);
-    this.settings.height = Math.ceil(h * 1.00) + 'px';
-    this.settings.width = Math.ceil(this._panes['book'].clientWidth * 0.99) + 'px';
-
-    // this.settings.width = '100%';
-    
-    if ( this.options.flow == 'auto' ) {
-      this._panes['book'].style.overflow = 'hidden';
-    } else {
-      this._panes['book'].style.overflow = 'auto';
-    }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
 
     // start the rendition after all the epub parts 
     // have been loaded
     this._book.ready.all.then(function() {
       // self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-      self._rendition = self._book.renderTo(self._panes['book']);
+      var promise = self._book.renderTo(self._panes['book']);
       self._bindEvents();
       self._drawn = true;
 
-      self._rendition.then(function() {
+      promise.then(function(renderer) {
+        console.log("AHOY WHAT RENDITION", arguments);
+        self._rendition = renderer;
         if ( target && target.start ) { target = target.start; }
         if ( target === undefined ) { console.log("AHOY UNDEFINED START"); target = 0; }
         if ( typeof(target) == 'number' ) { console.log("AHOY NUMBER", target); target = self._book.toc[target].cfi; }
@@ -96,6 +92,11 @@ Reader.EpubJSv2 = Reader.extend({
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
     });    
+  },
+
+  _preResize: function() {
+    var self = this;
+    // self._rendition.render.window.removeEventListener("resize", self._rendition.resized);
   },
 
   next: function() {
@@ -135,6 +136,7 @@ Reader.EpubJSv2 = Reader.extend({
 
   destroy: function() {
     this._drawn = false;
+    this._reader.unload();
   },
 
   currentLocation: function() {

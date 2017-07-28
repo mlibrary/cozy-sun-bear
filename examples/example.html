@@ -2,9 +2,11 @@
 <html>
 <head>
     <title>Navigation Example</title>
-    <script type="text/javascript" src="../vendor/javascripts/engines/epub.js"></script>
-    <script src="../dist/cozy-sun-bear.js"></script>
 
+    <!-- <script type="text/javascript" src="../vendor/javascripts/engines/epub.js"></script> -->
+    <!-- <script src="../dist/cozy-sun-bear.js"></script> -->
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../dist/cozy-sun-bear.css" />
 
@@ -21,12 +23,35 @@
         #select-available-books {
             font-size: 1.1rem;
             margin-top: 0.4rem;
-        }        
+        }
+
+        #select-engine {
+            z-index: 9000;
+            opacity: 0.2;
+            position: fixed;
+            right: 0;
+        }
+
+        #select-engine:hover {
+            opacity: 1.0;
+        }
 
     </style>
 
 </head>
 <body>
+
+    <form id="select-engine">
+        <select size="1" name="engine">
+            <option value="epubjs">epub.js/v0.3</option>
+            <option value="epubjsv2">epub.js/v0.2</option>
+            <option value="readium">Readium</option>
+        </select>
+    </form>
+    <script>
+        var engine = localStorage.getItem('engine') || 'epubjs';
+        $("#select-engine select").val(engine);
+    </script>
 
     <form class="select-book">
         <p>
@@ -39,50 +64,84 @@
 
     <script type="text/javascript">
 
-        var $form = $("form");
+        $("#select-engine select").on('change', function() {
+            var engine = $(this).val();
+            localStorage.setItem('engine', engine);
+            location.reload(true);
+        })
+
+        var $form = $("form.select-book");
         var $select = $("select[name=book]");
         var book_href;
         var book_prefix = '';
 
         var tmp = location.pathname.split("/");
-        tmp.shift(); // leading slash
+        // tmp.shift(); // leading slash
         tmp.pop(); // example.html
         tmp.pop(); // examples
         tmp.pop(); // cozy-sun-bear
         if ( tmp.length ) {
-            book_prefix = tmp.join('/') + '/';
+            book_prefix = tmp.join('/');
         }
+
+        var reader;
+        var available_books;
 
         if ( location.search ) {
             $("body").addClass("reading");
 
-            book_href = book_prefix + location.search.substr(1);
-            var reader = cozy.reader('reader', { href: book_href });
+            var engine_map = {
+                epubjs: 'epub.js',
+                epubjsv2: 'v2/epub.js',
+                readium: 'readium-js_all.js'
+            };
 
-            cozy.control.title({ region: 'top.header.left' }).addTo(reader);
-            cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
+            var engine_href = '../vendor/javascripts/engines/' + engine_map[engine];
+            var cozy_href = '../dist/cozy-sun-bear.js';
 
-            cozy.control.widget.panel({ 
-                region: 'top.toolbar.left',
-                template: '<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
-                data: { title: "https://doi.org/10.3998/fulcrum.12345" }
-            }).addTo(reader);
+            head.load(cozy_href, function() {
+                head.load(engine_href, function() {
+                    book_href = book_prefix + location.search.substr(1);
+                    reader = cozy.reader('reader', { href: book_href, engine: engine });
+
+                    cozy.control.title({ region: 'top.header.left' }).addTo(reader);
+                    cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
+
+                    cozy.control.widget.panel({ 
+                        region: 'top.toolbar.left',
+                        template: '<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
+                        data: { title: "https://doi.org/10.3998/fulcrum.12345" }
+                    }).addTo(reader);
 
 
-            cozy.control.widget.panel({
-                region: 'top.toolbar.right',
-                template: '<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>',
-                data: {}
-            }).addTo(reader);
+                    cozy.control.widget.panel({
+                        region: 'top.toolbar.right',
+                        template: '<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>',
+                        data: {}
+                    }).addTo(reader);
 
-            cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
-            // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
-            cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
-            cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-            // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
-            cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
-            reader.start();
+                    cozy.control.widget.button({
+                        region: 'top.toolbar.right',
+                        template: '<button class="button--sm" data-toggle="button" data-slot="label"></button>',
+                        data: { label: 'FULLSCREEN' },
+                        onClick: function() {
+                            reader.requestFullscreen();
+                        }
+                    }).addTo(reader);
 
+                    cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
+                    // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
+                    cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
+                    cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
+                    // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
+                    cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
+                    reader.start();
+
+                    setTimeout(function() {
+                        update_select_panel(available_books);
+                    }, 100);
+                })
+            })
         }
 
         var update_select_panel = function(data) {
@@ -118,7 +177,7 @@
                     $option.attr('selected', 'selected');
                 }
             }
-            update_select_panel(data);
+            available_books = data;
         })
 
         $form.on('submit', function(e) {

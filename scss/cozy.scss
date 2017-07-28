@@ -103,10 +103,6 @@ $grid-padding:       1rem;
     box-sizing: border-box;
   }
 
-  &.cozy-theme-dark {
-    filter: invert(90%);
-  }
-
   ///////////////////////////////////
   // icons
   ///////////////////////////////////
@@ -260,9 +256,9 @@ $grid-padding:       1rem;
     box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
   }
 
-  iframe {
-    background: $white;
-  }
+  // iframe {
+  //   background: $white;
+  // }
 }
 
 ///////////////////////////////////
@@ -284,31 +280,74 @@ $grid-padding:       1rem;
 }
 
 .cozy-module-main {
-  align-self: stretch;
-  display: flex;
   flex-grow: 1;
+  position: relative;
+
+  background: $white;
+  color: $black;
+
+  .cozy-theme-light & {
+    background: $white;
+    color: $black;
+
+    a {
+      color: inherit;
+    }
+  }
+
+  .cozy-theme-dark & {
+    background: #002b36;
+    color: #839496;
+    a {
+      color: #E0FFFF;
+    }
+  }
 }
 
 .cozy-module-left,
 .cozy-module-right {
-  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5%;
+  z-index: 10;
+ }
+
+.cozy-module-left {
+  left: 0;
+}
+
+.cozy-module-right {
+  right: 0;
 }
 
 .cozy-module-book-cover {
-  background: #666;
+  // background: #666;
   border-bottom: 1px solid $gray-2;
   border-top: 1px solid $gray-2;
-  flex-grow: 1;
-  position: relative;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+
 }
 
 .cozy-module-book {
   margin-left: auto;
   margin-right: auto;
-  background: $white;
+  // background: $white;
   position: relative;
   height: 100%;
+  width: 90%;
+  margin: 0 auto;
+  // background: PAPAYAWHIP;
   padding: 2rem;
+
+  > div {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .cozy-module-book-loading {
@@ -335,6 +374,7 @@ div[class^='cozy-panel-'] {
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 
 div.cozy-panel-footer {
@@ -347,12 +387,12 @@ div.cozy-panel-footer {
 }
 
 .cozy-module-main .cozy-panel-sidebar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: $white;
-  border-top: 1px solid $gray-2;
-  border-bottom: 1px solid $gray-2;
+  // display: block;
+  // justify-content: center;
+  // align-items: center;
+  // background: $white;
+  // border-top: 1px solid $gray-2;
+  // border-bottom: 1px solid $gray-2;
 }
 
 .cozy-control {
@@ -490,6 +530,38 @@ div.cozy-panel-footer {
   label {
     display: block;
     margin: 1em 0;
+  }
+
+}
+
+// engine-specific 
+.cozy-container.cozy-engine-readium {
+  .book-frame.reflowable-book-frame {
+      position: absolute !important;
+      top: 2rem;
+      left: 0;
+      right: 0;
+      bottom: 2rem;
+
+      iframe {
+        border: none;
+        overflow: hidden;
+
+        &.iframe-fixed {
+          width: 100%;
+          height: 100%;
+        }
+      }
+  }
+
+  .reflowable-content-frame {
+      position: absolute !important;
+      overflow: hidden;
+
+  }
+
+  #scrolled-content-frame {
+    position: absolute;
   }
 
 }
