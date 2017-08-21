@@ -6,6 +6,7 @@ import {PublicationMetadata, publicationMetadata} from './Control.PublicationMet
 import {Preferences, preferences} from './Control.Preferences';
 import {Widget, widget} from './Control.Widget';
 import {Citation, citation} from './Control.Citation';
+import {Search, search} from './Control.Search';
 import {CitationOptions, citationOptions} from './Control.CitationOptions';
 import {BibliographicInformation, bibliographicInformation} from './Control.BibliographicInformation';
 import {Download, download} from './Control.Download';
@@ -39,6 +40,9 @@ control.widget = widget;
 
 Control.Citation = Citation;
 control.citation = citation;
+
+Control.Search = Search;
+control.search = search;
 
 Control.CitationOptions = CitationOptions;
 control.citationOptions = citationOptions;
