@@ -107,12 +107,23 @@
                     cozy.control.title({ region: 'top.header.left' }).addTo(reader);
                     cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
 
-                    cozy.control.widget.panel({ 
+                    cozy.control.widget.panel({
                         region: 'top.toolbar.left',
                         template: '<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
                         data: { title: "https://doi.org/10.3998/fulcrum.12345" }
                     }).addTo(reader);
 
+
+                    // The searchUrl goes to "moby-dick" on fulcrum in my dev space so
+                    // obviously search will only work for this example if your environment is set up to handle it.
+                    // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
+                    console.log("ENGINE", engine);
+                    if (engine !== "readium") {
+                      cozy.control.search({
+                        region: 'top.toolbar.left',
+                        searchUrl: 'http://127.0.0.1:3000/epub_search/hd76s004z?q='
+                      }).addTo(reader);
+                    }
 
                     cozy.control.widget.panel({
                         region: 'top.toolbar.right',

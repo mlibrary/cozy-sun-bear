@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.01cbfeaa, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.068dad0e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4626,6 +4626,97 @@ var citation = function citation(options) {
   return new Citation(options);
 };
 
+// for debugging
+window.parseFullName = parseFullName;
+
+var Search = Control.extend({
+  options: {
+    label: 'Search',
+    html: '<span>Search</span>'
+  },
+
+  defaultTemplate: '<form>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open">Search</button>\n  </form>',
+
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+
+      container = create$1('div', className);
+
+      var template = this.options.template || this.defaultTemplate;
+
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+
+    this._control = container.querySelector("[data-toggle=open]");
+    container.style.position = 'relative';
+
+    this._modal = this._reader.modal({
+      template: '<ul></ul>',
+      title: 'Search Results',
+      region: 'left'
+    });
+
+    on(this._control, 'click', function (event) {
+      event.preventDefault();
+
+      var searchString = this._container.querySelector("#cozy-search-string");
+      var url = this.options.searchUrl + searchString.value;
+      console.log("SEARCH URL", url);
+
+      var parent = this._modal._container.querySelector('ul');
+      // clear any old search results from the dom
+      while (parent.hasChildNodes()) {
+        parent.removeChild(parent.lastChild);
+      }
+
+      $.getJSON(url, function (data) {
+        console.log("DATA", data);
+
+        data.search_results.forEach(function (result) {
+          var option = create$1('li');
+          var anchor = create$1('a', null, option);
+          anchor.textContent = result.snippet;
+          anchor.setAttribute("href", "epubcfi(" + result.cfi + ")");
+          parent.appendChild(option);
+        });
+      }).fail(function (jqxhr, textStatus, error) {
+        console.log(textStatus);
+        console.log(error);
+      }).always(function () {
+        self._modal.activate();
+      });
+    }, this);
+
+    on(this._modal._container, 'click', function (event) {
+      event.preventDefault();
+      var target = event.target;
+      if (target.tagName == 'A') {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+      }
+      this._modal.deactivate();
+    }, this);
+
+    return container;
+  },
+
+  EOT: true
+});
+
+var search = function search(options) {
+  return new Search(options);
+};
+
 var CitationOptions = Control.extend({
   options: {
     label: 'Citation',
@@ -5002,6 +5093,9 @@ control.widget = widget;
 Control.Citation = Citation;
 control.citation = citation;
 
+Control.Search = Search;
+control.search = search;
+
 Control.CitationOptions = CitationOptions;
 control.citationOptions = citationOptions;
 
@@ -5370,6 +5464,8 @@ Reader.Mock = Reader.extend({
   _bindEvents: function _bindEvents() {
     var self = this;
   },
+
+  _updateTheme: function _updateTheme() {},
 
   EOT: true
 
