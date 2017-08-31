@@ -1458,6 +1458,14 @@ div.cozy-panel-footer {
   font-size: 1em;
   text-transform: none; }
 
+.cozy-control form.search {
+  display: inline-flex;
+  height: 100%; }
+  .cozy-control form.search button.button--sm {
+    padding: 0 .5em; }
+  .cozy-control form.search button i.icon-magnifying-glass {
+    font-size: 1em; }
+
 .cozy-control-preferences button {
   padding: .8em 1em 0 .6em; }
 
