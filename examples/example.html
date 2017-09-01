@@ -102,7 +102,7 @@
             head.load(cozy_href, function() {
                 head.load(engine_href, function() {
                     book_href = book_prefix + location.search.substr(1);
-                    reader = cozy.reader('reader', { href: book_href, engine: engine });
+                    reader = cozy.reader('reader', { href: book_href, engine: engine, flow: 'auto' });
 
                     cozy.control.title({ region: 'top.header.left' }).addTo(reader);
                     cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
