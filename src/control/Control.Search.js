@@ -13,9 +13,9 @@ export var Search = Control.extend({
     html: '<span>Search</span>'
   },
 
-  defaultTemplate: `<form>
+  defaultTemplate: `<form class="search">
     <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>
-    <button class="button--sm" data-toggle="open">Search</button>
+    <button class="button--sm" data-toggle="open"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
   </form>`,
 
   onAdd: function(reader) {
