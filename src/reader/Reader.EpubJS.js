@@ -43,8 +43,7 @@ Reader.EpubJS = Reader.extend({
       self.settings.height = '100%';
       self.settings.width = '100%';
 
-      console.log("AHOY DRAW", size);
-
+      self.settings['ignoreClass'] = 'annotator-hl';
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
       self._updateFontSize();
       self._bindEvents();
@@ -195,6 +194,12 @@ Reader.EpubJS = Reader.extend({
 
   _updateReaderStyles: function() {
     var isAuthorTheme = false;
+
+    this._rendition.themes.default({
+      '.epubjs-hl' : {
+        'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply'
+      }
+    });
 
     var custom_stylesheet_rules = [];
     var styles = this._getThemeStyles();

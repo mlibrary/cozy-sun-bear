@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.068dad0e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.02c882b6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -276,14 +276,6 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
-// @class Class
-// @aka L.Class
-
-// @section
-// @uninheritable
-
-// Thanks to John Resig and Dean Edwards for inspiration!
-
 function Class() {}
 
 Class.extend = function (props) {
@@ -410,31 +402,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
-
-/*
- * @class Evented
- * @aka L.Evented
- * @inherits Class
- *
- * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
- *
- * @example
- *
- * ```js
- * map.on('click', function(e) {
- * 	alert(e.latlng);
- * } );
- * ```
- *
- * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
- *
- * ```js
- * function onClick(e) { ... }
- *
- * map.on('click', onClick);
- * map.off('click', onClick);
- * ```
- */
 
 var Evented = Class.extend({
 
@@ -871,26 +838,6 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
-/*
- * @class Point
- * @aka L.Point
- *
- * Represents a point with `x` and `y` coordinates in pixels.
- *
- * @example
- *
- * ```js
- * var point = L.point(200, 300);
- * ```
- *
- * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
- *
- * ```js
- * map.panBy([200, 300]);
- * map.panBy(L.point(200, 300));
- * ```
- */
-
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1068,10 +1015,6 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
-/*
- * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
- */
-
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1194,10 +1137,6 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
-/*
- * Extends the event handling code with double tap support for mobile browsers.
- */
-
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1286,22 +1225,6 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
-/*
- * @namespace DomEvent
- * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
- */
-
-// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
-
-// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
-// Adds a listener function (`fn`) to a particular DOM event type of the
-// element `el`. You can optionally specify the context of the listener
-// (object the `this` keyword will point to). You can also pass several
-// space-separated types (e.g. `'click dblclick'`).
-
-// @alternative
-// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
-// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1576,6 +1499,8 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
+// @function addListener(…): this
+// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1595,19 +1520,6 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
-
-// @property TRANSFORM: String
-// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
@@ -1965,12 +1877,10 @@ var isObject_1 = isObject;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
-/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -1978,34 +1888,16 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
-/**
- * Gets the timestamp of the number of milliseconds that have elapsed since
- * the Unix epoch (1 January 1970 00:00:00 UTC).
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Date
- * @returns {number} Returns the timestamp.
- * @example
- *
- * _.defer(function(stamp) {
- *   console.log(_.now() - stamp);
- * }, _.now());
- * // => Logs the number of milliseconds it took for the deferred invocation.
- */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
-/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
-/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -2073,7 +1965,6 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
-/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2128,7 +2019,6 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
-/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -2155,7 +2045,6 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
-/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -2219,7 +2108,6 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
-/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2506,7 +2394,6 @@ Object.defineProperties(screenfull, {
   }
 });
 
-// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -2583,6 +2470,8 @@ var Reader = Evented.extend({
     var target = target || this.currentLocation();
     extend(this.options, options);
     this.destroy();
+    console.log("AHOY REOPENED?");
+    return;
     this.draw(target);
     this.fire('reopen');
   },
@@ -2917,15 +2806,6 @@ var Reader = Evented.extend({
 
   EOT: true
 });
-
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
 
 var Control = Class.extend({
     // @section
@@ -3545,8 +3425,6 @@ var contents = function contents(options) {
   return new Contents(options);
 };
 
-// Title + Chapter
-
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -3612,8 +3490,6 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
-
-// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -4273,7 +4149,6 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -4626,7 +4501,6 @@ var citation = function citation(options) {
   return new Citation(options);
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Search = Control.extend({
@@ -4870,8 +4744,6 @@ var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
-// Title + Chapter
-
 var BibliographicInformation = Control.extend({
   options: {
     label: 'Info',
@@ -5063,9 +4935,6 @@ var download = function download(options) {
   return new Download(options);
 };
 
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
-
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
 Control.PageFirst = PageFirst;
@@ -5161,9 +5030,9 @@ Reader.EpubJS = Reader.extend({
       self.settings.height = '100%';
       self.settings.width = '100%';
 
-      console.log("AHOY DRAW", size);
-
+      self.settings['ignoreClass'] = 'annotator-hl';
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+      self._updateFontSize();
       self._bindEvents();
       self._drawn = true;
 
@@ -5240,6 +5109,7 @@ Reader.EpubJS = Reader.extend({
 
   reopen: function reopen(options, target) {
     // different per reader?
+    var _this = this;
     var target = target || this.currentLocation();
     if (target.start) {
       target = target.start;
@@ -5250,14 +5120,16 @@ Reader.EpubJS = Reader.extend({
 
     extend(this.options, options);
 
-    this._rendition.flow(this.options.flow);
-    this._updateFontSize();
-
-    this._updateTheme();
-    this._updateReaderStyles();
-    this._rendition.manager.clear();
-    console.log("AHOY TARGET", target);
-    this._rendition.display(target);
+    // this._rendition.manager.clear();
+    // this._rendition.flow(this.options.flow);
+    if (this._rendition.settings.flow != options.flow) {
+      this._rendition.destroy();
+      this.draw(target);
+    } else {
+      this._updateFontSize();
+      this._updateTheme();
+      this._updateReaderStyles();
+    }
   },
 
   currentLocation: function currentLocation() {
@@ -5280,14 +5152,17 @@ Reader.EpubJS = Reader.extend({
 
     var custom_stylesheet_rules = [];
 
-    if (add_max_img_styles) {
-      // WHY IN HEAVENS NAME?
-      var style = window.getComputedStyle(this._panes['book']);
-      var height = parseInt(style.getPropertyValue('height'));
-      height -= parseInt(style.getPropertyValue('padding-top'));
-      height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push(['img', ['max-height', height + 'px'], ['max-width', '100%'], ['height', 'auto'], ['width', 'auto']]);
-    }
+    // if ( add_max_img_styles ) {
+    //   // WHY IN HEAVENS NAME?
+    //   // var style = window.getComputedStyle(this._panes['book']);
+    //   var style = window.getComputedStyle(this._rendition.manager.container);
+    //   var height = parseInt(style.getPropertyValue('height'));
+    //   height -= parseInt(style.getPropertyValue('padding-top'));
+    //   height -= parseInt(style.getPropertyValue('padding-bottom'));
+    //   // height -= 100;
+    //   console.log("AHOY", height, style);
+    //   custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px !important' ], [ 'max-width', '100% !important'], [ 'height', 'auto' ], [ 'width', 'auto' ]]);
+    // }
 
     this._updateFontSize();
 
@@ -5303,10 +5178,22 @@ Reader.EpubJS = Reader.extend({
       var current = this.book.navigation.get(section.href);
       self.fire("update-section", current);
     });
+
+    this._rendition.on("rendered", function (section, view) {
+      view.contents.on("linkClicked", function (href) {
+        self._rendition.display(href);
+      });
+    });
   },
 
   _updateReaderStyles: function _updateReaderStyles() {
     var isAuthorTheme = false;
+
+    this._rendition.themes.default({
+      '.epubjs-hl': {
+        'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply'
+      }
+    });
 
     var custom_stylesheet_rules = [];
     var styles = this._getThemeStyles();
@@ -5324,7 +5211,6 @@ Reader.EpubJS = Reader.extend({
         });
       }
     }
-    console.log("AHOY THEMES", styles, custom_stylesheet_rules);
     this._rendition.hooks.content.register(function (view) {
       view.addStylesheetRules(custom_stylesheet_rules);
     });
@@ -5364,6 +5250,13 @@ Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 
   set: function set(data) {
     this._metadata = extend({}, data, this.options.metadata);
+  }
+});
+
+Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
+  get: function get$$1() {
+    // return the combined metadata of configured + book metadata
+    return this._rendition.annotations;
   }
 });
 
@@ -5809,7 +5702,6 @@ function createReader$3(id, options) {
   return new Reader.EpubJSv2(id, options);
 }
 
-// import {Readium} from '../readium';
 Reader.Readium = Reader.extend({
 
   initialize: function initialize(id, options) {
@@ -6011,8 +5903,6 @@ var reader = function reader(id, options) {
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
-
-// misc
 
 var oldCozy = window.cozy;
 function noConflict() {
