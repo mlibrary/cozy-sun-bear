@@ -125,16 +125,18 @@ Reader.EpubJS = Reader.extend({
 
     Util.extend(this.options, options);
 
-    // this._rendition.manager.clear();
-    // this._rendition.flow(this.options.flow);
     if ( this._rendition.settings.flow != options.flow ) {
-      this._rendition.destroy();
-      this.draw(target);
-    } else {
-      this._updateFontSize();
-      this._updateTheme();
-      this._updateReaderStyles();
+      if ( this.options.flow == 'auto' ) {
+        this._panes['book'].style.overflow = 'hidden';
+      } else {
+        this._panes['book'].style.overflow = 'auto';
+      }
+      this._rendition.flow(this.options.flow);
     }
+
+    this._updateFontSize();
+    this._updateTheme();
+    this._updateReaderStyles();
   },
 
   currentLocation: function() {
