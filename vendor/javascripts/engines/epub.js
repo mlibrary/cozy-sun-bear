@@ -13401,8 +13401,10 @@ var Stage = function () {
 				this.container.style.display = "flex";
 				this.container.style.flexDirection = "row";
 				this.container.style.flexWrap = "nowrap";
+				this.container.style.overflow = "hidden"; // may not be accurate?
 			} else {
 				this.container.style.display = "block";
+				this.container.style.overflow = "auto";
 			}
 		}
 
