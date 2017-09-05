@@ -47,7 +47,8 @@ export var Reader = Evented.extend({
     fontSizeSmall: '90%',
     fontSizeDefault: '100%',
     trackResize: true,
-    theme: 'default'
+    theme: 'default',
+    themes: []
   },
 
   initialize: function(id, options) {

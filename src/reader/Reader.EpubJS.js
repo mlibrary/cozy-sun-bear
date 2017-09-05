@@ -187,14 +187,29 @@ Reader.EpubJS = Reader.extend({
     });
 
     this._rendition.on("rendered", function(section, view) {
-      view.contents.on("linkClicked", function(href) {
-        self._rendition.display(href);
-      })
+      console.log("AHOY WHAT", view);
+      if ( view.contents ) {
+        view.contents.on("linkClicked", function(href) {
+          self._rendition.display(href);
+        })
+      }
     })
-
   },
 
   _updateReaderStyles: function() {
+
+    var themes = this.options.themes;
+    if ( themes ) {
+      themes.forEach(function(theme) {
+        this._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
+      })
+    }
+
+    // base for highlights
+    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
+  },
+
+  _updateReaderStylesXX: function() {
     var isAuthorTheme = false;
 
     this._rendition.themes.default({

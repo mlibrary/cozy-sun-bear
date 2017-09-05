@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.06ef1e03, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.06c5207f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 4acf64f... refactor theme support
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2517,7 +2521,8 @@ var Reader = Evented.extend({
     fontSizeSmall: '90%',
     fontSizeDefault: '100%',
     trackResize: true,
-    theme: 'default'
+    theme: 'default',
+    themes: []
   },
 
   initialize: function initialize(id, options) {
@@ -5254,6 +5259,11 @@ Reader.EpubJS = Reader.extend({
     extend(this.options, options);
 
     if (this._rendition.settings.flow != options.flow) {
+<<<<<<< HEAD
+=======
+      // this._rendition.destroy();
+      // this.draw(target);
+>>>>>>> 4acf64f... refactor theme support
       if (this.options.flow == 'auto') {
         this._panes['book'].style.overflow = 'hidden';
       } else {
@@ -5315,13 +5325,29 @@ Reader.EpubJS = Reader.extend({
     });
 
     this._rendition.on("rendered", function (section, view) {
-      view.contents.on("linkClicked", function (href) {
-        self._rendition.display(href);
-      });
+      console.log("AHOY WHAT", view);
+      if (view.contents) {
+        view.contents.on("linkClicked", function (href) {
+          self._rendition.display(href);
+        });
+      }
     });
   },
 
   _updateReaderStyles: function _updateReaderStyles() {
+
+    var themes = this.options.themes;
+    if (themes) {
+      themes.forEach(function (theme) {
+        this._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
+      });
+    }
+
+    // base for highlights
+    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
+  },
+
+  _updateReaderStylesXX: function _updateReaderStylesXX() {
     var isAuthorTheme = false;
 
     this._rendition.themes.default({
