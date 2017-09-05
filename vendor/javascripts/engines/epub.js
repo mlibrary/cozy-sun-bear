@@ -7,7 +7,7 @@
 		exports["ePub"] = factory(require("xmldom"), (function webpackLoadOptionalExternalModule() { try { return require("JSZip"); } catch(e) {} }()));
 	else
 		root["ePub"] = factory(root["xmldom"], root["JSZip"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_17__, __WEBPACK_EXTERNAL_MODULE_56__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_14__, __WEBPACK_EXTERNAL_MODULE_53__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -43,9 +43,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -73,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 28);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -415,7 +412,7 @@ function parse(markup, mime, forceXMLDom) {
 	var Parser;
 
 	if (typeof DOMParser === "undefined" || forceXMLDom) {
-		Parser = __webpack_require__(17).DOMParser;
+		Parser = __webpack_require__(14).DOMParser;
 	} else {
 		Parser = DOMParser;
 	}
@@ -1763,8 +1760,8 @@ module.exports = exports["default"];
 "use strict";
 
 
-var d        = __webpack_require__(40)
-  , callable = __webpack_require__(50)
+var d        = __webpack_require__(23)
+  , callable = __webpack_require__(37)
 
   , apply = Function.prototype.apply, call = Function.prototype.call
   , create = Object.create, defineProperty = Object.defineProperty
@@ -1908,7 +1905,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _pathWebpack = __webpack_require__(6);
+var _pathWebpack = __webpack_require__(5);
 
 var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
 
@@ -1995,152 +1992,6 @@ module.exports = exports["default"];
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.replaceBase = replaceBase;
-exports.replaceCanonical = replaceCanonical;
-exports.replaceMeta = replaceMeta;
-exports.replaceLinks = replaceLinks;
-exports.substitute = substitute;
-
-var _core = __webpack_require__(0);
-
-var _url = __webpack_require__(5);
-
-var _url2 = _interopRequireDefault(_url);
-
-var _path = __webpack_require__(3);
-
-var _path2 = _interopRequireDefault(_path);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function replaceBase(doc, section) {
-	var base;
-	var head;
-
-	if (!doc) {
-		return;
-	}
-
-	// head = doc.querySelector("head");
-	// base = head.querySelector("base");
-	head = (0, _core.qs)(doc, "head");
-	base = (0, _core.qs)(head, "base");
-
-	if (!base) {
-		base = doc.createElement("base");
-		head.insertBefore(base, head.firstChild);
-	}
-
-	base.setAttribute("href", section.url);
-}
-
-function replaceCanonical(doc, section) {
-	var head;
-	var link;
-	var url = section.url; // window.location.origin +  window.location.pathname + "?loc=" + encodeURIComponent(section.url);
-
-	if (!doc) {
-		return;
-	}
-
-	head = (0, _core.qs)(doc, "head");
-	link = (0, _core.qs)(head, "link[rel='canonical']");
-
-	if (link) {
-		link.setAttribute("href", url);
-	} else {
-		link = doc.createElement("link");
-		link.setAttribute("rel", "canonical");
-		link.setAttribute("href", url);
-		head.appendChild(link);
-	}
-}
-
-function replaceMeta(doc, section) {
-	var head;
-	var meta;
-	var id = section.idref;
-	if (!doc) {
-		return;
-	}
-
-	head = (0, _core.qs)(doc, "head");
-	meta = (0, _core.qs)(head, "link[property='dc:identifier']");
-
-	if (meta) {
-		meta.setAttribute("content", id);
-	} else {
-		meta = doc.createElement("meta");
-		meta.setAttribute("property", "dc:identifier");
-		meta.setAttribute("content", id);
-		head.appendChild(meta);
-	}
-}
-
-// TODO: move me to Contents
-function replaceLinks(contents, fn) {
-
-	var links = contents.querySelectorAll("a[href]");
-
-	if (!links.length) {
-		return;
-	}
-
-	var base = (0, _core.qs)(contents.ownerDocument, "base");
-	var location = base ? base.getAttribute("href") : undefined;
-	var replaceLink = function (link) {
-		var href = link.getAttribute("href");
-
-		if (href.indexOf("mailto:") === 0) {
-			return;
-		}
-
-		var absolute = href.indexOf("://") > -1;
-		var linkUrl = new _url2.default(href, location);
-
-		if (absolute) {
-
-			link.setAttribute("target", "_blank");
-		} else {
-			link.onclick = function () {
-
-				if (linkUrl && linkUrl.hash) {
-					fn(linkUrl.Path.path + linkUrl.hash);
-				} else if (linkUrl) {
-					fn(linkUrl.Path.path);
-				} else {
-					fn(href);
-				}
-
-				return false;
-			};
-		}
-	}.bind(this);
-
-	for (var i = 0; i < links.length; i++) {
-		replaceLink(links[i]);
-	}
-}
-
-function substitute(content, urls, replacements) {
-	urls.forEach(function (url, i) {
-		if (url && replacements[i]) {
-			content = content.replace(new RegExp(url, "g"), replacements[i]);
-		}
-	});
-	return content;
-}
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -2148,7 +1999,7 @@ var _path = __webpack_require__(3);
 
 var _path2 = _interopRequireDefault(_path);
 
-var _pathWebpack = __webpack_require__(6);
+var _pathWebpack = __webpack_require__(5);
 
 var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
 
@@ -2257,7 +2108,7 @@ exports.default = Url;
 module.exports = exports["default"];
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2818,7 +2669,194 @@ module.exports = posix;
 
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.replaceBase = replaceBase;
+exports.replaceCanonical = replaceCanonical;
+exports.replaceMeta = replaceMeta;
+exports.replaceLinks = replaceLinks;
+exports.substitute = substitute;
+
+var _core = __webpack_require__(0);
+
+var _url = __webpack_require__(4);
+
+var _url2 = _interopRequireDefault(_url);
+
+var _path = __webpack_require__(3);
+
+var _path2 = _interopRequireDefault(_path);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function replaceBase(doc, section) {
+	var base;
+	var head;
+
+	if (!doc) {
+		return;
+	}
+
+	// head = doc.querySelector("head");
+	// base = head.querySelector("base");
+	head = (0, _core.qs)(doc, "head");
+	base = (0, _core.qs)(head, "base");
+
+	if (!base) {
+		base = doc.createElement("base");
+		head.insertBefore(base, head.firstChild);
+	}
+
+	base.setAttribute("href", section.url);
+}
+
+function replaceCanonical(doc, section) {
+	var head;
+	var link;
+	var url = section.url; // window.location.origin +  window.location.pathname + "?loc=" + encodeURIComponent(section.url);
+
+	if (!doc) {
+		return;
+	}
+
+	head = (0, _core.qs)(doc, "head");
+	link = (0, _core.qs)(head, "link[rel='canonical']");
+
+	if (link) {
+		link.setAttribute("href", url);
+	} else {
+		link = doc.createElement("link");
+		link.setAttribute("rel", "canonical");
+		link.setAttribute("href", url);
+		head.appendChild(link);
+	}
+}
+
+function replaceMeta(doc, section) {
+	var head;
+	var meta;
+	var id = section.idref;
+	if (!doc) {
+		return;
+	}
+
+	head = (0, _core.qs)(doc, "head");
+	meta = (0, _core.qs)(head, "link[property='dc.identifier']");
+
+	if (meta) {
+		meta.setAttribute("content", id);
+	} else {
+		meta = doc.createElement("meta");
+		meta.setAttribute("name", "dc.identifier");
+		meta.setAttribute("content", id);
+		head.appendChild(meta);
+	}
+}
+
+// TODO: move me to Contents
+function replaceLinks(contents, fn) {
+
+	var links = contents.querySelectorAll("a[href]");
+
+	if (!links.length) {
+		return;
+	}
+
+	var base = (0, _core.qs)(contents.ownerDocument, "base");
+	var location = base ? base.getAttribute("href") : undefined;
+	var replaceLink = function (link) {
+		var href = link.getAttribute("href");
+
+		if (href.indexOf("mailto:") === 0) {
+			return;
+		}
+
+		var absolute = href.indexOf("://") > -1;
+		var linkUrl = new _url2.default(href, location);
+
+		if (absolute) {
+
+			link.setAttribute("target", "_blank");
+		} else {
+			link.onclick = function () {
+
+				if (linkUrl && linkUrl.hash) {
+					fn(linkUrl.Path.path + linkUrl.hash);
+				} else if (linkUrl) {
+					fn(linkUrl.Path.path);
+				} else {
+					fn(href);
+				}
+
+				return false;
+			};
+		}
+	}.bind(this);
+
+	for (var i = 0; i < links.length; i++) {
+		replaceLink(links[i]);
+	}
+}
+
+function substitute(content, urls, replacements) {
+	urls.forEach(function (url, i) {
+		if (url && replacements[i]) {
+			content = content.replace(new RegExp(url, "g"), replacements[i]);
+		}
+	});
+	return content;
+}
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _undefined = __webpack_require__(30)(); // Support ES3 engines
+
+module.exports = function (val) {
+ return (val !== _undefined) && (val !== null);
+};
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2830,1040 +2868,535 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _eventEmitter = __webpack_require__(2);
-
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
-
-var _core = __webpack_require__(0);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _mapping = __webpack_require__(8);
-
-var _mapping2 = _interopRequireDefault(_mapping);
-
-var _replacements = __webpack_require__(4);
-
-var _marksPane = __webpack_require__(23);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-// Dom events to listen for
-var EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
+/**
+ * Hooks allow for injecting functions that must all complete in order before finishing
+ * They will execute in parallel but all must finish before continuing
+ * Functions may return a promise if they are asycn.
+ * @param {any} context scope of this
+ * @example this.content = new EPUBJS.Hook(this);
+ */
+var Hook = function () {
+	function Hook(context) {
+		_classCallCheck(this, Hook);
 
-var Contents = function () {
-	function Contents(doc, content, cfiBase, sectionIndex) {
-		_classCallCheck(this, Contents);
-
-		// Blank Cfi for Parsing
-		this.epubcfi = new _epubcfi2.default();
-
-		this.document = doc;
-		this.documentElement = this.document.documentElement;
-		this.content = content || this.document.body;
-		this.window = this.document.defaultView;
-
-		this._size = {
-			width: 0,
-			height: 0
-		};
-
-		this.sectionIndex = sectionIndex || 0;
-		this.cfiBase = cfiBase || "";
-
-		this.pane = undefined;
-		this.highlights = {};
-		this.underlines = {};
-		this.marks = {};
-
-		this.listeners();
+		this.context = context || this;
+		this.hooks = [];
 	}
 
-	_createClass(Contents, [{
-		key: "width",
-		value: function width(w) {
-			// var frame = this.documentElement;
-			var frame = this.content;
+	/**
+  * Adds a function to be run before a hook completes
+  * @example this.content.register(function(){...});
+  */
 
-			if (w && (0, _core.isNumber)(w)) {
-				w = w + "px";
+
+	_createClass(Hook, [{
+		key: "register",
+		value: function register() {
+			for (var i = 0; i < arguments.length; ++i) {
+				if (typeof arguments[i] === "function") {
+					this.hooks.push(arguments[i]);
+				} else {
+					// unpack array
+					for (var j = 0; j < arguments[i].length; ++j) {
+						this.hooks.push(arguments[i][j]);
+					}
+				}
 			}
-
-			if (w) {
-				frame.style.width = w;
-				// this.content.style.width = w;
-			}
-
-			return this.window.getComputedStyle(frame)["width"];
 		}
-	}, {
-		key: "height",
-		value: function height(h) {
-			// var frame = this.documentElement;
-			var frame = this.content;
 
-			if (h && (0, _core.isNumber)(h)) {
-				h = h + "px";
-			}
-
-			if (h) {
-				frame.style.height = h;
-				// this.content.style.height = h;
-			}
-
-			return this.window.getComputedStyle(frame)["height"];
-		}
-	}, {
-		key: "contentWidth",
-		value: function contentWidth(w) {
-
-			var content = this.content || this.document.body;
-
-			if (w && (0, _core.isNumber)(w)) {
-				w = w + "px";
-			}
-
-			if (w) {
-				content.style.width = w;
-			}
-
-			return this.window.getComputedStyle(content)["width"];
-		}
-	}, {
-		key: "contentHeight",
-		value: function contentHeight(h) {
-
-			var content = this.content || this.document.body;
-
-			if (h && (0, _core.isNumber)(h)) {
-				h = h + "px";
-			}
-
-			if (h) {
-				content.style.height = h;
-			}
-
-			return this.window.getComputedStyle(content)["height"];
-		}
-	}, {
-		key: "textWidth",
-		value: function textWidth() {
-			var width;
-			var range = this.document.createRange();
-			var content = this.content || this.document.body;
-
-			// Select the contents of frame
-			range.selectNodeContents(content);
-
-			// get the width of the text content
-			width = range.getBoundingClientRect().width;
-
-			return width;
-		}
-	}, {
-		key: "textHeight",
-		value: function textHeight() {
-			var height;
-			var range = this.document.createRange();
-			var content = this.content || this.document.body;
-
-			range.selectNodeContents(content);
-
-			height = range.getBoundingClientRect().height;
-
-			return height;
-		}
-	}, {
-		key: "scrollWidth",
-		value: function scrollWidth() {
-			var width = this.documentElement.scrollWidth;
-
-			return width;
-		}
-	}, {
-		key: "scrollHeight",
-		value: function scrollHeight() {
-			var height = this.documentElement.scrollHeight;
-
-			return height;
-		}
-	}, {
-		key: "overflow",
-		value: function overflow(_overflow) {
-
-			if (_overflow) {
-				this.documentElement.style.overflow = _overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflow"];
-		}
-	}, {
-		key: "overflowX",
-		value: function overflowX(overflow) {
-
-			if (overflow) {
-				this.documentElement.style.overflowX = overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflowX"];
-		}
-	}, {
-		key: "overflowY",
-		value: function overflowY(overflow) {
-
-			if (overflow) {
-				this.documentElement.style.overflowY = overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflowY"];
-		}
-	}, {
-		key: "css",
-		value: function css(property, value, priority) {
-			var content = this.content || this.document.body;
-
-			if (value) {
-				content.style.setProperty(property, value, priority ? "important" : "");
-			}
-
-			return this.window.getComputedStyle(content)[property];
-		}
-	}, {
-		key: "viewport",
-		value: function viewport(options) {
-			var _width, _height, _scale, _minimum, _maximum, _scalable;
-			var width, height, scale, minimum, maximum, scalable;
-			var $viewport = this.document.querySelector("meta[name='viewport']");
-			var parsed = {
-				"width": undefined,
-				"height": undefined,
-				"scale": undefined,
-				"minimum": undefined,
-				"maximum": undefined,
-				"scalable": undefined
-			};
-			var newContent = [];
-
-			/*
-   * check for the viewport size
-   * <meta name="viewport" content="width=1024,height=697" />
+		/**
+   * Triggers a hook to run all functions
+   * @example this.content.trigger(args).then(function(){...});
    */
-			if ($viewport && $viewport.hasAttribute("content")) {
-				var content = $viewport.getAttribute("content");
-				var _width2 = content.match(/width\s*=\s*([^,]*)/g);
-				var _height2 = content.match(/height\s*=\s*([^,]*)/g);
-				var _scale2 = content.match(/initial-scale\s*=\s*([^,]*)/g);
-				var _minimum2 = content.match(/minimum-scale\s*=\s*([^,]*)/g);
-				var _maximum2 = content.match(/maximum-scale\s*=\s*([^,]*)/g);
-				var _scalable2 = content.match(/user-scalable\s*=\s*([^,]*)/g);
-				if (_width2 && _width2.length && typeof _width2[1] !== "undefined") {
-					parsed.width = _width2[1];
-				}
-				if (_height2 && _height2.length && typeof _height2[1] !== "undefined") {
-					parsed.height = _height2[1];
-				}
-				if (_scale2 && _scale2.length && typeof _scale2[1] !== "undefined") {
-					parsed.scale = _scale2[1];
-				}
-				if (_minimum2 && _minimum2.length && typeof _minimum2[1] !== "undefined") {
-					parsed.minimum = _minimum2[1];
-				}
-				if (_maximum2 && _maximum2.length && typeof _maximum2[1] !== "undefined") {
-					parsed.maximum = _maximum2[1];
-				}
-				if (_scalable2 && _scalable2.length && typeof _scalable2[1] !== "undefined") {
-					parsed.scalable = _scalable2[1];
-				}
-			}
-
-			if (options) {
-				if (options.width || parsed.width) {
-					newContent.push("width=" + (options.width || parsed.width));
-				}
-
-				if (options.height || parsed.height) {
-					newContent.push("height=" + (options.height || parsed.height));
-				}
-
-				if (options.scale || parsed.scale) {
-					newContent.push("initial-scale=" + (options.scale || parsed.scale));
-				}
-				if (options.scalable || parsed.scalable) {
-					newContent.push("minimum-scale=" + (options.scale || parsed.minimum));
-					newContent.push("maximum-scale=" + (options.scale || parsed.maximum));
-					newContent.push("user-scalable=" + (options.scalable || parsed.scalable));
-				}
-
-				if (!$viewport) {
-					$viewport = this.document.createElement("meta");
-					$viewport.setAttribute("name", "viewport");
-					this.document.querySelector("head").appendChild($viewport);
-				}
-
-				$viewport.setAttribute("content", newContent.join(", "));
-
-				this.window.scrollTo(0, 0);
-			}
-
-			return {
-				width: parseInt(width),
-				height: parseInt(height)
-			};
-		}
-
-		// layout(layoutFunc) {
-		//
-		//   this.iframe.style.display = "inline-block";
-		//
-		//   // Reset Body Styles
-		//   this.content.style.margin = "0";
-		//   //this.document.body.style.display = "inline-block";
-		//   //this.document.documentElement.style.width = "auto";
-		//
-		//   if(layoutFunc){
-		//     layoutFunc(this);
-		//   }
-		//
-		//   this.onLayout(this);
-		//
-		// };
-		//
-		// onLayout(view) {
-		//   // stub
-		// };
 
 	}, {
-		key: "expand",
-		value: function expand() {
-			this.emit("expand");
-		}
-	}, {
-		key: "listeners",
-		value: function listeners() {
+		key: "trigger",
+		value: function trigger() {
+			var args = arguments;
+			var context = this.context;
+			var promises = [];
 
-			this.imageLoadListeners();
+			this.hooks.forEach(function (task) {
+				var executing = task.apply(context, args);
 
-			this.mediaQueryListeners();
-
-			// this.fontLoadListeners();
-
-			this.addEventListeners();
-
-			this.addSelectionListeners();
-
-			this.transitionListeners();
-
-			this.resizeListeners();
-
-			this.resizeObservers();
-
-			this.linksHandler();
-		}
-	}, {
-		key: "removeListeners",
-		value: function removeListeners() {
-
-			this.removeEventListeners();
-
-			this.removeSelectionListeners();
-
-			clearTimeout(this.expanding);
-		}
-	}, {
-		key: "resizeCheck",
-		value: function resizeCheck() {
-			var width = this.textWidth();
-			var height = this.textHeight();
-
-			if (width != this._size.width || height != this._size.height) {
-
-				this._size = {
-					width: width,
-					height: height
-				};
-
-				this.pane && this.pane.render();
-				this.onResize && this.onResize(this._size);
-				this.emit("resize", this._size);
-			}
-		}
-	}, {
-		key: "resizeListeners",
-		value: function resizeListeners() {
-			var width, height;
-			// Test size again
-			clearTimeout(this.expanding);
-
-			width = this.textWidth();
-			height = this.textHeight();
-
-			this.resizeCheck();
-
-			this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
-		}
-	}, {
-		key: "transitionListeners",
-		value: function transitionListeners() {
-			var body = this.content;
-
-			body.style['transitionProperty'] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
-			body.style['transitionDuration'] = "0.001ms";
-			body.style['transitionTimingFunction'] = "linear";
-			body.style['transitionDelay'] = "0";
-
-			this.document.addEventListener('transitionend', this.resizeCheck.bind(this));
-		}
-
-		//https://github.com/tylergaw/media-query-events/blob/master/js/mq-events.js
-
-	}, {
-		key: "mediaQueryListeners",
-		value: function mediaQueryListeners() {
-			var sheets = this.document.styleSheets;
-			var mediaChangeHandler = function (m) {
-				if (m.matches && !this._expanding) {
-					setTimeout(this.expand.bind(this), 1);
-					// this.expand();
+				if (executing && typeof executing["then"] === "function") {
+					// Task is a function that returns a promise
+					promises.push(executing);
 				}
-			}.bind(this);
-
-			for (var i = 0; i < sheets.length; i += 1) {
-				var rules;
-				// Firefox errors if we access cssRules cross-domain
-				try {
-					rules = sheets[i].cssRules;
-				} catch (e) {
-					return;
-				}
-				if (!rules) return; // Stylesheets changed
-				for (var j = 0; j < rules.length; j += 1) {
-					//if (rules[j].constructor === CSSMediaRule) {
-					if (rules[j].media) {
-						var mql = this.window.matchMedia(rules[j].media.mediaText);
-						mql.addListener(mediaChangeHandler);
-						//mql.onchange = mediaChangeHandler;
-					}
-				}
-			}
-		}
-	}, {
-		key: "resizeObservers",
-		value: function resizeObservers() {
-			var _this = this;
-
-			// create an observer instance
-			this.observer = new MutationObserver(function (mutations) {
-				_this.resizeCheck();
+				// Otherwise Task resolves immediately, continue
 			});
 
-			// configuration of the observer:
-			var config = { attributes: true, childList: true, characterData: true, subtree: true };
-
-			// pass in the target node, as well as the observer options
-			this.observer.observe(this.document, config);
-		}
-	}, {
-		key: "imageLoadListeners",
-		value: function imageLoadListeners(target) {
-			var images = this.document.querySelectorAll("img");
-			var img;
-			for (var i = 0; i < images.length; i++) {
-				img = images[i];
-
-				if (typeof img.naturalWidth !== "undefined" && img.naturalWidth === 0) {
-					img.onload = this.expand.bind(this);
-				}
-			}
-		}
-	}, {
-		key: "fontLoadListeners",
-		value: function fontLoadListeners(target) {
-			if (!this.document || !this.document.fonts) {
-				return;
-			}
-
-			this.document.fonts.ready.then(function () {
-				this.expand();
-			}.bind(this));
-		}
-	}, {
-		key: "root",
-		value: function root() {
-			if (!this.document) return null;
-			return this.document.documentElement;
-		}
-	}, {
-		key: "locationOf",
-		value: function locationOf(target, ignoreClass) {
-			var position;
-			var targetPos = { "left": 0, "top": 0 };
-
-			if (!this.document) return;
-
-			if (this.epubcfi.isCfiString(target)) {
-				var range = new _epubcfi2.default(target).toRange(this.document, ignoreClass);
-
-				if (range) {
-					if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
-						position = range.startContainer.getBoundingClientRect();
-						targetPos.left = position.left;
-						targetPos.top = position.top;
-					} else {
-						// Webkit does not handle collapsed range bounds correctly
-						// https://bugs.webkit.org/show_bug.cgi?id=138949
-						if (range.collapsed) {
-							position = range.getClientRects()[0];
-						} else {
-							position = range.getBoundingClientRect();
-						}
-					}
-				}
-			} else if (typeof target === "string" && target.indexOf("#") > -1) {
-
-				var id = target.substring(target.indexOf("#") + 1);
-				var el = this.document.getElementById(id);
-
-				if (el) {
-					position = el.getBoundingClientRect();
-				}
-			}
-
-			if (position) {
-				targetPos.left = position.left;
-				targetPos.top = position.top;
-			}
-
-			return targetPos;
-		}
-	}, {
-		key: "addStylesheet",
-		value: function addStylesheet(src) {
-			return new Promise(function (resolve, reject) {
-				var $stylesheet;
-				var ready = false;
-
-				if (!this.document) {
-					resolve(false);
-					return;
-				}
-
-				// Check if link already exists
-				$stylesheet = this.document.querySelector("link[href='" + src + "']");
-				if ($stylesheet) {
-					resolve(true);
-					return; // already present
-				}
-
-				$stylesheet = this.document.createElement("link");
-				$stylesheet.type = "text/css";
-				$stylesheet.rel = "stylesheet";
-				$stylesheet.href = src;
-				$stylesheet.onload = $stylesheet.onreadystatechange = function () {
-					var _this2 = this;
-
-					if (!ready && (!this.readyState || this.readyState == "complete")) {
-						ready = true;
-						// Let apply
-						setTimeout(function () {
-							_this2.pane && _this2.pane.render();
-							resolve(true);
-						}, 1);
-					}
-				};
-
-				this.document.head.appendChild($stylesheet);
-			}.bind(this));
+			return Promise.all(promises);
 		}
 
-		// Array: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
-		// Object: https://github.com/desirable-objects/json-to-css
+		// Adds a function to be run before a hook completes
 
 	}, {
-		key: "addStylesheetRules",
-		value: function addStylesheetRules(rules) {
-			var styleEl;
-			var styleSheet;
-			var key = "epubjs-inserted-css";
-
-			if (!this.document || !rules || rules.length === 0) return;
-
-			// Check if link already exists
-			styleEl = this.document.getElementById("#" + key);
-			if (!styleEl) {
-				styleEl = this.document.createElement("style");
-				styleEl.id = key;
-			}
-
-			// Append style element to head
-			this.document.head.appendChild(styleEl);
-
-			// Grab style sheet
-			styleSheet = styleEl.sheet;
-
-			if (Object.prototype.toString.call(rules) === "[object Array]") {
-				for (var i = 0, rl = rules.length; i < rl; i++) {
-					var j = 1,
-					    rule = rules[i],
-					    selector = rules[i][0],
-					    propStr = "";
-					// If the second argument of a rule is an array of arrays, correct our variables.
-					if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
-						rule = rule[1];
-						j = 0;
-					}
-
-					for (var pl = rule.length; j < pl; j++) {
-						var prop = rule[j];
-						propStr += prop[0] + ":" + prop[1] + (prop[2] ? " !important" : "") + ";\n";
-					}
-
-					// Insert CSS Rule
-					styleSheet.insertRule(selector + "{" + propStr + "}", styleSheet.cssRules.length);
-				}
-			} else {
-				var selectors = Object.keys(rules);
-				selectors.forEach(function (selector) {
-					var definition = rules[selector];
-					if (Array.isArray(definition)) {
-						definition.forEach(function (item) {
-							var _rules = Object.keys(item);
-							var result = _rules.map(function (rule) {
-								return rule + ":" + item[rule];
-							}).join(';');
-							styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
-						});
-					} else {
-						var _rules = Object.keys(definition);
-						var result = _rules.map(function (rule) {
-							return rule + ":" + definition[rule];
-						}).join(';');
-						styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
-					}
-				});
-				console.log("EPUBJS ADD STYLESHEET 2", styleSheet);
-
-			}
-			this.pane && this.pane.render();
+		key: "list",
+		value: function list() {
+			return this.hooks;
 		}
 	}, {
-		key: "addScript",
-		value: function addScript(src) {
-
-			return new Promise(function (resolve, reject) {
-				var $script;
-				var ready = false;
-
-				if (!this.document) {
-					resolve(false);
-					return;
-				}
-
-				$script = this.document.createElement("script");
-				$script.type = "text/javascript";
-				$script.async = true;
-				$script.src = src;
-				$script.onload = $script.onreadystatechange = function () {
-					if (!ready && (!this.readyState || this.readyState == "complete")) {
-						ready = true;
-						setTimeout(function () {
-							resolve(true);
-						}, 1);
-					}
-				};
-
-				this.document.head.appendChild($script);
-			}.bind(this));
-		}
-	}, {
-		key: "addClass",
-		value: function addClass(className) {
-			var content;
-
-			if (!this.document) return;
-
-			content = this.content || this.document.body;
-
-			content.classList.add(className);
-		}
-	}, {
-		key: "removeClass",
-		value: function removeClass(className) {
-			var content;
-
-			if (!this.document) return;
-
-			content = this.content || this.document.body;
-
-			content.classList.remove(className);
-		}
-	}, {
-		key: "addEventListeners",
-		value: function addEventListeners() {
-			if (!this.document) {
-				return;
-			}
-
-			EVENTS.forEach(function (eventName) {
-				this.document.addEventListener(eventName, this.triggerEvent.bind(this), false);
-			}, this);
-		}
-	}, {
-		key: "removeEventListeners",
-		value: function removeEventListeners() {
-			if (!this.document) {
-				return;
-			}
-			EVENTS.forEach(function (eventName) {
-				this.document.removeEventListener(eventName, this.triggerEvent, false);
-			}, this);
-		}
-
-		// Pass browser events
-
-	}, {
-		key: "triggerEvent",
-		value: function triggerEvent(e) {
-			this.emit(e.type, e);
-		}
-	}, {
-		key: "addSelectionListeners",
-		value: function addSelectionListeners() {
-			if (!this.document) {
-				return;
-			}
-			this.document.addEventListener("selectionchange", this.onSelectionChange.bind(this), false);
-		}
-	}, {
-		key: "removeSelectionListeners",
-		value: function removeSelectionListeners() {
-			if (!this.document) {
-				return;
-			}
-			this.document.removeEventListener("selectionchange", this.onSelectionChange, false);
-		}
-	}, {
-		key: "onSelectionChange",
-		value: function onSelectionChange(e) {
-			if (this.selectionEndTimeout) {
-				clearTimeout(this.selectionEndTimeout);
-			}
-			this.selectionEndTimeout = setTimeout(function () {
-				var selection = this.window.getSelection();
-				this.triggerSelectedEvent(selection);
-			}.bind(this), 250);
-		}
-	}, {
-		key: "triggerSelectedEvent",
-		value: function triggerSelectedEvent(selection) {
-			var range, cfirange;
-
-			if (selection && selection.rangeCount > 0) {
-				range = selection.getRangeAt(0);
-				if (!range.collapsed) {
-					// cfirange = this.section.cfiFromRange(range);
-					cfirange = new _epubcfi2.default(range, this.cfiBase).toString();
-					this.emit("selected", cfirange);
-					this.emit("selectedRange", range);
-				}
-			}
-		}
-	}, {
-		key: "range",
-		value: function range(_cfi, ignoreClass) {
-			var cfi = new _epubcfi2.default(_cfi);
-			return cfi.toRange(this.document, ignoreClass);
-		}
-	}, {
-		key: "cfiFromRange",
-		value: function cfiFromRange(range, ignoreClass) {
-			return new _epubcfi2.default(range, this.cfiBase, ignoreClass).toString();
-		}
-	}, {
-		key: "cfiFromNode",
-		value: function cfiFromNode(node, ignoreClass) {
-			return new _epubcfi2.default(node, this.cfiBase, ignoreClass).toString();
-		}
-	}, {
-		key: "map",
-		value: function map(layout) {
-			var map = new _mapping2.default(layout);
-			return map.section();
-		}
-	}, {
-		key: "size",
-		value: function size(width, height) {
-			var viewport = { scale: 1.0, scalable: "no" };
-
-			if (width >= 0) {
-				this.width(width);
-				viewport.width = width;
-			}
-
-			if (height >= 0) {
-				this.height(height);
-				viewport.height = height;
-			}
-
-			this.css("margin", "0");
-			this.css("box-sizing", "border-box");
-
-			this.viewport(viewport);
-		}
-	}, {
-		key: "columns",
-		value: function columns(width, height, columnWidth, gap) {
-			var COLUMN_AXIS = (0, _core.prefixed)("column-axis");
-			var COLUMN_GAP = (0, _core.prefixed)("column-gap");
-			var COLUMN_WIDTH = (0, _core.prefixed)("column-width");
-			var COLUMN_FILL = (0, _core.prefixed)("column-fill");
-
-			this.width(width);
-			this.height(height);
-
-			// Deal with Mobile trying to scale to viewport
-			this.viewport({ width: width, height: height, scale: 1.0, scalable: "no" });
-
-			this.css("display", "inline-block"); // Fixes Safari column cut offs
-			this.css("overflow-y", "hidden");
-			this.css("margin", "0", true);
-			this.css("padding", "0", true);
-			this.css("box-sizing", "border-box");
-			this.css("max-width", "inherit");
-
-			this.css(COLUMN_AXIS, "horizontal");
-			this.css(COLUMN_FILL, "auto");
-
-			this.css(COLUMN_GAP, gap + "px");
-			this.css(COLUMN_WIDTH, columnWidth + "px");
-		}
-	}, {
-		key: "scaler",
-		value: function scaler(scale, offsetX, offsetY) {
-			var scaleStr = "scale(" + scale + ")";
-			var translateStr = "";
-			// this.css("position", "absolute"));
-			this.css("transform-origin", "top left");
-
-			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
-			}
-
-			this.css("transform", scaleStr + translateStr);
-		}
-	}, {
-		key: "fit",
-		value: function fit(width, height) {
-			var viewport = this.viewport();
-			var widthScale = width / viewport.width;
-			var heightScale = height / viewport.height;
-			var scale = widthScale < heightScale ? widthScale : heightScale;
-
-			var offsetY = (height - viewport.height * scale) / 2;
-
-			this.width(width);
-			this.height(height);
-			this.overflow("hidden");
-
-			// Deal with Mobile trying to scale to viewport
-			this.viewport({ width: width, height: height, scale: 1.0 });
-
-			// Scale to the correct size
-			this.scaler(scale, 0, offsetY);
-
-			this.css("background-color", "transparent");
-		}
-	}, {
-		key: "mapPage",
-		value: function mapPage(cfiBase, layout, start, end, dev) {
-			var mapping = new _mapping2.default(layout, dev);
-
-			return mapping.page(this, cfiBase, start, end);
-		}
-	}, {
-		key: "linksHandler",
-		value: function linksHandler() {
-			var _this3 = this;
-
-			(0, _replacements.replaceLinks)(this.content, function (href) {
-				_this3.emit("linkClicked", href);
-			});
-		}
-	}, {
-		key: "highlight",
-		value: function highlight(cfiRange) {
-			var _this4 = this;
-
-			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-			var cb = arguments[2];
-
-			var range = this.range(cfiRange);
-			var emitter = function emitter() {
-				_this4.emit("markClicked", cfiRange, data);
-			};
-
-			data["epubcfi"] = cfiRange;
-
-			if (!this.pane) {
-				this.pane = new _marksPane.Pane(this.content, this.document.body);
-			}
-
-			var m = new _marksPane.Highlight(range, "epubjs-hl", data, { 'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply' });
-			var h = this.pane.addMark(m);
-
-			this.highlights[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
-
-			h.element.addEventListener("click", emitter);
-
-			if (cb) {
-				h.element.addEventListener("click", cb);
-			}
-			return h;
-		}
-	}, {
-		key: "underline",
-		value: function underline(cfiRange) {
-			var _this5 = this;
-
-			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-			var cb = arguments[2];
-
-			var range = this.range(cfiRange);
-			var emitter = function emitter() {
-				_this5.emit("markClicked", cfiRange, data);
-			};
-
-			data["epubcfi"] = cfiRange;
-
-			if (!this.pane) {
-				this.pane = new _marksPane.Pane(this.content, this.document.body);
-			}
-
-			var m = new _marksPane.Underline(range, "epubjs-ul", data, { 'stroke': 'black', 'stroke-opacity': '0.3', 'mix-blend-mode': 'multiply' });
-			var h = this.pane.addMark(m);
-
-			this.underlines[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
-
-			h.element.addEventListener("click", emitter);
-
-			if (cb) {
-				h.element.addEventListener("click", cb);
-			}
-			return h;
-		}
-	}, {
-		key: "mark",
-		value: function mark(cfiRange) {
-			var _this6 = this;
-
-			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-			var cb = arguments[2];
-
-			var range = this.range(cfiRange);
-
-			var container = range.commonAncestorContainer;
-			var parent = container.nodeType === 1 ? container : container.parentNode;
-			var emitter = function emitter() {
-				_this6.emit("markClicked", cfiRange, data);
-			};
-
-			parent.setAttribute("ref", "epubjs-mk");
-
-			parent.dataset["epubcfi"] = cfiRange;
-
-			if (data) {
-				Object.keys(data).forEach(function (key) {
-					parent.dataset[key] = data[key];
-				});
-			}
-
-			parent.addEventListener("click", emitter);
-
-			if (cb) {
-				parent.addEventListener("click", cb);
-			}
-
-			this.marks[cfiRange] = { "element": parent, "listeners": [emitter, cb] };
-
-			return parent;
-		}
-	}, {
-		key: "unhighlight",
-		value: function unhighlight(cfiRange) {
-			var item = void 0;
-			if (cfiRange in this.highlights) {
-				item = this.highlights[cfiRange];
-				this.pane.removeMark(item.mark);
-				item.listeners.forEach(function (l) {
-					if (l) {
-						item.element.removeEventListener("click", l);
-					};
-				});
-				delete this.highlights[cfiRange];
-			}
-		}
-	}, {
-		key: "ununderline",
-		value: function ununderline(cfiRange) {
-			var item = void 0;
-			if (cfiRange in this.underlines) {
-				item = this.underlines[cfiRange];
-				this.pane.removeMark(item.mark);
-				item.listeners.forEach(function (l) {
-					if (l) {
-						item.element.removeEventListener("click", l);
-					};
-				});
-				delete this.underlines[cfiRange];
-			}
-		}
-	}, {
-		key: "unmark",
-		value: function unmark(cfiRange) {
-			var item = void 0;
-			if (cfiRange in this.marks) {
-				item = this.marks[cfiRange];
-				item.element.removeAttribute("ref");
-				item.listeners.forEach(function (l) {
-					if (l) {
-						item.element.removeEventListener("click", l);
-					};
-				});
-				delete this.marks[cfiRange];
-			}
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			// Stop observing
-			if (this.observer) {
-				this.observer.disconnect();
-			}
-
-			this.document.removeEventListener('transitionend', this.resizeCheck);
-
-			this.removeListeners();
-		}
-	}], [{
-		key: "listenedEvents",
-		get: function get() {
-			return EVENTS;
+		key: "clear",
+		value: function clear() {
+			return this.hooks = [];
 		}
 	}]);
 
-	return Contents;
+	return Hook;
 }();
 
-(0, _eventEmitter2.default)(Contents.prototype);
-
-exports.default = Contents;
+exports.default = Hook;
 module.exports = exports["default"];
 
 /***/ }),
-/* 8 */
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _core = __webpack_require__(0);
+
+var _path = __webpack_require__(3);
+
+var _path2 = _interopRequireDefault(_path);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function request(url, type, withCredentials, headers) {
+	var supportsURL = typeof window != "undefined" ? window.URL : false; // TODO: fallback for url if window isn't defined
+	var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
+
+	var deferred = new _core.defer();
+
+	var xhr = new XMLHttpRequest();
+
+	//-- Check from PDF.js:
+	//   https://github.com/mozilla/pdf.js/blob/master/web/compatibility.js
+	var xhrPrototype = XMLHttpRequest.prototype;
+
+	var header;
+
+	if (!("overrideMimeType" in xhrPrototype)) {
+		// IE10 might have response, but not overrideMimeType
+		Object.defineProperty(xhrPrototype, "overrideMimeType", {
+			value: function xmlHttpRequestOverrideMimeType() {}
+		});
+	}
+
+	if (withCredentials) {
+		xhr.withCredentials = true;
+	}
+
+	xhr.onreadystatechange = handler;
+	xhr.onerror = err;
+
+	xhr.open("GET", url, true);
+
+	for (header in headers) {
+		xhr.setRequestHeader(header, headers[header]);
+	}
+
+	if (type == "json") {
+		xhr.setRequestHeader("Accept", "application/json");
+	}
+
+	// If type isn"t set, determine it from the file extension
+	if (!type) {
+		type = new _path2.default(url).extension;
+	}
+
+	if (type == "blob") {
+		xhr.responseType = BLOB_RESPONSE;
+	}
+
+	if ((0, _core.isXml)(type)) {
+		// xhr.responseType = "document";
+		xhr.overrideMimeType("text/xml"); // for OPF parsing
+	}
+
+	if (type == "xhtml") {
+		// xhr.responseType = "document";
+	}
+
+	if (type == "html" || type == "htm") {
+		// xhr.responseType = "document";
+	}
+
+	if (type == "binary") {
+		xhr.responseType = "arraybuffer";
+	}
+
+	xhr.send();
+
+	function err(e) {
+		deferred.reject(e);
+	}
+
+	function handler() {
+		if (this.readyState === XMLHttpRequest.DONE) {
+			var responseXML = false;
+
+			if (this.responseType === "" || this.responseType === "document") {
+				responseXML = this.responseXML;
+			}
+
+			if (this.status === 200 || responseXML) {
+				//-- Firefox is reporting 0 for blob urls
+				var r;
+
+				if (!this.response && !responseXML) {
+					deferred.reject({
+						status: this.status,
+						message: "Empty Response",
+						stack: new Error().stack
+					});
+					return deferred.promise;
+				}
+
+				if (this.status === 403) {
+					deferred.reject({
+						status: this.status,
+						response: this.response,
+						message: "Forbidden",
+						stack: new Error().stack
+					});
+					return deferred.promise;
+				}
+				if (responseXML) {
+					r = this.responseXML;
+				} else if ((0, _core.isXml)(type)) {
+					// xhr.overrideMimeType("text/xml"); // for OPF parsing
+					// If this.responseXML wasn't set, try to parse using a DOMParser from text
+					r = (0, _core.parse)(this.response, "text/xml");
+				} else if (type == "xhtml") {
+					r = (0, _core.parse)(this.response, "application/xhtml+xml");
+				} else if (type == "html" || type == "htm") {
+					r = (0, _core.parse)(this.response, "text/html");
+				} else if (type == "json") {
+					r = JSON.parse(this.response);
+				} else if (type == "blob") {
+
+					if (supportsURL) {
+						r = this.response;
+					} else {
+						//-- Safari doesn't support responseType blob, so create a blob from arraybuffer
+						r = new Blob([this.response]);
+					}
+				} else {
+					r = this.response;
+				}
+
+				deferred.resolve(r);
+			} else {
+
+				deferred.reject({
+					status: this.status,
+					message: this.response,
+					stack: new Error().stack
+				});
+			}
+		}
+	}
+
+	return deferred.promise;
+}
+
+exports.default = request;
+module.exports = exports["default"];
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.Task = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Queue for handling tasks one at a time
+ * @class
+ * @param {scope} context what this will resolve to in the tasks
+ */
+var Queue = function () {
+	function Queue(context) {
+		_classCallCheck(this, Queue);
+
+		this._q = [];
+		this.context = context;
+		this.tick = _core.requestAnimationFrame;
+		this.running = false;
+		this.paused = false;
+	}
+
+	/**
+  * Add an item to the queue
+  * @return {Promise}
+  */
+
+
+	_createClass(Queue, [{
+		key: "enqueue",
+		value: function enqueue() {
+			var deferred, promise;
+			var queued;
+			var task = [].shift.call(arguments);
+			var args = arguments;
+
+			// Handle single args without context
+			// if(args && !Array.isArray(args)) {
+			//   args = [args];
+			// }
+			if (!task) {
+				throw new Error("No Task Provided");
+			}
+
+			if (typeof task === "function") {
+
+				deferred = new _core.defer();
+				promise = deferred.promise;
+
+				queued = {
+					"task": task,
+					"args": args,
+					//"context"  : context,
+					"deferred": deferred,
+					"promise": promise
+				};
+			} else {
+				// Task is a promise
+				queued = {
+					"promise": task
+				};
+			}
+
+			this._q.push(queued);
+
+			// Wait to start queue flush
+			if (this.paused == false && !this.running) {
+				// setTimeout(this.flush.bind(this), 0);
+				// this.tick.call(window, this.run.bind(this));
+				this.run();
+			}
+
+			return queued.promise;
+		}
+
+		/**
+   * Run one item
+   * @return {Promise}
+   */
+
+	}, {
+		key: "dequeue",
+		value: function dequeue() {
+			var inwait, task, result;
+
+			if (this._q.length && !this.paused) {
+				inwait = this._q.shift();
+				task = inwait.task;
+				if (task) {
+					// console.log(task)
+
+					result = task.apply(this.context, inwait.args);
+
+					if (result && typeof result["then"] === "function") {
+						// Task is a function that returns a promise
+						return result.then(function () {
+							inwait.deferred.resolve.apply(this.context, arguments);
+						}.bind(this), function () {
+							inwait.deferred.reject.apply(this.context, arguments);
+						}.bind(this));
+					} else {
+						// Task resolves immediately
+						inwait.deferred.resolve.apply(this.context, result);
+						return inwait.promise;
+					}
+				} else if (inwait.promise) {
+					// Task is a promise
+					return inwait.promise;
+				}
+			} else {
+				inwait = new _core.defer();
+				inwait.deferred.resolve();
+				return inwait.promise;
+			}
+		}
+
+		// Run All Immediately
+
+	}, {
+		key: "dump",
+		value: function dump() {
+			while (this._q.length) {
+				this.dequeue();
+			}
+		}
+
+		/**
+   * Run all tasks sequentially, at convince
+   * @return {Promise}
+   */
+
+	}, {
+		key: "run",
+		value: function run() {
+			var _this = this;
+
+			if (!this.running) {
+				this.running = true;
+				this.defered = new _core.defer();
+			}
+
+			this.tick.call(window, function () {
+
+				if (_this._q.length) {
+
+					_this.dequeue().then(function () {
+						this.run();
+					}.bind(_this));
+				} else {
+					_this.defered.resolve();
+					_this.running = undefined;
+				}
+			});
+
+			// Unpause
+			if (this.paused == true) {
+				this.paused = false;
+			}
+
+			return this.defered.promise;
+		}
+
+		/**
+   * Flush all, as quickly as possible
+   * @return {Promise}
+   */
+
+	}, {
+		key: "flush",
+		value: function flush() {
+
+			if (this.running) {
+				return this.running;
+			}
+
+			if (this._q.length) {
+				this.running = this.dequeue().then(function () {
+					this.running = undefined;
+					return this.flush();
+				}.bind(this));
+
+				return this.running;
+			}
+		}
+
+		/**
+   * Clear all items in wait
+   */
+
+	}, {
+		key: "clear",
+		value: function clear() {
+			this._q = [];
+		}
+
+		/**
+   * Get the number of tasks in the queue
+   * @return {int} tasks
+   */
+
+	}, {
+		key: "length",
+		value: function length() {
+			return this._q.length;
+		}
+
+		/**
+   * Pause a running queue
+   */
+
+	}, {
+		key: "pause",
+		value: function pause() {
+			this.paused = true;
+		}
+
+		/**
+   * End the queue
+   */
+
+	}, {
+		key: "stop",
+		value: function stop() {
+			this._q = [];
+			this.running = false;
+			this.paused = true;
+		}
+	}]);
+
+	return Queue;
+}();
+
+/**
+ * Create a new task from a callback
+ * @class
+ * @private
+ * @param {function} task
+ * @param {array} args
+ * @param {scope} context
+ * @return {function} task
+ */
+
+
+var Task = function Task(task, args, context) {
+	_classCallCheck(this, Task);
+
+	return function () {
+		var _this2 = this;
+
+		var toApply = arguments || [];
+
+		return new Promise(function (resolve, reject) {
+			var callback = function callback(value, err) {
+				if (!value && err) {
+					reject(err);
+				} else {
+					resolve(value);
+				}
+			};
+			// Add the callback to the arguments list
+			toApply.push(callback);
+
+			// Apply all arguments to the functions
+			task.apply(context || _this2, toApply);
+		});
+	};
+};
+
+exports.default = Queue;
+exports.Task = Task;
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4220,550 +3753,6 @@ exports.default = Mapping;
 module.exports = exports["default"];
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Hooks allow for injecting functions that must all complete in order before finishing
- * They will execute in parallel but all must finish before continuing
- * Functions may return a promise if they are asycn.
- * @param {any} context scope of this
- * @example this.content = new EPUBJS.Hook(this);
- */
-var Hook = function () {
-	function Hook(context) {
-		_classCallCheck(this, Hook);
-
-		this.context = context || this;
-		this.hooks = [];
-	}
-
-	/**
-  * Adds a function to be run before a hook completes
-  * @example this.content.register(function(){...});
-  */
-
-
-	_createClass(Hook, [{
-		key: "register",
-		value: function register() {
-			for (var i = 0; i < arguments.length; ++i) {
-				if (typeof arguments[i] === "function") {
-					this.hooks.push(arguments[i]);
-				} else {
-					// unpack array
-					for (var j = 0; j < arguments[i].length; ++j) {
-						this.hooks.push(arguments[i][j]);
-					}
-				}
-			}
-		}
-
-		/**
-   * Triggers a hook to run all functions
-   * @example this.content.trigger(args).then(function(){...});
-   */
-
-	}, {
-		key: "trigger",
-		value: function trigger() {
-			var args = arguments;
-			var context = this.context;
-			var promises = [];
-
-			this.hooks.forEach(function (task) {
-				var executing = task.apply(context, args);
-
-				if (executing && typeof executing["then"] === "function") {
-					// Task is a function that returns a promise
-					promises.push(executing);
-				}
-				// Otherwise Task resolves immediately, continue
-			});
-
-			return Promise.all(promises);
-		}
-
-		// Adds a function to be run before a hook completes
-
-	}, {
-		key: "list",
-		value: function list() {
-			return this.hooks;
-		}
-	}, {
-		key: "clear",
-		value: function clear() {
-			return this.hooks = [];
-		}
-	}]);
-
-	return Hook;
-}();
-
-exports.default = Hook;
-module.exports = exports["default"];
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.Task = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Queue for handling tasks one at a time
- * @class
- * @param {scope} context what this will resolve to in the tasks
- */
-var Queue = function () {
-	function Queue(context) {
-		_classCallCheck(this, Queue);
-
-		this._q = [];
-		this.context = context;
-		this.tick = _core.requestAnimationFrame;
-		this.running = false;
-		this.paused = false;
-	}
-
-	/**
-  * Add an item to the queue
-  * @return {Promise}
-  */
-
-
-	_createClass(Queue, [{
-		key: "enqueue",
-		value: function enqueue() {
-			var deferred, promise;
-			var queued;
-			var task = [].shift.call(arguments);
-			var args = arguments;
-
-			// Handle single args without context
-			// if(args && !Array.isArray(args)) {
-			//   args = [args];
-			// }
-			if (!task) {
-				throw new Error("No Task Provided");
-			}
-
-			if (typeof task === "function") {
-
-				deferred = new _core.defer();
-				promise = deferred.promise;
-
-				queued = {
-					"task": task,
-					"args": args,
-					//"context"  : context,
-					"deferred": deferred,
-					"promise": promise
-				};
-			} else {
-				// Task is a promise
-				queued = {
-					"promise": task
-				};
-			}
-
-			this._q.push(queued);
-
-			// Wait to start queue flush
-			if (this.paused == false && !this.running) {
-				// setTimeout(this.flush.bind(this), 0);
-				// this.tick.call(window, this.run.bind(this));
-				this.run();
-			}
-
-			return queued.promise;
-		}
-
-		/**
-   * Run one item
-   * @return {Promise}
-   */
-
-	}, {
-		key: "dequeue",
-		value: function dequeue() {
-			var inwait, task, result;
-
-			if (this._q.length && !this.paused) {
-				inwait = this._q.shift();
-				task = inwait.task;
-				if (task) {
-					// console.log(task)
-
-					result = task.apply(this.context, inwait.args);
-
-					if (result && typeof result["then"] === "function") {
-						// Task is a function that returns a promise
-						return result.then(function () {
-							inwait.deferred.resolve.apply(this.context, arguments);
-						}.bind(this), function () {
-							inwait.deferred.reject.apply(this.context, arguments);
-						}.bind(this));
-					} else {
-						// Task resolves immediately
-						inwait.deferred.resolve.apply(this.context, result);
-						return inwait.promise;
-					}
-				} else if (inwait.promise) {
-					// Task is a promise
-					return inwait.promise;
-				}
-			} else {
-				inwait = new _core.defer();
-				inwait.deferred.resolve();
-				return inwait.promise;
-			}
-		}
-
-		// Run All Immediately
-
-	}, {
-		key: "dump",
-		value: function dump() {
-			while (this._q.length) {
-				this.dequeue();
-			}
-		}
-
-		/**
-   * Run all tasks sequentially, at convince
-   * @return {Promise}
-   */
-
-	}, {
-		key: "run",
-		value: function run() {
-			var _this = this;
-
-			if (!this.running) {
-				this.running = true;
-				this.defered = new _core.defer();
-			}
-
-			this.tick.call(window, function () {
-
-				if (_this._q.length) {
-
-					_this.dequeue().then(function () {
-						this.run();
-					}.bind(_this));
-				} else {
-					_this.defered.resolve();
-					_this.running = undefined;
-				}
-			});
-
-			// Unpause
-			if (this.paused == true) {
-				this.paused = false;
-			}
-
-			return this.defered.promise;
-		}
-
-		/**
-   * Flush all, as quickly as possible
-   * @return {Promise}
-   */
-
-	}, {
-		key: "flush",
-		value: function flush() {
-
-			if (this.running) {
-				return this.running;
-			}
-
-			if (this._q.length) {
-				this.running = this.dequeue().then(function () {
-					this.running = undefined;
-					return this.flush();
-				}.bind(this));
-
-				return this.running;
-			}
-		}
-
-		/**
-   * Clear all items in wait
-   */
-
-	}, {
-		key: "clear",
-		value: function clear() {
-			this._q = [];
-			this.running = false;
-			this.paused = true;
-		}
-
-		/**
-   * Get the number of tasks in the queue
-   * @return {int} tasks
-   */
-
-	}, {
-		key: "length",
-		value: function length() {
-			return this._q.length;
-		}
-
-		/**
-   * Pause a running queue
-   */
-
-	}, {
-		key: "pause",
-		value: function pause() {
-			this.paused = true;
-		}
-	}]);
-
-	return Queue;
-}();
-
-/**
- * Create a new task from a callback
- * @class
- * @private
- * @param {function} task
- * @param {array} args
- * @param {scope} context
- * @return {function} task
- */
-
-
-var Task = function Task(task, args, context) {
-	_classCallCheck(this, Task);
-
-	return function () {
-		var _this2 = this;
-
-		var toApply = arguments || [];
-
-		return new Promise(function (resolve, reject) {
-			var callback = function callback(value, err) {
-				if (!value && err) {
-					reject(err);
-				} else {
-					resolve(value);
-				}
-			};
-			// Add the callback to the arguments list
-			toApply.push(callback);
-
-			// Apply all arguments to the functions
-			task.apply(context || _this2, toApply);
-		});
-	};
-};
-
-exports.default = Queue;
-exports.Task = Task;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _core = __webpack_require__(0);
-
-var _path = __webpack_require__(3);
-
-var _path2 = _interopRequireDefault(_path);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function request(url, type, withCredentials, headers) {
-	var supportsURL = typeof window != "undefined" ? window.URL : false; // TODO: fallback for url if window isn't defined
-	var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
-
-	var deferred = new _core.defer();
-
-	var xhr = new XMLHttpRequest();
-
-	//-- Check from PDF.js:
-	//   https://github.com/mozilla/pdf.js/blob/master/web/compatibility.js
-	var xhrPrototype = XMLHttpRequest.prototype;
-
-	var header;
-
-	if (!("overrideMimeType" in xhrPrototype)) {
-		// IE10 might have response, but not overrideMimeType
-		Object.defineProperty(xhrPrototype, "overrideMimeType", {
-			value: function xmlHttpRequestOverrideMimeType() {}
-		});
-	}
-
-	if (withCredentials) {
-		xhr.withCredentials = true;
-	}
-
-	xhr.onreadystatechange = handler;
-	xhr.onerror = err;
-
-	xhr.open("GET", url, true);
-
-	for (header in headers) {
-		xhr.setRequestHeader(header, headers[header]);
-	}
-
-	if (type == "json") {
-		xhr.setRequestHeader("Accept", "application/json");
-	}
-
-	// If type isn"t set, determine it from the file extension
-	if (!type) {
-		type = new _path2.default(url).extension;
-	}
-
-	if (type == "blob") {
-		xhr.responseType = BLOB_RESPONSE;
-	}
-
-	if ((0, _core.isXml)(type)) {
-		// xhr.responseType = "document";
-		xhr.overrideMimeType("text/xml"); // for OPF parsing
-	}
-
-	if (type == "xhtml") {
-		// xhr.responseType = "document";
-	}
-
-	if (type == "html" || type == "htm") {
-		// xhr.responseType = "document";
-	}
-
-	if (type == "binary") {
-		xhr.responseType = "arraybuffer";
-	}
-
-	xhr.send();
-
-	function err(e) {
-		deferred.reject(e);
-	}
-
-	function handler() {
-		if (this.readyState === XMLHttpRequest.DONE) {
-			var responseXML = false;
-
-			if (this.responseType === "" || this.responseType === "document") {
-				responseXML = this.responseXML;
-			}
-
-			if (this.status === 200 || responseXML) {
-				//-- Firefox is reporting 0 for blob urls
-				var r;
-
-				if (!this.response && !responseXML) {
-					deferred.reject({
-						status: this.status,
-						message: "Empty Response",
-						stack: new Error().stack
-					});
-					return deferred.promise;
-				}
-
-				if (this.status === 403) {
-					deferred.reject({
-						status: this.status,
-						response: this.response,
-						message: "Forbidden",
-						stack: new Error().stack
-					});
-					return deferred.promise;
-				}
-				if (responseXML) {
-					r = this.responseXML;
-				} else if ((0, _core.isXml)(type)) {
-					// xhr.overrideMimeType("text/xml"); // for OPF parsing
-					// If this.responseXML wasn't set, try to parse using a DOMParser from text
-					r = (0, _core.parse)(this.response, "text/xml");
-				} else if (type == "xhtml") {
-					r = (0, _core.parse)(this.response, "application/xhtml+xml");
-				} else if (type == "html" || type == "htm") {
-					r = (0, _core.parse)(this.response, "text/html");
-				} else if (type == "json") {
-					r = JSON.parse(this.response);
-				} else if (type == "blob") {
-
-					if (supportsURL) {
-						r = this.response;
-					} else {
-						//-- Safari doesn't support responseType blob, so create a blob from arraybuffer
-						r = new Blob([this.response]);
-					}
-				} else {
-					r = this.response;
-				}
-
-				deferred.resolve(r);
-			} else {
-
-				deferred.reject({
-					status: this.status,
-					message: this.response,
-					stack: new Error().stack
-				});
-			}
-		}
-	}
-
-	return deferred.promise;
-}
-
-exports.default = request;
-module.exports = exports["default"];
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _undefined = __webpack_require__(41)(); // Support ES3 engines
-
-module.exports = function (val) {
- return (val !== _undefined) && (val !== null);
-};
-
-
-/***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4782,19 +3771,2259 @@ var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
 var _core = __webpack_require__(0);
 
-var _mapping = __webpack_require__(8);
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _mapping = __webpack_require__(12);
 
 var _mapping2 = _interopRequireDefault(_mapping);
 
-var _queue = __webpack_require__(10);
+var _replacements = __webpack_require__(6);
+
+var _marksPane = __webpack_require__(48);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// Dom events to listen for
+var EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
+
+var Contents = function () {
+	function Contents(doc, content, cfiBase, sectionIndex) {
+		_classCallCheck(this, Contents);
+
+		// Blank Cfi for Parsing
+		this.epubcfi = new _epubcfi2.default();
+
+		this.document = doc;
+		this.documentElement = this.document.documentElement;
+		this.content = content || this.document.body;
+		this.window = this.document.defaultView;
+
+		this._size = {
+			width: 0,
+			height: 0
+		};
+
+		this.sectionIndex = sectionIndex || 0;
+		this.cfiBase = cfiBase || "";
+
+		this.pane = undefined;
+		this.highlights = {};
+		this.underlines = {};
+		this.marks = {};
+
+		this.listeners();
+	}
+
+	_createClass(Contents, [{
+		key: "width",
+		value: function width(w) {
+			// var frame = this.documentElement;
+			var frame = this.content;
+
+			if (w && (0, _core.isNumber)(w)) {
+				w = w + "px";
+			}
+
+			if (w) {
+				frame.style.width = w;
+				// this.content.style.width = w;
+			}
+
+			return this.window.getComputedStyle(frame)["width"];
+		}
+	}, {
+		key: "height",
+		value: function height(h) {
+			// var frame = this.documentElement;
+			var frame = this.content;
+
+			if (h && (0, _core.isNumber)(h)) {
+				h = h + "px";
+			}
+
+			if (h) {
+				frame.style.height = h;
+				// this.content.style.height = h;
+			}
+
+			return this.window.getComputedStyle(frame)["height"];
+		}
+	}, {
+		key: "contentWidth",
+		value: function contentWidth(w) {
+
+			var content = this.content || this.document.body;
+
+			if (w && (0, _core.isNumber)(w)) {
+				w = w + "px";
+			}
+
+			if (w) {
+				content.style.width = w;
+			}
+
+			return this.window.getComputedStyle(content)["width"];
+		}
+	}, {
+		key: "contentHeight",
+		value: function contentHeight(h) {
+
+			var content = this.content || this.document.body;
+
+			if (h && (0, _core.isNumber)(h)) {
+				h = h + "px";
+			}
+
+			if (h) {
+				content.style.height = h;
+			}
+
+			return this.window.getComputedStyle(content)["height"];
+		}
+	}, {
+		key: "textWidth",
+		value: function textWidth() {
+			var width = void 0;
+			var range = this.document.createRange();
+			var content = this.content || this.document.body;
+			var border = (0, _core.borders)(content);
+
+			// Select the contents of frame
+			range.selectNodeContents(content);
+
+			// get the width of the text content
+			width = range.getBoundingClientRect().width;
+
+			if (border && border.width) {
+				width += border.width;
+			}
+
+			return Math.round(width);
+		}
+	}, {
+		key: "textHeight",
+		value: function textHeight() {
+			var height = void 0;
+			var range = this.document.createRange();
+			var content = this.content || this.document.body;
+			var border = (0, _core.borders)(content);
+
+			range.selectNodeContents(content);
+
+			height = range.getBoundingClientRect().height;
+
+			if (height && border.height) {
+				height += border.height;
+			}
+
+			return Math.round(height);
+		}
+	}, {
+		key: "scrollWidth",
+		value: function scrollWidth() {
+			var width = this.documentElement.scrollWidth;
+
+			return width;
+		}
+	}, {
+		key: "scrollHeight",
+		value: function scrollHeight() {
+			var height = this.documentElement.scrollHeight;
+
+			return height;
+		}
+	}, {
+		key: "overflow",
+		value: function overflow(_overflow) {
+
+			if (_overflow) {
+				this.documentElement.style.overflow = _overflow;
+			}
+
+			return this.window.getComputedStyle(this.documentElement)["overflow"];
+		}
+	}, {
+		key: "overflowX",
+		value: function overflowX(overflow) {
+
+			if (overflow) {
+				this.documentElement.style.overflowX = overflow;
+			}
+
+			return this.window.getComputedStyle(this.documentElement)["overflowX"];
+		}
+	}, {
+		key: "overflowY",
+		value: function overflowY(overflow) {
+
+			if (overflow) {
+				this.documentElement.style.overflowY = overflow;
+			}
+
+			return this.window.getComputedStyle(this.documentElement)["overflowY"];
+		}
+	}, {
+		key: "css",
+		value: function css(property, value, priority) {
+			var content = this.content || this.document.body;
+
+			if (value) {
+				content.style.setProperty(property, value, priority ? "important" : "");
+			}
+
+			return this.window.getComputedStyle(content)[property];
+		}
+	}, {
+		key: "viewport",
+		value: function viewport(options) {
+			var _width, _height, _scale, _minimum, _maximum, _scalable;
+			var width, height, scale, minimum, maximum, scalable;
+			var $viewport = this.document.querySelector("meta[name='viewport']");
+			var parsed = {
+				"width": undefined,
+				"height": undefined,
+				"scale": undefined,
+				"minimum": undefined,
+				"maximum": undefined,
+				"scalable": undefined
+			};
+			var newContent = [];
+
+			/*
+   * check for the viewport size
+   * <meta name="viewport" content="width=1024,height=697" />
+   */
+			if ($viewport && $viewport.hasAttribute("content")) {
+				var content = $viewport.getAttribute("content");
+				var _width2 = content.match(/width\s*=\s*([^,]*)/g);
+				var _height2 = content.match(/height\s*=\s*([^,]*)/g);
+				var _scale2 = content.match(/initial-scale\s*=\s*([^,]*)/g);
+				var _minimum2 = content.match(/minimum-scale\s*=\s*([^,]*)/g);
+				var _maximum2 = content.match(/maximum-scale\s*=\s*([^,]*)/g);
+				var _scalable2 = content.match(/user-scalable\s*=\s*([^,]*)/g);
+				if (_width2 && _width2.length && typeof _width2[1] !== "undefined") {
+					parsed.width = _width2[1];
+				}
+				if (_height2 && _height2.length && typeof _height2[1] !== "undefined") {
+					parsed.height = _height2[1];
+				}
+				if (_scale2 && _scale2.length && typeof _scale2[1] !== "undefined") {
+					parsed.scale = _scale2[1];
+				}
+				if (_minimum2 && _minimum2.length && typeof _minimum2[1] !== "undefined") {
+					parsed.minimum = _minimum2[1];
+				}
+				if (_maximum2 && _maximum2.length && typeof _maximum2[1] !== "undefined") {
+					parsed.maximum = _maximum2[1];
+				}
+				if (_scalable2 && _scalable2.length && typeof _scalable2[1] !== "undefined") {
+					parsed.scalable = _scalable2[1];
+				}
+			}
+
+			if (options) {
+				if (options.width || parsed.width) {
+					newContent.push("width=" + (options.width || parsed.width));
+				}
+
+				if (options.height || parsed.height) {
+					newContent.push("height=" + (options.height || parsed.height));
+				}
+
+				if (options.scale || parsed.scale) {
+					newContent.push("initial-scale=" + (options.scale || parsed.scale));
+				}
+				if (options.scalable || parsed.scalable) {
+					newContent.push("minimum-scale=" + (options.scale || parsed.minimum));
+					newContent.push("maximum-scale=" + (options.scale || parsed.maximum));
+					newContent.push("user-scalable=" + (options.scalable || parsed.scalable));
+				}
+
+				if (!$viewport) {
+					$viewport = this.document.createElement("meta");
+					$viewport.setAttribute("name", "viewport");
+					this.document.querySelector("head").appendChild($viewport);
+				}
+
+				$viewport.setAttribute("content", newContent.join(", "));
+
+				this.window.scrollTo(0, 0);
+			}
+
+			return {
+				width: parseInt(width),
+				height: parseInt(height)
+			};
+		}
+
+		// layout(layoutFunc) {
+		//
+		//   this.iframe.style.display = "inline-block";
+		//
+		//   // Reset Body Styles
+		//   this.content.style.margin = "0";
+		//   //this.document.body.style.display = "inline-block";
+		//   //this.document.documentElement.style.width = "auto";
+		//
+		//   if(layoutFunc){
+		//     layoutFunc(this);
+		//   }
+		//
+		//   this.onLayout(this);
+		//
+		// };
+		//
+		// onLayout(view) {
+		//   // stub
+		// };
+
+	}, {
+		key: "expand",
+		value: function expand() {
+			this.emit("expand");
+		}
+	}, {
+		key: "listeners",
+		value: function listeners() {
+
+			this.imageLoadListeners();
+
+			this.mediaQueryListeners();
+
+			// this.fontLoadListeners();
+
+			this.addEventListeners();
+
+			this.addSelectionListeners();
+
+			// this.transitionListeners();
+
+			this.resizeListeners();
+
+			// this.resizeObservers();
+
+			this.linksHandler();
+		}
+	}, {
+		key: "removeListeners",
+		value: function removeListeners() {
+
+			this.removeEventListeners();
+
+			this.removeSelectionListeners();
+
+			clearTimeout(this.expanding);
+		}
+	}, {
+		key: "resizeCheck",
+		value: function resizeCheck() {
+			var width = this.textWidth();
+			var height = this.textHeight();
+			if (width != this._size.width || height != this._size.height) {
+
+				this._size = {
+					width: width,
+					height: height
+				};
+
+				this.pane && this.pane.render();
+				this.onResize && this.onResize(this._size);
+				this.emit("resize", this._size);
+			}
+		}
+	}, {
+		key: "resizeListeners",
+		value: function resizeListeners() {
+			var width, height;
+			// Test size again
+			clearTimeout(this.expanding);
+
+			requestAnimationFrame(this.resizeCheck.bind(this));
+
+			this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
+		}
+	}, {
+		key: "transitionListeners",
+		value: function transitionListeners() {
+			var body = this.content;
+
+			body.style['transitionProperty'] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
+			body.style['transitionDuration'] = "0.001ms";
+			body.style['transitionTimingFunction'] = "linear";
+			body.style['transitionDelay'] = "0";
+
+			this.document.addEventListener('transitionend', this.resizeCheck.bind(this));
+		}
+
+		//https://github.com/tylergaw/media-query-events/blob/master/js/mq-events.js
+
+	}, {
+		key: "mediaQueryListeners",
+		value: function mediaQueryListeners() {
+			var sheets = this.document.styleSheets;
+			var mediaChangeHandler = function (m) {
+				if (m.matches && !this._expanding) {
+					setTimeout(this.expand.bind(this), 1);
+					// this.expand();
+				}
+			}.bind(this);
+
+			for (var i = 0; i < sheets.length; i += 1) {
+				var rules;
+				// Firefox errors if we access cssRules cross-domain
+				try {
+					rules = sheets[i].cssRules;
+				} catch (e) {
+					return;
+				}
+				if (!rules) return; // Stylesheets changed
+				for (var j = 0; j < rules.length; j += 1) {
+					//if (rules[j].constructor === CSSMediaRule) {
+					if (rules[j].media) {
+						var mql = this.window.matchMedia(rules[j].media.mediaText);
+						mql.addListener(mediaChangeHandler);
+						//mql.onchange = mediaChangeHandler;
+					}
+				}
+			}
+		}
+	}, {
+		key: "resizeObservers",
+		value: function resizeObservers() {
+			var _this = this;
+
+			// create an observer instance
+			this.observer = new MutationObserver(function (mutations) {
+				_this.resizeCheck();
+			});
+
+			// configuration of the observer:
+			var config = { attributes: true, childList: true, characterData: true, subtree: true };
+
+			// pass in the target node, as well as the observer options
+			this.observer.observe(this.document, config);
+		}
+	}, {
+		key: "imageLoadListeners",
+		value: function imageLoadListeners(target) {
+			var images = this.document.querySelectorAll("img");
+			var img;
+			for (var i = 0; i < images.length; i++) {
+				img = images[i];
+
+				if (typeof img.naturalWidth !== "undefined" && img.naturalWidth === 0) {
+					img.onload = this.expand.bind(this);
+				}
+			}
+		}
+	}, {
+		key: "fontLoadListeners",
+		value: function fontLoadListeners(target) {
+			if (!this.document || !this.document.fonts) {
+				return;
+			}
+
+			this.document.fonts.ready.then(function () {
+				this.expand();
+			}.bind(this));
+		}
+	}, {
+		key: "root",
+		value: function root() {
+			if (!this.document) return null;
+			return this.document.documentElement;
+		}
+	}, {
+		key: "locationOf",
+		value: function locationOf(target, ignoreClass) {
+			var position;
+			var targetPos = { "left": 0, "top": 0 };
+
+			if (!this.document) return;
+
+			if (this.epubcfi.isCfiString(target)) {
+				var range = new _epubcfi2.default(target).toRange(this.document, ignoreClass);
+
+				if (range) {
+					if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
+						position = range.startContainer.getBoundingClientRect();
+						targetPos.left = position.left;
+						targetPos.top = position.top;
+					} else {
+						// Webkit does not handle collapsed range bounds correctly
+						// https://bugs.webkit.org/show_bug.cgi?id=138949
+						if (range.collapsed) {
+							position = range.getClientRects()[0];
+						} else {
+							position = range.getBoundingClientRect();
+						}
+					}
+				}
+			} else if (typeof target === "string" && target.indexOf("#") > -1) {
+
+				var id = target.substring(target.indexOf("#") + 1);
+				var el = this.document.getElementById(id);
+
+				if (el) {
+					position = el.getBoundingClientRect();
+				}
+			}
+
+			if (position) {
+				targetPos.left = position.left;
+				targetPos.top = position.top;
+			}
+
+			return targetPos;
+		}
+	}, {
+		key: "addStylesheet",
+		value: function addStylesheet(src) {
+			return new Promise(function (resolve, reject) {
+				var $stylesheet;
+				var ready = false;
+
+				if (!this.document) {
+					resolve(false);
+					return;
+				}
+
+				// Check if link already exists
+				$stylesheet = this.document.querySelector("link[href='" + src + "']");
+				if ($stylesheet) {
+					resolve(true);
+					return; // already present
+				}
+
+				$stylesheet = this.document.createElement("link");
+				$stylesheet.type = "text/css";
+				$stylesheet.rel = "stylesheet";
+				$stylesheet.href = src;
+				$stylesheet.onload = $stylesheet.onreadystatechange = function () {
+					var _this2 = this;
+
+					if (!ready && (!this.readyState || this.readyState == "complete")) {
+						ready = true;
+						// Let apply
+						setTimeout(function () {
+							_this2.pane && _this2.pane.render();
+							resolve(true);
+						}, 1);
+					}
+				};
+
+				this.document.head.appendChild($stylesheet);
+			}.bind(this));
+		}
+
+		// Array: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
+		// Object: https://github.com/desirable-objects/json-to-css
+
+	}, {
+		key: "addStylesheetRules",
+		value: function addStylesheetRules(rules) {
+			var styleEl;
+			var styleSheet;
+			var key = "epubjs-inserted-css";
+
+			if (!this.document || !rules || rules.length === 0) return;
+
+			// Check if link already exists
+			styleEl = this.document.getElementById("#" + key);
+			if (!styleEl) {
+				styleEl = this.document.createElement("style");
+				styleEl.id = key;
+			}
+
+			// Append style element to head
+			this.document.head.appendChild(styleEl);
+
+			// Grab style sheet
+			styleSheet = styleEl.sheet;
+
+			if (Object.prototype.toString.call(rules) === "[object Array]") {
+				for (var i = 0, rl = rules.length; i < rl; i++) {
+					var j = 1,
+					    rule = rules[i],
+					    selector = rules[i][0],
+					    propStr = "";
+					// If the second argument of a rule is an array of arrays, correct our variables.
+					if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
+						rule = rule[1];
+						j = 0;
+					}
+
+					for (var pl = rule.length; j < pl; j++) {
+						var prop = rule[j];
+						propStr += prop[0] + ":" + prop[1] + (prop[2] ? " !important" : "") + ";\n";
+					}
+
+					// Insert CSS Rule
+					styleSheet.insertRule(selector + "{" + propStr + "}", styleSheet.cssRules.length);
+				}
+			} else {
+				var selectors = Object.keys(rules);
+				selectors.forEach(function (selector) {
+					var definition = rules[selector];
+					if (Array.isArray(definition)) {
+						definition.forEach(function (item) {
+							var _rules = Object.keys(item);
+							var result = _rules.map(function (rule) {
+								return rule + ":" + item[rule];
+							}).join(';');
+							styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
+						});
+					} else {
+						var _rules = Object.keys(definition);
+						var result = _rules.map(function (rule) {
+							return rule + ":" + definition[rule];
+						}).join(';');
+						styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
+					}
+				});
+			}
+			this.pane && this.pane.render();
+		}
+	}, {
+		key: "addScript",
+		value: function addScript(src) {
+
+			return new Promise(function (resolve, reject) {
+				var $script;
+				var ready = false;
+
+				if (!this.document) {
+					resolve(false);
+					return;
+				}
+
+				$script = this.document.createElement("script");
+				$script.type = "text/javascript";
+				$script.async = true;
+				$script.src = src;
+				$script.onload = $script.onreadystatechange = function () {
+					if (!ready && (!this.readyState || this.readyState == "complete")) {
+						ready = true;
+						setTimeout(function () {
+							resolve(true);
+						}, 1);
+					}
+				};
+
+				this.document.head.appendChild($script);
+			}.bind(this));
+		}
+	}, {
+		key: "addClass",
+		value: function addClass(className) {
+			var content;
+
+			if (!this.document) return;
+
+			content = this.content || this.document.body;
+
+			if (content) {
+				content.classList.add(className);
+			}
+		}
+	}, {
+		key: "removeClass",
+		value: function removeClass(className) {
+			var content;
+
+			if (!this.document) return;
+
+			content = this.content || this.document.body;
+
+			if (content) {
+				content.classList.remove(className);
+			}
+		}
+	}, {
+		key: "addEventListeners",
+		value: function addEventListeners() {
+			if (!this.document) {
+				return;
+			}
+
+			EVENTS.forEach(function (eventName) {
+				this.document.addEventListener(eventName, this.triggerEvent.bind(this), false);
+			}, this);
+		}
+	}, {
+		key: "removeEventListeners",
+		value: function removeEventListeners() {
+			if (!this.document) {
+				return;
+			}
+			EVENTS.forEach(function (eventName) {
+				this.document.removeEventListener(eventName, this.triggerEvent, false);
+			}, this);
+		}
+
+		// Pass browser events
+
+	}, {
+		key: "triggerEvent",
+		value: function triggerEvent(e) {
+			this.emit(e.type, e);
+		}
+	}, {
+		key: "addSelectionListeners",
+		value: function addSelectionListeners() {
+			if (!this.document) {
+				return;
+			}
+			this.document.addEventListener("selectionchange", this.onSelectionChange.bind(this), false);
+		}
+	}, {
+		key: "removeSelectionListeners",
+		value: function removeSelectionListeners() {
+			if (!this.document) {
+				return;
+			}
+			this.document.removeEventListener("selectionchange", this.onSelectionChange, false);
+		}
+	}, {
+		key: "onSelectionChange",
+		value: function onSelectionChange(e) {
+			if (this.selectionEndTimeout) {
+				clearTimeout(this.selectionEndTimeout);
+			}
+			this.selectionEndTimeout = setTimeout(function () {
+				var selection = this.window.getSelection();
+				this.triggerSelectedEvent(selection);
+			}.bind(this), 250);
+		}
+	}, {
+		key: "triggerSelectedEvent",
+		value: function triggerSelectedEvent(selection) {
+			var range, cfirange;
+
+			if (selection && selection.rangeCount > 0) {
+				range = selection.getRangeAt(0);
+				if (!range.collapsed) {
+					// cfirange = this.section.cfiFromRange(range);
+					cfirange = new _epubcfi2.default(range, this.cfiBase).toString();
+					this.emit("selected", cfirange);
+					this.emit("selectedRange", range);
+				}
+			}
+		}
+	}, {
+		key: "range",
+		value: function range(_cfi, ignoreClass) {
+			var cfi = new _epubcfi2.default(_cfi);
+			return cfi.toRange(this.document, ignoreClass);
+		}
+	}, {
+		key: "cfiFromRange",
+		value: function cfiFromRange(range, ignoreClass) {
+			return new _epubcfi2.default(range, this.cfiBase, ignoreClass).toString();
+		}
+	}, {
+		key: "cfiFromNode",
+		value: function cfiFromNode(node, ignoreClass) {
+			return new _epubcfi2.default(node, this.cfiBase, ignoreClass).toString();
+		}
+	}, {
+		key: "map",
+		value: function map(layout) {
+			var map = new _mapping2.default(layout);
+			return map.section();
+		}
+	}, {
+		key: "size",
+		value: function size(width, height) {
+			var viewport = { scale: 1.0, scalable: "no" };
+
+			if (width >= 0) {
+				this.width(width);
+				viewport.width = width;
+				this.css("padding", "0 " + width / 12 + "px", true);
+			}
+
+			if (height >= 0) {
+				this.height(height);
+				viewport.height = height;
+			}
+
+			this.css("margin", "0");
+			this.css("box-sizing", "border-box");
+
+			this.viewport(viewport);
+		}
+	}, {
+		key: "columns",
+		value: function columns(width, height, columnWidth, gap) {
+			var COLUMN_AXIS = (0, _core.prefixed)("column-axis");
+			var COLUMN_GAP = (0, _core.prefixed)("column-gap");
+			var COLUMN_WIDTH = (0, _core.prefixed)("column-width");
+			var COLUMN_FILL = (0, _core.prefixed)("column-fill");
+
+			this.width(width);
+			this.height(height);
+
+			// Deal with Mobile trying to scale to viewport
+			this.viewport({ width: width, height: height, scale: 1.0, scalable: "no" });
+
+			this.css("display", "inline-block"); // Fixes Safari column cut offs
+			this.css("overflow-y", "hidden");
+			this.css("margin", "0", true);
+
+			this.css("padding", "20px " + gap / 2 + "px", true);
+
+			this.css("box-sizing", "border-box");
+			this.css("max-width", "inherit");
+
+			this.css(COLUMN_AXIS, "horizontal");
+			this.css(COLUMN_FILL, "auto");
+
+			this.css(COLUMN_GAP, gap + "px");
+			this.css(COLUMN_WIDTH, columnWidth + "px");
+		}
+	}, {
+		key: "scaler",
+		value: function scaler(scale, offsetX, offsetY) {
+			var scaleStr = "scale(" + scale + ")";
+			var translateStr = "";
+			// this.css("position", "absolute"));
+			this.css("transform-origin", "top left");
+
+			if (offsetX >= 0 || offsetY >= 0) {
+				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+			}
+
+			this.css("transform", scaleStr + translateStr);
+		}
+	}, {
+		key: "fit",
+		value: function fit(width, height) {
+			var viewport = this.viewport();
+			var widthScale = width / viewport.width;
+			var heightScale = height / viewport.height;
+			var scale = widthScale < heightScale ? widthScale : heightScale;
+
+			var offsetY = (height - viewport.height * scale) / 2;
+
+			this.width(width);
+			this.height(height);
+			this.overflow("hidden");
+
+			// Deal with Mobile trying to scale to viewport
+			this.viewport({ width: width, height: height, scale: 1.0 });
+
+			// Scale to the correct size
+			this.scaler(scale, 0, offsetY);
+
+			this.css("background-color", "transparent");
+		}
+	}, {
+		key: "mapPage",
+		value: function mapPage(cfiBase, layout, start, end, dev) {
+			var mapping = new _mapping2.default(layout, dev);
+
+			return mapping.page(this, cfiBase, start, end);
+		}
+	}, {
+		key: "linksHandler",
+		value: function linksHandler() {
+			var _this3 = this;
+
+			(0, _replacements.replaceLinks)(this.content, function (href) {
+				_this3.emit("linkClicked", href);
+			});
+		}
+	}, {
+		key: "highlight",
+		value: function highlight(cfiRange) {
+			var _this4 = this;
+
+			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var cb = arguments[2];
+
+			var range = this.range(cfiRange);
+			var emitter = function emitter() {
+				_this4.emit("markClicked", cfiRange, data);
+			};
+
+			data["epubcfi"] = cfiRange;
+
+			if (!this.pane) {
+				this.pane = new _marksPane.Pane(this.content, this.document.body);
+			}
+
+			var m = new _marksPane.Highlight(range, "epubjs-hl", data, { 'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply' });
+			var h = this.pane.addMark(m);
+
+			this.highlights[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
+
+			h.element.addEventListener("click", emitter);
+
+			if (cb) {
+				h.element.addEventListener("click", cb);
+			}
+			return h;
+		}
+	}, {
+		key: "underline",
+		value: function underline(cfiRange) {
+			var _this5 = this;
+
+			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var cb = arguments[2];
+
+			var range = this.range(cfiRange);
+			var emitter = function emitter() {
+				_this5.emit("markClicked", cfiRange, data);
+			};
+
+			data["epubcfi"] = cfiRange;
+
+			if (!this.pane) {
+				this.pane = new _marksPane.Pane(this.content, this.document.body);
+			}
+
+			var m = new _marksPane.Underline(range, "epubjs-ul", data, { 'stroke': 'black', 'stroke-opacity': '0.3', 'mix-blend-mode': 'multiply' });
+			var h = this.pane.addMark(m);
+
+			this.underlines[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
+
+			h.element.addEventListener("click", emitter);
+
+			if (cb) {
+				h.element.addEventListener("click", cb);
+			}
+			return h;
+		}
+
+		/*
+  mark(cfiRange, data={}, cb) {
+  	let range = this.range(cfiRange);
+  		let container = range.commonAncestorContainer;
+  	let parent = (container.nodeType === 1) ? container : container.parentNode;
+  	let emitter = () => {
+  		this.emit("markClicked", cfiRange, data);
+  	};
+  		parent.setAttribute("ref", "epubjs-mk");
+  		parent.dataset["epubcfi"] = cfiRange;
+  		if (data) {
+  		Object.keys(data).forEach((key) => {
+  			parent.dataset[key] = data[key];
+  		});
+  	}
+  		parent.addEventListener("click", emitter);
+  		if (cb) {
+  		parent.addEventListener("click", cb);
+  	}
+  		this.marks[cfiRange] = { "element": parent, "listeners": [emitter, cb] };
+  		return parent;
+  }
+  */
+
+	}, {
+		key: "mark",
+		value: function mark(cfiRange) {
+			var _this6 = this;
+
+			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+			var cb = arguments[2];
+
+
+			if (cfiRange in this.marks) {
+				var item = this.marks[cfiRange];
+				return item;
+			}
+
+			var range = this.range(cfiRange);
+
+			var container = range.commonAncestorContainer;
+			var parent = container.nodeType === 1 ? container : container.parentNode;
+			var emitter = function emitter(e) {
+				_this6.emit("markClicked", cfiRange, data);
+			};
+
+			var pos = parent.getBoundingClientRect();
+			var mark = this.document.createElement('a');
+			mark.setAttribute("ref", "epubjs-mk");
+			mark.style.position = "absolute";
+			mark.style.top = pos.top + "px";
+			mark.style.left = pos.right + "px";
+
+			mark.dataset["epubcfi"] = cfiRange;
+
+			if (data) {
+				Object.keys(data).forEach(function (key) {
+					mark.dataset[key] = data[key];
+				});
+			}
+
+			if (cb) {
+				mark.addEventListener("click", cb);
+			}
+
+			mark.addEventListener("click", emitter);
+
+			this.content.appendChild(mark);
+
+			this.marks[cfiRange] = { "element": mark, "listeners": [emitter, cb] };
+
+			return parent;
+		}
+	}, {
+		key: "unhighlight",
+		value: function unhighlight(cfiRange) {
+			var item = void 0;
+			if (cfiRange in this.highlights) {
+				item = this.highlights[cfiRange];
+				this.pane.removeMark(item.mark);
+				item.listeners.forEach(function (l) {
+					if (l) {
+						item.element.removeEventListener("click", l);
+					};
+				});
+				delete this.highlights[cfiRange];
+			}
+		}
+	}, {
+		key: "ununderline",
+		value: function ununderline(cfiRange) {
+			var item = void 0;
+			if (cfiRange in this.underlines) {
+				item = this.underlines[cfiRange];
+				this.pane.removeMark(item.mark);
+				item.listeners.forEach(function (l) {
+					if (l) {
+						item.element.removeEventListener("click", l);
+					};
+				});
+				delete this.underlines[cfiRange];
+			}
+		}
+	}, {
+		key: "unmark",
+		value: function unmark(cfiRange) {
+			var item = void 0;
+			if (cfiRange in this.marks) {
+				item = this.marks[cfiRange];
+				this.content.removeChild(item.element);
+				item.listeners.forEach(function (l) {
+					if (l) {
+						item.element.removeEventListener("click", l);
+					};
+				});
+				delete this.marks[cfiRange];
+			}
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			// Stop observing
+			if (this.observer) {
+				this.observer.disconnect();
+			}
+
+			this.document.removeEventListener('transitionend', this.resizeCheck);
+
+			this.removeListeners();
+		}
+	}], [{
+		key: "listenedEvents",
+		get: function get() {
+			return EVENTS;
+		}
+	}]);
+
+	return Contents;
+}();
+
+(0, _eventEmitter2.default)(Contents.prototype);
+
+exports.default = Contents;
+module.exports = exports["default"];
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_14__;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/*
+ From Zip.js, by Gildas Lormeau
+edited down
+ */
+
+var table = {
+	"application": {
+		"ecmascript": ["es", "ecma"],
+		"javascript": "js",
+		"ogg": "ogx",
+		"pdf": "pdf",
+		"postscript": ["ps", "ai", "eps", "epsi", "epsf", "eps2", "eps3"],
+		"rdf+xml": "rdf",
+		"smil": ["smi", "smil"],
+		"xhtml+xml": ["xhtml", "xht"],
+		"xml": ["xml", "xsl", "xsd", "opf", "ncx"],
+		"zip": "zip",
+		"x-httpd-eruby": "rhtml",
+		"x-latex": "latex",
+		"x-maker": ["frm", "maker", "frame", "fm", "fb", "book", "fbdoc"],
+		"x-object": "o",
+		"x-shockwave-flash": ["swf", "swfl"],
+		"x-silverlight": "scr",
+		"epub+zip": "epub",
+		"font-tdpfr": "pfr",
+		"inkml+xml": ["ink", "inkml"],
+		"json": "json",
+		"jsonml+json": "jsonml",
+		"mathml+xml": "mathml",
+		"metalink+xml": "metalink",
+		"mp4": "mp4s",
+		// "oebps-package+xml" : "opf",
+		"omdoc+xml": "omdoc",
+		"oxps": "oxps",
+		"vnd.amazon.ebook": "azw",
+		"widget": "wgt",
+		// "x-dtbncx+xml" : "ncx",
+		"x-dtbook+xml": "dtb",
+		"x-dtbresource+xml": "res",
+		"x-font-bdf": "bdf",
+		"x-font-ghostscript": "gsf",
+		"x-font-linux-psf": "psf",
+		"x-font-otf": "otf",
+		"x-font-pcf": "pcf",
+		"x-font-snf": "snf",
+		"x-font-ttf": ["ttf", "ttc"],
+		"x-font-type1": ["pfa", "pfb", "pfm", "afm"],
+		"x-font-woff": "woff",
+		"x-mobipocket-ebook": ["prc", "mobi"],
+		"x-mspublisher": "pub",
+		"x-nzb": "nzb",
+		"x-tgif": "obj",
+		"xaml+xml": "xaml",
+		"xml-dtd": "dtd",
+		"xproc+xml": "xpl",
+		"xslt+xml": "xslt",
+		"internet-property-stream": "acx",
+		"x-compress": "z",
+		"x-compressed": "tgz",
+		"x-gzip": "gz"
+	},
+	"audio": {
+		"flac": "flac",
+		"midi": ["mid", "midi", "kar", "rmi"],
+		"mpeg": ["mpga", "mpega", "mp2", "mp3", "m4a", "mp2a", "m2a", "m3a"],
+		"mpegurl": "m3u",
+		"ogg": ["oga", "ogg", "spx"],
+		"x-aiff": ["aif", "aiff", "aifc"],
+		"x-ms-wma": "wma",
+		"x-wav": "wav",
+		"adpcm": "adp",
+		"mp4": "mp4a",
+		"webm": "weba",
+		"x-aac": "aac",
+		"x-caf": "caf",
+		"x-matroska": "mka",
+		"x-pn-realaudio-plugin": "rmp",
+		"xm": "xm",
+		"mid": ["mid", "rmi"]
+	},
+	"image": {
+		"gif": "gif",
+		"ief": "ief",
+		"jpeg": ["jpeg", "jpg", "jpe"],
+		"pcx": "pcx",
+		"png": "png",
+		"svg+xml": ["svg", "svgz"],
+		"tiff": ["tiff", "tif"],
+		"x-icon": "ico",
+		"bmp": "bmp",
+		"webp": "webp",
+		"x-pict": ["pic", "pct"],
+		"x-tga": "tga",
+		"cis-cod": "cod"
+	},
+	"text": {
+		"cache-manifest": ["manifest", "appcache"],
+		"css": "css",
+		"csv": "csv",
+		"html": ["html", "htm", "shtml", "stm"],
+		"mathml": "mml",
+		"plain": ["txt", "text", "brf", "conf", "def", "list", "log", "in", "bas"],
+		"richtext": "rtx",
+		"tab-separated-values": "tsv",
+		"x-bibtex": "bib"
+	},
+	"video": {
+		"mpeg": ["mpeg", "mpg", "mpe", "m1v", "m2v", "mp2", "mpa", "mpv2"],
+		"mp4": ["mp4", "mp4v", "mpg4"],
+		"quicktime": ["qt", "mov"],
+		"ogg": "ogv",
+		"vnd.mpegurl": ["mxu", "m4u"],
+		"x-flv": "flv",
+		"x-la-asf": ["lsf", "lsx"],
+		"x-mng": "mng",
+		"x-ms-asf": ["asf", "asx", "asr"],
+		"x-ms-wm": "wm",
+		"x-ms-wmv": "wmv",
+		"x-ms-wmx": "wmx",
+		"x-ms-wvx": "wvx",
+		"x-msvideo": "avi",
+		"x-sgi-movie": "movie",
+		"x-matroska": ["mpv", "mkv", "mk3d", "mks"],
+		"3gpp2": "3g2",
+		"h261": "h261",
+		"h263": "h263",
+		"h264": "h264",
+		"jpeg": "jpgv",
+		"jpm": ["jpm", "jpgm"],
+		"mj2": ["mj2", "mjp2"],
+		"vnd.ms-playready.media.pyv": "pyv",
+		"vnd.uvvu.mp4": ["uvu", "uvvu"],
+		"vnd.vivo": "viv",
+		"webm": "webm",
+		"x-f4v": "f4v",
+		"x-m4v": "m4v",
+		"x-ms-vob": "vob",
+		"x-smv": "smv"
+	}
+};
+
+var mimeTypes = function () {
+	var type,
+	    subtype,
+	    val,
+	    index,
+	    mimeTypes = {};
+	for (type in table) {
+		if (table.hasOwnProperty(type)) {
+			for (subtype in table[type]) {
+				if (table[type].hasOwnProperty(subtype)) {
+					val = table[type][subtype];
+					if (typeof val == "string") {
+						mimeTypes[val] = type + "/" + subtype;
+					} else {
+						for (index = 0; index < val.length; index++) {
+							mimeTypes[val[index]] = type + "/" + subtype;
+						}
+					}
+				}
+			}
+		}
+	}
+	return mimeTypes;
+}();
+
+var defaultValue = "text/plain"; //"application/octet-stream";
+
+function lookup(filename) {
+	return filename && mimeTypes[filename.split(".").pop().toLowerCase()] || defaultValue;
+};
+
+module.exports = {
+	'lookup': lookup
+};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventEmitter = __webpack_require__(2);
+
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+
+var _core = __webpack_require__(0);
+
+var _hook = __webpack_require__(9);
+
+var _hook2 = _interopRequireDefault(_hook);
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _queue = __webpack_require__(11);
 
 var _queue2 = _interopRequireDefault(_queue);
 
-var _stage = __webpack_require__(31);
+var _layout = __webpack_require__(46);
+
+var _layout2 = _interopRequireDefault(_layout);
+
+var _mapping = __webpack_require__(12);
+
+var _mapping2 = _interopRequireDefault(_mapping);
+
+var _themes = __webpack_require__(47);
+
+var _themes2 = _interopRequireDefault(_themes);
+
+var _contents = __webpack_require__(13);
+
+var _contents2 = _interopRequireDefault(_contents);
+
+var _annotations = __webpack_require__(51);
+
+var _annotations2 = _interopRequireDefault(_annotations);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * [Rendition description]
+ * @class
+ * @param {Book} book
+ * @param {object} options
+ * @param {int} options.width
+ * @param {int} options.height
+ * @param {string} options.ignoreClass
+ * @param {string} options.manager
+ * @param {string} options.view
+ * @param {string} options.layout
+ * @param {string} options.spread
+ * @param {int} options.minSpreadWidth overridden by spread: none (never) / both (always)
+ * @param {string} options.stylesheet url of stylesheet to be injected
+ */
+var Rendition = function () {
+	function Rendition(book, options) {
+		_classCallCheck(this, Rendition);
+
+		this.settings = (0, _core.extend)(this.settings || {}, {
+			width: null,
+			height: null,
+			ignoreClass: "",
+			manager: "default",
+			view: "iframe",
+			flow: null,
+			layout: null,
+			spread: null,
+			minSpreadWidth: 800,
+			stylesheet: null,
+			script: null
+		});
+
+		(0, _core.extend)(this.settings, options);
+
+		if (_typeof(this.settings.manager) === "object") {
+			this.manager = this.settings.manager;
+		}
+
+		this.viewSettings = {
+			ignoreClass: this.settings.ignoreClass
+		};
+
+		this.book = book;
+
+		this.views = null;
+
+		/**
+   * Adds Hook methods to the Rendition prototype
+   * @property {Hook} hooks
+   */
+		this.hooks = {};
+		this.hooks.display = new _hook2.default(this);
+		this.hooks.serialize = new _hook2.default(this);
+		/**
+   * @property {method} hooks.content
+   * @type {Hook}
+   */
+		this.hooks.content = new _hook2.default(this);
+		this.hooks.unloaded = new _hook2.default(this);
+		this.hooks.layout = new _hook2.default(this);
+		this.hooks.render = new _hook2.default(this);
+		this.hooks.show = new _hook2.default(this);
+
+		this.hooks.content.register(this.handleLinks.bind(this));
+		this.hooks.content.register(this.passEvents.bind(this));
+		this.hooks.content.register(this.adjustImages.bind(this));
+
+		this.book.spine.hooks.content.register(this.injectIdentifier.bind(this));
+
+		if (this.settings.stylesheet) {
+			this.book.spine.hooks.content.register(this.injectStylesheet.bind(this));
+		}
+
+		if (this.settings.script) {
+			this.book.spine.hooks.content.register(this.injectScript.bind(this));
+		}
+
+		// this.hooks.display.register(this.afterDisplay.bind(this));
+		this.themes = new _themes2.default(this);
+
+		this.annotations = new _annotations2.default(this);
+
+		this.epubcfi = new _epubcfi2.default();
+
+		this.q = new _queue2.default(this);
+
+		this.q.enqueue(this.book.opened);
+
+		// Block the queue until rendering is started
+		this.starting = new _core.defer();
+		this.started = this.starting.promise;
+		this.q.enqueue(this.start);
+	}
+
+	/**
+  * Set the manager function
+  * @param {function} manager
+  */
+
+
+	_createClass(Rendition, [{
+		key: "setManager",
+		value: function setManager(manager) {
+			this.manager = manager;
+		}
+
+		/**
+   * Require the manager from passed string, or as a function
+   * @param  {string|function} manager [description]
+   * @return {method}
+   */
+
+	}, {
+		key: "requireManager",
+		value: function requireManager(manager) {
+			var viewManager;
+
+			// If manager is a string, try to load from register managers,
+			// or require included managers directly
+			if (typeof manager === "string") {
+				// Use global or require
+				viewManager = typeof ePub != "undefined" ? ePub.ViewManagers[manager] : undefined; //require("./managers/"+manager);
+			} else {
+				// otherwise, assume we were passed a function
+				viewManager = manager;
+			}
+
+			return viewManager;
+		}
+
+		/**
+   * Require the view from passed string, or as a function
+   * @param  {string|function} view
+   * @return {view}
+   */
+
+	}, {
+		key: "requireView",
+		value: function requireView(view) {
+			var View;
+
+			if (typeof view == "string") {
+				View = typeof ePub != "undefined" ? ePub.Views[view] : undefined; //require("./views/"+view);
+			} else {
+				// otherwise, assume we were passed a function
+				View = view;
+			}
+
+			return View;
+		}
+
+		/**
+   * Start the rendering
+   * @return {Promise} rendering has started
+   */
+
+	}, {
+		key: "start",
+		value: function start() {
+
+			if (!this.manager) {
+				this.ViewManager = this.requireManager(this.settings.manager);
+				this.View = this.requireView(this.settings.view);
+
+				this.manager = new this.ViewManager({
+					view: this.View,
+					queue: this.q,
+					request: this.book.load.bind(this.book),
+					settings: this.settings
+				});
+			}
+
+			// Parse metadata to get layout props
+			this.settings.globalLayoutProperties = this.determineLayoutProperties(this.book.package.metadata);
+
+			this.flow(this.settings.globalLayoutProperties.flow);
+
+			this.layout(this.settings.globalLayoutProperties);
+
+			// Listen for displayed views
+			this.manager.on("added", this.afterDisplayed.bind(this));
+			this.manager.on("removed", this.afterRemoved.bind(this));
+
+			// Listen for resizing
+			this.manager.on("resized", this.onResized.bind(this));
+
+			// Listen for rotation
+			this.manager.on("orientationChange", this.onOrientationChange.bind(this));
+
+			// Listen for scroll changes
+			this.manager.on("scrolled", this.reportLocation.bind(this));
+
+			// Trigger that rendering has started
+			this.emit("started");
+
+			// Start processing queue
+			this.starting.resolve();
+		}
+
+		/**
+   * Call to attach the container to an element in the dom
+   * Container must be attached before rendering can begin
+   * @param  {element} element to attach to
+   * @return {Promise}
+   */
+
+	}, {
+		key: "attachTo",
+		value: function attachTo(element) {
+
+			return this.q.enqueue(function () {
+
+				// Start rendering
+				this.manager.render(element, {
+					"width": this.settings.width,
+					"height": this.settings.height
+				});
+
+				// Trigger Attached
+				this.emit("attached");
+			}.bind(this));
+		}
+
+		/**
+   * Display a point in the book
+   * The request will be added to the rendering Queue,
+   * so it will wait until book is opened, rendering started
+   * and all other rendering tasks have finished to be called.
+   * @param  {string} target Url or EpubCFI
+   * @return {Promise}
+   */
+
+	}, {
+		key: "display",
+		value: function display(target) {
+			if (this.displaying) {
+				this.displaying.resolve();
+			}
+			return this.q.enqueue(this._display, target);
+		}
+
+		/**
+   * Tells the manager what to display immediately
+   * @private
+   * @param  {string} target Url or EpubCFI
+   * @return {Promise}
+   */
+
+	}, {
+		key: "_display",
+		value: function _display(target) {
+			var _this = this;
+
+			if (!this.book) {
+				return;
+			}
+			var isCfiString = this.epubcfi.isCfiString(target);
+			var displaying = new _core.defer();
+			var displayed = displaying.promise;
+			var section;
+			var moveTo;
+
+			this.displaying = displaying;
+
+			// Check if this is a book percentage
+			if (this.book.locations.length && ((0, _core.isFloat)(target) || typeof target === "string" && target == parseFloat(target)) // Handle 1.0
+			) {
+					target = this.book.locations.cfiFromPercentage(parseFloat(target));
+				}
+
+			section = this.book.spine.get(target);
+
+			if (!section) {
+				displaying.reject(new Error("No Section Found"));
+				return displayed;
+			}
+
+			this.manager.display(section, target).then(function () {
+				displaying.resolve(section);
+				_this.displaying = undefined;
+
+				_this.emit("displayed", section);
+				_this.reportLocation();
+			});
+
+			return displayed;
+		}
+
+		/*
+  render(view, show) {
+  		// view.onLayout = this.layout.format.bind(this.layout);
+  	view.create();
+  		// Fit to size of the container, apply padding
+  	this.manager.resizeView(view);
+  		// Render Chain
+  	return view.section.render(this.book.request)
+  		.then(function(contents){
+  			return view.load(contents);
+  		}.bind(this))
+  		.then(function(doc){
+  			return this.hooks.content.trigger(view, this);
+  		}.bind(this))
+  		.then(function(){
+  			this.layout.format(view.contents);
+  			return this.hooks.layout.trigger(view, this);
+  		}.bind(this))
+  		.then(function(){
+  			return view.display();
+  		}.bind(this))
+  		.then(function(){
+  			return this.hooks.render.trigger(view, this);
+  		}.bind(this))
+  		.then(function(){
+  			if(show !== false) {
+  				this.q.enqueue(function(view){
+  					view.show();
+  				}, view);
+  			}
+  			// this.map = new Map(view, this.layout);
+  			this.hooks.show.trigger(view, this);
+  			this.trigger("rendered", view.section);
+  			}.bind(this))
+  		.catch(function(e){
+  			this.trigger("loaderror", e);
+  		}.bind(this));
+  	}
+  */
+
+		/**
+   * Report what has been displayed
+   * @private
+   * @param  {*} view
+   */
+
+	}, {
+		key: "afterDisplayed",
+		value: function afterDisplayed(view) {
+			var _this2 = this;
+
+			if (view.contents) {
+				this.hooks.content.trigger(view.contents, this).then(function () {
+					_this2.emit("rendered", view.section, view);
+				});
+			} else {
+				this.emit("rendered", view.section, view);
+			}
+
+			// this.reportLocation();
+		}
+
+		/**
+   * Report what has been removed
+   * @private
+   * @param  {*} view
+   */
+
+	}, {
+		key: "afterRemoved",
+		value: function afterRemoved(view) {
+			var _this3 = this;
+
+			this.hooks.unloaded.trigger(view, this).then(function () {
+				_this3.emit("removed", view.section, view);
+			});
+		}
+
+		/**
+   * Report resize events and display the last seen location
+   * @private
+   */
+
+	}, {
+		key: "onResized",
+		value: function onResized(size) {
+
+			if (this.location && this.location.start) {
+				// this.manager.clear();
+				this.display(this.location.start.cfi);
+			}
+
+			this.emit("resized", {
+				width: size.width,
+				height: size.height
+			});
+		}
+
+		/**
+   * Report orientation events and display the last seen location
+   * @private
+   */
+
+	}, {
+		key: "onOrientationChange",
+		value: function onOrientationChange(orientation) {
+			if (this.location) {
+				this.manager.clear();
+				this.display(this.location.start.cfi);
+			}
+
+			this.emit("orientationChange", orientation);
+		}
+
+		/**
+   * Move the Rendition to a specific offset
+   * Usually you would be better off calling display()
+   * @param {object} offset
+   */
+
+	}, {
+		key: "moveTo",
+		value: function moveTo(offset) {
+			this.manager.moveTo(offset);
+		}
+
+		/**
+   * Go to the next "page" in the rendition
+   * @return {Promise}
+   */
+
+	}, {
+		key: "next",
+		value: function next() {
+			return this.q.enqueue(this.manager.next.bind(this.manager)).then(this.reportLocation.bind(this));
+		}
+
+		/**
+   * Go to the previous "page" in the rendition
+   * @return {Promise}
+   */
+
+	}, {
+		key: "prev",
+		value: function prev() {
+			return this.q.enqueue(this.manager.prev.bind(this.manager)).then(this.reportLocation.bind(this));
+		}
+
+		//-- http://www.idpf.org/epub/301/spec/epub-publications.html#meta-properties-rendering
+		/**
+   * Determine the Layout properties from metadata and settings
+   * @private
+   * @param  {object} metadata
+   * @return {object} properties
+   */
+
+	}, {
+		key: "determineLayoutProperties",
+		value: function determineLayoutProperties(metadata) {
+			var properties;
+			var layout = this.settings.layout || metadata.layout || "reflowable";
+			var spread = this.settings.spread || metadata.spread || "auto";
+			var orientation = this.settings.orientation || metadata.orientation || "auto";
+			var flow = this.settings.flow || metadata.flow || "auto";
+			var viewport = metadata.viewport || "";
+			var minSpreadWidth = this.settings.minSpreadWidth || metadata.minSpreadWidth || 800;
+
+			if (this.settings.width >= 0 && this.settings.height >= 0) {
+				viewport = "width=" + this.settings.width + ", height=" + this.settings.height + "";
+			}
+
+			properties = {
+				layout: layout,
+				spread: spread,
+				orientation: orientation,
+				flow: flow,
+				viewport: viewport,
+				minSpreadWidth: minSpreadWidth
+			};
+
+			return properties;
+		}
+
+		// applyLayoutProperties(){
+		// 	var settings = this.determineLayoutProperties(this.book.package.metadata);
+		//
+		// 	this.flow(settings.flow);
+		//
+		// 	this.layout(settings);
+		// };
+
+		/**
+   * Adjust the flow of the rendition to paginated or scrolled
+   * (scrolled-continuous vs scrolled-doc are handled by different view managers)
+   * @param  {string} flow
+   */
+
+	}, {
+		key: "flow",
+		value: function flow(_flow2) {
+			var _flow = _flow2;
+			if (_flow2 === "scrolled" || _flow2 === "scrolled-doc" || _flow2 === "scrolled-continuous") {
+				_flow = "scrolled";
+			}
+
+			if (_flow2 === "auto" || _flow2 === "paginated") {
+				_flow = "paginated";
+			}
+
+			this.settings.flow = _flow2;
+
+			if (this._layout) {
+				this._layout.flow(_flow);
+			}
+
+			if (this.manager && this._layout) {
+				this.manager.applyLayout(this._layout);
+			}
+
+			if (this.manager) {
+				this.manager.updateFlow(_flow);
+			}
+
+			if (this.location) {
+				this.manager.clear();
+				this.display(this.location.start.cfi);
+			}
+		}
+
+		/**
+   * Adjust the layout of the rendition to reflowable or pre-paginated
+   * @param  {object} settings
+   */
+
+	}, {
+		key: "layout",
+		value: function layout(settings) {
+			if (settings) {
+				this._layout = new _layout2.default(settings);
+				this._layout.spread(settings.spread, this.settings.minSpreadWidth);
+
+				this.mapping = new _mapping2.default(this._layout.props);
+			}
+
+			if (this.manager && this._layout) {
+				this.manager.applyLayout(this._layout);
+			}
+
+			return this._layout;
+		}
+
+		/**
+   * Adjust if the rendition uses spreads
+   * @param  {string} spread none | auto (TODO: implement landscape, portrait, both)
+   * @param  {int} min min width to use spreads at
+   */
+
+	}, {
+		key: "spread",
+		value: function spread(_spread, min) {
+
+			this._layout.spread(_spread, min);
+
+			if (this.manager.isRendered()) {
+				this.manager.updateLayout();
+			}
+		}
+
+		/**
+   * Report the current location
+   * @private
+   */
+
+	}, {
+		key: "reportLocation",
+		value: function reportLocation() {
+			return this.q.enqueue(function reportedLocation() {
+				var location = this.manager.currentLocation();
+				if (location && location.then && typeof location.then === "function") {
+					location.then(function (result) {
+						var located = this.located(result);
+
+						if (!located || !located.start || !located.end) {
+							return;
+						}
+
+						this.location = located;
+
+						this.emit("locationChanged", {
+							index: this.location.start.index,
+							href: this.location.start.href,
+							start: this.location.start.cfi,
+							end: this.location.end.cfi,
+							percentage: this.location.start.percentage
+						});
+
+						this.emit("relocated", this.location);
+					}.bind(this));
+				} else if (location) {
+					var located = this.located(location);
+
+					if (!located || !located.start || !located.end) {
+						return;
+					}
+
+					this.location = located;
+
+					this.emit("locationChanged", {
+						index: this.location.start.index,
+						href: this.location.start.href,
+						start: this.location.start.cfi,
+						end: this.location.end.cfi,
+						percentage: this.location.start.percentage
+					});
+
+					this.emit("relocated", this.location);
+				}
+			}.bind(this));
+		}
+
+		/**
+   * Get the Current Location CFI
+   * @return {EpubCFI} location (may be a promise)
+   */
+
+	}, {
+		key: "currentLocation",
+		value: function currentLocation() {
+			var location = this.manager.currentLocation();
+			if (location && location.then && typeof location.then === "function") {
+				location.then(function (result) {
+					var located = this.located(result);
+					return located;
+				}.bind(this));
+			} else if (location) {
+				var located = this.located(location);
+				return located;
+			}
+		}
+	}, {
+		key: "located",
+		value: function located(location) {
+			if (!location.length) {
+				return {};
+			}
+			var start = location[0];
+			var end = location[location.length - 1];
+
+			var located = {
+				start: {
+					index: start.index,
+					href: start.href,
+					cfi: start.mapping.start,
+					displayed: {
+						page: start.pages[0] || 1,
+						total: start.totalPages
+					}
+				},
+				end: {
+					index: end.index,
+					href: end.href,
+					cfi: end.mapping.end,
+					displayed: {
+						page: end.pages[end.pages.length - 1] || 1,
+						total: end.totalPages
+					}
+				}
+			};
+
+			var locationStart = this.book.locations.locationFromCfi(start.mapping.start);
+			var locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
+
+			if (locationStart != null) {
+				located.start.location = locationStart;
+				located.start.percentage = this.book.locations.percentageFromLocation(locationStart);
+			}
+			if (locationEnd != null) {
+				located.end.location = locationEnd;
+				located.end.percentage = this.book.locations.percentageFromLocation(locationEnd);
+			}
+
+			var pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
+			var pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
+
+			if (pageStart != -1) {
+				located.start.page = pageStart;
+			}
+			if (pageEnd != -1) {
+				located.end.page = pageEnd;
+			}
+
+			if (end.index === this.book.spine.last().index && located.end.displayed.page >= located.end.displayed.total) {
+				located.atEnd = true;
+			}
+
+			if (start.index === this.book.spine.first().index && located.start.displayed.page === 1) {
+				located.atStart = true;
+			}
+
+			return located;
+		}
+
+		/**
+   * Remove and Clean Up the Rendition
+   */
+
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			// Clear the queue
+			// this.q.clear();
+			// this.q = undefined;
+
+			this.manager && this.manager.destroy();
+
+			this.book = undefined;
+
+			this.views = null;
+
+			// this.hooks.display.clear();
+			// this.hooks.serialize.clear();
+			// this.hooks.content.clear();
+			// this.hooks.layout.clear();
+			// this.hooks.render.clear();
+			// this.hooks.show.clear();
+			// this.hooks = {};
+
+			// this.themes.destroy();
+			// this.themes = undefined;
+
+			// this.epubcfi = undefined;
+
+			// this.starting = undefined;
+			// this.started = undefined;
+
+		}
+
+		/**
+   * Pass the events from a view
+   * @private
+   * @param  {View} view
+   */
+
+	}, {
+		key: "passEvents",
+		value: function passEvents(contents) {
+			var _this4 = this;
+
+			var listenedEvents = _contents2.default.listenedEvents;
+
+			listenedEvents.forEach(function (e) {
+				contents.on(e, function (ev) {
+					return _this4.triggerViewEvent(ev, contents);
+				});
+			});
+
+			contents.on("selected", function (e) {
+				return _this4.triggerSelectedEvent(e, contents);
+			});
+			contents.on("markClicked", function (cfiRange, data) {
+				return _this4.triggerMarkEvent(cfiRange, data, contents);
+			});
+		}
+
+		/**
+   * Emit events passed by a view
+   * @private
+   * @param  {event} e
+   */
+
+	}, {
+		key: "triggerViewEvent",
+		value: function triggerViewEvent(e, contents) {
+			this.emit(e.type, e, contents);
+		}
+
+		/**
+   * Emit a selection event's CFI Range passed from a a view
+   * @private
+   * @param  {EpubCFI} cfirange
+   */
+
+	}, {
+		key: "triggerSelectedEvent",
+		value: function triggerSelectedEvent(cfirange, contents) {
+			this.emit("selected", cfirange, contents);
+		}
+
+		/**
+   * Emit a markClicked event with the cfiRange and data from a mark
+   * @private
+   * @param  {EpubCFI} cfirange
+   */
+
+	}, {
+		key: "triggerMarkEvent",
+		value: function triggerMarkEvent(cfiRange, data, contents) {
+			this.emit("markClicked", cfiRange, data, contents);
+		}
+
+		/**
+   * Get a Range from a Visible CFI
+   * @param  {string} cfi EpubCfi String
+   * @param  {string} ignoreClass
+   * @return {range}
+   */
+
+	}, {
+		key: "getRange",
+		value: function getRange(cfi, ignoreClass) {
+			var _cfi = new _epubcfi2.default(cfi);
+			var found = this.manager.visible().filter(function (view) {
+				if (_cfi.spinePos === view.index) return true;
+			});
+
+			// Should only every return 1 item
+			if (found.length) {
+				return found[0].contents.range(_cfi, ignoreClass);
+			}
+		}
+
+		/**
+   * Hook to adjust images to fit in columns
+   * @param  {View} view
+   */
+
+	}, {
+		key: "adjustImages",
+		value: function adjustImages(contents) {
+
+			if (this._layout.name === "pre-paginated") {
+				return new Promise(function (resolve) {
+					resolve();
+				});
+			}
+
+			contents.addStylesheetRules({
+				"img": {
+					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+					"max-height": (this._layout.height ? this._layout.height * 0.90 + "px" : "90%") + "!important",
+					"object-fit": "contain",
+					"page-break-inside": "avoid"
+				}
+			});
+
+			return new Promise(function (resolve, reject) {
+				// Wait to apply
+				setTimeout(function () {
+					resolve();
+				}, 1);
+			});
+		}
+	}, {
+		key: "getContents",
+		value: function getContents() {
+			return this.manager ? this.manager.getContents() : [];
+		}
+	}, {
+		key: "handleLinks",
+		value: function handleLinks(contents) {
+			var _this5 = this;
+
+			if (contents) {
+				contents.on("link", function (href) {
+					var relative = _this5.book.path.relative(href);
+					_this5.display(relative);
+				});
+			}
+		}
+	}, {
+		key: "injectStylesheet",
+		value: function injectStylesheet(doc, section) {
+			var style = doc.createElement("link");
+			style.setAttribute("type", "text/css");
+			style.setAttribute("rel", "stylesheet");
+			style.setAttribute("href", this.settings.stylesheet);
+			doc.getElementsByTagName("head")[0].appendChild(style);
+		}
+	}, {
+		key: "injectScript",
+		value: function injectScript(doc, section) {
+			var script = doc.createElement("script");
+			script.setAttribute("type", "text/javascript");
+			script.setAttribute("src", this.settings.script);
+			script.textContent = " "; // Needed to prevent self closing tag
+			doc.getElementsByTagName("head")[0].appendChild(script);
+		}
+	}, {
+		key: "injectIdentifier",
+		value: function injectIdentifier(doc, section) {
+			var ident = this.book.package.metadata.identifier;
+			var meta = doc.createElement("meta");
+			meta.setAttribute("name", "dc.relation.ispartof");
+			if (ident) {
+				meta.setAttribute("contents", ident);
+			}
+			doc.getElementsByTagName("head")[0].appendChild(meta);
+		}
+	}]);
+
+	return Rendition;
+}();
+
+//-- Enable binding events to Renderer
+
+
+(0, _eventEmitter2.default)(Rendition.prototype);
+
+exports.default = Rendition;
+module.exports = exports["default"];
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventEmitter = __webpack_require__(2);
+
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+
+var _core = __webpack_require__(0);
+
+var _mapping = __webpack_require__(12);
+
+var _mapping2 = _interopRequireDefault(_mapping);
+
+var _queue = __webpack_require__(11);
+
+var _queue2 = _interopRequireDefault(_queue);
+
+var _stage = __webpack_require__(57);
 
 var _stage2 = _interopRequireDefault(_stage);
 
-var _views = __webpack_require__(32);
+var _views = __webpack_require__(58);
 
 var _views2 = _interopRequireDefault(_views);
 
@@ -4837,14 +6066,27 @@ var DefaultViewManager = function () {
 	_createClass(DefaultViewManager, [{
 		key: "render",
 		value: function render(element, size) {
+			var tag = element.tagName;
+
+			if (tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
+				this.fullsize = true;
+			}
+
+			if (this.fullsize) {
+				this.settings.overflow = "visible";
+				this.overflow = this.settings.overflow;
+			}
+
+			this.settings.size = size;
 
 			// Save the stage
 			this.stage = new _stage2.default({
 				width: size.width,
 				height: size.height,
-				overflow: this.settings.overflow,
+				overflow: this.overflow,
 				hidden: this.settings.hidden,
-				axis: this.settings.axis
+				axis: this.settings.axis,
+				fullsize: this.fullsize
 			});
 
 			this.stage.attachTo(element);
@@ -4885,7 +6127,7 @@ var DefaultViewManager = function () {
 				this.destroy();
 			}.bind(this));
 
-			if (this.settings.height) {
+			if (!this.fullsize) {
 				scroller = this.container;
 			} else {
 				scroller = window;
@@ -4898,7 +6140,7 @@ var DefaultViewManager = function () {
 		value: function removeEventListeners() {
 			var scroller;
 
-			if (this.settings.height) {
+			if (!this.fullsize) {
 				scroller = this.container;
 			} else {
 				scroller = window;
@@ -4913,7 +6155,9 @@ var DefaultViewManager = function () {
 			this.removeEventListeners();
 
 			this.views.each(function (view) {
-				view.destroy();
+				if (view) {
+					view.destroy();
+				}
 			});
 
 			this.stage.destroy();
@@ -4926,6 +6170,28 @@ var DefaultViewManager = function () {
    		this.element.removeChild(this.container);
    	}
    */
+		}
+	}, {
+		key: "onOrientationChange",
+		value: function onOrientationChange(e) {
+			var _window = window,
+			    orientation = _window.orientation;
+
+
+			this._stageSize = this.stage.size();
+			this._bounds = this.bounds();
+			// Update for new views
+			this.viewSettings.width = this._stageSize.width;
+			this.viewSettings.height = this._stageSize.height;
+
+			this.updateLayout();
+
+			// Update for existing views
+			// this.views.each(function(view) {
+			// 	view.size(this._stageSize.width, this._stageSize.height);
+			// }.bind(this));
+
+			this.emit("orientationChange", orientation);
 		}
 	}, {
 		key: "onResized",
@@ -4942,6 +6208,7 @@ var DefaultViewManager = function () {
 			this.q.clear();
 
 			this._stageSize = this.stage.size(width, height);
+
 			this._bounds = this.bounds();
 
 			// Update for new views
@@ -4951,13 +6218,18 @@ var DefaultViewManager = function () {
 			this.updateLayout();
 
 			// Update for existing views
-			this.views.each(function (view) {
-				view.size(this._stageSize.width, this._stageSize.height);
-			}.bind(this));
+			// TODO: this is not updating correctly, just clear and rerender for now
+			/*
+   this.views.each(function(view) {
+   	view.reset();
+   	view.size(this._stageSize.width, this._stageSize.height);
+   }.bind(this));
+   */
+			this.clear();
 
 			this.emit("resized", {
-				width: this.stage.width,
-				height: this.stage.height
+				width: this._stageSize.width,
+				height: this._stageSize.height
 			});
 		}
 	}, {
@@ -4972,13 +6244,24 @@ var DefaultViewManager = function () {
 			var displaying = new _core.defer();
 			var displayed = displaying.promise;
 
+			// Check if moving to target is needed
+			if (target === section.href || parseInt(target)) {
+				target = undefined;
+			}
+
 			// Check to make sure the section we want isn't already shown
 			var visible = this.views.find(section);
 
-			// View is already shown, just move to correct location
-			if (visible && target) {
-				var offset = visible.locationOf(target);
-				this.moveTo(offset);
+			// View is already shown, just move to correct location in view
+			if (visible && section) {
+				var offset = visible.offset();
+				this.scrollTo(offset.left, offset.top, true);
+
+				if (target) {
+					var _offset = visible.locationOf(target);
+					this.moveTo(_offset);
+				}
+
 				displaying.resolve();
 				return displayed;
 			}
@@ -4990,8 +6273,8 @@ var DefaultViewManager = function () {
 
 				// Move to correct place within the section, if needed
 				if (target) {
-					var _offset = view.locationOf(target);
-					this.moveTo(_offset);
+					var _offset2 = view.locationOf(target);
+					this.moveTo(_offset2);
 				}
 			}.bind(this)).then(function () {
 				var next;
@@ -5192,9 +6475,13 @@ var DefaultViewManager = function () {
 	}, {
 		key: "clear",
 		value: function clear() {
-			this.views.hide();
-			this.scrollTo(0, 0, true);
-			this.views.clear();
+			this.q.clear();
+
+			if (this.views) {
+				this.views.hide();
+				this.scrollTo(0, 0, true);
+				this.views.clear();
+			}
 		}
 	}, {
 		key: "currentLocation",
@@ -5207,47 +6494,6 @@ var DefaultViewManager = function () {
 			}
 			return this.location;
 		}
-		/*
-  scrolledLocation(){
-  		var visible = this.visible();
-  	var startPage, endPage;
-  	var startA, startB, endA, endB;
-  	var last;
-  	var container = this.container.getBoundingClientRect();
-  	var pageHeight = (container.height < window.innerHeight) ? container.height : window.innerHeight;
-  	var offset = 0;
-  		if(!this.settings.height) {
-  		offset = window.scrollY;
-  	}
-  		if(visible.length === 1) {
-  		startA = (container.top - visible[0].position().top) + offset;
-  		endA = startA + pageHeight;
-  		startPage = this.mapping.page(visible[0].contents, visible[0].section.cfiBase, startA, endA)
-  			return {
-  			index : visible[0].section.index,
-  			href : visible[0].section.href,
-  			start: startPage.start,
-  			end: startPage.end
-  		};
-  	}
-  		if(visible.length > 1) {
-  		last = visible.length - 1;
-  			startA = (container.top - visible[0].position().top) + offset;
-  		endA = startA + (container.top - visible[0].position().bottom);
-  			startB = (container.top - visible[last].position().top) + offset;
-  		endB = pageHeight - startB;
-  			startPage = this.mapping.page(visible[0].contents, visible[0].section.cfiBase, startA, endA)
-  		endPage = this.mapping.page(visible[last].contents, visible[last].section.cfiBase, startB, endB);
-  			return {
-  			index : visible[last].section.index,
-  			href : visible[last].section.href,
-  			start: startPage.start,
-  			end: endPage.end
-  		};
-  	}
-  	}
-  */
-
 	}, {
 		key: "scrolledLocation",
 		value: function scrolledLocation() {
@@ -5258,8 +6504,9 @@ var DefaultViewManager = function () {
 			var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
 
 			var offset = 0;
+			var used = 0;
 
-			if (!this.settings.height) {
+			if (this.fullsize) {
 				offset = window.scrollY;
 			}
 
@@ -5269,18 +6516,23 @@ var DefaultViewManager = function () {
 				    href = _view$section.href;
 
 				var position = view.position();
-				var startPos = position.top - container.top + offset;
-				var endPos = startPos + pageHeight;
-				if (endPos > position.bottom - container.top + offset) {
-					endPos = position.bottom - container.top + offset;
+				var height = view.height();
+
+				var startPos = offset + container.top - position.top + used;
+				var endPos = startPos + pageHeight - used;
+				if (endPos > height) {
+					endPos = height;
+					used = endPos - startPos;
 				}
 
 				var totalPages = _this.layout.count(view._height, pageHeight).pages;
-				var currPage = Math.round(startPos / pageHeight);
+				var currPage = Math.ceil(startPos / pageHeight);
 				var pages = [];
-				var numPages = (endPos - startPos) / pageHeight;
-				for (var i = 1; i <= numPages; i++) {
-					var pg = currPage + i;
+				var endPage = Math.ceil(endPos / pageHeight);
+
+				pages = [currPage];
+				for (var i = currPage; i <= endPage; i++) {
+					var pg = i;
 					pages.push(pg);
 				}
 
@@ -5305,6 +6557,13 @@ var DefaultViewManager = function () {
 			var visible = this.visible();
 			var container = this.container.getBoundingClientRect();
 
+			var left = 0;
+			var used = 0;
+
+			if (this.fullsize) {
+				left = window.scrollX;
+			}
+
 			var sections = visible.map(function (view) {
 				var _view$section2 = view.section,
 				    index = _view$section2.index,
@@ -5314,24 +6573,30 @@ var DefaultViewManager = function () {
 				var position = view.position().left;
 				var width = view.width();
 
-				var startPos = _this2.container.scrollLeft + offset;
-				var endPos = startPos + _this2.layout.spreadWidth + _this2.layout.gap;
-				if (endPos > _this2.container.scrollLeft + offset + width) {
-					endPos = _this2.container.scrollLeft + offset + width;
+				// Find mapping
+				var start = left + container.left - position + used;
+				var end = start + _this2.layout.width - used;
+
+				var mapping = _this2.mapping.page(view.contents, view.section.cfiBase, start, end);
+
+				// Find displayed pages
+				var startPos = left + used;
+				var endPos = startPos + _this2.layout.spreadWidth - used;
+				if (endPos > offset + width) {
+					endPos = offset + width;
+					used = _this2.layout.pageWidth;
 				}
 
 				var totalPages = _this2.layout.count(width).pages;
-				var currPage = Math.ceil((startPos - offset) / _this2.layout.spreadWidth);
+				var currPage = Math.ceil((startPos + _this2.layout.gap - offset) / _this2.layout.pageWidth);
 				var pages = [];
-				var numPages = (endPos - startPos) / (_this2.layout.columnWidth + _this2.layout.gap / 2);
-				for (var i = 1; i <= numPages; i++) {
-					var pg = currPage + i;
+				var endPage = Math.ceil((endPos - _this2.layout.gap - offset) / _this2.layout.pageWidth);
+
+				pages = [currPage];
+				for (var i = currPage; i <= endPage; i++) {
+					var pg = i;
 					pages.push(pg);
 				}
-
-				var start = container.left - position;
-				var end = start + _this2.layout.spreadWidth + _this2.layout.gap;
-				var mapping = _this2.mapping.page(view.contents, view.section.cfiBase, start, end);
 
 				return {
 					index: index,
@@ -5387,8 +6652,7 @@ var DefaultViewManager = function () {
 				this.ignore = true;
 			}
 
-			if (this.settings.height) {
-
+			if (!this.fullsize) {
 				if (x) this.container.scrollLeft += x;
 				if (y) this.container.scrollTop += y;
 			} else {
@@ -5403,20 +6667,13 @@ var DefaultViewManager = function () {
 				this.ignore = true;
 			}
 
-			if (this.settings.height) {
+			if (!this.fullsize) {
 				this.container.scrollLeft = x;
 				this.container.scrollTop = y;
 			} else {
 				window.scrollTo(x, y);
 			}
 			this.scrolled = true;
-
-			// if(this.container.scrollLeft != x){
-			//   setTimeout(function() {
-			//     this.scrollTo(x, y, silent);
-			//   }.bind(this), 10);
-			//   return;
-			// };
 		}
 	}, {
 		key: "onScroll",
@@ -5424,7 +6681,7 @@ var DefaultViewManager = function () {
 			var scrollTop = void 0;
 			var scrollLeft = void 0;
 
-			if (this.settings.height) {
+			if (!this.fullsize) {
 				scrollTop = this.container.scrollTop;
 				scrollLeft = this.container.scrollLeft;
 			} else {
@@ -5469,6 +6726,7 @@ var DefaultViewManager = function () {
 			this.updateLayout();
 
 			this.mapping = new _mapping2.default(this.layout.props);
+
 			// this.manager.layout(this.layout.format);
 		}
 	}, {
@@ -5488,7 +6746,7 @@ var DefaultViewManager = function () {
 				// Set the look ahead offset for what is visible
 				this.settings.offset = this.layout.delta;
 
-				this.stage.addStyleRules("iframe", [{ "margin-right": this.layout.gap + "px" }]);
+				// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
 			}
 
 			// Set the dimensions for views
@@ -5506,7 +6764,9 @@ var DefaultViewManager = function () {
 			if (this.views) {
 
 				this.views.each(function (view) {
-					view.setLayout(layout);
+					if (view) {
+						view.setLayout(layout);
+					}
 				});
 			}
 		}
@@ -5517,19 +6777,30 @@ var DefaultViewManager = function () {
 
 			this.settings.axis = axis;
 
+			this.stage && this.stage.axis(axis);
+
 			this.viewSettings.axis = axis;
 
-			this.settings.overflow = flow === "paginated" ? "hidden" : "auto";
+			if (!this.settings.overflow) {
+				this.overflow = flow === "paginated" ? "hidden" : "auto";
+			} else {
+				this.overflow = this.settings.overflow;
+			}
 			// this.views.each(function(view){
 			// 	view.setAxis(axis);
 			// });
+
+			this.updateLayout();
 		}
 	}, {
 		key: "getContents",
 		value: function getContents() {
 			var contents = [];
 			this.views.each(function (view) {
-				contents.push(view.contents);
+				var viewContents = view && view.contents;
+				if (viewContents) {
+					contents.push(viewContents);
+				}
 			});
 			return contents;
 		}
@@ -5547,7 +6818,3866 @@ exports.default = DefaultViewManager;
 module.exports = exports["default"];
 
 /***/ }),
-/* 14 */
+/* 18 */
+/***/ (function(module, exports) {
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+module.exports = isObject;
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var freeGlobal = __webpack_require__(62);
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+module.exports = root;
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var root = __webpack_require__(19);
+
+/** Built-in value references. */
+var Symbol = root.Symbol;
+
+module.exports = Symbol;
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _book = __webpack_require__(22);
+
+var _book2 = _interopRequireDefault(_book);
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _rendition = __webpack_require__(16);
+
+var _rendition2 = _interopRequireDefault(_rendition);
+
+var _contents = __webpack_require__(13);
+
+var _contents2 = _interopRequireDefault(_contents);
+
+var _core = __webpack_require__(0);
+
+var core = _interopRequireWildcard(_core);
+
+__webpack_require__(54);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Creates a new Book
+ * @param {string|ArrayBuffer} url URL, Path or ArrayBuffer
+ * @param {object} options to pass to the book
+ * @returns {Book} a new Book object
+ * @example ePub("/path/to/book.epub", {})
+ */
+function ePub(url, options) {
+	return new _book2.default(url, options);
+}
+
+ePub.VERSION = "0.3";
+
+if (typeof global !== "undefined") {
+	global.EPUBJS_VERSION = ePub.VERSION;
+}
+
+ePub.CFI = _epubcfi2.default;
+ePub.Rendition = _rendition2.default;
+ePub.Contents = _contents2.default;
+ePub.utils = core;
+
+ePub.ViewManagers = {};
+ePub.Views = {};
+/**
+ * register plugins
+ */
+ePub.register = {
+	/**
+  * register a new view manager
+  */
+	manager: function manager(name, _manager) {
+		return ePub.ViewManagers[name] = _manager;
+	},
+	/**
+  * register a new view
+  */
+	view: function view(name, _view) {
+		return ePub.Views[name] = _view;
+	}
+};
+
+// Default Views
+ePub.register.view("iframe", __webpack_require__(56));
+
+// Default View Managers
+ePub.register.manager("default", __webpack_require__(17));
+ePub.register.manager("continuous", __webpack_require__(59));
+
+exports.default = ePub;
+module.exports = exports["default"];
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+// import path from "path";
+
+
+var _eventEmitter = __webpack_require__(2);
+
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+
+var _core = __webpack_require__(0);
+
+var _url = __webpack_require__(4);
+
+var _url2 = _interopRequireDefault(_url);
+
+var _path = __webpack_require__(3);
+
+var _path2 = _interopRequireDefault(_path);
+
+var _spine = __webpack_require__(38);
+
+var _spine2 = _interopRequireDefault(_spine);
+
+var _locations = __webpack_require__(40);
+
+var _locations2 = _interopRequireDefault(_locations);
+
+var _container = __webpack_require__(41);
+
+var _container2 = _interopRequireDefault(_container);
+
+var _packaging = __webpack_require__(42);
+
+var _packaging2 = _interopRequireDefault(_packaging);
+
+var _navigation = __webpack_require__(43);
+
+var _navigation2 = _interopRequireDefault(_navigation);
+
+var _resources = __webpack_require__(44);
+
+var _resources2 = _interopRequireDefault(_resources);
+
+var _pagelist = __webpack_require__(45);
+
+var _pagelist2 = _interopRequireDefault(_pagelist);
+
+var _rendition = __webpack_require__(16);
+
+var _rendition2 = _interopRequireDefault(_rendition);
+
+var _archive = __webpack_require__(52);
+
+var _archive2 = _interopRequireDefault(_archive);
+
+var _request2 = __webpack_require__(10);
+
+var _request3 = _interopRequireDefault(_request2);
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var CONTAINER_PATH = "META-INF/container.xml";
+var EPUBJS_VERSION = "0.3";
+
+/**
+ * Creates a new Book
+ * @class
+ * @param {string} url
+ * @param {object} options
+ * @param {method} options.requestMethod a request function to use instead of the default
+ * @param {boolean} [options.requestCredentials=undefined] send the xhr request withCredentials
+ * @param {object} [options.requestHeaders=undefined] send the xhr request headers
+ * @param {string} [options.encoding=binary] optional to pass 'binary' or base64' for archived Epubs
+ * @param {string} [options.replacements=none] use base64, blobUrl, or none for replacing assets in archived Epubs
+ * @returns {Book}
+ * @example new Book("/path/to/book.epub", {})
+ * @example new Book({ replacements: "blobUrl" })
+ */
+
+var Book = function () {
+	function Book(url, options) {
+		var _this = this;
+
+		_classCallCheck(this, Book);
+
+		// Allow passing just options to the Book
+		if (typeof options === "undefined" && (typeof url === "undefined" ? "undefined" : _typeof(url)) === "object") {
+			options = url;
+			url = undefined;
+		}
+
+		this.settings = (0, _core.extend)(this.settings || {}, {
+			requestMethod: undefined,
+			requestCredentials: undefined,
+			requestHeaders: undefined,
+			encoding: undefined,
+			replacements: undefined
+		});
+
+		(0, _core.extend)(this.settings, options);
+
+		// Promises
+		this.opening = new _core.defer();
+		/**
+   * @property {promise} opened returns after the book is loaded
+   */
+		this.opened = this.opening.promise;
+		this.isOpen = false;
+
+		this.loading = {
+			manifest: new _core.defer(),
+			spine: new _core.defer(),
+			metadata: new _core.defer(),
+			cover: new _core.defer(),
+			navigation: new _core.defer(),
+			pageList: new _core.defer(),
+			resources: new _core.defer()
+		};
+
+		this.loaded = {
+			manifest: this.loading.manifest.promise,
+			spine: this.loading.spine.promise,
+			metadata: this.loading.metadata.promise,
+			cover: this.loading.cover.promise,
+			navigation: this.loading.navigation.promise,
+			pageList: this.loading.pageList.promise,
+			resources: this.loading.resources.promise
+		};
+
+		// this.ready = RSVP.hash(this.loaded);
+		/**
+   * @property {promise} ready returns after the book is loaded and parsed
+   * @private
+   */
+		this.ready = Promise.all([this.loaded.manifest, this.loaded.spine, this.loaded.metadata, this.loaded.cover, this.loaded.navigation, this.loaded.resources]);
+
+		// Queue for methods used before opening
+		this.isRendered = false;
+		// this._q = queue(this);
+
+		/**
+   * @property {method} request
+   * @private
+   */
+		this.request = this.settings.requestMethod || _request3.default;
+
+		/**
+   * @property {Spine} spine
+   */
+		this.spine = new _spine2.default();
+
+		/**
+   * @property {Locations} locations
+   */
+		this.locations = new _locations2.default(this.spine, this.load.bind(this));
+
+		/**
+   * @property {Navigation} navigation
+   */
+		this.navigation = undefined;
+
+		/**
+   * @property {PageList} pagelist
+   */
+		this.pageList = new _pagelist2.default();
+
+		/**
+   * @property {Url} url
+   * @private
+   */
+		this.url = undefined;
+
+		/**
+   * @property {Path} path
+   * @private
+   */
+		this.path = undefined;
+
+		/**
+   * @property {boolean} archived
+   * @private
+   */
+		this.archived = false;
+
+		/**
+   * @property {Archive} archive
+   * @private
+   */
+		this.archive = undefined;
+
+		/**
+   * @property {Resources} resources
+   * @private
+   */
+		this.resources = undefined;
+
+		/**
+   * @property {Rendition} rendition
+   * @private
+   */
+		this.rendition = undefined;
+
+		this.container = undefined;
+		this.packaging = undefined;
+		this.toc = undefined;
+
+		if (url) {
+			this.open(url).catch(function (error) {
+				var err = new Error("Cannot load book at " + url);
+				// console.error(err);
+				_this.emit("openFailed", err);
+			});
+		}
+	}
+
+	/**
+  * Open a epub or url
+  * @param {string} input URL, Path or ArrayBuffer
+  * @param {string} [what] to force opening
+  * @returns {Promise} of when the book has been loaded
+  * @example book.open("/path/to/book.epub")
+  */
+
+
+	_createClass(Book, [{
+		key: "open",
+		value: function open(input, what) {
+			var opening;
+			var type = what || this.determineType(input);
+
+			if (type === "binary") {
+				this.archived = true;
+				this.url = new _url2.default("/", "");
+				opening = this.openEpub(input);
+			} else if (type === "base64") {
+				this.archived = true;
+				this.url = new _url2.default("/", "");
+				opening = this.openEpub(input, type);
+			} else if (type === "epub") {
+				this.archived = true;
+				this.url = new _url2.default("/", "");
+				opening = this.request(input, "binary").then(this.openEpub.bind(this));
+			} else if (type == "opf") {
+				this.url = new _url2.default(input);
+				opening = this.openPackaging(this.url.Path.toString());
+			} else if (type == "json") {
+				this.url = new _url2.default(input);
+				opening = this.openManifest(this.url.Path.toString());
+			} else {
+				this.url = new _url2.default(input);
+				opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
+			}
+
+			return opening;
+		}
+
+		/**
+   * Open an archived epub
+   * @private
+   * @param  {binary} data
+   * @param  {[string]} encoding
+   * @return {Promise}
+   */
+
+	}, {
+		key: "openEpub",
+		value: function openEpub(data, encoding) {
+			var _this2 = this;
+
+			return this.unarchive(data, encoding || this.settings.encoding).then(function () {
+				return _this2.openContainer(CONTAINER_PATH);
+			}).then(function (packagePath) {
+				return _this2.openPackaging(packagePath);
+			});
+		}
+
+		/**
+   * Open the epub container
+   * @private
+   * @param  {string} url
+   * @return {string} packagePath
+   */
+
+	}, {
+		key: "openContainer",
+		value: function openContainer(url) {
+			var _this3 = this;
+
+			return this.load(url).then(function (xml) {
+				_this3.container = new _container2.default(xml);
+				return _this3.resolve(_this3.container.packagePath);
+			});
+		}
+
+		/**
+   * Open the Open Packaging Format Xml
+   * @private
+   * @param  {string} url
+   * @return {Promise}
+   */
+
+	}, {
+		key: "openPackaging",
+		value: function openPackaging(url) {
+			var _this4 = this;
+
+			this.path = new _path2.default(url);
+			return this.load(url).then(function (xml) {
+				_this4.packaging = new _packaging2.default(xml);
+				return _this4.unpack(_this4.packaging);
+			});
+		}
+
+		/**
+   * Open the manifest JSON
+   * @private
+   * @param  {string} url
+   * @return {Promise}
+   */
+
+	}, {
+		key: "openManifest",
+		value: function openManifest(url) {
+			var _this5 = this;
+
+			this.path = new _path2.default(url);
+			return this.load(url).then(function (json) {
+				_this5.packaging = new _packaging2.default();
+				_this5.packaging.load(json);
+				return _this5.unpack(_this5.packaging);
+			});
+		}
+
+		/**
+   * Load a resource from the Book
+   * @param  {string} path path to the resource to load
+   * @return {Promise}     returns a promise with the requested resource
+   */
+
+	}, {
+		key: "load",
+		value: function load(path) {
+			var resolved;
+
+			if (this.archived) {
+				resolved = this.resolve(path);
+				return this.archive.request(resolved);
+			} else {
+				resolved = this.resolve(path);
+				return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
+			}
+		}
+
+		/**
+   * Resolve a path to it's absolute position in the Book
+   * @param  {string} path
+   * @param  {[boolean]} absolute force resolving the full URL
+   * @return {string}          the resolved path string
+   */
+
+	}, {
+		key: "resolve",
+		value: function resolve(path, absolute) {
+			if (!path) {
+				return;
+			}
+			var resolved = path;
+			var isAbsolute = path.indexOf("://") > -1;
+
+			if (isAbsolute) {
+				return path;
+			}
+
+			if (this.path) {
+				resolved = this.path.resolve(path);
+			}
+
+			if (absolute != false && this.url) {
+				resolved = this.url.resolve(resolved);
+			}
+
+			return resolved;
+		}
+
+		/**
+   * Determine the type of they input passed to open
+   * @private
+   * @param  {string} input
+   * @return {string}  binary | directory | epub | opf
+   */
+
+	}, {
+		key: "determineType",
+		value: function determineType(input) {
+			var url;
+			var path;
+			var extension;
+
+			if (this.settings.encoding === "base64") {
+				return "base64";
+			}
+
+			if (typeof input != "string") {
+				return "binary";
+			}
+
+			url = new _url2.default(input);
+			path = url.path();
+			extension = path.extension;
+
+			if (!extension) {
+				return "directory";
+			}
+
+			if (extension === "epub") {
+				return "epub";
+			}
+
+			if (extension === "opf") {
+				return "opf";
+			}
+
+			if (extension === "json") {
+				return "json";
+			}
+		}
+
+		/**
+   * unpack the contents of the Books packageXml
+   * @private
+   * @param {document} packageXml XML Document
+   */
+
+	}, {
+		key: "unpack",
+		value: function unpack(opf) {
+			var _this6 = this;
+
+			this.package = opf;
+
+			this.spine.unpack(this.package, this.resolve.bind(this));
+
+			this.resources = new _resources2.default(this.package.manifest, {
+				archive: this.archive,
+				resolver: this.resolve.bind(this),
+				request: this.request.bind(this),
+				replacements: this.settings.replacements || "base64"
+			});
+
+			this.loadNavigation(this.package).then(function () {
+				_this6.toc = _this6.navigation.toc;
+				_this6.loading.navigation.resolve(_this6.navigation);
+			});
+
+			if (this.package.coverPath) {
+				this.cover = this.resolve(this.package.coverPath);
+			}
+			// Resolve promises
+			this.loading.manifest.resolve(this.package.manifest);
+			this.loading.metadata.resolve(this.package.metadata);
+			this.loading.spine.resolve(this.spine);
+			this.loading.cover.resolve(this.cover);
+			this.loading.resources.resolve(this.resources);
+			this.loading.pageList.resolve(this.pageList);
+
+			this.isOpen = true;
+
+			if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
+				this.replacements().then(function () {
+					_this6.opening.resolve(_this6);
+				}).catch(function (err) {
+					console.error(err);
+				});
+			} else {
+				// Resolve book opened promise
+				this.opening.resolve(this);
+			}
+		}
+
+		/**
+   * Load Navigation and PageList from package
+   * @private
+   * @param {document} opf XML Document
+   */
+
+	}, {
+		key: "loadNavigation",
+		value: function loadNavigation(opf) {
+			var _this7 = this;
+
+			var navPath = opf.navPath || opf.ncxPath;
+			var toc = opf.toc;
+
+			if (toc) {
+				return new Promise(function (resolve, reject) {
+					_this7.navigation = new _navigation2.default(toc);
+
+					_this7.pageList = new _pagelist2.default(); // TODO: handle page lists
+
+					resolve(_this7.navigation);
+				});
+			}
+
+			if (!navPath) {
+				return new Promise(function (resolve, reject) {
+					_this7.navigation = new _navigation2.default();
+					_this7.pageList = new _pagelist2.default();
+
+					resolve(_this7.navigation);
+				});
+			}
+
+			return this.load(navPath, "xml").then(function (xml) {
+				_this7.navigation = new _navigation2.default(xml, new _path2.default(_this7.path.resolve(navPath)));
+				_this7.pageList = new _pagelist2.default(xml);
+				return _this7.navigation;
+			});
+		}
+
+		/**
+   * Alias for book.spine.get
+   * @param {string} target
+   */
+
+	}, {
+		key: "section",
+		value: function section(target) {
+			return this.spine.get(target);
+		}
+
+		/**
+   * Sugar to render a book
+   * @param  {element} element element to add the views to
+   * @param  {[object]} options
+   * @return {Rendition}
+   */
+
+	}, {
+		key: "renderTo",
+		value: function renderTo(element, options) {
+			// var renderMethod = (options && options.method) ?
+			//     options.method :
+			//     "single";
+
+			this.rendition = new _rendition2.default(this, options);
+			this.rendition.attachTo(element);
+
+			return this.rendition;
+		}
+
+		/**
+   * Set if request should use withCredentials
+   * @param {boolean} credentials
+   */
+
+	}, {
+		key: "setRequestCredentials",
+		value: function setRequestCredentials(credentials) {
+			this.settings.requestCredentials = credentials;
+		}
+
+		/**
+   * Set headers request should use
+   * @param {object} headers
+   */
+
+	}, {
+		key: "setRequestHeaders",
+		value: function setRequestHeaders(headers) {
+			this.settings.requestHeaders = headers;
+		}
+
+		/**
+   * Unarchive a zipped epub
+   * @private
+   * @param  {binary} input epub data
+   * @param  {[string]} encoding
+   * @return {Archive}
+   */
+
+	}, {
+		key: "unarchive",
+		value: function unarchive(input, encoding) {
+			this.archive = new _archive2.default();
+			return this.archive.open(input, encoding);
+		}
+
+		/**
+   * Get the cover url
+   * @return {string} coverUrl
+   */
+
+	}, {
+		key: "coverUrl",
+		value: function coverUrl() {
+			var _this8 = this;
+
+			var retrieved = this.loaded.cover.then(function (url) {
+				if (_this8.archived) {
+					// return this.archive.createUrl(this.cover);
+					return _this8.resources.get(_this8.cover);
+				} else {
+					return _this8.cover;
+				}
+			});
+
+			return retrieved;
+		}
+
+		/**
+   * load replacement urls
+   * @private
+   * @return {Promise} completed loading urls
+   */
+
+	}, {
+		key: "replacements",
+		value: function replacements() {
+			var _this9 = this;
+
+			this.spine.hooks.serialize.register(function (output, section) {
+				section.output = _this9.resources.substitute(output, section.url);
+			});
+
+			return this.resources.replacements().then(function () {
+				return _this9.resources.replaceCss();
+			});
+		}
+
+		/**
+   * Find a DOM Range for a given CFI Range
+   * @param  {EpubCFI} cfiRange a epub cfi range
+   * @return {Range}
+   */
+
+	}, {
+		key: "getRange",
+		value: function getRange(cfiRange) {
+			var cfi = new _epubcfi2.default(cfiRange);
+			var item = this.spine.get(cfi.spinePos);
+			var _request = this.load.bind(this);
+			if (!item) {
+				return new Promise(function (resolve, reject) {
+					reject("CFI could not be found");
+				});
+			}
+			return item.load(_request).then(function (contents) {
+				var range = cfi.toRange(item.document);
+				return range;
+			});
+		}
+
+		/**
+   * Generates the Book Key using the identifer in the manifest or other string provided
+   * @param  {[string]} identifier to use instead of metadata identifier
+   * @return {string} key
+   */
+
+	}, {
+		key: "key",
+		value: function key(identifier) {
+			var ident = identifier || this.package.metadata.identifier || this.url.filename;
+			return "epubjs:" + EPUBJS_VERSION + ":" + ident;
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.opened = undefined;
+			this.loading = undefined;
+			this.loaded = undefined;
+			this.ready = undefined;
+
+			this.isOpen = false;
+			this.isRendered = false;
+
+			this.spine && this.spine.destroy();
+			this.locations && this.locations.destroy();
+			this.pageList && this.pageList.destroy();
+			this.archive && this.archive.destroy();
+			this.resources && this.resources.destroy();
+			this.container && this.container.destroy();
+			this.packaging && this.packaging.destroy();
+			this.rendition && this.rendition.destroy();
+
+			this.spine = undefined;
+			this.locations = undefined;
+			this.pageList = undefined;
+			this.archive = undefined;
+			this.resources = undefined;
+			this.container = undefined;
+			this.packaging = undefined;
+			this.rendition = undefined;
+
+			this.navigation = undefined;
+			this.url = undefined;
+			this.path = undefined;
+			this.archived = false;
+			this.toc = undefined;
+		}
+	}]);
+
+	return Book;
+}();
+
+//-- Enable binding events to book
+
+
+(0, _eventEmitter2.default)(Book.prototype);
+
+exports.default = Book;
+module.exports = exports["default"];
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var assign        = __webpack_require__(24)
+  , normalizeOpts = __webpack_require__(32)
+  , isCallable    = __webpack_require__(33)
+  , contains      = __webpack_require__(34)
+
+  , d;
+
+d = module.exports = function (dscr, value/*, options*/) {
+	var c, e, w, options, desc;
+	if ((arguments.length < 2) || (typeof dscr !== 'string')) {
+		options = value;
+		value = dscr;
+		dscr = null;
+	} else {
+		options = arguments[2];
+	}
+	if (dscr == null) {
+		c = w = true;
+		e = false;
+	} else {
+		c = contains.call(dscr, 'c');
+		e = contains.call(dscr, 'e');
+		w = contains.call(dscr, 'w');
+	}
+
+	desc = { value: value, configurable: c, enumerable: e, writable: w };
+	return !options ? desc : assign(normalizeOpts(options), desc);
+};
+
+d.gs = function (dscr, get, set/*, options*/) {
+	var c, e, options, desc;
+	if (typeof dscr !== 'string') {
+		options = set;
+		set = get;
+		get = dscr;
+		dscr = null;
+	} else {
+		options = arguments[3];
+	}
+	if (get == null) {
+		get = undefined;
+	} else if (!isCallable(get)) {
+		options = get;
+		get = set = undefined;
+	} else if (set == null) {
+		set = undefined;
+	} else if (!isCallable(set)) {
+		options = set;
+		set = undefined;
+	}
+	if (dscr == null) {
+		c = true;
+		e = false;
+	} else {
+		c = contains.call(dscr, 'c');
+		e = contains.call(dscr, 'e');
+	}
+
+	desc = { get: get, set: set, configurable: c, enumerable: e };
+	return !options ? desc : assign(normalizeOpts(options), desc);
+};
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(25)()
+	? Object.assign
+	: __webpack_require__(26);
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+	var assign = Object.assign, obj;
+	if (typeof assign !== "function") return false;
+	obj = { foo: "raz" };
+	assign(obj, { bar: "dwa" }, { trzy: "trzy" });
+	return (obj.foo + obj.bar + obj.trzy) === "razdwatrzy";
+};
+
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var keys  = __webpack_require__(27)
+  , value = __webpack_require__(31)
+  , max   = Math.max;
+
+module.exports = function (dest, src /*, …srcn*/) {
+	var error, i, length = max(arguments.length, 2), assign;
+	dest = Object(value(dest));
+	assign = function (key) {
+		try {
+			dest[key] = src[key];
+		} catch (e) {
+			if (!error) error = e;
+		}
+	};
+	for (i = 1; i < length; ++i) {
+		src = arguments[i];
+		keys(src).forEach(assign);
+	}
+	if (error !== undefined) throw error;
+	return dest;
+};
+
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(28)()
+	? Object.keys
+	: __webpack_require__(29);
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function () {
+	try {
+		Object.keys("primitive");
+		return true;
+	} catch (e) {
+ return false;
+}
+};
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var isValue = __webpack_require__(8);
+
+var keys = Object.keys;
+
+module.exports = function (object) {
+	return keys(isValue(object) ? Object(object) : object);
+};
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// eslint-disable-next-line no-empty-function
+module.exports = function () {};
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var isValue = __webpack_require__(8);
+
+module.exports = function (value) {
+	if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
+	return value;
+};
+
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var isValue = __webpack_require__(8);
+
+var forEach = Array.prototype.forEach, create = Object.create;
+
+var process = function (src, obj) {
+	var key;
+	for (key in src) obj[key] = src[key];
+};
+
+// eslint-disable-next-line no-unused-vars
+module.exports = function (opts1 /*, …options*/) {
+	var result = create(null);
+	forEach.call(arguments, function (options) {
+		if (!isValue(options)) return;
+		process(Object(options), result);
+	});
+	return result;
+};
+
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// Deprecated
+
+
+
+module.exports = function (obj) {
+ return typeof obj === "function";
+};
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__(35)()
+	? String.prototype.contains
+	: __webpack_require__(36);
+
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var str = "razdwatrzy";
+
+module.exports = function () {
+	if (typeof str.contains !== "function") return false;
+	return (str.contains("dwa") === true) && (str.contains("foo") === false);
+};
+
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var indexOf = String.prototype.indexOf;
+
+module.exports = function (searchString/*, position*/) {
+	return indexOf.call(this, searchString, arguments[1]) > -1;
+};
+
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (fn) {
+	if (typeof fn !== "function") throw new TypeError(fn + " is not a function");
+	return fn;
+};
+
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _hook = __webpack_require__(9);
+
+var _hook2 = _interopRequireDefault(_hook);
+
+var _section = __webpack_require__(39);
+
+var _section2 = _interopRequireDefault(_section);
+
+var _replacements = __webpack_require__(6);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * A collection of Spine Items
+ */
+var Spine = function () {
+	function Spine() {
+		_classCallCheck(this, Spine);
+
+		this.spineItems = [];
+		this.spineByHref = {};
+		this.spineByBaseHref = {};
+		this.spineById = {};
+
+		this.hooks = {};
+		this.hooks.serialize = new _hook2.default();
+		this.hooks.content = new _hook2.default();
+
+		// Register replacements
+		this.hooks.content.register(_replacements.replaceBase);
+		this.hooks.content.register(_replacements.replaceCanonical);
+		this.hooks.content.register(_replacements.replaceMeta);
+
+		this.epubcfi = new _epubcfi2.default();
+
+		this.loaded = false;
+
+		this.items = undefined;
+		this.manifest = undefined;
+		this.spineNodeIndex = undefined;
+		this.baseUrl = undefined;
+		this.length = undefined;
+	}
+
+	/**
+  * Unpack items from a opf into spine items
+  * @param  {Package} _package
+  * @param  {method} resolver URL resolver
+  */
+
+
+	_createClass(Spine, [{
+		key: "unpack",
+		value: function unpack(_package, resolver) {
+			var _this = this;
+
+			this.items = _package.spine;
+			this.manifest = _package.manifest;
+			this.spineNodeIndex = _package.spineNodeIndex;
+			this.baseUrl = _package.baseUrl || _package.basePath || "";
+			this.length = this.items.length;
+
+			this.items.forEach(function (item, index) {
+				var manifestItem = _this.manifest[item.idref];
+				var spineItem;
+
+				item.index = index;
+				item.cfiBase = _this.epubcfi.generateChapterComponent(_this.spineNodeIndex, item.index, item.idref);
+
+				if (item.href) {
+					item.url = resolver(item.href, true);
+					item.href = resolver(item.href, false);
+				}
+
+				if (manifestItem) {
+					item.href = resolver(manifestItem.href, false);
+					item.url = resolver(item.href, true);
+					if (manifestItem.properties.length) {
+						item.properties.push.apply(item.properties, manifestItem.properties);
+					}
+				}
+
+				if (item.linear === "yes") {
+					item.prev = function () {
+						var prevIndex = item.index;
+						while (prevIndex > 0) {
+							var prev = this.get(prevIndex - 1);
+							if (prev && prev.linear) {
+								return prev;
+							}
+							prevIndex -= 1;
+						}
+						return;
+					}.bind(_this);
+					item.next = function () {
+						var nextIndex = item.index;
+						while (nextIndex < this.spineItems.length - 1) {
+							var next = this.get(nextIndex + 1);
+							if (next && next.linear) {
+								return next;
+							}
+							nextIndex += 1;
+						}
+						return;
+					}.bind(_this);
+				} else {
+					item.prev = function () {
+						return;
+					};
+					item.next = function () {
+						return;
+					};
+				}
+
+				spineItem = new _section2.default(item, _this.hooks);
+
+				_this.append(spineItem);
+			});
+
+			this.loaded = true;
+		}
+
+		/**
+   * Get an item from the spine
+   * @param  {[string|int]} target
+   * @return {Section} section
+   * @example spine.get();
+   * @example spine.get(1);
+   * @example spine.get("chap1.html");
+   * @example spine.get("#id1234");
+   */
+
+	}, {
+		key: "get",
+		value: function get(target) {
+			var index = 0;
+
+			if (typeof target === "undefined") {
+				while (index < this.spineItems.length) {
+					var next = this.spineItems[index];
+					if (next && next.linear) {
+						break;
+					}
+					index += 1;
+				}
+			} else if (this.epubcfi.isCfiString(target)) {
+				var cfi = new _epubcfi2.default(target);
+				index = cfi.spinePos;
+			} else if (typeof target === "number" || isNaN(target) === false) {
+				index = target;
+			} else if (typeof target === "string" && target.indexOf("#") === 0) {
+				index = this.spineById[target.substring(1)];
+			} else if (typeof target === "string") {
+				// Remove fragments
+				target = target.split("#")[0];
+				if (target.indexOf("/") < 0) {
+					// search by base name
+					index = this.spineByBaseHref[target];
+				} else {
+					index = this.spineByHref[target];
+				}
+			}
+
+			return this.spineItems[index] || null;
+		}
+
+		/**
+   * Append a Section to the Spine
+   * @private
+   * @param  {Section} section
+   */
+
+	}, {
+		key: "append",
+		value: function append(section) {
+			var index = this.spineItems.length;
+			section.index = index;
+
+			this.spineItems.push(section);
+
+			this.spineByHref[section.href] = index;
+			var base_href = section.href.split("/").pop();
+			if (this.spineByBaseHref[base_href] === undefined) {
+				this.spineByBaseHref[base_href] = index;
+			}
+			this.spineById[section.idref] = index;
+
+			return index;
+		}
+
+		/**
+   * Prepend a Section to the Spine
+   * @private
+   * @param  {Section} section
+   */
+
+	}, {
+		key: "prepend",
+		value: function prepend(section) {
+			// var index = this.spineItems.unshift(section);
+			this.spineByHref[section.href] = 0;
+			this.spineById[section.idref] = 0;
+
+			// Re-index
+			this.spineItems.forEach(function (item, index) {
+				item.index = index;
+			});
+
+			return 0;
+		}
+
+		// insert(section, index) {
+		//
+		// };
+
+		/**
+   * Remove a Section from the Spine
+   * @private
+   * @param  {Section} section
+   */
+
+	}, {
+		key: "remove",
+		value: function remove(section) {
+			var index = this.spineItems.indexOf(section);
+
+			if (index > -1) {
+				delete this.spineByHref[section.href];
+				delete this.spineById[section.idref];
+
+				return this.spineItems.splice(index, 1);
+			}
+		}
+
+		/**
+   * Loop over the Sections in the Spine
+   * @return {method} forEach
+   */
+
+	}, {
+		key: "each",
+		value: function each() {
+			return this.spineItems.forEach.apply(this.spineItems, arguments);
+		}
+	}, {
+		key: "first",
+		value: function first() {
+			var index = 0;
+
+			while (index < this.spineItems.length - 1) {
+				var next = this.get(index);
+				if (next && next.linear) {
+					return next;
+				}
+				index += 1;
+			}
+		}
+	}, {
+		key: "last",
+		value: function last() {
+			var index = this.spineItems.length - 1;
+
+			while (index > 0) {
+				var prev = this.get(index);
+				if (prev && prev.linear) {
+					return prev;
+				}
+				index -= 1;
+			}
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.each(function (section) {
+				return section.destroy();
+			});
+
+			this.spineItems = undefined;
+			this.spineByHref = undefined;
+			this.spineById = undefined;
+
+			this.hooks.serialize.clear();
+			this.hooks.content.clear();
+			this.hooks = undefined;
+
+			this.epubcfi = undefined;
+
+			this.loaded = false;
+
+			this.items = undefined;
+			this.manifest = undefined;
+			this.spineNodeIndex = undefined;
+			this.baseUrl = undefined;
+			this.length = undefined;
+		}
+	}]);
+
+	return Spine;
+}();
+
+exports.default = Spine;
+module.exports = exports["default"];
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _hook = __webpack_require__(9);
+
+var _hook2 = _interopRequireDefault(_hook);
+
+var _replacements = __webpack_require__(6);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Represents a Section of the Book
+ * In most books this is equivelent to a Chapter
+ * @param {object} item  The spine item representing the section
+ * @param {object} hooks hooks for serialize and content
+ */
+var Section = function () {
+	function Section(item, hooks) {
+		_classCallCheck(this, Section);
+
+		this.idref = item.idref;
+		this.linear = item.linear === "yes";
+		this.properties = item.properties;
+		this.index = item.index;
+		this.href = item.href;
+		this.url = item.url;
+		this.next = item.next;
+		this.prev = item.prev;
+
+		this.cfiBase = item.cfiBase;
+
+		if (hooks) {
+			this.hooks = hooks;
+		} else {
+			this.hooks = {};
+			this.hooks.serialize = new _hook2.default(this);
+			this.hooks.content = new _hook2.default(this);
+		}
+
+		this.document = undefined;
+		this.contents = undefined;
+		this.output = undefined;
+	}
+
+	/**
+  * Load the section from its url
+  * @param  {method} _request a request method to use for loading
+  * @return {document} a promise with the xml document
+  */
+
+
+	_createClass(Section, [{
+		key: "load",
+		value: function load(_request) {
+			var request = _request || this.request || __webpack_require__(10);
+			var loading = new _core.defer();
+			var loaded = loading.promise;
+
+			if (this.contents) {
+				loading.resolve(this.contents);
+			} else {
+				request(this.url).then(function (xml) {
+					// var directory = new Url(this.url).directory;
+
+					this.document = xml;
+					this.contents = xml.documentElement;
+
+					return this.hooks.content.trigger(this.document, this);
+				}.bind(this)).then(function () {
+					loading.resolve(this.contents);
+				}.bind(this)).catch(function (error) {
+					loading.reject(error);
+				});
+			}
+
+			return loaded;
+		}
+
+		/**
+   * Adds a base tag for resolving urls in the section
+   * @private
+   */
+
+	}, {
+		key: "base",
+		value: function base() {
+			return (0, _replacements.replaceBase)(this.document, this);
+		}
+
+		/**
+   * Render the contents of a section
+   * @param  {method} _request a request method to use for loading
+   * @return {string} output a serialized XML Document
+   */
+
+	}, {
+		key: "render",
+		value: function render(_request) {
+			var rendering = new _core.defer();
+			var rendered = rendering.promise;
+			this.output; // TODO: better way to return this from hooks?
+
+			this.load(_request).then(function (contents) {
+				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
+				var isIE = userAgent.indexOf('Trident') >= 0;
+				var Serializer;
+				if (typeof XMLSerializer === "undefined" || isIE) {
+					Serializer = __webpack_require__(14).XMLSerializer;
+				} else {
+					Serializer = XMLSerializer;
+				}
+				var serializer = new Serializer();
+				this.output = serializer.serializeToString(contents);
+				return this.output;
+			}.bind(this)).then(function () {
+				return this.hooks.serialize.trigger(this.output, this);
+			}.bind(this)).then(function () {
+				rendering.resolve(this.output);
+			}.bind(this)).catch(function (error) {
+				rendering.reject(error);
+			});
+
+			return rendered;
+		}
+
+		/**
+   * Find a string in a section
+   * @param  {string} _query The query string to find
+   * @return {object[]} A list of matches, with form {cfi, excerpt}
+   */
+
+	}, {
+		key: "find",
+		value: function find(_query) {
+			var section = this;
+			var matches = [];
+			var query = _query.toLowerCase();
+			var find = function find(node) {
+				var text = node.textContent.toLowerCase();
+				var range = section.document.createRange();
+				var cfi;
+				var pos;
+				var last = -1;
+				var excerpt;
+				var limit = 150;
+
+				while (pos != -1) {
+					// Search for the query
+					pos = text.indexOf(query, last + 1);
+
+					if (pos != -1) {
+						// We found it! Generate a CFI
+						range = section.document.createRange();
+						range.setStart(node, pos);
+						range.setEnd(node, pos + query.length);
+
+						cfi = section.cfiFromRange(range);
+
+						// Generate the excerpt
+						if (node.textContent.length < limit) {
+							excerpt = node.textContent;
+						} else {
+							excerpt = node.textContent.substring(pos - limit / 2, pos + limit / 2);
+							excerpt = "..." + excerpt + "...";
+						}
+
+						// Add the CFI to the matches list
+						matches.push({
+							cfi: cfi,
+							excerpt: excerpt
+						});
+					}
+
+					last = pos;
+				}
+			};
+
+			(0, _core.sprint)(section.document, function (node) {
+				find(node);
+			});
+
+			return matches;
+		}
+	}, {
+		key: "reconcileLayoutSettings",
+
+
+		/**
+  * Reconciles the current chapters layout properies with
+  * the global layout properities.
+  * @param {object} global  The globa layout settings object, chapter properties string
+  * @return {object} layoutProperties Object with layout properties
+  */
+		value: function reconcileLayoutSettings(global) {
+			//-- Get the global defaults
+			var settings = {
+				layout: global.layout,
+				spread: global.spread,
+				orientation: global.orientation
+			};
+
+			//-- Get the chapter's display type
+			this.properties.forEach(function (prop) {
+				var rendition = prop.replace("rendition:", "");
+				var split = rendition.indexOf("-");
+				var property, value;
+
+				if (split != -1) {
+					property = rendition.slice(0, split);
+					value = rendition.slice(split + 1);
+
+					settings[property] = value;
+				}
+			});
+			return settings;
+		}
+
+		/**
+   * Get a CFI from a Range in the Section
+   * @param  {range} _range
+   * @return {string} cfi an EpubCFI string
+   */
+
+	}, {
+		key: "cfiFromRange",
+		value: function cfiFromRange(_range) {
+			return new _epubcfi2.default(_range, this.cfiBase).toString();
+		}
+
+		/**
+   * Get a CFI from an Element in the Section
+   * @param  {element} el
+   * @return {string} cfi an EpubCFI string
+   */
+
+	}, {
+		key: "cfiFromElement",
+		value: function cfiFromElement(el) {
+			return new _epubcfi2.default(el, this.cfiBase).toString();
+		}
+
+		/**
+   * Unload the section document
+   */
+
+	}, {
+		key: "unload",
+		value: function unload() {
+			this.document = undefined;
+			this.contents = undefined;
+			this.output = undefined;
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.unload();
+			this.hooks.serialize.clear();
+			this.hooks.content.clear();
+
+			this.hooks = undefined;
+			this.idref = undefined;
+			this.linear = undefined;
+			this.properties = undefined;
+			this.index = undefined;
+			this.href = undefined;
+			this.url = undefined;
+			this.next = undefined;
+			this.prev = undefined;
+
+			this.cfiBase = undefined;
+		}
+	}]);
+
+	return Section;
+}();
+
+exports.default = Section;
+module.exports = exports["default"];
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+var _queue = __webpack_require__(11);
+
+var _queue2 = _interopRequireDefault(_queue);
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _eventEmitter = __webpack_require__(2);
+
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Find Locations for a Book
+ * @param {Spine} spine
+ * @param {request} request
+ */
+var Locations = function () {
+	function Locations(spine, request, pause) {
+		_classCallCheck(this, Locations);
+
+		this.spine = spine;
+		this.request = request;
+		this.pause = pause || 100;
+
+		this.q = new _queue2.default(this);
+		this.epubcfi = new _epubcfi2.default();
+
+		this._locations = [];
+		this.total = 0;
+
+		this.break = 150;
+
+		this._current = 0;
+
+		this.currentLocation = '';
+		this._currentCfi = '';
+		this.processingTimeout = undefined;
+	}
+
+	/**
+  * Load all of sections in the book to generate locations
+  * @param  {int} chars how many chars to split on
+  * @return {object} locations
+  */
+
+
+	_createClass(Locations, [{
+		key: "generate",
+		value: function generate(chars) {
+
+			if (chars) {
+				this.break = chars;
+			}
+
+			this.q.pause();
+
+			this.spine.each(function (section) {
+				if (section.linear) {
+					this.q.enqueue(this.process.bind(this), section);
+				}
+			}.bind(this));
+
+			return this.q.run().then(function () {
+				this.total = this._locations.length - 1;
+
+				if (this._currentCfi) {
+					this.currentLocation = this._currentCfi;
+				}
+
+				return this._locations;
+				// console.log(this.percentage(this.book.rendition.location.start), this.percentage(this.book.rendition.location.end));
+			}.bind(this));
+		}
+	}, {
+		key: "createRange",
+		value: function createRange() {
+			return {
+				startContainer: undefined,
+				startOffset: undefined,
+				endContainer: undefined,
+				endOffset: undefined
+			};
+		}
+	}, {
+		key: "process",
+		value: function process(section) {
+
+			return section.load(this.request).then(function (contents) {
+				var completed = new _core.defer();
+				var locations = this.parse(contents, section.cfiBase);
+				this._locations = this._locations.concat(locations);
+
+				section.unload();
+
+				this.processingTimeout = setTimeout(function () {
+					return completed.resolve(locations);
+				}, this.pause);
+				return completed.promise;
+			}.bind(this));
+		}
+	}, {
+		key: "parse",
+		value: function parse(contents, cfiBase, chars) {
+			var locations = [];
+			var range;
+			var doc = contents.ownerDocument;
+			var body = (0, _core.qs)(doc, "body");
+			var counter = 0;
+			var prev;
+			var _break = chars || this.break;
+			var parser = function parser(node) {
+				var len = node.length;
+				var dist;
+				var pos = 0;
+
+				if (node.textContent.trim().length === 0) {
+					return false; // continue
+				}
+
+				// Start range
+				if (counter == 0) {
+					range = this.createRange();
+					range.startContainer = node;
+					range.startOffset = 0;
+				}
+
+				dist = _break - counter;
+
+				// Node is smaller than a break,
+				// skip over it
+				if (dist > len) {
+					counter += len;
+					pos = len;
+				}
+
+				while (pos < len) {
+					dist = _break - counter;
+
+					if (counter === 0) {
+						// Start new range
+						pos += 1;
+						range = this.createRange();
+						range.startContainer = node;
+						range.startOffset = pos;
+					}
+
+					// pos += dist;
+
+					// Gone over
+					if (pos + dist >= len) {
+						// Continue counter for next node
+						counter += len - pos;
+						// break
+						pos = len;
+						// At End
+					} else {
+						// Advance pos
+						pos += dist;
+
+						// End the previous range
+						range.endContainer = node;
+						range.endOffset = pos;
+						// cfi = section.cfiFromRange(range);
+						var cfi = new _epubcfi2.default(range, cfiBase).toString();
+						locations.push(cfi);
+						counter = 0;
+					}
+				}
+				prev = node;
+			};
+
+			(0, _core.sprint)(body, parser.bind(this));
+
+			// Close remaining
+			if (range && range.startContainer && prev) {
+				range.endContainer = prev;
+				range.endOffset = prev.length;
+				var cfi = new _epubcfi2.default(range, cfiBase).toString();
+				locations.push(cfi);
+				counter = 0;
+			}
+
+			return locations;
+		}
+	}, {
+		key: "locationFromCfi",
+		value: function locationFromCfi(cfi) {
+			var loc = void 0;
+			if (_epubcfi2.default.prototype.isCfiString(cfi)) {
+				cfi = new _epubcfi2.default(cfi);
+			}
+			// Check if the location has not been set yet
+			if (this._locations.length === 0) {
+				return -1;
+			}
+
+			loc = (0, _core.locationOf)(cfi, this._locations, this.epubcfi.compare);
+
+			if (loc > this.total) {
+				return this.total;
+			}
+
+			return loc;
+		}
+	}, {
+		key: "percentageFromCfi",
+		value: function percentageFromCfi(cfi) {
+			if (this._locations.length === 0) {
+				return null;
+			}
+			// Find closest cfi
+			var loc = this.locationFromCfi(cfi);
+			// Get percentage in total
+			return this.percentageFromLocation(loc);
+		}
+	}, {
+		key: "percentageFromLocation",
+		value: function percentageFromLocation(loc) {
+			if (!loc || !this.total) {
+				return 0;
+			}
+
+			return loc / this.total;
+		}
+	}, {
+		key: "cfiFromLocation",
+		value: function cfiFromLocation(loc) {
+			var cfi = -1;
+			// check that pg is an int
+			if (typeof loc != "number") {
+				loc = parseInt(loc);
+			}
+
+			if (loc >= 0 && loc < this._locations.length) {
+				cfi = this._locations[loc];
+			}
+
+			return cfi;
+		}
+	}, {
+		key: "cfiFromPercentage",
+		value: function cfiFromPercentage(percentage) {
+			var loc = void 0;
+			if (percentage > 1) {
+				console.warn("Normalize cfiFromPercentage value to between 0 - 1");
+			}
+
+			// Make sure 1 goes to very end
+			if (percentage >= 1) {
+				var cfi = new _epubcfi2.default(this._locations[this.total]);
+				cfi.collapse();
+				return cfi.toString();
+			}
+
+			loc = Math.ceil(this.total * percentage);
+			return this.cfiFromLocation(loc);
+		}
+	}, {
+		key: "load",
+		value: function load(locations) {
+			if (typeof locations === "string") {
+				this._locations = JSON.parse(locations);
+			} else {
+				this._locations = locations;
+			}
+			this.total = this._locations.length - 1;
+			return this._locations;
+		}
+	}, {
+		key: "save",
+		value: function save(json) {
+			return JSON.stringify(this._locations);
+		}
+	}, {
+		key: "getCurrent",
+		value: function getCurrent(json) {
+			return this._current;
+		}
+	}, {
+		key: "setCurrent",
+		value: function setCurrent(curr) {
+			var loc;
+
+			if (typeof curr == "string") {
+				this._currentCfi = curr;
+			} else if (typeof curr == "number") {
+				this._current = curr;
+			} else {
+				return;
+			}
+
+			if (this._locations.length === 0) {
+				return;
+			}
+
+			if (typeof curr == "string") {
+				loc = this.locationFromCfi(curr);
+				this._current = loc;
+			} else {
+				loc = curr;
+			}
+
+			this.emit("changed", {
+				percentage: this.percentageFromLocation(loc)
+			});
+		}
+	}, {
+		key: "length",
+		value: function length() {
+			return this._locations.length;
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.spine = undefined;
+			this.request = undefined;
+			this.pause = undefined;
+
+			this.q.stop();
+			this.q = undefined;
+			this.epubcfi = undefined;
+
+			this._locations = undefined;
+			this.total = undefined;
+
+			this.break = undefined;
+			this._current = undefined;
+
+			this.currentLocation = undefined;
+			this._currentCfi = undefined;
+			clearTimeout(this.processingTimeout);
+		}
+	}, {
+		key: "currentLocation",
+		get: function get() {
+			return this._current;
+		},
+		set: function set(curr) {
+			this.setCurrent(curr);
+		}
+	}]);
+
+	return Locations;
+}();
+
+(0, _eventEmitter2.default)(Locations.prototype);
+
+exports.default = Locations;
+module.exports = exports["default"];
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _pathWebpack = __webpack_require__(5);
+
+var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
+
+var _core = __webpack_require__(0);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Handles Parsing and Accessing an Epub Container
+ * @class
+ * @param {[document]} containerDocument xml document
+ */
+var Container = function () {
+	function Container(containerDocument) {
+		_classCallCheck(this, Container);
+
+		this.packagePath = '';
+		this.directory = '';
+		this.encoding = '';
+
+		if (containerDocument) {
+			this.parse(containerDocument);
+		}
+	}
+
+	/**
+  * Parse the Container XML
+  * @param  {document} containerDocument
+  */
+
+
+	_createClass(Container, [{
+		key: "parse",
+		value: function parse(containerDocument) {
+			//-- <rootfile full-path="OPS/package.opf" media-type="application/oebps-package+xml"/>
+			var rootfile;
+
+			if (!containerDocument) {
+				throw new Error("Container File Not Found");
+			}
+
+			rootfile = (0, _core.qs)(containerDocument, "rootfile");
+
+			if (!rootfile) {
+				throw new Error("No RootFile Found");
+			}
+
+			this.packagePath = rootfile.getAttribute("full-path");
+			this.directory = _pathWebpack2.default.dirname(this.packagePath);
+			this.encoding = containerDocument.xmlEncoding;
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.packagePath = undefined;
+			this.directory = undefined;
+			this.encoding = undefined;
+		}
+	}]);
+
+	return Container;
+}();
+
+exports.default = Container;
+module.exports = exports["default"];
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Open Packaging Format Parser
+ * @class
+ * @param {document} packageDocument OPF XML
+ */
+var Packaging = function () {
+	function Packaging(packageDocument) {
+		_classCallCheck(this, Packaging);
+
+		this.manifest = {};
+		this.navPath = '';
+		this.ncxPath = '';
+		this.coverPath = '';
+		this.spineNodeIndex = 0;
+		this.spine = [];
+		this.metadata = {};
+
+		if (packageDocument) {
+			this.parse(packageDocument);
+		}
+	}
+
+	/**
+  * Parse OPF XML
+  * @param  {document} packageDocument OPF XML
+  * @return {object} parsed package parts
+  */
+
+
+	_createClass(Packaging, [{
+		key: 'parse',
+		value: function parse(packageDocument) {
+			var metadataNode, manifestNode, spineNode;
+
+			if (!packageDocument) {
+				throw new Error("Package File Not Found");
+			}
+
+			metadataNode = (0, _core.qs)(packageDocument, "metadata");
+			if (!metadataNode) {
+				throw new Error("No Metadata Found");
+			}
+
+			manifestNode = (0, _core.qs)(packageDocument, "manifest");
+			if (!manifestNode) {
+				throw new Error("No Manifest Found");
+			}
+
+			spineNode = (0, _core.qs)(packageDocument, "spine");
+			if (!spineNode) {
+				throw new Error("No Spine Found");
+			}
+
+			this.manifest = this.parseManifest(manifestNode);
+			this.navPath = this.findNavPath(manifestNode);
+			this.ncxPath = this.findNcxPath(manifestNode, spineNode);
+			this.coverPath = this.findCoverPath(packageDocument);
+
+			this.spineNodeIndex = (0, _core.indexOfElementNode)(spineNode);
+
+			this.spine = this.parseSpine(spineNode, this.manifest);
+
+			this.metadata = this.parseMetadata(metadataNode);
+
+			this.metadata.direction = spineNode.getAttribute("page-progression-direction");
+
+			return {
+				"metadata": this.metadata,
+				"spine": this.spine,
+				"manifest": this.manifest,
+				"navPath": this.navPath,
+				"ncxPath": this.ncxPath,
+				"coverPath": this.coverPath,
+				"spineNodeIndex": this.spineNodeIndex
+			};
+		}
+
+		/**
+   * Parse Metadata
+   * @private
+   * @param  {document} xml
+   * @return {object} metadata
+   */
+
+	}, {
+		key: 'parseMetadata',
+		value: function parseMetadata(xml) {
+			var metadata = {};
+
+			metadata.title = this.getElementText(xml, "title");
+			metadata.creator = this.getElementText(xml, "creator");
+			metadata.description = this.getElementText(xml, "description");
+
+			metadata.pubdate = this.getElementText(xml, "date");
+
+			metadata.publisher = this.getElementText(xml, "publisher");
+
+			metadata.identifier = this.getElementText(xml, "identifier");
+			metadata.language = this.getElementText(xml, "language");
+			metadata.rights = this.getElementText(xml, "rights");
+
+			metadata.modified_date = this.getPropertyText(xml, "dcterms:modified");
+
+			metadata.layout = this.getPropertyText(xml, "rendition:layout");
+			metadata.orientation = this.getPropertyText(xml, "rendition:orientation");
+			metadata.flow = this.getPropertyText(xml, "rendition:flow");
+			metadata.viewport = this.getPropertyText(xml, "rendition:viewport");
+			// metadata.page_prog_dir = packageXml.querySelector("spine").getAttribute("page-progression-direction");
+
+			return metadata;
+		}
+
+		/**
+   * Parse Manifest
+   * @private
+   * @param  {document} manifestXml
+   * @return {object} manifest
+   */
+
+	}, {
+		key: 'parseManifest',
+		value: function parseManifest(manifestXml) {
+			var manifest = {};
+
+			//-- Turn items into an array
+			// var selected = manifestXml.querySelectorAll("item");
+			var selected = (0, _core.qsa)(manifestXml, "item");
+			var items = Array.prototype.slice.call(selected);
+
+			//-- Create an object with the id as key
+			items.forEach(function (item) {
+				var id = item.getAttribute("id"),
+				    href = item.getAttribute("href") || "",
+				    type = item.getAttribute("media-type") || "",
+				    properties = item.getAttribute("properties") || "";
+
+				manifest[id] = {
+					"href": href,
+					// "url" : href,
+					"type": type,
+					"properties": properties.length ? properties.split(" ") : []
+				};
+			});
+
+			return manifest;
+		}
+
+		/**
+   * Parse Spine
+   * @param  {document} spineXml
+   * @param  {Packaging.manifest} manifest
+   * @return {object} spine
+   */
+
+	}, {
+		key: 'parseSpine',
+		value: function parseSpine(spineXml, manifest) {
+			var spine = [];
+
+			var selected = spineXml.getElementsByTagName("itemref");
+			var items = Array.prototype.slice.call(selected);
+
+			// var epubcfi = new EpubCFI();
+
+			//-- Add to array to mantain ordering and cross reference with manifest
+			items.forEach(function (item, index) {
+				var idref = item.getAttribute("idref");
+				// var cfiBase = epubcfi.generateChapterComponent(spineNodeIndex, index, Id);
+				var props = item.getAttribute("properties") || "";
+				var propArray = props.length ? props.split(" ") : [];
+				// var manifestProps = manifest[Id].properties;
+				// var manifestPropArray = manifestProps.length ? manifestProps.split(" ") : [];
+
+				var itemref = {
+					"idref": idref,
+					"linear": item.getAttribute("linear") || "yes",
+					"properties": propArray,
+					// "href" : manifest[Id].href,
+					// "url" :  manifest[Id].url,
+					"index": index
+					// "cfiBase" : cfiBase
+				};
+				spine.push(itemref);
+			});
+
+			return spine;
+		}
+
+		/**
+   * Find TOC NAV
+   * @private
+   */
+
+	}, {
+		key: 'findNavPath',
+		value: function findNavPath(manifestNode) {
+			// Find item with property "nav"
+			// Should catch nav irregardless of order
+			// var node = manifestNode.querySelector("item[properties$='nav'], item[properties^='nav '], item[properties*=' nav ']");
+			var node = (0, _core.qsp)(manifestNode, "item", { "properties": "nav" });
+			return node ? node.getAttribute("href") : false;
+		}
+
+		/**
+   * Find TOC NCX
+   * media-type="application/x-dtbncx+xml" href="toc.ncx"
+   * @private
+   */
+
+	}, {
+		key: 'findNcxPath',
+		value: function findNcxPath(manifestNode, spineNode) {
+			// var node = manifestNode.querySelector("item[media-type='application/x-dtbncx+xml']");
+			var node = (0, _core.qsp)(manifestNode, "item", { "media-type": "application/x-dtbncx+xml" });
+			var tocId;
+
+			// If we can't find the toc by media-type then try to look for id of the item in the spine attributes as
+			// according to http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1.2,
+			// "The item that describes the NCX must be referenced by the spine toc attribute."
+			if (!node) {
+				tocId = spineNode.getAttribute("toc");
+				if (tocId) {
+					// node = manifestNode.querySelector("item[id='" + tocId + "']");
+					node = manifestNode.getElementById(tocId);
+				}
+			}
+
+			return node ? node.getAttribute("href") : false;
+		}
+
+		/**
+   * Find the Cover Path
+   * <item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />
+   * Fallback for Epub 2.0
+   * @param  {document} packageXml
+   * @return {string} href
+   */
+
+	}, {
+		key: 'findCoverPath',
+		value: function findCoverPath(packageXml) {
+			var pkg = (0, _core.qs)(packageXml, "package");
+			var epubVersion = pkg.getAttribute("version");
+
+			if (epubVersion === "2.0") {
+				var metaCover = (0, _core.qsp)(packageXml, "meta", { "name": "cover" });
+				if (metaCover) {
+					var coverId = metaCover.getAttribute("content");
+					// var cover = packageXml.querySelector("item[id='" + coverId + "']");
+					var cover = packageXml.getElementById(coverId);
+					return cover ? cover.getAttribute("href") : "";
+				} else {
+					return false;
+				}
+			} else {
+				// var node = packageXml.querySelector("item[properties='cover-image']");
+				var node = (0, _core.qsp)(packageXml, "item", { "properties": "cover-image" });
+				return node ? node.getAttribute("href") : "";
+			}
+		}
+
+		/**
+   * Get text of a namespaced element
+   * @private
+   * @param  {document} xml
+   * @param  {string} tag
+   * @return {string} text
+   */
+
+	}, {
+		key: 'getElementText',
+		value: function getElementText(xml, tag) {
+			var found = xml.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag);
+			var el;
+
+			if (!found || found.length === 0) return "";
+
+			el = found[0];
+
+			if (el.childNodes.length) {
+				return el.childNodes[0].nodeValue;
+			}
+
+			return "";
+		}
+
+		/**
+   * Get text by property
+   * @private
+   * @param  {document} xml
+   * @param  {string} property
+   * @return {string} text
+   */
+
+	}, {
+		key: 'getPropertyText',
+		value: function getPropertyText(xml, property) {
+			var el = (0, _core.qsp)(xml, "meta", { "property": property });
+
+			if (el && el.childNodes.length) {
+				return el.childNodes[0].nodeValue;
+			}
+
+			return "";
+		}
+
+		/**
+   * Load JSON Manifest
+   * @param  {document} packageDocument OPF XML
+   * @return {object} parsed package parts
+   */
+
+	}, {
+		key: 'load',
+		value: function load(json) {
+			var _this = this;
+
+			this.metadata = json.metadata;
+
+			this.spine = json.spine.map(function (item, index) {
+				item.index = index;
+				return item;
+			});
+
+			json.resources.forEach(function (item, index) {
+				_this.manifest[index] = item;
+
+				if (item.rel && item.rel[0] === "cover") {
+					_this.coverPath = item.href;
+				}
+			});
+
+			this.spineNodeIndex = 0;
+
+			this.toc = json.toc.map(function (item, index) {
+				item.label = item.title;
+				return item;
+			});
+
+			return {
+				"metadata": this.metadata,
+				"spine": this.spine,
+				"manifest": this.manifest,
+				"navPath": this.navPath,
+				"ncxPath": this.ncxPath,
+				"coverPath": this.coverPath,
+				"spineNodeIndex": this.spineNodeIndex,
+				"toc": this.toc
+			};
+		}
+	}, {
+		key: 'destroy',
+		value: function destroy() {
+			this.manifest = undefined;
+			this.navPath = undefined;
+			this.ncxPath = undefined;
+			this.coverPath = undefined;
+			this.spineNodeIndex = undefined;
+			this.spine = undefined;
+			this.metadata = undefined;
+		}
+	}]);
+
+	return Packaging;
+}();
+
+exports.default = Packaging;
+module.exports = exports['default'];
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Navigation Parser
+ * @param {document} xml navigation html / xhtml / ncx
+ */
+var Navigation = function () {
+	function Navigation(xml, path) {
+		_classCallCheck(this, Navigation);
+
+		this.toc = [];
+		this.tocByHref = {};
+		this.tocById = {};
+		this.path = path;
+
+		if (xml) {
+			this.parse(xml);
+		}
+	}
+
+	/**
+  * Parse out the navigation items
+  * @param {document} xml navigation html / xhtml / ncx
+  */
+
+
+	_createClass(Navigation, [{
+		key: "parse",
+		value: function parse(xml) {
+			var isXml = xml.nodeType;
+			var html = void 0;
+			var ncx = void 0;
+
+			if (isXml) {
+				html = (0, _core.qs)(xml, "html");
+				ncx = (0, _core.qs)(xml, "ncx");
+			}
+
+			if (!isXml) {
+				this.toc = this.load(xml);
+			} else if (html) {
+				this.toc = this.parseNav(xml);
+			} else if (ncx) {
+				this.toc = this.parseNcx(xml);
+			}
+
+			this.unpack(this.toc);
+		}
+
+		/**
+   * Unpack navigation items
+   * @private
+   * @param  {array} toc
+   */
+
+	}, {
+		key: "unpack",
+		value: function unpack(toc) {
+			var item;
+
+			for (var i = 0; i < toc.length; i++) {
+				item = toc[i];
+				this.tocByHref[item.href] = i;
+				this.tocById[item.id] = i;
+			}
+		}
+
+		/**
+   * Get an item from the navigation
+   * @param  {string} target
+   * @return {object} navItems
+   */
+
+	}, {
+		key: "get",
+		value: function get(target) {
+			var index;
+
+			if (!target) {
+				return this.toc;
+			}
+
+			if (target.indexOf("#") === 0) {
+				index = this.tocById[target.substring(1)];
+			} else if (target in this.tocByHref) {
+				index = this.tocByHref[target];
+			}
+
+			return this.toc[index];
+		}
+	}, {
+		key: "createTocItem",
+		value: function createTocItem(linkElement, id) {
+			var _this = this;
+
+			var list = [],
+			    tocLinkElms = linkElement.childNodes,
+			    tocLinkArray = Array.prototype.slice.call(tocLinkElms);
+
+			var index = id ? id : 0;
+			tocLinkArray.forEach(function (linkElm) {
+				if (linkElm.nodeName.toLowerCase() === 'li') {
+					var tocLink = (0, _core.qs)(linkElm, 'a'),
+					    tocLinkData = {
+						id: -1,
+						href: _this.path.resolve(tocLink.getAttribute('href')),
+						label: tocLink.textContent,
+						parent: null
+					},
+					    subItemElm = (0, _core.qs)(linkElm, 'ol');
+					index++;
+					tocLinkData.id = index;
+					if (id) {
+						tocLinkData.parent = id;
+					}
+					list.push(tocLinkData);
+					if (subItemElm) {
+						var subitems = _this.createTocItem(subItemElm, index);
+						if (subitems && subitems.length > 0) {
+							index = index + subitems.length;
+							list = list.concat(subitems);
+						}
+					}
+				}
+			});
+			return list;
+		}
+
+		/**
+   * Parse from a Epub > 3.0 Nav
+   * @private
+   * @param  {document} navHtml
+   * @return {array} navigation list
+   */
+
+	}, {
+		key: "parseNav",
+		value: function parseNav(navHtml) {
+			var navElement = (0, _core.querySelectorByType)(navHtml, "nav", "toc");
+			var tocItems = (0, _core.qs)(navElement, "ol");
+			return this.createTocItem(tocItems);
+		}
+
+		/**
+   * Create a navItem
+   * @private
+   * @param  {element} item
+   * @return {object} navItem
+   */
+
+	}, {
+		key: "navItem",
+		value: function navItem(item) {
+			var id = item.getAttribute("id") || false,
+			    content = (0, _core.qs)(item, "a"),
+			    src = content.getAttribute("href") || "",
+			    text = content.textContent || "",
+			    subitems = [],
+			    parentNode = item.parentNode,
+			    parent;
+
+			if (parentNode && parentNode.nodeName === "navPoint") {
+				parent = parentNode.getAttribute("id");
+			}
+
+			return {
+				"id": id,
+				"href": src,
+				"label": text,
+				"subitems": subitems,
+				"parent": parent
+			};
+		}
+
+		/**
+   * Parse from a Epub > 3.0 NC
+   * @private
+   * @param  {document} navHtml
+   * @return {array} navigation list
+   */
+
+	}, {
+		key: "parseNcx",
+		value: function parseNcx(tocXml) {
+			var navPoints = (0, _core.qsa)(tocXml, "navPoint");
+			var length = navPoints.length;
+			var i;
+			var toc = {};
+			var list = [];
+			var item, parent;
+
+			if (!navPoints || length === 0) return list;
+
+			for (i = 0; i < length; ++i) {
+				item = this.ncxItem(navPoints[i]);
+				toc[item.id] = item;
+				if (!item.parent) {
+					list.push(item);
+				} else {
+					parent = toc[item.parent];
+					parent.subitems.push(item);
+				}
+			}
+
+			return list;
+		}
+
+		/**
+   * Create a ncxItem
+   * @private
+   * @param  {element} item
+   * @return {object} ncxItem
+   */
+
+	}, {
+		key: "ncxItem",
+		value: function ncxItem(item) {
+			var id = item.getAttribute("id") || false,
+			    content = (0, _core.qs)(item, "content"),
+			    src = content.getAttribute("src"),
+			    navLabel = (0, _core.qs)(item, "navLabel"),
+			    text = navLabel.textContent ? navLabel.textContent : "",
+			    subitems = [],
+			    parentNode = item.parentNode,
+			    parent;
+
+			if (parentNode && parentNode.nodeName === "navPoint") {
+				parent = parentNode.getAttribute("id");
+			}
+
+			return {
+				"id": id,
+				"href": src,
+				"label": text,
+				"subitems": subitems,
+				"parent": parent
+			};
+		}
+
+		/**
+   * Load Spine Items
+   * @param  {object} json the items to be loaded
+   */
+
+	}, {
+		key: "load",
+		value: function load(json) {
+			var _this2 = this;
+
+			return json.map(function (item) {
+				item.label = item.title;
+				if (item.children) {
+					item.subitems = _this2.load(item.children);
+				}
+				return item;
+			});
+		}
+
+		/**
+   * forEach pass through
+   * @param  {Function} fn function to run on each item
+   * @return {method} forEach loop
+   */
+
+	}, {
+		key: "forEach",
+		value: function forEach(fn) {
+			return this.toc.forEach(fn);
+		}
+	}]);
+
+	return Navigation;
+}();
+
+exports.default = Navigation;
+module.exports = exports["default"];
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _replacements = __webpack_require__(6);
+
+var _core = __webpack_require__(0);
+
+var _url = __webpack_require__(4);
+
+var _url2 = _interopRequireDefault(_url);
+
+var _mime = __webpack_require__(15);
+
+var _mime2 = _interopRequireDefault(_mime);
+
+var _path = __webpack_require__(3);
+
+var _path2 = _interopRequireDefault(_path);
+
+var _pathWebpack = __webpack_require__(5);
+
+var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Handle Package Resources
+ * @class
+ * @param {Manifest} manifest
+ * @param {[object]} options
+ * @param {[string="base64"]} options.replacements
+ * @param {[Archive]} options.archive
+ * @param {[method]} options.resolver
+ */
+var Resources = function () {
+	function Resources(manifest, options) {
+		_classCallCheck(this, Resources);
+
+		this.settings = {
+			replacements: options && options.replacements || "base64",
+			archive: options && options.archive,
+			resolver: options && options.resolver,
+			request: options && options.request
+		};
+		this.manifest = manifest;
+		this.resources = Object.keys(manifest).map(function (key) {
+			return manifest[key];
+		});
+
+		this.replacementUrls = [];
+
+		this.html = [];
+		this.assets = [];
+		this.css = [];
+
+		this.urls = [];
+		this.cssUrls = [];
+
+		this.split();
+		this.splitUrls();
+	}
+
+	/**
+  * Split resources by type
+  * @private
+  */
+
+
+	_createClass(Resources, [{
+		key: "split",
+		value: function split() {
+
+			// HTML
+			this.html = this.resources.filter(function (item) {
+				if (item.type === "application/xhtml+xml" || item.type === "text/html") {
+					return true;
+				}
+			});
+
+			// Exclude HTML
+			this.assets = this.resources.filter(function (item) {
+				if (item.type !== "application/xhtml+xml" && item.type !== "text/html") {
+					return true;
+				}
+			});
+
+			// Only CSS
+			this.css = this.resources.filter(function (item) {
+				if (item.type === "text/css") {
+					return true;
+				}
+			});
+		}
+
+		/**
+   * Convert split resources into Urls
+   * @private
+   */
+
+	}, {
+		key: "splitUrls",
+		value: function splitUrls() {
+
+			// All Assets Urls
+			this.urls = this.assets.map(function (item) {
+				return item.href;
+			}.bind(this));
+
+			// Css Urls
+			this.cssUrls = this.css.map(function (item) {
+				return item.href;
+			});
+		}
+	}, {
+		key: "createUrl",
+		value: function createUrl(url) {
+			var parsedUrl = new _url2.default(url);
+			var mimeType = _mime2.default.lookup(parsedUrl.filename);
+
+			if (this.settings.archive) {
+				return this.settings.archive.createUrl(url, { "base64": this.settings.replacements === "base64" });
+			} else {
+				if (this.settings.replacements === "base64") {
+					return this.settings.request(url, 'blob').then(function (blob) {
+						return (0, _core.blob2base64)(blob);
+					}).then(function (blob) {
+						return (0, _core.createBase64Url)(blob, mimeType);
+					});
+				} else {
+					return this.settings.request(url, 'blob').then(function (blob) {
+						return (0, _core.createBlobUrl)(blob, mimeType);
+					});
+				}
+			}
+		}
+
+		/**
+   * Create blob urls for all the assets
+   * @return {Promise}         returns replacement urls
+   */
+
+	}, {
+		key: "replacements",
+		value: function replacements() {
+			var _this = this;
+
+			if (this.settings.replacements === "none") {
+				return new Promise(function (resolve) {
+					resolve(this.urls);
+				}.bind(this));
+			}
+
+			var replacements = this.urls.map(function (url) {
+				var absolute = _this.settings.resolver(url);
+
+				return _this.createUrl(absolute).catch(function (err) {
+					console.error(err);
+					return null;
+				});
+			});
+
+			return Promise.all(replacements).then(function (replacementUrls) {
+				_this.replacementUrls = replacementUrls.filter(function (url) {
+					return typeof url === "string";
+				});
+				return replacementUrls;
+			});
+		}
+
+		/**
+   * Replace URLs in CSS resources
+   * @private
+   * @param  {[Archive]} archive
+   * @param  {[method]} resolver
+   * @return {Promise}
+   */
+
+	}, {
+		key: "replaceCss",
+		value: function replaceCss(archive, resolver) {
+			var replaced = [];
+			archive = archive || this.settings.archive;
+			resolver = resolver || this.settings.resolver;
+			this.cssUrls.forEach(function (href) {
+				var replacement = this.createCssFile(href, archive, resolver).then(function (replacementUrl) {
+					// switch the url in the replacementUrls
+					var indexInUrls = this.urls.indexOf(href);
+					if (indexInUrls > -1) {
+						this.replacementUrls[indexInUrls] = replacementUrl;
+					}
+				}.bind(this));
+
+				replaced.push(replacement);
+			}.bind(this));
+			return Promise.all(replaced);
+		}
+
+		/**
+   * Create a new CSS file with the replaced URLs
+   * @private
+   * @param  {string} href the original css file
+   * @return {Promise}  returns a BlobUrl to the new CSS file or a data url
+   */
+
+	}, {
+		key: "createCssFile",
+		value: function createCssFile(href) {
+			var _this2 = this;
+
+			var newUrl;
+
+			if (_pathWebpack2.default.isAbsolute(href)) {
+				return new Promise(function (resolve) {
+					resolve();
+				});
+			}
+
+			var absolute = this.settings.resolver(href);
+
+			// Get the text of the css file from the archive
+			var textResponse;
+
+			if (this.settings.archive) {
+				textResponse = this.settings.archive.getText(absolute);
+			} else {
+				textResponse = this.settings.request(absolute, "text");
+			}
+
+			// Get asset links relative to css file
+			var relUrls = this.urls.map(function (assetHref) {
+				var resolved = _this2.settings.resolver(assetHref);
+				var relative = new _path2.default(absolute).relative(resolved);
+
+				return relative;
+			});
+
+			if (!textResponse) {
+				// file not found, don't replace
+				return new Promise(function (resolve) {
+					resolve();
+				});
+			}
+
+			return textResponse.then(function (text) {
+				// Replacements in the css text
+				text = (0, _replacements.substitute)(text, relUrls, _this2.replacementUrls);
+
+				// Get the new url
+				if (_this2.settings.replacements === "base64") {
+					newUrl = (0, _core.createBase64Url)(text, "text/css");
+				} else {
+					newUrl = (0, _core.createBlobUrl)(text, "text/css");
+				}
+
+				return newUrl;
+			}, function (err) {
+				// handle response errors
+				return new Promise(function (resolve) {
+					resolve();
+				});
+			});
+		}
+
+		/**
+   * Resolve all resources URLs relative to an absolute URL
+   * @param  {string} absolute to be resolved to
+   * @param  {[resolver]} resolver
+   * @return {string[]} array with relative Urls
+   */
+
+	}, {
+		key: "relativeTo",
+		value: function relativeTo(absolute, resolver) {
+			resolver = resolver || this.settings.resolver;
+
+			// Get Urls relative to current sections
+			return this.urls.map(function (href) {
+				var resolved = resolver(href);
+				var relative = new _path2.default(absolute).relative(resolved);
+				return relative;
+			}.bind(this));
+		}
+
+		/**
+   * Get a URL for a resource
+   * @param  {string} path
+   * @return {string} url
+   */
+
+	}, {
+		key: "get",
+		value: function get(path) {
+			var indexInUrls = this.urls.indexOf(path);
+			if (indexInUrls === -1) {
+				return;
+			}
+			if (this.replacementUrls.length) {
+				return new Promise(function (resolve, reject) {
+					resolve(this.replacementUrls[indexInUrls]);
+				}.bind(this));
+			} else {
+				return this.createUrl(path);
+			}
+		}
+
+		/**
+   * Substitute urls in content, with replacements,
+   * relative to a url if provided
+   * @param  {string} content
+   * @param  {[string]} url   url to resolve to
+   * @return {string}         content with urls substituted
+   */
+
+	}, {
+		key: "substitute",
+		value: function substitute(content, url) {
+			var relUrls;
+			if (url) {
+				relUrls = this.relativeTo(url);
+			} else {
+				relUrls = this.urls;
+			}
+			return (0, _replacements.substitute)(content, relUrls, this.replacementUrls);
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.settings = undefined;
+			this.manifest = undefined;
+			this.resources = undefined;
+			this.replacementUrls = undefined;
+			this.html = undefined;
+			this.assets = undefined;
+			this.css = undefined;
+
+			this.urls = undefined;
+			this.cssUrls = undefined;
+		}
+	}]);
+
+	return Resources;
+}();
+
+exports.default = Resources;
+module.exports = exports["default"];
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _epubcfi = __webpack_require__(1);
+
+var _epubcfi2 = _interopRequireDefault(_epubcfi);
+
+var _core = __webpack_require__(0);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Page List Parser
+ * @param {[document]} xml
+ */
+var PageList = function () {
+	function PageList(xml) {
+		_classCallCheck(this, PageList);
+
+		this.pages = [];
+		this.locations = [];
+		this.epubcfi = new _epubcfi2.default();
+
+		this.firstPage = 0;
+		this.lastPage = 0;
+		this.totalPages = 0;
+
+		this.toc = undefined;
+		this.ncx = undefined;
+
+		this.lastPage;
+		if (xml) {
+			this.pageList = this.parse(xml);
+		}
+
+		if (this.pageList && this.pageList.length) {
+			this.process(this.pageList);
+		}
+	}
+
+	/**
+  * Parse PageList Xml
+  * @param  {document} xml
+  */
+
+
+	_createClass(PageList, [{
+		key: "parse",
+		value: function parse(xml) {
+			var html = (0, _core.qs)(xml, "html");
+			var ncx = (0, _core.qs)(xml, "ncx");
+
+			if (html) {
+				this.toc = this.parseNav(xml);
+			} else if (ncx) {
+				// Not supported
+				// this.toc = this.parseNcx(xml);
+				return;
+			}
+		}
+
+		/**
+   * Parse a Nav PageList
+   * @private
+   * @param  {document} navHtml
+   * @return {PageList.item[]} list
+   */
+
+	}, {
+		key: "parseNav",
+		value: function parseNav(navHtml) {
+			var navElement = (0, _core.querySelectorByType)(navHtml, "nav", "page-list");
+			var navItems = navElement ? (0, _core.qsa)(navElement, "li") : [];
+			var length = navItems.length;
+			var i;
+			var list = [];
+			var item;
+
+			if (!navItems || length === 0) return list;
+
+			for (i = 0; i < length; ++i) {
+				item = this.item(navItems[i]);
+				list.push(item);
+			}
+
+			return list;
+		}
+
+		/**
+   * Page List Item
+   * @private
+   * @param  {object} item
+   * @return {object} pageListItem
+   */
+
+	}, {
+		key: "item",
+		value: function item(_item) {
+			var content = (0, _core.qs)(_item, "a"),
+			    href = content.getAttribute("href") || "",
+			    text = content.textContent || "",
+			    page = parseInt(text),
+			    isCfi = href.indexOf("epubcfi"),
+			    split,
+			    packageUrl,
+			    cfi;
+
+			if (isCfi != -1) {
+				split = href.split("#");
+				packageUrl = split[0];
+				cfi = split.length > 1 ? split[1] : false;
+				return {
+					"cfi": cfi,
+					"href": href,
+					"packageUrl": packageUrl,
+					"page": page
+				};
+			} else {
+				return {
+					"href": href,
+					"page": page
+				};
+			}
+		}
+
+		/**
+   * Process pageList items
+   * @private
+   * @param  {array} pageList
+   */
+
+	}, {
+		key: "process",
+		value: function process(pageList) {
+			pageList.forEach(function (item) {
+				this.pages.push(item.page);
+				if (item.cfi) {
+					this.locations.push(item.cfi);
+				}
+			}, this);
+			this.firstPage = parseInt(this.pages[0]);
+			this.lastPage = parseInt(this.pages[this.pages.length - 1]);
+			this.totalPages = this.lastPage - this.firstPage;
+		}
+
+		/**
+   * Replace HREFs with CFI
+   * TODO: implement getting CFI from Href
+   */
+
+	}, {
+		key: "addCFIs",
+		value: function addCFIs() {
+			this.pageList.forEach(function (pg) {
+				if (!pg.cfi) {
+					// epubcfi.generateCfiFromHref(pg.href, book).then(function(cfi){
+					// 	pg.cfi = cfi;
+					// 	pg.packageUrl = book.settings.packageUrl;
+					// });
+				}
+			});
+		}
+
+		/*
+  EPUBJS.generateCfiFromHref(href, book) {
+    var uri = EPUBJS.core.uri(href);
+    var path = uri.path;
+    var fragment = uri.fragment;
+    var spinePos = book.spineIndexByURL[path];
+    var loaded;
+    var deferred = new RSVP.defer();
+    var epubcfi = new EPUBJS.EpubCFI();
+    var spineItem;
+  	  if(typeof spinePos !== "undefined"){
+      spineItem = book.spine[spinePos];
+      loaded = book.loadXml(spineItem.url);
+      loaded.then(function(doc){
+        var element = doc.getElementById(fragment);
+        var cfi;
+        cfi = epubcfi.generateCfiFromElement(element, spineItem.cfiBase);
+        deferred.resolve(cfi);
+      });
+    }
+  	  return deferred.promise;
+  }
+  */
+
+		/**
+   * Get a PageList result from a EpubCFI
+   * @param  {string} cfi EpubCFI String
+   * @return {string} page
+   */
+
+	}, {
+		key: "pageFromCfi",
+		value: function pageFromCfi(cfi) {
+			var pg = -1;
+
+			// Check if the pageList has not been set yet
+			if (this.locations.length === 0) {
+				return -1;
+			}
+
+			// TODO: check if CFI is valid?
+
+			// check if the cfi is in the location list
+			// var index = this.locations.indexOf(cfi);
+			var index = (0, _core.indexOfSorted)(cfi, this.locations, this.epubcfi.compare);
+			if (index != -1) {
+				pg = this.pages[index];
+			} else {
+				// Otherwise add it to the list of locations
+				// Insert it in the correct position in the locations page
+				//index = EPUBJS.core.insert(cfi, this.locations, this.epubcfi.compare);
+				index = (0, _core.locationOf)(cfi, this.locations, this.epubcfi.compare);
+				// Get the page at the location just before the new one, or return the first
+				pg = index - 1 >= 0 ? this.pages[index - 1] : this.pages[0];
+				if (pg !== undefined) {
+					// Add the new page in so that the locations and page array match up
+					//this.pages.splice(index, 0, pg);
+				} else {
+					pg = -1;
+				}
+			}
+			return pg;
+		}
+
+		/**
+   * Get an EpubCFI from a Page List Item
+   * @param  {string} pg
+   * @return {string} cfi
+   */
+
+	}, {
+		key: "cfiFromPage",
+		value: function cfiFromPage(pg) {
+			var cfi = -1;
+			// check that pg is an int
+			if (typeof pg != "number") {
+				pg = parseInt(pg);
+			}
+
+			// check if the cfi is in the page list
+			// Pages could be unsorted.
+			var index = this.pages.indexOf(pg);
+			if (index != -1) {
+				cfi = this.locations[index];
+			}
+			// TODO: handle pages not in the list
+			return cfi;
+		}
+
+		/**
+   * Get a Page from Book percentage
+   * @param  {number} percent
+   * @return {string} page
+   */
+
+	}, {
+		key: "pageFromPercentage",
+		value: function pageFromPercentage(percent) {
+			var pg = Math.round(this.totalPages * percent);
+			return pg;
+		}
+
+		/**
+   * Returns a value between 0 - 1 corresponding to the location of a page
+   * @param  {int} pg the page
+   * @return {number} percentage
+   */
+
+	}, {
+		key: "percentageFromPage",
+		value: function percentageFromPage(pg) {
+			var percentage = (pg - this.firstPage) / this.totalPages;
+			return Math.round(percentage * 1000) / 1000;
+		}
+
+		/**
+   * Returns a value between 0 - 1 corresponding to the location of a cfi
+   * @param  {string} cfi EpubCFI String
+   * @return {number} percentage
+   */
+
+	}, {
+		key: "percentageFromCfi",
+		value: function percentageFromCfi(cfi) {
+			var pg = this.pageFromCfi(cfi);
+			var percentage = this.percentageFromPage(pg);
+			return percentage;
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.pages = undefined;
+			this.locations = undefined;
+			this.epubcfi = undefined;
+
+			this.pageList = undefined;
+
+			this.toc = undefined;
+			this.ncx = undefined;
+		}
+	}]);
+
+	return PageList;
+}();
+
+exports.default = PageList;
+module.exports = exports["default"];
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Figures out the CSS to apply for a layout
+ * @class
+ * @param {object} settings
+ * @param {[string=reflowable]} settings.layout
+ * @param {[string]} settings.spread
+ * @param {[int=800]} settings.minSpreadWidth
+ * @param {[boolean=false]} settings.evenSpreads
+ */
+var Layout = function () {
+	function Layout(settings) {
+		_classCallCheck(this, Layout);
+
+		this.settings = settings;
+		this.name = settings.layout || "reflowable";
+		this._spread = settings.spread === "none" ? false : true;
+		this._minSpreadWidth = settings.minSpreadWidth || 800;
+		this._evenSpreads = settings.evenSpreads || false;
+
+		if (settings.flow === "scrolled" || settings.flow === "scrolled-continuous" || settings.flow === "scrolled-doc") {
+			this._flow = "scrolled";
+		} else {
+			this._flow = "paginated";
+		}
+
+		this.width = 0;
+		this.height = 0;
+		this.spreadWidth = 0;
+		this.delta = 0;
+
+		this.columnWidth = 0;
+		this.gap = 0;
+		this.divisor = 1;
+
+		this.props = {
+			name: this.name,
+			spread: this._spread,
+			flow: this._flow,
+			width: 0,
+			height: 0,
+			spreadWidth: 0,
+			delta: 0,
+			columnWidth: 0,
+			gap: 0,
+			divisor: 1
+		};
+	}
+
+	/**
+  * Switch the flow between paginated and scrolled
+  * @param  {string} flow paginated | scrolled
+  */
+
+
+	_createClass(Layout, [{
+		key: "flow",
+		value: function flow(_flow) {
+			if (typeof _flow != "undefined") {
+				if (_flow === "scrolled" || _flow === "scrolled-continuous" || _flow === "scrolled-doc") {
+					this._flow = "scrolled";
+				} else {
+					this._flow = "paginated";
+				}
+				this.props.flow = this._flow;
+			}
+			return this._flow;
+		}
+
+		/**
+   * Switch between using spreads or not, and set the
+   * width at which they switch to single.
+   * @param  {string} spread true | false
+   * @param  {boolean} min integer in pixels
+   */
+
+	}, {
+		key: "spread",
+		value: function spread(_spread, min) {
+
+			if (_spread) {
+				this._spread = _spread === "none" ? false : true;
+				this.props.spread = this._spread;
+			}
+
+			if (min >= 0) {
+				this._minSpreadWidth = min;
+			}
+
+			return this._spread;
+		}
+
+		/**
+   * Calculate the dimensions of the pagination
+   * @param  {number} _width  [description]
+   * @param  {number} _height [description]
+   * @param  {number} _gap    [description]
+   */
+
+	}, {
+		key: "calculate",
+		value: function calculate(_width, _height, _gap) {
+
+			var divisor = 1;
+			var gap = _gap || 0;
+
+			//-- Check the width and create even width columns
+			// var fullWidth = Math.floor(_width);
+			var width = _width;
+
+			var section = Math.floor(width / 12);
+
+			var colWidth;
+			var spreadWidth;
+			var pageWidth;
+			var delta;
+
+			if (this._spread && width >= this._minSpreadWidth) {
+				divisor = 2;
+			} else {
+				divisor = 1;
+			}
+
+			if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
+				gap = section % 2 === 0 ? section : section - 1;
+			}
+
+			if (this.name === "pre-paginated") {
+				gap = 0;
+			}
+
+			//-- Double Page
+			if (divisor > 1) {
+				// width = width - gap;
+				// colWidth = (width - gap) / divisor;
+				// gap = gap / divisor;
+				colWidth = width / divisor - gap;
+				pageWidth = colWidth + gap;
+			} else {
+				colWidth = width;
+				pageWidth = width;
+			}
+
+			if (this.name === "pre-paginated" && divisor > 1) {
+				width = colWidth;
+			}
+
+			spreadWidth = colWidth * divisor + gap;
+
+			delta = width;
+
+			this.width = width;
+			this.height = _height;
+			this.spreadWidth = spreadWidth;
+			this.pageWidth = pageWidth;
+			this.delta = delta;
+
+			this.columnWidth = colWidth;
+			this.gap = gap;
+			this.divisor = divisor;
+
+			this.props.width = width;
+			this.props.height = _height;
+			this.props.spreadWidth = spreadWidth;
+			this.props.pageWidth = pageWidth;
+			this.props.delta = delta;
+
+			this.props.columnWidth = colWidth;
+			this.props.gap = gap;
+			this.props.divisor = divisor;
+		}
+
+		/**
+   * Apply Css to a Document
+   * @param  {Contents} contents
+   * @return {[Promise]}
+   */
+
+	}, {
+		key: "format",
+		value: function format(contents) {
+			var formating;
+
+			if (this.name === "pre-paginated") {
+				formating = contents.fit(this.columnWidth, this.height);
+			} else if (this._flow === "paginated") {
+				formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
+			} else {
+				// scrolled
+				formating = contents.size(this.width, null);
+			}
+
+			return formating; // might be a promise in some View Managers
+		}
+
+		/**
+   * Count number of pages
+   * @param  {number} totalWidth
+   * @return {number} spreads
+   * @return {number} pages
+   */
+
+	}, {
+		key: "count",
+		value: function count(totalLength, pageLength) {
+			// var totalWidth = contents.scrollWidth();
+			var spreads = void 0,
+			    pages = void 0;
+
+			if (this.name === "pre-paginated") {
+				spreads = 1;
+				pages = 1;
+			} else if (this._flow === "paginated") {
+				pageLength = pageLength || this.delta;
+				spreads = Math.ceil(totalLength / pageLength);
+				pages = spreads * this.divisor;
+			} else {
+				// scrolled
+				pageLength = pageLength || this.height;
+				spreads = Math.ceil(totalLength / pageLength);
+				pages = spreads;
+			}
+
+			return {
+				spreads: spreads,
+				pages: pages
+			};
+		}
+	}]);
+
+	return Layout;
+}();
+
+exports.default = Layout;
+module.exports = exports["default"];
+
+/***/ }),
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5561,1109 +10691,1233 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _url = __webpack_require__(4);
+
+var _url2 = _interopRequireDefault(_url);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Themes = function () {
+	function Themes(rendition) {
+		_classCallCheck(this, Themes);
+
+		this.rendition = rendition;
+		this._themes = {
+			"default": {
+				"rules": {},
+				"url": "",
+				"serialized": ""
+			}
+		};
+		this._overrides = {};
+		this._current = "default";
+		this._injected = [];
+		this.rendition.hooks.content.register(this.inject.bind(this));
+		this.rendition.hooks.content.register(this.overrides.bind(this));
+	}
+
+	_createClass(Themes, [{
+		key: "register",
+		value: function register() {
+			if (arguments.length === 0) {
+				return;
+			}
+			if (arguments.length === 1 && _typeof(arguments[0]) === "object") {
+				return this.registerThemes(arguments[0]);
+			}
+			if (arguments.length === 1 && typeof arguments[0] === "string") {
+				return this.default(arguments[0]);
+			}
+			if (arguments.length === 2 && typeof arguments[1] === "string") {
+				return this.registerUrl(arguments[0], arguments[1]);
+			}
+			if (arguments.length === 2 && _typeof(arguments[1]) === "object") {
+				return this.registerRules(arguments[0], arguments[1]);
+			}
+		}
+	}, {
+		key: "default",
+		value: function _default(theme) {
+			if (!theme) {
+				return;
+			}
+			if (typeof theme === "string") {
+				return this.registerUrl("default", theme);
+			}
+			if ((typeof theme === "undefined" ? "undefined" : _typeof(theme)) === "object") {
+				return this.registerRules("default", theme);
+			}
+		}
+	}, {
+		key: "registerThemes",
+		value: function registerThemes(themes) {
+			for (var theme in themes) {
+				if (themes.hasOwnProperty(theme)) {
+					if (typeof themes[theme] === "string") {
+						this.registerUrl(theme, themes[theme]);
+					} else {
+						this.registerRules(theme, themes[theme]);
+					}
+				}
+			}
+		}
+	}, {
+		key: "registerUrl",
+		value: function registerUrl(name, input) {
+			var url = new _url2.default(input);
+			this._themes[name] = { "url": url.toString() };
+			if (this._injected[name]) {
+				this.update(name);
+			}
+		}
+	}, {
+		key: "registerRules",
+		value: function registerRules(name, rules) {
+			this._themes[name] = { "rules": rules };
+			// TODO: serialize css rules
+			if (this._injected[name]) {
+				this.update(name);
+			}
+		}
+	}, {
+		key: "select",
+		value: function select(name) {
+			var prev = this._current;
+			var contents;
+
+			this._current = name;
+			this.update(name);
+
+			contents = this.rendition.getContents();
+			contents.forEach(function (content) {
+				content.removeClass(prev);
+				content.addClass(name);
+			});
+		}
+	}, {
+		key: "update",
+		value: function update(name) {
+			var _this = this;
+
+			var contents = this.rendition.getContents();
+			contents.forEach(function (content) {
+				_this.add(name, content);
+			});
+		}
+	}, {
+		key: "inject",
+		value: function inject(contents) {
+			var links = [];
+			var themes = this._themes;
+			var theme;
+
+			for (var name in themes) {
+				if (themes.hasOwnProperty(name) && (name === this._current || name === "default")) {
+					theme = themes[name];
+					if (theme.rules && Object.keys(theme.rules).length > 0 || theme.url && links.indexOf(theme.url) === -1) {
+						this.add(name, contents);
+					}
+					this._injected.push(name);
+				}
+			}
+
+			if (this._current != "default") {
+				contents.addClass(this._current);
+			}
+		}
+	}, {
+		key: "add",
+		value: function add(name, contents) {
+			var theme = this._themes[name];
+
+			if (!theme || !contents) {
+				return;
+			}
+
+			if (theme.url) {
+				contents.addStylesheet(theme.url);
+			} else if (theme.serialized) {
+				// TODO: handle serialized
+			} else if (theme.rules) {
+				contents.addStylesheetRules(theme.rules);
+				theme.injected = true;
+			}
+		}
+	}, {
+		key: "override",
+		value: function override(name, value) {
+			var _this2 = this;
+
+			var contents = this.rendition.getContents();
+
+			this._overrides[name] = value;
+
+			contents.forEach(function (content) {
+				content.css(name, _this2._overrides[name]);
+			});
+		}
+	}, {
+		key: "overrides",
+		value: function overrides(contents) {
+			var overrides = this._overrides;
+
+			for (var rule in overrides) {
+				if (overrides.hasOwnProperty(rule)) {
+					contents.css(rule, overrides[rule]);
+				}
+			}
+		}
+	}, {
+		key: "fontSize",
+		value: function fontSize(size) {
+			this.override("font-size", size);
+		}
+	}, {
+		key: "font",
+		value: function font(f) {
+			this.override("font-family", f);
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			this.rendition = undefined;
+			this._themes = undefined;
+			this._overrides = undefined;
+			this._current = undefined;
+			this._injected = undefined;
+		}
+	}]);
+
+	return Themes;
+}();
+
+exports.default = Themes;
+module.exports = exports["default"];
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Underline = exports.Highlight = exports.Mark = exports.Pane = undefined;
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _svg = __webpack_require__(49);
+
+var _svg2 = _interopRequireDefault(_svg);
+
+var _events = __webpack_require__(50);
+
+var _events2 = _interopRequireDefault(_events);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Pane = exports.Pane = function () {
+    function Pane(target) {
+        var container = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document.body;
+
+        _classCallCheck(this, Pane);
+
+        this.target = target;
+        this.element = _svg2.default.createElement('svg');
+        this.marks = [];
+
+        // Match the coordinates of the target element
+        this.element.style.position = 'absolute';
+        // Disable pointer events
+        this.element.setAttribute('pointer-events', 'none');
+
+        // Set up mouse event proxying between the target element and the marks
+        _events2.default.proxyMouse(this.target, this.marks);
+
+        container.appendChild(this.element);
+
+        this.render();
+    }
+
+    _createClass(Pane, [{
+        key: 'addMark',
+        value: function addMark(mark) {
+            var g = _svg2.default.createElement('g');
+            this.element.appendChild(g);
+            mark.bind(g);
+
+            this.marks.push(mark);
+
+            mark.render();
+            return mark;
+        }
+    }, {
+        key: 'removeMark',
+        value: function removeMark(mark) {
+            var idx = this.marks.indexOf(mark);
+            if (idx === -1) {
+                return;
+            }
+            var el = mark.unbind();
+            this.element.removeChild(el);
+            this.marks.splice(idx, 1);
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            setCoords(this.element, coords(this.target));
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this.marks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var m = _step.value;
+
+                    m.render();
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    }]);
+
+    return Pane;
+}();
+
+var Mark = exports.Mark = function () {
+    function Mark() {
+        _classCallCheck(this, Mark);
+
+        this.element = null;
+    }
+
+    _createClass(Mark, [{
+        key: 'bind',
+        value: function bind(element) {
+            this.element = element;
+        }
+    }, {
+        key: 'unbind',
+        value: function unbind() {
+            var el = this.element;
+            this.element = null;
+            return el;
+        }
+    }, {
+        key: 'render',
+        value: function render() {}
+    }, {
+        key: 'dispatchEvent',
+        value: function dispatchEvent(e) {
+            if (!this.element) return;
+            this.element.dispatchEvent(e);
+        }
+    }, {
+        key: 'getBoundingClientRect',
+        value: function getBoundingClientRect() {
+            return this.element.getBoundingClientRect();
+        }
+    }, {
+        key: 'getClientRects',
+        value: function getClientRects() {
+            var rects = [];
+            var el = this.element.firstChild;
+            while (el) {
+                rects.push(el.getBoundingClientRect());
+                el = el.nextSibling;
+            }
+            return rects;
+        }
+    }, {
+        key: 'filteredRanges',
+        value: function filteredRanges() {
+            var rects = Array.from(this.range.getClientRects());
+
+            // De-duplicate the boxes
+            return rects.filter(function (box) {
+                for (var i = 0; i < rects.length; i++) {
+                    if (rects[i] === box) {
+                        return true;
+                    }
+                    var contained = contains(rects[i], box);
+                    if (contained) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+    }]);
+
+    return Mark;
+}();
+
+var Highlight = exports.Highlight = function (_Mark) {
+    _inherits(Highlight, _Mark);
+
+    function Highlight(range, className, data, attributes) {
+        _classCallCheck(this, Highlight);
+
+        var _this = _possibleConstructorReturn(this, (Highlight.__proto__ || Object.getPrototypeOf(Highlight)).call(this));
+
+        _this.range = range;
+        _this.className = className;
+        _this.data = data || {};
+        _this.attributes = attributes || {};
+        return _this;
+    }
+
+    _createClass(Highlight, [{
+        key: 'bind',
+        value: function bind(element) {
+            _get(Highlight.prototype.__proto__ || Object.getPrototypeOf(Highlight.prototype), 'bind', this).call(this, element);
+
+            for (var attr in this.data) {
+                if (this.data.hasOwnProperty(attr)) {
+                    this.element.dataset[attr] = this.data[attr];
+                }
+            }
+
+            for (var attr in this.attributes) {
+                if (this.attributes.hasOwnProperty(attr)) {
+                    this.element.setAttribute(attr, this.attributes[attr]);
+                }
+            }
+
+            if (this.className) {
+                this.element.classList.add(this.className);
+            }
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            // Empty element
+            while (this.element.firstChild) {
+                this.element.removeChild(this.element.firstChild);
+            }
+
+            var docFrag = this.element.ownerDocument.createDocumentFragment();
+            var filtered = this.filteredRanges();
+            var offset = this.element.getBoundingClientRect();
+
+            for (var i = 0, len = filtered.length; i < len; i++) {
+                var r = filtered[i];
+                var el = _svg2.default.createElement('rect');
+                el.setAttribute('x', r.left - offset.left);
+                el.setAttribute('y', r.top - offset.top);
+                el.setAttribute('height', r.height);
+                el.setAttribute('width', r.width);
+                docFrag.appendChild(el);
+            }
+
+            this.element.appendChild(docFrag);
+        }
+    }]);
+
+    return Highlight;
+}(Mark);
+
+var Underline = exports.Underline = function (_Highlight) {
+    _inherits(Underline, _Highlight);
+
+    function Underline(range, className, data, attributes) {
+        _classCallCheck(this, Underline);
+
+        return _possibleConstructorReturn(this, (Underline.__proto__ || Object.getPrototypeOf(Underline)).call(this, range, className, data, attributes));
+    }
+
+    _createClass(Underline, [{
+        key: 'render',
+        value: function render() {
+            // Empty element
+            while (this.element.firstChild) {
+                this.element.removeChild(this.element.firstChild);
+            }
+
+            var docFrag = this.element.ownerDocument.createDocumentFragment();
+            var filtered = this.filteredRanges();
+            var offset = this.element.getBoundingClientRect();
+
+            for (var i = 0, len = filtered.length; i < len; i++) {
+                var r = filtered[i];
+
+                var rect = _svg2.default.createElement('rect');
+                rect.setAttribute('x', r.left - offset.left);
+                rect.setAttribute('y', r.top - offset.top);
+                rect.setAttribute('height', r.height);
+                rect.setAttribute('width', r.width);
+                rect.setAttribute('fill', 'none');
+
+                var line = _svg2.default.createElement('line');
+                line.setAttribute('x1', r.left - offset.left);
+                line.setAttribute('x2', r.left - offset.left + r.width);
+                line.setAttribute('y1', r.top - offset.top + r.height - 1);
+                line.setAttribute('y2', r.top - offset.top + r.height - 1);
+
+                line.setAttribute('stroke-width', 1);
+                line.setAttribute('stroke', 'black'); //TODO: match text color?
+                line.setAttribute('stroke-linecap', 'square');
+
+                docFrag.appendChild(rect);
+
+                docFrag.appendChild(line);
+            }
+
+            this.element.appendChild(docFrag);
+        }
+    }]);
+
+    return Underline;
+}(Highlight);
+
+function coords(el) {
+    var rect = el.getBoundingClientRect();
+
+    return {
+        top: rect.top + el.ownerDocument.body.scrollTop,
+        left: rect.left + el.ownerDocument.body.scrollLeft,
+        height: rect.height + el.scrollHeight,
+        width: rect.width + el.scrollWidth
+    };
+}
+
+function setCoords(el, coords) {
+    el.style.top = coords.top + 'px';
+    el.style.left = coords.left + 'px';
+    el.style.height = '100%';
+    el.style.width = '100%';
+}
+
+function contains(rect1, rect2) {
+    return rect2.right <= rect1.right && rect2.left >= rect1.left && rect2.top >= rect1.top && rect2.bottom <= rect1.bottom;
+}
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.createElement = createElement;
+function createElement(name) {
+    return document.createElementNS('http://www.w3.org/2000/svg', name);
+}
+
+exports.default = {
+    createElement: createElement
+};
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.proxyMouse = proxyMouse;
+exports.clone = clone;
+// import 'babelify/polyfill'; // needed for Object.assign
+
+exports.default = {
+    proxyMouse: proxyMouse
+};
+
+/**
+ * Start proxying all mouse events that occur on the target node to each node in
+ * a set of tracked nodes.
+ *
+ * The items in tracked do not strictly have to be DOM Nodes, but they do have
+ * to have dispatchEvent, getBoundingClientRect, and getClientRects methods.
+ *
+ * @param target {Node} The node on which to listen for mouse events.
+ * @param tracked {Node[]} A (possibly mutable) array of nodes to which to proxy
+ *                         events.
+ */
+
+function proxyMouse(target, tracked) {
+    function dispatch(e) {
+        // We walk through the set of tracked elements in reverse order so that
+        // events are sent to those most recently added first.
+        //
+        // This is the least surprising behaviour as it simulates the way the
+        // browser would work if items added later were drawn "on top of"
+        // earlier ones.
+        for (var i = tracked.length - 1; i >= 0; i--) {
+            var t = tracked[i];
+
+            if (!contains(t, e.clientX, e.clientY)) {
+                continue;
+            }
+
+            // The event targets this mark, so dispatch a cloned event:
+            t.dispatchEvent(clone(e));
+            // We only dispatch the cloned event to the first matching mark.
+            break;
+        }
+    }
+
+    var _arr = ['mouseup', 'mousedown', 'click'];
+    for (var _i = 0; _i < _arr.length; _i++) {
+        var ev = _arr[_i];
+        target.addEventListener(ev, function (e) {
+            return dispatch(e);
+        }, false);
+    }
+}
+
+/**
+ * Clone a mouse event object.
+ *
+ * @param e {MouseEvent} A mouse event object to clone.
+ * @returns {MouseEvent}
+ */
+function clone(e) {
+    var opts = Object.assign({}, e, { bubbles: false });
+    try {
+        return new MouseEvent(e.type, opts);
+    } catch (err) {
+        // compat: webkit
+        var copy = document.createEvent('MouseEvents');
+        copy.initMouseEvent(e.type, false, opts.cancelable, opts.view, opts.detail, opts.screenX, opts.screenY, opts.clientX, opts.clientY, opts.ctrlKey, opts.altKey, opts.shiftKey, opts.metaKey, opts.button, opts.relatedTarget);
+        return copy;
+    }
+}
+
+/**
+ * Check if the item contains the point denoted by the passed coordinates
+ * @param item {Object} An object with getBoundingClientRect and getClientRects
+ *                      methods.
+ * @param x {Number}
+ * @param y {Number}
+ * @returns {Boolean}
+ */
+function contains(item, x, y) {
+    function rectContains(r, x, y) {
+        var bottom = r.top + r.height;
+        var right = r.left + r.width;
+        return r.top <= y && r.left <= x && bottom > y && right > x;
+    }
+
+    // Check overall bounding box first
+    var rect = item.getBoundingClientRect();
+    if (!rectContains(rect, x, y)) {
+        return false;
+    }
+
+    // Then continue to check each child rect
+    var rects = item.getClientRects();
+    for (var i = 0, len = rects.length; i < len; i++) {
+        if (rectContains(rects[i], x, y)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Manage annotations for a book?
+
+/*
+let a = rendition.annotations.highlight(cfiRange, data)
+
+a.on("added", () => console.log("added"))
+a.on("removed", () => console.log("removed"))
+a.on("clicked", () => console.log("clicked"))
+
+a.update(data)
+a.remove();
+a.text();
+
+rendition.annotations.show()
+rendition.annotations.hide()
+
+rendition.annotations.highlights.show()
+rendition.annotations.highlights.hide()
+*/
+
 var _eventEmitter = __webpack_require__(2);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
-var _core = __webpack_require__(0);
-
-var _hook = __webpack_require__(9);
-
-var _hook2 = _interopRequireDefault(_hook);
-
 var _epubcfi = __webpack_require__(1);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _queue = __webpack_require__(10);
-
-var _queue2 = _interopRequireDefault(_queue);
-
-var _layout = __webpack_require__(29);
-
-var _layout2 = _interopRequireDefault(_layout);
-
-var _mapping = __webpack_require__(8);
-
-var _mapping2 = _interopRequireDefault(_mapping);
-
-var _themes = __webpack_require__(39);
-
-var _themes2 = _interopRequireDefault(_themes);
-
-var _contents = __webpack_require__(7);
-
-var _contents2 = _interopRequireDefault(_contents);
-
-var _annotations = __webpack_require__(25);
-
-var _annotations2 = _interopRequireDefault(_annotations);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * [Rendition description]
- * @class
- * @param {Book} book
- * @param {object} options
- * @param {int} options.width
- * @param {int} options.height
- * @param {string} options.ignoreClass
- * @param {string} options.manager
- * @param {string} options.view
- * @param {string} options.layout
- * @param {string} options.spread
- * @param {int} options.minSpreadWidth overridden by spread: none (never) / both (always)
- * @param {string} options.stylesheet url of stylesheet to be injected
- */
-var Rendition = function () {
-	function Rendition(book, options) {
-		_classCallCheck(this, Rendition);
+	* Handles managing adding & removing Annotations
+	* @class
+	*/
+var Annotations = function () {
+	function Annotations(rendition) {
+		_classCallCheck(this, Annotations);
 
-		this.settings = (0, _core.extend)(this.settings || {}, {
-			width: null,
-			height: null,
-			ignoreClass: "",
-			manager: "default",
-			view: "iframe",
-			flow: null,
-			layout: null,
-			spread: null,
-			minSpreadWidth: 800,
-			stylesheet: null,
-			script: null
-		});
+		this.rendition = rendition;
+		this.highlights = [];
+		this.underlines = [];
+		this.marks = [];
+		this._annotations = {};
+		this._annotationsBySectionIndex = {};
 
-		(0, _core.extend)(this.settings, options);
-
-		if (_typeof(this.settings.manager) === "object") {
-			this.manager = this.settings.manager;
-		}
-
-		this.viewSettings = {
-			ignoreClass: this.settings.ignoreClass
-		};
-
-		this.book = book;
-
-		this.views = null;
-
-		/**
-   * Adds Hook methods to the Rendition prototype
-   * @property {Hook} hooks
-   */
-		this.hooks = {};
-		this.hooks.display = new _hook2.default(this);
-		this.hooks.serialize = new _hook2.default(this);
-		/**
-   * @property {method} hooks.content
-   * @type {Hook}
-   */
-		this.hooks.content = new _hook2.default(this);
-		this.hooks.unloaded = new _hook2.default(this);
-		this.hooks.layout = new _hook2.default(this);
-		this.hooks.render = new _hook2.default(this);
-		this.hooks.show = new _hook2.default(this);
-
-		this.hooks.content.register(this.handleLinks.bind(this));
-		this.hooks.content.register(this.passEvents.bind(this));
-		this.hooks.content.register(this.adjustImages.bind(this));
-
-		this.book.spine.hooks.content.register(this.injectSource.bind(this));
-
-		if (this.settings.stylesheet) {
-			this.book.spine.hooks.content.register(this.injectStylesheet.bind(this));
-		}
-
-		if (this.settings.script) {
-			this.book.spine.hooks.content.register(this.injectScript.bind(this));
-		}
-
-		// this.hooks.display.register(this.afterDisplay.bind(this));
-		this.themes = new _themes2.default(this);
-
-		this.annotations = new _annotations2.default(this);
-
-		this.epubcfi = new _epubcfi2.default();
-
-		this.q = new _queue2.default(this);
-
-		this.q.enqueue(this.book.opened);
-
-		// Block the queue until rendering is started
-		this.starting = new _core.defer();
-		this.started = this.starting.promise;
-		this.q.enqueue(this.start);
+		this.rendition.hooks.content.register(this.inject.bind(this));
+		this.rendition.hooks.unloaded.register(this.clear.bind(this));
 	}
 
-	/**
-  * Set the manager function
-  * @param {function} manager
-  */
+	_createClass(Annotations, [{
+		key: "add",
+		value: function add(type, cfiRange, data, cb) {
+			var hash = encodeURI(cfiRange);
+			var cfi = new _epubcfi2.default(cfiRange);
+			var sectionIndex = cfi.spinePos;
+			var annotation = new Annotation({
+				type: type,
+				cfiRange: cfiRange,
+				data: data,
+				sectionIndex: sectionIndex,
+				cb: cb
+			});
 
+			this._annotations[hash] = annotation;
 
-	_createClass(Rendition, [{
-		key: "setManager",
-		value: function setManager(manager) {
-			this.manager = manager;
-		}
-
-		/**
-   * Require the manager from passed string, or as a function
-   * @param  {string|function} manager [description]
-   * @return {method}
-   */
-
-	}, {
-		key: "requireManager",
-		value: function requireManager(manager) {
-			var viewManager;
-
-			// If manager is a string, try to load from register managers,
-			// or require included managers directly
-			if (typeof manager === "string") {
-				// Use global or require
-				viewManager = typeof ePub != "undefined" ? ePub.ViewManagers[manager] : undefined; //require("./managers/"+manager);
+			if (sectionIndex in this._annotationsBySectionIndex) {
+				this._annotationsBySectionIndex[sectionIndex].push(hash);
 			} else {
-				// otherwise, assume we were passed a function
-				viewManager = manager;
+				this._annotationsBySectionIndex[sectionIndex] = [hash];
 			}
 
-			return viewManager;
-		}
-
-		/**
-   * Require the view from passed string, or as a function
-   * @param  {string|function} view
-   * @return {view}
-   */
-
-	}, {
-		key: "requireView",
-		value: function requireView(view) {
-			var View;
-
-			if (typeof view == "string") {
-				View = typeof ePub != "undefined" ? ePub.Views[view] : undefined; //require("./views/"+view);
-			} else {
-				// otherwise, assume we were passed a function
-				View = view;
-			}
-
-			return View;
-		}
-
-		/**
-   * Start the rendering
-   * @return {Promise} rendering has started
-   */
-
-	}, {
-		key: "start",
-		value: function start() {
-
-			if (!this.manager) {
-				this.ViewManager = this.requireManager(this.settings.manager);
-				this.View = this.requireView(this.settings.view);
-
-				this.manager = new this.ViewManager({
-					view: this.View,
-					queue: this.q,
-					request: this.book.load.bind(this.book),
-					settings: this.settings
-				});
-			}
-
-			// Parse metadata to get layout props
-			this.settings.globalLayoutProperties = this.determineLayoutProperties(this.book.package.metadata);
-
-			this.flow(this.settings.globalLayoutProperties.flow);
-
-			this.layout(this.settings.globalLayoutProperties);
-
-			// Listen for displayed views
-			this.manager.on("added", this.afterDisplayed.bind(this));
-			this.manager.on("removed", this.afterRemoved.bind(this));
-
-			// Listen for resizing
-			this.manager.on("resized", this.onResized.bind(this));
-
-			// Listen for scroll changes
-			this.manager.on("scrolled", this.reportLocation.bind(this));
-
-			// Trigger that rendering has started
-			this.emit("started");
-
-			// Start processing queue
-			this.starting.resolve();
-		}
-
-		/**
-   * Call to attach the container to an element in the dom
-   * Container must be attached before rendering can begin
-   * @param  {element} element to attach to
-   * @return {Promise}
-   */
-
-	}, {
-		key: "attachTo",
-		value: function attachTo(element) {
-
-			return this.q.enqueue(function () {
-
-				// Start rendering
-				this.manager.render(element, {
-					"width": this.settings.width,
-					"height": this.settings.height
-				});
-
-				// Trigger Attached
-				this.emit("attached");
-			}.bind(this));
-		}
-
-		/**
-   * Display a point in the book
-   * The request will be added to the rendering Queue,
-   * so it will wait until book is opened, rendering started
-   * and all other rendering tasks have finished to be called.
-   * @param  {string} target Url or EpubCFI
-   * @return {Promise}
-   */
-
-	}, {
-		key: "display",
-		value: function display(target) {
-
-			return this.q.enqueue(this._display, target);
-		}
-
-		/**
-   * Tells the manager what to display immediately
-   * @private
-   * @param  {string} target Url or EpubCFI
-   * @return {Promise}
-   */
-
-	}, {
-		key: "_display",
-		value: function _display(target) {
-			if (!this.book) {
-				return;
-			}
-			var isCfiString = this.epubcfi.isCfiString(target);
-			var displaying = new _core.defer();
-			var displayed = displaying.promise;
-			var section;
-			var moveTo;
-
-			// Check if this is a book percentage
-			if (this.book.locations.length && ((0, _core.isFloat)(target) || typeof target === "string" && target == parseFloat(target)) // Handle 1.0
-			) {
-					target = this.book.locations.cfiFromPercentage(parseFloat(target));
+			var contents = this.rendition.getContents();
+			contents.forEach(function (content) {
+				if (annotation.sectionIndex === content.sectionIndex) {
+					annotation.attach(content);
 				}
+			});
 
-			section = this.book.spine.get(target);
-
-			if (!section) {
-				displaying.reject(new Error("No Section Found"));
-				return displayed;
-			}
-
-			return this.manager.display(section, target).then(function () {
-				this.emit("displayed", section);
-				this.reportLocation();
-			}.bind(this));
+			return annotation;
 		}
-
-		/*
-  render(view, show) {
-  		// view.onLayout = this.layout.format.bind(this.layout);
-  	view.create();
-  		// Fit to size of the container, apply padding
-  	this.manager.resizeView(view);
-  		// Render Chain
-  	return view.section.render(this.book.request)
-  		.then(function(contents){
-  			return view.load(contents);
-  		}.bind(this))
-  		.then(function(doc){
-  			return this.hooks.content.trigger(view, this);
-  		}.bind(this))
-  		.then(function(){
-  			this.layout.format(view.contents);
-  			return this.hooks.layout.trigger(view, this);
-  		}.bind(this))
-  		.then(function(){
-  			return view.display();
-  		}.bind(this))
-  		.then(function(){
-  			return this.hooks.render.trigger(view, this);
-  		}.bind(this))
-  		.then(function(){
-  			if(show !== false) {
-  				this.q.enqueue(function(view){
-  					view.show();
-  				}, view);
-  			}
-  			// this.map = new Map(view, this.layout);
-  			this.hooks.show.trigger(view, this);
-  			this.trigger("rendered", view.section);
-  			}.bind(this))
-  		.catch(function(e){
-  			this.trigger("loaderror", e);
-  		}.bind(this));
-  	}
-  */
-
-		/**
-   * Report what has been displayed
-   * @private
-   * @param  {*} view
-   */
-
 	}, {
-		key: "afterDisplayed",
-		value: function afterDisplayed(view) {
+		key: "remove",
+		value: function remove(cfiRange, type) {
+			var hash = encodeURI(cfiRange);
+
+			if (hash in this._annotations) {
+				var annotation = this._annotations[hash];
+
+				var contents = this.rendition.getContents();
+				contents.forEach(function (content) {
+					if (annotation.sectionIndex === content.sectionIndex) {
+						annotation.detach(content);
+					}
+				});
+
+				delete this._annotations[hash];
+			}
+		}
+	}, {
+		key: "highlight",
+		value: function highlight(cfiRange, data, cb) {
+			this.add("highlight", cfiRange, data, cb);
+		}
+	}, {
+		key: "underline",
+		value: function underline(cfiRange, data, cb) {
+			this.add("underline", cfiRange, data, cb);
+		}
+	}, {
+		key: "mark",
+		value: function mark(cfiRange, data, cb) {
+			this.add("mark", cfiRange, data, cb);
+		}
+	}, {
+		key: "each",
+		value: function each() {
+			return this._annotations.forEach.apply(this._annotations, arguments);
+		}
+	}, {
+		key: "inject",
+		value: function inject(contents) {
 			var _this = this;
 
-			this.hooks.content.trigger(view.contents, this).then(function () {
-				_this.emit("rendered", view.section, view);
-			});
-			// this.reportLocation();
+			var sectionIndex = contents.sectionIndex;
+			if (sectionIndex in this._annotationsBySectionIndex) {
+				var annotations = this._annotationsBySectionIndex[sectionIndex];
+				annotations.forEach(function (hash) {
+					var annotation = _this._annotations[hash];
+					annotation.attach(contents);
+				});
+			}
 		}
-
-		/**
-   * Report what has been removed
-   * @private
-   * @param  {*} view
-   */
-
 	}, {
-		key: "afterRemoved",
-		value: function afterRemoved(view) {
+		key: "clear",
+		value: function clear(contents) {
 			var _this2 = this;
 
-			this.hooks.unloaded.trigger(view, this).then(function () {
-				_this2.emit("removed", view.section, view);
-			});
-		}
-
-		/**
-   * Report resize events and display the last seen location
-   * @private
-   */
-
-	}, {
-		key: "onResized",
-		value: function onResized(size) {
-
-			if (this.location) {
-				this.display(this.location.start.cfi);
-			}
-
-			this.emit("resized", {
-				width: size.width,
-				height: size.height
-			});
-		}
-
-		/**
-   * Move the Rendition to a specific offset
-   * Usually you would be better off calling display()
-   * @param {object} offset
-   */
-
-	}, {
-		key: "moveTo",
-		value: function moveTo(offset) {
-			this.manager.moveTo(offset);
-		}
-
-		/**
-   * Go to the next "page" in the rendition
-   * @return {Promise}
-   */
-
-	}, {
-		key: "next",
-		value: function next() {
-			return this.q.enqueue(this.manager.next.bind(this.manager)).then(this.reportLocation.bind(this));
-		}
-
-		/**
-   * Go to the previous "page" in the rendition
-   * @return {Promise}
-   */
-
-	}, {
-		key: "prev",
-		value: function prev() {
-			return this.q.enqueue(this.manager.prev.bind(this.manager)).then(this.reportLocation.bind(this));
-		}
-
-		//-- http://www.idpf.org/epub/301/spec/epub-publications.html#meta-properties-rendering
-		/**
-   * Determine the Layout properties from metadata and settings
-   * @private
-   * @param  {object} metadata
-   * @return {object} properties
-   */
-
-	}, {
-		key: "determineLayoutProperties",
-		value: function determineLayoutProperties(metadata) {
-			var properties;
-			var layout = this.settings.layout || metadata.layout || "reflowable";
-			var spread = this.settings.spread || metadata.spread || "auto";
-			var orientation = this.settings.orientation || metadata.orientation || "auto";
-			var flow = this.settings.flow || metadata.flow || "auto";
-			var viewport = metadata.viewport || "";
-			var minSpreadWidth = this.settings.minSpreadWidth || metadata.minSpreadWidth || 800;
-
-			if (this.settings.width >= 0 && this.settings.height >= 0) {
-				viewport = "width=" + this.settings.width + ", height=" + this.settings.height + "";
-			}
-
-			properties = {
-				layout: layout,
-				spread: spread,
-				orientation: orientation,
-				flow: flow,
-				viewport: viewport,
-				minSpreadWidth: minSpreadWidth
-			};
-
-			return properties;
-		}
-
-		// applyLayoutProperties(){
-		// 	var settings = this.determineLayoutProperties(this.book.package.metadata);
-		//
-		// 	this.flow(settings.flow);
-		//
-		// 	this.layout(settings);
-		// };
-
-		/**
-   * Adjust the flow of the rendition to paginated or scrolled
-   * (scrolled-continuous vs scrolled-doc are handled by different view managers)
-   * @param  {string} flow
-   */
-
-	}, {
-		key: "flow",
-		value: function flow(_flow2) {
-			var _flow = _flow2;
-			if (_flow2 === "scrolled" || _flow2 === "scrolled-doc" || _flow2 === "scrolled-continuous") {
-				_flow = "scrolled";
-			}
-
-			if (_flow2 === "auto" || _flow2 === "paginated") {
-				_flow = "paginated";
-			}
-
-			console.log("EPUBJS FLOW", _flow)
-
-			this.settings.flow = _flow2;
-
-			if (this._layout) {
-				this._layout.flow(_flow);
-			}
-
-			if (this.manager) {
-				this.manager.updateFlow(_flow);
-			}
-		}
-
-		/**
-   * Adjust the layout of the rendition to reflowable or pre-paginated
-   * @param  {object} settings
-   */
-
-	}, {
-		key: "layout",
-		value: function layout(settings) {
-			if (settings) {
-				this._layout = new _layout2.default(settings);
-				this._layout.spread(settings.spread, this.settings.minSpreadWidth);
-
-				this.mapping = new _mapping2.default(this._layout.props);
-			}
-
-			if (this.manager && this._layout) {
-				this.manager.applyLayout(this._layout);
-			}
-
-			return this._layout;
-		}
-
-		/**
-   * Adjust if the rendition uses spreads
-   * @param  {string} spread none | auto (TODO: implement landscape, portrait, both)
-   * @param  {int} min min width to use spreads at
-   */
-
-	}, {
-		key: "spread",
-		value: function spread(_spread, min) {
-
-			this._layout.spread(_spread, min);
-
-			if (this.manager.isRendered()) {
-				this.manager.updateLayout();
-			}
-		}
-
-		/**
-   * Report the current location
-   * @private
-   */
-
-	}, {
-		key: "reportLocation",
-		value: function reportLocation() {
-			return this.q.enqueue(function () {
-				var location = this.manager.currentLocation();
-				if (location && location.then && typeof location.then === "function") {
-					location.then(function (result) {
-						var located = this.located(result);
-						this.location = located;
-						this.emit("locationChanged", {
-							index: this.location.start.index,
-							href: this.location.start.href,
-							start: this.location.start.cfi,
-							end: this.location.end.cfi,
-							percentage: this.location.start.percentage
-						});
-
-						this.emit("relocated", this.location);
-					}.bind(this));
-				} else if (location) {
-					var located = this.located(location);
-					this.location = located;
-
-					this.emit("locationChanged", {
-						index: this.location.start.index,
-						href: this.location.start.href,
-						start: this.location.start.cfi,
-						end: this.location.end.cfi,
-						percentage: this.location.start.percentage
-					});
-
-					this.emit("relocated", this.location);
-				}
-			}.bind(this));
-		}
-
-		/**
-   * Get the Current Location CFI
-   * @return {EpubCFI} location (may be a promise)
-   */
-
-	}, {
-		key: "currentLocation",
-		value: function currentLocation() {
-			var location = this.manager.currentLocation();
-			if (location && location.then && typeof location.then === "function") {
-				location.then(function (result) {
-					var located = this.located(result);
-					return located;
-				}.bind(this));
-			} else if (location) {
-				var located = this.located(location);
-				return located;
-			}
-		}
-	}, {
-		key: "located",
-		value: function located(location) {
-			var start = location[0];
-			var end = location[location.length - 1];
-
-			var located = {
-				start: {
-					index: start.index,
-					href: start.href,
-					cfi: start.mapping.start,
-					displayed: {
-						page: start.pages[0],
-						total: start.totalPages
-					}
-				},
-				end: {
-					index: end.index,
-					href: end.href,
-					cfi: end.mapping.end,
-					displayed: {
-						page: end.pages[end.pages.length - 1],
-						totalPages: end.totalPages
-					}
-				}
-			};
-
-			var locationStart = this.book.locations.locationFromCfi(start.mapping.start);
-			var locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
-
-			if (locationStart != null) {
-				located.start.location = locationStart;
-				located.start.percentage = this.book.locations.percentageFromLocation(locationStart);
-			}
-			if (locationEnd != null) {
-				located.end.location = locationEnd;
-				located.end.percentage = this.book.locations.percentageFromLocation(locationEnd);
-			}
-
-			var pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
-			var pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
-
-			if (pageStart != -1) {
-				located.start.page = pageStart;
-			}
-			if (pageEnd != -1) {
-				located.end.page = pageEnd;
-			}
-
-			if (end.index === this.book.spine.last().index && located.end.displayed.page === located.end.displayed.totalPages) {
-				located.atEnd = true;
-			}
-
-			if (start.index === this.book.spine.first().index && located.start.displayed.page === 1) {
-				located.atStart = true;
-			}
-
-			return located;
-		}
-
-		/**
-   * Remove and Clean Up the Rendition
-   */
-
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			// Clear the queue
-			// this.q.clear();
-			// this.q = undefined;
-
-			this.manager && this.manager.destroy();
-
-			this.book = undefined;
-
-			this.views = null;
-
-			// this.hooks.display.clear();
-			// this.hooks.serialize.clear();
-			// this.hooks.content.clear();
-			// this.hooks.layout.clear();
-			// this.hooks.render.clear();
-			// this.hooks.show.clear();
-			// this.hooks = {};
-
-			// this.themes.destroy();
-			// this.themes = undefined;
-
-			// this.epubcfi = undefined;
-
-			// this.starting = undefined;
-			// this.started = undefined;
-
-		}
-
-		/**
-   * Pass the events from a view
-   * @private
-   * @param  {View} view
-   */
-
-	}, {
-		key: "passEvents",
-		value: function passEvents(contents) {
-			var _this3 = this;
-
-			var listenedEvents = _contents2.default.listenedEvents;
-
-			listenedEvents.forEach(function (e) {
-				contents.on(e, function (ev) {
-					return _this3.triggerViewEvent(ev, contents);
-				});
-			});
-
-			contents.on("selected", function (e) {
-				return _this3.triggerSelectedEvent(e, contents);
-			});
-			contents.on("markClicked", function (cfiRange, data) {
-				return _this3.triggerMarkEvent(cfiRange, data, contents);
-			});
-		}
-
-		/**
-   * Emit events passed by a view
-   * @private
-   * @param  {event} e
-   */
-
-	}, {
-		key: "triggerViewEvent",
-		value: function triggerViewEvent(e, contents) {
-			this.emit(e.type, e, contents);
-		}
-
-		/**
-   * Emit a selection event's CFI Range passed from a a view
-   * @private
-   * @param  {EpubCFI} cfirange
-   */
-
-	}, {
-		key: "triggerSelectedEvent",
-		value: function triggerSelectedEvent(cfirange, contents) {
-			this.emit("selected", cfirange, contents);
-		}
-
-		/**
-   * Emit a markClicked event with the cfiRange and data from a mark
-   * @private
-   * @param  {EpubCFI} cfirange
-   */
-
-	}, {
-		key: "triggerMarkEvent",
-		value: function triggerMarkEvent(cfiRange, data, contents) {
-			this.emit("markClicked", cfiRange, data, contents);
-		}
-
-		/**
-   * Get a Range from a Visible CFI
-   * @param  {string} cfi EpubCfi String
-   * @param  {string} ignoreClass
-   * @return {range}
-   */
-
-	}, {
-		key: "getRange",
-		value: function getRange(cfi, ignoreClass) {
-			var _cfi = new _epubcfi2.default(cfi);
-			var found = this.manager.visible().filter(function (view) {
-				if (_cfi.spinePos === view.index) return true;
-			});
-
-			// Should only every return 1 item
-			if (found.length) {
-				return found[0].contents.range(_cfi, ignoreClass);
-			}
-		}
-
-		/**
-   * Hook to adjust images to fit in columns
-   * @param  {View} view
-   */
-
-	}, {
-		key: "adjustImages",
-		value: function adjustImages(contents) {
-
-			if (this._layout.name === "pre-paginated") {
-				return new Promise(function (resolve) {
-					resolve();
+			var sectionIndex = contents.index;
+			if (sectionIndex in this._annotationsBySectionIndex) {
+				var annotations = this._annotationsBySectionIndex[sectionIndex];
+				annotations.forEach(function (hash) {
+					var annotation = _this2._annotations[hash];
+					annotation.detach(contents);
 				});
 			}
-
-			contents.addStylesheetRules({
-				"img": {
-					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-					"max-height": (this._layout.height ? this._layout.height * 0.6 + "px" : "60%") + "!important",
-					"object-fit": "contain",
-					"page-break-inside": "avoid"
-				}
-			});
-
-			return new Promise(function (resolve, reject) {
-				// Wait to apply
-				setTimeout(function () {
-					resolve();
-				}, 1);
-			});
 		}
 	}, {
-		key: "getContents",
-		value: function getContents() {
-			return this.manager ? this.manager.getContents() : [];
+		key: "show",
+		value: function show() {}
+	}, {
+		key: "hide",
+		value: function hide() {}
+	}]);
+
+	return Annotations;
+}();
+
+var Annotation = function () {
+	function Annotation(_ref) {
+		var type = _ref.type,
+		    cfiRange = _ref.cfiRange,
+		    data = _ref.data,
+		    sectionIndex = _ref.sectionIndex;
+
+		_classCallCheck(this, Annotation);
+
+		this.type = type;
+		this.cfiRange = cfiRange;
+		this.data = data;
+		this.sectionIndex = sectionIndex;
+		this.mark = undefined;
+	}
+
+	_createClass(Annotation, [{
+		key: "update",
+		value: function update(data) {
+			this.data = data;
 		}
 	}, {
-		key: "handleLinks",
-		value: function handleLinks(contents) {
-			var _this4 = this;
+		key: "attach",
+		value: function attach(contents) {
+			var cfiRange = this.cfiRange,
+			    data = this.data,
+			    type = this.type,
+			    mark = this.mark,
+			    cb = this.cb;
+
+			var result = void 0;
+			/*
+   if (mark) {
+   	return; // already added
+   }
+   */
+			if (type === "highlight") {
+				result = contents.highlight(cfiRange, data, cb);
+			} else if (type === "underline") {
+				result = contents.underline(cfiRange, data, cb);
+			} else if (type === "mark") {
+				result = contents.mark(cfiRange, data, cb);
+			}
+
+			this.mark = result;
+
+			return result;
+		}
+	}, {
+		key: "detach",
+		value: function detach(contents) {
+			var cfiRange = this.cfiRange,
+			    type = this.type;
+
+			var result = void 0;
 
 			if (contents) {
-				contents.on("link", function (href) {
-					var relative = _this4.book.path.relative(href);
-					_this4.display(relative);
-				});
+				if (type === "highlight") {
+					result = contents.unhighlight(cfiRange);
+				} else if (type === "underline") {
+					result = contents.ununderline(cfiRange);
+				} else if (type === "mark") {
+					result = contents.unmark(cfiRange);
+				}
 			}
+
+			this.mark = undefined;
+
+			return result;
 		}
 	}, {
-		key: "injectStylesheet",
-		value: function injectStylesheet(doc, section) {
-			var style = doc.createElement("link");
-			style.setAttribute("type", "text/css");
-			style.setAttribute("rel", "stylesheet");
-			style.setAttribute("href", this.settings.stylesheet);
-			doc.getElementsByTagName("head")[0].appendChild(style);
-		}
-	}, {
-		key: "injectScript",
-		value: function injectScript(doc, section) {
-			var script = doc.createElement("script");
-			script.setAttribute("type", "text/javascript");
-			script.setAttribute("src", this.settings.script);
-			script.textContent = " "; // Needed to prevent self closing tag
-			doc.getElementsByTagName("head")[0].appendChild(script);
-		}
-	}, {
-		key: "injectSource",
-		value: function injectSource(doc, section) {
-			var ident = this.book.package.metadata.identifier;
-			var meta = doc.createElement("meta");
-			meta.setAttribute("property", "dc:source");
-			if (ident) {
-				meta.setAttribute("contents", ident);
-			}
-			doc.getElementsByTagName("head")[0].appendChild(meta);
+		key: "text",
+		value: function text() {
+			// TODO: needs implementation in contents
 		}
 	}]);
 
-	return Rendition;
+	return Annotation;
 }();
 
-//-- Enable binding events to Renderer
+(0, _eventEmitter2.default)(Annotation.prototype);
 
-
-(0, _eventEmitter2.default)(Rendition.prototype);
-
-exports.default = Rendition;
+exports.default = Annotations;
 module.exports = exports["default"];
 
 /***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 16 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-/*
- From Zip.js, by Gildas Lormeau
-edited down
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(0);
+
+var _request = __webpack_require__(10);
+
+var _request2 = _interopRequireDefault(_request);
+
+var _mime = __webpack_require__(15);
+
+var _mime2 = _interopRequireDefault(_mime);
+
+var _path = __webpack_require__(3);
+
+var _path2 = _interopRequireDefault(_path);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Handles Unzipping a requesting files from an Epub Archive
+ * @class
  */
+var Archive = function () {
+	function Archive() {
+		_classCallCheck(this, Archive);
 
-var table = {
-	"application": {
-		"ecmascript": ["es", "ecma"],
-		"javascript": "js",
-		"ogg": "ogx",
-		"pdf": "pdf",
-		"postscript": ["ps", "ai", "eps", "epsi", "epsf", "eps2", "eps3"],
-		"rdf+xml": "rdf",
-		"smil": ["smi", "smil"],
-		"xhtml+xml": ["xhtml", "xht"],
-		"xml": ["xml", "xsl", "xsd", "opf", "ncx"],
-		"zip": "zip",
-		"x-httpd-eruby": "rhtml",
-		"x-latex": "latex",
-		"x-maker": ["frm", "maker", "frame", "fm", "fb", "book", "fbdoc"],
-		"x-object": "o",
-		"x-shockwave-flash": ["swf", "swfl"],
-		"x-silverlight": "scr",
-		"epub+zip": "epub",
-		"font-tdpfr": "pfr",
-		"inkml+xml": ["ink", "inkml"],
-		"json": "json",
-		"jsonml+json": "jsonml",
-		"mathml+xml": "mathml",
-		"metalink+xml": "metalink",
-		"mp4": "mp4s",
-		// "oebps-package+xml" : "opf",
-		"omdoc+xml": "omdoc",
-		"oxps": "oxps",
-		"vnd.amazon.ebook": "azw",
-		"widget": "wgt",
-		// "x-dtbncx+xml" : "ncx",
-		"x-dtbook+xml": "dtb",
-		"x-dtbresource+xml": "res",
-		"x-font-bdf": "bdf",
-		"x-font-ghostscript": "gsf",
-		"x-font-linux-psf": "psf",
-		"x-font-otf": "otf",
-		"x-font-pcf": "pcf",
-		"x-font-snf": "snf",
-		"x-font-ttf": ["ttf", "ttc"],
-		"x-font-type1": ["pfa", "pfb", "pfm", "afm"],
-		"x-font-woff": "woff",
-		"x-mobipocket-ebook": ["prc", "mobi"],
-		"x-mspublisher": "pub",
-		"x-nzb": "nzb",
-		"x-tgif": "obj",
-		"xaml+xml": "xaml",
-		"xml-dtd": "dtd",
-		"xproc+xml": "xpl",
-		"xslt+xml": "xslt",
-		"internet-property-stream": "acx",
-		"x-compress": "z",
-		"x-compressed": "tgz",
-		"x-gzip": "gz"
-	},
-	"audio": {
-		"flac": "flac",
-		"midi": ["mid", "midi", "kar", "rmi"],
-		"mpeg": ["mpga", "mpega", "mp2", "mp3", "m4a", "mp2a", "m2a", "m3a"],
-		"mpegurl": "m3u",
-		"ogg": ["oga", "ogg", "spx"],
-		"x-aiff": ["aif", "aiff", "aifc"],
-		"x-ms-wma": "wma",
-		"x-wav": "wav",
-		"adpcm": "adp",
-		"mp4": "mp4a",
-		"webm": "weba",
-		"x-aac": "aac",
-		"x-caf": "caf",
-		"x-matroska": "mka",
-		"x-pn-realaudio-plugin": "rmp",
-		"xm": "xm",
-		"mid": ["mid", "rmi"]
-	},
-	"image": {
-		"gif": "gif",
-		"ief": "ief",
-		"jpeg": ["jpeg", "jpg", "jpe"],
-		"pcx": "pcx",
-		"png": "png",
-		"svg+xml": ["svg", "svgz"],
-		"tiff": ["tiff", "tif"],
-		"x-icon": "ico",
-		"bmp": "bmp",
-		"webp": "webp",
-		"x-pict": ["pic", "pct"],
-		"x-tga": "tga",
-		"cis-cod": "cod"
-	},
-	"text": {
-		"cache-manifest": ["manifest", "appcache"],
-		"css": "css",
-		"csv": "csv",
-		"html": ["html", "htm", "shtml", "stm"],
-		"mathml": "mml",
-		"plain": ["txt", "text", "brf", "conf", "def", "list", "log", "in", "bas"],
-		"richtext": "rtx",
-		"tab-separated-values": "tsv",
-		"x-bibtex": "bib"
-	},
-	"video": {
-		"mpeg": ["mpeg", "mpg", "mpe", "m1v", "m2v", "mp2", "mpa", "mpv2"],
-		"mp4": ["mp4", "mp4v", "mpg4"],
-		"quicktime": ["qt", "mov"],
-		"ogg": "ogv",
-		"vnd.mpegurl": ["mxu", "m4u"],
-		"x-flv": "flv",
-		"x-la-asf": ["lsf", "lsx"],
-		"x-mng": "mng",
-		"x-ms-asf": ["asf", "asx", "asr"],
-		"x-ms-wm": "wm",
-		"x-ms-wmv": "wmv",
-		"x-ms-wmx": "wmx",
-		"x-ms-wvx": "wvx",
-		"x-msvideo": "avi",
-		"x-sgi-movie": "movie",
-		"x-matroska": ["mpv", "mkv", "mk3d", "mks"],
-		"3gpp2": "3g2",
-		"h261": "h261",
-		"h263": "h263",
-		"h264": "h264",
-		"jpeg": "jpgv",
-		"jpm": ["jpm", "jpgm"],
-		"mj2": ["mj2", "mjp2"],
-		"vnd.ms-playready.media.pyv": "pyv",
-		"vnd.uvvu.mp4": ["uvu", "uvvu"],
-		"vnd.vivo": "viv",
-		"webm": "webm",
-		"x-f4v": "f4v",
-		"x-m4v": "m4v",
-		"x-ms-vob": "vob",
-		"x-smv": "smv"
+		this.zip = undefined;
+		this.urlCache = {};
+
+		this.checkRequirements();
 	}
-};
 
-var mimeTypes = function () {
-	var type,
-	    subtype,
-	    val,
-	    index,
-	    mimeTypes = {};
-	for (type in table) {
-		if (table.hasOwnProperty(type)) {
-			for (subtype in table[type]) {
-				if (table[type].hasOwnProperty(subtype)) {
-					val = table[type][subtype];
-					if (typeof val == "string") {
-						mimeTypes[val] = type + "/" + subtype;
-					} else {
-						for (index = 0; index < val.length; index++) {
-							mimeTypes[val[index]] = type + "/" + subtype;
-						}
-					}
+	/**
+  * Checks to see if JSZip exists in global namspace,
+  * Requires JSZip if it isn't there
+  * @private
+  */
+
+
+	_createClass(Archive, [{
+		key: "checkRequirements",
+		value: function checkRequirements() {
+			try {
+				if (typeof JSZip === "undefined") {
+					var _JSZip = __webpack_require__(53);
+					this.zip = new _JSZip();
+				} else {
+					this.zip = new JSZip();
 				}
+			} catch (e) {
+				throw new Error("JSZip lib not loaded");
 			}
 		}
-	}
-	return mimeTypes;
+
+		/**
+   * Open an archive
+   * @param  {binary} input
+   * @param  {boolean} isBase64 tells JSZip if the input data is base64 encoded
+   * @return {Promise} zipfile
+   */
+
+	}, {
+		key: "open",
+		value: function open(input, isBase64) {
+			return this.zip.loadAsync(input, { "base64": isBase64 });
+		}
+
+		/**
+   * Load and Open an archive
+   * @param  {string} zipUrl
+   * @param  {boolean} isBase64 tells JSZip if the input data is base64 encoded
+   * @return {Promise} zipfile
+   */
+
+	}, {
+		key: "openUrl",
+		value: function openUrl(zipUrl, isBase64) {
+			return (0, _request2.default)(zipUrl, "binary").then(function (data) {
+				return this.zip.loadAsync(data, { "base64": isBase64 });
+			}.bind(this));
+		}
+
+		/**
+   * Request
+   * @param  {string} url  a url to request from the archive
+   * @param  {[string]} type specify the type of the returned result
+   * @return {Promise}
+   */
+
+	}, {
+		key: "request",
+		value: function request(url, type) {
+			var deferred = new _core.defer();
+			var response;
+			var path = new _path2.default(url);
+
+			// If type isn't set, determine it from the file extension
+			if (!type) {
+				type = path.extension;
+			}
+
+			if (type == "blob") {
+				response = this.getBlob(url);
+			} else {
+				response = this.getText(url);
+			}
+
+			if (response) {
+				response.then(function (r) {
+					var result = this.handleResponse(r, type);
+					deferred.resolve(result);
+				}.bind(this));
+			} else {
+				deferred.reject({
+					message: "File not found in the epub: " + url,
+					stack: new Error().stack
+				});
+			}
+			return deferred.promise;
+		}
+
+		/**
+   * Handle the response from request
+   * @private
+   * @param  {any} response
+   * @param  {[string]} type
+   * @return {any} the parsed result
+   */
+
+	}, {
+		key: "handleResponse",
+		value: function handleResponse(response, type) {
+			var r;
+
+			if (type == "json") {
+				r = JSON.parse(response);
+			} else if ((0, _core.isXml)(type)) {
+				r = (0, _core.parse)(response, "text/xml");
+			} else if (type == "xhtml") {
+				r = (0, _core.parse)(response, "application/xhtml+xml");
+			} else if (type == "html" || type == "htm") {
+				r = (0, _core.parse)(response, "text/html");
+			} else {
+				r = response;
+			}
+
+			return r;
+		}
+
+		/**
+   * Get a Blob from Archive by Url
+   * @param  {string} url
+   * @param  {[string]} mimeType
+   * @return {Blob}
+   */
+
+	}, {
+		key: "getBlob",
+		value: function getBlob(url, mimeType) {
+			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+			var entry = this.zip.file(decodededUrl);
+
+			if (entry) {
+				mimeType = mimeType || _mime2.default.lookup(entry.name);
+				return entry.async("uint8array").then(function (uint8array) {
+					return new Blob([uint8array], { type: mimeType });
+				});
+			}
+		}
+
+		/**
+   * Get Text from Archive by Url
+   * @param  {string} url
+   * @param  {[string]} encoding
+   * @return {string}
+   */
+
+	}, {
+		key: "getText",
+		value: function getText(url, encoding) {
+			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+			var entry = this.zip.file(decodededUrl);
+
+			if (entry) {
+				return entry.async("string").then(function (text) {
+					return text;
+				});
+			}
+		}
+
+		/**
+   * Get a base64 encoded result from Archive by Url
+   * @param  {string} url
+   * @param  {[string]} mimeType
+   * @return {string} base64 encoded
+   */
+
+	}, {
+		key: "getBase64",
+		value: function getBase64(url, mimeType) {
+			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+			var entry = this.zip.file(decodededUrl);
+
+			if (entry) {
+				mimeType = mimeType || _mime2.default.lookup(entry.name);
+				return entry.async("base64").then(function (data) {
+					return "data:" + mimeType + ";base64," + data;
+				});
+			}
+		}
+
+		/**
+   * Create a Url from an unarchived item
+   * @param  {string} url
+   * @param  {[object]} options.base64 use base64 encoding or blob url
+   * @return {Promise} url promise with Url string
+   */
+
+	}, {
+		key: "createUrl",
+		value: function createUrl(url, options) {
+			var deferred = new _core.defer();
+			var _URL = window.URL || window.webkitURL || window.mozURL;
+			var tempUrl;
+			var response;
+			var useBase64 = options && options.base64;
+
+			if (url in this.urlCache) {
+				deferred.resolve(this.urlCache[url]);
+				return deferred.promise;
+			}
+
+			if (useBase64) {
+				response = this.getBase64(url);
+
+				if (response) {
+					response.then(function (tempUrl) {
+
+						this.urlCache[url] = tempUrl;
+						deferred.resolve(tempUrl);
+					}.bind(this));
+				}
+			} else {
+
+				response = this.getBlob(url);
+
+				if (response) {
+					response.then(function (blob) {
+
+						tempUrl = _URL.createObjectURL(blob);
+						this.urlCache[url] = tempUrl;
+						deferred.resolve(tempUrl);
+					}.bind(this));
+				}
+			}
+
+			if (!response) {
+				deferred.reject({
+					message: "File not found in the epub: " + url,
+					stack: new Error().stack
+				});
+			}
+
+			return deferred.promise;
+		}
+
+		/**
+   * Revoke Temp Url for a achive item
+   * @param  {string} url url of the item in the archive
+   */
+
+	}, {
+		key: "revokeUrl",
+		value: function revokeUrl(url) {
+			var _URL = window.URL || window.webkitURL || window.mozURL;
+			var fromCache = this.urlCache[url];
+			if (fromCache) _URL.revokeObjectURL(fromCache);
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			var _URL = window.URL || window.webkitURL || window.mozURL;
+			for (var fromCache in this.urlCache) {
+				_URL.revokeObjectURL(fromCache);
+			}
+			this.zip = undefined;
+			this.urlCache = {};
+		}
+	}]);
+
+	return Archive;
 }();
 
-var defaultValue = "text/plain"; //"application/octet-stream";
-
-function lookup(filename) {
-	return filename && mimeTypes[filename.split(".").pop().toLowerCase()] || defaultValue;
-};
-
-module.exports = {
-	'lookup': lookup
-};
+exports.default = Archive;
+module.exports = exports["default"];
 
 /***/ }),
-/* 17 */
+/* 53 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_17__;
+if(typeof __WEBPACK_EXTERNAL_MODULE_53__ === 'undefined') {var e = new Error("Cannot find module \"JSZip\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+module.exports = __WEBPACK_EXTERNAL_MODULE_53__;
 
 /***/ }),
-/* 18 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7276,1346 +12530,38 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
   return jURL;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15), __webpack_require__(55)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(55)(module)))
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 55 */
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-// import path from "path";
-
-
-var _eventEmitter = __webpack_require__(2);
-
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
-
-var _core = __webpack_require__(0);
-
-var _url = __webpack_require__(5);
-
-var _url2 = _interopRequireDefault(_url);
-
-var _path = __webpack_require__(3);
-
-var _path2 = _interopRequireDefault(_path);
-
-var _spine = __webpack_require__(38);
-
-var _spine2 = _interopRequireDefault(_spine);
-
-var _locations = __webpack_require__(30);
-
-var _locations2 = _interopRequireDefault(_locations);
-
-var _container = __webpack_require__(27);
-
-var _container2 = _interopRequireDefault(_container);
-
-var _packaging = __webpack_require__(34);
-
-var _packaging2 = _interopRequireDefault(_packaging);
-
-var _navigation = __webpack_require__(33);
-
-var _navigation2 = _interopRequireDefault(_navigation);
-
-var _resources = __webpack_require__(36);
-
-var _resources2 = _interopRequireDefault(_resources);
-
-var _pagelist = __webpack_require__(35);
-
-var _pagelist2 = _interopRequireDefault(_pagelist);
-
-var _rendition = __webpack_require__(14);
-
-var _rendition2 = _interopRequireDefault(_rendition);
-
-var _archive = __webpack_require__(26);
-
-var _archive2 = _interopRequireDefault(_archive);
-
-var _request2 = __webpack_require__(11);
-
-var _request3 = _interopRequireDefault(_request2);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var CONTAINER_PATH = "META-INF/container.xml";
-var EPUBJS_VERSION = "0.3";
-
-/**
- * Creates a new Book
- * @class
- * @param {string} url
- * @param {object} options
- * @param {method} options.requestMethod a request function to use instead of the default
- * @param {boolean} [options.requestCredentials=undefined] send the xhr request withCredentials
- * @param {object} [options.requestHeaders=undefined] send the xhr request headers
- * @param {string} [options.encoding=binary] optional to pass 'binary' or base64' for archived Epubs
- * @param {string} [options.replacements=none] use base64, blobUrl, or none for replacing assets in archived Epubs
- * @returns {Book}
- * @example new Book("/path/to/book.epub", {})
- * @example new Book({ replacements: "blobUrl" })
- */
-
-var Book = function () {
-	function Book(url, options) {
-		var _this = this;
-
-		_classCallCheck(this, Book);
-
-		// Allow passing just options to the Book
-		if (typeof options === "undefined" && (typeof url === "undefined" ? "undefined" : _typeof(url)) === "object") {
-			options = url;
-			url = undefined;
-		}
-
-		this.settings = (0, _core.extend)(this.settings || {}, {
-			requestMethod: undefined,
-			requestCredentials: undefined,
-			requestHeaders: undefined,
-			encoding: undefined,
-			replacements: undefined
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
 		});
-
-		(0, _core.extend)(this.settings, options);
-
-		// Promises
-		this.opening = new _core.defer();
-		/**
-   * @property {promise} opened returns after the book is loaded
-   */
-		this.opened = this.opening.promise;
-		this.isOpen = false;
-
-		this.loading = {
-			manifest: new _core.defer(),
-			spine: new _core.defer(),
-			metadata: new _core.defer(),
-			cover: new _core.defer(),
-			navigation: new _core.defer(),
-			pageList: new _core.defer(),
-			resources: new _core.defer()
-		};
-
-		this.loaded = {
-			manifest: this.loading.manifest.promise,
-			spine: this.loading.spine.promise,
-			metadata: this.loading.metadata.promise,
-			cover: this.loading.cover.promise,
-			navigation: this.loading.navigation.promise,
-			pageList: this.loading.pageList.promise,
-			resources: this.loading.resources.promise
-		};
-
-		// this.ready = RSVP.hash(this.loaded);
-		/**
-   * @property {promise} ready returns after the book is loaded and parsed
-   * @private
-   */
-		this.ready = Promise.all([this.loaded.manifest, this.loaded.spine, this.loaded.metadata, this.loaded.cover, this.loaded.navigation, this.loaded.resources]);
-
-		// Queue for methods used before opening
-		this.isRendered = false;
-		// this._q = queue(this);
-
-		/**
-   * @property {method} request
-   * @private
-   */
-		this.request = this.settings.requestMethod || _request3.default;
-
-		/**
-   * @property {Spine} spine
-   */
-		this.spine = new _spine2.default();
-
-		/**
-   * @property {Locations} locations
-   */
-		this.locations = new _locations2.default(this.spine, this.load.bind(this));
-
-		/**
-   * @property {Navigation} navigation
-   */
-		this.navigation = undefined;
-
-		/**
-   * @property {PageList} pagelist
-   */
-		this.pageList = new _pagelist2.default();
-
-		/**
-   * @property {Url} url
-   * @private
-   */
-		this.url = undefined;
-
-		/**
-   * @property {Path} path
-   * @private
-   */
-		this.path = undefined;
-
-		/**
-   * @property {boolean} archived
-   * @private
-   */
-		this.archived = false;
-
-		/**
-   * @property {Archive} archive
-   * @private
-   */
-		this.archive = undefined;
-
-		/**
-   * @property {Resources} resources
-   * @private
-   */
-		this.resources = undefined;
-
-		/**
-   * @property {Rendition} rendition
-   * @private
-   */
-		this.rendition = undefined;
-
-		this.container = undefined;
-		this.packaging = undefined;
-		this.toc = undefined;
-
-		if (url) {
-			this.open(url).catch(function (error) {
-				var err = new Error("Cannot load book at " + url);
-				// console.error(err);
-				_this.emit("openFailed", err);
-			});
-		}
-	}
-
-	/**
-  * Open a epub or url
-  * @param {string} input URL, Path or ArrayBuffer
-  * @param {string} [what] to force opening
-  * @returns {Promise} of when the book has been loaded
-  * @example book.open("/path/to/book.epub")
-  */
-
-
-	_createClass(Book, [{
-		key: "open",
-		value: function open(input, what) {
-			var opening;
-			var type = what || this.determineType(input);
-
-			if (type === "binary") {
-				this.archived = true;
-				this.url = new _url2.default("/", "");
-				opening = this.openEpub(input);
-			} else if (type === "base64") {
-				this.archived = true;
-				this.url = new _url2.default("/", "");
-				opening = this.openEpub(input, type);
-			} else if (type === "epub") {
-				this.archived = true;
-				this.url = new _url2.default("/", "");
-				opening = this.request(input, "binary").then(this.openEpub.bind(this));
-			} else if (type == "opf") {
-				this.url = new _url2.default(input);
-				opening = this.openPackaging(this.url.Path.toString());
-			} else if (type == "json") {
-				this.url = new _url2.default(input);
-				opening = this.openManifest(this.url.Path.toString());
-			} else {
-				this.url = new _url2.default(input);
-				opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
 			}
-
-			return opening;
-		}
-
-		/**
-   * Open an archived epub
-   * @private
-   * @param  {binary} data
-   * @param  {[string]} encoding
-   * @return {Promise}
-   */
-
-	}, {
-		key: "openEpub",
-		value: function openEpub(data, encoding) {
-			var _this2 = this;
-
-			return this.unarchive(data, encoding || this.settings.encoding).then(function () {
-				return _this2.openContainer(CONTAINER_PATH);
-			}).then(function (packagePath) {
-				return _this2.openPackaging(packagePath);
-			});
-		}
-
-		/**
-   * Open the epub container
-   * @private
-   * @param  {string} url
-   * @return {string} packagePath
-   */
-
-	}, {
-		key: "openContainer",
-		value: function openContainer(url) {
-			var _this3 = this;
-
-			return this.load(url).then(function (xml) {
-				_this3.container = new _container2.default(xml);
-				return _this3.resolve(_this3.container.packagePath);
-			});
-		}
-
-		/**
-   * Open the Open Packaging Format Xml
-   * @private
-   * @param  {string} url
-   * @return {Promise}
-   */
-
-	}, {
-		key: "openPackaging",
-		value: function openPackaging(url) {
-			var _this4 = this;
-
-			this.path = new _path2.default(url);
-			return this.load(url).then(function (xml) {
-				_this4.packaging = new _packaging2.default(xml);
-				return _this4.unpack(_this4.packaging);
-			});
-		}
-
-		/**
-   * Open the manifest JSON
-   * @private
-   * @param  {string} url
-   * @return {Promise}
-   */
-
-	}, {
-		key: "openManifest",
-		value: function openManifest(url) {
-			var _this5 = this;
-
-			this.path = new _path2.default(url);
-			return this.load(url).then(function (json) {
-				_this5.packaging = new _packaging2.default();
-				_this5.packaging.load(json);
-				return _this5.unpack(_this5.packaging);
-			});
-		}
-
-		/**
-   * Load a resource from the Book
-   * @param  {string} path path to the resource to load
-   * @return {Promise}     returns a promise with the requested resource
-   */
-
-	}, {
-		key: "load",
-		value: function load(path) {
-			var resolved;
-
-			if (this.archived) {
-				resolved = this.resolve(path);
-				return this.archive.request(resolved);
-			} else {
-				resolved = this.resolve(path);
-				return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
-			}
-		}
-
-		/**
-   * Resolve a path to it's absolute position in the Book
-   * @param  {string} path
-   * @param  {[boolean]} absolute force resolving the full URL
-   * @return {string}          the resolved path string
-   */
-
-	}, {
-		key: "resolve",
-		value: function resolve(path, absolute) {
-			if (!path) {
-				return;
-			}
-			var resolved = path;
-			var isAbsolute = path.indexOf("://") > -1;
-
-			if (isAbsolute) {
-				return path;
-			}
-
-			if (this.path) {
-				resolved = this.path.resolve(path);
-			}
-
-			if (absolute != false && this.url) {
-				resolved = this.url.resolve(resolved);
-			}
-
-			return resolved;
-		}
-
-		/**
-   * Determine the type of they input passed to open
-   * @private
-   * @param  {string} input
-   * @return {string}  binary | directory | epub | opf
-   */
-
-	}, {
-		key: "determineType",
-		value: function determineType(input) {
-			var url;
-			var path;
-			var extension;
-
-			if (this.settings.encoding === "base64") {
-				return "base64";
-			}
-
-			if (typeof input != "string") {
-				return "binary";
-			}
-
-			url = new _url2.default(input);
-			path = url.path();
-			extension = path.extension;
-
-			if (!extension) {
-				return "directory";
-			}
-
-			if (extension === "epub") {
-				return "epub";
-			}
-
-			if (extension === "opf") {
-				return "opf";
-			}
-
-			if (extension === "json") {
-				return "json";
-			}
-		}
-
-		/**
-   * unpack the contents of the Books packageXml
-   * @private
-   * @param {document} packageXml XML Document
-   */
-
-	}, {
-		key: "unpack",
-		value: function unpack(opf) {
-			var _this6 = this;
-
-			this.package = opf;
-
-			this.spine.unpack(this.package, this.resolve.bind(this));
-
-			this.resources = new _resources2.default(this.package.manifest, {
-				archive: this.archive,
-				resolver: this.resolve.bind(this),
-				request: this.request.bind(this),
-				replacements: this.settings.replacements || "base64"
-			});
-
-			this.loadNavigation(this.package).then(function () {
-				_this6.toc = _this6.navigation.toc;
-				_this6.loading.navigation.resolve(_this6.navigation);
-			});
-
-			if (this.package.coverPath) {
-				this.cover = this.resolve(this.package.coverPath);
-			}
-			// Resolve promises
-			this.loading.manifest.resolve(this.package.manifest);
-			this.loading.metadata.resolve(this.package.metadata);
-			this.loading.spine.resolve(this.spine);
-			this.loading.cover.resolve(this.cover);
-			this.loading.resources.resolve(this.resources);
-			this.loading.pageList.resolve(this.pageList);
-
-			this.isOpen = true;
-
-			if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
-				this.replacements().then(function () {
-					_this6.opening.resolve(_this6);
-				}).catch(function (err) {
-					console.error(err);
-				});
-			} else {
-				// Resolve book opened promise
-				this.opening.resolve(this);
-			}
-		}
-
-		/**
-   * Load Navigation and PageList from package
-   * @private
-   * @param {document} opf XML Document
-   */
-
-	}, {
-		key: "loadNavigation",
-		value: function loadNavigation(opf) {
-			var _this7 = this;
-
-			var navPath = opf.navPath || opf.ncxPath;
-			var toc = opf.toc;
-
-			if (toc) {
-				return new Promise(function (resolve, reject) {
-					_this7.navigation = new _navigation2.default(toc);
-
-					_this7.pageList = new _pagelist2.default(); // TODO: handle page lists
-
-					resolve(_this7.navigation);
-				});
-			}
-
-			if (!navPath) {
-				return new Promise(function (resolve, reject) {
-					_this7.navigation = new _navigation2.default();
-					_this7.pageList = new _pagelist2.default();
-
-					resolve(_this7.navigation);
-				});
-			}
-
-			return this.load(navPath, "xml").then(function (xml) {
-				_this7.navigation = new _navigation2.default(xml);
-				_this7.pageList = new _pagelist2.default(xml);
-				return _this7.navigation;
-			});
-		}
-
-		/**
-   * Alias for book.spine.get
-   * @param {string} target
-   */
-
-	}, {
-		key: "section",
-		value: function section(target) {
-			return this.spine.get(target);
-		}
-
-		/**
-   * Sugar to render a book
-   * @param  {element} element element to add the views to
-   * @param  {[object]} options
-   * @return {Rendition}
-   */
-
-	}, {
-		key: "renderTo",
-		value: function renderTo(element, options) {
-			// var renderMethod = (options && options.method) ?
-			//     options.method :
-			//     "single";
-
-			this.rendition = new _rendition2.default(this, options);
-			this.rendition.attachTo(element);
-
-			return this.rendition;
-		}
-
-		/**
-   * Set if request should use withCredentials
-   * @param {boolean} credentials
-   */
-
-	}, {
-		key: "setRequestCredentials",
-		value: function setRequestCredentials(credentials) {
-			this.settings.requestCredentials = credentials;
-		}
-
-		/**
-   * Set headers request should use
-   * @param {object} headers
-   */
-
-	}, {
-		key: "setRequestHeaders",
-		value: function setRequestHeaders(headers) {
-			this.settings.requestHeaders = headers;
-		}
-
-		/**
-   * Unarchive a zipped epub
-   * @private
-   * @param  {binary} input epub data
-   * @param  {[string]} encoding
-   * @return {Archive}
-   */
-
-	}, {
-		key: "unarchive",
-		value: function unarchive(input, encoding) {
-			this.archive = new _archive2.default();
-			return this.archive.open(input, encoding);
-		}
-
-		/**
-   * Get the cover url
-   * @return {string} coverUrl
-   */
-
-	}, {
-		key: "coverUrl",
-		value: function coverUrl() {
-			var _this8 = this;
-
-			var retrieved = this.loaded.cover.then(function (url) {
-				if (_this8.archived) {
-					// return this.archive.createUrl(this.cover);
-					return _this8.resources.get(_this8.cover);
-				} else {
-					return _this8.cover;
-				}
-			});
-
-			return retrieved;
-		}
-
-		/**
-   * load replacement urls
-   * @private
-   * @return {Promise} completed loading urls
-   */
-
-	}, {
-		key: "replacements",
-		value: function replacements() {
-			var _this9 = this;
-
-			this.spine.hooks.serialize.register(function (output, section) {
-				section.output = _this9.resources.substitute(output, section.url);
-			});
-
-			return this.resources.replacements().then(function () {
-				return _this9.resources.replaceCss();
-			});
-		}
-
-		/**
-   * Find a DOM Range for a given CFI Range
-   * @param  {EpubCFI} cfiRange a epub cfi range
-   * @return {Range}
-   */
-
-	}, {
-		key: "getRange",
-		value: function getRange(cfiRange) {
-			var cfi = new _epubcfi2.default(cfiRange);
-			var item = this.spine.get(cfi.spinePos);
-			var _request = this.load.bind(this);
-
-			return item.load(_request).then(function (contents) {
-				var range = cfi.toRange(item.document);
-				return range;
-			});
-		}
-
-		/**
-   * Generates the Book Key using the identifer in the manifest or other string provided
-   * @param  {[string]} identifier to use instead of metadata identifier
-   * @return {string} key
-   */
-
-	}, {
-		key: "key",
-		value: function key(identifier) {
-			var ident = identifier || this.package.metadata.identifier || this.url.filename;
-			return "epubjs:" + EPUBJS_VERSION + ":" + ident;
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.opened = undefined;
-			this.loading = undefined;
-			this.loaded = undefined;
-			this.ready = undefined;
-
-			this.isOpen = false;
-			this.isRendered = false;
-
-			this.spine && this.spine.destroy();
-			this.locations && this.locations.destroy();
-			this.pageList && this.pageList.destroy();
-			this.archive && this.archive.destroy();
-			this.resources && this.resources.destroy();
-			this.container && this.container.destroy();
-			this.packaging && this.packaging.destroy();
-			this.rendition && this.rendition.destroy();
-
-			this.spine = undefined;
-			this.locations = undefined;
-			this.pageList = undefined;
-			this.archive = undefined;
-			this.resources = undefined;
-			this.container = undefined;
-			this.packaging = undefined;
-			this.rendition = undefined;
-
-			this.navigation = undefined;
-			this.url = undefined;
-			this.path = undefined;
-			this.archived = false;
-			this.toc = undefined;
-		}
-	}]);
-
-	return Book;
-}();
-
-//-- Enable binding events to book
-
-
-(0, _eventEmitter2.default)(Book.prototype);
-
-exports.default = Book;
-module.exports = exports["default"];
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-var _default = __webpack_require__(13);
-
-var _default2 = _interopRequireDefault(_default);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var ContinuousViewManager = function (_DefaultViewManager) {
-	_inherits(ContinuousViewManager, _DefaultViewManager);
-
-	function ContinuousViewManager(options) {
-		_classCallCheck(this, ContinuousViewManager);
-
-		// DefaultViewManager.apply(this, arguments); // call super constructor.
-
-		var _this = _possibleConstructorReturn(this, (ContinuousViewManager.__proto__ || Object.getPrototypeOf(ContinuousViewManager)).call(this, options));
-
-		_this.name = "continuous";
-
-		_this.settings = (0, _core.extend)(_this.settings || {}, {
-			infinite: true,
-			overflow: "auto",
-			axis: "vertical",
-			offset: 500,
-			offsetDelta: 250,
-			width: undefined,
-			height: undefined
 		});
-
-		(0, _core.extend)(_this.settings, options.settings || {});
-
-		// Gap can be 0, byt defaults doesn't handle that
-		if (options.settings.gap != "undefined" && options.settings.gap === 0) {
-			_this.settings.gap = options.settings.gap;
-		}
-
-		// this.viewSettings.axis = this.settings.axis;
-		_this.viewSettings = {
-			ignoreClass: _this.settings.ignoreClass,
-			axis: _this.settings.axis,
-			layout: _this.layout,
-			width: 0,
-			height: 0
-		};
-
-		_this.scrollTop = 0;
-		_this.scrollLeft = 0;
-		return _this;
+		module.webpackPolyfill = 1;
 	}
+	return module;
+};
 
-	_createClass(ContinuousViewManager, [{
-		key: "display",
-		value: function display(section, target) {
-			return _default2.default.prototype.display.call(this, section, target).then(function () {
-				return this.fill();
-			}.bind(this));
-		}
-	}, {
-		key: "fill",
-		value: function fill(_full) {
-			var full = _full || new _core.defer();
-
-			this.check().then(function (result) {
-				if (result) {
-					this.fill(full);
-				} else {
-					full.resolve();
-				}
-			}.bind(this));
-
-			return full.promise;
-		}
-	}, {
-		key: "moveTo",
-		value: function moveTo(offset) {
-			// var bounds = this.stage.bounds();
-			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-			var distX = 0,
-			    distY = 0;
-
-			var offsetX = 0,
-			    offsetY = 0;
-
-			if (this.settings.axis === "vertical") {
-				distY = offset.top;
-				offsetY = offset.top + this.settings.offset;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-				offsetX = distX + this.settings.offset;
-			}
-
-			return this.check(offsetX, offsetY).then(function () {
-				this.scrollBy(distX, distY, true);
-			}.bind(this));
-		}
-
-		/*
-  afterDisplayed(currView){
-  	var next = currView.section.next();
-  	var prev = currView.section.prev();
-  	var index = this.views.indexOf(currView);
-  	var prevView, nextView;
-  		if(index + 1 === this.views.length && next) {
-  		nextView = this.createView(next);
-  		this.q.enqueue(this.append.bind(this), nextView);
-  	}
-  		if(index === 0 && prev) {
-  		prevView = this.createView(prev, this.viewSettings);
-  		this.q.enqueue(this.prepend.bind(this), prevView);
-  	}
-  		// this.removeShownListeners(currView);
-  	// currView.onShown = this.afterDisplayed.bind(this);
-  	this.emit("added", currView.section);
-  	}
-  */
-
-	}, {
-		key: "resize",
-		value: function resize(width, height) {
-
-			// Clear the queue
-			this.q.clear();
-
-			this._stageSize = this.stage.size(width, height);
-			this._bounds = this.bounds();
-			console.log("set bounds", this._bounds);
-
-			// Update for new views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			// Update for existing views
-			this.views.each(function (view) {
-				view.size(this._stageSize.width, this._stageSize.height);
-			}.bind(this));
-
-			this.updateLayout();
-
-			// if(this.location) {
-			//   this.rendition.display(this.location.start);
-			// }
-
-			this.emit("resized", {
-				width: this.stage.width,
-				height: this.stage.height
-			});
-		}
-	}, {
-		key: "onResized",
-		value: function onResized(e) {
-
-			// this.views.clear();
-
-			clearTimeout(this.resizeTimeout);
-			this.resizeTimeout = setTimeout(function () {
-				this.resize();
-			}.bind(this), 150);
-		}
-	}, {
-		key: "afterResized",
-		value: function afterResized(view) {
-			this.emit("resize", view.section);
-		}
-
-		// Remove Previous Listeners if present
-
-	}, {
-		key: "removeShownListeners",
-		value: function removeShownListeners(view) {
-
-			// view.off("shown", this.afterDisplayed);
-			// view.off("shown", this.afterDisplayedAbove);
-			view.onDisplayed = function () {};
-		}
-
-		// append(section){
-		// 	return this.q.enqueue(function() {
-		//
-		// 		this._append(section);
-		//
-		//
-		// 	}.bind(this));
-		// };
-		//
-		// prepend(section){
-		// 	return this.q.enqueue(function() {
-		//
-		// 		this._prepend(section);
-		//
-		// 	}.bind(this));
-		//
-		// };
-
-	}, {
-		key: "append",
-		value: function append(section) {
-			var view = this.createView(section);
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "prepend",
-		value: function prepend(section) {
-			var view = this.createView(section);
-
-			view.on("resized", this.counter.bind(this));
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "counter",
-		value: function counter(bounds) {
-
-			if (this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-	}, {
-		key: "update",
-		value: function update(_offset) {
-			var container = this.bounds();
-			var views = this.views.all();
-			var viewsLength = views.length;
-			var visible = [];
-			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-			var isVisible;
-			var view;
-
-			var updating = new _core.defer();
-			var promises = [];
-
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-
-				isVisible = this.isVisible(view, offset, offset, container);
-
-				if (isVisible === true) {
-					if (!view.displayed) {
-						promises.push(view.display(this.request).then(function (view) {
-							view.show();
-						}));
-					}
-					visible.push(view);
-				} else {
-					this.q.enqueue(view.destroy.bind(view));
-
-					clearTimeout(this.trimTimeout);
-					this.trimTimeout = setTimeout(function () {
-						this.q.enqueue(this.trim.bind(this));
-					}.bind(this), 250);
-				}
-			}
-
-			if (promises.length) {
-				return Promise.all(promises);
-			} else {
-				updating.resolve();
-				return updating.promise;
-			}
-		}
-	}, {
-		key: "check",
-		value: function check(_offsetLeft, _offsetTop) {
-			var last, first, next, prev;
-
-			var checking = new _core.defer();
-			var newViews = [];
-
-			var horizontal = this.settings.axis === "horizontal";
-			var delta = this.settings.offset || 0;
-
-			if (_offsetLeft && horizontal) {
-				delta = _offsetLeft;
-			}
-
-			if (_offsetTop && !horizontal) {
-				delta = _offsetTop;
-			}
-
-			var bounds = this._bounds; // bounds saved this until resize
-
-			var offset = horizontal ? this.scrollLeft : this.scrollTop;
-			var visibleLength = horizontal ? bounds.width : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			if (offset + visibleLength + delta >= contentLength) {
-				last = this.views.last();
-				next = last && last.section.next();
-				if (next) {
-					newViews.push(this.append(next));
-				}
-			}
-
-			if (offset - delta < 0) {
-				first = this.views.first();
-				prev = first && first.section.prev();
-				if (prev) {
-					newViews.push(this.prepend(prev));
-				}
-			}
-
-			if (newViews.length) {
-				// Promise.all(promises)
-				// .then(function() {
-				// Check to see if anything new is on screen after rendering
-				return this.q.enqueue(function () {
-					return this.update(delta);
-				}.bind(this));
-
-				// }.bind(this));
-			} else {
-				checking.resolve(false);
-				return checking.promise;
-			}
-		}
-	}, {
-		key: "trim",
-		value: function trim() {
-			var task = new _core.defer();
-			var displayed = this.views.displayed();
-			var first = displayed[0];
-			var last = displayed[displayed.length - 1];
-			var firstIndex = this.views.indexOf(first);
-			var lastIndex = this.views.indexOf(last);
-			var above = this.views.slice(0, firstIndex);
-			var below = this.views.slice(lastIndex + 1);
-
-			// Erase all but last above
-			for (var i = 0; i < above.length - 1; i++) {
-				this.erase(above[i], above);
-			}
-
-			// Erase all except first below
-			for (var j = 1; j < below.length; j++) {
-				this.erase(below[j]);
-			}
-
-			task.resolve();
-			return task.promise;
-		}
-	}, {
-		key: "erase",
-		value: function erase(view, above) {
-			//Trim
-
-			var prevTop;
-			var prevLeft;
-
-			if (this.settings.height) {
-				prevTop = this.container.scrollTop;
-				prevLeft = this.container.scrollLeft;
-			} else {
-				prevTop = window.scrollY;
-				prevLeft = window.scrollX;
-			}
-
-			var bounds = view.bounds();
-
-			this.views.remove(view);
-
-			if (above) {
-
-				if (this.settings.axis === "vertical") {
-					this.scrollTo(0, prevTop - bounds.height, true);
-				} else {
-					this.scrollTo(prevLeft - bounds.width, 0, true);
-				}
-			}
-		}
-	}, {
-		key: "addEventListeners",
-		value: function addEventListeners(stage) {
-
-			window.addEventListener("unload", function (e) {
-				this.ignore = true;
-				// this.scrollTo(0,0);
-				this.destroy();
-			}.bind(this));
-
-			this.addScrollListeners();
-		}
-	}, {
-		key: "addScrollListeners",
-		value: function addScrollListeners() {
-			var scroller;
-
-			this.tick = _core.requestAnimationFrame;
-
-			if (this.settings.height) {
-				this.prevScrollTop = this.container.scrollTop;
-				this.prevScrollLeft = this.container.scrollLeft;
-			} else {
-				this.prevScrollTop = window.scrollY;
-				this.prevScrollLeft = window.scrollX;
-			}
-
-			this.scrollDeltaVert = 0;
-			this.scrollDeltaHorz = 0;
-
-			if (this.settings.height) {
-				scroller = this.container;
-				this.scrollTop = this.container.scrollTop;
-				this.scrollLeft = this.container.scrollLeft;
-			} else {
-				scroller = window;
-				this.scrollTop = window.scrollY;
-				this.scrollLeft = window.scrollX;
-			}
-
-			scroller.addEventListener("scroll", this.onScroll.bind(this));
-
-			// this.tick.call(window, this.onScroll.bind(this));
-
-			this.scrolled = false;
-		}
-	}, {
-		key: "removeEventListeners",
-		value: function removeEventListeners() {
-			var scroller;
-
-			if (this.settings.height) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this.onScroll.bind(this));
-		}
-	}, {
-		key: "onScroll",
-		value: function onScroll() {
-			var scrollTop = void 0;
-			var scrollLeft = void 0;
-
-			// if(!this.ignore) {
-
-			if (this.settings.height) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY;
-				scrollLeft = window.scrollX;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if (!this.ignore) {
-
-				if (this.scrollDeltaVert === 0 && this.scrollDeltaHorz === 0 || this.scrollDeltaVert > this.settings.offsetDelta || this.scrollDeltaHorz > this.settings.offsetDelta) {
-
-					this.q.enqueue(function () {
-						this.check();
-					}.bind(this));
-					// this.check();
-
-					this.scrollDeltaVert = 0;
-					this.scrollDeltaHorz = 0;
-
-					this.emit("scroll", {
-						top: scrollTop,
-						left: scrollLeft
-					});
-
-					clearTimeout(this.afterScrolled);
-					this.afterScrolled = setTimeout(function () {
-						this.emit("scrolled", {
-							top: this.scrollTop,
-							left: this.scrollLeft
-						});
-					}.bind(this));
-				}
-			} else {
-				this.ignore = false;
-			}
-
-			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
-
-			this.prevScrollTop = scrollTop;
-			this.prevScrollLeft = scrollLeft;
-
-			clearTimeout(this.scrollTimeout);
-			this.scrollTimeout = setTimeout(function () {
-				this.scrollDeltaVert = 0;
-				this.scrollDeltaHorz = 0;
-			}.bind(this), 150);
-
-			this.scrolled = false;
-			// }
-
-			// this.tick.call(window, this.onScroll.bind(this));
-		}
-	}, {
-		key: "updateLayout",
-		value: function updateLayout() {
-
-			if (!this.stage) {
-				return;
-			}
-
-			if (this.settings.axis === "vertical") {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height);
-			} else {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height, this.settings.gap);
-
-				// Set the look ahead offset for what is visible
-				this.settings.offset = this.layout.delta;
-
-				this.stage.addStyleRules("iframe", [{ "margin-right": this.layout.gap + "px" }]);
-			}
-
-			// Set the dimensions for views
-			this.viewSettings.width = this.layout.width;
-			this.viewSettings.height = this.layout.height;
-
-			this.setLayout(this.layout);
-		}
-	}, {
-		key: "next",
-		value: function next() {
-
-			if (this.settings.axis === "horizontal") {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				if (this.container.scrollLeft + this.container.offsetWidth + this.layout.delta < this.container.scrollWidth) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
-				}
-			} else {
-				this.scrollBy(0, this.layout.height, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "prev",
-		value: function prev() {
-			if (this.settings.axis === "horizontal") {
-				this.scrollBy(-this.layout.delta, 0, true);
-			} else {
-				this.scrollBy(0, -this.layout.height, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "updateFlow",
-		value: function updateFlow(flow) {
-			var axis = flow === "paginated" ? "horizontal" : "vertical";
-
-			this.settings.axis = axis;
-
-			this.viewSettings.axis = axis;
-
-			this.settings.overflow = flow === "paginated" ? "hidden" : "auto";
-
-			// this.views.each(function(view){
-			// 	view.setAxis(axis);
-			// });
-
-			if (this.settings.axis === "vertical") {
-				this.settings.infinite = true;
-			} else {
-				this.settings.infinite = false;
-			}
-		}
-	}]);
-
-	return ContinuousViewManager;
-}(_default2.default);
-
-exports.default = ContinuousViewManager;
-module.exports = exports["default"];
 
 /***/ }),
-/* 21 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8637,7 +12583,7 @@ var _epubcfi = __webpack_require__(1);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _contents = __webpack_require__(7);
+var _contents = __webpack_require__(13);
 
 var _contents2 = _interopRequireDefault(_contents);
 
@@ -8695,7 +12641,8 @@ var IframeView = function () {
 			element.style.overflow = "hidden";
 
 			if (axis && axis == "horizontal") {
-				element.style.display = "inline-block";
+				element.style.display = "block";
+				element.style.flex = "none";
 			} else {
 				element.style.display = "block";
 			}
@@ -8732,6 +12679,8 @@ var IframeView = function () {
 			this.iframe.style.height = "0";
 			this._width = 0;
 			this._height = 0;
+
+			this.element.setAttribute("ref", this.index);
 
 			this.element.appendChild(this.iframe);
 			this.added = true;
@@ -8775,21 +12724,7 @@ var IframeView = function () {
 			// Render Chain
 			return this.sectionRender.then(function (contents) {
 				return this.load(contents);
-			}.bind(this))
-			// .then(function(doc){
-			// 	return this.hooks.content.trigger(view, this);
-			// }.bind(this))
-			.then(function () {
-				// this.settings.layout.format(view.contents);
-				// return this.hooks.layout.trigger(view, this);
-			}.bind(this))
-			// .then(function(){
-			// 	return this.display();
-			// }.bind(this))
-			// .then(function(){
-			// 	return this.hooks.render.trigger(view, this);
-			// }.bind(this))
-			.then(function () {
+			}.bind(this)).then(function () {
 				var _this = this;
 
 				// apply the layout function to the contents
@@ -8798,19 +12733,31 @@ var IframeView = function () {
 				// Listen for events that require an expansion of the iframe
 				this.addListeners();
 
-				// Wait for formating to apply
 				return new Promise(function (resolve, reject) {
-					setTimeout(function () {
-						// Expand the iframe to the full size of the content
-						_this.expand();
-						resolve();
-					}, 1);
+					// Expand the iframe to the full size of the content
+					_this.expand();
+					resolve();
 				});
 			}.bind(this)).then(function () {
 				this.emit("rendered", this.section);
 			}.bind(this)).catch(function (e) {
 				this.emit("loaderror", e);
 			}.bind(this));
+		}
+	}, {
+		key: "reset",
+		value: function reset() {
+			if (this.iframe) {
+				this.iframe.style.width = "0";
+				this.iframe.style.height = "0";
+				this._width = 0;
+				this._height = 0;
+				this._textWidth = undefined;
+				this._contentWidth = undefined;
+				this._textHeight = undefined;
+				this._contentHeight = undefined;
+			}
+			this._needsReframe = true;
 		}
 
 		// Determine locks base on settings
@@ -8846,19 +12793,19 @@ var IframeView = function () {
 
 			if (what == "width" && (0, _core.isNumber)(width)) {
 				this.lockedWidth = width - elBorders.width - iframeBorders.width;
-				this.resize(this.lockedWidth, width); //  width keeps ratio correct
+				// this.resize(this.lockedWidth, width); //  width keeps ratio correct
 			}
 
 			if (what == "height" && (0, _core.isNumber)(height)) {
 				this.lockedHeight = height - elBorders.height - iframeBorders.height;
-				this.resize(width, this.lockedHeight);
+				// this.resize(width, this.lockedHeight);
 			}
 
 			if (what === "both" && (0, _core.isNumber)(width) && (0, _core.isNumber)(height)) {
 
 				this.lockedWidth = width - elBorders.width - iframeBorders.width;
 				this.lockedHeight = height - elBorders.height - iframeBorders.height;
-				this.resize(this.lockedWidth, this.lockedHeight);
+				// this.resize(this.lockedWidth, this.lockedHeight);
 			}
 
 			if (this.displayed && this.iframe) {
@@ -8884,142 +12831,77 @@ var IframeView = function () {
 			if (this.layout.name === "pre-paginated") return;
 
 			this._expanding = true;
+
 			// Expand Horizontally
-			// if(height && !width) {
 			if (this.settings.axis === "horizontal") {
 				// Get the width of the text
-				textWidth = this.contents.textWidth();
-				width = this.contentWidth(textWidth);
+				width = this.contents.textWidth();
 
-				// Check if the textWidth has changed
-				if (width != this._width) {
-					// Get the contentWidth by resizing the iframe
-					// Check with a min reset of the textWidth
-
-					// width = this.contentWidth(textWidth);
-
-					columns = Math.ceil(width / (this.settings.layout.columnWidth + this.settings.layout.gap));
-
-					if (this.settings.layout.divisor > 1 && this.settings.layout.name === "reflowable" && columns % 2 > 0) {
-						// add a blank page
-						width += this.settings.layout.gap + this.settings.layout.columnWidth;
-					}
-
-					// Save the textWdith
-					this._textWidth = textWidth;
-
-					// Save the contentWidth
-					this._contentWidth = width;
-				} else {
-					// Otherwise assume content height hasn't changed
-					width = this._contentWidth;
+				if (width % this.layout.pageWidth > 0) {
+					width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
 				}
+
+				/*
+    columns = Math.ceil(width / this.settings.layout.delta);
+    if ( this.settings.layout.divisor > 1 &&
+    		 this.settings.layout.name === "reflowable" &&
+    		(columns % 2 > 0)) {
+    	// add a blank page
+    	width += this.settings.layout.gap + this.settings.layout.columnWidth;
+    }
+    */
 			} // Expand Vertically
 			else if (this.settings.axis === "vertical") {
-					textHeight = this.contents.textHeight();
-					if (textHeight != this._textHeight) {
-						height = this.contentHeight(textHeight);
-						this._textHeight = textHeight;
-						this._contentHeight = height;
-					} else {
-						height = this._contentHeight;
-					}
+					// height = this.contents.textHeight();
+					// console.log("AHOY THIS WAS A BAD IDEA", this.contents, this.contents.parentNode);
+					// var x = window.getComputedStyle(this.contents.content.parentNode);
+					// console.log("AHOY X", x);
+					// height = parseInt(x.height);
+					// console.log("AHOY EXPAND", height);
+					height = parseInt(this.contents.height());
+					height += 64;
 				}
 
 			// Only Resize if dimensions have changed or
 			// if Frame is still hidden, so needs reframing
 			if (this._needsReframe || width != this._width || height != this._height) {
-				this.resize(width, height);
+				this.reframe(width, height);
 			}
 
 			this._expanding = false;
-		}
-	}, {
-		key: "contentWidth",
-		value: function contentWidth(min) {
-			var prev;
-			var width;
-
-			// Save previous width
-			prev = this.iframe.style.width;
-			// Set the iframe size to min, width will only ever be greater
-			// Will preserve the aspect ratio
-			this.iframe.style.width = (min || 0) + "px";
-			// Get the scroll overflow width
-			width = this.contents.scrollWidth();
-			// Reset iframe size back
-			this.iframe.style.width = prev;
-			return width;
-		}
-	}, {
-		key: "contentHeight",
-		value: function contentHeight(min) {
-			var prev;
-			var height;
-
-			prev = this.iframe.style.height;
-			this.iframe.style.height = (min || 0) + "px";
-			height = this.contents.scrollHeight();
-
-			this.iframe.style.height = prev;
-			return height;
-		}
-	}, {
-		key: "resize",
-		value: function resize(width, height) {
-
-			if (!this.iframe) return;
-
-			if ((0, _core.isNumber)(width)) {
-				this.iframe.style.width = width + "px";
-				this._width = width;
-			}
-
-			if ((0, _core.isNumber)(height)) {
-				this.iframe.style.height = height + "px";
-				this._height = height;
-			}
-
-			this.iframeBounds = (0, _core.bounds)(this.iframe);
-
-			this.reframe(this.iframeBounds.width, this.iframeBounds.height);
 		}
 	}, {
 		key: "reframe",
 		value: function reframe(width, height) {
 			var size;
 
-			// if(!this.displayed) {
-			//   this._needsReframe = true;
-			//   return;
-			// }
-
 			if ((0, _core.isNumber)(width)) {
 				this.element.style.width = width + "px";
+				this.iframe.style.width = width + "px";
+				this._width = width;
 			}
 
 			if ((0, _core.isNumber)(height)) {
 				this.element.style.height = height + "px";
+				this.iframe.style.height = height + "px";
+				this._height = height;
 			}
 
-			this.prevBounds = this.elementBounds;
-
-			this.elementBounds = (0, _core.bounds)(this.element);
+			var widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
+			var heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
 
 			size = {
-				width: this.elementBounds.width,
-				height: this.elementBounds.height,
-				widthDelta: this.elementBounds.width - this.prevBounds.width,
-				heightDelta: this.elementBounds.height - this.prevBounds.height
+				width: width,
+				height: height,
+				widthDelta: widthDelta,
+				heightDelta: heightDelta
 			};
 
 			this.onResize(this, size);
 
-			if (this.contents) {
-				this.settings.layout.format(this.contents);
-			}
-
 			this.emit("resized", size);
+
+			this.prevBounds = size;
 		}
 	}, {
 		key: "load",
@@ -9080,39 +12962,23 @@ var IframeView = function () {
 			this.contents.on("expand", function () {
 				if (_this2.displayed && _this2.iframe) {
 					_this2.expand();
+					if (_this2.contents) {
+						_this2.settings.layout.format(_this2.contents);
+					}
 				}
 			});
 
 			this.contents.on("resize", function (e) {
 				if (_this2.displayed && _this2.iframe) {
 					_this2.expand();
+					if (_this2.contents) {
+						_this2.settings.layout.format(_this2.contents);
+					}
 				}
 			});
 
 			promise.resolve(this.contents);
 		}
-
-		// layout(layoutFunc) {
-		//
-		//   this.iframe.style.display = "inline-block";
-		//
-		//   // Reset Body Styles
-		//   // this.document.body.style.margin = "0";
-		//   //this.document.body.style.display = "inline-block";
-		//   //this.document.documentElement.style.width = "auto";
-		//
-		//   if(layoutFunc){
-		//     this.layoutFunc = layoutFunc;
-		//   }
-		//
-		//   this.contents.layout(this.layoutFunc);
-		//
-		// };
-		//
-		// onLayout(view) {
-		//   // stub
-		// };
-
 	}, {
 		key: "setLayout",
 		value: function setLayout(layout) {
@@ -9122,13 +12988,6 @@ var IframeView = function () {
 		key: "setAxis",
 		value: function setAxis(axis) {
 			this.settings.axis = axis;
-		}
-	}, {
-		key: "resizeListenters",
-		value: function resizeListenters() {
-			// Test size again
-			clearTimeout(this.expanding);
-			this.expanding = setTimeout(this.expand.bind(this), 350);
 		}
 	}, {
 		key: "addListeners",
@@ -9268,1801 +13127,7 @@ exports.default = IframeView;
 module.exports = exports["default"];
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.proxyMouse = proxyMouse;
-exports.clone = clone;
-// import 'babelify/polyfill'; // needed for Object.assign
-
-exports.default = {
-    proxyMouse: proxyMouse
-};
-
-/**
- * Start proxying all mouse events that occur on the target node to each node in
- * a set of tracked nodes.
- *
- * The items in tracked do not strictly have to be DOM Nodes, but they do have
- * to have dispatchEvent, getBoundingClientRect, and getClientRects methods.
- *
- * @param target {Node} The node on which to listen for mouse events.
- * @param tracked {Node[]} A (possibly mutable) array of nodes to which to proxy
- *                         events.
- */
-
-function proxyMouse(target, tracked) {
-    function dispatch(e) {
-        // We walk through the set of tracked elements in reverse order so that
-        // events are sent to those most recently added first.
-        //
-        // This is the least surprising behaviour as it simulates the way the
-        // browser would work if items added later were drawn "on top of"
-        // earlier ones.
-        for (var i = tracked.length - 1; i >= 0; i--) {
-            var t = tracked[i];
-
-            if (!contains(t, e.clientX, e.clientY)) {
-                continue;
-            }
-
-            // The event targets this mark, so dispatch a cloned event:
-            t.dispatchEvent(clone(e));
-            // We only dispatch the cloned event to the first matching mark.
-            break;
-        }
-    }
-
-    var _arr = ['mouseup', 'mousedown', 'click'];
-    for (var _i = 0; _i < _arr.length; _i++) {
-        var ev = _arr[_i];
-        target.addEventListener(ev, function (e) {
-            return dispatch(e);
-        }, false);
-    }
-}
-
-/**
- * Clone a mouse event object.
- *
- * @param e {MouseEvent} A mouse event object to clone.
- * @returns {MouseEvent}
- */
-function clone(e) {
-    var opts = Object.assign({}, e, { bubbles: false });
-    try {
-        return new MouseEvent(e.type, opts);
-    } catch (err) {
-        // compat: webkit
-        var copy = document.createEvent('MouseEvents');
-        copy.initMouseEvent(e.type, false, opts.cancelable, opts.view, opts.detail, opts.screenX, opts.screenY, opts.clientX, opts.clientY, opts.ctrlKey, opts.altKey, opts.shiftKey, opts.metaKey, opts.button, opts.relatedTarget);
-        return copy;
-    }
-}
-
-/**
- * Check if the item contains the point denoted by the passed coordinates
- * @param item {Object} An object with getBoundingClientRect and getClientRects
- *                      methods.
- * @param x {Number}
- * @param y {Number}
- * @returns {Boolean}
- */
-function contains(item, x, y) {
-    function rectContains(r, x, y) {
-        var bottom = r.top + r.height;
-        var right = r.left + r.width;
-        return r.top <= y && r.left <= x && bottom > y && right > x;
-    }
-
-    // Check overall bounding box first
-    var rect = item.getBoundingClientRect();
-    if (!rectContains(rect, x, y)) {
-        return false;
-    }
-
-    // Then continue to check each child rect
-    var rects = item.getClientRects();
-    for (var i = 0, len = rects.length; i < len; i++) {
-        if (rectContains(rects[i], x, y)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.Underline = exports.Highlight = exports.Mark = exports.Pane = undefined;
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _svg = __webpack_require__(24);
-
-var _svg2 = _interopRequireDefault(_svg);
-
-var _events = __webpack_require__(22);
-
-var _events2 = _interopRequireDefault(_events);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Pane = exports.Pane = function () {
-    function Pane(target) {
-        var container = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document.body;
-
-        _classCallCheck(this, Pane);
-
-        this.target = target;
-        this.element = _svg2.default.createElement('svg');
-        this.marks = [];
-
-        // Match the coordinates of the target element
-        this.element.style.position = 'absolute';
-        // Disable pointer events
-        this.element.setAttribute('pointer-events', 'none');
-
-        // Set up mouse event proxying between the target element and the marks
-        _events2.default.proxyMouse(this.target, this.marks);
-
-        container.appendChild(this.element);
-
-        this.render();
-    }
-
-    _createClass(Pane, [{
-        key: 'addMark',
-        value: function addMark(mark) {
-            var g = _svg2.default.createElement('g');
-            this.element.appendChild(g);
-            mark.bind(g);
-
-            this.marks.push(mark);
-
-            mark.render();
-            return mark;
-        }
-    }, {
-        key: 'removeMark',
-        value: function removeMark(mark) {
-            var idx = this.marks.indexOf(mark);
-            if (idx === -1) {
-                return;
-            }
-            var el = mark.unbind();
-            this.element.removeChild(el);
-            this.marks.splice(idx, 1);
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            setCoords(this.element, coords(this.target));
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = this.marks[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var m = _step.value;
-
-                    m.render();
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        }
-    }]);
-
-    return Pane;
-}();
-
-var Mark = exports.Mark = function () {
-    function Mark() {
-        _classCallCheck(this, Mark);
-
-        this.element = null;
-    }
-
-    _createClass(Mark, [{
-        key: 'bind',
-        value: function bind(element) {
-            this.element = element;
-        }
-    }, {
-        key: 'unbind',
-        value: function unbind() {
-            var el = this.element;
-            this.element = null;
-            return el;
-        }
-    }, {
-        key: 'render',
-        value: function render() {}
-    }, {
-        key: 'dispatchEvent',
-        value: function dispatchEvent(e) {
-            if (!this.element) return;
-            this.element.dispatchEvent(e);
-        }
-    }, {
-        key: 'getBoundingClientRect',
-        value: function getBoundingClientRect() {
-            return this.element.getBoundingClientRect();
-        }
-    }, {
-        key: 'getClientRects',
-        value: function getClientRects() {
-            var rects = [];
-            var el = this.element.firstChild;
-            while (el) {
-                rects.push(el.getBoundingClientRect());
-                el = el.nextSibling;
-            }
-            return rects;
-        }
-    }, {
-        key: 'filteredRanges',
-        value: function filteredRanges() {
-            var rects = Array.from(this.range.getClientRects());
-
-            // De-duplicate the boxes
-            return rects.filter(function (box) {
-                for (var i = 0; i < rects.length; i++) {
-                    if (rects[i] === box) {
-                        return true;
-                    }
-                    var contained = contains(rects[i], box);
-                    if (contained) {
-                        return false;
-                    }
-                }
-                return true;
-            });
-        }
-    }]);
-
-    return Mark;
-}();
-
-var Highlight = exports.Highlight = function (_Mark) {
-    _inherits(Highlight, _Mark);
-
-    function Highlight(range, className, data, attributes) {
-        _classCallCheck(this, Highlight);
-
-        var _this = _possibleConstructorReturn(this, (Highlight.__proto__ || Object.getPrototypeOf(Highlight)).call(this));
-
-        _this.range = range;
-        _this.className = className;
-        _this.data = data || {};
-        _this.attributes = attributes || {};
-        return _this;
-    }
-
-    _createClass(Highlight, [{
-        key: 'bind',
-        value: function bind(element) {
-            _get(Highlight.prototype.__proto__ || Object.getPrototypeOf(Highlight.prototype), 'bind', this).call(this, element);
-
-            for (var attr in this.data) {
-                if (this.data.hasOwnProperty(attr)) {
-                    this.element.dataset[attr] = this.data[attr];
-                }
-            }
-
-            for (var attr in this.attributes) {
-                if (this.attributes.hasOwnProperty(attr)) {
-                    this.element.setAttribute(attr, this.attributes[attr]);
-                }
-            }
-
-            if (this.className) {
-                this.element.classList.add(this.className);
-            }
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            // Empty element
-            while (this.element.firstChild) {
-                this.element.removeChild(this.element.firstChild);
-            }
-
-            var docFrag = this.element.ownerDocument.createDocumentFragment();
-            var filtered = this.filteredRanges();
-            var offset = this.element.getBoundingClientRect();
-
-            for (var i = 0, len = filtered.length; i < len; i++) {
-                var r = filtered[i];
-                var el = _svg2.default.createElement('rect');
-                el.setAttribute('x', r.left - offset.left);
-                el.setAttribute('y', r.top - offset.top);
-                el.setAttribute('height', r.height);
-                el.setAttribute('width', r.width);
-                docFrag.appendChild(el);
-            }
-
-            this.element.appendChild(docFrag);
-        }
-    }]);
-
-    return Highlight;
-}(Mark);
-
-var Underline = exports.Underline = function (_Highlight) {
-    _inherits(Underline, _Highlight);
-
-    function Underline(range, className, data, attributes) {
-        _classCallCheck(this, Underline);
-
-        return _possibleConstructorReturn(this, (Underline.__proto__ || Object.getPrototypeOf(Underline)).call(this, range, className, data, attributes));
-    }
-
-    _createClass(Underline, [{
-        key: 'render',
-        value: function render() {
-            // Empty element
-            while (this.element.firstChild) {
-                this.element.removeChild(this.element.firstChild);
-            }
-
-            var docFrag = this.element.ownerDocument.createDocumentFragment();
-            var filtered = this.filteredRanges();
-            var offset = this.element.getBoundingClientRect();
-
-            for (var i = 0, len = filtered.length; i < len; i++) {
-                var r = filtered[i];
-
-                var rect = _svg2.default.createElement('rect');
-                rect.setAttribute('x', r.left - offset.left);
-                rect.setAttribute('y', r.top - offset.top);
-                rect.setAttribute('height', r.height);
-                rect.setAttribute('width', r.width);
-                rect.setAttribute('fill', 'none');
-
-                var line = _svg2.default.createElement('line');
-                line.setAttribute('x1', r.left - offset.left);
-                line.setAttribute('x2', r.left - offset.left + r.width);
-                line.setAttribute('y1', r.top - offset.top + r.height - 1);
-                line.setAttribute('y2', r.top - offset.top + r.height - 1);
-
-                line.setAttribute('stroke-width', 1);
-                line.setAttribute('stroke', 'black'); //TODO: match text color?
-                line.setAttribute('stroke-linecap', 'square');
-
-                docFrag.appendChild(rect);
-
-                docFrag.appendChild(line);
-            }
-
-            this.element.appendChild(docFrag);
-        }
-    }]);
-
-    return Underline;
-}(Highlight);
-
-function coords(el) {
-    var rect = el.getBoundingClientRect();
-
-    return {
-        top: rect.top + el.ownerDocument.body.scrollTop,
-        left: rect.left + el.ownerDocument.body.scrollLeft,
-        height: el.scrollHeight
-        // width: el.scrollWidth
-    };
-}
-
-function setCoords(el, coords) {
-    el.style.top = coords.top + 'px';
-    el.style.left = coords.left + 'px';
-    el.style.height = coords.height + 'px';
-    el.style.width = coords.width + 'px';
-}
-
-function contains(rect1, rect2) {
-    return rect2.right <= rect1.right && rect2.left >= rect1.left && rect2.top >= rect1.top && rect2.bottom <= rect1.bottom;
-}
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.createElement = createElement;
-function createElement(name) {
-    return document.createElementNS('http://www.w3.org/2000/svg', name);
-}
-
-exports.default = {
-    createElement: createElement
-};
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // Manage annotations for a book?
-
-/*
-let a = rendition.annotations.highlight(cfiRange, data)
-
-a.on("added", () => console.log("added"))
-a.on("removed", () => console.log("removed"))
-a.on("clicked", () => console.log("clicked"))
-
-a.update(data)
-a.remove();
-a.text();
-
-rendition.annotations.show()
-rendition.annotations.hide()
-
-rendition.annotations.highlights.show()
-rendition.annotations.highlights.hide()
-*/
-
-var _eventEmitter = __webpack_require__(2);
-
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
-	* Handles managing adding & removing Annotations
-	* @class
-	*/
-var Annotations = function () {
-	function Annotations(rendition) {
-		_classCallCheck(this, Annotations);
-
-		this.rendition = rendition;
-		this.highlights = [];
-		this.underlines = [];
-		this.marks = [];
-		this._annotations = {};
-		this._annotationsBySectionIndex = {};
-
-		this.rendition.hooks.content.register(this.inject.bind(this));
-		this.rendition.hooks.unloaded.register(this.clear.bind(this));
-	}
-
-	_createClass(Annotations, [{
-		key: "add",
-		value: function add(type, cfiRange, data, cb) {
-			var hash = encodeURI(cfiRange);
-			var cfi = new _epubcfi2.default(cfiRange);
-			var sectionIndex = cfi.spinePos;
-			var annotation = new Annotation({
-				type: type,
-				cfiRange: cfiRange,
-				data: data,
-				sectionIndex: sectionIndex,
-				cb: cb
-			});
-
-			this._annotations[hash] = annotation;
-
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				this._annotationsBySectionIndex[sectionIndex].push(hash);
-			} else {
-				this._annotationsBySectionIndex[sectionIndex] = [hash];
-			}
-
-			var contents = this.rendition.getContents();
-			contents.forEach(function (content) {
-				if (annotation.sectionIndex === content.sectionIndex) {
-					annotation.attach(content);
-				}
-			});
-
-			return annotation;
-		}
-	}, {
-		key: "remove",
-		value: function remove(cfiRange) {
-			var hash = decodeURI(cfiRange);
-			var result = void 0;
-			if (hash in this._annotations) {
-				var annotation = this._annotations[hash];
-
-				var contents = this.rendition.getContents();
-				contents.forEach(function (content) {
-					if (annotation.sectionIndex === content.sectionIndex) {
-						annotation.detach(content);
-					}
-				});
-
-				delete this._annotations[hash];
-			}
-			return result;
-		}
-	}, {
-		key: "highlight",
-		value: function highlight(cfiRange, data, cb) {
-			this.add("highlight", cfiRange, data, cb);
-		}
-	}, {
-		key: "underline",
-		value: function underline(cfiRange, data, cb) {
-			this.add("underline", cfiRange, data, cb);
-		}
-	}, {
-		key: "mark",
-		value: function mark(cfiRange, data, cb) {
-			this.add("mark", cfiRange, data, cb);
-		}
-	}, {
-		key: "each",
-		value: function each() {
-			return this._annotations.forEach.apply(this._annotations, arguments);
-		}
-	}, {
-		key: "inject",
-		value: function inject(contents) {
-			var _this = this;
-
-			var sectionIndex = contents.index;
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				var annotations = this._annotationsBySectionIndex[sectionIndex];
-				annotations.forEach(function (hash) {
-					var annotation = _this._annotations[hash];
-					annotation.attach(contents);
-				});
-			}
-		}
-	}, {
-		key: "clear",
-		value: function clear(contents) {
-			var _this2 = this;
-
-			var sectionIndex = contents.index;
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				var annotations = this._annotationsBySectionIndex[sectionIndex];
-				annotations.forEach(function (hash) {
-					var annotation = _this2._annotations[hash];
-					annotation.detach(contents);
-				});
-			}
-		}
-	}, {
-		key: "show",
-		value: function show() {}
-	}, {
-		key: "hide",
-		value: function hide() {}
-	}]);
-
-	return Annotations;
-}();
-
-var Annotation = function () {
-	function Annotation(_ref) {
-		var type = _ref.type,
-		    cfiRange = _ref.cfiRange,
-		    data = _ref.data,
-		    sectionIndex = _ref.sectionIndex;
-
-		_classCallCheck(this, Annotation);
-
-		this.type = type;
-		this.cfiRange = cfiRange;
-		this.data = data;
-		this.sectionIndex = sectionIndex;
-		this.mark = undefined;
-	}
-
-	_createClass(Annotation, [{
-		key: "update",
-		value: function update(data) {
-			this.data = data;
-		}
-	}, {
-		key: "attach",
-		value: function attach(contents) {
-			var cfiRange = this.cfiRange,
-			    data = this.data,
-			    type = this.type,
-			    mark = this.mark,
-			    cb = this.cb;
-
-			var result = void 0;
-			/*
-   if (mark) {
-   	return; // already added
-   }
-   */
-			if (type === "highlight") {
-				result = contents.highlight(cfiRange, data, cb);
-			} else if (type === "underline") {
-				result = contents.underline(cfiRange, data, cb);
-			} else if (type === "mark") {
-				result = contents.mark(cfiRange, data, cb);
-			}
-
-			this.mark = result;
-
-			return result;
-		}
-	}, {
-		key: "detach",
-		value: function detach(contents) {
-			var cfiRange = this.cfiRange,
-			    type = this.type;
-
-
-			if (contents) {
-				if (type === "highlight") {
-					result = contents.unhighlight(cfiRange);
-				} else if (type === "underline") {
-					result = contents.ununderline(cfiRange);
-				} else if (type === "mark") {
-					result = contents.unmark(cfiRange);
-				}
-			}
-
-			this.mark = undefined;
-
-			return result;
-		}
-	}, {
-		key: "text",
-		value: function text() {
-			// TODO: needs implementation in contents
-		}
-	}]);
-
-	return Annotation;
-}();
-
-(0, _eventEmitter2.default)(Annotation.prototype);
-
-exports.default = Annotations;
-module.exports = exports["default"];
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-var _request = __webpack_require__(11);
-
-var _request2 = _interopRequireDefault(_request);
-
-var _mime = __webpack_require__(16);
-
-var _mime2 = _interopRequireDefault(_mime);
-
-var _path = __webpack_require__(3);
-
-var _path2 = _interopRequireDefault(_path);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Handles Unzipping a requesting files from an Epub Archive
- * @class
- */
-var Archive = function () {
-	function Archive() {
-		_classCallCheck(this, Archive);
-
-		this.zip = undefined;
-		this.urlCache = {};
-
-		this.checkRequirements();
-	}
-
-	/**
-  * Checks to see if JSZip exists in global namspace,
-  * Requires JSZip if it isn't there
-  * @private
-  */
-
-
-	_createClass(Archive, [{
-		key: "checkRequirements",
-		value: function checkRequirements() {
-			try {
-				if (typeof JSZip === "undefined") {
-					var _JSZip = __webpack_require__(56);
-					this.zip = new _JSZip();
-				} else {
-					this.zip = new JSZip();
-				}
-			} catch (e) {
-				throw new Error("JSZip lib not loaded");
-			}
-		}
-
-		/**
-   * Open an archive
-   * @param  {binary} input
-   * @param  {boolean} isBase64 tells JSZip if the input data is base64 encoded
-   * @return {Promise} zipfile
-   */
-
-	}, {
-		key: "open",
-		value: function open(input, isBase64) {
-			return this.zip.loadAsync(input, { "base64": isBase64 });
-		}
-
-		/**
-   * Load and Open an archive
-   * @param  {string} zipUrl
-   * @param  {boolean} isBase64 tells JSZip if the input data is base64 encoded
-   * @return {Promise} zipfile
-   */
-
-	}, {
-		key: "openUrl",
-		value: function openUrl(zipUrl, isBase64) {
-			return (0, _request2.default)(zipUrl, "binary").then(function (data) {
-				return this.zip.loadAsync(data, { "base64": isBase64 });
-			}.bind(this));
-		}
-
-		/**
-   * Request
-   * @param  {string} url  a url to request from the archive
-   * @param  {[string]} type specify the type of the returned result
-   * @return {Promise}
-   */
-
-	}, {
-		key: "request",
-		value: function request(url, type) {
-			var deferred = new _core.defer();
-			var response;
-			var path = new _path2.default(url);
-
-			// If type isn't set, determine it from the file extension
-			if (!type) {
-				type = path.extension;
-			}
-
-			if (type == "blob") {
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
-			}
-
-			if (response) {
-				response.then(function (r) {
-					var result = this.handleResponse(r, type);
-					deferred.resolve(result);
-				}.bind(this));
-			} else {
-				deferred.reject({
-					message: "File not found in the epub: " + url,
-					stack: new Error().stack
-				});
-			}
-			return deferred.promise;
-		}
-
-		/**
-   * Handle the response from request
-   * @private
-   * @param  {any} response
-   * @param  {[string]} type
-   * @return {any} the parsed result
-   */
-
-	}, {
-		key: "handleResponse",
-		value: function handleResponse(response, type) {
-			var r;
-
-			if (type == "json") {
-				r = JSON.parse(response);
-			} else if ((0, _core.isXml)(type)) {
-				r = (0, _core.parse)(response, "text/xml");
-			} else if (type == "xhtml") {
-				r = (0, _core.parse)(response, "application/xhtml+xml");
-			} else if (type == "html" || type == "htm") {
-				r = (0, _core.parse)(response, "text/html");
-			} else {
-				r = response;
-			}
-
-			return r;
-		}
-
-		/**
-   * Get a Blob from Archive by Url
-   * @param  {string} url
-   * @param  {[string]} mimeType
-   * @return {Blob}
-   */
-
-	}, {
-		key: "getBlob",
-		value: function getBlob(url, mimeType) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if (entry) {
-				mimeType = mimeType || _mime2.default.lookup(entry.name);
-				return entry.async("uint8array").then(function (uint8array) {
-					return new Blob([uint8array], { type: mimeType });
-				});
-			}
-		}
-
-		/**
-   * Get Text from Archive by Url
-   * @param  {string} url
-   * @param  {[string]} encoding
-   * @return {string}
-   */
-
-	}, {
-		key: "getText",
-		value: function getText(url, encoding) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if (entry) {
-				return entry.async("string").then(function (text) {
-					return text;
-				});
-			}
-		}
-
-		/**
-   * Get a base64 encoded result from Archive by Url
-   * @param  {string} url
-   * @param  {[string]} mimeType
-   * @return {string} base64 encoded
-   */
-
-	}, {
-		key: "getBase64",
-		value: function getBase64(url, mimeType) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if (entry) {
-				mimeType = mimeType || _mime2.default.lookup(entry.name);
-				return entry.async("base64").then(function (data) {
-					return "data:" + mimeType + ";base64," + data;
-				});
-			}
-		}
-
-		/**
-   * Create a Url from an unarchived item
-   * @param  {string} url
-   * @param  {[object]} options.base64 use base64 encoding or blob url
-   * @return {Promise} url promise with Url string
-   */
-
-	}, {
-		key: "createUrl",
-		value: function createUrl(url, options) {
-			var deferred = new _core.defer();
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var tempUrl;
-			var response;
-			var useBase64 = options && options.base64;
-
-			if (url in this.urlCache) {
-				deferred.resolve(this.urlCache[url]);
-				return deferred.promise;
-			}
-
-			if (useBase64) {
-				response = this.getBase64(url);
-
-				if (response) {
-					response.then(function (tempUrl) {
-
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
-				}
-			} else {
-
-				response = this.getBlob(url);
-
-				if (response) {
-					response.then(function (blob) {
-
-						tempUrl = _URL.createObjectURL(blob);
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
-				}
-			}
-
-			if (!response) {
-				deferred.reject({
-					message: "File not found in the epub: " + url,
-					stack: new Error().stack
-				});
-			}
-
-			return deferred.promise;
-		}
-
-		/**
-   * Revoke Temp Url for a achive item
-   * @param  {string} url url of the item in the archive
-   */
-
-	}, {
-		key: "revokeUrl",
-		value: function revokeUrl(url) {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var fromCache = this.urlCache[url];
-			if (fromCache) _URL.revokeObjectURL(fromCache);
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			for (var fromCache in this.urlCache) {
-				_URL.revokeObjectURL(fromCache);
-			}
-			this.zip = undefined;
-			this.urlCache = {};
-		}
-	}]);
-
-	return Archive;
-}();
-
-exports.default = Archive;
-module.exports = exports["default"];
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _pathWebpack = __webpack_require__(6);
-
-var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
-
-var _core = __webpack_require__(0);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Handles Parsing and Accessing an Epub Container
- * @class
- * @param {[document]} containerDocument xml document
- */
-var Container = function () {
-	function Container(containerDocument) {
-		_classCallCheck(this, Container);
-
-		this.packagePath = '';
-		this.directory = '';
-		this.encoding = '';
-
-		if (containerDocument) {
-			this.parse(containerDocument);
-		}
-	}
-
-	/**
-  * Parse the Container XML
-  * @param  {document} containerDocument
-  */
-
-
-	_createClass(Container, [{
-		key: "parse",
-		value: function parse(containerDocument) {
-			//-- <rootfile full-path="OPS/package.opf" media-type="application/oebps-package+xml"/>
-			var rootfile;
-
-			if (!containerDocument) {
-				throw new Error("Container File Not Found");
-			}
-
-			rootfile = (0, _core.qs)(containerDocument, "rootfile");
-
-			if (!rootfile) {
-				throw new Error("No RootFile Found");
-			}
-
-			this.packagePath = rootfile.getAttribute("full-path");
-			this.directory = _pathWebpack2.default.dirname(this.packagePath);
-			this.encoding = containerDocument.xmlEncoding;
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.packagePath = undefined;
-			this.directory = undefined;
-			this.encoding = undefined;
-		}
-	}]);
-
-	return Container;
-}();
-
-exports.default = Container;
-module.exports = exports["default"];
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _book = __webpack_require__(19);
-
-var _book2 = _interopRequireDefault(_book);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _rendition = __webpack_require__(14);
-
-var _rendition2 = _interopRequireDefault(_rendition);
-
-var _contents = __webpack_require__(7);
-
-var _contents2 = _interopRequireDefault(_contents);
-
-var _core = __webpack_require__(0);
-
-var core = _interopRequireWildcard(_core);
-
-__webpack_require__(18);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Creates a new Book
- * @param {string|ArrayBuffer} url URL, Path or ArrayBuffer
- * @param {object} options to pass to the book
- * @returns {Book} a new Book object
- * @example ePub("/path/to/book.epub", {})
- */
-function ePub(url, options) {
-	return new _book2.default(url, options);
-}
-
-ePub.VERSION = "0.3";
-
-if (typeof global !== "undefined") {
-	global.EPUBJS_VERSION = ePub.VERSION;
-}
-
-ePub.CFI = _epubcfi2.default;
-ePub.Rendition = _rendition2.default;
-ePub.Contents = _contents2.default;
-ePub.utils = core;
-
-ePub.ViewManagers = {};
-ePub.Views = {};
-/**
- * register plugins
- */
-ePub.register = {
-	/**
-  * register a new view manager
-  */
-	manager: function manager(name, _manager) {
-		return ePub.ViewManagers[name] = _manager;
-	},
-	/**
-  * register a new view
-  */
-	view: function view(name, _view) {
-		return ePub.Views[name] = _view;
-	}
-};
-
-// Default Views
-ePub.register.view("iframe", __webpack_require__(21));
-
-// Default View Managers
-ePub.register.manager("default", __webpack_require__(13));
-ePub.register.manager("continuous", __webpack_require__(20));
-
-exports.default = ePub;
-module.exports = exports["default"];
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Figures out the CSS to apply for a layout
- * @class
- * @param {object} settings
- * @param {[string=reflowable]} settings.layout
- * @param {[string]} settings.spread
- * @param {[int=800]} settings.minSpreadWidth
- * @param {[boolean=false]} settings.evenSpreads
- */
-var Layout = function () {
-	function Layout(settings) {
-		_classCallCheck(this, Layout);
-
-		this.settings = settings;
-		this.name = settings.layout || "reflowable";
-		this._spread = settings.spread === "none" ? false : true;
-		this._minSpreadWidth = settings.minSpreadWidth || 800;
-		this._evenSpreads = settings.evenSpreads || false;
-
-		if (settings.flow === "scrolled" || settings.flow === "scrolled-continuous" || settings.flow === "scrolled-doc") {
-			this._flow = "scrolled";
-		} else {
-			this._flow = "paginated";
-		}
-
-		this.width = 0;
-		this.height = 0;
-		this.spreadWidth = 0;
-		this.delta = 0;
-
-		this.columnWidth = 0;
-		this.gap = 0;
-		this.divisor = 1;
-
-		this.props = {
-			name: this.name,
-			spread: this._spread,
-			flow: this._flow,
-			width: 0,
-			height: 0,
-			spreadWidth: 0,
-			delta: 0,
-			columnWidth: 0,
-			gap: 0,
-			divisor: 1
-		};
-	}
-
-	/**
-  * Switch the flow between paginated and scrolled
-  * @param  {string} flow paginated | scrolled
-  */
-
-
-	_createClass(Layout, [{
-		key: "flow",
-		value: function flow(_flow) {
-			if (typeof _flow != "undefined") {
-				if (_flow === "scrolled" || _flow === "scrolled-continuous" || _flow === "scrolled-doc") {
-					this._flow = "scrolled";
-				} else {
-					this._flow = "paginated";
-				}
-				this.props.flow = this._flow;
-			}
-			console.log("EPUBJS LAYOUT FLOW", this._flow, _flow);
-			return this._flow;
-		}
-
-		/**
-   * Switch between using spreads or not, and set the
-   * width at which they switch to single.
-   * @param  {string} spread true | false
-   * @param  {boolean} min integer in pixels
-   */
-
-	}, {
-		key: "spread",
-		value: function spread(_spread, min) {
-
-			if (_spread) {
-				this._spread = _spread === "none" ? false : true;
-				this.props.spread = this._spread;
-			}
-
-			if (min >= 0) {
-				this._minSpreadWidth = min;
-			}
-
-			return this._spread;
-		}
-
-		/**
-   * Calculate the dimensions of the pagination
-   * @param  {number} _width  [description]
-   * @param  {number} _height [description]
-   * @param  {number} _gap    [description]
-   */
-
-	}, {
-		key: "calculate",
-		value: function calculate(_width, _height, _gap) {
-
-			var divisor = 1;
-			var gap = _gap || 0;
-
-			//-- Check the width and create even width columns
-			// var fullWidth = Math.floor(_width);
-			var width = _width;
-
-			var section = Math.floor(width / 8);
-
-			var colWidth;
-			var spreadWidth;
-			var delta;
-
-			if (this._spread && width >= this._minSpreadWidth) {
-				divisor = 2;
-			} else {
-				divisor = 1;
-			}
-
-			if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
-				gap = section % 2 === 0 ? section : section - 1;
-			}
-
-			if (this.name === "pre-paginated") {
-				gap = 0;
-			}
-
-			//-- Double Page
-			if (divisor > 1) {
-				colWidth = (width - gap) / divisor;
-			} else {
-				colWidth = width;
-			}
-
-			if (this.name === "pre-paginated" && divisor > 1) {
-				width = colWidth;
-			}
-
-			spreadWidth = colWidth * divisor;
-
-			delta = (colWidth + gap) * divisor;
-
-			this.width = width;
-			this.height = _height;
-			this.spreadWidth = spreadWidth;
-			this.delta = delta;
-
-			this.columnWidth = colWidth;
-			this.gap = gap;
-			this.divisor = divisor;
-
-			this.props.width = width;
-			this.props.height = _height;
-			this.props.spreadWidth = spreadWidth;
-			this.props.delta = delta;
-
-			this.props.columnWidth = colWidth;
-			this.props.gap = gap;
-			this.props.divisor = divisor;
-		}
-
-		/**
-   * Apply Css to a Document
-   * @param  {Contents} contents
-   * @return {[Promise]}
-   */
-
-	}, {
-		key: "format",
-		value: function format(contents) {
-			var formating;
-
-			if (this.name === "pre-paginated") {
-				formating = contents.fit(this.columnWidth, this.height);
-			} else if (this._flow === "paginated") {
-				formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
-			} else {
-				// scrolled
-				formating = contents.size(this.width, null);
-			}
-
-			return formating; // might be a promise in some View Managers
-		}
-
-		/**
-   * Count number of pages
-   * @param  {number} totalWidth
-   * @return {number} spreads
-   * @return {number} pages
-   */
-
-	}, {
-		key: "count",
-		value: function count(totalLength, pageLength) {
-			// var totalWidth = contents.scrollWidth();
-			var spreads = void 0,
-			    pages = void 0;
-
-			if (this.name === "pre-paginated") {
-				spreads = 1;
-				pages = 1;
-			} else if (this._flow === "paginated") {
-				pageLength = pageLength || this.delta;
-				spreads = Math.ceil(totalLength / pageLength);
-				pages = spreads * this.divisor;
-			} else {
-				// scrolled
-				pageLength = pageLength || this.height;
-				spreads = Math.ceil(totalLength / pageLength);
-				pages = spreads;
-			}
-
-			return {
-				spreads: spreads,
-				pages: pages
-			};
-		}
-	}]);
-
-	return Layout;
-}();
-
-exports.default = Layout;
-module.exports = exports["default"];
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-var _queue = __webpack_require__(10);
-
-var _queue2 = _interopRequireDefault(_queue);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _eventEmitter = __webpack_require__(2);
-
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Find Locations for a Book
- * @param {Spine} spine
- * @param {request} request
- */
-var Locations = function () {
-	function Locations(spine, request, pause) {
-		_classCallCheck(this, Locations);
-
-		this.spine = spine;
-		this.request = request;
-		this.pause = pause || 100;
-
-		this.q = new _queue2.default(this);
-		this.epubcfi = new _epubcfi2.default();
-
-		this._locations = [];
-		this.total = 0;
-
-		this.break = 150;
-
-		this._current = 0;
-
-		this.currentLocation = '';
-		this._currentCfi = '';
-		this.processingTimeout = undefined;
-	}
-
-	/**
-  * Load all of sections in the book to generate locations
-  * @param  {int} chars how many chars to split on
-  * @return {object} locations
-  */
-
-
-	_createClass(Locations, [{
-		key: "generate",
-		value: function generate(chars) {
-
-			if (chars) {
-				this.break = chars;
-			}
-
-			this.q.pause();
-
-			this.spine.each(function (section) {
-				if (section.linear) {
-					this.q.enqueue(this.process.bind(this), section);
-				}
-			}.bind(this));
-
-			return this.q.run().then(function () {
-				this.total = this._locations.length - 1;
-
-				if (this._currentCfi) {
-					this.currentLocation = this._currentCfi;
-				}
-
-				return this._locations;
-				// console.log(this.percentage(this.book.rendition.location.start), this.percentage(this.book.rendition.location.end));
-			}.bind(this));
-		}
-	}, {
-		key: "createRange",
-		value: function createRange() {
-			return {
-				startContainer: undefined,
-				startOffset: undefined,
-				endContainer: undefined,
-				endOffset: undefined
-			};
-		}
-	}, {
-		key: "process",
-		value: function process(section) {
-
-			return section.load(this.request).then(function (contents) {
-				var completed = new _core.defer();
-				var locations = this.parse(contents, section.cfiBase);
-				this._locations = this._locations.concat(locations);
-
-				section.unload();
-
-				this.processingTimeout = setTimeout(function () {
-					return completed.resolve(locations);
-				}, this.pause);
-				return completed.promise;
-			}.bind(this));
-		}
-	}, {
-		key: "parse",
-		value: function parse(contents, cfiBase, chars) {
-			var locations = [];
-			var range;
-			var doc = contents.ownerDocument;
-			var body = (0, _core.qs)(doc, "body");
-			var counter = 0;
-			var prev;
-			var _break = chars || this.break;
-			var parser = function parser(node) {
-				var len = node.length;
-				var dist;
-				var pos = 0;
-
-				if (node.textContent.trim().length === 0) {
-					return false; // continue
-				}
-
-				// Start range
-				if (counter == 0) {
-					range = this.createRange();
-					range.startContainer = node;
-					range.startOffset = 0;
-				}
-
-				dist = _break - counter;
-
-				// Node is smaller than a break,
-				// skip over it
-				if (dist > len) {
-					counter += len;
-					pos = len;
-				}
-
-				while (pos < len) {
-					dist = _break - counter;
-
-					if (counter === 0) {
-						// Start new range
-						pos += 1;
-						range = this.createRange();
-						range.startContainer = node;
-						range.startOffset = pos;
-					}
-
-					// pos += dist;
-
-					// Gone over
-					if (pos + dist >= len) {
-						// Continue counter for next node
-						counter += len - pos;
-						// break
-						pos = len;
-						// At End
-					} else {
-						// Advance pos
-						pos += dist;
-
-						// End the previous range
-						range.endContainer = node;
-						range.endOffset = pos;
-						// cfi = section.cfiFromRange(range);
-						var cfi = new _epubcfi2.default(range, cfiBase).toString();
-						locations.push(cfi);
-						counter = 0;
-					}
-				}
-				prev = node;
-			};
-
-			(0, _core.sprint)(body, parser.bind(this));
-
-			// Close remaining
-			if (range && range.startContainer && prev) {
-				range.endContainer = prev;
-				range.endOffset = prev.length;
-				var cfi = new _epubcfi2.default(range, cfiBase).toString();
-				locations.push(cfi);
-				counter = 0;
-			}
-
-			return locations;
-		}
-	}, {
-		key: "locationFromCfi",
-		value: function locationFromCfi(cfi) {
-			var loc = void 0;
-			if (_epubcfi2.default.prototype.isCfiString(cfi)) {
-				cfi = new _epubcfi2.default(cfi);
-			}
-			// Check if the location has not been set yet
-			if (this._locations.length === 0) {
-				return -1;
-			}
-
-			loc = (0, _core.locationOf)(cfi, this._locations, this.epubcfi.compare);
-
-			if (loc > this.total) {
-				return this.total;
-			}
-
-			return loc;
-		}
-	}, {
-		key: "percentageFromCfi",
-		value: function percentageFromCfi(cfi) {
-			if (this._locations.length === 0) {
-				return null;
-			}
-			// Find closest cfi
-			var loc = this.locationFromCfi(cfi);
-			// Get percentage in total
-			return this.percentageFromLocation(loc);
-		}
-	}, {
-		key: "percentageFromLocation",
-		value: function percentageFromLocation(loc) {
-			if (!loc || !this.total) {
-				return 0;
-			}
-
-			return loc / this.total;
-		}
-	}, {
-		key: "cfiFromLocation",
-		value: function cfiFromLocation(loc) {
-			var cfi = -1;
-			// check that pg is an int
-			if (typeof loc != "number") {
-				loc = parseInt(loc);
-			}
-
-			if (loc >= 0 && loc < this._locations.length) {
-				cfi = this._locations[loc];
-			}
-
-			return cfi;
-		}
-	}, {
-		key: "cfiFromPercentage",
-		value: function cfiFromPercentage(percentage) {
-			var loc = void 0;
-			if (percentage > 1) {
-				console.warn("Normalize cfiFromPercentage value to between 0 - 1");
-			}
-
-			// Make sure 1 goes to very end
-			if (percentage >= 1) {
-				var cfi = new _epubcfi2.default(this._locations[this.total]);
-				cfi.collapse();
-				return cfi.toString();
-			}
-
-			loc = Math.ceil(this.total * percentage);
-			return this.cfiFromLocation(loc);
-		}
-	}, {
-		key: "load",
-		value: function load(locations) {
-			this._locations = JSON.parse(locations);
-			this.total = this._locations.length - 1;
-			return this._locations;
-		}
-	}, {
-		key: "save",
-		value: function save(json) {
-			return JSON.stringify(this._locations);
-		}
-	}, {
-		key: "getCurrent",
-		value: function getCurrent(json) {
-			return this._current;
-		}
-	}, {
-		key: "setCurrent",
-		value: function setCurrent(curr) {
-			var loc;
-
-			if (typeof curr == "string") {
-				this._currentCfi = curr;
-			} else if (typeof curr == "number") {
-				this._current = curr;
-			} else {
-				return;
-			}
-
-			if (this._locations.length === 0) {
-				return;
-			}
-
-			if (typeof curr == "string") {
-				loc = this.locationFromCfi(curr);
-				this._current = loc;
-			} else {
-				loc = curr;
-			}
-
-			this.emit("changed", {
-				percentage: this.percentageFromLocation(loc)
-			});
-		}
-	}, {
-		key: "length",
-		value: function length() {
-			return this._locations.length;
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.spine = undefined;
-			this.request = undefined;
-			this.pause = undefined;
-
-			this.q.clear();
-			this.q = undefined;
-			this.epubcfi = undefined;
-
-			this._locations = undefined;
-			this.total = undefined;
-
-			this.break = undefined;
-			this._current = undefined;
-
-			this.currentLocation = undefined;
-			this._currentCfi = undefined;
-			clearTimeout(this.processingTimeout);
-		}
-	}, {
-		key: "currentLocation",
-		get: function get() {
-			return this._current;
-		},
-		set: function set(curr) {
-			this.setCurrent(curr);
-		}
-	}]);
-
-	return Locations;
-}();
-
-(0, _eventEmitter2.default)(Locations.prototype);
-
-exports.default = Locations;
-module.exports = exports["default"];
-
-/***/ }),
-/* 31 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11128,7 +13193,10 @@ var Stage = function () {
 			container.style.position = "relative";
 
 			if (axis === "horizontal") {
-				container.style.whiteSpace = "nowrap";
+				// container.style.whiteSpace = "nowrap";
+				container.style.display = "flex";
+				container.style.flexDirection = "row";
+				container.style.flexWrap = "nowrap";
 			}
 
 			if (width) {
@@ -11209,8 +13277,15 @@ var Stage = function () {
 			// Only listen to window for resize event if width and height are not fixed.
 			// This applies if it is set to a percent or auto.
 			if (!(0, _core.isNumber)(this.settings.width) || !(0, _core.isNumber)(this.settings.height)) {
-				window.addEventListener("resize", func, false);
+				this.resizeFunc = func;
+				window.addEventListener("resize", this.resizeFunc, false);
 			}
+		}
+	}, {
+		key: "onOrientationChange",
+		value: function onOrientationChange(func) {
+			this.orientationChangeFunc = func;
+			window.addEventListener("orientationChange", this.orientationChangeFunc, false);
 		}
 	}, {
 		key: "size",
@@ -11259,6 +13334,15 @@ var Stage = function () {
 				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
 			};
 
+			// Bounds not set, get them from window
+			var _windowBounds = (0, _core.windowBounds)();
+			if (!width) {
+				width = _windowBounds.width;
+			}
+			if (this.settings.fullsize || !height) {
+				height = _windowBounds.height;
+			}
+
 			return {
 				width: Math.floor(width - this.containerPadding.left - this.containerPadding.right),
 				height: Math.floor(height - this.containerPadding.top - this.containerPadding.bottom)
@@ -11267,7 +13351,11 @@ var Stage = function () {
 	}, {
 		key: "bounds",
 		value: function bounds() {
-			var box = this.container && this.container.getBoundingClientRect();
+			var box = void 0;
+			if (this.container.style.overflow !== "visible") {
+				box = this.container && this.container.getBoundingClientRect();
+			}
+
 			if (!box || !box.width || !box.height) {
 				return (0, _core.windowBounds)();
 			} else {
@@ -11307,6 +13395,28 @@ var Stage = function () {
 			this.sheet.insertRule(scope + selector + " {" + rules + "}", 0);
 		}
 	}, {
+		key: "axis",
+		value: function axis(_axis) {
+			if (_axis === "horizontal") {
+				this.container.style.display = "flex";
+				this.container.style.flexDirection = "row";
+				this.container.style.flexWrap = "nowrap";
+			} else {
+				this.container.style.display = "block";
+			}
+		}
+
+		// orientation(orientation) {
+		// 	if (orientation === "landscape") {
+		//
+		// 	} else {
+		//
+		// 	}
+		//
+		// 	this.orientation = orientation;
+		// }
+
+	}, {
 		key: "destroy",
 		value: function destroy() {
 			var base;
@@ -11322,6 +13432,9 @@ var Stage = function () {
 				if (this.element.contains(this.container)) {
 					this.element.removeChild(this.container);
 				}
+
+				window.removeEventListener("resize", this.resizeFunc);
+				window.removeEventListener("orientationChange", this.orientationChangeFunc);
 			}
 		}
 	}]);
@@ -11333,7 +13446,7 @@ exports.default = Stage;
 module.exports = exports["default"];
 
 /***/ }),
-/* 32 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11539,7 +13652,7 @@ exports.default = Views;
 module.exports = exports["default"];
 
 /***/ }),
-/* 33 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11553,2506 +13666,1082 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _core = __webpack_require__(0);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _default = __webpack_require__(17);
 
-/**
- * Navigation Parser
- * @param {document} xml navigation html / xhtml / ncx
- */
-var Navigation = function () {
-	function Navigation(xml) {
-		_classCallCheck(this, Navigation);
+var _default2 = _interopRequireDefault(_default);
 
-		this.toc = [];
-		this.tocByHref = {};
-		this.tocById = {};
+var _debounce = __webpack_require__(60);
 
-		if (xml) {
-			this.parse(xml);
-		}
-	}
-
-	/**
-  * Parse out the navigation items
-  * @param {document} xml navigation html / xhtml / ncx
-  */
-
-
-	_createClass(Navigation, [{
-		key: "parse",
-		value: function parse(xml) {
-			var isXml = xml.nodeType;
-			var html = void 0;
-			var ncx = void 0;
-
-			if (isXml) {
-				html = (0, _core.qs)(xml, "html");
-				ncx = (0, _core.qs)(xml, "ncx");
-			}
-
-			if (!isXml) {
-				this.toc = this.load(xml);
-			} else if (html) {
-				this.toc = this.parseNav(xml);
-			} else if (ncx) {
-				this.toc = this.parseNcx(xml);
-			}
-
-			this.unpack(this.toc);
-		}
-
-		/**
-   * Unpack navigation items
-   * @private
-   * @param  {array} toc
-   */
-
-	}, {
-		key: "unpack",
-		value: function unpack(toc) {
-			var item;
-
-			for (var i = 0; i < toc.length; i++) {
-				item = toc[i];
-				this.tocByHref[item.href] = i;
-				this.tocById[item.id] = i;
-			}
-		}
-
-		/**
-   * Get an item from the navigation
-   * @param  {string} target
-   * @return {object} navItems
-   */
-
-	}, {
-		key: "get",
-		value: function get(target) {
-			var index;
-
-			if (!target) {
-				return this.toc;
-			}
-
-			if (target.indexOf("#") === 0) {
-				index = this.tocById[target.substring(1)];
-			} else if (target in this.tocByHref) {
-				index = this.tocByHref[target];
-			}
-
-			return this.toc[index];
-		}
-	}, {
-		key: "createTocItem",
-		value: function createTocItem(linkElement, id) {
-			var _this = this;
-
-			var list = [],
-			    tocLinkElms = linkElement.childNodes,
-			    tocLinkArray = Array.prototype.slice.call(tocLinkElms);
-
-			var index = id ? id : 0;
-			tocLinkArray.forEach(function (linkElm) {
-				if (linkElm.nodeName === 'li') {
-					var tocLink = (0, _core.qs)(linkElm, 'a'),
-					    tocLinkData = {
-						id: -1,
-						href: tocLink.getAttribute('href'),
-						label: tocLink.textContent,
-						parent: null
-					},
-					    subItemElm = (0, _core.qs)(linkElm, 'ol');
-					index++;
-					tocLinkData.id = index;
-					if (id) {
-						tocLinkData.parent = id;
-					}
-					list.push(tocLinkData);
-					if (subItemElm) {
-						var subitems = _this.createTocItem(subItemElm, index);
-						if (subitems && subitems.length > 0) {
-							index = index + subitems.length;
-							list = list.concat(subitems);
-						}
-					}
-				}
-			});
-			return list;
-		}
-
-		/**
-   * Parse from a Epub > 3.0 Nav
-   * @private
-   * @param  {document} navHtml
-   * @return {array} navigation list
-   */
-
-	}, {
-		key: "parseNav",
-		value: function parseNav(navHtml) {
-			var navElement = (0, _core.querySelectorByType)(navHtml, "nav", "toc");
-			var tocItems = (0, _core.qs)(navElement, "ol");
-			return this.createTocItem(tocItems);
-		}
-
-		/**
-   * Create a navItem
-   * @private
-   * @param  {element} item
-   * @return {object} navItem
-   */
-
-	}, {
-		key: "navItem",
-		value: function navItem(item) {
-			var id = item.getAttribute("id") || false,
-			    content = (0, _core.qs)(item, "a"),
-			    src = content.getAttribute("href") || "",
-			    text = content.textContent || "",
-			    subitems = [],
-			    parentNode = item.parentNode,
-			    parent;
-
-			if (parentNode && parentNode.nodeName === "navPoint") {
-				parent = parentNode.getAttribute("id");
-			}
-
-			return {
-				"id": id,
-				"href": src,
-				"label": text,
-				"subitems": subitems,
-				"parent": parent
-			};
-		}
-
-		/**
-   * Parse from a Epub > 3.0 NC
-   * @private
-   * @param  {document} navHtml
-   * @return {array} navigation list
-   */
-
-	}, {
-		key: "parseNcx",
-		value: function parseNcx(tocXml) {
-			var navPoints = (0, _core.qsa)(tocXml, "navPoint");
-			var length = navPoints.length;
-			var i;
-			var toc = {};
-			var list = [];
-			var item, parent;
-
-			if (!navPoints || length === 0) return list;
-
-			for (i = 0; i < length; ++i) {
-				item = this.ncxItem(navPoints[i]);
-				toc[item.id] = item;
-				if (!item.parent) {
-					list.push(item);
-				} else {
-					parent = toc[item.parent];
-					parent.subitems.push(item);
-				}
-			}
-
-			return list;
-		}
-
-		/**
-   * Create a ncxItem
-   * @private
-   * @param  {element} item
-   * @return {object} ncxItem
-   */
-
-	}, {
-		key: "ncxItem",
-		value: function ncxItem(item) {
-			var id = item.getAttribute("id") || false,
-			    content = (0, _core.qs)(item, "content"),
-			    src = content.getAttribute("src"),
-			    navLabel = (0, _core.qs)(item, "navLabel"),
-			    text = navLabel.textContent ? navLabel.textContent : "",
-			    subitems = [],
-			    parentNode = item.parentNode,
-			    parent;
-
-			if (parentNode && parentNode.nodeName === "navPoint") {
-				parent = parentNode.getAttribute("id");
-			}
-
-			return {
-				"id": id,
-				"href": src,
-				"label": text,
-				"subitems": subitems,
-				"parent": parent
-			};
-		}
-
-		/**
-   * Load Spine Items
-   * @param  {object} json the items to be loaded
-   */
-
-	}, {
-		key: "load",
-		value: function load(json) {
-			var _this2 = this;
-
-			return json.map(function (item) {
-				item.label = item.title;
-				if (item.children) {
-					item.subitems = _this2.load(item.children);
-				}
-				return item;
-			});
-		}
-
-		/**
-   * forEach pass through
-   * @param  {Function} fn function to run on each item
-   * @return {method} forEach loop
-   */
-
-	}, {
-		key: "forEach",
-		value: function forEach(fn) {
-			return this.toc.forEach(fn);
-		}
-	}]);
-
-	return Navigation;
-}();
-
-exports.default = Navigation;
-module.exports = exports["default"];
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Open Packaging Format Parser
- * @class
- * @param {document} packageDocument OPF XML
- */
-var Packaging = function () {
-	function Packaging(packageDocument) {
-		_classCallCheck(this, Packaging);
-
-		this.manifest = {};
-		this.navPath = '';
-		this.ncxPath = '';
-		this.coverPath = '';
-		this.spineNodeIndex = 0;
-		this.spine = [];
-		this.metadata = {};
-
-		if (packageDocument) {
-			this.parse(packageDocument);
-		}
-	}
-
-	/**
-  * Parse OPF XML
-  * @param  {document} packageDocument OPF XML
-  * @return {object} parsed package parts
-  */
-
-
-	_createClass(Packaging, [{
-		key: 'parse',
-		value: function parse(packageDocument) {
-			var metadataNode, manifestNode, spineNode;
-
-			if (!packageDocument) {
-				throw new Error("Package File Not Found");
-			}
-
-			metadataNode = (0, _core.qs)(packageDocument, "metadata");
-			if (!metadataNode) {
-				throw new Error("No Metadata Found");
-			}
-
-			manifestNode = (0, _core.qs)(packageDocument, "manifest");
-			if (!manifestNode) {
-				throw new Error("No Manifest Found");
-			}
-
-			spineNode = (0, _core.qs)(packageDocument, "spine");
-			if (!spineNode) {
-				throw new Error("No Spine Found");
-			}
-
-			this.manifest = this.parseManifest(manifestNode);
-			this.navPath = this.findNavPath(manifestNode);
-			this.ncxPath = this.findNcxPath(manifestNode, spineNode);
-			this.coverPath = this.findCoverPath(packageDocument);
-
-			this.spineNodeIndex = (0, _core.indexOfElementNode)(spineNode);
-
-			this.spine = this.parseSpine(spineNode, this.manifest);
-
-			this.metadata = this.parseMetadata(metadataNode);
-
-			this.metadata.direction = spineNode.getAttribute("page-progression-direction");
-
-			return {
-				"metadata": this.metadata,
-				"spine": this.spine,
-				"manifest": this.manifest,
-				"navPath": this.navPath,
-				"ncxPath": this.ncxPath,
-				"coverPath": this.coverPath,
-				"spineNodeIndex": this.spineNodeIndex
-			};
-		}
-
-		/**
-   * Parse Metadata
-   * @private
-   * @param  {document} xml
-   * @return {object} metadata
-   */
-
-	}, {
-		key: 'parseMetadata',
-		value: function parseMetadata(xml) {
-			var metadata = {};
-
-			metadata.title = this.getElementText(xml, "title");
-			metadata.creator = this.getElementText(xml, "creator");
-			metadata.description = this.getElementText(xml, "description");
-
-			metadata.pubdate = this.getElementText(xml, "date");
-
-			metadata.publisher = this.getElementText(xml, "publisher");
-
-			metadata.identifier = this.getElementText(xml, "identifier");
-			metadata.language = this.getElementText(xml, "language");
-			metadata.rights = this.getElementText(xml, "rights");
-
-			metadata.modified_date = this.getPropertyText(xml, "dcterms:modified");
-
-			metadata.layout = this.getPropertyText(xml, "rendition:layout");
-			metadata.orientation = this.getPropertyText(xml, "rendition:orientation");
-			metadata.flow = this.getPropertyText(xml, "rendition:flow");
-			metadata.viewport = this.getPropertyText(xml, "rendition:viewport");
-			// metadata.page_prog_dir = packageXml.querySelector("spine").getAttribute("page-progression-direction");
-
-			return metadata;
-		}
-
-		/**
-   * Parse Manifest
-   * @private
-   * @param  {document} manifestXml
-   * @return {object} manifest
-   */
-
-	}, {
-		key: 'parseManifest',
-		value: function parseManifest(manifestXml) {
-			var manifest = {};
-
-			//-- Turn items into an array
-			// var selected = manifestXml.querySelectorAll("item");
-			var selected = (0, _core.qsa)(manifestXml, "item");
-			var items = Array.prototype.slice.call(selected);
-
-			//-- Create an object with the id as key
-			items.forEach(function (item) {
-				var id = item.getAttribute("id"),
-				    href = item.getAttribute("href") || "",
-				    type = item.getAttribute("media-type") || "",
-				    properties = item.getAttribute("properties") || "";
-
-				manifest[id] = {
-					"href": href,
-					// "url" : href,
-					"type": type,
-					"properties": properties.length ? properties.split(" ") : []
-				};
-			});
-
-			return manifest;
-		}
-
-		/**
-   * Parse Spine
-   * @param  {document} spineXml
-   * @param  {Packaging.manifest} manifest
-   * @return {object} spine
-   */
-
-	}, {
-		key: 'parseSpine',
-		value: function parseSpine(spineXml, manifest) {
-			var spine = [];
-
-			var selected = spineXml.getElementsByTagName("itemref");
-			var items = Array.prototype.slice.call(selected);
-
-			// var epubcfi = new EpubCFI();
-
-			//-- Add to array to mantain ordering and cross reference with manifest
-			items.forEach(function (item, index) {
-				var idref = item.getAttribute("idref");
-				// var cfiBase = epubcfi.generateChapterComponent(spineNodeIndex, index, Id);
-				var props = item.getAttribute("properties") || "";
-				var propArray = props.length ? props.split(" ") : [];
-				// var manifestProps = manifest[Id].properties;
-				// var manifestPropArray = manifestProps.length ? manifestProps.split(" ") : [];
-
-				var itemref = {
-					"idref": idref,
-					"linear": item.getAttribute("linear") || "yes",
-					"properties": propArray,
-					// "href" : manifest[Id].href,
-					// "url" :  manifest[Id].url,
-					"index": index
-					// "cfiBase" : cfiBase
-				};
-				spine.push(itemref);
-			});
-
-			return spine;
-		}
-
-		/**
-   * Find TOC NAV
-   * @private
-   */
-
-	}, {
-		key: 'findNavPath',
-		value: function findNavPath(manifestNode) {
-			// Find item with property "nav"
-			// Should catch nav irregardless of order
-			// var node = manifestNode.querySelector("item[properties$='nav'], item[properties^='nav '], item[properties*=' nav ']");
-			var node = (0, _core.qsp)(manifestNode, "item", { "properties": "nav" });
-			return node ? node.getAttribute("href") : false;
-		}
-
-		/**
-   * Find TOC NCX
-   * media-type="application/x-dtbncx+xml" href="toc.ncx"
-   * @private
-   */
-
-	}, {
-		key: 'findNcxPath',
-		value: function findNcxPath(manifestNode, spineNode) {
-			// var node = manifestNode.querySelector("item[media-type='application/x-dtbncx+xml']");
-			var node = (0, _core.qsp)(manifestNode, "item", { "media-type": "application/x-dtbncx+xml" });
-			var tocId;
-
-			// If we can't find the toc by media-type then try to look for id of the item in the spine attributes as
-			// according to http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1.2,
-			// "The item that describes the NCX must be referenced by the spine toc attribute."
-			if (!node) {
-				tocId = spineNode.getAttribute("toc");
-				if (tocId) {
-					// node = manifestNode.querySelector("item[id='" + tocId + "']");
-					node = manifestNode.getElementById(tocId);
-				}
-			}
-
-			return node ? node.getAttribute("href") : false;
-		}
-
-		/**
-   * Find the Cover Path
-   * <item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />
-   * Fallback for Epub 2.0
-   * @param  {document} packageXml
-   * @return {string} href
-   */
-
-	}, {
-		key: 'findCoverPath',
-		value: function findCoverPath(packageXml) {
-			var pkg = (0, _core.qs)(packageXml, "package");
-			var epubVersion = pkg.getAttribute("version");
-
-			if (epubVersion === "2.0") {
-				var metaCover = (0, _core.qsp)(packageXml, "meta", { "name": "cover" });
-				if (metaCover) {
-					var coverId = metaCover.getAttribute("content");
-					// var cover = packageXml.querySelector("item[id='" + coverId + "']");
-					var cover = packageXml.getElementById(coverId);
-					return cover ? cover.getAttribute("href") : "";
-				} else {
-					return false;
-				}
-			} else {
-				// var node = packageXml.querySelector("item[properties='cover-image']");
-				var node = (0, _core.qsp)(packageXml, "item", { "properties": "cover-image" });
-				return node ? node.getAttribute("href") : "";
-			}
-		}
-
-		/**
-   * Get text of a namespaced element
-   * @private
-   * @param  {document} xml
-   * @param  {string} tag
-   * @return {string} text
-   */
-
-	}, {
-		key: 'getElementText',
-		value: function getElementText(xml, tag) {
-			var found = xml.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag);
-			var el;
-
-			if (!found || found.length === 0) return "";
-
-			el = found[0];
-
-			if (el.childNodes.length) {
-				return el.childNodes[0].nodeValue;
-			}
-
-			return "";
-		}
-
-		/**
-   * Get text by property
-   * @private
-   * @param  {document} xml
-   * @param  {string} property
-   * @return {string} text
-   */
-
-	}, {
-		key: 'getPropertyText',
-		value: function getPropertyText(xml, property) {
-			var el = (0, _core.qsp)(xml, "meta", { "property": property });
-
-			if (el && el.childNodes.length) {
-				return el.childNodes[0].nodeValue;
-			}
-
-			return "";
-		}
-
-		/**
-   * Load JSON Manifest
-   * @param  {document} packageDocument OPF XML
-   * @return {object} parsed package parts
-   */
-
-	}, {
-		key: 'load',
-		value: function load(json) {
-			var _this = this;
-
-			this.metadata = json.metadata;
-
-			this.spine = json.spine.map(function (item, index) {
-				item.index = index;
-				return item;
-			});
-
-			json.resources.forEach(function (item, index) {
-				_this.manifest[index] = item;
-
-				if (item.rel && item.rel[0] === "cover") {
-					_this.coverPath = item.href;
-				}
-			});
-
-			this.spineNodeIndex = 0;
-
-			this.toc = json.toc.map(function (item, index) {
-				item.label = item.title;
-				return item;
-			});
-
-			return {
-				"metadata": this.metadata,
-				"spine": this.spine,
-				"manifest": this.manifest,
-				"navPath": this.navPath,
-				"ncxPath": this.ncxPath,
-				"coverPath": this.coverPath,
-				"spineNodeIndex": this.spineNodeIndex,
-				"toc": this.toc
-			};
-		}
-	}, {
-		key: 'destroy',
-		value: function destroy() {
-			this.manifest = undefined;
-			this.navPath = undefined;
-			this.ncxPath = undefined;
-			this.coverPath = undefined;
-			this.spineNodeIndex = undefined;
-			this.spine = undefined;
-			this.metadata = undefined;
-		}
-	}]);
-
-	return Packaging;
-}();
-
-exports.default = Packaging;
-module.exports = exports['default'];
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _core = __webpack_require__(0);
+var _debounce2 = _interopRequireDefault(_debounce);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/**
- * Page List Parser
- * @param {[document]} xml
- */
-var PageList = function () {
-	function PageList(xml) {
-		_classCallCheck(this, PageList);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-		this.pages = [];
-		this.locations = [];
-		this.epubcfi = new _epubcfi2.default();
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-		this.firstPage = 0;
-		this.lastPage = 0;
-		this.totalPages = 0;
+var ContinuousViewManager = function (_DefaultViewManager) {
+	_inherits(ContinuousViewManager, _DefaultViewManager);
 
-		this.toc = undefined;
-		this.ncx = undefined;
+	function ContinuousViewManager(options) {
+		_classCallCheck(this, ContinuousViewManager);
 
-		this.lastPage;
-		if (xml) {
-			this.pageList = this.parse(xml);
+		var _this = _possibleConstructorReturn(this, (ContinuousViewManager.__proto__ || Object.getPrototypeOf(ContinuousViewManager)).call(this, options));
+
+		_this.name = "continuous";
+
+		_this.settings = (0, _core.extend)(_this.settings || {}, {
+			infinite: true,
+			overflow: undefined,
+			axis: "vertical",
+			offset: 500,
+			offsetDelta: 250,
+			width: undefined,
+			height: undefined
+		});
+
+		(0, _core.extend)(_this.settings, options.settings || {});
+
+		// Gap can be 0, but defaults doesn't handle that
+		if (options.settings.gap != "undefined" && options.settings.gap === 0) {
+			_this.settings.gap = options.settings.gap;
 		}
 
-		if (this.pageList && this.pageList.length) {
-			this.process(this.pageList);
-		}
+		_this.viewSettings = {
+			ignoreClass: _this.settings.ignoreClass,
+			axis: _this.settings.axis,
+			layout: _this.layout,
+			width: 0,
+			height: 0
+		};
+
+		_this.scrollTop = 0;
+		_this.scrollLeft = 0;
+		return _this;
 	}
 
-	/**
-  * Parse PageList Xml
-  * @param  {document} xml
-  */
-
-
-	_createClass(PageList, [{
-		key: "parse",
-		value: function parse(xml) {
-			var html = (0, _core.qs)(xml, "html");
-			var ncx = (0, _core.qs)(xml, "ncx");
-
-			if (html) {
-				this.toc = this.parseNav(xml);
-			} else if (ncx) {
-				// Not supported
-				// this.toc = this.parseNcx(xml);
-				return;
-			}
+	_createClass(ContinuousViewManager, [{
+		key: "display",
+		value: function display(section, target) {
+			return _default2.default.prototype.display.call(this, section, target).then(function () {
+				return this.fill();
+			}.bind(this));
 		}
-
-		/**
-   * Parse a Nav PageList
-   * @private
-   * @param  {document} navHtml
-   * @return {PageList.item[]} list
-   */
-
 	}, {
-		key: "parseNav",
-		value: function parseNav(navHtml) {
-			var navElement = (0, _core.querySelectorByType)(navHtml, "nav", "page-list");
-			var navItems = navElement ? (0, _core.qsa)(navElement, "li") : [];
-			var length = navItems.length;
-			var i;
-			var list = [];
-			var item;
+		key: "fill",
+		value: function fill(_full) {
+			var _this2 = this;
 
-			if (!navItems || length === 0) return list;
+			var full = _full || new _core.defer();
 
-			for (i = 0; i < length; ++i) {
-				item = this.item(navItems[i]);
-				list.push(item);
-			}
-
-			return list;
-		}
-
-		/**
-   * Page List Item
-   * @private
-   * @param  {object} item
-   * @return {object} pageListItem
-   */
-
-	}, {
-		key: "item",
-		value: function item(_item) {
-			var content = (0, _core.qs)(_item, "a"),
-			    href = content.getAttribute("href") || "",
-			    text = content.textContent || "",
-			    page = parseInt(text),
-			    isCfi = href.indexOf("epubcfi"),
-			    split,
-			    packageUrl,
-			    cfi;
-
-			if (isCfi != -1) {
-				split = href.split("#");
-				packageUrl = split[0];
-				cfi = split.length > 1 ? split[1] : false;
-				return {
-					"cfi": cfi,
-					"href": href,
-					"packageUrl": packageUrl,
-					"page": page
-				};
-			} else {
-				return {
-					"href": href,
-					"page": page
-				};
-			}
-		}
-
-		/**
-   * Process pageList items
-   * @private
-   * @param  {array} pageList
-   */
-
-	}, {
-		key: "process",
-		value: function process(pageList) {
-			pageList.forEach(function (item) {
-				this.pages.push(item.page);
-				if (item.cfi) {
-					this.locations.push(item.cfi);
-				}
-			}, this);
-			this.firstPage = parseInt(this.pages[0]);
-			this.lastPage = parseInt(this.pages[this.pages.length - 1]);
-			this.totalPages = this.lastPage - this.firstPage;
-		}
-
-		/**
-   * Replace HREFs with CFI
-   * TODO: implement getting CFI from Href
-   */
-
-	}, {
-		key: "addCFIs",
-		value: function addCFIs() {
-			this.pageList.forEach(function (pg) {
-				if (!pg.cfi) {
-					// epubcfi.generateCfiFromHref(pg.href, book).then(function(cfi){
-					// 	pg.cfi = cfi;
-					// 	pg.packageUrl = book.settings.packageUrl;
-					// });
+			this.q.enqueue(function () {
+				return _this2.check();
+			}).then(function (result) {
+				if (result) {
+					_this2.fill(full);
+				} else {
+					full.resolve();
 				}
 			});
+
+			return full.promise;
+		}
+	}, {
+		key: "moveTo",
+		value: function moveTo(offset) {
+			// var bounds = this.stage.bounds();
+			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+			var distX = 0,
+			    distY = 0;
+
+			var offsetX = 0,
+			    offsetY = 0;
+
+			if (this.settings.axis === "vertical") {
+				distY = offset.top;
+				offsetY = offset.top + this.settings.offset;
+			} else {
+				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+				offsetX = distX + this.settings.offset;
+			}
+
+			this.check(offsetX, offsetY);
+			this.scrollBy(distX, distY, true);
+
+			// return this.check(offsetX, offsetY)
+			// 	.then(function(){
+			// 		this.scrollBy(distX, distY, true);
+			// 	}.bind(this));
 		}
 
 		/*
-  EPUBJS.generateCfiFromHref(href, book) {
-    var uri = EPUBJS.core.uri(href);
-    var path = uri.path;
-    var fragment = uri.fragment;
-    var spinePos = book.spineIndexByURL[path];
-    var loaded;
-    var deferred = new RSVP.defer();
-    var epubcfi = new EPUBJS.EpubCFI();
-    var spineItem;
-  	  if(typeof spinePos !== "undefined"){
-      spineItem = book.spine[spinePos];
-      loaded = book.loadXml(spineItem.url);
-      loaded.then(function(doc){
-        var element = doc.getElementById(fragment);
-        var cfi;
-        cfi = epubcfi.generateCfiFromElement(element, spineItem.cfiBase);
-        deferred.resolve(cfi);
-      });
-    }
-  	  return deferred.promise;
-  }
+  afterDisplayed(currView){
+  	var next = currView.section.next();
+  	var prev = currView.section.prev();
+  	var index = this.views.indexOf(currView);
+  	var prevView, nextView;
+  		if(index + 1 === this.views.length && next) {
+  		nextView = this.createView(next);
+  		this.q.enqueue(this.append.bind(this), nextView);
+  	}
+  		if(index === 0 && prev) {
+  		prevView = this.createView(prev, this.viewSettings);
+  		this.q.enqueue(this.prepend.bind(this), prevView);
+  	}
+  		// this.removeShownListeners(currView);
+  	// currView.onShown = this.afterDisplayed.bind(this);
+  	this.emit("added", currView.section);
+  	}
   */
 
-		/**
-   * Get a PageList result from a EpubCFI
-   * @param  {string} cfi EpubCFI String
-   * @return {string} page
-   */
-
 	}, {
-		key: "pageFromCfi",
-		value: function pageFromCfi(cfi) {
-			var pg = -1;
+		key: "onResized",
+		value: function onResized(e) {
 
-			// Check if the pageList has not been set yet
-			if (this.locations.length === 0) {
-				return -1;
-			}
+			// this.views.clear();
 
-			// TODO: check if CFI is valid?
-
-			// check if the cfi is in the location list
-			// var index = this.locations.indexOf(cfi);
-			var index = (0, _core.indexOfSorted)(cfi, this.locations, this.epubcfi.compare);
-			if (index != -1) {
-				pg = this.pages[index];
-			} else {
-				// Otherwise add it to the list of locations
-				// Insert it in the correct position in the locations page
-				//index = EPUBJS.core.insert(cfi, this.locations, this.epubcfi.compare);
-				index = (0, _core.locationOf)(cfi, this.locations, this.epubcfi.compare);
-				// Get the page at the location just before the new one, or return the first
-				pg = index - 1 >= 0 ? this.pages[index - 1] : this.pages[0];
-				if (pg !== undefined) {
-					// Add the new page in so that the locations and page array match up
-					//this.pages.splice(index, 0, pg);
-				} else {
-					pg = -1;
-				}
-			}
-			return pg;
-		}
-
-		/**
-   * Get an EpubCFI from a Page List Item
-   * @param  {string} pg
-   * @return {string} cfi
-   */
-
-	}, {
-		key: "cfiFromPage",
-		value: function cfiFromPage(pg) {
-			var cfi = -1;
-			// check that pg is an int
-			if (typeof pg != "number") {
-				pg = parseInt(pg);
-			}
-
-			// check if the cfi is in the page list
-			// Pages could be unsorted.
-			var index = this.pages.indexOf(pg);
-			if (index != -1) {
-				cfi = this.locations[index];
-			}
-			// TODO: handle pages not in the list
-			return cfi;
-		}
-
-		/**
-   * Get a Page from Book percentage
-   * @param  {number} percent
-   * @return {string} page
-   */
-
-	}, {
-		key: "pageFromPercentage",
-		value: function pageFromPercentage(percent) {
-			var pg = Math.round(this.totalPages * percent);
-			return pg;
-		}
-
-		/**
-   * Returns a value between 0 - 1 corresponding to the location of a page
-   * @param  {int} pg the page
-   * @return {number} percentage
-   */
-
-	}, {
-		key: "percentageFromPage",
-		value: function percentageFromPage(pg) {
-			var percentage = (pg - this.firstPage) / this.totalPages;
-			return Math.round(percentage * 1000) / 1000;
-		}
-
-		/**
-   * Returns a value between 0 - 1 corresponding to the location of a cfi
-   * @param  {string} cfi EpubCFI String
-   * @return {number} percentage
-   */
-
-	}, {
-		key: "percentageFromCfi",
-		value: function percentageFromCfi(cfi) {
-			var pg = this.pageFromCfi(cfi);
-			var percentage = this.percentageFromPage(pg);
-			return percentage;
+			clearTimeout(this.resizeTimeout);
+			this.resizeTimeout = setTimeout(function () {
+				this.resize();
+			}.bind(this), 150);
 		}
 	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.pages = undefined;
-			this.locations = undefined;
-			this.epubcfi = undefined;
-
-			this.pageList = undefined;
-
-			this.toc = undefined;
-			this.ncx = undefined;
-		}
-	}]);
-
-	return PageList;
-}();
-
-exports.default = PageList;
-module.exports = exports["default"];
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _replacements = __webpack_require__(4);
-
-var _core = __webpack_require__(0);
-
-var _url = __webpack_require__(5);
-
-var _url2 = _interopRequireDefault(_url);
-
-var _mime = __webpack_require__(16);
-
-var _mime2 = _interopRequireDefault(_mime);
-
-var _path = __webpack_require__(3);
-
-var _path2 = _interopRequireDefault(_path);
-
-var _pathWebpack = __webpack_require__(6);
-
-var _pathWebpack2 = _interopRequireDefault(_pathWebpack);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Handle Package Resources
- * @class
- * @param {Manifest} manifest
- * @param {[object]} options
- * @param {[string="base64"]} options.replacements
- * @param {[Archive]} options.archive
- * @param {[method]} options.resolver
- */
-var Resources = function () {
-	function Resources(manifest, options) {
-		_classCallCheck(this, Resources);
-
-		this.settings = {
-			replacements: options && options.replacements || "base64",
-			archive: options && options.archive,
-			resolver: options && options.resolver,
-			request: options && options.request
-		};
-		this.manifest = manifest;
-		this.resources = Object.keys(manifest).map(function (key) {
-			return manifest[key];
-		});
-
-		this.replacementUrls = [];
-
-		this.html = [];
-		this.assets = [];
-		this.css = [];
-
-		this.urls = [];
-		this.cssUrls = [];
-
-		this.split();
-		this.splitUrls();
-	}
-
-	/**
-  * Split resources by type
-  * @private
-  */
-
-
-	_createClass(Resources, [{
-		key: "split",
-		value: function split() {
-
-			// HTML
-			this.html = this.resources.filter(function (item) {
-				if (item.type === "application/xhtml+xml" || item.type === "text/html") {
-					return true;
-				}
-			});
-
-			// Exclude HTML
-			this.assets = this.resources.filter(function (item) {
-				if (item.type !== "application/xhtml+xml" && item.type !== "text/html") {
-					return true;
-				}
-			});
-
-			// Only CSS
-			this.css = this.resources.filter(function (item) {
-				if (item.type === "text/css") {
-					return true;
-				}
-			});
+		key: "afterResized",
+		value: function afterResized(view) {
+			this.emit("resize", view.section);
 		}
 
-		/**
-   * Convert split resources into Urls
-   * @private
-   */
+		// Remove Previous Listeners if present
 
 	}, {
-		key: "splitUrls",
-		value: function splitUrls() {
+		key: "removeShownListeners",
+		value: function removeShownListeners(view) {
 
-			// All Assets Urls
-			this.urls = this.assets.map(function (item) {
-				return item.href;
-			}.bind(this));
-
-			// Css Urls
-			this.cssUrls = this.css.map(function (item) {
-				return item.href;
-			});
-		}
-	}, {
-		key: "createUrl",
-		value: function createUrl(url) {
-			var parsedUrl = new _url2.default(url);
-			var mimeType = _mime2.default.lookup(parsedUrl.filename);
-
-			if (this.settings.archive) {
-				return this.settings.archive.createUrl(url, { "base64": this.settings.replacements === "base64" });
-			} else {
-				if (this.settings.replacements === "base64") {
-					return this.settings.request(url, 'blob').then(function (blob) {
-						return (0, _core.blob2base64)(blob);
-					}).then(function (blob) {
-						return (0, _core.createBase64Url)(blob, mimeType);
-					});
-				} else {
-					return this.settings.request(url, 'blob').then(function (blob) {
-						return (0, _core.createBlobUrl)(blob, mimeType);
-					});
-				}
-			}
+			// view.off("shown", this.afterDisplayed);
+			// view.off("shown", this.afterDisplayedAbove);
+			view.onDisplayed = function () {};
 		}
 
-		/**
-   * Create blob urls for all the assets
-   * @return {Promise}         returns replacement urls
-   */
-
-	}, {
-		key: "replacements",
-		value: function replacements() {
-			var _this = this;
-
-			if (this.settings.replacements === "none") {
-				return new Promise(function (resolve) {
-					resolve(this.urls);
-				}.bind(this));
-			}
-
-			var replacements = this.urls.map(function (url) {
-				var absolute = _this.settings.resolver(url);
-
-				return _this.createUrl(absolute).catch(function (err) {
-					console.error(err);
-					return null;
-				});
-			});
-
-			return Promise.all(replacements).then(function (replacementUrls) {
-				_this.replacementUrls = replacementUrls.filter(function (url) {
-					return typeof url === "string";
-				});
-				return replacementUrls;
-			});
-		}
-
-		/**
-   * Replace URLs in CSS resources
-   * @private
-   * @param  {[Archive]} archive
-   * @param  {[method]} resolver
-   * @return {Promise}
-   */
-
-	}, {
-		key: "replaceCss",
-		value: function replaceCss(archive, resolver) {
-			var replaced = [];
-			archive = archive || this.settings.archive;
-			resolver = resolver || this.settings.resolver;
-			this.cssUrls.forEach(function (href) {
-				var replacement = this.createCssFile(href, archive, resolver).then(function (replacementUrl) {
-					// switch the url in the replacementUrls
-					var indexInUrls = this.urls.indexOf(href);
-					if (indexInUrls > -1) {
-						this.replacementUrls[indexInUrls] = replacementUrl;
-					}
-				}.bind(this));
-
-				replaced.push(replacement);
-			}.bind(this));
-			return Promise.all(replaced);
-		}
-
-		/**
-   * Create a new CSS file with the replaced URLs
-   * @private
-   * @param  {string} href the original css file
-   * @return {Promise}  returns a BlobUrl to the new CSS file or a data url
-   */
-
-	}, {
-		key: "createCssFile",
-		value: function createCssFile(href) {
-			var _this2 = this;
-
-			var newUrl;
-
-			if (_pathWebpack2.default.isAbsolute(href)) {
-				return new Promise(function (resolve) {
-					resolve();
-				});
-			}
-
-			var absolute = this.settings.resolver(href);
-
-			// Get the text of the css file from the archive
-			var textResponse;
-
-			if (this.settings.archive) {
-				textResponse = this.settings.archive.getText(absolute);
-			} else {
-				textResponse = this.settings.request(absolute, "text");
-			}
-
-			// Get asset links relative to css file
-			var relUrls = this.urls.map(function (assetHref) {
-				var resolved = _this2.settings.resolver(assetHref);
-				var relative = new _path2.default(absolute).relative(resolved);
-
-				return relative;
-			});
-
-			if (!textResponse) {
-				// file not found, don't replace
-				return new Promise(function (resolve) {
-					resolve();
-				});
-			}
-
-			return textResponse.then(function (text) {
-				// Replacements in the css text
-				text = (0, _replacements.substitute)(text, relUrls, _this2.replacementUrls);
-
-				// Get the new url
-				if (_this2.settings.replacements === "base64") {
-					newUrl = (0, _core.createBase64Url)(text, "text/css");
-				} else {
-					newUrl = (0, _core.createBlobUrl)(text, "text/css");
-				}
-
-				return newUrl;
-			}, function (err) {
-				// handle response errors
-				return new Promise(function (resolve) {
-					resolve();
-				});
-			});
-		}
-
-		/**
-   * Resolve all resources URLs relative to an absolute URL
-   * @param  {string} absolute to be resolved to
-   * @param  {[resolver]} resolver
-   * @return {string[]} array with relative Urls
-   */
-
-	}, {
-		key: "relativeTo",
-		value: function relativeTo(absolute, resolver) {
-			resolver = resolver || this.settings.resolver;
-
-			// Get Urls relative to current sections
-			return this.urls.map(function (href) {
-				var resolved = resolver(href);
-				var relative = new _path2.default(absolute).relative(resolved);
-				return relative;
-			}.bind(this));
-		}
-
-		/**
-   * Get a URL for a resource
-   * @param  {string} path
-   * @return {string} url
-   */
-
-	}, {
-		key: "get",
-		value: function get(path) {
-			var indexInUrls = this.urls.indexOf(path);
-			if (indexInUrls === -1) {
-				return;
-			}
-			if (this.replacementUrls.length) {
-				return new Promise(function (resolve, reject) {
-					resolve(this.replacementUrls[indexInUrls]);
-				}.bind(this));
-			} else {
-				return this.createUrl(path);
-			}
-		}
-
-		/**
-   * Substitute urls in content, with replacements,
-   * relative to a url if provided
-   * @param  {string} content
-   * @param  {[string]} url   url to resolve to
-   * @return {string}         content with urls substituted
-   */
-
-	}, {
-		key: "substitute",
-		value: function substitute(content, url) {
-			var relUrls;
-			if (url) {
-				relUrls = this.relativeTo(url);
-			} else {
-				relUrls = this.urls;
-			}
-			return (0, _replacements.substitute)(content, relUrls, this.replacementUrls);
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.settings = undefined;
-			this.manifest = undefined;
-			this.resources = undefined;
-			this.replacementUrls = undefined;
-			this.html = undefined;
-			this.assets = undefined;
-			this.css = undefined;
-
-			this.urls = undefined;
-			this.cssUrls = undefined;
-		}
-	}]);
-
-	return Resources;
-}();
-
-exports.default = Resources;
-module.exports = exports["default"];
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(0);
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _hook = __webpack_require__(9);
-
-var _hook2 = _interopRequireDefault(_hook);
-
-var _replacements = __webpack_require__(4);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Represents a Section of the Book
- * In most books this is equivelent to a Chapter
- * @param {object} item  The spine item representing the section
- * @param {object} hooks hooks for serialize and content
- */
-var Section = function () {
-	function Section(item, hooks) {
-		_classCallCheck(this, Section);
-
-		this.idref = item.idref;
-		this.linear = item.linear === "yes";
-		this.properties = item.properties;
-		this.index = item.index;
-		this.href = item.href;
-		this.url = item.url;
-		this.next = item.next;
-		this.prev = item.prev;
-
-		this.cfiBase = item.cfiBase;
-
-		if (hooks) {
-			this.hooks = hooks;
-		} else {
-			this.hooks = {};
-			this.hooks.serialize = new _hook2.default(this);
-			this.hooks.content = new _hook2.default(this);
-		}
-
-		this.document = undefined;
-		this.contents = undefined;
-		this.output = undefined;
-	}
-
-	/**
-  * Load the section from its url
-  * @param  {method} _request a request method to use for loading
-  * @return {document} a promise with the xml document
-  */
-
-
-	_createClass(Section, [{
-		key: "load",
-		value: function load(_request) {
-			var request = _request || this.request || __webpack_require__(11);
-			var loading = new _core.defer();
-			var loaded = loading.promise;
-
-			if (this.contents) {
-				loading.resolve(this.contents);
-			} else {
-				request(this.url).then(function (xml) {
-					// var directory = new Url(this.url).directory;
-
-					this.document = xml;
-					this.contents = xml.documentElement;
-
-					return this.hooks.content.trigger(this.document, this);
-				}.bind(this)).then(function () {
-					loading.resolve(this.contents);
-				}.bind(this)).catch(function (error) {
-					loading.reject(error);
-				});
-			}
-
-			return loaded;
-		}
-
-		/**
-   * Adds a base tag for resolving urls in the section
-   * @private
-   */
-
-	}, {
-		key: "base",
-		value: function base() {
-			return (0, _replacements.replaceBase)(this.document, this);
-		}
-
-		/**
-   * Render the contents of a section
-   * @param  {method} _request a request method to use for loading
-   * @return {string} output a serialized XML Document
-   */
-
-	}, {
-		key: "render",
-		value: function render(_request) {
-			var rendering = new _core.defer();
-			var rendered = rendering.promise;
-			this.output; // TODO: better way to return this from hooks?
-
-			this.load(_request).then(function (contents) {
-				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
-				var isIE = userAgent.indexOf('Trident') >= 0;
-				var Serializer;
-				if (typeof XMLSerializer === "undefined" || isIE) {
-					Serializer = __webpack_require__(17).XMLSerializer;
-				} else {
-					Serializer = XMLSerializer;
-				}
-				var serializer = new Serializer();
-				this.output = serializer.serializeToString(contents);
-				return this.output;
-			}.bind(this)).then(function () {
-				return this.hooks.serialize.trigger(this.output, this);
-			}.bind(this)).then(function () {
-				rendering.resolve(this.output);
-			}.bind(this)).catch(function (error) {
-				rendering.reject(error);
-			});
-
-			return rendered;
-		}
-
-		/**
-   * Find a string in a section
-   * @param  {string} _query The query string to find
-   * @return {object[]} A list of matches, with form {cfi, excerpt}
-   */
-
-	}, {
-		key: "find",
-		value: function find(_query) {
-			var section = this;
-			var matches = [];
-			var query = _query.toLowerCase();
-			var find = function find(node) {
-				var text = node.textContent.toLowerCase();
-				var range = section.document.createRange();
-				var cfi;
-				var pos;
-				var last = -1;
-				var excerpt;
-				var limit = 150;
-
-				while (pos != -1) {
-					// Search for the query
-					pos = text.indexOf(query, last + 1);
-
-					if (pos != -1) {
-						// We found it! Generate a CFI
-						range = section.document.createRange();
-						range.setStart(node, pos);
-						range.setEnd(node, pos + query.length);
-
-						cfi = section.cfiFromRange(range);
-
-						// Generate the excerpt
-						if (node.textContent.length < limit) {
-							excerpt = node.textContent;
-						} else {
-							excerpt = node.textContent.substring(pos - limit / 2, pos + limit / 2);
-							excerpt = "..." + excerpt + "...";
-						}
-
-						// Add the CFI to the matches list
-						matches.push({
-							cfi: cfi,
-							excerpt: excerpt
-						});
-					}
-
-					last = pos;
-				}
-			};
-
-			(0, _core.sprint)(section.document, function (node) {
-				find(node);
-			});
-
-			return matches;
-		}
-	}, {
-		key: "reconcileLayoutSettings",
-
-
-		/**
-  * Reconciles the current chapters layout properies with
-  * the global layout properities.
-  * @param {object} global  The globa layout settings object, chapter properties string
-  * @return {object} layoutProperties Object with layout properties
-  */
-		value: function reconcileLayoutSettings(global) {
-			//-- Get the global defaults
-			var settings = {
-				layout: global.layout,
-				spread: global.spread,
-				orientation: global.orientation
-			};
-
-			//-- Get the chapter's display type
-			this.properties.forEach(function (prop) {
-				var rendition = prop.replace("rendition:", "");
-				var split = rendition.indexOf("-");
-				var property, value;
-
-				if (split != -1) {
-					property = rendition.slice(0, split);
-					value = rendition.slice(split + 1);
-
-					settings[property] = value;
-				}
-			});
-			return settings;
-		}
-
-		/**
-   * Get a CFI from a Range in the Section
-   * @param  {range} _range
-   * @return {string} cfi an EpubCFI string
-   */
-
-	}, {
-		key: "cfiFromRange",
-		value: function cfiFromRange(_range) {
-			return new _epubcfi2.default(_range, this.cfiBase).toString();
-		}
-
-		/**
-   * Get a CFI from an Element in the Section
-   * @param  {element} el
-   * @return {string} cfi an EpubCFI string
-   */
-
-	}, {
-		key: "cfiFromElement",
-		value: function cfiFromElement(el) {
-			return new _epubcfi2.default(el, this.cfiBase).toString();
-		}
-
-		/**
-   * Unload the section document
-   */
-
-	}, {
-		key: "unload",
-		value: function unload() {
-			this.document = undefined;
-			this.contents = undefined;
-			this.output = undefined;
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.unload();
-			this.hooks.serialize.clear();
-			this.hooks.content.clear();
-
-			this.hooks = undefined;
-			this.idref = undefined;
-			this.linear = undefined;
-			this.properties = undefined;
-			this.index = undefined;
-			this.href = undefined;
-			this.url = undefined;
-			this.next = undefined;
-			this.prev = undefined;
-
-			this.cfiBase = undefined;
-		}
-	}]);
-
-	return Section;
-}();
-
-exports.default = Section;
-module.exports = exports["default"];
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _epubcfi = __webpack_require__(1);
-
-var _epubcfi2 = _interopRequireDefault(_epubcfi);
-
-var _hook = __webpack_require__(9);
-
-var _hook2 = _interopRequireDefault(_hook);
-
-var _section = __webpack_require__(37);
-
-var _section2 = _interopRequireDefault(_section);
-
-var _replacements = __webpack_require__(4);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * A collection of Spine Items
- */
-var Spine = function () {
-	function Spine() {
-		_classCallCheck(this, Spine);
-
-		this.spineItems = [];
-		this.spineByHref = {};
-		this.spineById = {};
-
-		this.hooks = {};
-		this.hooks.serialize = new _hook2.default();
-		this.hooks.content = new _hook2.default();
-
-		// Register replacements
-		this.hooks.content.register(_replacements.replaceBase);
-		this.hooks.content.register(_replacements.replaceCanonical);
-		this.hooks.content.register(_replacements.replaceMeta);
-
-		this.epubcfi = new _epubcfi2.default();
-
-		this.loaded = false;
-
-		this.items = undefined;
-		this.manifest = undefined;
-		this.spineNodeIndex = undefined;
-		this.baseUrl = undefined;
-		this.length = undefined;
-	}
-
-	/**
-  * Unpack items from a opf into spine items
-  * @param  {Package} _package
-  * @param  {method} resolver URL resolver
-  */
-
-
-	_createClass(Spine, [{
-		key: "unpack",
-		value: function unpack(_package, resolver) {
-			var _this = this;
-
-			this.items = _package.spine;
-			this.manifest = _package.manifest;
-			this.spineNodeIndex = _package.spineNodeIndex;
-			this.baseUrl = _package.baseUrl || _package.basePath || "";
-			this.length = this.items.length;
-
-			this.items.forEach(function (item, index) {
-				var manifestItem = _this.manifest[item.idref];
-				var spineItem;
-
-				item.index = index;
-				item.cfiBase = _this.epubcfi.generateChapterComponent(_this.spineNodeIndex, item.index, item.idref);
-
-				if (item.href) {
-					item.url = resolver(item.href, true);
-				}
-
-				if (manifestItem) {
-					item.href = manifestItem.href;
-					item.url = resolver(item.href, true);
-					if (manifestItem.properties.length) {
-						item.properties.push.apply(item.properties, manifestItem.properties);
-					}
-				}
-
-				if (item.linear === "yes") {
-					item.prev = function () {
-						var prevIndex = item.index;
-						while (prevIndex > 0) {
-							var prev = this.get(prevIndex - 1);
-							if (prev && prev.linear) {
-								return prev;
-							}
-							prevIndex -= 1;
-						}
-						return;
-					}.bind(_this);
-					item.next = function () {
-						var nextIndex = item.index;
-						while (nextIndex < this.spineItems.length - 1) {
-							var next = this.get(nextIndex + 1);
-							if (next && next.linear) {
-								return next;
-							}
-							nextIndex += 1;
-						}
-						return;
-					}.bind(_this);
-				} else {
-					item.prev = function () {
-						return;
-					};
-					item.next = function () {
-						return;
-					};
-				}
-
-				spineItem = new _section2.default(item, _this.hooks);
-
-				_this.append(spineItem);
-			});
-
-			this.loaded = true;
-		}
-
-		/**
-   * Get an item from the spine
-   * @param  {[string|int]} target
-   * @return {Section} section
-   * @example spine.get();
-   * @example spine.get(1);
-   * @example spine.get("chap1.html");
-   * @example spine.get("#id1234");
-   */
-
-	}, {
-		key: "get",
-		value: function get(target) {
-			var index = 0;
-
-			if (typeof target === "undefined") {
-				while (index < this.spineItems.length) {
-					var next = this.spineItems[index];
-					if (next && next.linear) {
-						break;
-					}
-					index += 1;
-				}
-			} else if (this.epubcfi.isCfiString(target)) {
-				var cfi = new _epubcfi2.default(target);
-				index = cfi.spinePos;
-			} else if (typeof target === "number" || isNaN(target) === false) {
-				index = target;
-			} else if (typeof target === "string" && target.indexOf("#") === 0) {
-				index = this.spineById[target.substring(1)];
-			} else if (typeof target === "string") {
-				// Remove fragments
-				target = target.split("#")[0];
-				index = this.spineByHref[target];
-			}
-
-			return this.spineItems[index] || null;
-		}
-
-		/**
-   * Append a Section to the Spine
-   * @private
-   * @param  {Section} section
-   */
-
-	}, {
-		key: "append",
-		value: function append(section) {
-			var index = this.spineItems.length;
-			section.index = index;
-
-			this.spineItems.push(section);
-
-			this.spineByHref[section.href] = index;
-			this.spineById[section.idref] = index;
-
-			return index;
-		}
-
-		/**
-   * Prepend a Section to the Spine
-   * @private
-   * @param  {Section} section
-   */
-
-	}, {
-		key: "prepend",
-		value: function prepend(section) {
-			// var index = this.spineItems.unshift(section);
-			this.spineByHref[section.href] = 0;
-			this.spineById[section.idref] = 0;
-
-			// Re-index
-			this.spineItems.forEach(function (item, index) {
-				item.index = index;
-			});
-
-			return 0;
-		}
-
-		// insert(section, index) {
+		// append(section){
+		// 	return this.q.enqueue(function() {
+		//
+		// 		this._append(section);
+		//
+		//
+		// 	}.bind(this));
+		// };
+		//
+		// prepend(section){
+		// 	return this.q.enqueue(function() {
+		//
+		// 		this._prepend(section);
+		//
+		// 	}.bind(this));
 		//
 		// };
 
-		/**
-   * Remove a Section from the Spine
-   * @private
-   * @param  {Section} section
-   */
-
 	}, {
-		key: "remove",
-		value: function remove(section) {
-			var index = this.spineItems.indexOf(section);
+		key: "add",
+		value: function add(section) {
+			var view = this.createView(section);
 
-			if (index > -1) {
-				delete this.spineByHref[section.href];
-				delete this.spineById[section.idref];
+			this.views.append(view);
 
-				return this.spineItems.splice(index, 1);
-			}
-		}
-
-		/**
-   * Loop over the Sections in the Spine
-   * @return {method} forEach
-   */
-
-	}, {
-		key: "each",
-		value: function each() {
-			return this.spineItems.forEach.apply(this.spineItems, arguments);
-		}
-	}, {
-		key: "first",
-		value: function first() {
-			var index = 0;
-
-			while (index < this.spineItems.length - 1) {
-				var next = this.get(index);
-				if (next && next.linear) {
-					return next;
-				}
-				index += 1;
-			}
-		}
-	}, {
-		key: "last",
-		value: function last() {
-			var index = this.spineItems.length - 1;
-
-			while (index > 0) {
-				var prev = this.get(index);
-				if (prev && prev.linear) {
-					return prev;
-				}
-				index -= 1;
-			}
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.each(function (section) {
-				return section.destroy();
+			view.on("resized", function (bounds) {
+				view.expanded = true;
 			});
 
-			this.spineItems = undefined;
-			this.spineByHref = undefined;
-			this.spineById = undefined;
+			// view.on("shown", this.afterDisplayed.bind(this));
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
 
-			this.hooks.serialize.clear();
-			this.hooks.content.clear();
-			this.hooks = undefined;
-
-			this.epubcfi = undefined;
-
-			this.loaded = false;
-
-			this.items = undefined;
-			this.manifest = undefined;
-			this.spineNodeIndex = undefined;
-			this.baseUrl = undefined;
-			this.length = undefined;
-		}
-	}]);
-
-	return Spine;
-}();
-
-exports.default = Spine;
-module.exports = exports["default"];
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _url = __webpack_require__(5);
-
-var _url2 = _interopRequireDefault(_url);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Themes = function () {
-	function Themes(rendition) {
-		_classCallCheck(this, Themes);
-
-		this.rendition = rendition;
-		this._themes = {
-			"default": {
-				"rules": {},
-				"url": "",
-				"serialized": ""
-			}
-		};
-		this._overrides = {};
-		this._current = "default";
-		this._injected = [];
-		this.rendition.hooks.content.register(this.inject.bind(this));
-		this.rendition.hooks.content.register(this.overrides.bind(this));
-	}
-
-	_createClass(Themes, [{
-		key: "register",
-		value: function register() {
-			if (arguments.length === 0) {
-				return;
-			}
-			if (arguments.length === 1 && _typeof(arguments[0]) === "object") {
-				return this.registerThemes(arguments[0]);
-			}
-			if (arguments.length === 1 && typeof arguments[0] === "string") {
-				return this.default(arguments[0]);
-			}
-			if (arguments.length === 2 && typeof arguments[1] === "string") {
-				return this.registerUrl(arguments[0], arguments[1]);
-			}
-			if (arguments.length === 2 && _typeof(arguments[1]) === "object") {
-				return this.registerRules(arguments[0], arguments[1]);
-			}
+			return view.display(this.request);
 		}
 	}, {
-		key: "default",
-		value: function _default(theme) {
-			if (!theme) {
-				return;
-			}
-			if (typeof theme === "string") {
-				return this.registerUrl("default", theme);
-			}
-			if ((typeof theme === "undefined" ? "undefined" : _typeof(theme)) === "object") {
-				return this.registerRules("default", theme);
-			}
-		}
-	}, {
-		key: "registerThemes",
-		value: function registerThemes(themes) {
-			for (var theme in themes) {
-				if (themes.hasOwnProperty(theme)) {
-					if (typeof themes[theme] === "string") {
-						this.registerUrl(theme, themes[theme]);
-					} else {
-						this.registerRules(theme, themes[theme]);
-					}
-				}
-			}
-		}
-	}, {
-		key: "registerUrl",
-		value: function registerUrl(name, input) {
-			var url = new _url2.default(input);
-			this._themes[name] = { "url": url.toString() };
-			if (this._injected[name]) {
-				this.update(name);
-			}
-		}
-	}, {
-		key: "registerRules",
-		value: function registerRules(name, rules) {
-			this._themes[name] = { "rules": rules };
-			// TODO: serialize css rules
-			if (this._injected[name]) {
-				this.update(name);
-			}
-		}
-	}, {
-		key: "apply",
-		value: function apply(name) {
-			var prev = this._current;
-			var contents;
+		key: "append",
+		value: function append(section) {
+			var view = this.createView(section);
 
-			this._current = name;
-			this.update(name);
-
-			contents = this.rendition.getContents();
-			contents.forEach(function (content) {
-				content.removeClass(prev);
-				content.addClass(name);
+			view.on("resized", function (bounds) {
+				view.expanded = true;
 			});
+
+			this.views.append(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "prepend",
+		value: function prepend(section) {
+			var _this3 = this;
+
+			var view = this.createView(section);
+
+			view.on("resized", function (bounds) {
+				_this3.counter(bounds);
+				view.expanded = true;
+			});
+
+			this.views.prepend(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "counter",
+		value: function counter(bounds) {
+			if (this.settings.axis === "vertical") {
+				this.scrollBy(0, bounds.heightDelta, true);
+			} else {
+				this.scrollBy(bounds.widthDelta, 0, true);
+			}
 		}
 	}, {
 		key: "update",
-		value: function update(name) {
-			var _this = this;
+		value: function update(_offset) {
+			var container = this.bounds();
+			var views = this.views.all();
+			var viewsLength = views.length;
+			var visible = [];
+			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+			var isVisible;
+			var view;
 
-			var contents = this.rendition.getContents();
-			contents.forEach(function (content) {
-				_this.add(name, content);
-			});
-		}
-	}, {
-		key: "inject",
-		value: function inject(contents) {
-			var links = [];
-			var themes = this._themes;
-			var theme;
+			var updating = new _core.defer();
+			var promises = [];
+			for (var i = 0; i < viewsLength; i++) {
+				view = views[i];
 
-			for (var name in themes) {
-				if (themes.hasOwnProperty(name) && name === this._current) {
-					theme = themes[name];
-					if (theme.rules || theme.url && links.indexOf(theme.url) === -1) {
-						this.add(name, contents);
+				isVisible = this.isVisible(view, offset, offset, container);
+
+				if (isVisible === true) {
+					// console.log("visible " + view.index);
+
+					if (!view.displayed) {
+						promises.push(view.display(this.request).then(function (view) {
+							view.show();
+						}));
+					} else {
+						view.show();
 					}
-					this._injected.push(name);
+					visible.push(view);
+				} else {
+					// this.q.enqueue(view.destroy.bind(view));
+					// console.log("hidden " + view.index);
+
+					clearTimeout(this.trimTimeout);
+					this.trimTimeout = setTimeout(function () {
+						this.q.enqueue(this.trim.bind(this));
+					}.bind(this), 250);
 				}
 			}
 
-			if (this._current != "default") {
-				contents.addClass(this._current);
+			if (promises.length) {
+				return Promise.all(promises);
+			} else {
+				updating.resolve();
+				return updating.promise;
 			}
 		}
 	}, {
-		key: "add",
-		value: function add(name, contents) {
-			var theme = this._themes[name];
+		key: "check",
+		value: function check(_offsetLeft, _offsetTop) {
+			var _this4 = this;
 
-			if (!theme) {
-				return;
+			var last, first, next, prev;
+
+			var checking = new _core.defer();
+			var newViews = [];
+
+			var horizontal = this.settings.axis === "horizontal";
+			var delta = this.settings.offset || 0;
+
+			if (_offsetLeft && horizontal) {
+				delta = _offsetLeft;
 			}
 
-			if (theme.url) {
-				contents.addStylesheet(theme.url);
-			} else if (theme.serialized) {
-				// TODO: handle serialized
-			} else if (theme.rules) {
-				contents.addStylesheetRules(theme.rules);
-				theme.injected = true;
+			if (_offsetTop && !horizontal) {
+				delta = _offsetTop;
 			}
-		}
-	}, {
-		key: "override",
-		value: function override(name, value) {
-			var _this2 = this;
 
-			var contents = this.rendition.getContents();
+			var bounds = this._bounds; // bounds saved this until resize
 
-			this._overrides[name] = value;
+			var offset = horizontal ? this.scrollLeft : this.scrollTop;
+			var visibleLength = horizontal ? bounds.width : bounds.height;
+			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
 
-			contents.forEach(function (content) {
-				content.css(name, _this2._overrides[name]);
+			if (offset + visibleLength + delta >= contentLength) {
+				last = this.views.last();
+				next = last && last.section.next();
+
+				if (next) {
+					newViews.push(this.append(next));
+				}
+			}
+
+			if (offset - delta < 0) {
+				first = this.views.first();
+
+				prev = first && first.section.prev();
+				if (prev) {
+					newViews.push(this.prepend(prev));
+				}
+			}
+
+			var promises = newViews.map(function (view) {
+				return view.displayed;
 			});
+
+			if (newViews.length) {
+				return Promise.all(promises).then(function () {
+					// Check to see if anything new is on screen after rendering
+					return _this4.update(delta);
+				});
+			} else {
+				this.q.enqueue(function () {
+					this.update();
+				}.bind(this));
+				checking.resolve(false);
+				return checking.promise;
+			}
 		}
 	}, {
-		key: "overrides",
-		value: function overrides(contents) {
-			var overrides = this._overrides;
+		key: "trim",
+		value: function trim() {
+			var task = new _core.defer();
+			var displayed = this.views.displayed();
+			var first = displayed[0];
+			var last = displayed[displayed.length - 1];
+			var firstIndex = this.views.indexOf(first);
+			var lastIndex = this.views.indexOf(last);
+			var above = this.views.slice(0, firstIndex);
+			var below = this.views.slice(lastIndex + 1);
 
-			for (var rule in overrides) {
-				if (overrides.hasOwnProperty(rule)) {
-					contents.css(rule, overrides[rule]);
+			// Erase all but last above
+			for (var i = 0; i < above.length - 1; i++) {
+				this.erase(above[i], above);
+			}
+
+			// Erase all except first below
+			for (var j = 1; j < below.length; j++) {
+				this.erase(below[j]);
+			}
+
+			task.resolve();
+			return task.promise;
+		}
+	}, {
+		key: "erase",
+		value: function erase(view, above) {
+			//Trim
+
+			var prevTop;
+			var prevLeft;
+
+			if (this.settings.height) {
+				prevTop = this.container.scrollTop;
+				prevLeft = this.container.scrollLeft;
+			} else {
+				prevTop = window.scrollY;
+				prevLeft = window.scrollX;
+			}
+
+			var bounds = view.bounds();
+
+			view.destroy.bind(view);
+			this.views.remove(view);
+
+			if (above) {
+
+				if (this.settings.axis === "vertical") {
+					this.scrollTo(0, prevTop - bounds.height, true);
+				} else {
+					this.scrollTo(prevLeft - bounds.width, 0, true);
 				}
 			}
 		}
 	}, {
-		key: "fontSize",
-		value: function fontSize(size) {
-			this.override("font-size", size);
+		key: "addEventListeners",
+		value: function addEventListeners(stage) {
+
+			window.addEventListener("unload", function (e) {
+				this.ignore = true;
+				// this.scrollTo(0,0);
+				this.destroy();
+			}.bind(this));
+
+			this.addScrollListeners();
 		}
 	}, {
-		key: "font",
-		value: function font(f) {
-			this.override("font-family", f);
+		key: "addScrollListeners",
+		value: function addScrollListeners() {
+			var scroller;
+
+			this.tick = _core.requestAnimationFrame;
+
+			if (this.settings.height) {
+				this.prevScrollTop = this.container.scrollTop;
+				this.prevScrollLeft = this.container.scrollLeft;
+			} else {
+				this.prevScrollTop = window.scrollY;
+				this.prevScrollLeft = window.scrollX;
+			}
+
+			this.scrollDeltaVert = 0;
+			this.scrollDeltaHorz = 0;
+
+			if (this.settings.height) {
+				scroller = this.container;
+				this.scrollTop = this.container.scrollTop;
+				this.scrollLeft = this.container.scrollLeft;
+			} else {
+				scroller = window;
+				this.scrollTop = window.scrollY;
+				this.scrollLeft = window.scrollX;
+			}
+
+			scroller.addEventListener("scroll", this.onScroll.bind(this));
+			this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 300);
+			// this.tick.call(window, this.onScroll.bind(this));
+
+			this.scrolled = false;
 		}
 	}, {
-		key: "destroy",
-		value: function destroy() {
-			this.rendition = undefined;
-			this._themes = undefined;
-			this._overrides = undefined;
-			this._current = undefined;
-			this._injected = undefined;
+		key: "removeEventListeners",
+		value: function removeEventListeners() {
+			var scroller;
+
+			if (this.settings.height) {
+				scroller = this.container;
+			} else {
+				scroller = window;
+			}
+
+			scroller.removeEventListener("scroll", this.onScroll.bind(this));
+		}
+	}, {
+		key: "onScroll",
+		value: function onScroll() {
+			var scrollTop = void 0;
+			var scrollLeft = void 0;
+
+			if (this.settings.height) {
+				scrollTop = this.container.scrollTop;
+				scrollLeft = this.container.scrollLeft;
+			} else {
+				scrollTop = window.scrollY;
+				scrollLeft = window.scrollX;
+			}
+
+			this.scrollTop = scrollTop;
+			this.scrollLeft = scrollLeft;
+
+			if (!this.ignore) {
+
+				this._scrolled();
+			} else {
+				this.ignore = false;
+			}
+
+			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+			this.prevScrollTop = scrollTop;
+			this.prevScrollLeft = scrollLeft;
+
+			clearTimeout(this.scrollTimeout);
+			this.scrollTimeout = setTimeout(function () {
+				this.scrollDeltaVert = 0;
+				this.scrollDeltaHorz = 0;
+			}.bind(this), 150);
+
+			this.scrolled = false;
+		}
+	}, {
+		key: "scrolled",
+		value: function scrolled() {
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+
+			this.emit("scroll", {
+				top: this.scrollTop,
+				left: this.scrollLeft
+			});
+
+			clearTimeout(this.afterScrolled);
+			this.afterScrolled = setTimeout(function () {
+				this.emit("scrolled", {
+					top: this.scrollTop,
+					left: this.scrollLeft
+				});
+			}.bind(this));
+		}
+	}, {
+		key: "next",
+		value: function next() {
+
+			if (this.settings.axis === "horizontal") {
+
+				this.scrollLeft = this.container.scrollLeft;
+
+				if (this.container.scrollLeft + this.container.offsetWidth + this.layout.delta < this.container.scrollWidth) {
+					this.scrollBy(this.layout.delta, 0, true);
+				} else {
+					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+				}
+			} else {
+				this.scrollBy(0, this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "prev",
+		value: function prev() {
+			if (this.settings.axis === "horizontal") {
+				this.scrollBy(-this.layout.delta, 0, true);
+			} else {
+				this.scrollBy(0, -this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "updateFlow",
+		value: function updateFlow(flow) {
+			var axis = flow === "paginated" ? "horizontal" : "vertical";
+
+			this.settings.axis = axis;
+
+			this.stage && this.stage.axis(axis);
+
+			this.viewSettings.axis = axis;
+
+			if (!this.settings.overflow) {
+				this.overflow = flow === "paginated" ? "hidden" : "auto";
+			} else {
+				this.overflow = this.settings.overflow;
+			}
+
+			// this.views.each(function(view){
+			// 	view.setAxis(axis);
+			// });
+
+			if (this.settings.axis === "vertical") {
+				this.settings.infinite = true;
+			} else {
+				this.settings.infinite = false;
+			}
+
+			this.updateLayout();
 		}
 	}]);
 
-	return Themes;
-}();
+	return ContinuousViewManager;
+}(_default2.default);
 
-exports.default = Themes;
+exports.default = ContinuousViewManager;
 module.exports = exports["default"];
 
 /***/ }),
-/* 40 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var isObject = __webpack_require__(18),
+    now = __webpack_require__(61),
+    toNumber = __webpack_require__(63);
 
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
 
-var assign        = __webpack_require__(42)
-  , normalizeOpts = __webpack_require__(49)
-  , isCallable    = __webpack_require__(45)
-  , contains      = __webpack_require__(52)
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeMin = Math.min;
 
-  , d;
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked. The debounced function comes with a `cancel` method to cancel
+ * delayed `func` invocations and a `flush` method to immediately invoke them.
+ * Provide `options` to indicate whether `func` should be invoked on the
+ * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+ * with the last arguments provided to the debounced function. Subsequent
+ * calls to the debounced function return the result of the last `func`
+ * invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the debounced function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `_.debounce` and `_.throttle`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0] The number of milliseconds to delay.
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=false]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {number} [options.maxWait]
+ *  The maximum time `func` is allowed to be delayed before it's invoked.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // Avoid costly calculations while the window size is in flux.
+ * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+ *
+ * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+ * jQuery(element).on('click', _.debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }));
+ *
+ * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+ * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+ * var source = new EventSource('/stream');
+ * jQuery(source).on('message', debounced);
+ *
+ * // Cancel the trailing debounced invocation.
+ * jQuery(window).on('popstate', debounced.cancel);
+ */
+function debounce(func, wait, options) {
+  var lastArgs,
+      lastThis,
+      maxWait,
+      result,
+      timerId,
+      lastCallTime,
+      lastInvokeTime = 0,
+      leading = false,
+      maxing = false,
+      trailing = true;
 
-d = module.exports = function (dscr, value/*, options*/) {
-	var c, e, w, options, desc;
-	if ((arguments.length < 2) || (typeof dscr !== 'string')) {
-		options = value;
-		value = dscr;
-		dscr = null;
-	} else {
-		options = arguments[2];
-	}
-	if (dscr == null) {
-		c = w = true;
-		e = false;
-	} else {
-		c = contains.call(dscr, 'c');
-		e = contains.call(dscr, 'e');
-		w = contains.call(dscr, 'w');
-	}
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  wait = toNumber(wait) || 0;
+  if (isObject(options)) {
+    leading = !!options.leading;
+    maxing = 'maxWait' in options;
+    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
+  }
 
-	desc = { value: value, configurable: c, enumerable: e, writable: w };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-};
+  function invokeFunc(time) {
+    var args = lastArgs,
+        thisArg = lastThis;
 
-d.gs = function (dscr, get, set/*, options*/) {
-	var c, e, options, desc;
-	if (typeof dscr !== 'string') {
-		options = set;
-		set = get;
-		get = dscr;
-		dscr = null;
-	} else {
-		options = arguments[3];
-	}
-	if (get == null) {
-		get = undefined;
-	} else if (!isCallable(get)) {
-		options = get;
-		get = set = undefined;
-	} else if (set == null) {
-		set = undefined;
-	} else if (!isCallable(set)) {
-		options = set;
-		set = undefined;
-	}
-	if (dscr == null) {
-		c = true;
-		e = false;
-	} else {
-		c = contains.call(dscr, 'c');
-		e = contains.call(dscr, 'e');
-	}
+    lastArgs = lastThis = undefined;
+    lastInvokeTime = time;
+    result = func.apply(thisArg, args);
+    return result;
+  }
 
-	desc = { get: get, set: set, configurable: c, enumerable: e };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-};
+  function leadingEdge(time) {
+    // Reset any `maxWait` timer.
+    lastInvokeTime = time;
+    // Start the timer for the trailing edge.
+    timerId = setTimeout(timerExpired, wait);
+    // Invoke the leading edge.
+    return leading ? invokeFunc(time) : result;
+  }
 
+  function remainingWait(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime,
+        result = wait - timeSinceLastCall;
 
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
+    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+  }
 
-"use strict";
+  function shouldInvoke(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime;
 
+    // Either this is the first call, activity has stopped and we're at the
+    // trailing edge, the system time has gone backwards and we're treating
+    // it as the trailing edge, or we've hit the `maxWait` limit.
+    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+  }
 
-// eslint-disable-next-line no-empty-function
-module.exports = function () {};
+  function timerExpired() {
+    var time = now();
+    if (shouldInvoke(time)) {
+      return trailingEdge(time);
+    }
+    // Restart the timer.
+    timerId = setTimeout(timerExpired, remainingWait(time));
+  }
 
+  function trailingEdge(time) {
+    timerId = undefined;
 
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
+    // Only invoke if we have `lastArgs` which means `func` has been
+    // debounced at least once.
+    if (trailing && lastArgs) {
+      return invokeFunc(time);
+    }
+    lastArgs = lastThis = undefined;
+    return result;
+  }
 
-"use strict";
+  function cancel() {
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+    }
+    lastInvokeTime = 0;
+    lastArgs = lastCallTime = lastThis = timerId = undefined;
+  }
 
+  function flush() {
+    return timerId === undefined ? result : trailingEdge(now());
+  }
 
-module.exports = __webpack_require__(43)()
-	? Object.assign
-	: __webpack_require__(44);
+  function debounced() {
+    var time = now(),
+        isInvoking = shouldInvoke(time);
 
+    lastArgs = arguments;
+    lastThis = this;
+    lastCallTime = time;
 
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function () {
-	var assign = Object.assign, obj;
-	if (typeof assign !== "function") return false;
-	obj = { foo: "raz" };
-	assign(obj, { bar: "dwa" }, { trzy: "trzy" });
-	return (obj.foo + obj.bar + obj.trzy) === "razdwatrzy";
-};
-
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var keys  = __webpack_require__(46)
-  , value = __webpack_require__(51)
-  , max   = Math.max;
-
-module.exports = function (dest, src /*, …srcn*/) {
-	var error, i, length = max(arguments.length, 2), assign;
-	dest = Object(value(dest));
-	assign = function (key) {
-		try {
-			dest[key] = src[key];
-		} catch (e) {
-			if (!error) error = e;
-		}
-	};
-	for (i = 1; i < length; ++i) {
-		src = arguments[i];
-		keys(src).forEach(assign);
-	}
-	if (error !== undefined) throw error;
-	return dest;
-};
-
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// Deprecated
-
-
-
-module.exports = function (obj) {
- return typeof obj === "function";
-};
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(47)()
-	? Object.keys
-	: __webpack_require__(48);
-
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function () {
-	try {
-		Object.keys("primitive");
-		return true;
-	} catch (e) {
- return false;
+    if (isInvoking) {
+      if (timerId === undefined) {
+        return leadingEdge(lastCallTime);
+      }
+      if (maxing) {
+        // Handle invocations in a tight loop.
+        timerId = setTimeout(timerExpired, wait);
+        return invokeFunc(lastCallTime);
+      }
+    }
+    if (timerId === undefined) {
+      timerId = setTimeout(timerExpired, wait);
+    }
+    return result;
+  }
+  debounced.cancel = cancel;
+  debounced.flush = flush;
+  return debounced;
 }
-};
+
+module.exports = debounce;
 
 
 /***/ }),
-/* 48 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var root = __webpack_require__(19);
 
-
-var isValue = __webpack_require__(12);
-
-var keys = Object.keys;
-
-module.exports = function (object) {
-	return keys(isValue(object) ? Object(object) : object);
+/**
+ * Gets the timestamp of the number of milliseconds that have elapsed since
+ * the Unix epoch (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Date
+ * @returns {number} Returns the timestamp.
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => Logs the number of milliseconds it took for the deferred invocation.
+ */
+var now = function() {
+  return root.Date.now();
 };
+
+module.exports = now;
 
 
 /***/ }),
-/* 49 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
 
+module.exports = freeGlobal;
 
-var isValue = __webpack_require__(12);
-
-var forEach = Array.prototype.forEach, create = Object.create;
-
-var process = function (src, obj) {
-	var key;
-	for (key in src) obj[key] = src[key];
-};
-
-// eslint-disable-next-line no-unused-vars
-module.exports = function (opts1 /*, …options*/) {
-	var result = create(null);
-	forEach.call(arguments, function (options) {
-		if (!isValue(options)) return;
-		process(Object(options), result);
-	});
-	return result;
-};
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
-/* 50 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var isObject = __webpack_require__(18),
+    isSymbol = __webpack_require__(64);
 
+/** Used as references for various `Number` constants. */
+var NAN = 0 / 0;
 
-module.exports = function (fn) {
-	if (typeof fn !== "function") throw new TypeError(fn + " is not a function");
-	return fn;
-};
+/** Used to match leading and trailing whitespace. */
+var reTrim = /^\s+|\s+$/g;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (isSymbol(value)) {
+    return NAN;
+  }
+  if (isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = value.replace(reTrim, '');
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+module.exports = toNumber;
 
 
 /***/ }),
-/* 51 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var baseGetTag = __webpack_require__(65),
+    isObjectLike = __webpack_require__(68);
 
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
 
-var isValue = __webpack_require__(12);
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+}
 
-module.exports = function (value) {
-	if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
-	return value;
-};
+module.exports = isSymbol;
 
 
 /***/ }),
-/* 52 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var Symbol = __webpack_require__(20),
+    getRawTag = __webpack_require__(66),
+    objectToString = __webpack_require__(67);
 
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
 
-module.exports = __webpack_require__(53)()
-	? String.prototype.contains
-	: __webpack_require__(54);
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+  return (symToStringTag && symToStringTag in Object(value))
+    ? getRawTag(value)
+    : objectToString(value);
+}
+
+module.exports = baseGetTag;
 
 
 /***/ }),
-/* 53 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var Symbol = __webpack_require__(20);
 
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
 
-var str = "razdwatrzy";
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
 
-module.exports = function () {
-	if (typeof str.contains !== "function") return false;
-	return (str.contains("dwa") === true) && (str.contains("foo") === false);
-};
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+function getRawTag(value) {
+  var isOwn = hasOwnProperty.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+  return result;
+}
+
+module.exports = getRawTag;
 
 
 /***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var indexOf = String.prototype.indexOf;
-
-module.exports = function (searchString/*, position*/) {
-	return indexOf.call(this, searchString, arguments[1]) > -1;
-};
-
-
-/***/ }),
-/* 55 */
+/* 67 */
 /***/ (function(module, exports) {
 
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+function objectToString(value) {
+  return nativeObjectToString.call(value);
+}
+
+module.exports = objectToString;
 
 
 /***/ }),
-/* 56 */
+/* 68 */
 /***/ (function(module, exports) {
 
-if(typeof __WEBPACK_EXTERNAL_MODULE_56__ === 'undefined') {var e = new Error("Cannot find module \"JSZip\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-module.exports = __WEBPACK_EXTERNAL_MODULE_56__;
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+module.exports = isObjectLike;
+
 
 /***/ })
 /******/ ]);
