@@ -4509,7 +4509,7 @@ var Search = Control.extend({
     html: '<span>Search</span>'
   },
 
-  defaultTemplate: '<form>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open">Search</button>\n  </form>',
+  defaultTemplate: '<form class="search">\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
 
   onAdd: function onAdd(reader) {
     var self = this;
