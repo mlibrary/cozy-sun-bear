@@ -499,6 +499,21 @@ div.cozy-panel-footer {
   text-transform: none;
 }
 
+// search widget
+.cozy-control form.search {
+  display: inline-flex;
+  height: 100%;
+
+  button.button--sm {
+    padding: 0 .5em;
+  }
+
+  button i.icon-magnifying-glass {
+    font-size: 1em;
+  }
+
+}
+
 // preferences button
 .cozy-control-preferences {
   button {
@@ -534,7 +549,7 @@ div.cozy-panel-footer {
 
 }
 
-// engine-specific 
+// engine-specific
 .cozy-container.cozy-engine-readium {
   .book-frame.reflowable-book-frame {
       position: absolute !important;

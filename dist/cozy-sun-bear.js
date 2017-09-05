@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.06c5207f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.06ef1e03, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4637,7 +4637,7 @@ var Search = Control.extend({
     html: '<span>Search</span>'
   },
 
-  defaultTemplate: '<form>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open">Search</button>\n  </form>',
+  defaultTemplate: '<form class="search">\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
 
   onAdd: function onAdd(reader) {
     var self = this;
