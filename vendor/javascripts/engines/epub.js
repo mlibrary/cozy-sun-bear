@@ -4333,14 +4333,13 @@ var Contents = function () {
 			if (!this.document || !rules || rules.length === 0) return;
 
 			// Check if link already exists
-			styleEl = this.document.getElementById("#" + key);
+			styleEl = this.document.getElementById(key);
 			if (!styleEl) {
 				styleEl = this.document.createElement("style");
 				styleEl.id = key;
+				// Append style element to head
+				this.document.head.appendChild(styleEl);
 			}
-
-			// Append style element to head
-			this.document.head.appendChild(styleEl);
 
 			// Grab style sheet
 			styleSheet = styleEl.sheet;
