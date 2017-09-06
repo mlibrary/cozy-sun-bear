@@ -114,6 +114,8 @@ export var Reader = Evented.extend({
     var target = target || this.currentLocation();
     Util.extend(this.options, options);
     this.destroy();
+    console.log("AHOY REOPENED?");
+    return;
     this.draw(target);
     this.fire('reopen');
   },

@@ -43,9 +43,9 @@ Reader.EpubJS = Reader.extend({
       self.settings.height = '100%';
       self.settings.width = '100%';
 
-      console.log("AHOY DRAW", size);
-
+      self.settings['ignoreClass'] = 'annotator-hl';
       self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+      self._updateFontSize();
       self._bindEvents();
       self._drawn = true;
 
@@ -118,20 +118,25 @@ Reader.EpubJS = Reader.extend({
 
   reopen: function(options, target) {
     // different per reader?
+    var _this = this;
     var target = target || this.currentLocation();
     if( target.start ) { target = target.start ; }
     if ( target.cfi ) { target = target.cfi ; }
 
     Util.extend(this.options, options);
 
-    this._rendition.flow(this.options.flow);
-    this._updateFontSize();
+    if ( this._rendition.settings.flow != options.flow ) {
+      if ( this.options.flow == 'auto' ) {
+        this._panes['book'].style.overflow = 'hidden';
+      } else {
+        this._panes['book'].style.overflow = 'auto';
+      }
+      this._rendition.flow(this.options.flow);
+    }
 
+    this._updateFontSize();
     this._updateTheme();
     this._updateReaderStyles();
-    this._rendition.manager.clear();
-    console.log("AHOY TARGET", target);
-    this._rendition.display(target);
   },
 
   currentLocation: function() {
@@ -154,14 +159,17 @@ Reader.EpubJS = Reader.extend({
 
     var custom_stylesheet_rules = [];
 
-    if ( add_max_img_styles ) {
-      // WHY IN HEAVENS NAME?
-      var style = window.getComputedStyle(this._panes['book']);
-      var height = parseInt(style.getPropertyValue('height'));
-      height -= parseInt(style.getPropertyValue('padding-top'));
-      height -= parseInt(style.getPropertyValue('padding-bottom'));
-      custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px' ], [ 'max-width', '100%'], [ 'height', 'auto' ], [ 'width', 'auto']]);
-    }
+    // if ( add_max_img_styles ) {
+    //   // WHY IN HEAVENS NAME?
+    //   // var style = window.getComputedStyle(this._panes['book']);
+    //   var style = window.getComputedStyle(this._rendition.manager.container);
+    //   var height = parseInt(style.getPropertyValue('height'));
+    //   height -= parseInt(style.getPropertyValue('padding-top'));
+    //   height -= parseInt(style.getPropertyValue('padding-bottom'));
+    //   // height -= 100;
+    //   console.log("AHOY", height, style);
+    //   custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px !important' ], [ 'max-width', '100% !important'], [ 'height', 'auto' ], [ 'width', 'auto' ]]);
+    // }
 
     this._updateFontSize();
 
@@ -177,10 +185,23 @@ Reader.EpubJS = Reader.extend({
       var current = this.book.navigation.get(section.href);
       self.fire("update-section", current);
     });
+
+    this._rendition.on("rendered", function(section, view) {
+      view.contents.on("linkClicked", function(href) {
+        self._rendition.display(href);
+      })
+    })
+
   },
 
   _updateReaderStyles: function() {
     var isAuthorTheme = false;
+
+    this._rendition.themes.default({
+      '.epubjs-hl' : {
+        'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply'
+      }
+    });
 
     var custom_stylesheet_rules = [];
     var styles = this._getThemeStyles();
@@ -201,7 +222,6 @@ Reader.EpubJS = Reader.extend({
         })
       }
     }
-    console.log("AHOY THEMES", styles, custom_stylesheet_rules);
     this._rendition.hooks.content.register(function(view) {
       view.addStylesheetRules(custom_stylesheet_rules);
     })
@@ -241,6 +261,13 @@ Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 
   set: function(data) {
     this._metadata = Util.extend({}, data, this.options.metadata);
+  }
+});
+
+Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._rendition.annotations;
   }
 });
 
