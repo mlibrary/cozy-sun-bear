@@ -54,7 +54,7 @@ Reader.EpubJS = Reader.extend({
         if ( callback ) { callback(); }
         console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
         window._loaded = true;
-        self._updateReaderStyles();
+        self._initializeReaderStyles();
       });
     })
   },
@@ -136,7 +136,7 @@ Reader.EpubJS = Reader.extend({
 
     this._updateFontSize();
     this._updateTheme();
-    this._updateReaderStyles();
+    this._selectTheme(true);
   },
 
   currentLocation: function() {
@@ -187,7 +187,6 @@ Reader.EpubJS = Reader.extend({
     });
 
     this._rendition.on("rendered", function(section, view) {
-      console.log("AHOY WHAT", view);
       if ( view.contents ) {
         view.contents.on("linkClicked", function(href) {
           self._rendition.display(href);
@@ -196,12 +195,12 @@ Reader.EpubJS = Reader.extend({
     })
   },
 
-  _updateReaderStyles: function() {
-
+  _initializeReaderStyles: function() {
+    var self = this;
     var themes = this.options.themes;
     if ( themes ) {
       themes.forEach(function(theme) {
-        this._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
+        self._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
       })
     }
 
@@ -209,37 +208,15 @@ Reader.EpubJS = Reader.extend({
     this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
   },
 
-  _updateReaderStylesXX: function() {
-    var isAuthorTheme = false;
-
-    this._rendition.themes.default({
-      '.epubjs-hl' : {
-        'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply'
-      }
-    });
-
-    var custom_stylesheet_rules = [];
-    var styles = this._getThemeStyles();
-    for(var selector in styles) {
-      var rules = [];
-      for(var prop in styles[selector]) {
-        rules.push([prop, styles[selector][prop] || 'inherit' ]);
-      }
-      custom_stylesheet_rules.push([
-        selector,
-        rules
-      ]);
-      if ( selector == 'a' ) {
-        custom_stylesheet_rules.push([selector + ' *', rules ]);
-      } else if ( selector == 'body' ) {
-        [ 'body::after', 'body::before', 'body *', 'body *::after', 'body *::before' ].forEach(function(alt) {
-          custom_stylesheet_rules.push([alt, rules ]);
-        })
-      }
+  _selectTheme: function(refresh) {
+    var theme = this.options.theme || 'default';
+    this._rendition.themes.select(theme);
+    if ( 0 && refresh ) {
+      var cfi = this.currentLocation().end.cfi;
+      this._rendition.manager.clear();
+      console.log("AHOY", cfi);
+      this._rendition.display(cfi);
     }
-    this._rendition.hooks.content.register(function(view) {
-      view.addStylesheetRules(custom_stylesheet_rules);
-    })
   },
 
   _updateFontSize: function() {

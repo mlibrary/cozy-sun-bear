@@ -1,5 +1,6 @@
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0a2dd2bf, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
 <<<<<<< HEAD
@@ -8,6 +9,9 @@
  * Cozy Sun Bear 1.0.06c5207f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> 4acf64f... refactor theme support
 >>>>>>> 8ba32db... refactor theme support
+=======
+ * Cozy Sun Bear 1.0.05ef9e8e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 0af20bf... theme support
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2424,6 +2428,27 @@ var Reader = Evented.extend({
 
     this._initContainer(id);
     this._initLayout();
+
+    if (this.options.themes && this.options.themes.length > 0) {
+      this.options.themes.forEach(function (theme) {
+        if (theme.href) {
+          return;
+        }
+        var klass = theme.klass;
+        var rules = {};
+        for (var rule in theme.rules) {
+          var new_rule = '.' + klass;
+          if (rule == 'body') {
+            new_rule = 'body' + new_rule;
+          } else {
+            new_rule += ' ' + rule;
+          }
+          rules[new_rule] = theme.rules[rule];
+        }
+        theme.rules = rules;
+      });
+    }
+
     this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
@@ -2486,38 +2511,9 @@ var Reader = Evented.extend({
   },
 
   _updateTheme: function _updateTheme() {
-    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'light'));
+    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'default'));
     addClass(this._container, 'cozy-theme-' + this.options.theme);
     this._container.dataset.theme = this.options.theme;
-  },
-
-  _getThemeStyles: function _getThemeStyles() {
-    // it would be more useful to be able to get these from CSS
-    if (this.options.theme == 'light') {
-      return {
-        body: {
-          backgroundColor: '#ffffff',
-          color: '#000000'
-        },
-        a: {
-          color: '#4682B4'
-        }
-      };
-    }
-
-    if (this.options.theme == 'dark') {
-      return {
-        body: {
-          backgroundColor: '#002b36',
-          color: '#839496'
-        },
-        a: {
-          color: '#E0FFFF'
-        }
-      };
-    }
-
-    return { body: { backgroundColor: '', color: '' }, a: { color: '' } };
   },
 
   draw: function draw(target) {
@@ -3595,7 +3591,19 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
-    var template = '<form>\n      <fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>\n      <fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>\n        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>\n      </fieldset>\n    </form>';
+    var template = '<fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>';
+
+    if (this._reader.options.themes && this._reader.options.themes.length > 0) {
+      template += '<fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>';
+
+      this._reader.options.themes.forEach(function (theme) {
+        template += '<label><input name="theme" type="radio" id="preferences-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
+      });
+
+      template += '</fieldset>';
+    }
+
+    template = '<form>' + template + '</form>';
 
     this._modal = this._reader.modal({
       template: template,
@@ -3627,7 +3635,8 @@ var Preferences = Control.extend({
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    input_id = "preferences-input-theme-" + (this._reader.options.theme || 'light');
+    input_id = "preferences-input-theme-" + (this._reader.options.theme || 'default');
+    console.log("AHOY", input_id, this._form);
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
   },
@@ -4510,7 +4519,6 @@ var citation = function citation(options) {
   return new Citation(options);
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Search = Control.extend({
@@ -5069,7 +5077,7 @@ Reader.EpubJS = Reader.extend({
         }
         console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
         window._loaded = true;
-        self._updateReaderStyles();
+        self._initializeReaderStyles();
       });
     });
   },
@@ -5145,11 +5153,6 @@ Reader.EpubJS = Reader.extend({
     extend(this.options, options);
 
     if (this._rendition.settings.flow != options.flow) {
-<<<<<<< HEAD
-=======
-      // this._rendition.destroy();
-      // this.draw(target);
->>>>>>> 4acf64f... refactor theme support
       if (this.options.flow == 'auto') {
         this._panes['book'].style.overflow = 'hidden';
       } else {
@@ -5160,7 +5163,7 @@ Reader.EpubJS = Reader.extend({
 
     this._updateFontSize();
     this._updateTheme();
-    this._updateReaderStyles();
+    this._selectTheme(true);
   },
 
   currentLocation: function currentLocation() {
@@ -5211,7 +5214,6 @@ Reader.EpubJS = Reader.extend({
     });
 
     this._rendition.on("rendered", function (section, view) {
-      console.log("AHOY WHAT", view);
       if (view.contents) {
         view.contents.on("linkClicked", function (href) {
           self._rendition.display(href);
@@ -5220,12 +5222,12 @@ Reader.EpubJS = Reader.extend({
     });
   },
 
-  _updateReaderStyles: function _updateReaderStyles() {
-
+  _initializeReaderStyles: function _initializeReaderStyles() {
+    var self = this;
     var themes = this.options.themes;
     if (themes) {
       themes.forEach(function (theme) {
-        this._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
+        self._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
       });
     }
 
@@ -5233,34 +5235,15 @@ Reader.EpubJS = Reader.extend({
     this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
   },
 
-  _updateReaderStylesXX: function _updateReaderStylesXX() {
-    var isAuthorTheme = false;
-
-    this._rendition.themes.default({
-      '.epubjs-hl': {
-        'fill': 'yellow', 'fill-opacity': '0.3', 'mix-blend-mode': 'multiply'
-      }
-    });
-
-    var custom_stylesheet_rules = [];
-    var styles = this._getThemeStyles();
-    for (var selector in styles) {
-      var rules = [];
-      for (var prop in styles[selector]) {
-        rules.push([prop, styles[selector][prop] || 'inherit']);
-      }
-      custom_stylesheet_rules.push([selector, rules]);
-      if (selector == 'a') {
-        custom_stylesheet_rules.push([selector + ' *', rules]);
-      } else if (selector == 'body') {
-        ['body::after', 'body::before', 'body *', 'body *::after', 'body *::before'].forEach(function (alt) {
-          custom_stylesheet_rules.push([alt, rules]);
-        });
-      }
+  _selectTheme: function _selectTheme(refresh) {
+    var theme = this.options.theme || 'default';
+    this._rendition.themes.select(theme);
+    if (0 && refresh) {
+      var cfi = this.currentLocation().end.cfi;
+      this._rendition.manager.clear();
+      console.log("AHOY", cfi);
+      this._rendition.display(cfi);
     }
-    this._rendition.hooks.content.register(function (view) {
-      view.addStylesheetRules(custom_stylesheet_rules);
-    });
   },
 
   _updateFontSize: function _updateFontSize() {
