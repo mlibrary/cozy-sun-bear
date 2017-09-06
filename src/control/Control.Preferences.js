@@ -6,6 +6,7 @@ import * as DomEvent from '../dom/DomEvent';
 export var Preferences = Control.extend({
   options: {
     label: 'Preferences',
+    hasThemes: false,
     html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
   },
 
@@ -62,6 +63,7 @@ export var Preferences = Control.extend({
       </fieldset>`;
 
     if ( this._reader.options.themes && this._reader.options.themes.length > 0 ) {
+      self.options.hasThemes = true;
       template += `<fieldset>
         <legend>Theme</legend>
         <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>`;
@@ -107,10 +109,11 @@ export var Preferences = Control.extend({
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'default' );
-    console.log("AHOY", input_id, this._form);
-    input = this._form.querySelector("#" + input_id);
-    input.checked = true;
+    if ( this.options.hasThemes ) {
+      input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'default' );
+      input = this._form.querySelector("#" + input_id);
+      input.checked = true;
+    }
   },
 
   _updatePreferences: function(event) {
@@ -122,8 +125,10 @@ export var Preferences = Control.extend({
     options.flow = input.value;
     input = this._form.querySelector("input[name='text_size']:checked");
     options.text_size = input.value;
-    input = this._form.querySelector("input[name='theme']:checked");
-    options.theme = input.value;
+    if ( this.options.hasThemes ) {
+      input = this._form.querySelector("input[name='theme']:checked");
+      options.theme = input.value;
+    }
     this._modal.deactivate();
     setTimeout(function() {
       self._reader.reopen(options);
