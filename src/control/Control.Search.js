@@ -47,28 +47,42 @@ export var Search = Control.extend({
       region: 'left'
     });
 
+    this._reader.on('update-section', function() {
+      self._reader.annotations.reset = function() {
+        for(var hash in self._reader.annotations._annotations) {
+            var cfiRange = decodeURI(hash);
+            self._reader.annotations.remove(cfiRange);
+        }
+        self._reader.annotations._annotationsBySectionIndex = {};
+      }
+    });
+
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
 
       var searchString = this._container.querySelector("#cozy-search-string");
       var url = this.options.searchUrl + searchString.value;
-      console.log("SEARCH URL", url);
-
       var parent = this._modal._container.querySelector('ul');
-      // clear any old search results from the dom
+
+      // remove old search results and annotations
       while (parent.hasChildNodes()) {
         parent.removeChild(parent.lastChild);
       }
+      reader.annotations.reset();
 
       $.getJSON(url, function(data) {
-        console.log("DATA", data);
+        console.log("SEARCH DATA", data);
 
         data.search_results.forEach(function(result) {
           var option = DomUtil.create('li');
           var anchor = DomUtil.create('a', null, option);
+          var cfiRange = "epubcfi(" + result.cfi + ")";
+
           anchor.textContent = result.snippet;
-          anchor.setAttribute("href", "epubcfi(" + result.cfi + ")");
+          anchor.setAttribute("href", cfiRange);
           parent.appendChild(option);
+
+          reader.annotations.highlight(cfiRange);
         });
       })
       .fail(function(jqxhr, textStatus, error) {
@@ -78,6 +92,7 @@ export var Search = Control.extend({
       .always(function() {
         self._modal.activate();
       });
+
     }, this);
 
     DomEvent.on(this._modal._container, 'click', function(event) {
@@ -89,7 +104,6 @@ export var Search = Control.extend({
       }
       this._modal.deactivate();
     }, this);
-
 
     return container;
   },
