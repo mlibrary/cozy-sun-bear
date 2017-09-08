@@ -10,6 +10,7 @@ import {Search, search} from './Control.Search';
 import {CitationOptions, citationOptions} from './Control.CitationOptions';
 import {BibliographicInformation, bibliographicInformation} from './Control.BibliographicInformation';
 import {Download, download} from './Control.Download';
+import {Navigator, navigator} from './Control.Navigator';
 
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
@@ -52,5 +53,8 @@ control.bibliographicInformation = bibliographicInformation;
 
 Control.Download = Download;
 control.download = download;
+
+Control.Navigator = Navigator;
+control.navigator = navigator;
 
 export {Control, control};
