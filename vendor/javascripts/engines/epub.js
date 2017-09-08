@@ -11509,6 +11509,15 @@ var Annotations = function () {
 	}, {
 		key: "hide",
 		value: function hide() {}
+	}, {
+		key: "reset",
+		value: function reset() {
+			for (var hash in this._annotations) {
+				var cfiRange = decodeURI(hash);
+				this.remove(cfiRange);
+			}
+			this._annotationsBySectionIndex = {};
+		}
 	}]);
 
 	return Annotations;
