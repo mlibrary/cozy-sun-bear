@@ -6,6 +6,7 @@ import * as DomEvent from '../dom/DomEvent';
 export var Preferences = Control.extend({
   options: {
     label: 'Preferences',
+    hasThemes: false,
     html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
   },
 
@@ -49,8 +50,7 @@ export var Preferences = Control.extend({
 
   _createPanel: function() {
     var self = this;
-    var template = `<form>
-      <fieldset>
+    var template = `<fieldset>
         <legend>Text Size</legend>
         <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>
         <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>
@@ -60,14 +60,22 @@ export var Preferences = Control.extend({
         <legend>Text Display</legend>
         <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>
         <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
-      </fieldset>
-      <fieldset>
+      </fieldset>`;
+
+    if ( this._reader.options.themes && this._reader.options.themes.length > 0 ) {
+      self.options.hasThemes = true;
+      template += `<fieldset>
         <legend>Theme</legend>
-        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>
-        <label><input name="theme" type="radio" id="preferences-input-theme-light" value="light" />Light</label>
-        <label><input name="theme" type="radio" id="preferences-input-theme-dark" value="dark" />Dark</label>
-      </fieldset>
-    </form>`;
+        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>`;
+      
+      this._reader.options.themes.forEach(function(theme) {
+        template += `<label><input name="theme" type="radio" id="preferences-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`
+      })
+
+      template += '</fieldset>';
+    }
+
+    template = '<form>' + template + '</form>';
 
     this._modal = this._reader.modal({
       template: template,
@@ -101,9 +109,11 @@ export var Preferences = Control.extend({
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
 
-    input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'light' );
-    input = this._form.querySelector("#" + input_id);
-    input.checked = true;
+    if ( this.options.hasThemes ) {
+      input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'default' );
+      input = this._form.querySelector("#" + input_id);
+      input.checked = true;
+    }
   },
 
   _updatePreferences: function(event) {
@@ -115,8 +125,10 @@ export var Preferences = Control.extend({
     options.flow = input.value;
     input = this._form.querySelector("input[name='text_size']:checked");
     options.text_size = input.value;
-    input = this._form.querySelector("input[name='theme']:checked");
-    options.theme = input.value;
+    if ( this.options.hasThemes ) {
+      input = this._form.querySelector("input[name='theme']:checked");
+      options.theme = input.value;
+    }
     this._modal.deactivate();
     setTimeout(function() {
       self._reader.reopen(options);

@@ -47,7 +47,8 @@ export var Reader = Evented.extend({
     fontSizeSmall: '90%',
     fontSizeDefault: '100%',
     trackResize: true,
-    theme: 'default'
+    theme: 'default',
+    themes: []
   },
 
   initialize: function(id, options) {
@@ -58,6 +59,22 @@ export var Reader = Evented.extend({
 
     this._initContainer(id);
     this._initLayout();
+
+    if ( this.options.themes && this.options.themes.length > 0 ) {
+        this.options.themes.forEach(function(theme) {
+            if ( theme.href ) { return; }
+            var klass = theme.klass;
+            var rules = {};
+            for(var rule in theme.rules) {
+                var new_rule = '.' + klass;
+                if ( rule == 'body' ) { new_rule = 'body' + new_rule; }
+                else { new_rule += ' ' + rule ; }
+                rules[new_rule] = theme.rules[rule];
+            }
+            theme.rules = rules;
+        });
+    }
+      
     this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
@@ -121,38 +138,9 @@ export var Reader = Evented.extend({
   },
 
   _updateTheme: function() {
-    DomUtil.removeClass(this._container, 'cozy-theme-' + ( this._container.dataset.theme || 'light' ));
+    DomUtil.removeClass(this._container, 'cozy-theme-' + ( this._container.dataset.theme || 'default' ));
     DomUtil.addClass(this._container, 'cozy-theme-' + this.options.theme);
     this._container.dataset.theme = this.options.theme;
-  },
-
-  _getThemeStyles: function() {
-    // it would be more useful to be able to get these from CSS
-    if ( this.options.theme == 'light' ) {
-      return {
-        body: {
-          backgroundColor: '#ffffff',
-          color: '#000000'
-        },
-        a: {
-          color: '#4682B4'
-        }
-      }
-    }
-
-    if ( this.options.theme == 'dark' ) {
-      return {
-        body: {
-          backgroundColor: '#002b36',
-          color: '#839496'
-        },
-        a: {
-          color: '#E0FFFF'
-        }
-      }
-    }
-
-    return { body: { backgroundColor: '', color: '' }, a: { color: '' } };
   },
 
   draw: function(target) {

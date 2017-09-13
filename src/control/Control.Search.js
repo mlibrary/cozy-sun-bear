@@ -47,16 +47,6 @@ export var Search = Control.extend({
       region: 'left'
     });
 
-    this._reader.on('update-section', function() {
-      self._reader.annotations.reset = function() {
-        for(var hash in self._reader.annotations._annotations) {
-            var cfiRange = decodeURI(hash);
-            self._reader.annotations.remove(cfiRange);
-        }
-        self._reader.annotations._annotationsBySectionIndex = {};
-      }
-    });
-
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
 
