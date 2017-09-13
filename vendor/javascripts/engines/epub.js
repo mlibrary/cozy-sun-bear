@@ -6415,9 +6415,9 @@ var DefaultViewManager = function () {
 			if (this.settings.axis === "horizontal") {
 
 				this.scrollLeft = this.container.scrollLeft;
-
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-				if (left <= this.container.scrollWidth) {
+				// console.log("AHOY NEXT", left, "=", this.container.scrollLeft ,"+", this.container.offsetWidth ,"+", this.layout.delta,  "/", this.container.scrollWidth, "/", ( left / this.container.scrollWidth ));
+				if (left <= this.container.scrollWidth || left / this.container.scrollWidth <= 1.10) {
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
 					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
@@ -12883,7 +12883,8 @@ var IframeView = function () {
 
 				// add an extra page if this is odd
 				if (width / this.layout.pageWidth % 2 > 0) {
-					width += this.settings.layout.gap + this.settings.layout.columnWidth;
+					// width += this.settings.layout.gap + this.settings.layout.columnWidth
+					width += this.layout.pageWidth;
 				}
 
 				/*
