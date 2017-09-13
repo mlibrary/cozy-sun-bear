@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0a2c4dd8, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0490c840, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2562,32 +2562,31 @@ var Reader = Evented.extend({
     this._mode = this.options.mode;
   },
 
-  start: function start(target) {
+  start: function start(target, cb) {
     var self = this;
-    var panes = self._panes;
 
-    self._start(target);
+    if (typeof target == 'function' && cb === undefined) {
+      cb = target;
+      target = undefined;
+    }
+
+    self._start(target, cb);
 
     this._loaded = true;
   },
 
-  _start: function _start(target) {
+  _start: function _start(target, cb) {
     var self = this;
     target = target || 0;
 
-    // remove eventually
-    var delay = 0;
-    if (window.location.hostname == 'localhost') {
-      delay = 1000;
-    }
-
     self.open(function () {
       self.setBookPanelSize();
-      setTimeout(function () {
-        self.draw(target, function () {
-          self._panes['loader'].style.display = 'none';
-        });
-      }, delay);
+      self.draw(target, function () {
+        self._panes['loader'].style.display = 'none';
+        if (cb) {
+          cb();
+        }
+      });
     });
   },
 
@@ -5080,6 +5079,74 @@ var download = function download(options) {
   return new Download(options);
 };
 
+var Navigator = Control.extend({
+  onAdd: function onAdd(reader) {
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=navigator]");
+    } else {
+
+      var className = this._className('navigator'),
+          options = this.options;
+      container = create$1('div', className), this._control = this._createControl(className, container);
+      console.log("AHOY", this._control, container);
+    }
+    this._bindEvents();
+
+    return container;
+  },
+
+  _createControl: function _createControl(className, container) {
+    var input = create$1('input', className, container);
+    input.setAttribute('type', 'range');
+    input.setAttribute('min', 0);
+    input.setAttribute('max', 100);
+    input.setAttribute('step', 1);
+    input.setAttribute('value', 0);
+
+    return input;
+  },
+
+  _bindEvents: function _bindEvents() {
+    var self = this;
+    // DomEvent.disableClickPropagation(this._control);
+    // DomEvent.on(this._control, 'click', DomEvent.stop);
+    // DomEvent.on(this._control, 'click', this._action, this);
+
+    this._control.addEventListener("change", function () {
+      self._action();
+    }, false);
+    this._control.addEventListener("mousedown", function () {
+      this._mouseDown = true;
+    }, false);
+    this._control.addEventListener("mouseup", function () {
+      this._mouseDown = false;
+    }, false);
+
+    // needs a hook to respond to the loaded contents
+    // this._reader.on('')
+
+    this._reader.on('relocated', function (location) {
+      var percent = self._reader.locations.percentageFromCfi(location.start.cfi);
+      var percentage = Math.floor(percent * 100);
+      if (!self._mouseDown) {
+        self._control.value = percentage;
+      }
+    });
+  },
+
+  _action: function _action() {
+    var cfi = this._reader.locations.cfiFromPercentage(this._control.value / 100);
+    this._reader.gotoPage(cfi);
+  },
+
+  EOT: true
+});
+
+var navigator$1 = function navigator(options) {
+  return new Navigator(options);
+};
+
 // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
 
@@ -5122,6 +5189,9 @@ control.bibliographicInformation = bibliographicInformation;
 Control.Download = Download;
 control.download = download;
 
+Control.Navigator = Navigator;
+control.navigator = navigator$1;
+
 var Bus = Evented.extend({});
 
 var instance;
@@ -5153,7 +5223,9 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     });
-    this._book.ready.then(callback);
+    this._book.ready.then(function () {
+      return self._book.locations.generate(1600);
+    }).then(callback);
   },
 
   draw: function draw(target, callback) {
@@ -5187,6 +5259,12 @@ Reader.EpubJS = Reader.extend({
       if (target && target.start) {
         target = target.start;
       }
+      if (!target && window.location.hash) {
+        // target = "epubcfi(" + window.location.hash.substr(2) + ")";
+        target = window.location.hash.substr(2);
+        target = self._book.url.path().resolve(target);
+        console.log("AHOY", target);
+      }
       self._rendition.display(target).then(function () {
         if (callback) {
           callback();
@@ -5194,6 +5272,9 @@ Reader.EpubJS = Reader.extend({
         console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
         window._loaded = true;
         self._initializeReaderStyles();
+
+        self.fire('relocated', self._rendition.currentLocation());
+        self.fire('opened');
       });
     });
   },
@@ -5243,6 +5324,10 @@ Reader.EpubJS = Reader.extend({
       }
     }
     this._navigate(this._rendition.display(target));
+  },
+
+  percentageFromCfi: function percentageFromCfi(cfi) {
+    return this._book.percentageFromCfi(cfi);
   },
 
   destroy: function destroy() {
@@ -5322,6 +5407,10 @@ Reader.EpubJS = Reader.extend({
       });
     }
 
+    this._rendition.on('relocated', function (location) {
+      self.fire('relocated', location);
+    });
+
     this._rendition.on("locationChanged", function (location) {
       var view = this.manager.current();
       var section = view.section;
@@ -5335,6 +5424,7 @@ Reader.EpubJS = Reader.extend({
           self._rendition.display(href);
         });
       }
+      window.location.hash = "#/" + self._book.url.path().relative(section.href);
     });
   },
 
@@ -5403,6 +5493,13 @@ Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
   get: function get$$1() {
     // return the combined metadata of configured + book metadata
     return this._rendition.annotations;
+  }
+});
+
+Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
+  get: function get$$1() {
+    // return the combined metadata of configured + book metadata
+    return this._book.locations;
   }
 });
 
