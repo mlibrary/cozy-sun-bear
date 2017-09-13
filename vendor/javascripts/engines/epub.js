@@ -396,7 +396,7 @@ function createBase64Url(content, mime) {
 		return;
 	}
 
-	data = btoa(content);
+	data = btoa(encodeURIComponent(content));
 
 	datauri = "data:" + mime + ";base64," + data;
 
@@ -3790,6 +3790,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // Dom events to listen for
 var EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
 
+var isChrome = /Chrome/.test(navigator.userAgent);
+var isWebkit = !isChrome && /AppleWebKit/.test(navigator.userAgent);
+
+var ELEMENT_NODE = 1;
+var TEXT_NODE = 3;
+
 var Contents = function () {
 	function Contents(doc, content, cfiBase, sectionIndex) {
 		_classCallCheck(this, Contents);
@@ -3892,7 +3898,7 @@ var Contents = function () {
 			var content = this.content || this.document.body;
 			var border = (0, _core.borders)(content);
 
-			// Select the contents of frame
+			// Select the contents of frame //
 			range.selectNodeContents(content);
 
 			// get the width of the text content
@@ -4243,7 +4249,7 @@ var Contents = function () {
 			var position;
 			var targetPos = { "left": 0, "top": 0 };
 
-			if (!this.document) return;
+			if (!this.document) return targetPos;
 
 			if (this.epubcfi.isCfiString(target)) {
 				var range = new _epubcfi2.default(target).toRange(this.document, ignoreClass);
@@ -4256,8 +4262,29 @@ var Contents = function () {
 					} else {
 						// Webkit does not handle collapsed range bounds correctly
 						// https://bugs.webkit.org/show_bug.cgi?id=138949
-						if (range.collapsed) {
-							position = range.getClientRects()[0];
+
+						// Construct a new non-collapsed range
+						if (isWebkit) {
+							var container = range.startContainer;
+							var newRange = new Range();
+							try {
+								if (container.nodeType === ELEMENT_NODE) {
+									position = container.getBoundingClientRect();
+								} else if (range.startOffset + 2 < container.length) {
+									newRange.setStart(container, range.startOffset);
+									newRange.setEnd(container, range.startOffset + 2);
+									position = newRange.getBoundingClientRect();
+								} else if (range.startOffset - 2 > 0) {
+									newRange.setStart(container, range.startOffset - 2);
+									newRange.setEnd(container, range.startOffset);
+									position = newRange.getBoundingClientRect();
+								} else {
+									// empty, return the parent element
+									position = container.parentNode.getBoundingClientRect();
+								}
+							} catch (e) {
+								console.error(e, e.stack);
+							}
 						} else {
 							position = range.getBoundingClientRect();
 						}
@@ -5467,15 +5494,15 @@ var Rendition = function () {
 		key: "onResized",
 		value: function onResized(size) {
 
-			if (this.location && this.location.start) {
-				// this.manager.clear();
-				this.display(this.location.start.cfi);
-			}
-
 			this.emit("resized", {
 				width: size.width,
 				height: size.height
 			});
+
+			if (this.location && this.location.start) {
+				// this.manager.clear();
+				this.display(this.location.start.cfi);
+			}
 		}
 
 		/**
@@ -5974,7 +6001,7 @@ var Rendition = function () {
 			var meta = doc.createElement("meta");
 			meta.setAttribute("name", "dc.relation.ispartof");
 			if (ident) {
-				meta.setAttribute("contents", ident);
+				meta.setAttribute("content", ident);
 			}
 			doc.getElementsByTagName("head")[0].appendChild(meta);
 		}
@@ -6153,11 +6180,13 @@ var DefaultViewManager = function () {
 
 			this.removeEventListeners();
 
-			this.views.each(function (view) {
-				if (view) {
-					view.destroy();
-				}
-			});
+			if (this.views) {
+				this.views.each(function (view) {
+					if (view) {
+						view.destroy();
+					}
+				});
+			}
 
 			this.stage.destroy();
 
@@ -6327,7 +6356,6 @@ var DefaultViewManager = function () {
 					distX = this.container.scrollWidth - this.layout.delta;
 				}
 			}
-
 			this.scrollTo(distX, distY, true);
 		}
 	}, {
@@ -6389,8 +6417,7 @@ var DefaultViewManager = function () {
 				this.scrollLeft = this.container.scrollLeft;
 
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if (left < this.container.scrollWidth) {
+				if (left <= this.container.scrollWidth) {
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
 					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
@@ -6795,6 +6822,9 @@ var DefaultViewManager = function () {
 		key: "getContents",
 		value: function getContents() {
 			var contents = [];
+			if (!this.views) {
+				return contents;
+			}
 			this.views.each(function (view) {
 				var viewContents = view && view.contents;
 				if (viewContents) {
@@ -11207,8 +11237,10 @@ function coords(el) {
 function setCoords(el, coords) {
     el.style.top = coords.top + 'px';
     el.style.left = coords.left + 'px';
+    el.style.height = coords.height + 'px';
+    el.style.width = coords.width + 'px';
     el.style.height = '100%';
-    el.style.width = '100%';
+    el.style.width = '99%';
 }
 
 function contains(rect1, rect2) {
@@ -12847,6 +12879,11 @@ var IframeView = function () {
 
 				if (width % this.layout.pageWidth > 0) {
 					width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
+				}
+
+				// add an extra page if this is odd
+				if (width / this.layout.pageWidth % 2 > 0) {
+					width += this.settings.layout.gap + this.settings.layout.columnWidth;
 				}
 
 				/*
