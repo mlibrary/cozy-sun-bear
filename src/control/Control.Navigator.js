@@ -15,7 +15,6 @@ export var Navigator = Control.extend({
       container = DomUtil.create('div', className),
 
       this._control  = this._createControl(className, container);
-      console.log("AHOY", this._control, container);
     }
     this._bindEvents();
 
@@ -46,9 +45,6 @@ export var Navigator = Control.extend({
     this._control.addEventListener("mouseup", function(){
         this._mouseDown = false;
     }, false);
-
-    // needs a hook to respond to the loaded contents
-    // this._reader.on('')
 
     this._reader.on('relocated', function(location) {
       var percent = self._reader.locations.percentageFromCfi(location.start.cfi);
