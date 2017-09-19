@@ -6416,8 +6416,8 @@ var DefaultViewManager = function () {
 
 				this.scrollLeft = this.container.scrollLeft;
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-				// console.log("AHOY NEXT", left, "=", this.container.scrollLeft ,"+", this.container.offsetWidth ,"+", this.layout.delta,  "/", this.container.scrollWidth, "/", ( left / this.container.scrollWidth ));
-				if (left <= this.container.scrollWidth || left / this.container.scrollWidth <= 1.10) {
+				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", left / this.container.scrollWidth);
+				if (left <= this.container.scrollWidth || left / this.container.scrollWidth <= 1.05) {
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
 					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
@@ -12900,12 +12900,12 @@ var IframeView = function () {
 			else if (this.settings.axis === "vertical") {
 					// height = this.contents.textHeight();
 					// console.log("AHOY THIS WAS A BAD IDEA", this.contents, this.contents.parentNode);
-					// var x = window.getComputedStyle(this.contents.content.parentNode);
+					var x = window.getComputedStyle(this.contents.content.parentNode);
 					// console.log("AHOY X", x);
-					// height = parseInt(x.height);
-					// console.log("AHOY EXPAND", height);
-					height = parseInt(this.contents.height());
-					height += 64;
+					height = parseInt(x.height);
+					// height = parseInt(this.contents.height());
+					height += 120;
+					// console.log("AHOY EXPAND", this.contents.height(), window.getComputedStyle(this.contents.content.parentNode)['height'], height);
 				}
 
 			// Only Resize if dimensions have changed or
