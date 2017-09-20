@@ -87,32 +87,31 @@ export var Reader = Evented.extend({
     this._mode = this.options.mode;
   },
 
-  start: function(target) {
+  start: function(target, cb) {
     var self = this;
-    var panes = self._panes;
 
-    self._start(target);
+    if ( typeof(target) == 'function' && cb === undefined ) {
+      cb = target;
+      target = undefined;
+    }
+
+    self._start(target, cb);
 
     this._loaded = true;
   },
 
-  _start: function(target) {
+  _start: function(target, cb) {
     var self = this;
     target = target || 0;
 
-    // remove eventually
-    var delay = 0;
-    if ( window.location.hostname == 'localhost' ) {
-      delay = 1000;
-    }
-
     self.open(function() {
       self.setBookPanelSize();
-      setTimeout(function() {
-        self.draw(target, function() {
-          self._panes['loader'].style.display = 'none';
-        });
-      }, delay);
+      self.draw(target, function() {
+        self._panes['loader'].style.display = 'none';
+        if ( cb ) {
+          cb();
+        }
+      });
     });
 
   },

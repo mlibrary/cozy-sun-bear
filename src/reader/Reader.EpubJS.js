@@ -18,7 +18,10 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-contents', toc);
       self.fire('update-title', self._book.package.metadata);
     })
-    this._book.ready.then(callback);
+    this._book.ready.then(function() {
+      return self._book.locations.generate(1600);
+    })
+    .then(callback);
   },
 
   draw: function(target, callback) {
@@ -50,11 +53,20 @@ Reader.EpubJS = Reader.extend({
       self._drawn = true;
 
       if ( target && target.start ) { target = target.start; }
+      if ( ! target && window.location.hash ) {
+        // target = "epubcfi(" + window.location.hash.substr(2) + ")";
+        target = window.location.hash.substr(2);
+        target = self._book.url.path().resolve(target);
+        console.log("AHOY", target);
+      }
       self._rendition.display(target).then(function() {
         if ( callback ) { callback(); }
         console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
         window._loaded = true;
         self._initializeReaderStyles();
+
+        self.fire('relocated', self._rendition.currentLocation());
+        self.fire('opened');
       });
     })
   },
@@ -104,6 +116,10 @@ Reader.EpubJS = Reader.extend({
       }
     }
     this._navigate(this._rendition.display(target));
+  },
+
+  percentageFromCfi: function(cfi) {
+    return this._book.percentageFromCfi(cfi);
   },
 
   destroy: function() {
@@ -179,6 +195,10 @@ Reader.EpubJS = Reader.extend({
       })
     }
 
+    this._rendition.on('relocated', function(location) {
+      self.fire('relocated', location);
+    })
+
     this._rendition.on("locationChanged", function(location) {
       var view = this.manager.current();
       var section = view.section;
@@ -192,6 +212,7 @@ Reader.EpubJS = Reader.extend({
           self._rendition.display(href);
         })
       }
+      window.location.hash = "#/"+self._book.url.path().relative(section.href);
     })
   },
 
@@ -260,6 +281,13 @@ Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
   get: function() {
     // return the combined metadata of configured + book metadata
     return this._rendition.annotations;
+  }
+});
+
+Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._book.locations;
   }
 });
 

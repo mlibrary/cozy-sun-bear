@@ -28,6 +28,7 @@ $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
   opacity: 0;
   -webkit-transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
   transition: opacity $modal-transition, width 0.1s $modal-transition, height 0.1s $modal-transition;
+  z-index: 11;
 }
 
 .st-modal-open.st-pusher::after {
