@@ -106,10 +106,11 @@
 
             var engine_href = '../vendor/javascripts/engines/' + engine_map[engine];
             var cozy_href = '../dist/cozy-sun-bear.js';
+            var book_id = location.search.substr(1);
 
             head.load(cozy_href, function() {
                 head.load(engine_href, function() {
-                    book_href = book_prefix + location.search.substr(1);
+                    book_href = book_prefix + book_id;
                     reader = cozy.reader('reader', { 
                         href: book_href, 
                         engine: engine,
@@ -206,12 +207,14 @@
                     // The searchUrl goes to "moby-dick" on fulcrum in my dev space so
                     // obviously search will only work for this example if your environment is set up to handle it.
                     // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
+                    // if you're running ./tools/serve you can proxy to a heliotrope search with
+                    // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
                     console.log("ENGINE", engine);
                     if (engine !== "readium") {
-                      cozy.control.search({
-                        region: 'top.toolbar.left',
-                        searchUrl: 'http://127.0.0.1:3000/epub_search/hd76s004z?q='
-                      }).addTo(reader);
+                        cozy.control.search({
+                            region: 'top.toolbar.left',
+                            searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
+                        }).addTo(reader);
                     }
 
                     cozy.control.widget.panel({
