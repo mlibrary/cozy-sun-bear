@@ -3899,6 +3899,9 @@ var Contents = function () {
 			var border = (0, _core.borders)(content);
 
 			// Select the contents of frame //
+			if (this.pane) {
+				this.pane.element.style.display = 'none';
+			}
 			range.selectNodeContents(content);
 
 			// get the width of the text content
@@ -3906,6 +3909,10 @@ var Contents = function () {
 
 			if (border && border.width) {
 				width += border.width;
+			}
+
+			if (this.pane) {
+				this.pane.element.style.display = 'block';
 			}
 
 			return Math.round(width);
@@ -6416,8 +6423,9 @@ var DefaultViewManager = function () {
 
 				this.scrollLeft = this.container.scrollLeft;
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
+				var ratio = left / this.container.scrollWidth;
 				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", left / this.container.scrollWidth);
-				if (left <= this.container.scrollWidth || left / this.container.scrollWidth <= 1.05) {
+				if (left <= this.container.scrollWidth || ratio >= 0.99 && ratio <= 1.05) {
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
 					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
@@ -11232,15 +11240,25 @@ function coords(el) {
         height: rect.height + el.scrollHeight,
         width: rect.width + el.scrollWidth
     };
+
+    // console.log("AHOY COORDS", rect, el.ownerDocument.body.getBoundingClientRect());
+
+    // return {
+    //     top: rect.top + el.ownerDocument.body.scrollTop,
+    //     left: rect.left + el.ownerDocument.body.scrollLeft,
+    //     height: rect.height + el.ownerDocument.body.scrollHeight,
+    //     width: rect.width + el.ownerDocument.body.scrollWidth
+    // };
 }
 
 function setCoords(el, coords) {
     el.style.top = coords.top + 'px';
     el.style.left = coords.left + 'px';
-    el.style.height = coords.height + 'px';
-    el.style.width = coords.width + 'px';
+    // el.style.height = `${coords.height}px`;
+    // el.style.width = `${coords.width}px`;
     el.style.height = '100%';
-    el.style.width = '99%';
+    // el.style.width = `99%`;
+    el.style.width = coords.width * 0.98 + 'px';
 }
 
 function contains(rect1, rect2) {
