@@ -12,6 +12,7 @@ var logger, port;
 var log = console.log;
 var proxy = require('express-http-proxy');
 var slow = require('connect-slow');
+var url = require('url');
 
 function start(_port) {
  if (!_port) {
@@ -63,6 +64,28 @@ function listen(port) {
     app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.js.map', function(req, res) {
       res.sendFile(epubJsPath + '/epub.js.map');
     });
+  }
+
+  if ( process.env.USE_EPUB_SEARCH ) {
+    var search_config = url.parse(process.env.USE_EPUB_SEARCH);
+    app.use('/cozy-sun-bear/epub_search', proxy(process.env.USE_EPUB_SEARCH, { 
+      https: true,
+      forwardPath: function(req) {
+        return search_config.path + '?q=' + req.query.q;
+      }
+    }));
+  } else {
+    app.get('/cozy-sun-bear/epub_search/:bookId(*)', function(req, res) {
+      var filename = req.params.bookId.replace(/\/$/, '').split("/").pop() + '.json';
+      console.log("AHOY SEARCH LOOKING FOR", appPath + '/cozy-sun-bear/examples/epub_search/' + filename);
+      if ( fs.existsSync(appPath + '/cozy-sun-bear/examples/search/' + filename) ) {
+        console.log("AHOY SENDING ", filename);
+        res.sendFile(appPath + '/cozy-sun-bear/examples/search/' + filename)
+      } else {
+        console.log("AHOY SENDING SAMPLE RESULTS");
+        res.sendFile(appPath + '/cozy-sun-bear/examples/search/sample_results.json');
+      }
+    })
   }
 
   app.get('/cozy-sun-bear/examples/books.json', function(req, res) {
