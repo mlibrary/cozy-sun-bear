@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0490c840, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0363898f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -144,7 +144,9 @@ function splitWords(str) {
 // Merges the given properties to the `options` of the `obj` object, returning the resulting options. See `Class options`. Has an `L.setOptions` shortcut.
 function setOptions(obj, options) {
     if (!obj.hasOwnProperty('options')) {
-        obj.options = obj.options ? create(obj.options) : {};
+        // obj.options = obj.options ? create(obj.options) : {};
+        console.log("AHOY AHOY OPTIONS", obj.options);
+        obj.options = obj.options ? Object.assign({}, obj.options) : {};
     }
     for (var i in options) {
         obj.options[i] = options[i];
@@ -252,11 +254,11 @@ function cancelAnimFrame(id) {
     }
 }
 
-var Util = (Object.freeze || Object)({
+var Util = Object.freeze({
 	extend: extend,
 	create: create,
 	bind: bind,
-	lastId: lastId,
+	get lastId () { return lastId; },
 	stamp: stamp,
 	throttle: throttle,
 	wrapNum: wrapNum,
@@ -275,14 +277,6 @@ var Util = (Object.freeze || Object)({
 	requestAnimFrame: requestAnimFrame,
 	cancelAnimFrame: cancelAnimFrame
 });
-
-// @class Class
-// @aka L.Class
-
-// @section
-// @uninheritable
-
-// Thanks to John Resig and Dean Edwards for inspiration!
 
 function Class() {}
 
@@ -331,7 +325,8 @@ Class.extend = function (props) {
 
 	// merge options
 	if (proto.options) {
-		props.options = extend(create(proto.options), props.options);
+		// props.options = Util.extend(Util.create(proto.options), props.options);
+		props.options = Object.assign(Object.assign({}, proto.options), props.options);
 	}
 
 	// mix given properties into the prototype
@@ -410,31 +405,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
-
-/*
- * @class Evented
- * @aka L.Evented
- * @inherits Class
- *
- * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
- *
- * @example
- *
- * ```js
- * map.on('click', function(e) {
- * 	alert(e.latlng);
- * } );
- * ```
- *
- * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
- *
- * ```js
- * function onClick(e) { ... }
- *
- * map.on('click', onClick);
- * map.off('click', onClick);
- * ```
- */
 
 var Evented = Class.extend({
 
@@ -839,7 +809,7 @@ function userAgentContains(str) {
 
 
 
-var Browser = (Object.freeze || Object)({
+var Browser = Object.freeze({
 	ie: ie,
 	ielt9: ielt9,
 	edge: edge,
@@ -870,26 +840,6 @@ var Browser = (Object.freeze || Object)({
 	svg: svg,
 	vml: vml
 });
-
-/*
- * @class Point
- * @aka L.Point
- *
- * Represents a point with `x` and `y` coordinates in pixels.
- *
- * @example
- *
- * ```js
- * var point = L.point(200, 300);
- * ```
- *
- * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
- *
- * ```js
- * map.panBy([200, 300]);
- * map.panBy(L.point(200, 300));
- * ```
- */
 
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
@@ -1068,10 +1018,6 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
-/*
- * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
- */
-
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1194,10 +1140,6 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
-/*
- * Extends the event handling code with double tap support for mobile browsers.
- */
-
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1286,22 +1228,6 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
-/*
- * @namespace DomEvent
- * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
- */
-
-// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
-
-// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
-// Adds a listener function (`fn`) to a particular DOM event type of the
-// element `el`. You can optionally specify the context of the listener
-// (object the `this` keyword will point to). You can also pass several
-// space-separated types (e.g. `'click dblclick'`).
-
-// @alternative
-// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
-// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1576,9 +1502,11 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
+// @function addListener(…): this
+// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
-var DomEvent = (Object.freeze || Object)({
+var DomEvent = Object.freeze({
 	on: on,
 	off: off,
 	stopPropagation: stopPropagation,
@@ -1595,19 +1523,6 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
-
-// @property TRANSFORM: String
-// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
@@ -1902,7 +1817,7 @@ function restoreOutline() {
     off(window, 'keydown', restoreOutline);
 }
 
-var DomUtil = (Object.freeze || Object)({
+var DomUtil = Object.freeze({
 	TRANSFORM: TRANSFORM,
 	TRANSITION: TRANSITION,
 	TRANSITION_END: TRANSITION_END,
@@ -1923,8 +1838,8 @@ var DomUtil = (Object.freeze || Object)({
 	setTransform: setTransform,
 	setPosition: setPosition,
 	getPosition: getPosition,
-	disableTextSelection: disableTextSelection,
-	enableTextSelection: enableTextSelection,
+	get disableTextSelection () { return disableTextSelection; },
+	get enableTextSelection () { return enableTextSelection; },
 	disableImageDrag: disableImageDrag,
 	enableImageDrag: enableImageDrag,
 	preventOutline: preventOutline,
@@ -1965,12 +1880,10 @@ var isObject_1 = isObject;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
-/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -1978,34 +1891,16 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
-/**
- * Gets the timestamp of the number of milliseconds that have elapsed since
- * the Unix epoch (1 January 1970 00:00:00 UTC).
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Date
- * @returns {number} Returns the timestamp.
- * @example
- *
- * _.defer(function(stamp) {
- *   console.log(_.now() - stamp);
- * }, _.now());
- * // => Logs the number of milliseconds it took for the deferred invocation.
- */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
-/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
-/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -2073,7 +1968,6 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
-/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2128,7 +2022,6 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
-/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -2155,7 +2048,6 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
-/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -2219,7 +2111,6 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
-/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2506,7 +2397,6 @@ Object.defineProperties(screenfull, {
   }
 });
 
-// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -2912,15 +2802,6 @@ var Reader = Evented.extend({
   EOT: true
 });
 
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
-
 var Control = Class.extend({
     // @section
     // @aka Control options
@@ -3277,31 +3158,41 @@ var pageLast = function pageLast(options) {
 var activeModal;
 var dismissModalListener = false;
 
+// from https://github.com/ghosh/micromodal/blob/master/src/index.js
+var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
+
+var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
+
 var Modal = Class.extend({
   options: {
     // @option region: String = 'topright'
     // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
-    tag: 'div',
+    region: 'left',
     fraction: 0.40,
     className: {},
-    actions: null
+    actions: null,
+    callbacks: { onShow: function onShow() {}, onClose: function onClose() {} },
+    handlers: {}
   },
 
   initialize: function initialize(options) {
-    setOptions(this, options);
-    this._id = new Date().getTime();
+    options = setOptions(this, options);
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
     this._initializedEvents = false;
+    this.callbacks = this.options.callbacks;
+    this.actions = this.options.actions;
+    this.handlers = this.options.handlers;
   },
 
   addTo: function addTo(reader) {
     var self = this;
     this._reader = reader;
     var template$$1 = this.options.template;
-    var tag = this.options.tag;
-    var panelHTML = '<div class="st-modal st-modal-' + this.options.region + '">\n      <header>\n        <h2>' + this.options.title + ' <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>\n      </header>\n      <article class="' + (this.options.className.article || this.options.className.article) + '">\n        ' + template$$1 + '\n      </article>';
+
+    var panelHTML = '<div class="modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + ' aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-{$this._id}-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.article ? this.options.className.article : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
 
     if (this.options.actions) {
-      panelHTML += '<footer>';
+      panelHTML += '<footer class="modal__footer">';
       for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_cls = action.className || 'button--default';
@@ -3310,20 +3201,44 @@ var Modal = Class.extend({
       panelHTML += '</footer>';
     }
 
-    panelHTML += '</div>';
+    panelHTML += '</div></div></div></div>';
 
     var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
 
-    this._container = reader._container.appendChild(body.children[0]);
-    this._container.style.height = reader._container.offsetHeight + 'px';
-    this._container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
-    addClass(reader._container, 'st-pusher');
+    this.modal = reader._container.appendChild(body.children[0]);
+    this._container = this.modal; // compatibility
+
+    this.container = this.modal.querySelector('.modal__container');
+    this.container.style.height = reader._container.offsetHeight + 'px';
+    this.container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
 
     this._bindEvents();
     return this;
   },
 
   _bindEvents: function _bindEvents() {
+    var self = this;
+    this.onClick = this.onClick.bind(this);
+    this.onKeydown = this.onKeydown.bind(this);
+    // bind any actions
+    if (this.actions) {
+      for (var i in this.actions) {
+        var action = this.actions[i];
+        var button_id = '#action-' + this._id + '-' + i;
+        var button = this.modal.querySelector(button_id);
+        if (button) {
+          on(button, 'click', function (event) {
+            action.callback(event);
+            if (action.close) {
+              self.closeModal();
+            }
+          });
+        }
+      }
+    }
+  },
+
+  _xxbindEvents: function _xxbindEvents() {
     var self = this;
 
     if (this._initializedEvents) {
@@ -3365,12 +3280,13 @@ var Modal = Class.extend({
           target = target.parentNode;
         }
         event.preventDefault();
-
         modal.deactivate();
       });
+
+      document.addEventListener('keydown', this.onKeydown);
     }
 
-    on(this._container.querySelector('h2 button'), 'click', function (event) {
+    on(this.modal.querySelector('h2 button'), 'click', function (event) {
       event.preventDefault();
       self.deactivate();
     });
@@ -3380,7 +3296,7 @@ var Modal = Class.extend({
       for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_id = '#action-' + this._id + '-' + i;
-        var button = this._container.querySelector(button_id);
+        var button = this.modal.querySelector(button_id);
         on(button, 'click', function (event) {
           action.callback(event);
         });
@@ -3389,15 +3305,28 @@ var Modal = Class.extend({
   },
 
   deactivate: function deactivate() {
-    var self = this;
-    var container = this._reader._container;
+    this.closeModal();
+  },
 
-    removeClass(container, 'st-modal-open');
-    removeClass(this._container, 'active');
-    activeModal = null;
+  closeModal: function closeModal() {
+    var self = this;
+    this.modal.setAttribute('aria-hidden', 'true');
+    this.removeEventListeners();
+    this.activeElement.focus();
+    this.callbacks.onClose(this.modal);
+  },
+
+  showModal: function showModal() {
+    this.activeElement = document.activeElement;
+    this._resize();
+    this.modal.setAttribute('aria-hidden', 'false');
+    this.setFocusToFirstNode();
+    this.addEventListeners();
+    this.callbacks.onShow(this.modal);
   },
 
   activate: function activate() {
+    return this.showModal();
     var self = this;
     activeModal = this;
     addClass(self._reader._container, 'st-modal-activating');
@@ -3406,21 +3335,112 @@ var Modal = Class.extend({
     setTimeout(function () {
       addClass(self._container, 'active');
       removeClass(self._reader._container, 'st-modal-activating');
+      self._container.setAttribute('aria-hidden', 'false');
+      self.setFocusToFirstNode();
     }, 25);
+  },
+
+  addEventListeners: function addEventListeners() {
+    // --- do we need touch listeners?
+    // this.modal.addEventListener('touchstart', this.onClick)
+    // this.modal.addEventListener('touchend', this.onClick)
+    this.modal.addEventListener('click', this.onClick);
+    document.addEventListener('keydown', this.onKeydown);
+  },
+
+  removeEventListeners: function removeEventListeners() {
+    this.modal.removeEventListener('touchstart', this.onClick);
+    this.modal.removeEventListener('click', this.onClick);
+    document.removeEventListener('keydown', this.onKeydown);
   },
 
   _resize: function _resize() {
     var container = this._reader._container;
-    this._container.style.height = container.offsetHeight + 'px';
-    this._container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
-    var header = this._container.querySelector('header');
-    var footer = this._container.querySelector('footer');
-    var article = this._container.querySelector('article');
-    var height = this._container.clientHeight - header.clientHeight;
+    this.container.style.height = container.offsetHeight + 'px';
+    this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    var header = this.container.querySelector('header');
+    var footer = this.container.querySelector('footer');
+    var main = this.container.querySelector('main');
+    var height = this.container.clientHeight - header.clientHeight;
     if (footer) {
       height -= footer.clientHeight;
     }
-    article.style.height = height + 'px';
+    main.style.height = height + 'px';
+  },
+
+  getFocusableNodes: function getFocusableNodes() {
+    var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
+    return Object.keys(nodes).map(function (key) {
+      return nodes[key];
+    });
+  },
+
+  setFocusToFirstNode: function setFocusToFirstNode() {
+    var focusableNodes = this.getFocusableNodes();
+    if (focusableNodes.length) {
+      focusableNodes[0].focus();
+    } else {
+      activeModal._container.focus();
+    }
+  },
+
+  getActionableNodes: function getActionableNodes() {
+    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
+    return Object.keys(nodes).map(function (key) {
+      return nodes[key];
+    });
+  },
+
+  onKeydown: function onKeydown(event) {
+    if (event.keyCode == 27) {
+      this.closeModal();
+    }
+    if (event.keyCode == 9) {
+      this.maintainFocus(event);
+    }
+  },
+
+  onClick: function onClick(event) {
+
+    var closeAfterAction = false;
+    if (this.handlers.click) {
+      var target = event.target;
+      for (var selector in this.handlers.click) {
+        if (target.matches(selector)) {
+          closeAfterAction = this.handlers.click[selector](this, target);
+        }
+      }
+    }
+
+    if (closeAfterAction || event.target.hasAttribute('data-modal-close')) this.closeModal();
+
+    var actionableNodes = this.getActionableNodes();
+    if (actionableNodes.indexOf(event.target) < 0) {
+      return;
+    }
+
+    event.preventDefault();
+  },
+
+  on: function on$$1(event, selector, handler) {
+    if (!this.handlers[event]) {
+      this.handlers[event] = {};
+    }
+    this.handlers[event][selector] = handler;
+  },
+
+  maintainFocus: function maintainFocus(event) {
+    var focusableNodes = this.getFocusableNodes();
+    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
+    if (event.shiftKey && focusedItemIndex === 0) {
+      focusableNodes[focusableNodes.length - 1].focus();
+      event.preventDefault();
+    }
+
+    if (!event.shiftKey && focusedItemIndex === focusableNodes.length - 1) {
+      focusableNodes[0].focus();
+      event.preventDefault();
+    }
   },
 
   EOT: true
@@ -3474,15 +3494,11 @@ var Contents = Control.extend({
       self._modal.activate();
     }, this);
 
-    on(this._modal._container, 'click', function (event) {
-      event.preventDefault();
-      var target = event.target;
-      if (target.tagName == 'A') {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    this._modal.on('click', 'a[href]', function (modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this));
 
     this._reader.on('update-contents', function (data) {
       var parent = self._modal._container.querySelector('ul');
@@ -3538,8 +3554,6 @@ var Contents = Control.extend({
 var contents = function contents(options) {
   return new Contents(options);
 };
-
-// Title + Chapter
 
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
@@ -3606,8 +3620,6 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
-
-// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -4285,7 +4297,6 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -4638,7 +4649,6 @@ var citation = function citation(options) {
   return new Citation(options);
 };
 
-// for debugging
 window.parseFullName = parseFullName;
 
 var Search = Control.extend({
@@ -4678,6 +4688,12 @@ var Search = Control.extend({
       region: 'left'
     });
 
+    this._modal.on('click', 'a[href]', function (modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this));
+
     on(this._control, 'click', function (event) {
       event.preventDefault();
 
@@ -4713,15 +4729,15 @@ var Search = Control.extend({
       });
     }, this);
 
-    on(this._modal._container, 'click', function (event) {
-      event.preventDefault();
-      var target = event.target;
-      if (target.tagName == 'A') {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    // DomEvent.on(this._modal._container, 'click', function(event) {
+    //   event.preventDefault();
+    //   var target = event.target;
+    //   if ( target.tagName == 'A' ) {
+    //     target = target.getAttribute('href');
+    //     this._reader.gotoPage(target);
+    //   }
+    //   this._modal.deactivate();
+    // }, this);
 
     return container;
   },
@@ -4886,8 +4902,6 @@ var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
-// Title + Chapter
-
 var BibliographicInformation = Control.extend({
   options: {
     label: 'Info',
@@ -4938,7 +4952,6 @@ var BibliographicInformation = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Info',
-      className: { article: 'cozy-preferences-modal' },
       region: 'left',
       fraction: 1.0
     });
@@ -5089,7 +5102,6 @@ var Navigator = Control.extend({
       var className = this._className('navigator'),
           options = this.options;
       container = create$1('div', className), this._control = this._createControl(className, container);
-      console.log("AHOY", this._control, container);
     }
     this._bindEvents();
 
@@ -5123,9 +5135,6 @@ var Navigator = Control.extend({
       this._mouseDown = false;
     }, false);
 
-    // needs a hook to respond to the loaded contents
-    // this._reader.on('')
-
     this._reader.on('relocated', function (location) {
       var percent = self._reader.locations.percentageFromCfi(location.start.cfi);
       var percentage = Math.floor(percent * 100);
@@ -5146,9 +5155,6 @@ var Navigator = Control.extend({
 var navigator$1 = function navigator(options) {
   return new Navigator(options);
 };
-
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -5502,6 +5508,8 @@ Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
     return this._book.locations;
   }
 });
+
+window.Reader = Reader;
 
 function createReader$1(id, options) {
   return new Reader.EpubJS(id, options);
@@ -5945,7 +5953,6 @@ function createReader$3(id, options) {
   return new Reader.EpubJSv2(id, options);
 }
 
-// import {Readium} from '../readium';
 Reader.Readium = Reader.extend({
 
   initialize: function initialize(id, options) {
@@ -6148,8 +6155,6 @@ var reader = function reader(id, options) {
   return engines[engine].apply(this, arguments);
 };
 
-// misc
-
 var oldCozy = window.cozy;
 function noConflict() {
   window.cozy = oldCozy;
@@ -6173,6 +6178,8 @@ exports.bus = bus;
 exports.DomEvent = DomEvent;
 exports.DomUtil = DomUtil;
 exports.reader = reader;
+
+Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 //# sourceMappingURL=cozy-sun-bear.js.map

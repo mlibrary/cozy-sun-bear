@@ -291,6 +291,8 @@ Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
   }
 });
 
+window.Reader = Reader;
+
 export function createReader(id, options) {
   return new Reader.EpubJS(id, options);
 }

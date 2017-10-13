@@ -725,6 +725,190 @@
 .oi[data-glyph=zoom-out]:before {
   content: '\e0de'; }
 
+/**************************  Basic Modal Styles
+\**************************/
+.modal[aria-hidden=true] {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.2s, opacity 500ms linear; }
+
+.modal {
+  z-index: 25; }
+
+.modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  /* justify-content: center;
+  align-items: center; */
+  justify-content: flex-start;
+  align-items: left; }
+
+.modal.right .modal__overlay {
+  justify-content: flex-end;
+  align-items: flex-end; }
+
+.modal__container {
+  max-height: 100vh;
+  height: 100vh;
+  border-radius: 0px;
+  box-sizing: border-box;
+  background: #e0e0e0;
+  color: #1e1e1e;
+  overflow: hidden; }
+  .modal__container a {
+    color: #1e1e1e; }
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; }
+
+.modal__title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: #00449e;
+  box-sizing: border-box; }
+
+.modal__close {
+  background: transparent;
+  border: 0;
+  font-size: 120%; }
+  .modal__close:hover {
+    color: white; }
+  .modal__close:focus {
+    outline: #5e9ed7 auto 5px; }
+
+.modal__header .modal__close:before {
+  content: "\2715"; }
+
+.modal__content {
+  line-height: 1.5;
+  padding: 1rem;
+  font-size: 1rem;
+  overflow: auto; }
+
+/* content style */
+.modal__content ul {
+  margin: 0;
+  padding: 0;
+  padding-left: 1.2rem;
+  list-style: none; }
+
+.modal__content ul li a {
+  display: block;
+  padding: 1em 1em 1em 1.2em;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s, box-shadow 0.3s; }
+
+.modal__content ul li a:hover {
+  background-color: #e8e8e8;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000; }
+
+.modal__header {
+  padding: 1em;
+  background-color: #a3a3a3;
+  color: #000; }
+
+.modal__header h3 {
+  margin: 0;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+  font-weight: 300;
+  font-size: 2em; }
+  .modal__header h3 button {
+    float: right;
+    font-size: 1.2em;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.4); }
+    .modal__header h3 button:hover {
+      color: white; }
+    .modal__header h3 button:focus {
+      outline: #5e9ed7 auto 5px; }
+
+.modal_content {
+  padding: 1em;
+  font-size: 1rem;
+  overflow: auto; }
+
+.modal__footer {
+  padding: 1em;
+  background: #a3a3a3; }
+
+/**************************  Modal Animation Style
+\**************************/
+@keyframes mmfadeIn {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
+
+@keyframes mmfadeOut {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }
+
+@keyframes mmslideIn {
+  from {
+    transform: translateY(35%); }
+  to {
+    transform: translateY(0); } }
+
+@keyframes mmslideInLeft {
+  from {
+    transform: translateX(-150%); }
+  to {
+    transform: translateX(0); } }
+
+@keyframes mmslideOutLeft {
+  from {
+    tranform: translateX(0); }
+  to {
+    transform: translateX(-150%); } }
+
+@keyframes mmslideInRight {
+  from {
+    transform: translateX(150%); }
+  to {
+    transform: translateX(0); } }
+
+@keyframes mmslideOutRight {
+  from {
+    tranform: translateX(0); }
+  to {
+    transform: translateX(150%); } }
+
+.modal-slide[aria-hidden="false"] .modal__overlay {
+  animation: mmfadeIn 0.3s cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide[aria-hidden="true"] .modal__overlay {
+  animation: mmfadeOut 500ms cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide.left[aria-hidden="false"] .modal__container {
+  animation: mmslideInLeft 0.3s cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide.left[aria-hidden="true"] .modal__container {
+  animation: mmslideOutLeft 0.3s cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide.right[aria-hidden="false"] .modal__container {
+  animation: mmslideInRight 0.3s cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide.right[aria-hidden="true"] .modal__container {
+  animation: mmslideOutRight 0.3s cubic-bezier(0, 0, 0.2, 1); }
+
+.modal-slide .modal__container,
+.modal-slide .modal__overlay {
+  will-change: transform; }
+
 .st-pusher {
   -webkit-transition: -webkit-transform 0.2s;
   transition: transform 0.2s; }
@@ -814,6 +998,8 @@
     color: rgba(255, 255, 255, 0.4); }
     .st-modal h2 button:hover {
       color: white; }
+    .st-modal h2 button:focus {
+      outline: #5e9ed7 auto 5px; }
 
 .st-modal > article {
   padding: 1em;
@@ -1287,10 +1473,14 @@
     transition: 0.2s ease-in;
     line-height: normal;
     padding: 0.3em 1.625em 0.4em 1.625em; }
-    .cozy-container .button:hover, .cozy-container .button:focus, .cozy-container .button:active {
+    .cozy-container .button:hover, .cozy-container .button:active {
       color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
+    .cozy-container .button:focus {
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba(0, 44, 99, 0.25); }
     .cozy-container .button:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
     .cozy-container .button[disabled] {
@@ -1316,10 +1506,14 @@
     line-height: normal;
     padding: 0.65em 1.75em 0.75em 1.75em;
     font-size: 1.15rem; }
-    .cozy-container .button--lg:hover, .cozy-container .button--lg:focus, .cozy-container .button--lg:active {
+    .cozy-container .button--lg:hover, .cozy-container .button--lg:active {
       color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
+    .cozy-container .button--lg:focus {
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba(0, 44, 99, 0.25); }
     .cozy-container .button--lg:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
     .cozy-container .button--lg[disabled] {
@@ -1345,10 +1539,14 @@
     line-height: normal;
     padding: 0.75em 1.75em 0.825em 1.75em;
     font-size: 0.65rem; }
-    .cozy-container .button--sm:hover, .cozy-container .button--sm:focus, .cozy-container .button--sm:active {
+    .cozy-container .button--sm:hover, .cozy-container .button--sm:active {
       color: #fff;
       background-position: 0;
       transition: 0.2s ease-in; }
+    .cozy-container .button--sm:focus {
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba(0, 44, 99, 0.25); }
     .cozy-container .button--sm:active {
       box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
     .cozy-container .button--sm[disabled] {

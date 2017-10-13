@@ -194,10 +194,17 @@ $grid-padding:       1rem;
     transition: 0.2s ease-in;
     line-height: normal;
 
-    &:hover, &:focus, &:active {
+    &:hover, &:active {  
       color: $white;
       background-position: 0;
       transition: 0.2s ease-in;
+    }
+
+    &:focus {  
+      // background-position: 0;
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba($brand-color, .25);
     }
 
     &:active {

@@ -57,7 +57,6 @@ export var BibliographicInformation = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Info',
-      className: { article: 'cozy-preferences-modal' },
       region: 'left',
       fraction: 1.0
     });

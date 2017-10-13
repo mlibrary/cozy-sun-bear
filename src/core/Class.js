@@ -55,7 +55,8 @@ Class.extend = function (props) {
 
 	// merge options
 	if (proto.options) {
-		props.options = Util.extend(Util.create(proto.options), props.options);
+		// props.options = Util.extend(Util.create(proto.options), props.options);
+		props.options = Object.assign(Object.assign({}, proto.options), props.options);
 	}
 
 	// mix given properties into the prototype

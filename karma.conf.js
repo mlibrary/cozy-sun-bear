@@ -89,7 +89,7 @@ module.exports = function (config) {
 		// - PhantomJS
 		// - IE (only Windows)
 		// browsers: ['PhantomJSCustom'],
-		browsers: ['jsdom'],
+		browsers: ['ChromeHeadless'],
 		customLaunchers: {
 			// 'PhantomJSCustom': {
 			// 	base: 'PhantomJS',
