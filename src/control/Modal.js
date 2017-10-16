@@ -100,11 +100,12 @@ export var Modal = Class.extend({
     // bind any actions
     if ( this.actions ) {
       for(var i in this.actions) {
-        var action = this.actions[i];
-        var button_id = '#action-' + this._id + '-' + i;
-        var button = this.modal.querySelector(button_id);
+        let action = this.actions[i];
+        let button_id = '#action-' + this._id + '-' + i;
+        let button = this.modal.querySelector(button_id);
         if ( button ) {
           DomEvent.on(button, 'click', function(event) {
+            event.preventDefault();
             action.callback(event);
             if ( action.close ) {
               self.closeModal();
