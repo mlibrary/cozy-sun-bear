@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.04e72d31, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0f06930f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3275,8 +3275,6 @@ var pageLast = function pageLast(options) {
 };
 
 var activeModal;
-var dismissModalListener = false;
-
 // from https://github.com/ghosh/micromodal/blob/master/src/index.js
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
@@ -3360,72 +3358,6 @@ var Modal = Class.extend({
 
       for (var i in this.actions) {
         _loop();
-      }
-    }
-  },
-
-  _xxbindEvents: function _xxbindEvents() {
-    var self = this;
-
-    if (this._initializedEvents) {
-      return;
-    }
-    this._initializedEvents = true;
-
-    var reader = this._reader;
-    var container = reader._container;
-
-    if (!dismissModalListener) {
-      dismissModalListener = true;
-      on(container, 'click', function (event) {
-        if (hasClass(container, 'st-modal-activating')) {
-          return;
-        }
-        if (!hasClass(container, 'st-modal-open')) {
-          return;
-        }
-
-        var modal = activeModal;
-        if (!modal) {
-          return;
-        }
-        if (!hasClass(modal._container, 'active')) {
-          return;
-        }
-
-        var target = event.target;
-        if (target.getAttribute('data-toggle') == 'open') {
-          return;
-        }
-
-        // find whether target or ancestor is in _menu
-        while (target && !hasClass(target, 'st-pusher')) {
-          if (hasClass(target, 'st-modal') && hasClass(target, 'active')) {
-            return;
-          }
-          target = target.parentNode;
-        }
-        event.preventDefault();
-        modal.deactivate();
-      });
-
-      document.addEventListener('keydown', this.onKeydown);
-    }
-
-    on(this.modal.querySelector('h2 button'), 'click', function (event) {
-      event.preventDefault();
-      self.deactivate();
-    });
-
-    // bind any actions
-    if (this.options.actions) {
-      for (var i in this.options.actions) {
-        var action = this.options.actions[i];
-        var button_id = '#action-' + this._id + '-' + i;
-        var button = this.modal.querySelector(button_id);
-        on(button, 'click', function (event) {
-          action.callback(event);
-        });
       }
     }
   },

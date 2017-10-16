@@ -116,62 +116,6 @@ export var Modal = Class.extend({
     }
   },
 
-  _xxbindEvents: function() {
-    var self = this;
-
-    if ( this._initializedEvents ) { return; }
-    this._initializedEvents = true;
-
-    var reader = this._reader;
-    var container = reader._container;
-
-    if ( ! dismissModalListener ) {
-      dismissModalListener = true;
-      DomEvent.on(container, 'click', function(event) {
-        if ( DomUtil.hasClass(container, 'st-modal-activating') ) { return ; }
-        if ( ! DomUtil.hasClass(container, 'st-modal-open') ) { return ; }
-
-        var modal = activeModal;
-        if ( ! modal ) { return ; }
-        if ( ! DomUtil.hasClass(modal._container, 'active') ) { return ; }
-
-        var target = event.target;
-        if ( target.getAttribute('data-toggle') == 'open' ) { return ; }
-
-        // find whether target or ancestor is in _menu
-        while ( target && ! DomUtil.hasClass(target, 'st-pusher') ) {
-          if ( DomUtil.hasClass(target, 'st-modal') && DomUtil.hasClass(target, 'active') ) {
-            return;
-          }
-          target = target.parentNode;
-        }
-        event.preventDefault();
-        modal.deactivate();
-      });
-
-      document.addEventListener('keydown', this.onKeydown);
-
-    }
-
-    DomEvent.on(this.modal.querySelector('h2 button'), 'click', function(event) {
-      event.preventDefault();
-      self.deactivate();
-    })
-
-    // bind any actions
-    if ( this.options.actions ) {
-      for(var i in this.options.actions) {
-        var action = this.options.actions[i];
-        var button_id = '#action-' + this._id + '-' + i;
-        var button = this.modal.querySelector(button_id);
-        DomEvent.on(button, 'click', function(event) {
-          action.callback(event);
-        })
-      }
-    }
-
-  },
-
   deactivate: function() {
     this.closeModal();
   },
