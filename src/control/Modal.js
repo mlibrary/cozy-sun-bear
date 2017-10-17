@@ -97,6 +97,11 @@ export var Modal = Class.extend({
     var self = this;
     this.onClick = this.onClick.bind(this);
     this.onKeydown = this.onKeydown.bind(this);
+    this.onModalTransition = this.onModalTransition.bind(this);
+
+    this.modal.addEventListener('transitionend', function() {
+    }.bind(this));
+
     // bind any actions
     if ( this.actions ) {
       for(var i in this.actions) {
@@ -158,11 +163,17 @@ export var Modal = Class.extend({
     // this.modal.addEventListener('touchend', this.onClick)
     this.modal.addEventListener('click', this.onClick)
     document.addEventListener('keydown', this.onKeydown)
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function(event) {
+      this.modal.addEventListener(event, this.onModalTransition);
+    }.bind(this))
   },
 
   removeEventListeners: function () {
     this.modal.removeEventListener('touchstart', this.onClick)
     this.modal.removeEventListener('click', this.onClick)
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function(event) {
+      this.modal.removeEventListener(event, this.onModalTransition);
+    }.bind(this))
     document.removeEventListener('keydown', this.onKeydown)
   },
 
@@ -226,6 +237,14 @@ export var Modal = Class.extend({
     }
 
     event.preventDefault();
+  },
+
+  onModalTransition: function(event) {
+    if ( this.modal.getAttribute('aria-hidden') == 'true' ) {
+      this._reader.fire('modal-closed');
+    } else {
+      this._reader.fire('modal-opened');
+    }
   },
 
   on: function(event, selector, handler) {

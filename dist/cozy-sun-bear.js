@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0f06930f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.09ac5bd6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -1783,6 +1783,11 @@ function testProp(props) {
     return false;
 }
 
+function isPropertySupported(prop) {
+    var style = document.documentElement.style;
+    return prop in style;
+}
+
 // @function setTransform(el: HTMLElement, offset: Point, scale?: Number)
 // Resets the 3D CSS transform of `el` so it is translated by `offset` pixels
 // and optionally scaled by `scale`. Does not have an effect if the
@@ -1920,6 +1925,7 @@ var DomUtil = (Object.freeze || Object)({
 	getClass: getClass,
 	setOpacity: setOpacity,
 	testProp: testProp,
+	isPropertySupported: isPropertySupported,
 	setTransform: setTransform,
 	setPosition: setPosition,
 	getPosition: getPosition,
@@ -2525,6 +2531,8 @@ var Reader = Evented.extend({
     var self = this;
 
     options = setOptions(this, options);
+    this._checkFeatureCompatibility();
+
     this.metadata = this.options.metadata; // initial seed
 
     this._initContainer(id);
@@ -2667,15 +2675,11 @@ var Reader = Evented.extend({
 
     var position = getStyle(container, 'position');
 
-    if (position !== 'absolute' && position !== 'relative' && position !== 'fixed') {
-      container.style.position = 'relative';
-    }
-
     this._initPanes();
 
-    // if (this._initControlPos) {
-    //   this._initControlPos();
-    // }
+    if (!('columnCount' in container.style)) {
+      this.options.flow = 'scrolled-doc';
+    }
   },
 
   _initPanes: function _initPanes() {
@@ -2898,6 +2902,13 @@ var Reader = Evented.extend({
   _resizeBookPane: function _resizeBookPane() {},
 
   _setupHooks: function _setupHooks() {},
+
+  _checkFeatureCompatibility: function _checkFeatureCompatibility() {
+    if (!isPropertySupported('columnCount')) {
+      // force
+      this.options.flow = 'scrolled-doc';
+    }
+  },
 
   _initLoader: function _initLoader() {
     // is this not awesome?
@@ -3339,6 +3350,10 @@ var Modal = Class.extend({
     var self = this;
     this.onClick = this.onClick.bind(this);
     this.onKeydown = this.onKeydown.bind(this);
+    this.onModalTransition = this.onModalTransition.bind(this);
+
+    this.modal.addEventListener('transitionend', function () {}.bind(this));
+
     // bind any actions
     if (this.actions) {
       var _loop = function _loop() {
@@ -3404,11 +3419,17 @@ var Modal = Class.extend({
     // this.modal.addEventListener('touchend', this.onClick)
     this.modal.addEventListener('click', this.onClick);
     document.addEventListener('keydown', this.onKeydown);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.addEventListener(event, this.onModalTransition);
+    }.bind(this));
   },
 
   removeEventListeners: function removeEventListeners() {
     this.modal.removeEventListener('touchstart', this.onClick);
     this.modal.removeEventListener('click', this.onClick);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.removeEventListener(event, this.onModalTransition);
+    }.bind(this));
     document.removeEventListener('keydown', this.onKeydown);
   },
 
@@ -3478,6 +3499,14 @@ var Modal = Class.extend({
     }
 
     event.preventDefault();
+  },
+
+  onModalTransition: function onModalTransition(event) {
+    if (this.modal.getAttribute('aria-hidden') == 'true') {
+      this._reader.fire('modal-closed');
+    } else {
+      this._reader.fire('modal-opened');
+    }
   },
 
   on: function on$$1(event, selector, handler) {
