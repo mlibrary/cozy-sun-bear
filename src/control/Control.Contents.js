@@ -42,15 +42,11 @@ export var Contents = Control.extend({
       self._modal.activate();
     }, this)
 
-    DomEvent.on(this._modal._container, 'click', function(event) {
-      event.preventDefault();
-      var target = event.target;
-      if ( target.tagName == 'A' ) {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    this._modal.on('click', 'a[href]', function(modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this))
 
     this._reader.on('update-contents', function(data) {
       var parent = self._modal._container.querySelector('ul');

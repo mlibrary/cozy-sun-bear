@@ -47,6 +47,12 @@ export var Search = Control.extend({
       region: 'left'
     });
 
+    this._modal.on('click', 'a[href]', function(modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this));
+
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
 
@@ -85,15 +91,15 @@ export var Search = Control.extend({
 
     }, this);
 
-    DomEvent.on(this._modal._container, 'click', function(event) {
-      event.preventDefault();
-      var target = event.target;
-      if ( target.tagName == 'A' ) {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    // DomEvent.on(this._modal._container, 'click', function(event) {
+    //   event.preventDefault();
+    //   var target = event.target;
+    //   if ( target.tagName == 'A' ) {
+    //     target = target.getAttribute('href');
+    //     this._reader.gotoPage(target);
+    //   }
+    //   this._modal.deactivate();
+    // }, this);
 
     return container;
   },

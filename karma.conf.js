@@ -89,7 +89,7 @@ module.exports = function (config) {
 		// - PhantomJS
 		// - IE (only Windows)
 		// browsers: ['PhantomJSCustom'],
-		browsers: ['jsdom'],
+		browsers: ['ChromeHeadless'],
 		customLaunchers: {
 			// 'PhantomJSCustom': {
 			// 	base: 'PhantomJS',
@@ -102,6 +102,12 @@ module.exports = function (config) {
 			// 		}
 			// 	}
 			// }
+		},
+
+		browserConsoleLogOptions: {
+		      level: 'log',
+		      format: '%b %T: %m',
+		      terminal: true
 		},
 
 		// If browser does not capture in given timeout [ms], kill it

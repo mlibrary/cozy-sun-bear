@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0490c840, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0f06930f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3275,33 +3275,41 @@ var pageLast = function pageLast(options) {
 };
 
 var activeModal;
-var dismissModalListener = false;
+// from https://github.com/ghosh/micromodal/blob/master/src/index.js
+var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
+
+var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
 
 var Modal = Class.extend({
   options: {
     // @option region: String = 'topright'
     // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
-    tag: 'div',
+    region: 'left',
     fraction: 0.40,
     className: {},
-    actions: null
+    actions: null,
+    callbacks: { onShow: function onShow() {}, onClose: function onClose() {} },
+    handlers: {}
   },
 
   initialize: function initialize(options) {
-    setOptions(this, options);
-    this._id = new Date().getTime();
+    options = setOptions(this, options);
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
     this._initializedEvents = false;
+    this.callbacks = this.options.callbacks;
+    this.actions = this.options.actions;
+    this.handlers = this.options.handlers;
   },
 
   addTo: function addTo(reader) {
     var self = this;
     this._reader = reader;
     var template$$1 = this.options.template;
-    var tag = this.options.tag;
-    var panelHTML = '<div class="st-modal st-modal-' + this.options.region + '">\n      <header>\n        <h2>' + this.options.title + ' <button><span class="u-screenreader">Close</span><span aria-hidden="true">&times;</span></h2>\n      </header>\n      <article class="' + (this.options.className.article || this.options.className.article) + '">\n        ' + template$$1 + '\n      </article>';
+
+    var panelHTML = '<div class="modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + ' aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-{$this._id}-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.article ? this.options.className.article : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
 
     if (this.options.actions) {
-      panelHTML += '<footer>';
+      panelHTML += '<footer class="modal__footer">';
       for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_cls = action.className || 'button--default';
@@ -3310,94 +3318,73 @@ var Modal = Class.extend({
       panelHTML += '</footer>';
     }
 
-    panelHTML += '</div>';
+    panelHTML += '</div></div></div></div>';
 
     var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
 
-    this._container = reader._container.appendChild(body.children[0]);
-    this._container.style.height = reader._container.offsetHeight + 'px';
-    this._container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
-    addClass(reader._container, 'st-pusher');
+    this.modal = reader._container.appendChild(body.children[0]);
+    this._container = this.modal; // compatibility
+
+    this.container = this.modal.querySelector('.modal__container');
+    this.container.style.height = reader._container.offsetHeight + 'px';
+    this.container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
 
     this._bindEvents();
     return this;
   },
 
   _bindEvents: function _bindEvents() {
+    var _this = this;
+
     var self = this;
-
-    if (this._initializedEvents) {
-      return;
-    }
-    this._initializedEvents = true;
-
-    var reader = this._reader;
-    var container = reader._container;
-
-    if (!dismissModalListener) {
-      dismissModalListener = true;
-      on(container, 'click', function (event) {
-        if (hasClass(container, 'st-modal-activating')) {
-          return;
-        }
-        if (!hasClass(container, 'st-modal-open')) {
-          return;
-        }
-
-        var modal = activeModal;
-        if (!modal) {
-          return;
-        }
-        if (!hasClass(modal._container, 'active')) {
-          return;
-        }
-
-        var target = event.target;
-        if (target.getAttribute('data-toggle') == 'open') {
-          return;
-        }
-
-        // find whether target or ancestor is in _menu
-        while (target && !hasClass(target, 'st-pusher')) {
-          if (hasClass(target, 'st-modal') && hasClass(target, 'active')) {
-            return;
-          }
-          target = target.parentNode;
-        }
-        event.preventDefault();
-
-        modal.deactivate();
-      });
-    }
-
-    on(this._container.querySelector('h2 button'), 'click', function (event) {
-      event.preventDefault();
-      self.deactivate();
-    });
-
+    this.onClick = this.onClick.bind(this);
+    this.onKeydown = this.onKeydown.bind(this);
     // bind any actions
-    if (this.options.actions) {
-      for (var i in this.options.actions) {
-        var action = this.options.actions[i];
-        var button_id = '#action-' + this._id + '-' + i;
-        var button = this._container.querySelector(button_id);
-        on(button, 'click', function (event) {
-          action.callback(event);
-        });
+    if (this.actions) {
+      var _loop = function _loop() {
+        var action = _this.actions[i];
+        var button_id = '#action-' + _this._id + '-' + i;
+        var button = _this.modal.querySelector(button_id);
+        if (button) {
+          on(button, 'click', function (event) {
+            event.preventDefault();
+            action.callback(event);
+            if (action.close) {
+              self.closeModal();
+            }
+          });
+        }
+      };
+
+      for (var i in this.actions) {
+        _loop();
       }
     }
   },
 
   deactivate: function deactivate() {
-    var self = this;
-    var container = this._reader._container;
+    this.closeModal();
+  },
 
-    removeClass(container, 'st-modal-open');
-    removeClass(this._container, 'active');
-    activeModal = null;
+  closeModal: function closeModal() {
+    var self = this;
+    this.modal.setAttribute('aria-hidden', 'true');
+    this.removeEventListeners();
+    this.activeElement.focus();
+    this.callbacks.onClose(this.modal);
+  },
+
+  showModal: function showModal() {
+    this.activeElement = document.activeElement;
+    this._resize();
+    this.modal.setAttribute('aria-hidden', 'false');
+    this.setFocusToFirstNode();
+    this.addEventListeners();
+    this.callbacks.onShow(this.modal);
   },
 
   activate: function activate() {
+    return this.showModal();
     var self = this;
     activeModal = this;
     addClass(self._reader._container, 'st-modal-activating');
@@ -3406,21 +3393,112 @@ var Modal = Class.extend({
     setTimeout(function () {
       addClass(self._container, 'active');
       removeClass(self._reader._container, 'st-modal-activating');
+      self._container.setAttribute('aria-hidden', 'false');
+      self.setFocusToFirstNode();
     }, 25);
+  },
+
+  addEventListeners: function addEventListeners() {
+    // --- do we need touch listeners?
+    // this.modal.addEventListener('touchstart', this.onClick)
+    // this.modal.addEventListener('touchend', this.onClick)
+    this.modal.addEventListener('click', this.onClick);
+    document.addEventListener('keydown', this.onKeydown);
+  },
+
+  removeEventListeners: function removeEventListeners() {
+    this.modal.removeEventListener('touchstart', this.onClick);
+    this.modal.removeEventListener('click', this.onClick);
+    document.removeEventListener('keydown', this.onKeydown);
   },
 
   _resize: function _resize() {
     var container = this._reader._container;
-    this._container.style.height = container.offsetHeight + 'px';
-    this._container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
-    var header = this._container.querySelector('header');
-    var footer = this._container.querySelector('footer');
-    var article = this._container.querySelector('article');
-    var height = this._container.clientHeight - header.clientHeight;
+    this.container.style.height = container.offsetHeight + 'px';
+    this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    var header = this.container.querySelector('header');
+    var footer = this.container.querySelector('footer');
+    var main = this.container.querySelector('main');
+    var height = this.container.clientHeight - header.clientHeight;
     if (footer) {
       height -= footer.clientHeight;
     }
-    article.style.height = height + 'px';
+    main.style.height = height + 'px';
+  },
+
+  getFocusableNodes: function getFocusableNodes() {
+    var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
+    return Object.keys(nodes).map(function (key) {
+      return nodes[key];
+    });
+  },
+
+  setFocusToFirstNode: function setFocusToFirstNode() {
+    var focusableNodes = this.getFocusableNodes();
+    if (focusableNodes.length) {
+      focusableNodes[0].focus();
+    } else {
+      activeModal._container.focus();
+    }
+  },
+
+  getActionableNodes: function getActionableNodes() {
+    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
+    return Object.keys(nodes).map(function (key) {
+      return nodes[key];
+    });
+  },
+
+  onKeydown: function onKeydown(event) {
+    if (event.keyCode == 27) {
+      this.closeModal();
+    }
+    if (event.keyCode == 9) {
+      this.maintainFocus(event);
+    }
+  },
+
+  onClick: function onClick(event) {
+
+    var closeAfterAction = false;
+    if (this.handlers.click) {
+      var target = event.target;
+      for (var selector in this.handlers.click) {
+        if (target.matches(selector)) {
+          closeAfterAction = this.handlers.click[selector](this, target);
+        }
+      }
+    }
+
+    if (closeAfterAction || event.target.hasAttribute('data-modal-close')) this.closeModal();
+
+    var actionableNodes = this.getActionableNodes();
+    if (actionableNodes.indexOf(event.target) < 0) {
+      return;
+    }
+
+    event.preventDefault();
+  },
+
+  on: function on$$1(event, selector, handler) {
+    if (!this.handlers[event]) {
+      this.handlers[event] = {};
+    }
+    this.handlers[event][selector] = handler;
+  },
+
+  maintainFocus: function maintainFocus(event) {
+    var focusableNodes = this.getFocusableNodes();
+    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
+    if (event.shiftKey && focusedItemIndex === 0) {
+      focusableNodes[focusableNodes.length - 1].focus();
+      event.preventDefault();
+    }
+
+    if (!event.shiftKey && focusedItemIndex === focusableNodes.length - 1) {
+      focusableNodes[0].focus();
+      event.preventDefault();
+    }
   },
 
   EOT: true
@@ -3474,15 +3552,11 @@ var Contents = Control.extend({
       self._modal.activate();
     }, this);
 
-    on(this._modal._container, 'click', function (event) {
-      event.preventDefault();
-      var target = event.target;
-      if (target.tagName == 'A') {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    this._modal.on('click', 'a[href]', function (modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this));
 
     this._reader.on('update-contents', function (data) {
       var parent = self._modal._container.querySelector('ul');
@@ -4678,6 +4752,12 @@ var Search = Control.extend({
       region: 'left'
     });
 
+    this._modal.on('click', 'a[href]', function (modal, target) {
+      target = target.getAttribute('href');
+      this._reader.gotoPage(target);
+      return true;
+    }.bind(this));
+
     on(this._control, 'click', function (event) {
       event.preventDefault();
 
@@ -4713,15 +4793,15 @@ var Search = Control.extend({
       });
     }, this);
 
-    on(this._modal._container, 'click', function (event) {
-      event.preventDefault();
-      var target = event.target;
-      if (target.tagName == 'A') {
-        target = target.getAttribute('href');
-        this._reader.gotoPage(target);
-      }
-      this._modal.deactivate();
-    }, this);
+    // DomEvent.on(this._modal._container, 'click', function(event) {
+    //   event.preventDefault();
+    //   var target = event.target;
+    //   if ( target.tagName == 'A' ) {
+    //     target = target.getAttribute('href');
+    //     this._reader.gotoPage(target);
+    //   }
+    //   this._modal.deactivate();
+    // }, this);
 
     return container;
   },
@@ -4938,7 +5018,6 @@ var BibliographicInformation = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Info',
-      className: { article: 'cozy-preferences-modal' },
       region: 'left',
       fraction: 1.0
     });
@@ -5089,7 +5168,6 @@ var Navigator = Control.extend({
       var className = this._className('navigator'),
           options = this.options;
       container = create$1('div', className), this._control = this._createControl(className, container);
-      console.log("AHOY", this._control, container);
     }
     this._bindEvents();
 
@@ -5122,9 +5200,6 @@ var Navigator = Control.extend({
     this._control.addEventListener("mouseup", function () {
       this._mouseDown = false;
     }, false);
-
-    // needs a hook to respond to the loaded contents
-    // this._reader.on('')
 
     this._reader.on('relocated', function (location) {
       var percent = self._reader.locations.percentageFromCfi(location.start.cfi);
@@ -5502,6 +5577,8 @@ Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
     return this._book.locations;
   }
 });
+
+window.Reader = Reader;
 
 function createReader$1(id, options) {
   return new Reader.EpubJS(id, options);
