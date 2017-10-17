@@ -11133,9 +11133,13 @@ var Highlight = exports.Highlight = function (_Mark) {
         value: function bind(element) {
             _get(Highlight.prototype.__proto__ || Object.getPrototypeOf(Highlight.prototype), 'bind', this).call(this, element);
 
-            for (var attr in this.data) {
-                if (this.data.hasOwnProperty(attr)) {
-                    this.element.dataset[attr] = this.data[attr];
+            if (this.element.dataset) {
+                // IE/Edge SVG
+                for (var attr in this.data) {
+                    if (this.data.hasOwnProperty(attr)) {
+                        console.log("AHOY WUT", attr, this.element.dataset);
+                        this.element.dataset[attr] = this.data[attr];
+                    }
                 }
             }
 
