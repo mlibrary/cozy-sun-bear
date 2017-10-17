@@ -55,6 +55,8 @@ export var Reader = Evented.extend({
     var self = this
 
     options = Util.setOptions(this, options);
+    this._checkFeatureCompatibility();
+
     this.metadata = this.options.metadata; // initial seed
 
     this._initContainer(id);
@@ -202,15 +204,11 @@ export var Reader = Evented.extend({
 
     var position = DomUtil.getStyle(container, 'position');
 
-    if (position !== 'absolute' && position !== 'relative' && position !== 'fixed') {
-      container.style.position = 'relative';
-    }
-
     this._initPanes();
 
-    // if (this._initControlPos) {
-    //   this._initControlPos();
-    // }
+    if ( ! ( 'columnCount' in container.style ) ) {
+      this.options.flow = 'scrolled-doc';
+    }
   },
 
   _initPanes: function () {
@@ -429,6 +427,13 @@ export var Reader = Evented.extend({
 
   _setupHooks: function() {
 
+  },
+
+  _checkFeatureCompatibility: function() {
+    if ( ! DomUtil.isPropertySupported('columnCount') ) {
+      // force
+      this.options.flow = 'scrolled-doc';
+    }
   },
 
   _initLoader: function() {

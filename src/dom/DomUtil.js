@@ -194,6 +194,11 @@ export function testProp(props) {
     return false;
 }
 
+export function isPropertySupported(prop) {
+    var style = document.documentElement.style;
+    return prop in style;
+}
+
 // @function setTransform(el: HTMLElement, offset: Point, scale?: Number)
 // Resets the 3D CSS transform of `el` so it is translated by `offset` pixels
 // and optionally scaled by `scale`. Does not have an effect if the
