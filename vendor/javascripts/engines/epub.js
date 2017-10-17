@@ -11137,7 +11137,6 @@ var Highlight = exports.Highlight = function (_Mark) {
                 // IE/Edge SVG
                 for (var attr in this.data) {
                     if (this.data.hasOwnProperty(attr)) {
-                        console.log("AHOY WUT", attr, this.element.dataset);
                         this.element.dataset[attr] = this.data[attr];
                     }
                 }
