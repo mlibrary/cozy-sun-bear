@@ -51,55 +51,60 @@ describe("Modal", function () {
 	  		        { label: 'Action 2', callback: function(event) { result = "Action 2" }, close: true },
   		        ]
   		    })
-  		modal.showModal();    
   	});
 
   	it("is not dismissed clicking Action 1", function() {
-  		var button = modal.container.querySelector("#action-" + modal._id + "-0");
-  		simulateClick(button);
-  		expect(result).to.be('Action 1');
-  		expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+      reader.on('modal-opened', function() {
+        var button = modal.container.querySelector("#action-" + modal._id + "-0");
+        simulateClick(button);
+        expect(result).to.be('Action 1');
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+      })
+      modal.showModal();  
   	})
 
   	it("is dismissed clicking Action 2", function() {
-  		var button = modal.container.querySelector("#action-" + modal._id + "-1");
-  		simulateClick(button);
-  		expect(result).to.be('Action 2');
-  		expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      reader.on('modal-opened', function() {
+        var button = modal.container.querySelector("#action-" + modal._id + "-1");
+        simulateClick(button);
+        expect(result).to.be('Action 2');
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      })
+      modal.showModal();  
   	})
 
   	// setTimeout to allow modal to be opened and focus to shift?
   	it("the close button should have focus", function() {
-  		var button = modal.container.querySelector("header .modal__close");
-  		expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-  		setTimeout(function() {
-	  		var focused = document.activeElement;
-	  		expect(button).to.be(focused);
-  		}, 0);
+      reader.on('modal-opened', function() {
+        var button = modal.container.querySelector("header .modal__close");
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+      });
+      modal.showModal();
   	})
 
   	it("tab should keep focus within modal", function() {
   		var tab = "\t";
   		var focusable = modal.getFocusableNodes();
-  		expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-  		setTimeout(function() {
-	  		expect(document.activeElement).to.be(focusable[0]);
+      reader.on('modal-opened', function() {
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+        expect(document.activeElement).to.be(focusable[0]);
 
-	  		simulateKeypress(tab);
-	  		expect(document.activeElement).to.be(focusable[1]);
+        simulateKeypress(tab);
+        expect(document.activeElement).to.be(focusable[1]);
 
-	  		simulateKeypress(tab);
-	  		expect(document.activeElement).to.be(focusable[2]);
+        simulateKeypress(tab);
+        expect(document.activeElement).to.be(focusable[2]);
 
-	  		simulateKeypress(tab);
-	  		expect(document.activeElement).to.be(focusable[3]);
+        simulateKeypress(tab);
+        expect(document.activeElement).to.be(focusable[3]);
 
-	  		simulateKeypress(tab);
-	  		expect(document.activeElement).to.be(focusable[4]);
+        simulateKeypress(tab);
+        expect(document.activeElement).to.be(focusable[4]);
 
-	  		simulateKeypress(tab);
-	  		expect(document.activeElement).to.be(focusable[0]);
-  		}, 0);
+        simulateKeypress(tab);
+        expect(document.activeElement).to.be(focusable[0]);
+      })
+      modal.showModal();
   	})
 
   })

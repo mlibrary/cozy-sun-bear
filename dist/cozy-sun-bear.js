@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0aaa7bc2, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.09ac5bd6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3350,6 +3350,10 @@ var Modal = Class.extend({
     var self = this;
     this.onClick = this.onClick.bind(this);
     this.onKeydown = this.onKeydown.bind(this);
+    this.onModalTransition = this.onModalTransition.bind(this);
+
+    this.modal.addEventListener('transitionend', function () {}.bind(this));
+
     // bind any actions
     if (this.actions) {
       var _loop = function _loop() {
@@ -3415,11 +3419,17 @@ var Modal = Class.extend({
     // this.modal.addEventListener('touchend', this.onClick)
     this.modal.addEventListener('click', this.onClick);
     document.addEventListener('keydown', this.onKeydown);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.addEventListener(event, this.onModalTransition);
+    }.bind(this));
   },
 
   removeEventListeners: function removeEventListeners() {
     this.modal.removeEventListener('touchstart', this.onClick);
     this.modal.removeEventListener('click', this.onClick);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.removeEventListener(event, this.onModalTransition);
+    }.bind(this));
     document.removeEventListener('keydown', this.onKeydown);
   },
 
@@ -3489,6 +3499,14 @@ var Modal = Class.extend({
     }
 
     event.preventDefault();
+  },
+
+  onModalTransition: function onModalTransition(event) {
+    if (this.modal.getAttribute('aria-hidden') == 'true') {
+      this._reader.fire('modal-closed');
+    } else {
+      this._reader.fire('modal-opened');
+    }
   },
 
   on: function on$$1(event, selector, handler) {
