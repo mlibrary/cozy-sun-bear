@@ -18,7 +18,7 @@ export var Title = Control.extend({
     var h1 = DomUtil.create('h1', 'cozy-h1', container);
     this._title = DomUtil.create('span', 'cozy-title', h1);
     this._divider = DomUtil.create('span', 'cozy-divider', h1);
-    this._divider.textContent = " / ";
+    this._divider.textContent = " · ";
     this._section = DomUtil.create('span', 'cozy-section', h1);
 
     this._reader.on('update-section', function(data) {

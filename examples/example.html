@@ -111,8 +111,8 @@
             head.load(cozy_href, function() {
                 head.load(engine_href, function() {
                     book_href = book_prefix + book_id;
-                    reader = cozy.reader('reader', { 
-                        href: book_href, 
+                    reader = cozy.reader('reader', {
+                        href: book_href,
                         engine: engine,
                         themes: [
                             {
@@ -191,7 +191,7 @@
                                 }
                             }
                         ],
-                        flow: 'auto' 
+                        flow: 'auto'
                     });
 
                     cozy.control.title({ region: 'top.header.left' }).addTo(reader);
@@ -224,9 +224,10 @@
                     }).addTo(reader);
 
                     cozy.control.widget.button({
+                        className: 'cozy-container-fullscreen',
                         region: 'top.toolbar.right',
                         template: '<button class="button--sm" data-toggle="button" data-slot="label"></button>',
-                        data: { label: 'FULLSCREEN' },
+                        data: { label: '<i id="fullscreen" class="icon-fullscreen-enter oi" data-glyph="fullscreen-enter" title="Fullscreen Mode" aria-hidden="true"></i>' },
                         onClick: function() {
                             reader.requestFullscreen();
                         }

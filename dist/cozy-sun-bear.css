@@ -1293,7 +1293,8 @@
   .cozy-container i[class^='icon-chevron-']:hover {
     color: #002c63;
     transition: 0.2s ease-in; }
-  .cozy-container i.icon-menu {
+  .cozy-container i.icon-menu,
+  .cozy-container i.icon-fullscreen-enter {
     font-size: inherit; }
   .cozy-container i.icon-x {
     font-size: initial; }
@@ -1529,11 +1530,15 @@ div.cozy-panel-footer {
 .cozy-control .cozy-h1 {
   font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
   margin: .3em .5em 0;
-  font-size: 2em;
-  line-height: normal; }
+  font-size: 1.5em;
+  line-height: normal;
+  max-width: 95vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
 
 .cozy-control button.button--sm {
-  font-size: 1.2em;
+  font-size: 1em;
   height: 100%;
   border-radius: 0;
   padding: 0 1em;
@@ -1656,3 +1661,8 @@ div.cozy-panel-footer {
 
 .cozy-container.cozy-engine-readium #scrolled-content-frame {
   position: absolute; }
+
+@media screen and (max-width: 50em) {
+  .permalink-label,
+  .cozy-control.cozy-container-fullscreen {
+    display: none; } }

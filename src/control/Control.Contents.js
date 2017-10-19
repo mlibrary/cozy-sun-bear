@@ -6,7 +6,7 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i>  Contents</button>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -27,7 +27,7 @@ export var Contents = Control.extend({
         container.appendChild(body.children[0]);
       }
     }
-    
+
     this._modal = this._reader.modal({
       template: '<ul></ul>',
       title: 'Contents',
