@@ -13,13 +13,13 @@ $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
   Basic Modal Styles
 \**************************/
 
-.modal[aria-hidden=true] {
+.cozy-modal[aria-hidden=true] {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s 0.2s, opacity 500ms linear;
 }
 
-.modal {
+.cozy-modal {
   // font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
   z-index: 25;
 }
@@ -38,7 +38,7 @@ $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
   align-items: left;
 }
 
-.modal.right .modal__overlay {
+.cozy-modal.right .modal__overlay {
   justify-content: flex-end;
   align-items: flex-end;
 }
