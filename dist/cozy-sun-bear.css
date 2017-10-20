@@ -727,12 +727,12 @@
 
 /**************************  Basic Modal Styles
 \**************************/
-.modal[aria-hidden=true] {
+.cozy-modal[aria-hidden=true] {
   visibility: hidden;
   opacity: 0;
   transition: visibility 0s 0.2s, opacity 500ms linear; }
 
-.modal {
+.cozy-modal {
   z-index: 25; }
 
 .modal__overlay {
@@ -748,7 +748,7 @@
   justify-content: flex-start;
   align-items: left; }
 
-.modal.right .modal__overlay {
+.cozy-modal.right .modal__overlay {
   justify-content: flex-end;
   align-items: flex-end; }
 

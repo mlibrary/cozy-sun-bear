@@ -56,7 +56,7 @@ export var Modal = Class.extend({
     this._reader = reader;
     var template = this.options.template;
 
-    var panelHTML = `<div class="modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id} aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
+    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id} aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-modal-close>
         <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-${this._id}-title" aria-describedby="modal-${this._id}-content" id="modal-{$this._id}-container">
           <div role="document">
