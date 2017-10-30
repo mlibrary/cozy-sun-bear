@@ -58,7 +58,7 @@ export var Download = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Download Book',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-download',
       actions: [
         {
           label: 'Download',

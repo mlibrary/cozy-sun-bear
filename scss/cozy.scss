@@ -534,21 +534,8 @@ div.cozy-panel-footer {
   }
 }
 
-// preferences modal
-.cozy-preferences-modal {
-
-  .close {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 1em;
-    font-weight: bold;
-  }
-
-  .button--sm {
-    margin-top: 1em;
-    font-size: 1rem;
-  }
+// modal contents styles
+.cozy-modal main {
 
   fieldset {
     border: 1px solid $brand-color;

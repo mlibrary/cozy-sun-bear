@@ -31,7 +31,8 @@ export var Contents = Control.extend({
     this._modal = this._reader.modal({
       template: '<ul></ul>',
       title: 'Contents',
-      region: 'left'
+      region: 'left',
+      className: 'cozy-modal-contents'
     });
 
     this._control = container.querySelector("[data-toggle=open]");

@@ -9,6 +9,9 @@ $modal-footer-bgcolor: #a3a3a3;
 $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
 
 
+$modal-width-fraction:    40%;
+
+
 /**************************\
   Basic Modal Styles
 \**************************/
@@ -52,6 +55,7 @@ $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
   height: 100vh;
   border-radius: 0px;
   box-sizing: border-box;
+  width: 100%;
 
   background: $modal-bgcolor;
   color: $modal-color;
@@ -239,4 +243,9 @@ $modal-backdrop-bgcolor: rgba(0,0,0,0.6);
   will-change: transform;
 }
 
-
+// media queries
+@media screen and (min-width: 50em ) {
+  .modal__container {
+    width: $modal-width-fraction;
+  }
+}
