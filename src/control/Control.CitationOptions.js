@@ -80,7 +80,7 @@ export var CitationOptions = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-citatation',
       actions: [
         {
           label: 'Copy Citation',

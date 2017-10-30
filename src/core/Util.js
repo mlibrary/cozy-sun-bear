@@ -115,6 +115,12 @@ export function formatNum(num, digits) {
     return Math.round(num * pow) / pow;
 }
 
+// @function isNumeric(num: Number): Boolean
+// Returns whether num is actually numeric
+export function isNumeric(num) {
+  return !isNaN(parseFloat(num)) && isFinite(num);
+}
+
 // @function trim(str: String): String
 // Compatibility polyfill for [String.prototype.trim](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)
 export function trim(str) {

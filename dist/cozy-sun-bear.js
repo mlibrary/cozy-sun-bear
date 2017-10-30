@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.06a9ef09, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0a650379, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -126,6 +126,12 @@ function falseFn() {
 function formatNum(num, digits) {
     var pow = Math.pow(10, digits || 5);
     return Math.round(num * pow) / pow;
+}
+
+// @function isNumeric(num: Number): Boolean
+// Returns whether num is actually numeric
+function isNumeric(num) {
+    return !isNaN(parseFloat(num)) && isFinite(num);
 }
 
 // @function trim(str: String): String
@@ -262,6 +268,7 @@ var Util = (Object.freeze || Object)({
 	wrapNum: wrapNum,
 	falseFn: falseFn,
 	formatNum: formatNum,
+	isNumeric: isNumeric,
 	trim: trim,
 	splitWords: splitWords,
 	setOptions: setOptions,
@@ -3296,7 +3303,8 @@ var Modal = Class.extend({
     // @option region: String = 'topright'
     // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
     region: 'left',
-    fraction: 0.40,
+    fraction: 0,
+    width: null,
     className: {},
     actions: null,
     callbacks: { onShow: function onShow() {}, onClose: function onClose() {} },
@@ -3310,6 +3318,9 @@ var Modal = Class.extend({
     this.callbacks = this.options.callbacks;
     this.actions = this.options.actions;
     this.handlers = this.options.handlers;
+    if (typeof this.options.className == 'string') {
+      this.options.className = { container: this.options.className };
+    }
   },
 
   addTo: function addTo(reader) {
@@ -3317,7 +3328,7 @@ var Modal = Class.extend({
     this._reader = reader;
     var template$$1 = this.options.template;
 
-    var panelHTML = '<div class="cozy-modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + ' aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-{$this._id}-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.article ? this.options.className.article : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
+    var panelHTML = '<div class="cozy-modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + ' aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container ' + (this.options.className.container ? this.options.className.container : '') + '" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-' + this._id + '-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.main ? this.options.className.main : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
 
     if (this.options.actions) {
       panelHTML += '<footer class="modal__footer">';
@@ -3337,9 +3348,6 @@ var Modal = Class.extend({
     this._container = this.modal; // compatibility
 
     this.container = this.modal.querySelector('.modal__container');
-    this.container.style.height = reader._container.offsetHeight + 'px';
-    this.container.style.width = this.options.width || parseInt(reader._container.offsetWidth * this.options.fraction) + 'px';
-
     this._bindEvents();
     return this;
   },
@@ -3436,7 +3444,10 @@ var Modal = Class.extend({
   _resize: function _resize() {
     var container = this._reader._container;
     this.container.style.height = container.offsetHeight + 'px';
-    this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    if (!this.options.className.container) {
+      this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    }
+
     var header = this.container.querySelector('header');
     var footer = this.container.querySelector('footer');
     var main = this.container.querySelector('main');
@@ -3570,7 +3581,8 @@ var Contents = Control.extend({
     this._modal = this._reader.modal({
       template: '<ul></ul>',
       title: 'Contents',
-      region: 'left'
+      region: 'left',
+      className: 'cozy-modal-contents'
     });
 
     this._control = container.querySelector("[data-toggle=open]");
@@ -3826,7 +3838,7 @@ var Preferences = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Preferences',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-preferences',
       actions: [{
         label: 'Save Changes',
         callback: function callback(event) {
@@ -4460,7 +4472,7 @@ var Citation = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-citation',
       actions: [{
         label: 'Copy Citation',
         callback: function callback(event) {
@@ -4911,7 +4923,7 @@ var CitationOptions = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-citatation',
       actions: [{
         label: 'Copy Citation',
         callback: function callback(event) {
@@ -5138,7 +5150,7 @@ var Download = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Download Book',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-download',
       actions: [{
         label: 'Download',
         callback: function callback(event) {

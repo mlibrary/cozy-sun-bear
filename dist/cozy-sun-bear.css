@@ -757,6 +757,7 @@
   height: 100vh;
   border-radius: 0px;
   box-sizing: border-box;
+  width: 100%;
   background: #e0e0e0;
   color: #1e1e1e;
   overflow: hidden; }
@@ -908,6 +909,10 @@
 .modal-slide .modal__container,
 .modal-slide .modal__overlay {
   will-change: transform; }
+
+@media screen and (min-width: 50em) {
+  .modal__container {
+    width: 40%; } }
 
 .socket {
   width: 200px;
@@ -1622,22 +1627,11 @@ div.cozy-panel-footer {
 .cozy-control-preferences button {
   padding: .8em 1em 0 .6em; }
 
-.cozy-preferences-modal .close {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  font-size: 1em;
-  font-weight: bold; }
-
-.cozy-preferences-modal .button--sm {
-  margin-top: 1em;
-  font-size: 1rem; }
-
-.cozy-preferences-modal fieldset {
+.cozy-modal main fieldset {
   border: 1px solid #002c63;
   margin: 1rem; }
 
-.cozy-preferences-modal label {
+.cozy-modal main label {
   display: block;
   margin: 1em 0; }
 

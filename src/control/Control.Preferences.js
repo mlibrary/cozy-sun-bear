@@ -80,7 +80,7 @@ export var Preferences = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Preferences',
-      className: { article: 'cozy-preferences-modal' },
+      className: 'cozy-modal-preferences',
       actions: [
         {
           label: 'Save Changes',
