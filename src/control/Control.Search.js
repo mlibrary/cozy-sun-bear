@@ -44,6 +44,7 @@ export var Search = Control.extend({
     this._modal = this._reader.modal({
       template: '<ul></ul>',
       title: 'Search Results',
+      className: 'cozy-modal-search',
       region: 'left'
     });
 
