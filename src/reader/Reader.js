@@ -430,9 +430,15 @@ export var Reader = Evented.extend({
   },
 
   _checkFeatureCompatibility: function() {
-    if ( ! DomUtil.isPropertySupported('columnCount') ) {
+    var msql = window.matchMedia("(min-device-width : 320px) and (max-device-width : 600px)");
+    if ( ! DomUtil.isPropertySupported('columnCount') || msql.matches ) {
       // force
       this.options.flow = 'scrolled-doc';
+    }
+    if ( msql.matches ) {
+      this.options.fontSizeLarge = '160%';
+      this.options.fontSizeSmall ='100%';
+      this.options.fontSizeDefault = '120%';
     }
   },
 
