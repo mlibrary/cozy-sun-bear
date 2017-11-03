@@ -29,11 +29,11 @@ module.exports = function (config) {
 			'karma-coverage',
 			'karma-coveralls',
 			'karma-sourcemap-loader',
-			'karma-phantomjs-launcher',
+			// 'karma-phantomjs-launcher',
+			// 'karma-jsdom-launcher',
 			'karma-chrome-launcher',
 			'karma-safari-launcher',
-			'karma-firefox-launcher',
-			'karma-jsdom-launcher'],
+			'karma-firefox-launcher'],
 
 		// frameworks to use
 		frameworks: ['mocha'],

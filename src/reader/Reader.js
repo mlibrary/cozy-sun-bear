@@ -47,6 +47,7 @@ export var Reader = Evented.extend({
     fontSizeSmall: '90%',
     fontSizeDefault: '100%',
     trackResize: true,
+    mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
     theme: 'default',
     themes: []
   },
@@ -76,7 +77,7 @@ export var Reader = Evented.extend({
             theme.rules = rules;
         });
     }
-      
+
     this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
@@ -430,16 +431,25 @@ export var Reader = Evented.extend({
   },
 
   _checkFeatureCompatibility: function() {
-    var msql = window.matchMedia("(min-device-width : 320px) and (max-device-width : 600px)");
-    if ( ! DomUtil.isPropertySupported('columnCount') || msql.matches ) {
+    if ( ! DomUtil.isPropertySupported('columnCount') || this._checkMobileDevice() ) {
       // force
       this.options.flow = 'scrolled-doc';
     }
-    if ( msql.matches ) {
+    if ( this._checkMobileDevice() ) {
       this.options.fontSizeLarge = '160%';
       this.options.fontSizeSmall ='100%';
       this.options.fontSizeDefault = '120%';
     }
+  },
+
+  _checkMobileDevice: function() {
+    if ( this._isMobile === undefined ) {
+      this._isMobile = false;
+      if ( this.options.mobileMediaQuery ) {
+        this._isMobile = window.matchMedia(this.options.mobileMediaQuery).matches;
+      }
+    }
+    return this._isMobile;
   },
 
   _initLoader: function() {
