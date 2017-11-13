@@ -212,6 +212,22 @@ Reader.EpubJS = Reader.extend({
           self._rendition.display(href);
         })
       }
+      if ( ! self._rendition.manager.__scroll ) {
+        var ticking;
+        self._rendition.manager.container.addEventListener("scroll", function(event) {
+          if ( ! ticking ) {
+            var mod = event.target.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+            if ( mod > 0 ) {
+              ticking = true;
+              var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+              var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
+              self._rendition.manager.scrollBy(delta);
+              setTimeout(function() { ticking = false; }, 100);
+            }
+          }
+        })
+        self._rendition.manager.views.__scroll = true;
+      }
       window.location.hash = "#/"+self._book.url.path().relative(section.href);
     })
   },
