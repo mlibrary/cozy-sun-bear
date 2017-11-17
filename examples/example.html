@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <title>Navigation Example</title>
 
@@ -58,7 +58,8 @@
 <body>
 
     <form id="select-engine">
-        <select size="1" name="engine">
+        <label class="u-screenreader" for="engine">Select EPUB Engine</label>
+        <select size="1" name="engine" id="engine">
             <option value="epubjs">epub.js/v0.3</option>
             <option value="epubjsv2">epub.js/v0.2</option>
             <option value="readium">Readium</option>
@@ -207,7 +208,7 @@
 
                     cozy.control.widget.panel({
                         region: 'top.toolbar.left',
-                        template: '<div class="permalink-label"><span class="u-screenreader">Permalink</span><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
+                        template: '<div class="permalink-label"><label class="u-screenreader" for="permalink">Permalink</label><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
                         data: { title: "https://doi.org/10.3998/fulcrum.12345" }
                     }).addTo(reader);
 
@@ -234,7 +235,7 @@
                     cozy.control.widget.button({
                         className: 'cozy-container-fullscreen',
                         region: 'top.toolbar.right',
-                        template: '<button class="button--sm" data-toggle="button" data-slot="label"></button>',
+                        template: '<button class="button--sm" data-toggle="button" data-slot="label" aria-label="Fullscreen mode"></button>',
                         data: { label: '<i id="fullscreen" class="icon-fullscreen-enter oi" data-glyph="fullscreen-enter" title="Fullscreen Mode" aria-hidden="true"></i>' },
                         onClick: function() {
                             reader.requestFullscreen();

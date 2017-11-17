@@ -12,7 +12,7 @@ export var BibliographicInformation = Control.extend({
     html: '<span class="oi" data-glyph="info">Info</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open"> Info</button>`,
+  defaultTemplate: `<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open" aria-label="Bibliographic Information"> Info</button>`,
 
   onAdd: function(reader) {
     var self = this;

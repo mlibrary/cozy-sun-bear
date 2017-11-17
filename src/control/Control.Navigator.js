@@ -28,6 +28,7 @@ export var Navigator = Control.extend({
     input.setAttribute('max', 100);
     input.setAttribute('step', 1);
     input.setAttribute('value', 0);
+    input.setAttribute('aria-label','Slider navigator');
 
     return input;
   },
@@ -67,4 +68,3 @@ export var Navigator = Control.extend({
 export var navigator = function(options) {
   return new Navigator(options);
 }
-
