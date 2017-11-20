@@ -14,8 +14,9 @@ export var Search = Control.extend({
   },
 
   defaultTemplate: `<form class="search">
+    <label class="u-screenreader" for="cozy-search-string">Search</label>
     <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>
-    <button class="button--sm" data-toggle="open"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
+    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
   </form>`,
 
   onAdd: function(reader) {
