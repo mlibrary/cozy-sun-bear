@@ -1191,90 +1191,98 @@
     background: #707B7C; } }
 
 .cozy-container .cozy-panel-navigator {
-  position: absolute;
-  bottom: 0.75em;
-  left: 50%;
-  width: 90%;
-  margin-left: -45%;
-  text-align: center;
-  display: block;
-  z-index: 10; }
-  .cozy-container .cozy-panel-navigator input[type=range] {
-    height: 25px;
-    -webkit-appearance: none;
-    margin: 10px 0;
-    width: 100%; }
-  .cozy-container .cozy-panel-navigator input[type=range]:focus {
-    outline: none; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #000000;
-    background: #00afec;
-    border-radius: 1px;
-    border: 0px solid #000000; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-webkit-slider-thumb {
-    box-shadow: 0px 0px 0px #000000;
-    border: 1px solid #2497E3;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer;
-    -webkit-appearance: none;
-    margin-top: -7px; }
-  .cozy-container .cozy-panel-navigator input[type=range]:focus::-webkit-slider-runnable-track {
-    background: #00afec; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-moz-range-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    box-shadow: 0px 0px 0px #000000;
-    background: #00afec;
-    border-radius: 1px;
-    border: 0px solid #000000; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-moz-range-thumb {
-    box-shadow: 0px 0px 0px #000000;
-    border: 1px solid #2497E3;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-ms-track {
-    width: 100%;
-    height: 5px;
-    cursor: pointer;
-    animate: 0.2s;
-    background: transparent;
-    border-color: transparent;
-    color: transparent; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-ms-fill-lower {
-    background: #00afec;
-    border: 0px solid #000000;
-    border-radius: 2px;
-    box-shadow: 0px 0px 0px #000000; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-ms-fill-upper {
-    background: #00afec;
-    border: 0px solid #000000;
-    border-radius: 2px;
-    box-shadow: 0px 0px 0px #000000; }
-  .cozy-container .cozy-panel-navigator input[type=range]::-ms-thumb {
-    margin-top: 1px;
-    box-shadow: 0px 0px 0px #000000;
-    border: 1px solid #2497E3;
-    height: 18px;
-    width: 18px;
-    border-radius: 25px;
-    background: #A1D0FF;
-    cursor: pointer; }
-  .cozy-container .cozy-panel-navigator input[type=range]:focus::-ms-fill-lower {
-    background: #00afec; }
-  .cozy-container .cozy-panel-navigator input[type=range]:focus::-ms-fill-upper {
-    background: #00afec; }
+  width: 100%;
+  margin: 0 auto; }
+  .cozy-container .cozy-panel-navigator .cozy-control-navigator {
+    width: 90%;
+    height: 3em;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator input[type=range] {
+      -webkit-appearance: none;
+      font-size: 1em;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      left: 0;
+      top: 0;
+      position: absolute;
+      background-color: transparent;
+      transition: all 0.3s ease-in-out; }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator label {
+      height: 3em;
+      line-height: 1em;
+      position: absolute;
+      background-color: #fff;
+      left: 0;
+      top: 0.25em;
+      transform: translate(0, -100%);
+      transition: all 0s ease-in-out; }
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator label span {
+        min-width: 3em;
+        padding: 1em;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(calc(0% - 1em), -50%);
+        background-color: #666;
+        color: #eee;
+        border: 1px solid #ddd; }
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator label:after {
+        content: '';
+        width: 0;
+        height: 0;
+        border: 0.5em solid transparent;
+        border-top-color: #666;
+        position: absolute;
+        bottom: -0.9em;
+        left: 0;
+        -webkit-transform: translate(-50%, 0);
+        transform: translate(-50%, 0); }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator .range__background {
+      width: 100%;
+      pointer-events: none;
+      height: 0.5em;
+      background-image: linear-gradient(90deg, #FFFFFF, #FFFFFF 50%, transparent 50%), linear-gradient(90deg, #2497e3, #a2d3f5);
+      background-size: 200% 100%, 100% 100%;
+      background-repeat: no-repeat, no-repeat;
+      background-position: 100% 0%, left top; }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator input[type=range]::-webkit-slider-thumb {
+      box-shadow: 0px 0px 0px #000000;
+      border: 1px solid #666;
+      height: 24px;
+      width: 24px;
+      border-radius: 25px;
+      background: #fff;
+      cursor: pointer;
+      -webkit-appearance: none;
+      box-shadow: 2px 2px 1px 0px rgba(0, 0, 0, 0.4); }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator input[type=range]::-moz-range-thumb {
+      box-shadow: 0px 0px 0px #000000;
+      border: 1px solid #2497E3;
+      height: 18px;
+      width: 18px;
+      border-radius: 25px;
+      background: #A1D0FF;
+      cursor: pointer; }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator input[type=range]::-ms-thumb {
+      margin-top: 1px;
+      box-shadow: 0px 0px 0px #000000;
+      border: 1px solid #2497E3;
+      height: 18px;
+      width: 18px;
+      border-radius: 25px;
+      background: #A1D0FF;
+      cursor: pointer; }
 
 .cozy-container {
   font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
