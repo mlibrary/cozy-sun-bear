@@ -1,3 +1,22 @@
+// tweaks if the panel is added to the book
+.cozy-module-book .cozy-panel-navigator {
+  position: absolute;
+  bottom: 0.75em;
+  left: 0;
+  // left: 50%;
+  // width: 90%;
+  // margin-left: -45%;
+  text-align: center;
+  display: block;
+  z-index: 10;
+
+  opacity: 0.2;
+
+  &:hover {
+    opacity: 1.0;
+  }
+}
+
 .cozy-container .cozy-panel-navigator {
 
   width: 100%;
@@ -21,7 +40,7 @@
     .cozy-navigator-range {
 
       width: 90%;
-      height: 3em;
+      height: 1.5em;
       position: relative;
       display: flex;
       align-items: center;

@@ -1190,6 +1190,17 @@
   100% {
     background: #707B7C; } }
 
+.cozy-module-book .cozy-panel-navigator {
+  position: absolute;
+  bottom: 0.75em;
+  left: 0;
+  text-align: center;
+  display: block;
+  z-index: 10;
+  opacity: 0.2; }
+  .cozy-module-book .cozy-panel-navigator:hover {
+    opacity: 1.0; }
+
 .cozy-container .cozy-panel-navigator {
   width: 100%;
   margin: 0 auto; }
@@ -1204,7 +1215,7 @@
       text-align: center; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range {
       width: 90%;
-      height: 3em;
+      height: 1.5em;
       position: relative;
       display: flex;
       align-items: center;
