@@ -19,7 +19,9 @@ Reader.EpubJS = Reader.extend({
       self.fire('update-title', self._book.package.metadata);
     })
     this._book.ready.then(function() {
-      return self._book.locations.generate(1600);
+      self._book.locations.generate(1600).then(function(locations) {
+        self.fire('update-locations', locations);
+      })
     })
     .then(callback);
   },
@@ -103,18 +105,18 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target) {
-    if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
-      while ( target.substr(0, 3) == '../' ) {
-        target = target.substr(3);
-      }
-    }
-    if ( typeof(target) == "string" ) {
-      if ( ! this._book.spine.spineByHref[target] ) {
-        if ( this._book.spine.spineByHref["Text/" + target] ) {
-          target = "Text/" + target;
-        }
-      }
-    }
+    // if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
+    //   while ( target.substr(0, 3) == '../' ) {
+    //     target = target.substr(3);
+    //   }
+    // }
+    // if ( typeof(target) == "string" ) {
+    //   if ( ! this._book.spine.spineByHref[target] ) {
+    //     if ( this._book.spine.spineByHref["Text/" + target] ) {
+    //       target = "Text/" + target;
+    //     }
+    //   }
+    // }
     this._navigate(this._rendition.display(target));
   },
 
