@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.030e905c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.084414e7, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2017 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -283,6 +283,14 @@ var Util = (Object.freeze || Object)({
 	cancelAnimFrame: cancelAnimFrame
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -409,6 +417,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -845,6 +878,26 @@ var Browser = (Object.freeze || Object)({
 	vml: vml
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1022,6 +1075,10 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1144,6 +1201,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1232,6 +1293,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1506,8 +1583,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1527,6 +1602,19 @@ var DomEvent = (Object.freeze || Object)({
 	removeListener: off
 });
 
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
+
+// @property TRANSFORM: String
+// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
 var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 // webkitTransition comes first because some browser versions that drop vendor prefix don't do
@@ -1890,10 +1978,12 @@ var isObject_1 = isObject;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
+/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -1901,16 +1991,34 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
+/**
+ * Gets the timestamp of the number of milliseconds that have elapsed since
+ * the Unix epoch (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Date
+ * @returns {number} Returns the timestamp.
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => Logs the number of milliseconds it took for the deferred invocation.
+ */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
+/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -1978,6 +2086,7 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
+/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2032,6 +2141,7 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
+/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -2058,6 +2168,7 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
+/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -2121,6 +2232,7 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
+/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2407,6 +2519,7 @@ Object.defineProperties(screenfull, {
   }
 });
 
+// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -2833,6 +2946,15 @@ var Reader = Evented.extend({
   EOT: true
 });
 
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
+
 var Control = Class.extend({
     // @section
     // @aka Control options
@@ -2914,7 +3036,6 @@ var Control = Class.extend({
             return this;
         }
 
-        console.log("AHOY REMOVE", this._locked);
         if (!this._locked) {
             remove(this._container);
         }
@@ -3187,6 +3308,7 @@ var pageLast = function pageLast(options) {
 };
 
 var activeModal;
+// from https://github.com/ghosh/micromodal/blob/master/src/index.js
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
 var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
@@ -3547,6 +3669,8 @@ var contents = function contents(options) {
   return new Contents(options);
 };
 
+// Title + Chapter
+
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -3612,6 +3736,8 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -4289,6 +4415,7 @@ var parseFullName = function parseFullName(
   return partToReturn === 'all' ? parsedName : parsedName[partToReturn];
 };
 
+// for debugging
 window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
@@ -4641,6 +4768,7 @@ var citation = function citation(options) {
   return new Citation(options);
 };
 
+// for debugging
 window.parseFullName = parseFullName;
 
 var Search = Control.extend({
@@ -4895,6 +5023,8 @@ var citationOptions = function citationOptions(options) {
   return new CitationOptions(options);
 };
 
+// Title + Chapter
+
 var BibliographicInformation = Control.extend({
   options: {
     label: 'Info',
@@ -5088,222 +5218,113 @@ var download = function download(options) {
 var Navigator = Control.extend({
   onAdd: function onAdd(reader) {
     var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=navigator]");
-    } else {
+    if (container) {} else {
 
       var className = this._className('navigator'),
           options = this.options;
-      container = create$1('div', className), this._control = this._createControl(className, container);
+
+      container = create$1('div', className);
     }
-    this._bindEvents(container);
+    this._setup(container);
+
+    this._reader.on('update-locations', function (locations) {
+      this._initiated = true;
+      this._total = this._reader.locations.total;
+      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+      this._last_value = this._control.value;
+
+      this._spanTotalLocations.innerHTML = this._total;
+
+      this._update();
+      setTimeout(function () {
+        addClass(this._container, 'initialized');
+      }.bind(this), 0);
+    }.bind(this));
 
     return container;
   },
 
-  _createControl: function _createControl(className, container) {
-    // var input = DomUtil.create('input', className, container);
-    // input.setAttribute('type', 'range');
-    // input.setAttribute('min', 0);
-    // input.setAttribute('max', 100);
-    // input.setAttribute('step', 1);
-    // input.setAttribute('value', 0);
-    // input.setAttribute('aria-label','Slider navigator');
+  _setup: function _setup(container) {
+    this._control = container.querySelector("input[type=range]");
+    if (!this._control) {
+      this._createControl(container);
+    }
+    this._background = container.querySelector(".cozy-navigator-range__background");
+    this._status = container.querySelector(".cozy-navigator-range__status");
+    this._spanCurrentPercentage = container.querySelector(".currentPercentage");
+    this._spanCurrentLocation = container.querySelector(".currentLocation");
+    this._spanTotalLocations = container.querySelector(".totalLocations");
 
-    var template = '<div class="range">\n        <input class="range__input" id="input-range" type="range" name="range-value" min="0" max="100" value="0" data-background-position="0" />\n        <label class="range__tooltip" id="tooltip" for="input-range" style="visibility: hidden">\n          <span class="range__tooltip__amount" id="tooltip-value">0</span>\n        </label>\n        <div class="range__background" id="range__background"></div>\n      </div>\n      <div class="status"><span class="currentPercentage">0%</span> \u2022\xA0Location <span class="currentLocation">0</span> of <span class="totalLocations">100</span></div>\n    ';
+    this._bindEvents();
+  },
+
+  _createControl: function _createControl(container) {
+    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>\n    ';
 
     var body = new DOMParser().parseFromString(template, "text/html").body;
     while (body.children.length) {
       container.appendChild(body.children[0]);
     }
 
-    var input = container.querySelector("input");
-
-    return input;
+    this._control = container.querySelector("input[type=range]");
   },
 
-  _bindEvents: function _bindEvents(container) {
+  _bindEvents: function _bindEvents() {
     var self = this;
-    // DomEvent.disableClickPropagation(this._control);
-    // DomEvent.on(this._control, 'click', DomEvent.stop);
-    // DomEvent.on(this._control, 'click', this._action, this);
-
-    this._tooltip = container.querySelector("#tooltip");
 
     this._control.addEventListener("input", function () {
-      console.log("AHOY RANGE INPUT EVENT", self._control.value);
       self._update();
     }, false);
     this._control.addEventListener("change", function () {
-      console.log("AHOY RANGE ACTION", self._control.value);self._action();
+      self._action();
     }, false);
     this._control.addEventListener("mousedown", function () {
       self._mouseDown = true;
-      // if ( self._t ) { clearTimeout(self._t); }
-      // self._tooltip.style.visibility = 'visible';
     }, false);
     this._control.addEventListener("mouseup", function () {
-      // self._tooltip.style.visibility = 'hidden';
-      // self._t = setTimeout(function() {
-      //   self._tooltip.style.visibility = 'hidden';
-      // }, 500);
       self._mouseDown = false;
     }, false);
-
-    // this._control.addEventListener("mousemove", function(e) {
-    //   if ( ! self._mouseDown ) {
-    //     // console.log("AHOY AHOY", e);
-    //     var marginLeft = parseFloat(window.getComputedStyle(self._container.querySelector(".range")).marginLeft);
-    //     var left = Math.floor(parseFloat(window.getComputedStyle(self._tooltip).left) + marginLeft);
-    //     var innerSpan = self._tooltip.querySelector("span");
-    //     var width = parseFloat(window.getComputedStyle(innerSpan).width);
-    //     // var right = parseFloat(window.getComputedStyle(self._tooltip).right);
-    //     if ( e.shiftKey || ( e.clientX  >= ( left - 25 ) && e.clientX <= ( left + width + 25 ) ) ) {
-    //       self._tooltip.style.visibility = 'visible';
-    //       if ( self._t ) { clearTimeout(self._t); }
-    //       self._t = setTimeout(function() {
-    //         self._tooltip.style.visibility = 'hidden';
-    //       }, 500);
-    //     } else {
-    //       self._tooltip.style.visibility = 'hidden';
-    //     }
-    //     // console.log("AHOY RANGE HOVER ENTER", e.clientX, left, width, e.clientX >= ( left - 25 ) && e.clientX <= ( left + width + 25 ));
-    //   }
-    // }, false);
-
-    // this._control.addEventListener("mouseleave", function() {
-    //   if ( ! self._mouseDown ) {
-    //     // self._tooltip.style.visibility = 'hidden';
-    //   }
-    // }, false);
-
-    this._reader.on('update-locations', function (locations) {
-      console.log("AHOY NEW LOCATIONS", locations);
-      self._control.setAttribute('max', self._reader.locations.length());
-      self._initiated = true;
-      self._control.value = self._reader.locations.locationFromCfi(self._reader.currentLocation().start.cfi);
-      self._control.dataset.value = self._control.value;
-      self._last_value = self._control.value;
-      self._update();
-      setTimeout(function () {
-        // self._container.style.visibility = 'visible';
-        addClass(self._container, 'initialized');
-      }, 0);
-    });
+    this._control.addEventListener("keydown", function () {
+      self._mouseDown = true;
+    }, false);
+    this._control.addEventListener("keyup", function () {
+      self._mouseDown = false;
+    }, false);
 
     this._reader.on('relocated', function (location) {
       if (!self._initiated) {
         return;
       }
-      // var percent = self._reader.locations.percentageFromCfi(location.start.cfi);
-      // var currentLocation = self._reader.locations.locationFromCfi(location.start.cfi);
-      // var percentage = Math.floor(percent * 100);
       if (!self._mouseDown) {
-        self._control.value = self._reader.locations.locationFromCfi(location.start.cfi);
-        console.log("AHOY RELOCATED", location.start.cfi, self._control.value);
-        // self._control.dataset.currentLocation = currentLocation;
+        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(self._reader.currentLocation().start.cfi) * 100);
         self._update();
       }
     });
-
-    window.fna = function () {
-      var locations = self._reader.locations;
-      var value = self._control.value;
-      var previousValue = self._control.dataset.previousValue;
-      var current = self._reader.currentLocation();
-      var prev = locations.locationFromCfi(current.start.cfi);
-      var next = locations.locationFromCfi(current.end.cfi);
-      console.log("AHOY NOW", previousValue, "/", prev, "<=", value, "<=", next);
-    };
   },
 
-  // _action: function() {
-  //   // var cfi = this._reader.locations.cfiFromPercentage(this._control.value / 100);
-  //   // var new_cfi = this._reader.locations.cfiFromLocation(this._control.value);
-  //   var value = this._control.value;
-  //   var current = this._reader.currentLocation();
-  //   var locations = this._reader.locations;
-  //   console.log("AHOY INACTION ?", locations.locationFromCfi(current.start.cfi), '<=', value, locations.locationFromCfi(current.end.cfi));
-  //   if ( locations.locationFromCfi(current.start.cfi) <= value && locations.locationFromCfi(current.end.cfi) >= value ) {
-  //     console.log("AHOY INACTION", locations.locationFromCfi(current.start.cfi), '<=', value, locations.locationFromCfi(current.end.cfi));
-  //     // NOOP
-  //   } else {
-  //     var tmp = locations.cfiFromLocation(value).split(",");
-  //     var cfi = tmp[0] + tmp[1] + ")";
-  //     console.log("AHOY ACTION", this._control.value, cfi);
-  //     this._reader.gotoPage(cfi);
-  //   }
-  // },
-
   _action: function _action() {
-    var locations = this._reader.locations;
     var value = this._control.value;
-    var current = this._reader.currentLocation();
-    var prev = locations.locationFromCfi(current.start.cfi);
-    var next = locations.locationFromCfi(current.end.cfi);
-    if (prev <= value && next >= value) {
-      // would be a NOP
-      var original_value = value;
-      value = this._last_delta ? prev - 1 : next + 1;
-      console.log("AHOY ACTION", prev, '<=', original_value, '<=', next, "/", this._last_delta, ":", value);
-    }
-    var cfi = locations.cfiFromLocation(value);
-    if (cfi != '-1') {
-      this._reader.gotoPage(cfi);
-      // this._control.dataset.previousValue = value;
-    }
+    var locations = this._reader.locations;
+    var cfi = locations.cfiFromPercentage(value / 100);
+    this._reader.gotoPage(cfi);
   },
 
   _update: function _update() {
     var self = this;
-    var rangeMax = this._reader.locations.length();
-    var valuePos;
-    var finalPos;
-    var tooltipOffset;
-    var thumbWidth = 16;
 
-    var tooltip = self._container.querySelector("#tooltip");
-    var tooltipVal = self._container.querySelector("#tooltip-value");
-    var rangeBg = self._container.querySelector("#range__background");
+    var rangeBg = this._background;
     var range = self._control;
 
     var value = parseInt(range.value, 10);
+    var percentage = value;
 
-    var spanPercentage = self._container.querySelector(".currentPercentage");
-    var spanCurrentLocation = self._container.querySelector(".currentLocation");
-    var spanTotalLocations = self._container.querySelector(".totalLocations");
-
-    // var percentage = Math.ceil(( value / rangeMax ) * 100);
-    var percentage = value / rangeMax;
-    if (percentage < 0.5) {
-      percentage = Math.ceil(percentage * 100);
-    } else {
-      percentage = Math.floor(percentage * 100);
-    }
-
-    var calcPosContainer = function calcPosContainer(val) {
-      valuePos = val * 100 / rangeMax;
-      tooltipOffset = Math.ceil(thumbWidth / 2) - valuePos * thumbWidth / 100;
-      console.log("AHOY POS", val, valuePos, tooltipOffset);
-      finalPos = 'left: calc(' + valuePos + '% + ' + calcEm(tooltipOffset, 16) + 'em);';
-      // finalPos = 'calc(' + valuePos + '% + ' + calcEm(tooltipOffset, 16) + 'em);';
-      return finalPos;
-    };
-    var calcEm = function calcEm(pxSize, fontBase) {
-      return pxSize / fontBase;
-    };
-
-    // tooltipVal.innerHTML = percentage + '%';
-    // var tooltipValOffset = calcEm(thumbWidth, 16) - (percentage / 50);
-    // tooltip.setAttribute('style', calcPosContainer(range.value) + 'visibility:' + tooltip.style.visibility + ';');
     rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
-    // tooltipVal.setAttribute('style', 'transform: translate(calc(-' + percentage + '% - ' + tooltipValOffset + 'em), -50%);');
 
-    spanPercentage.innerHTML = percentage + '%';
-    spanTotalLocations.innerHTML = self._reader.locations.length();
-    // spanCurrentLocation.innerHTML = Math.ceil(self._reader.locations.length() * percentage / 100); // self._control.dataset.currentLocation;
-    spanCurrentLocation.innerHTML = value + 1; // self._control.dataset.currentLocation;
+    this._spanCurrentPercentage.innerHTML = percentage + '%';
+    var current = this._reader.currentLocation();
+    var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
+    this._spanCurrentLocation.innerHTML = current_location;
     self._last_delta = self._last_value > value;self._last_value = value;
   },
 
@@ -5313,6 +5334,9 @@ var Navigator = Control.extend({
 var navigator$1 = function navigator(options) {
   return new Navigator(options);
 };
+
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -5712,9 +5736,14 @@ Reader.Mock = Reader.extend({
       contents: []
     };
 
+    this._locations = ['epubcfi(/6/4[TitlePage.xhtml])', 'epubcfi(/6/4[Chapter01.xhtml])', 'epubcfi(/6/4[Chapter02.xhtml])', 'epubcfi(/6/4[Chapter03.xhtml])', 'epubcfi(/6/4[Chapter04.xhtml])', 'epubcfi(/6/4[Chapter05.xhtml])', 'epubcfi(/6/4[Chapter06.xhtml])', 'epubcfi(/6/4[Chapter07.xhtml])', 'epubcfi(/6/4[Chapter08.xhtml])', 'epubcfi(/6/4[Index.xhtml])'];
+
+    this.__currentIndex = 0;
+
     this.metadata = this._book.metadata;
     this.fire('update-contents', this._book.contents);
     this.fire('update-title', this._metadata);
+    this.fire('update-locations', this._locations);
     callback();
   },
 
@@ -5729,21 +5758,6 @@ Reader.Mock = Reader.extend({
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
-    // have to set this to prevent scrolling issues
-    // this.settings.height = this._panes['book'].clientHeight;
-    // this.settings.width = this._panes['book'].clientWidth;
-
-    // // start the rendition after all the epub parts 
-    // // have been loaded
-    // this._book.ready.then(function() {
-    //   self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-    //   self._bindEvents();
-
-    //   if ( target && target.start ) { target = target.start; }
-    //   self._rendition.display(target).then(function() {
-    //     if ( callback ) { callback(); }
-    //   });
-    // })
   },
 
   next: function next() {
@@ -5761,12 +5775,12 @@ Reader.Mock = Reader.extend({
   last: function last() {},
 
   gotoPage: function gotoPage(target) {
-    if (typeof target == "string" && target.substr(0, 3) == '../') {
-      while (target.substr(0, 3) == '../') {
-        target = target.substr(3);
-      }
+    if (typeof target == "string") {
+      this.__currentIndex = this._locations.indexOf(target);
+    } else {
+      this.__currentIndex = target;
     }
-    // this._rendition.display(target);
+    this.fire("relocated", this.currentLocation());
   },
 
   destroy: function destroy() {
@@ -5777,10 +5791,11 @@ Reader.Mock = Reader.extend({
   },
 
   currentLocation: function currentLocation() {
-    if (this._rendition) {
-      return this._rendition.currentLocation();
-    }
-    return null;
+    var cfi = this._locations[this.__currentIndex];
+    return {
+      start: { cfi: cfi, href: cfi },
+      end: { cfi: cfi, href: cfi }
+    };
   },
 
   _bindEvents: function _bindEvents() {
@@ -5801,6 +5816,27 @@ Object.defineProperty(Reader.Mock.prototype, 'metadata', {
 
   set: function set(data) {
     this._metadata = extend({}, data, this.options.metadata);
+  }
+});
+
+Object.defineProperty(Reader.Mock.prototype, 'locations', {
+  get: function get$$1() {
+    // return the combined metadata of configured + book metadata
+    var self = this;
+    return {
+      total: self._locations.length,
+      locationFromCfi: function locationFromCfi(cfi) {
+        return self._locations.indexOf(cfi);
+      },
+      percentageFromCfi: function percentageFromCfi(cfi) {
+        var index = self.locations.locationFromCfi(cfi);
+        return index / self.locations.total;
+      },
+      cfiFromPercentage: function cfiFromPercentage(percentage) {
+        var index = Math.ceil(percentage * 10);
+        return self._locations[index];
+      }
+    };
   }
 });
 
@@ -6131,6 +6167,7 @@ function createReader$3(id, options) {
   return new Reader.EpubJSv2(id, options);
 }
 
+// import {Readium} from '../readium';
 Reader.Readium = Reader.extend({
 
   initialize: function initialize(id, options) {
@@ -6332,6 +6369,8 @@ var reader = function reader(id, options) {
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   return engines[engine].apply(this, arguments);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

@@ -1199,10 +1199,10 @@
     transition: opacity 0.5s; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator.initialized {
       opacity: 1.0; }
-    .cozy-container .cozy-panel-navigator .cozy-control-navigator .status {
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range__status {
       width: 100%;
       text-align: center; }
-    .cozy-container .cozy-panel-navigator .cozy-control-navigator .range {
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range {
       width: 90%;
       height: 3em;
       position: relative;
@@ -1210,7 +1210,7 @@
       align-items: center;
       justify-content: center;
       margin: 0 auto; }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range input[type=range] {
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range input[type=range] {
         -webkit-appearance: none;
         font-size: 1em;
         width: 100%;
@@ -1223,42 +1223,7 @@
         position: absolute;
         background-color: transparent;
         transition: all 0.3s ease-in-out; }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range label {
-        height: 3em;
-        line-height: 1em;
-        position: absolute;
-        background-color: #fff;
-        left: 0;
-        top: 0.25em;
-        transform: translate(0, -100%);
-        transition: all 0s ease-in-out;
-        visibility: hidden; }
-        .cozy-container .cozy-panel-navigator .cozy-control-navigator .range label span {
-          min-width: 3em;
-          padding: 1em;
-          box-sizing: border-box;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(calc(0% - 1em), -50%);
-          background-color: #666;
-          color: #eee;
-          border: 1px solid #ddd; }
-        .cozy-container .cozy-panel-navigator .cozy-control-navigator .range label:after {
-          content: '';
-          width: 0;
-          height: 0;
-          border: 0.5em solid transparent;
-          border-top-color: #666;
-          position: absolute;
-          bottom: -0.9em;
-          left: 0;
-          -webkit-transform: translate(-50%, 0);
-          transform: translate(-50%, 0); }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range .range__background {
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range .cozy-navigator-range__background {
         width: 100%;
         pointer-events: none;
         height: 0.5em;
@@ -1266,7 +1231,7 @@
         background-size: 200% 100%, 100% 100%;
         background-repeat: no-repeat, no-repeat;
         background-position: 100% 0%, left top; }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range input[type=range]::-webkit-slider-thumb {
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range input[type=range]::-webkit-slider-thumb {
         box-shadow: 0px 0px 0px #000000;
         border: 1px solid #666;
         height: 24px;
@@ -1276,7 +1241,7 @@
         cursor: pointer;
         -webkit-appearance: none;
         box-shadow: 2px 2px 1px 0px rgba(0, 0, 0, 0.4); }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range input[type=range]::-moz-range-thumb {
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range input[type=range]::-moz-range-thumb {
         box-shadow: 0px 0px 0px #000000;
         border: 1px solid #2497E3;
         height: 18px;
@@ -1284,7 +1249,7 @@
         border-radius: 25px;
         background: #A1D0FF;
         cursor: pointer; }
-      .cozy-container .cozy-panel-navigator .cozy-control-navigator .range input[type=range]::-ms-thumb {
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range input[type=range]::-ms-thumb {
         margin-top: 1px;
         box-shadow: 0px 0px 0px #000000;
         border: 1px solid #2497E3;

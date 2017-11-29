@@ -93,7 +93,6 @@ export var Control = Class.extend({
             return this;
         }
 
-console.log("AHOY REMOVE", this._locked);
         if ( ! this._locked ) {
             DomUtil.remove(this._container);
         }
