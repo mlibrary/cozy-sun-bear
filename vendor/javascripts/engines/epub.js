@@ -6424,14 +6424,18 @@ var DefaultViewManager = function () {
 				this.scrollLeft = this.container.scrollLeft;
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
 				var ratio = left / this.container.scrollWidth;
-				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", left / this.container.scrollWidth);
-				if (left <= this.container.scrollWidth || ratio >= 0.99 && ratio <= 1.05) {
+				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", ratio, "::", left <= this.container.scrollWidth, "vs.", ratio >= 0.99 && ratio <= 1.05);
+				if (left <= this.container.scrollWidth) {
+					// || ( ratio >= 0.99 && ratio <= 1.05 )
+					console.log("AHOY NEXT SCROLLBY", this.layout.delta);
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
 					this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
 					next = this.views.last().section.next();
+					console.log("AHOY NEXT SCROLLL TO AND SET NEXT", this.container.scrollWidth - this.layout.delta, next);
 				} else {
 					next = this.views.last().section.next();
+					console.log("AHOY NO SCROLL SET NEXT", next);
 				}
 			} else {
 				next = this.views.last().section.next();
