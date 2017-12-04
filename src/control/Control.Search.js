@@ -76,7 +76,13 @@ export var Search = Control.extend({
           var anchor = DomUtil.create('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
 
-          anchor.textContent = result.snippet;
+          if (result.title) {
+            var chapterTitle = DomUtil.create('i');
+            chapterTitle.textContent = result.title + ": ";
+            anchor.appendChild(chapterTitle);
+          }
+          anchor.appendChild(document.createTextNode(result.snippet));
+
           anchor.setAttribute("href", cfiRange);
           parent.appendChild(option);
 
@@ -86,6 +92,9 @@ export var Search = Control.extend({
       .fail(function(jqxhr, textStatus, error) {
         console.log(textStatus);
         console.log(error);
+        var noResults = DomUtil.create("p")
+        noResults.textContent = 'No results found for "' + searchString.value + '"';
+        parent.appendChild(noResults);
       })
       .always(function() {
         self._modal.activate();
