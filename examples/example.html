@@ -45,6 +45,14 @@
             text-overflow: ellipsis;
         }
 
+        .u-screenreader {
+          clip: rect(1px, 1px, 1px, 1px);
+          height: 1px;
+          overflow: hidden;
+          position: absolute !important;
+          width: 1px;
+        }
+
         @media only screen and (min-device-width : 320px) and (max-device-width : 600px) {
             .cozy-module-book {
                 width: 100vw;

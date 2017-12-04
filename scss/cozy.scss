@@ -373,6 +373,7 @@ $grid-padding:       1rem;
   /* background: blue; */
   /* -- padding on this container messes with horizontal scrolling */
   /*padding: 20px;*/
+  -webkit-overflow-scrolling: touch;
 }
 
 div[class^='cozy-panel-'] {
