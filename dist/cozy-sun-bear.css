@@ -1507,7 +1507,8 @@
 .epub-container {
   /* background: blue; */
   /* -- padding on this container messes with horizontal scrolling */
-  /*padding: 20px;*/ }
+  /*padding: 20px;*/
+  -webkit-overflow-scrolling: touch; }
 
 div[class^='cozy-panel-'] {
   display: flex;
