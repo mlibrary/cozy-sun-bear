@@ -60,7 +60,7 @@ export var Modal = Class.extend({
     this._reader = reader;
     var template = this.options.template;
 
-    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id} aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
+    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id}" aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-modal-close>
         <div class="modal__container ${this.options.className.container ? this.options.className.container : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-${this._id}-title" aria-describedby="modal-${this._id}-content" id="modal-${this._id}-container">
           <div role="document">
@@ -224,19 +224,24 @@ export var Modal = Class.extend({
   onClick: function(event) {
 
     var closeAfterAction = false;
+    var target = event.target;
     if (this.handlers.click) {
-      var target = event.target;
+      var did_match = false;
       for(var selector in this.handlers.click) {
-        if ( target.matches(selector) ) {
-          closeAfterAction = this.handlers.click[selector](this, target);
+        while ( target != this.modal ) {
+          if ( target.matches(selector) ) {
+            closeAfterAction = this.handlers.click[selector](this, target);
+            break;
+          }
+          target = target.parentElement;
         }
       }
     }
 
-    if (closeAfterAction || event.target.hasAttribute('data-modal-close')) this.closeModal();
+    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
 
-    const actionableNodes = this.getActionableNodes();
-    if ( actionableNodes.indexOf(event.target) < 0 ) {
+    var actionableNodes = this.getActionableNodes();
+    if ( actionableNodes.indexOf(target) < 0 ) {
       return;
     }
 
