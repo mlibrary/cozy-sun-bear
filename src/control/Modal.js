@@ -216,8 +216,8 @@ export var Modal = Class.extend({
 
   onKeydown: function(event) {
     if ( event.keyCode == 27 ) { this.closeModal(); }
-    if ( event.keyCode == 9 ) { 
-      this.maintainFocus(event); 
+    if ( event.keyCode == 9 ) {
+      this.maintainFocus(event);
     }
   },
 
@@ -238,7 +238,7 @@ export var Modal = Class.extend({
       }
     }
 
-    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
+    if (closeAfterAction || event.target.hasAttribute('data-modal-close')) this.closeModal();
 
     var actionableNodes = this.getActionableNodes();
     if ( actionableNodes.indexOf(target) < 0 ) {
