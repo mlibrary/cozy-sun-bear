@@ -109,6 +109,66 @@ describe("Modal", function () {
 
   })
 
+  describe("event behaviors", function() {
+    var modal;
+    var result;
+    beforeEach(function() {
+      modal = reader.modal({
+              region: 'left',
+              title: 'Stage Left',
+              template: '<p><a href="#one"><span>First</span> Link</a></p><p><a href="#two">Second Link</a></p><p><a href="#three">Third Link</a></p>',
+              actions: [
+                { label: 'Action 1', callback: function(event) { result = "Action 1" } },
+                { label: 'Action 2', callback: function(event) { result = "Action 2" }, close: true },
+              ]
+          })
+
+      modal.on('click', 'a#one', function(modal, target) {
+        result = 'Link 1';
+      })
+
+      modal.on('click', 'a#two', function(modal, target) {
+        result = 'Link 2';
+        return true;
+      })
+
+    });
+
+    it("is not dismissed clicking Link 1", function() {
+      reader.on('modal-opened', function() {
+        var link = modal.container.querySelector("#one");
+        simulateClick(link);
+        expect(result).to.be('Link 1');
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+
+        var span = modal.container.querySelector("#one span");
+        simulateClick(span);
+        expect(result).to.be('Link 1');
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+      })
+      modal.showModal();  
+    })
+
+    it("is dismissed clicking Link 2", function() {
+      reader.on('modal-opened', function() {
+        var link = modal.container.querySelector("#two");
+        simulateClick(link);
+        expect(result).to.be('Link 1');
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      })
+      modal.showModal();  
+    })
+
+    it("is dismissed clicking the close button", function() {
+      reader.on('modal-opened', function() {
+        var button = modal.container.querySelector("button.modal__close");
+        simulateClick(button);
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      })
+      modal.showModal();  
+    })
+
+  })
 
 
 });
