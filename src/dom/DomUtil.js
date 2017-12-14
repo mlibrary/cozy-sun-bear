@@ -14,6 +14,18 @@ import * as Browser from '../core/Browser';
  * in HTML and SVG classes in SVG.
  */
 
+ if (!Element.prototype.matches) {
+    var ep = Element.prototype;
+ 
+    if (ep.webkitMatchesSelector) // Chrome <34, SF<7.1, iOS<8
+      ep.matches = ep.webkitMatchesSelector;
+ 
+    if (ep.msMatchesSelector) // IE9/10/11 & Edge
+      ep.matches = ep.msMatchesSelector;
+ 
+    if (ep.mozMatchesSelector) // FF<34
+      ep.matches = ep.mozMatchesSelector;
+ }
 
 // @property TRANSFORM: String
 // Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).

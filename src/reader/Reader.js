@@ -207,7 +207,7 @@ export var Reader = Evented.extend({
 
     this._initPanes();
 
-    if ( ! ( 'columnCount' in container.style ) ) {
+    if ( ! Browser.columnCount ) {
       this.options.flow = 'scrolled-doc';
     }
   },

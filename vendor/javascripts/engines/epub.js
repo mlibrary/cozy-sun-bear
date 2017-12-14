@@ -8481,7 +8481,7 @@ var Section = function () {
 
 			this.load(_request).then(function (contents) {
 				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
-				var isIE = userAgent.indexOf('Trident') >= 0;
+				var isIE = userAgent.indexOf('Trident') >= 0 && userAgent.indexOf('Windows NT 10.0') < 0;
 				var Serializer;
 				if (typeof XMLSerializer === "undefined" || isIE) {
 					Serializer = __webpack_require__(14).XMLSerializer;

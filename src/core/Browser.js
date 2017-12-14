@@ -136,6 +136,8 @@ export var vml = !svg && (function () {
     }
 }());
 
+export var columnCount = ( 'columnCount' in style );
+export var classList = ( document.documentElement.classList !== undefined );
 
 function userAgentContains(str) {
     return navigator.userAgent.toLowerCase().indexOf(str) >= 0;

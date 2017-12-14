@@ -2,6 +2,7 @@ import * as Util from '../core/Util';
 import {Reader} from './Reader';
 import * as epubjs from '../epubjs';
 import * as DomUtil from '../dom/DomUtil';
+import * as Browser from '../core/Browser';
 
 Reader.EpubJS = Reader.extend({
 
@@ -298,6 +299,12 @@ Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
   get: function() {
     // return the combined metadata of configured + book metadata
+    if ( Browser.ie ) {
+      return {
+        reset: function() { /* NOOP */ },
+        highlight: function(cfiRange) { /* NOOP */ }
+      }
+    }
     return this._rendition.annotations;
   }
 });
