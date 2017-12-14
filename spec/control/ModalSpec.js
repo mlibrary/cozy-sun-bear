@@ -54,56 +54,59 @@ describe("Modal", function () {
   	});
 
   	it("is not dismissed clicking Action 1", function() {
-      reader.on('modal-opened', function() {
+      modal.callbacks.onShow = function() {
         var button = modal.container.querySelector("#action-" + modal._id + "-0");
         simulateClick(button);
         expect(result).to.be('Action 1');
         expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-      })
+      };
       modal.showModal();  
   	})
 
   	it("is dismissed clicking Action 2", function() {
-      reader.on('modal-opened', function() {
+      modal.callbacks.onShow = function() {
         var button = modal.container.querySelector("#action-" + modal._id + "-1");
         simulateClick(button);
         expect(result).to.be('Action 2');
         expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
-      })
+      };
       modal.showModal();  
   	})
 
   	// setTimeout to allow modal to be opened and focus to shift?
   	it("the close button should have focus", function() {
-      reader.on('modal-opened', function() {
+      modal.callbacks.onShow = function() {
         var button = modal.container.querySelector("header .modal__close");
         expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-      });
+      };
       modal.showModal();
   	})
 
   	it("tab should keep focus within modal", function() {
   		var tab = "\t";
-  		var focusable = modal.getFocusableNodes();
-      reader.on('modal-opened', function() {
-        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-        expect(document.activeElement).to.be(focusable[0]);
+      modal.callbacks.onShow = function() {
+        var focusable = modal.getFocusableNodes();
+        // use the timeout to wait for document.activeElement to rest on the close button
+        setTimeout(function() {
+          expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
+          expect(document.activeElement).to.be(focusable[0]);
 
-        simulateKeypress(tab);
-        expect(document.activeElement).to.be(focusable[1]);
+          simulateKeypress(tab);
+          expect(document.activeElement).to.be(focusable[1]);
 
-        simulateKeypress(tab);
-        expect(document.activeElement).to.be(focusable[2]);
+          simulateKeypress(tab);
+          expect(document.activeElement).to.be(focusable[2]);
 
-        simulateKeypress(tab);
-        expect(document.activeElement).to.be(focusable[3]);
+          simulateKeypress(tab);
+          expect(document.activeElement).to.be(focusable[3]);
 
-        simulateKeypress(tab);
-        expect(document.activeElement).to.be(focusable[4]);
+          simulateKeypress(tab);
+          expect(document.activeElement).to.be(focusable[4]);
 
-        simulateKeypress(tab);
-        expect(document.activeElement).to.be(focusable[0]);
-      })
+          simulateKeypress(tab);
+          expect(document.activeElement).to.be(focusable[0]);
+        }, 0);
+      };
       modal.showModal();
   	})
 
@@ -123,11 +126,11 @@ describe("Modal", function () {
               ]
           })
 
-      modal.on('click', 'a#one', function(modal, target) {
+      modal.on('click', 'a[href="#one"]', function(modal, target) {
         result = 'Link 1';
       })
 
-      modal.on('click', 'a#two', function(modal, target) {
+      modal.on('click', 'a[href="#two"]', function(modal, target) {
         result = 'Link 2';
         return true;
       })
@@ -140,45 +143,51 @@ describe("Modal", function () {
     });
 
     it("is not dismissed clicking Link 1", function() {
-      reader.on('modal-opened', function() {
-        var link = modal.container.querySelector("#one");
+      modal.callbacks.onShow = function() {
+        var link = modal.container.querySelector("a[href='#one']");
         simulateClick(link);
         expect(result).to.be('Link 1');
         expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
 
-        var span = modal.container.querySelector("#one span");
+        var span = modal.container.querySelector("a[href='#one'] span");
         simulateClick(span);
         expect(result).to.be('Link 1');
         expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-      })
+      };
       modal.showModal();  
     })
 
     it("is dismissed clicking Link 2", function() {
-      reader.on('modal-opened', function() {
-        var link = modal.container.querySelector("#two");
+      modal.callbacks.onShow = function() {
+        var link = modal.container.querySelector("a[href='#two']");
         simulateClick(link);
-        expect(result).to.be('Link 1');
+        expect(result).to.be('Link 2');
         expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
-      })
+      };
       modal.showModal();  
     })
 
     it("is dismissed clicking the close button", function() {
-      reader.on('modal-opened', function() {
+      modal.callbacks.onShow = function() {
         var button = modal.container.querySelector("button.modal__close");
         simulateClick(button);
         expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
-      })
+      };
       modal.showModal();  
     })
 
     it("is is ignored", function() {
-      reader.on('modal-opened', function() {
+      // reader.on('modal-opened', function() {
+      //   var span = modal.container.querySelector("#notalink");
+      //   simulateClick(span);
+      //   expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      // })
+      modal.callbacks.onShow = function() {
         var span = modal.container.querySelector("#notalink");
         simulateClick(span);
         expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
-      })
+      };
+
       modal.showModal();  
     })
 
