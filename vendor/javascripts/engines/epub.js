@@ -8442,7 +8442,9 @@ var Section = function () {
 					// var directory = new Url(this.url).directory;
 
 					this.document = xml;
-					this.contents = xml.documentElement;
+					this.base();
+					this.contents = this.document.documentElement;
+					// this.contents = xml.documentElement;
 
 					return this.hooks.content.trigger(this.document, this);
 				}.bind(this)).then(function () {
@@ -8628,6 +8630,9 @@ var Section = function () {
 			this.document = undefined;
 			this.contents = undefined;
 			this.output = undefined;
+
+			this.hooks.serialize.clear();
+			this.hooks.content.clear();
 		}
 	}, {
 		key: "destroy",
@@ -11515,6 +11520,7 @@ var Annotations = function () {
 	}, {
 		key: "highlight",
 		value: function highlight(cfiRange, data, cb) {
+			console.log("DOING THE HIGHLIGHT", cfiRange);
 			this.add("highlight", cfiRange, data, cb);
 		}
 	}, {

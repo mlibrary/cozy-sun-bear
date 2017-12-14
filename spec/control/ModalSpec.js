@@ -14,12 +14,22 @@ describe("Modal", function () {
   }
 
   function simulateKeypress(character) {
-  	if (document.createEvent) {
-  		var e = document.createEvent('KeyboardEvent');
-  		(evt.initKeyEvent || evt.initKeyboardEvent)("keypress", true, true, window,
-  		                    0, 0, 0, 0,
-  		                    0, character.charCodeAt(0))
-  	}
+  	// if (document.createEvent) {
+  	// 	var evt = document.createEvent('KeyboardEvent');
+  	// 	(evt.initKeyEvent || evt.initKeyboardEvent)("keypress", true, true, window,
+  	// 	                    0, 0, 0, 0,
+  	// 	                    0, character.charCodeAt(0))
+  	// }
+    var evt = new Event("keypress");
+    evt.key = character;
+    evt.keyCode = evt.key.charCodeAt(0);
+    evt.which = evt.keyCode;
+    evt.altKey = false;
+    evt.ctrlKey = false;
+    evt.shiftKey = false;
+    evt.metaKey = false;
+    evt.bubbles = true;
+    document.dispatchEvent(evt);
   }
 
   beforeEach(function() {
@@ -84,9 +94,12 @@ describe("Modal", function () {
 
   	it("tab should keep focus within modal", function() {
   		var tab = "\t";
+      var is_ready = false;
+      var focusable = null;
       modal.callbacks.onShow = function() {
-        var focusable = modal.getFocusableNodes();
-        // use the timeout to wait for document.activeElement to rest on the close button
+        focusable = modal.getFocusableNodes();
+
+        // // use the timeout to wait for document.activeElement to rest on the close button
         // setTimeout(function() {
         //   expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
         //   expect(document.activeElement).to.be(focusable[0]);

@@ -18003,7 +18003,9 @@ var Section = function () {
 					// var directory = new Url(this.url).directory;
 
 					this.document = xml;
-					this.contents = xml.documentElement;
+					this.base();
+					this.contents = this.document.documentElement;
+					// this.contents = xml.documentElement;
 
 					return this.hooks.content.trigger(this.document, this);
 				}.bind(this)).then(function () {
