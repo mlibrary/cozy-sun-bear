@@ -116,7 +116,7 @@ describe("Modal", function () {
       modal = reader.modal({
               region: 'left',
               title: 'Stage Left',
-              template: '<p><a href="#one"><span>First</span> Link</a></p><p><a href="#two">Second Link</a></p><p><a href="#three">Third Link</a></p>',
+              template: '<p><a href="#one"><span>First</span> Link</a></p><p><a href="#two">Second Link</a></p><p><a href="#three">Third Link</a></p><p><span id="notalink">Click here.</span></p>',
               actions: [
                 { label: 'Action 1', callback: function(event) { result = "Action 1" } },
                 { label: 'Action 2', callback: function(event) { result = "Action 2" }, close: true },
@@ -129,6 +129,11 @@ describe("Modal", function () {
 
       modal.on('click', 'a#two', function(modal, target) {
         result = 'Link 2';
+        return true;
+      })
+
+      modal.on('click', 'span#notalink', function(modal, target) {
+        result = 'NOT REACHED';
         return true;
       })
 
@@ -164,6 +169,15 @@ describe("Modal", function () {
         var button = modal.container.querySelector("button.modal__close");
         simulateClick(button);
         expect(modal.modal.getAttribute('aria-hidden')).to.be('true');
+      })
+      modal.showModal();  
+    })
+
+    it("is is ignored", function() {
+      reader.on('modal-opened', function() {
+        var span = modal.container.querySelector("#notalink");
+        simulateClick(span);
+        expect(modal.modal.getAttribute('aria-hidden')).to.be('false');
       })
       modal.showModal();  
     })
