@@ -225,25 +225,30 @@ export var Modal = Class.extend({
 
     var closeAfterAction = false;
     var target = event.target;
+
+    // if the target isn't an actionable type, walk the DOM until
+    // one is found
+    var actionableNodes = this.getActionableNodes();
+    while ( actionableNodes.indexOf(target) < 0 && target != this.modal ) {
+      target = target.parentElement;
+    }
+
+    // no target found, punt
+    if ( actionableNodes.indexOf(target) < 0 ) {
+      return;
+    }
+
     if (this.handlers.click) {
       var did_match = false;
       for(var selector in this.handlers.click) {
-        while ( target != this.modal ) {
-          if ( target.matches(selector) ) {
-            closeAfterAction = this.handlers.click[selector](this, target);
-            break;
-          }
-          target = target.parentElement;
+        if ( target.matches(selector) ) {
+          closeAfterAction = this.handlers.click[selector](this, target);
+          break;
         }
       }
     }
 
-    if (closeAfterAction || event.target.hasAttribute('data-modal-close')) this.closeModal();
-
-    var actionableNodes = this.getActionableNodes();
-    if ( actionableNodes.indexOf(target) < 0 ) {
-      return;
-    }
+    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
 
     event.preventDefault();
   },
