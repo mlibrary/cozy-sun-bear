@@ -112,6 +112,10 @@ export var reader = function(id, options) {
   var _this = this;
   var _arguments = arguments;
 
+  if ( engine_href == null ) {
+  	return engines[engine].apply(_this, _arguments);
+  }
+
   // return engines[engine].apply(this, arguments);
   console.log("AHOY LOADING", engine_href, options.engine, engine);
   return xload.js(engine_href).then(function() {

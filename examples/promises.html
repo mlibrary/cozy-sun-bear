@@ -106,10 +106,7 @@
                 readium: 'readium-js_all.js'
             };
 
-            var COZY_EPUB_ENGINE_HREF = '../vendor/javascripts/engines/' + engine_map['epubjs'];
-            if ( 'ActiveXObject' in window ) {
-                COZY_EPUB_ENGINE_HREF = engine_map['legacy'];
-            }
+            var COZY_EPUB_ENGINE_HREF = '../vendor/javascripts/engines/' + ( ( 'ActiveXObject' in window ) ? engine_map['legacy'] : engine_map['epubjs'] );
 
             var cozy_href = '../dist/cozy-sun-bear.js';
             var book_id = location.search.substr(1);
