@@ -69,8 +69,6 @@
         <label class="u-screenreader" for="engine">Select EPUB Engine</label>
         <select size="1" name="engine" id="engine">
             <option value="epubjs">epub.js/v0.3</option>
-            <option value="epubjsv2">epub.js/v0.2</option>
-            <option value="readium">Readium</option>
         </select>
     </form>
     <script>
@@ -116,9 +114,7 @@
             $("body").addClass("reading");
 
             var engine_map = {
-                epubjs: 'epub.js',
-                epubjsv2: 'v2/epub.js',
-                readium: 'readium-js_all.js'
+                epubjs: 'epub.js'
             };
 
             var engine_href = '../vendor/javascripts/engines/' + engine_map[engine];
