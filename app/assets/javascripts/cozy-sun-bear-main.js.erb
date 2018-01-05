@@ -3,10 +3,7 @@
         'epubjs' => javascript_path('javascripts/engines/epub.js'),
         'epubjs.legacy' => javascript_path('javascripts/engines/epub.legacy.js')
     }
-    # engine = Rails.configuration.cozy_epub_engine || "epubjs"
-    # jslib = vendor_map[engine]
 %>
-// require_asset "engines/#{jslib}" 
 var COZY_EPUB_ENGINE = 'epubjs';
 var COZY_EPUB_ENGINE_HREF = '<%= vendor_map["epubjs"] %>';
 if ( 'ActiveXObject' in window ) {
