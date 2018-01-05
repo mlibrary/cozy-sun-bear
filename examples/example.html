@@ -68,14 +68,10 @@
     <form id="select-engine">
         <label class="u-screenreader" for="engine">Select EPUB Engine</label>
         <select size="1" name="engine" id="engine">
-            <option value="epubjs">epub.js/v0.3</option>
+            <option value="epub.js">epub.js/v0.3</option>
+            <option value="epub.legacy.js">epub.js/v0.3/legacy</option>
         </select>
     </form>
-    <script>
-        var engine = localStorage.getItem('engine') || 'epubjs';
-        if ( 'ActiveXObject' in window ) { engine = 'legacy'; }
-        $("#select-engine select").val(engine);
-    </script>
 
     <form class="select-book">
         <p>
@@ -88,9 +84,18 @@
 
     <script type="text/javascript">
 
+        var COZY_EPUB_ENGINE_HREF;
+        var COZY_EPUB_ENGINE;
+
+        COZY_EPUB_ENGINE = localStorage.getItem('engine') || 'epubjs';
+        var engine_base_href = localStorage.getItem('engine_base_href') || 'epub.js';
+        if ( 'ActiveXObject' in window ) { engine_base_href = 'epub.legacy.js'; } // force this
+        $("#select-engine select").val(engine_base_href);
+
+
         $("#select-engine select").on('change', function() {
-            var engine = $(this).val();
-            localStorage.setItem('engine', engine);
+            engine_base_href = $(this).val();
+            localStorage.setItem('engine_base_href', engine_base_href);
             location.reload(true);
         })
 
@@ -114,100 +119,97 @@
         if ( location.search ) {
             $("body").addClass("reading");
 
-            var engine_map = {
-                epubjs: 'epub.js'
-                legacy: 'epub.legacy.js'
-            };
-
-            var engine_href = '../vendor/javascripts/engines/' + engine_map[engine];
+            var engine_href = '../vendor/javascripts/engines/' + engine_base_href;
             var cozy_href = '../dist/cozy-sun-bear.js';
             var book_id = location.search.substr(1);
 
+            COZY_EPUB_ENGINE_HREF = '../vendor/javascripts/engines/' + engine_base_href;
+
             head.load(cozy_href, function() {
-                head.load(engine_href, function() {
-                    book_href = book_prefix + book_id;
-                    reader = cozy.reader('reader', {
-                        href: book_href,
-                        engine: engine == 'legacy' ? 'epubjs' : engine,
-                        themes: [
-                            {
-                                name: 'Solarized Light',
-                                klass: 'solarized-light',
-                                rules: {
-                                    body: {
-                                        background: '#fdf6e3',
-                                        color: '#657b83',
-                                        margin: '0 auto',
-                                        padding: '1 em'
-                                    },
-                                    code: {
-                                        'background-color': '#eee8d5',
-                                        padding: '2px'
-                                    },
-                                    a: {
-                                        color: '#b58900'
-                                    },
-                                    'a:visited': {
-                                        color: '#cb4b16'
-                                    },
-                                    'a:hover': {
-                                        color: '#cb4b16'
-                                    },
-                                    h1: { color: '#d33682', 'font-size': '2.8em' },
-                                    h2: { color: '#859900', 'font-size': '2.4em' },
-                                    h3: { color: '#859900', 'font-size': '1.8em' },
-                                    h4: { color: '#859900', 'font-size': '1.4em' },
-                                    h5: { color: '#859900', 'font-size': '1.3em' },
-                                    h6: { color: '#859900', 'font-size': '1.15em' },
-                                    pre: {
-                                        'background-color': '#fdf6e3',
-                                        color: '#657b83',
-                                        border: '1pt solid #93a1a1',
-                                        padding: '1em',
-                                        'box-shadow': '5pt 5pt 8pt #eee8d5'
-                                    }
-                                }
-                            },
-                            {
-                                name: 'Solarized Dark',
-                                klass: 'solarized-dark',
-                                rules: {
-                                    body: {
-                                        background: '#002b36',
-                                        color: '#839496',
-                                        margin: '0 auto',
-                                        padding: '1 em'
-                                    },
-                                    code: {
-                                        'background-color': '#073642',
-                                        padding: '2px'
-                                    },
-                                    a: {
-                                        color: '#b58900'
-                                    },
-                                    'a:visited': {
-                                        color: '#cb4b16'
-                                    },
-                                    'a:hover': {
-                                        color: '#cb4b16'
-                                    },
-                                    h1: { color: '#93a1a1', 'font-size': '2.8em' },
-                                    h2: { color: '#93a1a1', 'font-size': '2.4em' },
-                                    h3: { color: '#93a1a1', 'font-size': '1.8em' },
-                                    h4: { color: '#93a1a1', 'font-size': '1.4em' },
-                                    h5: { color: '#93a1a1', 'font-size': '1.3em' },
-                                    h6: { color: '#93a1a1', 'font-size': '1.15em' },
-                                    pre: {
-                                        'background-color': '#f5f5f5',
-                                        color: '#586e75',
-                                        border: '1pt solid #cccccc',
-                                        padding: '1em'
-                                    }
+                book_href = book_prefix + book_id;
+                cozy.reader('reader', {
+                    href: book_href,
+                    themes: [
+                        {
+                            name: 'Solarized Light',
+                            klass: 'solarized-light',
+                            rules: {
+                                body: {
+                                    background: '#fdf6e3',
+                                    color: '#657b83',
+                                    margin: '0 auto',
+                                    padding: '1 em'
+                                },
+                                code: {
+                                    'background-color': '#eee8d5',
+                                    padding: '2px'
+                                },
+                                a: {
+                                    color: '#b58900'
+                                },
+                                'a:visited': {
+                                    color: '#cb4b16'
+                                },
+                                'a:hover': {
+                                    color: '#cb4b16'
+                                },
+                                h1: { color: '#d33682', 'font-size': '2.8em' },
+                                h2: { color: '#859900', 'font-size': '2.4em' },
+                                h3: { color: '#859900', 'font-size': '1.8em' },
+                                h4: { color: '#859900', 'font-size': '1.4em' },
+                                h5: { color: '#859900', 'font-size': '1.3em' },
+                                h6: { color: '#859900', 'font-size': '1.15em' },
+                                pre: {
+                                    'background-color': '#fdf6e3',
+                                    color: '#657b83',
+                                    border: '1pt solid #93a1a1',
+                                    padding: '1em',
+                                    'box-shadow': '5pt 5pt 8pt #eee8d5'
                                 }
                             }
-                        ],
-                        flow: 'auto'
-                    });
+                        },
+                        {
+                            name: 'Solarized Dark',
+                            klass: 'solarized-dark',
+                            rules: {
+                                body: {
+                                    background: '#002b36',
+                                    color: '#839496',
+                                    margin: '0 auto',
+                                    padding: '1 em'
+                                },
+                                code: {
+                                    'background-color': '#073642',
+                                    padding: '2px'
+                                },
+                                a: {
+                                    color: '#b58900'
+                                },
+                                'a:visited': {
+                                    color: '#cb4b16'
+                                },
+                                'a:hover': {
+                                    color: '#cb4b16'
+                                },
+                                h1: { color: '#93a1a1', 'font-size': '2.8em' },
+                                h2: { color: '#93a1a1', 'font-size': '2.4em' },
+                                h3: { color: '#93a1a1', 'font-size': '1.8em' },
+                                h4: { color: '#93a1a1', 'font-size': '1.4em' },
+                                h5: { color: '#93a1a1', 'font-size': '1.3em' },
+                                h6: { color: '#93a1a1', 'font-size': '1.15em' },
+                                pre: {
+                                    'background-color': '#f5f5f5',
+                                    color: '#586e75',
+                                    border: '1pt solid #cccccc',
+                                    padding: '1em'
+                                }
+                            }
+                        }
+                    ],
+                    flow: 'auto'
+                }).then(function(reader) {
+
+                    window.reader = reader; // for this example
 
                     cozy.control.title({ region: 'top.header.left' }).addTo(reader);
                     cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
@@ -224,8 +226,7 @@
                     // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
                     // if you're running ./tools/serve you can proxy to a heliotrope search with
                     // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
-                    console.log("ENGINE", engine);
-                    if (engine !== "readium") {
+                    if (engine == "epubjs") {
                         cozy.control.search({
                             region: 'top.toolbar.left',
                             searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
@@ -252,7 +253,7 @@
                     // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
                     cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
                     cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-                    cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);
+                    cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);                    
 
                     // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
                     // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
@@ -261,7 +262,9 @@
                     setTimeout(function() {
                         update_select_panel(available_books);
                     }, 100);
+
                 })
+
             })
         }
 
