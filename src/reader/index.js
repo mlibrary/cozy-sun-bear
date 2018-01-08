@@ -71,9 +71,5 @@ export var reader = function(id, options) {
   options.engine = engine;
   options.engine_href = engine_href;
 
-  // if ( engine_href == null ) {
-  // 	return engines[engine].apply(_this, _arguments);
-  // }
-
   return engines[engine].apply(_this, [id, options]);
 }
