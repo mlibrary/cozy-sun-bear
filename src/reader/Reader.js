@@ -107,16 +107,18 @@ export var Reader = Evented.extend({
     var self = this;
     target = target || 0;
 
-    self.open(function() {
-      self.setBookPanelSize();
-      self.draw(target, function() {
-        self._panes['loader'].style.display = 'none';
-        if ( cb ) {
-          cb();
-        }
+    self.options.loader().then(function() {
+      self.open(function() {
+        self.setBookPanelSize();
+        self.draw(target, function() {
+          self._panes['loader'].style.display = 'none';
+          if ( cb ) {
+            cb();
+          }
+        });
       });
-    });
 
+    })
   },
 
   switch: function(flow, target) {

@@ -62,6 +62,7 @@ var load = {
 
 
 export var reader = function(id, options) {
+  options = options || {};
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
   var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
   var _this = this;
@@ -71,9 +72,14 @@ export var reader = function(id, options) {
   	return engines[engine].apply(_this, _arguments);
   }
 
-  return load.js(engine_href).then(function() {
-    return engines[engine].apply(_this, _arguments);
-  }).catch(function(e) {
-    console.log('Oh no, epic failure!', e);
-  });
+  options.loader = function() {
+    return load.js(engine_href);
+  }
+  return engines[engine].apply(_this, [id, options]);
+
+  // return load.js(engine_href).then(function() {
+  //   return engines[engine].apply(_this, _arguments);
+  // }).catch(function(e) {
+  //   console.log('Oh no, epic failure!', e);
+  // });
 }

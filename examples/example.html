@@ -127,7 +127,7 @@
 
             head.load(cozy_href, function() {
                 book_href = book_prefix + book_id;
-                cozy.reader('reader', {
+                reader = cozy.reader('reader', {
                     href: book_href,
                     themes: [
                         {
@@ -207,64 +207,59 @@
                         }
                     ],
                     flow: 'auto'
-                }).then(function(reader) {
+                });
 
-                    window.reader = reader; // for this example
+                cozy.control.title({ region: 'top.header.left' }).addTo(reader);
+                cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
 
-                    cozy.control.title({ region: 'top.header.left' }).addTo(reader);
-                    cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
+                cozy.control.widget.panel({
+                    region: 'top.toolbar.left',
+                    template: '<div class="permalink-label"><label class="u-screenreader" for="permalink">Permalink</label><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
+                    data: { title: "https://doi.org/10.3998/fulcrum.12345" }
+                }).addTo(reader);
 
-                    cozy.control.widget.panel({
+
+                // The searchUrl goes to "moby-dick" on fulcrum in my dev space so
+                // obviously search will only work for this example if your environment is set up to handle it.
+                // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
+                // if you're running ./tools/serve you can proxy to a heliotrope search with
+                // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
+                if (engine == "epubjs") {
+                    cozy.control.search({
                         region: 'top.toolbar.left',
-                        template: '<div class="permalink-label"><label class="u-screenreader" for="permalink">Permalink</label><form><input data-slot="title" type="text" id="permalink" value="" readonly="readonly" onclick="this.select(); document.execCommand(\'copy\');"></form></div>',
-                        data: { title: "https://doi.org/10.3998/fulcrum.12345" }
+                        searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
                     }).addTo(reader);
+                }
 
+                cozy.control.widget.panel({
+                    region: 'top.toolbar.right',
+                    template: '<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>',
+                    data: {}
+                }).addTo(reader);
 
-                    // The searchUrl goes to "moby-dick" on fulcrum in my dev space so
-                    // obviously search will only work for this example if your environment is set up to handle it.
-                    // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
-                    // if you're running ./tools/serve you can proxy to a heliotrope search with
-                    // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
-                    if (engine == "epubjs") {
-                        cozy.control.search({
-                            region: 'top.toolbar.left',
-                            searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
-                        }).addTo(reader);
+                cozy.control.widget.button({
+                    className: 'cozy-container-fullscreen',
+                    region: 'top.toolbar.right',
+                    template: '<button class="button--sm" data-toggle="button" data-slot="label" aria-label="Fullscreen mode"></button>',
+                    data: { label: '<i id="fullscreen" class="icon-fullscreen-enter oi" data-glyph="fullscreen-enter" title="Fullscreen Mode" aria-hidden="true"></i>' },
+                    onClick: function() {
+                        reader.requestFullscreen();
                     }
+                }).addTo(reader);
 
-                    cozy.control.widget.panel({
-                        region: 'top.toolbar.right',
-                        template: '<div class=""><select id="select-available-books"><option>SELECT TITLE</option></select></div>',
-                        data: {}
-                    }).addTo(reader);
+                cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
+                // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
+                cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
+                cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
+                cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);                    
 
-                    cozy.control.widget.button({
-                        className: 'cozy-container-fullscreen',
-                        region: 'top.toolbar.right',
-                        template: '<button class="button--sm" data-toggle="button" data-slot="label" aria-label="Fullscreen mode"></button>',
-                        data: { label: '<i id="fullscreen" class="icon-fullscreen-enter oi" data-glyph="fullscreen-enter" title="Fullscreen Mode" aria-hidden="true"></i>' },
-                        onClick: function() {
-                            reader.requestFullscreen();
-                        }
-                    }).addTo(reader);
+                // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
+                // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
+                reader.start();
 
-                    cozy.control.preferences({ region: 'top.toolbar.right' }).addTo(reader);
-                    // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
-                    cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
-                    cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-                    cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);                    
-
-                    // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
-                    // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
-                    reader.start();
-
-                    setTimeout(function() {
-                        update_select_panel(available_books);
-                    }, 100);
-
-                })
-
+                setTimeout(function() {
+                    update_select_panel(available_books);
+                }, 100);
             })
         }
 
