@@ -221,15 +221,12 @@
 
                 // The searchUrl goes to "moby-dick" on fulcrum in my dev space so
                 // obviously search will only work for this example if your environment is set up to handle it.
-                // This DOES NOT work with Readium yet. Can't figure out how to navigate by CFI...
                 // if you're running ./tools/serve you can proxy to a heliotrope search with
                 // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
-                if (engine == "epubjs") {
-                    cozy.control.search({
-                        region: 'top.toolbar.left',
-                        searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
-                    }).addTo(reader);
-                }
+                cozy.control.search({
+                    region: 'top.toolbar.left',
+                    searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
+                }).addTo(reader);
 
                 cozy.control.widget.panel({
                     region: 'top.toolbar.right',
