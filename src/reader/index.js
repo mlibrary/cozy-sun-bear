@@ -68,18 +68,12 @@ export var reader = function(id, options) {
   var _this = this;
   var _arguments = arguments;
 
-  if ( engine_href == null ) {
-  	return engines[engine].apply(_this, _arguments);
-  }
+  options.engine = engine;
+  options.engine_href = engine_href;
 
-  options.loader = function() {
-    return load.js(engine_href);
-  }
+  // if ( engine_href == null ) {
+  // 	return engines[engine].apply(_this, _arguments);
+  // }
+
   return engines[engine].apply(_this, [id, options]);
-
-  // return load.js(engine_href).then(function() {
-  //   return engines[engine].apply(_this, _arguments);
-  // }).catch(function(e) {
-  //   console.log('Oh no, epic failure!', e);
-  // });
 }

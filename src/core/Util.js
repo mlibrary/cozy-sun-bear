@@ -242,3 +242,63 @@ export function cancelAnimFrame(id) {
         cancelFn.call(window, id);
     }
 }
+
+export var loader = {
+    js: function(url) {
+        var handler = {};
+        handler.callbacks = [];
+        handler.error = [];
+        handler.then = function(cb) {
+            handler.callbacks.push(cb);
+            return handler;
+        }
+        handler.catch = function(cb) {
+            handler.error.push(cb);
+            return handler;
+        }
+        handler.resolve = function(_argv) {
+            // var _argv;
+            while ( handler.callbacks.length ) {
+                var cb = handler.callbacks.shift();
+                var retval;
+                try {
+                    _argv = cb(_argv);
+                } catch(e) {
+                    handler.reject(e);
+                    break;
+                }
+            }
+        }
+
+        handler.reject = function(e) {
+            while ( handler.error.length ) {
+                var cb = handler.error.shift();
+                cb(e);
+            }
+        }
+
+        if ( url == undefined ) {
+            setTimeout(function() {
+                handler.resolve(url);
+            }, 0);
+            return handler;
+        }
+
+        var element = document.createElement('script');
+
+        element.onload = function() {
+          handler.resolve(url);
+        };
+        element.onerror = function() {
+          handler.catch.apply(arguments);
+        };
+
+        element.async = true;
+        var parent = 'body';
+        var attr = 'src';
+        element[attr] = url;
+        document[parent].appendChild(element);
+
+        return handler;
+    }
+}
