@@ -15,31 +15,32 @@ describe("Control.Citation", function () {
 
   it("can be added and use the default metadata", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    var formatted = control._formatCitation();
-    expect(formatted).to.be("Mock, Alex. <em>The Mock Life</em>. University Press, 2017.");
+    reader.start(function() {
+      var formatted = control._formatCitation();
+      expect(formatted).to.be("Mock, Alex. <em>The Mock Life</em>. University Press, 2017.");
+    });
   });
 
   it("can be added and use the default metadata via modal", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." ],
-        [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." ],
-        [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." ],
+          [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." ],
+          [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
-
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
   });
 });
 
@@ -61,23 +62,24 @@ describe("Control.Citation", function () {
 
   it("can use provided DOI", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
-        [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
-        [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
+          [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
+          [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
 
   });
 
@@ -105,24 +107,25 @@ describe("Control.Citation", function () {
 
   it("can format publications with two authors", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex, and Casey Faux. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
-        [ 'APA', "Mock, A., &amp; Faux, C. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
-        [ 'Chicago', "Mock, Alex, and Casey Faux. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex, and Casey Faux. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
+          [ 'APA', "Mock, A., &amp; Faux, C. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
+          [ 'Chicago', "Mock, Alex, and Casey Faux. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
 
+    });
   });
 
 });
@@ -150,23 +153,25 @@ describe("Control.Citation", function () {
 
   it("can format publications with multiple authors", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex, et al. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
-        [ 'APA', "Mock, A., et al. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
-        [ 'Chicago', "Mock, Alex, et al. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex, et al. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
+          [ 'APA', "Mock, A., et al. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
+          [ 'Chicago', "Mock, Alex, et al. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
+
 
   });
 
@@ -194,23 +199,25 @@ describe("Control.Citation", function () {
 
   it("can format publications with editor", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex, editor. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
-        [ 'APA', "Mock, A. (Ed.). (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
-        [ 'Chicago', "Mock, Alex, ed. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex, editor. <em>The Mock Life</em>. University Press, 2017, " + doi + "." ],
+          [ 'APA', "Mock, A. (Ed.). (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press. " + doi + "." ],
+          [ 'Chicago', "Mock, Alex, ed. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017. " + doi + "." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
+
 
   });
 
@@ -233,23 +240,25 @@ describe("Control.Citation", function () {
 
   it("can format publications with multiple volumes", function () {
     var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017. 4 vols." ],
-        [ 'APA', "Mock, A. (2017). <em>The Mock Life</em> (Vols. 1-4). Ann Arbor, MI: University Press." ],
-        [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017. 4 vols." ],
+          [ 'APA', "Mock, A. (2017). <em>The Mock Life</em> (Vols. 1-4). Ann Arbor, MI: University Press." ],
+          [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
+
 
   });
 

@@ -22,23 +22,24 @@ describe("Control.CitationOptions", function () {
 
   it("can be added and use the default metadata via modal", function () {
     var control = new cozy.Control.CitationOptions(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." ],
-        [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." ],
-        [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
-      ];
+      var possibles = 
+        [
+          [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." ],
+          [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." ],
+          [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      var formatted = control._formatCitation(value);
-      expect(formatted).to.be(test);
-    }
+        var formatted = control._formatCitation(value);
+        expect(formatted).to.be(test);
+      }
+    });
 
   });
 });
