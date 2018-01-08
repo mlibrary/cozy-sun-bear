@@ -98,27 +98,25 @@ export var Reader = Evented.extend({
       target = undefined;
     }
 
-    self._start(target, cb);
-
-    this._loaded = true;
+    Util.loader.js(this.options.engine_href).then(function() {
+      self._start(target, cb);
+      self._loaded = true;
+    })
   },
 
   _start: function(target, cb) {
     var self = this;
     target = target || 0;
 
-    self.options.loader().then(function() {
-      self.open(function() {
-        self.setBookPanelSize();
-        self.draw(target, function() {
-          self._panes['loader'].style.display = 'none';
-          if ( cb ) {
-            cb();
-          }
-        });
+    self.open(function() {
+      self.setBookPanelSize();
+      self.draw(target, function() {
+        self._panes['loader'].style.display = 'none';
+        if ( cb ) {
+          cb();
+        }
       });
-
-    })
+    });
   },
 
   switch: function(flow, target) {
