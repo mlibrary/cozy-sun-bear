@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0ce4ca61, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0e692357, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3510,6 +3510,18 @@ var Modal = Class.extend({
     var closeAfterAction = false;
     var target = event.target;
 
+    // As far as I can tell, the code below isn't catching direct clicks on
+    // items with class='data-modal-close' as they're not ACTIONABLE_ELEMENTS.
+    // Adding them to ACTIONABLE_ELEMENTS causes undesirable behavior where
+    // their child items also close the modal thanks to the loop below.
+    // Children of .modal__overlay include the modal header, border area and
+    // padding. We don't want clicks on these closing the modal.
+    // Just close the modal now for direct clicks on a '.data-modal-close'.
+    if (target.hasAttribute('data-modal-close')) {
+      this.closeModal();
+      return;
+    }
+
     // if the target isn't an actionable type, walk the DOM until
     // one is found
     var actionableNodes = this.getActionableNodes();
@@ -4081,7 +4093,7 @@ var widget = {
   }
 };
 
-var parseFullName = function parseFullName(
+var parseFullName_1 = function parseFullName(
     nameToParse, partToReturn, fixCase, stopOnError, useLongLists
 ) {
   "use strict";
@@ -4426,7 +4438,7 @@ var parseFullName = function parseFullName(
 };
 
 // for debugging
-window.parseFullName = parseFullName;
+window.parseFullName = parseFullName_1;
 
 var Citation = Control.extend({
   options: {
@@ -4751,7 +4763,7 @@ var Citation = Control.extend({
         creator = creator.split("; ");
       }
       for (var i in creator) {
-        retval.push(parseFullName(creator[i]));
+        retval.push(parseFullName_1(creator[i]));
       }
     }
     return retval;
@@ -4765,7 +4777,7 @@ var Citation = Control.extend({
         editor = editor.split("; ");
       }
       for (var i in editor) {
-        retval.push(parseFullName(editor[i]));
+        retval.push(parseFullName_1(editor[i]));
       }
     }
     return retval;
@@ -4779,7 +4791,7 @@ var citation = function citation(options) {
 };
 
 // for debugging
-window.parseFullName = parseFullName;
+window.parseFullName = parseFullName_1;
 
 var Search = Control.extend({
   options: {

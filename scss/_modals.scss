@@ -39,6 +39,8 @@ $modal-width-fraction:    40%;
   align-items: center; */
   justify-content: flex-start;
   align-items: left;
+  // https://github.com/mlibrary/cozy-sun-bear/issues/116
+  z-index: 25;
 }
 
 .cozy-modal.right .modal__overlay {

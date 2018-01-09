@@ -746,7 +746,8 @@
   /* justify-content: center;
   align-items: center; */
   justify-content: flex-start;
-  align-items: left; }
+  align-items: left;
+  z-index: 25; }
 
 .cozy-modal.right .modal__overlay {
   justify-content: flex-end;
