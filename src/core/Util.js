@@ -275,6 +275,8 @@ export var loader = {
                 var cb = handler.error.shift();
                 cb(e);
             }
+            console.log(e);
+            console.trace();
         }
 
         if ( url == undefined ) {
@@ -298,6 +300,8 @@ export var loader = {
         var attr = 'src';
         element[attr] = url;
         document[parent].appendChild(element);
+
+        console.log("AHOY APPENDED", url);
 
         return handler;
     }

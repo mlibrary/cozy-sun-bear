@@ -99,6 +99,7 @@ export var Reader = Evented.extend({
     }
 
     Util.loader.js(this.options.engine_href).then(function() {
+      console.log("AHOY STARTING ENGINE");
       self._start(target, cb);
       self._loaded = true;
     })
