@@ -226,6 +226,18 @@ export var Modal = Class.extend({
     var closeAfterAction = false;
     var target = event.target;
 
+    // As far as I can tell, the code below isn't catching direct clicks on
+    // items with class='data-modal-close' as they're not ACTIONABLE_ELEMENTS.
+    // Adding them to ACTIONABLE_ELEMENTS causes undesirable behavior where
+    // their child items also close the modal thanks to the loop below.
+    // Children of .modal__overlay include the modal header, border area and
+    // padding. We don't want clicks on these closing the modal.
+    // Just close the modal now for direct clicks on a '.data-modal-close'.
+    if (target.hasAttribute('data-modal-close')) {
+      this.closeModal();
+      return;
+    }
+
     // if the target isn't an actionable type, walk the DOM until
     // one is found
     var actionableNodes = this.getActionableNodes();
