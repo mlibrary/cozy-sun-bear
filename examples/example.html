@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../dist/cozy-sun-bear.css" />
 
     <style type="text/css">
@@ -89,7 +90,7 @@
 
         COZY_EPUB_ENGINE = localStorage.getItem('engine') || 'epubjs';
         var engine_base_href = localStorage.getItem('engine_base_href') || 'epub.js';
-        if ( 'ActiveXObject' in window ) { engine_base_href = 'epub.legacy.js'; } // force this
+        // if ( 'ActiveXObject' in window ) { engine_base_href = 'epub.legacy.js'; } // force this
         $("#select-engine select").val(engine_base_href);
 
 
