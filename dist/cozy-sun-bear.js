@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0e692357, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0f50db24, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -258,6 +258,70 @@ function cancelAnimFrame(id) {
     }
 }
 
+var loader = {
+    js: function js(url) {
+        var handler = {};
+        handler.callbacks = [];
+        handler.error = [];
+        handler.then = function (cb) {
+            handler.callbacks.push(cb);
+            return handler;
+        };
+        handler.catch = function (cb) {
+            handler.error.push(cb);
+            return handler;
+        };
+        handler.resolve = function (_argv) {
+            // var _argv;
+            while (handler.callbacks.length) {
+                var cb = handler.callbacks.shift();
+                var retval;
+                try {
+                    _argv = cb(_argv);
+                } catch (e) {
+                    handler.reject(e);
+                    break;
+                }
+            }
+        };
+
+        handler.reject = function (e) {
+            while (handler.error.length) {
+                var cb = handler.error.shift();
+                cb(e);
+            }
+            console.log(e);
+            console.trace();
+        };
+
+        if (url == undefined) {
+            setTimeout(function () {
+                handler.resolve(url);
+            }, 0);
+            return handler;
+        }
+
+        var element = document.createElement('script');
+
+        element.onload = function () {
+            handler.resolve(url);
+        };
+        element.onerror = function () {
+            handler.catch.apply(arguments);
+        };
+
+        element.async = true;
+        var parent = 'body';
+        var attr = 'src';
+        element[attr] = url;
+        document[parent].appendChild(element);
+
+        console.log("AHOY APPENDED", url);
+
+        return handler;
+    }
+};
+
 var Util = (Object.freeze || Object)({
 	extend: extend,
 	create: create,
@@ -280,7 +344,8 @@ var Util = (Object.freeze || Object)({
 	requestFn: requestFn,
 	cancelFn: cancelFn,
 	requestAnimFrame: requestAnimFrame,
-	cancelAnimFrame: cancelAnimFrame
+	cancelAnimFrame: cancelAnimFrame,
+	loader: loader
 });
 
 // @class Class
@@ -840,6 +905,9 @@ var vml = !svg && function () {
     }
 }();
 
+var columnCount = 'columnCount' in style$1;
+var classList = document.documentElement.classList !== undefined;
+
 function userAgentContains(str) {
     return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
 }
@@ -875,7 +943,9 @@ var Browser = (Object.freeze || Object)({
 	retina: retina,
 	canvas: canvas,
 	svg: svg,
-	vml: vml
+	vml: vml,
+	columnCount: columnCount,
+	classList: classList
 });
 
 /*
@@ -1612,6 +1682,19 @@ var DomEvent = (Object.freeze || Object)({
  * SVG elements. The only difference is that classes refer to CSS classes
  * in HTML and SVG classes in SVG.
  */
+
+if (!Element.prototype.matches) {
+    var ep = Element.prototype;
+
+    if (ep.webkitMatchesSelector) // Chrome <34, SF<7.1, iOS<8
+        ep.matches = ep.webkitMatchesSelector;
+
+    if (ep.msMatchesSelector) // IE9/10/11 & Edge
+        ep.matches = ep.msMatchesSelector;
+
+    if (ep.mozMatchesSelector) // FF<34
+        ep.matches = ep.mozMatchesSelector;
+}
 
 // @property TRANSFORM: String
 // Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
@@ -2586,9 +2669,10 @@ var Reader = Evented.extend({
       target = undefined;
     }
 
-    self._start(target, cb);
-
-    this._loaded = true;
+    loader.js(this.options.engine_href).then(function () {
+      self._start(target, cb);
+      self._loaded = true;
+    });
   },
 
   _start: function _start(target, cb) {
@@ -2685,7 +2769,7 @@ var Reader = Evented.extend({
 
     this._initPanes();
 
-    if (!('columnCount' in container.style)) {
+    if (!columnCount) {
       this.options.flow = 'scrolled-doc';
     }
   },
@@ -4093,7 +4177,7 @@ var widget = {
   }
 };
 
-var parseFullName_1 = function parseFullName(
+var parseFullName = function parseFullName(
     nameToParse, partToReturn, fixCase, stopOnError, useLongLists
 ) {
   "use strict";
@@ -4438,7 +4522,7 @@ var parseFullName_1 = function parseFullName(
 };
 
 // for debugging
-window.parseFullName = parseFullName_1;
+window.parseFullName = parseFullName;
 
 var Citation = Control.extend({
   options: {
@@ -4763,7 +4847,7 @@ var Citation = Control.extend({
         creator = creator.split("; ");
       }
       for (var i in creator) {
-        retval.push(parseFullName_1(creator[i]));
+        retval.push(parseFullName(creator[i]));
       }
     }
     return retval;
@@ -4777,7 +4861,7 @@ var Citation = Control.extend({
         editor = editor.split("; ");
       }
       for (var i in editor) {
-        retval.push(parseFullName_1(editor[i]));
+        retval.push(parseFullName(editor[i]));
       }
     }
     return retval;
@@ -4791,7 +4875,7 @@ var citation = function citation(options) {
 };
 
 // for debugging
-window.parseFullName = parseFullName_1;
+window.parseFullName = parseFullName;
 
 var Search = Control.extend({
   options: {
@@ -5424,7 +5508,10 @@ var Mixin = { Events: Evented.prototype };
 // export {ePub};
 
 function ePub(options) {
-  return window.ePub(options);
+	if (window.require !== undefined) {
+		window.ePub = require("ePub");
+	}
+	return window.ePub(options);
 }
 
 Reader.EpubJS = Reader.extend({
@@ -5731,6 +5818,12 @@ Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
   get: function get$$1() {
     // return the combined metadata of configured + book metadata
+    if (ie) {
+      return {
+        reset: function reset() {/* NOOP */},
+        highlight: function highlight(cfiRange) {/* NOOP */}
+      };
+    }
     return this._rendition.annotations;
   }
 });
@@ -5881,8 +5974,16 @@ var engines = {
 };
 
 var reader = function reader(id, options) {
+  options = options || {};
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
-  return engines[engine].apply(this, arguments);
+  var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
+  var _this = this;
+  var _arguments = arguments;
+
+  options.engine = engine;
+  options.engine_href = engine_href;
+
+  return engines[engine].apply(_this, [id, options]);
 };
 
 // misc

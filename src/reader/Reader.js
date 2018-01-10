@@ -98,9 +98,10 @@ export var Reader = Evented.extend({
       target = undefined;
     }
 
-    self._start(target, cb);
-
-    this._loaded = true;
+    Util.loader.js(this.options.engine_href).then(function() {
+      self._start(target, cb);
+      self._loaded = true;
+    })
   },
 
   _start: function(target, cb) {
@@ -116,7 +117,6 @@ export var Reader = Evented.extend({
         }
       });
     });
-
   },
 
   switch: function(flow, target) {
@@ -207,7 +207,7 @@ export var Reader = Evented.extend({
 
     this._initPanes();
 
-    if ( ! ( 'columnCount' in container.style ) ) {
+    if ( ! Browser.columnCount ) {
       this.options.flow = 'scrolled-doc';
     }
   },

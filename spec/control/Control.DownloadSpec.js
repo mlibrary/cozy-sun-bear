@@ -30,24 +30,26 @@ describe("Control.Download", function () {
 
   it("can be added and use the download links via modal", function () {
     var control = new cozy.Control.Download(options).addTo(reader);
-    reader.start();
-    happen.click(control._control);
+    reader.start(function() {
+      happen.click(control._control);
 
-    var possibles = 
-      [
-        [ 'EPUB', download_epub_link ],
-        [ 'PDF', download_pdf_link ]
-      ];
+      var possibles = 
+        [
+          [ 'EPUB', download_epub_link ],
+          [ 'PDF', download_pdf_link ]
+        ];
 
-    for(var i in possibles) {
-      var value = possibles[i][0];
-      var test = possibles[i][1];
+      for(var i in possibles) {
+        var value = possibles[i][0];
+        var test = possibles[i][1];
 
-      control._configureDownloadForm(test);
-      var form = control._form;
+        control._configureDownloadForm(test);
+        var form = control._form;
 
-      expect(form.getAttribute("action")).to.be(test);
-    }
+        expect(form.getAttribute("action")).to.be(test);
+      }
+    });
+
 
   });
 });
