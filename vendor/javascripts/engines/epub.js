@@ -7585,6 +7585,7 @@ var Contents = function () {
 				"scalable": undefined
 			};
 			var newContent = [];
+			var settings = {};
 
 			/*
    * check for the viewport size
@@ -7592,12 +7593,20 @@ var Contents = function () {
    */
 			if ($viewport && $viewport.hasAttribute("content")) {
 				var content = $viewport.getAttribute("content");
-				var _width2 = content.match(/width\s*=\s*([^,]*)/g);
-				var _height2 = content.match(/height\s*=\s*([^,]*)/g);
-				var _scale2 = content.match(/initial-scale\s*=\s*([^,]*)/g);
-				var _minimum2 = content.match(/minimum-scale\s*=\s*([^,]*)/g);
-				var _maximum2 = content.match(/maximum-scale\s*=\s*([^,]*)/g);
-				var _scalable2 = content.match(/user-scalable\s*=\s*([^,]*)/g);
+				// let _width = content.match(/width\s*=\s*([^,]*)/g);
+				// let _height = content.match(/height\s*=\s*([^,]*)/g);
+				// let _scale = content.match(/initial-scale\s*=\s*([^,]*)/g);
+				// let _minimum = content.match(/minimum-scale\s*=\s*([^,]*)/g);
+				// let _maximum = content.match(/maximum-scale\s*=\s*([^,]*)/g);
+				// let _scalable = content.match(/user-scalable\s*=\s*([^,]*)/g);
+
+				var _width2 = content.match(/width\s*=\s*([^,]*)/);
+				var _height2 = content.match(/height\s*=\s*([^,]*)/);
+				var _scale2 = content.match(/initial-scale\s*=\s*([^,]*)/);
+				var _minimum2 = content.match(/minimum-scale\s*=\s*([^,]*)/);
+				var _maximum2 = content.match(/maximum-scale\s*=\s*([^,]*)/);
+				var _scalable2 = content.match(/user-scalable\s*=\s*([^,]*)/);
+
 				if (_width2 && _width2.length && typeof _width2[1] !== "undefined") {
 					parsed.width = _width2[1];
 				}
@@ -7617,6 +7626,8 @@ var Contents = function () {
 					parsed.scalable = _scalable2[1];
 				}
 			}
+
+			settings = (0, _core.defaults)(options || {}, parsed);
 
 			if (options) {
 				if (options.width || parsed.width) {
@@ -7647,10 +7658,7 @@ var Contents = function () {
 				this.window.scrollTo(0, 0);
 			}
 
-			return {
-				width: parseInt(width),
-				height: parseInt(height)
-			};
+			return settings;
 		}
 
 		// layout(layoutFunc) {
@@ -8167,7 +8175,6 @@ var Contents = function () {
 
 			this.css("margin", "0");
 			this.css("box-sizing", "border-box");
-
 			this.viewport(viewport);
 		}
 	}, {
@@ -8208,7 +8215,8 @@ var Contents = function () {
 			this.css("transform-origin", "top left");
 
 			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+				// translateStr = " translate(" + (offsetX || 0 )+ "px, " + (offsetY || 0 )+ "px )";
+				translateStr = " translateX(" + (offsetX || 0) + "px) translateY(" + (offsetY || 0) + "px)";
 			}
 
 			this.css("transform", scaleStr + translateStr);
@@ -8217,8 +8225,10 @@ var Contents = function () {
 		key: "fit",
 		value: function fit(width, height) {
 			var viewport = this.viewport();
-			var widthScale = width / viewport.width;
-			var heightScale = height / viewport.height;
+			// var widthScale = width / viewport.width;
+			// var heightScale = height / viewport.height;
+			var widthScale = width / parseInt(viewport.width);
+			var heightScale = height / parseInt(viewport.height);
 			var scale = widthScale < heightScale ? widthScale : heightScale;
 
 			var offsetY = (height - viewport.height * scale) / 2;
@@ -8228,7 +8238,7 @@ var Contents = function () {
 			this.overflow("hidden");
 
 			// Deal with Mobile trying to scale to viewport
-			this.viewport({ width: width, height: height, scale: 1.0 });
+			// this.viewport({ width: width, height: height, scale: 1.0 });
 
 			// Scale to the correct size
 			this.scaler(scale, 0, offsetY);
@@ -33346,45 +33356,48 @@ var IframeView = function () {
 
 			if (!this.iframe || this._expanding) return;
 
-			if (this.layout.name === "pre-paginated") return;
-
 			this._expanding = true;
 
+			if (this.layout.name === "pre-paginated") {
+				width = this.layout.columnWidth;
+				height = this.layout.height;
+			}
+
 			// Expand Horizontally
-			if (this.settings.axis === "horizontal") {
-				// Get the width of the text
-				width = this.contents.textWidth();
+			else if (this.settings.axis === "horizontal") {
+					// Get the width of the text
+					width = this.contents.textWidth();
 
-				if (width % this.layout.pageWidth > 0) {
-					width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
-				}
+					if (width % this.layout.pageWidth > 0) {
+						width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
+					}
 
-				// add an extra page if this is odd
-				if (width / this.layout.pageWidth % 2 > 0) {
-					// width += this.settings.layout.gap + this.settings.layout.columnWidth
-					width += this.layout.pageWidth;
-				}
+					// add an extra page if this is odd
+					if (width / this.layout.pageWidth % 2 > 0) {
+						// width += this.settings.layout.gap + this.settings.layout.columnWidth
+						width += this.layout.pageWidth;
+					}
 
-				/*
-    columns = Math.ceil(width / this.settings.layout.delta);
-    if ( this.settings.layout.divisor > 1 &&
-    		 this.settings.layout.name === "reflowable" &&
-    		(columns % 2 > 0)) {
-    	// add a blank page
-    	width += this.settings.layout.gap + this.settings.layout.columnWidth;
-    }
-    */
-			} // Expand Vertically
-			else if (this.settings.axis === "vertical") {
-					// height = this.contents.textHeight();
-					// console.log("AHOY THIS WAS A BAD IDEA", this.contents, this.contents.parentNode);
-					var x = window.getComputedStyle(this.contents.content.parentNode);
-					// console.log("AHOY X", x);
-					height = parseInt(x.height);
-					// height = parseInt(this.contents.height());
-					height += 120;
-					// console.log("AHOY EXPAND", this.contents.height(), window.getComputedStyle(this.contents.content.parentNode)['height'], height);
-				}
+					/*
+     columns = Math.ceil(width / this.settings.layout.delta);
+     if ( this.settings.layout.divisor > 1 &&
+     		 this.settings.layout.name === "reflowable" &&
+     		(columns % 2 > 0)) {
+     	// add a blank page
+     	width += this.settings.layout.gap + this.settings.layout.columnWidth;
+     }
+     */
+				} // Expand Vertically
+				else if (this.settings.axis === "vertical") {
+						// height = this.contents.textHeight();
+						// console.log("AHOY THIS WAS A BAD IDEA", this.contents, this.contents.parentNode);
+						var x = window.getComputedStyle(this.contents.content.parentNode);
+						// console.log("AHOY X", x);
+						height = parseInt(x.height);
+						// height = parseInt(this.contents.height());
+						height += 120;
+						// console.log("AHOY EXPAND", this.contents.height(), window.getComputedStyle(this.contents.content.parentNode)['height'], height);
+					}
 
 			// Only Resize if dimensions have changed or
 			// if Frame is still hidden, so needs reframing
