@@ -110,12 +110,13 @@ export var Reader = Evented.extend({
 
     self.open(function() {
       self.setBookPanelSize();
-      self.draw(target, function() {
-        self._panes['loader'].style.display = 'none';
-        if ( cb ) {
-          cb();
-        }
-      });
+      self.draw(target, cb);
+      // self.draw(target, function() {
+      //   self._panes['loader'].style.display = 'none';
+      //   if ( cb ) {
+      //     cb();
+      //   }
+      // });
     });
   },
 
