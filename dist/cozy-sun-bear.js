@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0f50db24, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0b55a8ac, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2681,12 +2681,13 @@ var Reader = Evented.extend({
 
     self.open(function () {
       self.setBookPanelSize();
-      self.draw(target, function () {
-        self._panes['loader'].style.display = 'none';
-        if (cb) {
-          cb();
-        }
-      });
+      self.draw(target, cb);
+      // self.draw(target, function() {
+      //   self._panes['loader'].style.display = 'none';
+      //   if ( cb ) {
+      //     cb();
+      //   }
+      // });
     });
   },
 
@@ -5518,6 +5519,7 @@ Reader.EpubJS = Reader.extend({
 
   initialize: function initialize(id, options) {
     Reader.prototype.initialize.apply(this, arguments);
+    this._epubjs_ready = false;
   },
 
   open: function open(callback) {
@@ -5548,7 +5550,6 @@ Reader.EpubJS = Reader.extend({
 
     // start the rendition after all the epub parts 
     // have been loaded
-    window._loaded = false;
     this._book.ready.then(function () {
 
       // have to set fixed dimensions to avoid edge clipping
@@ -5564,6 +5565,10 @@ Reader.EpubJS = Reader.extend({
       self._bindEvents();
       self._drawn = true;
 
+      self._rendition.hooks.content.register(function (contents) {
+        self.fire('ready:contents', contents);
+      });
+
       if (target && target.start) {
         target = target.start;
       }
@@ -5571,31 +5576,51 @@ Reader.EpubJS = Reader.extend({
         // target = "epubcfi(" + window.location.hash.substr(2) + ")";
         target = window.location.hash.substr(2);
         target = self._book.url.path().resolve(target);
-        console.log("AHOY", target);
       }
-      self._rendition.display(target).then(function () {
-        if (callback) {
-          callback();
-        }
-        console.log("AHOY DRAW DISPLAY", self.getFixedBookPanelSize());
+
+      self.gotoPage(target, function () {
         window._loaded = true;
         self._initializeReaderStyles();
 
-        self.fire('relocated', self._rendition.currentLocation());
+        if (callback) {
+          callback();
+        }
+
+        // self.fire('relocated', self._rendition.currentLocation());
         self.fire('opened');
+        self.fire('ready');
+        self._epubjs_ready = true;
       });
+
+      // self._rendition.display(target).then(function() {
+      //   self._panes['loader'].style.display = 'none';
+      //   window._loaded = true;
+      //   self._initializeReaderStyles();
+
+      //   if ( callback ) { callback(); }
+
+      //   self.fire('relocated', self._rendition.currentLocation());
+      //   self.fire('opened');
+      // });
     });
   },
 
-  _navigate: function _navigate(promise) {
+  _navigate: function _navigate(promise, callback) {
     var self = this;
     var t = setTimeout(function () {
       self._panes['loader'].style.display = 'block';
     }, 100);
-    // promise.call(this._rendition).then(function() {
     promise.then(function () {
+      // clearTimeout(t);
+      // self._panes['loader'].style.display = 'none';
+    }).catch(function (e) {
+      throw e;
+    }).finally(function () {
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
+      if (callback) {
+        callback();
+      }
     });
   },
 
@@ -5618,7 +5643,7 @@ Reader.EpubJS = Reader.extend({
     this._navigate(this._rendition.display(target));
   },
 
-  gotoPage: function gotoPage(target) {
+  gotoPage: function gotoPage(target, callback) {
     // if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
     //   while ( target.substr(0, 3) == '../' ) {
     //     target = target.substr(3);
@@ -5631,7 +5656,17 @@ Reader.EpubJS = Reader.extend({
     //     }
     //   }
     // }
-    this._navigate(this._rendition.display(target));
+
+    var section = this._book.spine.get(target);
+    if (!section) {
+      if (!this._epubjs_ready) {
+        target = 0;
+      } else {
+        return;
+      }
+    }
+
+    this._navigate(this._rendition.display(target), callback);
   },
 
   percentageFromCfi: function percentageFromCfi(cfi) {
