@@ -28,28 +28,32 @@ export var Contents = Control.extend({
       }
     }
 
-    this._modal = this._reader.modal({
-      template: '<ul></ul>',
-      title: 'Contents',
-      region: 'left',
-      className: 'cozy-modal-contents'
-    });
-
     this._control = container.querySelector("[data-toggle=open]");
+    this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
-    DomEvent.on(this._control, 'click', function(event) {
-      event.preventDefault();
-      self._modal.activate();
-    }, this)
-
-    this._modal.on('click', 'a[href]', function(modal, target) {
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      return true;
-    }.bind(this))
-
     this._reader.on('update-contents', function(data) {
+
+      DomEvent.on(this._control, 'click', function(event) {
+        event.preventDefault();
+        self._modal.activate();
+      }, this)
+
+      this._modal = this._reader.modal({
+        template: '<ul></ul>',
+        title: 'Contents',
+        region: 'left',
+        className: 'cozy-modal-contents'
+      });
+
+      this._modal.on('click', 'a[href]', function(modal, target) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+        return true;
+      }.bind(this))
+
+      this._setupSkipLink();
+
       var parent = self._modal._container.querySelector('ul');
       var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
       while ( s.length ) {
@@ -63,8 +67,7 @@ export var Contents = Control.extend({
           s.unshift([chapter_, tabindex + 1, option]);
         });
       }
-    })
-
+    }.bind(this))
 
     return container;
   },
@@ -92,6 +95,31 @@ export var Contents = Control.extend({
 
     parent.appendChild(option);
     return option;
+  },
+
+  _setupSkipLink: function() {
+    if ( ! this.options.skipLink ) { return; }
+      
+    var target = document.querySelector(this.options.skipLink);
+    if ( ! target ) { return; }
+
+    var link = document.createElement('a');
+    link.textContent = 'Skip to contents';
+    link.setAttribute('href', '#action-' + this._id);
+
+    var ul = target.querySelector('ul');
+    if ( ul ) {
+      // add to list
+      target = document.createElement('li');
+      ul.appendChild(target);
+    }
+    target.appendChild(link);
+    link.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this._control.click();
+    }.bind(this))
+
   },
 
   EOT: true

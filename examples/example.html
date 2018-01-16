@@ -54,6 +54,26 @@
           width: 1px;
         }
 
+        .skip a {
+            position: absolute;
+            left: -10000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        .skip a:focus {
+            position: static;
+            width: auto;
+            height: auto;
+            top: 0;
+            left: 0;
+            float: left;
+            padding: .5em;
+            background: #fff;
+        }
+
         @media only screen and (min-device-width : 320px) and (max-device-width : 600px) {
             .cozy-module-book {
                 width: 100vw;
@@ -65,6 +85,8 @@
 
 </head>
 <body>
+
+    <div class="skip"></div>
 
     <form id="select-engine">
         <label class="u-screenreader" for="engine">Select EPUB Engine</label>
@@ -130,6 +152,7 @@
                 book_href = book_prefix + book_id;
                 reader = cozy.reader('reader', {
                     href: book_href,
+                    skipLink: '.skip',
                     themes: [
                         {
                             name: 'Solarized Light',
@@ -211,7 +234,7 @@
                 });
 
                 cozy.control.title({ region: 'top.header.left' }).addTo(reader);
-                cozy.control.contents({ region: 'top.toolbar.left' }).addTo(reader);
+                cozy.control.contents({ region: 'top.toolbar.left', skipLink: '.skip' }).addTo(reader);
 
                 cozy.control.widget.panel({
                     region: 'top.toolbar.left',
