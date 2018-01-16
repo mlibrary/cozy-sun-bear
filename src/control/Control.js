@@ -27,6 +27,7 @@ export var Control = Class.extend({
             this._container = options.container;
             this._locked = true;
         }
+        this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
     },
 
     /* @section
