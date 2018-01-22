@@ -99,12 +99,14 @@ Reader.EpubJS = Reader.extend({
     promise.then(function() {
       // clearTimeout(t);
       // self._panes['loader'].style.display = 'none';
-    }).catch(function(e) {
-      throw(e);
-    }).finally(function() {
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
       if ( callback ) { callback(); }
+    }).catch(function(e) {
+      clearTimeout(t);
+      self._panes['loader'].style.display = 'none';
+      if ( callback ) { callback(); }
+      throw(e);
     })
   },
 
