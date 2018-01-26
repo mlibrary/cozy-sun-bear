@@ -2,10 +2,6 @@ import {Control} from './Control';
 import {Reader} from '../reader/Reader';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
-import {parseFullName} from 'parse-full-name';
-
-// for debugging
-window.parseFullName = parseFullName;
 
 export var Citation = Control.extend({
   options: {
@@ -76,9 +72,6 @@ export var Citation = Control.extend({
     var template = `<form>
       <fieldset>
         <legend>Select Citation Format</legend>
-        <label><input name="format" type="radio" value="MLA" checked="checked" /> MLA</label>
-        <label><input name="format" type="radio" value="APA" /> APA</label>
-        <label><input name="format" type="radio" value="Chicago" /> Chicago</label>
       </fieldset>
     </form>
     <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>
@@ -87,14 +80,13 @@ export var Citation = Control.extend({
     this._modal = this._reader.modal({
       template: template,
       title: 'Copy Citation to Clipboard',
-      className: 'cozy-modal-citation',
+      className: 'cozy-modal-citatation',
       actions: [
         {
           label: 'Copy Citation',
           callback: function(event) {
             document.designMode = "on";
             var formatted = self._modal._container.querySelector("#formatted");
-            // formatted.style.backgroundColor = 'rgba(255,255,255,1.0)';
 
             var range = document.createRange();
             range.selectNode(formatted);
@@ -123,6 +115,24 @@ export var Citation = Control.extend({
     });
 
     this._form = this._modal._container.querySelector('form');
+    var fieldset = this._form.querySelector('fieldset');
+
+    var citations = this.options.citations || this._reader.metadata.citations;
+
+    citations.forEach(function(citation, index) {
+      var label = DomUtil.create('label', null, fieldset);
+      var input = DomUtil.create('input', null, label);
+      input.setAttribute('name', 'format');
+      input.setAttribute('value', citation.format);
+      input.setAttribute('type', 'radio');
+      if ( index == 0 ) {
+        input.setAttribute('checked', 'checked');
+      }
+      var text = document.createTextNode(" " + citation.format);
+      label.appendChild(text);
+      input.setAttribute('data-text', citation.text);
+    });
+
     this._formatted = this._modal._container.querySelector("#formatted");
     this._message = this._modal._container.querySelector("#message");
     DomEvent.on(this._form, 'change', function(event) {
@@ -138,7 +148,6 @@ export var Citation = Control.extend({
   _initializeForm: function() {
     var formatted = this._formatCitation();
     this._formatted.innerHTML = formatted;
-    // this._formatted.value = formatted;
     this._message.style.display = 'none';
     this._message.innerHTML = '';
   },
@@ -148,191 +157,9 @@ export var Citation = Control.extend({
       var selected = this._form.querySelector("input:checked");
       format = selected.value;
     }
-    var fn = "_formatCitationAs" + format;
-    return this[fn](this._reader.metadata);
-  },
-
-  _formatCitationAsMLA: function(metadata) {
-
-    var _formatNames = function(names, suffix) {
-      var name = names.shift()
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( names.length == 1 ) {
-        name = names.shift();
-        tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
-        tmp += name.last;
-      } else if ( names.length > 1 ) {
-        tmp += ", et al";
-      }
-      if ( suffix ) {
-        tmp += suffix;
-      }
-      return tmp + ".";
-    };
-
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator);
-    var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
-      parts.push(_formatNames(creator));
-    }
-    if ( editor.length ) {
-      parts.push(_formatNames(editor, editor.length > 1 ? ', editors' : ', editor'));
-    }
-    if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.publisher ) {
-      var part = metadata.publisher;
-      if ( metadata.pubdate ) {
-        var d = new Date(metadata.pubdate);
-        part += `, ${d.getYear() + 1900}`;
-      }
-      if ( metadata.number_of_volumes ) {
-        part += `. ${metadata.number_of_volumes} vols`;
-      }
-      if ( metadata.doi ) {
-        part += `, ${metadata.doi}`;
-      }
-      parts.push(part + '.');
-    }
-    return parts.join(' ');
-  },
-
-  _formatCitationAsAPA: function(metadata) {
-
-    var _formatNames = function(names, suffix) {
-      var name = names.shift()
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-      if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      if ( names.length == 1 ) {
-        name = names.shift();
-        tmp += ", &amp; ";
-        tmp += name.last;
-        if ( name.first ) { tmp += ", " + name.first.substr(0, 1) + "." ; }
-        if ( name.middle ) { tmp += name.middle.substr(0, 1) + "." ; }
-      } else if ( names.length > 1 ) {
-        tmp += ", et al.";
-      }
-      if ( suffix ) {
-        tmp += suffix + ".";
-      }
-      return tmp;
-    }
-
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator);
-    var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
-      parts.push(_formatNames(creator));
-    }
-    if ( editor.length ) {
-      parts.push(_formatNames(editor, editor.length > 1 ? ' (Eds.)' : ' (Ed.)'));
-    }
-    if ( metadata.pubdate ) {
-      var d = new Date(metadata.pubdate);
-      parts.push("(" + ( d.getYear() + 1900 ) + ").");
-    }
-    if ( metadata.title ) {
-      var part = "<em>" + metadata.title + "</em>";
-      if ( metadata.number_of_volumes ) {
-        part += ` (Vols. 1-${metadata.number_of_volumes})`;
-      }
-      part += ".";
-      parts.push(part);
-    }
-    if ( metadata.location ) {
-      parts.push(metadata.location + ":");
-    }
-    if ( metadata.publisher ) {
-      parts.push(metadata.publisher + ".");
-    }
-    if ( metadata.doi ) {
-      parts.push(metadata.doi + ".");
-    }
-    return parts.join(' ');
-  },
-
-  _formatCitationAsChicago: function(metadata) {
-
-    var _formatNames = function(names, suffix) {
-      var name = names.shift()
-      var tmp = name.last;
-      if ( name.first ) { tmp += ", " + name.first ; }
-      if ( name.middle ) { tmp += " " + name.middle ; }
-      if ( names.length == 1 ) {
-        name = names.shift();
-        tmp += ", and ";
-        if ( name.first ) { tmp += name.first + " " ; }
-        if ( name.middle ) { tmp += name.middle + " " ; }
-        tmp += name.last;
-      } else if ( names.length > 1 ) {
-        tmp += ", et al";
-      }
-      if ( suffix ) {
-        tmp += suffix;
-      }
-      tmp += ".";
-      return tmp;
-    }
-
-    var parts = [];
-    var creator = this._parseCreator(metadata.creator);
-    var editor = this._parseEditor(metadata.editor);
-    if ( creator.length ) {
-      parts.push(_formatNames(creator));
-    }
-    if ( editor.length ) {
-      parts.push(_formatNames(editor, editor.length > 1 ? ', eds' : ', ed'));
-    }
-    if ( metadata.title ) { parts.push("<em>" + metadata.title + "</em>" + "."); }
-    if ( metadata.location ) {
-      parts.push(metadata.location + ":");
-    }
-    if ( metadata.publisher ) {
-      var part = metadata.publisher;
-      if ( metadata.pubdate ) {
-        var d = new Date(metadata.pubdate);
-        part += `, ${d.getYear() + 1900}`;
-      }
-      parts.push(part + '.');
-    }
-    if ( metadata.doi ) {
-      parts.push(metadata.doi + ".");
-    }
-    return parts.join(' ');
-  },
-
-  // possibly more magic than is good for the soul
-  _parseCreator: function(creator) {
-    var retval = [];
-    if ( creator ) {
-      if ( creator.constructor != Array ) {
-        // make an array?
-        creator = creator.split("; ");
-      }
-      for(var i in creator) {
-        retval.push(parseFullName(creator[i]));
-      }
-    }
-    return retval;
-  },
-
-  _parseEditor: function(editor) {
-    var retval = [];
-    if ( editor ) {
-      if ( editor.constructor != Array ) {
-        // make an array?
-        editor = editor.split("; ");
-      }
-      for(var i in editor) {
-        retval.push(parseFullName(editor[i]));
-      }
-    }
-    return retval;
+    var selected = this._form.querySelector("input[value=" + format + "]");
+    return selected.getAttribute('data-text');
+    // return selected.dataset.text;
   },
 
   EOT: true

@@ -2,10 +2,6 @@ import {Control} from './Control';
 import {Reader} from '../reader/Reader';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
-import {parseFullName} from 'parse-full-name';
-
-// for debugging
-window.parseFullName = parseFullName;
 
 export var Search = Control.extend({
   options: {
