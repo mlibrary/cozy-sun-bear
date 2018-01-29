@@ -7,7 +7,6 @@ import {Preferences, preferences} from './Control.Preferences';
 import {Widget, widget} from './Control.Widget';
 import {Citation, citation} from './Control.Citation';
 import {Search, search} from './Control.Search';
-import {CitationOptions, citationOptions} from './Control.CitationOptions';
 import {BibliographicInformation, bibliographicInformation} from './Control.BibliographicInformation';
 import {Download, download} from './Control.Download';
 import {Navigator, navigator} from './Control.Navigator';
@@ -44,9 +43,6 @@ control.citation = citation;
 
 Control.Search = Search;
 control.search = search;
-
-Control.CitationOptions = CitationOptions;
-control.citationOptions = citationOptions;
 
 Control.BibliographicInformation = BibliographicInformation;
 control.bibliographicInformation = bibliographicInformation;
