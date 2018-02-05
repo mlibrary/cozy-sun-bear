@@ -31,6 +31,7 @@ Reader.EpubJS = Reader.extend({
   draw: function(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
+    this.settings.manager = this.options.manager || 'default';
 
     if ( this.options.flow == 'auto' ) {
       this._panes['book'].style.overflow = 'hidden';
