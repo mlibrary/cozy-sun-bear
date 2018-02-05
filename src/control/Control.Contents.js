@@ -32,7 +32,7 @@ export var Contents = Control.extend({
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('updateContents', function(data) {
 
       DomEvent.on(this._control, 'click', function(event) {
         event.preventDefault();

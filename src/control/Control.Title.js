@@ -21,7 +21,7 @@ export var Title = Control.extend({
     this._divider.textContent = " · ";
     this._section = DomUtil.create('span', 'cozy-section', h1);
 
-    this._reader.on('update-section', function(data) {
+    this._reader.on('updateSection', function(data) {
       if ( data && data.label ) {
         self._section.textContent = data.label;
         DomUtil.setOpacity(self._section, 1.0);
@@ -32,8 +32,7 @@ export var Title = Control.extend({
       }
     })
 
-    this._reader.on('update-title', function(data) {
-      console.log("UPDATE TITLE", data);
+    this._reader.on('updateTitle', function(data) {
       if ( data ) {
         self._title.textContent = data.title || data.bookTitle;
         DomUtil.setOpacity(self._section, 0);

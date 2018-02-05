@@ -17,12 +17,12 @@ Reader.EpubJS = Reader.extend({
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
-      self.fire('update-contents', toc);
-      self.fire('update-title', self._book.package.metadata);
+      self.fire('updateContents', toc);
+      self.fire('updateTitle', self._book.package.metadata);
     })
     this._book.ready.then(function() {
       self._book.locations.generate(1600).then(function(locations) {
-        self.fire('update-locations', locations);
+        self.fire('updateLocations', locations);
       })
     })
     .then(callback);
@@ -57,13 +57,17 @@ Reader.EpubJS = Reader.extend({
 
       self._rendition.hooks.content.register(function(contents) {
         self.fire('ready:contents', contents);
+        self.fire('readyContents', contents);
       })
 
       if ( target && target.start ) { target = target.start; }
       if ( ! target && window.location.hash ) {
-        // target = "epubcfi(" + window.location.hash.substr(2) + ")";
-        target = window.location.hash.substr(2);
-        target = self._book.url.path().resolve(target);
+        if ( window.location.hash.substr(1, 3) == '/6/' ) {
+          target = "epubcfi(" + window.location.hash.substr(1) + ")";
+        } else {
+          target = window.location.hash.substr(2);
+          target = self._book.url.path().resolve(target);
+        }
       }
 
       self.gotoPage(target, function() {
@@ -72,22 +76,10 @@ Reader.EpubJS = Reader.extend({
 
         if ( callback ) { callback(); }
 
-        // self.fire('relocated', self._rendition.currentLocation());
         self.fire('opened');
         self.fire('ready');
         self._epubjs_ready = true;
-      })
-        
-      // self._rendition.display(target).then(function() {
-      //   self._panes['loader'].style.display = 'none';
-      //   window._loaded = true;
-      //   self._initializeReaderStyles();
-
-      //   if ( callback ) { callback(); }
-
-      //   self.fire('relocated', self._rendition.currentLocation());
-      //   self.fire('opened');
-      // });
+      })        
     })
   },
 
@@ -97,8 +89,6 @@ Reader.EpubJS = Reader.extend({
       self._panes['loader'].style.display = 'block';
     }, 100);
     promise.then(function() {
-      // clearTimeout(t);
-      // self._panes['loader'].style.display = 'none';
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
       if ( callback ) { callback(); }
@@ -130,25 +120,14 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target, callback) {
-    // if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
-    //   while ( target.substr(0, 3) == '../' ) {
-    //     target = target.substr(3);
-    //   }
-    // }
-    // if ( typeof(target) == "string" ) {
-    //   if ( ! this._book.spine.spineByHref[target] ) {
-    //     if ( this._book.spine.spineByHref["Text/" + target] ) {
-    //       target = "Text/" + target;
-    //     }
-    //   }
-    // }
-
-    var section = this._book.spine.get(target);
-    if ( ! section ) {
-      if ( ! this._epubjs_ready ) {
-        target = 0;
-      } else {
-        return;
+    if ( target ) {
+      var section = this._book.spine.get(target);
+      if ( ! section ) {
+        if ( ! this._epubjs_ready ) {
+          target = 0;
+        } else {
+          return;
+        }
       }
     }
 
@@ -240,7 +219,12 @@ Reader.EpubJS = Reader.extend({
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
-      self.fire("update-section", current);
+
+      var location_href = location.start;
+      window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+
+      self.fire("updateSection", current);
+      self.fire("updateLocation", location);
     });
 
     this._rendition.on("rendered", function(section, view) {
@@ -265,7 +249,6 @@ Reader.EpubJS = Reader.extend({
         })
         self._rendition.manager.views.__scroll = true;
       }
-      window.location.hash = "#/"+self._book.url.path().relative(section.href);
     })
   },
 
@@ -310,7 +293,6 @@ Reader.EpubJS = Reader.extend({
       var size = self.getFixedBookPanelSize();
       self.settings.height = size.height + 'px';
       self.settings.width = size.width + 'px';
-      console.log("AHOY RESIZING?", size, self._panes['book'].getBoundingClientRect());
       self._rendition.manager.resize(size.width, size.height);
     }, 150);
   },
