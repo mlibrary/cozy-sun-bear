@@ -16,7 +16,7 @@ export var Navigator = Control.extend({
     }
     this._setup(container);
 
-    this._reader.on('update-locations', function(locations) {
+    this._reader.on('updateLocations', function(locations) {
       this._initiated = true;
       this._total = this._reader.locations.total;
       this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);

@@ -34,7 +34,7 @@ export var BibliographicInformation = Control.extend({
       }
     }
 
-    this._reader.on('update-contents', function(data) {
+    this._reader.on('updateContents', function(data) {
       self._createPanel();
     });
 

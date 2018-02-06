@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.079313fa, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0b58ea70, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3705,7 +3705,7 @@ var Contents = Control.extend({
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
-    this._reader.on('update-contents', function (data) {
+    this._reader.on('updateContents', function (data) {
 
       on(this._control, 'click', function (event) {
         event.preventDefault();
@@ -3827,7 +3827,7 @@ var Title = Control.extend({
     this._divider.textContent = " · ";
     this._section = create$1('span', 'cozy-section', h1);
 
-    this._reader.on('update-section', function (data) {
+    this._reader.on('updateSection', function (data) {
       if (data && data.label) {
         self._section.textContent = data.label;
         setOpacity(self._section, 1.0);
@@ -3838,8 +3838,7 @@ var Title = Control.extend({
       }
     });
 
-    this._reader.on('update-title', function (data) {
-      console.log("UPDATE TITLE", data);
+    this._reader.on('updateTitle', function (data) {
       if (data) {
         self._title.textContent = data.title || data.bookTitle;
         setOpacity(self._section, 0);
@@ -3892,7 +3891,7 @@ var PublicationMetadata = Control.extend({
     this._publisher = create$1('div', 'cozy-publisher', container);
     this._rights = create$1('div', 'cozy-rights', container);
 
-    this._reader.on('update-title', function (data) {
+    this._reader.on('updateTitle', function (data) {
       if (data) {
         self._publisher.textContent = data.publisher;
         self._rights.textContent = data.rights;
@@ -4222,7 +4221,6 @@ var Citation = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
-    console.log("AHOY ADD CITATION");
     if (container) {
       this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
@@ -4240,7 +4238,7 @@ var Citation = Control.extend({
       }
     }
 
-    this._reader.on('update-contents', function (data) {
+    this._reader.on('updateContents', function (data) {
       self._createPanel();
     });
 
@@ -4507,7 +4505,7 @@ var BibliographicInformation = Control.extend({
       }
     }
 
-    this._reader.on('update-contents', function (data) {
+    this._reader.on('updateContents', function (data) {
       self._createPanel();
     });
 
@@ -4598,7 +4596,7 @@ var Download = Control.extend({
       }
     }
 
-    this._reader.on('update-contents', function (data) {
+    this._reader.on('updateContents', function (data) {
       self._createPanel();
     });
 
@@ -4680,7 +4678,7 @@ var Navigator = Control.extend({
     }
     this._setup(container);
 
-    this._reader.on('update-locations', function (locations) {
+    this._reader.on('updateLocations', function (locations) {
       this._initiated = true;
       this._total = this._reader.locations.total;
       this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
@@ -4862,12 +4860,12 @@ Reader.EpubJS = Reader.extend({
     this._book.loaded.navigation.then(function (toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
-      self.fire('update-contents', toc);
-      self.fire('update-title', self._book.package.metadata);
+      self.fire('updateContents', toc);
+      self.fire('updateTitle', self._book.package.metadata);
     });
     this._book.ready.then(function () {
       self._book.locations.generate(1600).then(function (locations) {
-        self.fire('update-locations', locations);
+        self.fire('updateLocations', locations);
       });
     }).then(callback);
   },
@@ -4875,6 +4873,7 @@ Reader.EpubJS = Reader.extend({
   draw: function draw(target, callback) {
     var self = this;
     this.settings = { flow: this.options.flow };
+    this.settings.manager = this.options.manager || 'default';
 
     if (this.options.flow == 'auto') {
       this._panes['book'].style.overflow = 'hidden';
@@ -4901,15 +4900,19 @@ Reader.EpubJS = Reader.extend({
 
       self._rendition.hooks.content.register(function (contents) {
         self.fire('ready:contents', contents);
+        self.fire('readyContents', contents);
       });
 
       if (target && target.start) {
         target = target.start;
       }
       if (!target && window.location.hash) {
-        // target = "epubcfi(" + window.location.hash.substr(2) + ")";
-        target = window.location.hash.substr(2);
-        target = self._book.url.path().resolve(target);
+        if (window.location.hash.substr(1, 3) == '/6/') {
+          target = "epubcfi(" + window.location.hash.substr(1) + ")";
+        } else {
+          target = window.location.hash.substr(2);
+          target = self._book.url.path().resolve(target);
+        }
       }
 
       self.gotoPage(target, function () {
@@ -4920,22 +4923,10 @@ Reader.EpubJS = Reader.extend({
           callback();
         }
 
-        // self.fire('relocated', self._rendition.currentLocation());
         self.fire('opened');
         self.fire('ready');
         self._epubjs_ready = true;
       });
-
-      // self._rendition.display(target).then(function() {
-      //   self._panes['loader'].style.display = 'none';
-      //   window._loaded = true;
-      //   self._initializeReaderStyles();
-
-      //   if ( callback ) { callback(); }
-
-      //   self.fire('relocated', self._rendition.currentLocation());
-      //   self.fire('opened');
-      // });
     });
   },
 
@@ -4945,8 +4936,6 @@ Reader.EpubJS = Reader.extend({
       self._panes['loader'].style.display = 'block';
     }, 100);
     promise.then(function () {
-      // clearTimeout(t);
-      // self._panes['loader'].style.display = 'none';
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
       if (callback) {
@@ -4982,25 +4971,14 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function gotoPage(target, callback) {
-    // if ( typeof(target) == "string" && target.substr(0, 3) == '../' ) {
-    //   while ( target.substr(0, 3) == '../' ) {
-    //     target = target.substr(3);
-    //   }
-    // }
-    // if ( typeof(target) == "string" ) {
-    //   if ( ! this._book.spine.spineByHref[target] ) {
-    //     if ( this._book.spine.spineByHref["Text/" + target] ) {
-    //       target = "Text/" + target;
-    //     }
-    //   }
-    // }
-
-    var section = this._book.spine.get(target);
-    if (!section) {
-      if (!this._epubjs_ready) {
-        target = 0;
-      } else {
-        return;
+    if (target) {
+      var section = this._book.spine.get(target);
+      if (!section) {
+        if (!this._epubjs_ready) {
+          target = 0;
+        } else {
+          return;
+        }
       }
     }
 
@@ -5096,7 +5074,12 @@ Reader.EpubJS = Reader.extend({
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
-      self.fire("update-section", current);
+
+      var location_href = location.start;
+      window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+
+      self.fire("updateSection", current);
+      self.fire("updateLocation", location);
     });
 
     this._rendition.on("rendered", function (section, view) {
@@ -5123,7 +5106,6 @@ Reader.EpubJS = Reader.extend({
         });
         self._rendition.manager.views.__scroll = true;
       }
-      window.location.hash = "#/" + self._book.url.path().relative(section.href);
     });
   },
 
@@ -5168,7 +5150,6 @@ Reader.EpubJS = Reader.extend({
       var size = self.getFixedBookPanelSize();
       self.settings.height = size.height + 'px';
       self.settings.width = size.width + 'px';
-      console.log("AHOY RESIZING?", size, self._panes['book'].getBoundingClientRect());
       self._rendition.manager.resize(size.width, size.height);
     }, 150);
   },
@@ -5238,9 +5219,9 @@ Reader.Mock = Reader.extend({
     this.__currentIndex = 0;
 
     this.metadata = this._book.metadata;
-    this.fire('update-contents', this._book.contents);
-    this.fire('update-title', this._metadata);
-    this.fire('update-locations', this._locations);
+    this.fire('updateContents', this._book.contents);
+    this.fire('updateTitle', this._metadata);
+    this.fire('updateLocations', this._locations);
     callback();
   },
 

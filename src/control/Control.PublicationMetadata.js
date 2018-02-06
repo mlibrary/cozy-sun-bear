@@ -18,7 +18,7 @@ export var PublicationMetadata = Control.extend({
     this._publisher = DomUtil.create('div', 'cozy-publisher', container);
     this._rights = DomUtil.create('div', 'cozy-rights', container);
 
-    this._reader.on('update-title', function(data) {
+    this._reader.on('updateTitle', function(data) {
       if ( data ) {
         self._publisher.textContent = data.publisher;
         self._rights.textContent = data.rights;

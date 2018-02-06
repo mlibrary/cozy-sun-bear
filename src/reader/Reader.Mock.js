@@ -38,9 +38,9 @@ Reader.Mock = Reader.extend({
     this.__currentIndex = 0;
 
     this.metadata = this._book.metadata;
-    this.fire('update-contents', this._book.contents);
-    this.fire('update-title', this._metadata);
-    this.fire('update-locations', this._locations);
+    this.fire('updateContents', this._book.contents);
+    this.fire('updateTitle', this._metadata);
+    this.fire('updateLocations', this._locations);
     callback();
   },
 
