@@ -166,6 +166,14 @@ export var Reader = Evented.extend({
     // NOOP
   },
 
+  goBack: function() {
+    history.back();
+  },
+
+  goForward: function() {
+    history.forward();
+  },
+
   requestFullscreen: function() {
     if ( screenfull.enabled ) {
       // this._preResize();
@@ -294,6 +302,27 @@ export var Reader = Evented.extend({
         console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
       });
     }
+
+    self.on("updateLocation", function(location) {
+      var location_href = location.start;
+
+      if ( self._ignoreHistory ) {
+        self._ignoreHistory = false;
+      } else {
+        var tmp_href = window.location.href.split("#");
+        tmp_href[1] = location_href.substr(8, location_href.length - 8 - 1);
+        history.pushState({ cfi: location_href }, '', tmp_href.join('#'));
+      }
+
+      // window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+    })
+
+    window.addEventListener('popstate', function(event) {
+      if ( event.isTrusted && event.state !== null ) {
+        self._ignoreHistory = true;
+        self.gotoPage(event.state.cfi);
+      }
+    })
   },
 
   _onResize: function() {

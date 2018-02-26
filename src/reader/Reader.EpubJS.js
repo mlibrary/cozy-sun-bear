@@ -221,9 +221,6 @@ Reader.EpubJS = Reader.extend({
       var section = view.section;
       var current = this.book.navigation.get(section.href);
 
-      var location_href = location.start;
-      window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
-
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
     });
