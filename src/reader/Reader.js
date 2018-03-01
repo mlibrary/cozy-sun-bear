@@ -81,7 +81,7 @@ export var Reader = Evented.extend({
     this._updateTheme();
 
     // hack for https://github.com/Leaflet/Leaflet/issues/1980
-    this._onResize = Util.bind(this._onResize, this);
+    // this._onResize = Util.bind(this._onResize, this);
 
     this._initEvents();
 
@@ -109,14 +109,7 @@ export var Reader = Evented.extend({
     target = target || 0;
 
     self.open(function() {
-      self.setBookPanelSize();
       self.draw(target, cb);
-      // self.draw(target, function() {
-      //   self._panes['loader'].style.display = 'none';
-      //   if ( cb ) {
-      //     cb();
-      //   }
-      // });
     });
   },
 
@@ -283,11 +276,11 @@ export var Reader = Evented.extend({
     // onOff(this._container, 'click dblclick mousedown mouseup ' +
     //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
 
-    if (this.options.trackResize) {
-      var self = this;
-      var fn = debounce(function(){ self.invalidateSize({}); }, 150);
-      onOff(window, 'resize', fn, this);
-    }
+    // if (this.options.trackResize) {
+    //   var self = this;
+    //   var fn = debounce(function(){ self.invalidateSize({}); }, 150);
+    //   onOff(window, 'resize', fn, this);
+    // }
 
     if (Browser.any3d && this.options.transform3DLimit) {
       (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
@@ -296,9 +289,9 @@ export var Reader = Evented.extend({
     var self = this;
     if (screenfull.enabled) {
       screenfull.on('change', function() {
-        setTimeout(function() {
-          self.invalidateSize({});
-        }, 100);
+        // setTimeout(function() {
+        //   self.invalidateSize({});
+        // }, 100);
         console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
       });
     }
@@ -325,13 +318,13 @@ export var Reader = Evented.extend({
     })
   },
 
-  _onResize: function() {
-    if ( ! this._resizeRequest ) {
-      this._resizeRequest = Util.requestAnimFrame(function() {
-        this.invalidateSize({})
-      }, this);
-    }
-  },
+  // _onResize: function() {
+  //   if ( ! this._resizeRequest ) {
+  //     this._resizeRequest = Util.requestAnimFrame(function() {
+  //       this.invalidateSize({})
+  //     }, this);
+  //   }
+  // },
 
   _onScroll: function () {
     this._container.scrollTop  = 0;
@@ -395,16 +388,6 @@ export var Reader = Evented.extend({
     }
   },
 
-  setBookPanelSize: function() {
-    var panes = this._panes;
-
-    // panes['book'].style.height = (panes['book-cover'].offsetHeight * _padding * 0.99) + 'px';
-    // panes['book'].style.width = (panes['book-cover'].offsetWidth * _padding) + 'px';
-    // panes['book'].style.width = '100%';
-    // panes['book'].style.height = '100%';
-    // panes['book'].style.display = 'block';
-  },
-
   getFixedBookPanelSize: function() {
     // have to make the book 
     var style = window.getComputedStyle(this._panes['book']);
@@ -414,6 +397,7 @@ export var Reader = Evented.extend({
   },
 
   invalidateSize: function(options) {
+    // TODO: IS THIS EVER USED?
     var self = this;
 
     if ( ! self._drawn ) { return; }
@@ -422,34 +406,7 @@ export var Reader = Evented.extend({
 
     if (! this._loaded) { return this; }
 
-    if ( ! this._resizeTarget ) {
-      this._resizeTarget = this.currentLocation();
-    }
-    // self.destroy();
-
-    var panes = this._panes;
-    // panes['book'].style.display = 'none';
-
-    setTimeout(function() {
-      self.setBookPanelSize();
-
-      if ( self._triggerRedraw ) {
-        clearTimeout(self._triggerRedraw);
-      }
-
-      self._triggerRedraw = setTimeout(function() {
-        // self.destroy();
-        // self.draw(self._resizeTarget);
-        self._resizeBookPane();
-        self._resizeRequest = null;
-        self._resizeTarget = null;
-      }, 150);
-
-
-    }, 0);
-    
-
-
+    this.fire('resized');
   },
 
   _resizeBookPane: function() {

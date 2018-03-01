@@ -212,6 +212,10 @@ Reader.EpubJS = Reader.extend({
       })
     }
 
+    this._rendition.on('resized', function(box) {
+      self.fire('resized', box);
+    })
+
     this._rendition.on('relocated', function(location) {
       self.fire('relocated', location);
     })
@@ -282,17 +286,6 @@ Reader.EpubJS = Reader.extend({
     } else {
       this._rendition.themes.fontSize(this.options.fontSizeDefault);
     }
-  },
-
-  _resizeBookPane: function() {
-    var self = this;
-    return;
-    setTimeout(function() {
-      var size = self.getFixedBookPanelSize();
-      self.settings.height = size.height + 'px';
-      self.settings.width = size.width + 'px';
-      self._rendition.manager.resize(size.width, size.height);
-    }, 150);
   },
 
   EOT: true
