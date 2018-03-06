@@ -286,6 +286,10 @@
                 // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
                 reader.start();
 
+                reader.on('resized', function() {
+                    console.log("DETECTED RESIZE");
+                })
+
                 setTimeout(function() {
                     update_select_panel(available_books);
                 }, 100);
