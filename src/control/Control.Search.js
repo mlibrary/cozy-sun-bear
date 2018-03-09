@@ -42,25 +42,29 @@ export var Search = Control.extend({
     this._canceled = false;
     this._processing = false;
 
-    this._modal = this._reader.modal({
-      template: '<article></article>',
-      title: 'Search Results',
-      className: 'cozy-modal-search',
-      region: 'left',
-    });
+    this._reader.on('ready', function() {
 
-    this._modal.callbacks.onClose = function() {
-      if ( self._processing ) {
-        self._canceled = true;
-      }
-    };
+      this._modal = this._reader.modal({
+        template: '<article></article>',
+        title: 'Search Results',
+        className: { container: 'cozy-modal-search' },
+        region: 'left',
+      });
 
-    this._article = this._modal._container.querySelector('article');
+      this._modal.callbacks.onClose = function() {
+        if ( self._processing ) {
+          self._canceled = true;
+        }
+      };
 
-    this._modal.on('click', 'a[href]', function(modal, target) {
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      return true;
+      this._article = this._modal._container.querySelector('article');
+
+      this._modal.on('click', 'a[href]', function(modal, target) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+        return true;
+      }.bind(this));
+
     }.bind(this));
 
     DomEvent.on(this._control, 'click', function(event) {
