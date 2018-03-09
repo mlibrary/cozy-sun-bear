@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.03903183, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.01dbfc87, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -348,6 +348,14 @@ var Util = (Object.freeze || Object)({
 	loader: loader
 });
 
+// @class Class
+// @aka L.Class
+
+// @section
+// @uninheritable
+
+// Thanks to John Resig and Dean Edwards for inspiration!
+
 function Class() {}
 
 Class.extend = function (props) {
@@ -474,6 +482,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
+
+/*
+ * @class Evented
+ * @aka L.Evented
+ * @inherits Class
+ *
+ * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
+ *
+ * @example
+ *
+ * ```js
+ * map.on('click', function(e) {
+ * 	alert(e.latlng);
+ * } );
+ * ```
+ *
+ * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
+ *
+ * ```js
+ * function onClick(e) { ... }
+ *
+ * map.on('click', onClick);
+ * map.off('click', onClick);
+ * ```
+ */
 
 var Evented = Class.extend({
 
@@ -915,6 +948,26 @@ var Browser = (Object.freeze || Object)({
 	classList: classList
 });
 
+/*
+ * @class Point
+ * @aka L.Point
+ *
+ * Represents a point with `x` and `y` coordinates in pixels.
+ *
+ * @example
+ *
+ * ```js
+ * var point = L.point(200, 300);
+ * ```
+ *
+ * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
+ *
+ * ```js
+ * map.panBy([200, 300]);
+ * map.panBy(L.point(200, 300));
+ * ```
+ */
+
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1092,6 +1145,10 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
+/*
+ * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
+ */
+
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1214,6 +1271,10 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
+/*
+ * Extends the event handling code with double tap support for mobile browsers.
+ */
+
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1302,6 +1363,22 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
+/*
+ * @namespace DomEvent
+ * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
+ */
+
+// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
+
+// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
+// Adds a listener function (`fn`) to a particular DOM event type of the
+// element `el`. You can optionally specify the context of the listener
+// (object the `this` keyword will point to). You can also pass several
+// space-separated types (e.g. `'click dblclick'`).
+
+// @alternative
+// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
+// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1576,8 +1653,6 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
-// @function addListener(…): this
-// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1596,6 +1671,17 @@ var DomEvent = (Object.freeze || Object)({
 	addListener: on,
 	removeListener: off
 });
+
+/*
+ * @namespace DomUtil
+ *
+ * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
+ * tree, used by Leaflet internally.
+ *
+ * Most functions expecting or returning a `HTMLElement` also work for
+ * SVG elements. The only difference is that classes refer to CSS classes
+ * in HTML and SVG classes in SVG.
+ */
 
 if (!Element.prototype.matches) {
     var ep = Element.prototype;
@@ -1969,10 +2055,12 @@ var DomUtil = (Object.freeze || Object)({
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
+/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
+/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -2525,6 +2613,15 @@ var Reader = Evented.extend({
   EOT: true
 });
 
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
+
 var Control = Class.extend({
     // @section
     // @aka Control options
@@ -2879,6 +2976,7 @@ var pageLast = function pageLast(options) {
 };
 
 var activeModal;
+// from https://github.com/ghosh/micromodal/blob/master/src/index.js
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
 var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
@@ -3293,6 +3391,8 @@ var contents = function contents(options) {
   return new Contents(options);
 };
 
+// Title + Chapter
+
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -3357,6 +3457,8 @@ var Title = Control.extend({
 var title = function title(options) {
   return new Title(options);
 };
+
+// Title + Chapter
 
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
@@ -3877,36 +3979,131 @@ var Search = Control.extend({
     this._control = container.querySelector("[data-toggle=open]");
     container.style.position = 'relative';
 
-    this._modal = this._reader.modal({
-      template: '<ul></ul>',
-      title: 'Search Results',
-      className: 'cozy-modal-search',
-      region: 'left'
-    });
+    this._data = null;
+    this._canceled = false;
+    this._processing = false;
 
-    this._modal.on('click', 'a[href]', function (modal, target) {
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      return true;
+    this._reader.on('ready', function () {
+
+      this._modal = this._reader.modal({
+        template: '<article></article>',
+        title: 'Search Results',
+        className: { container: 'cozy-modal-search' },
+        region: 'left'
+      });
+
+      this._modal.callbacks.onClose = function () {
+        if (self._processing) {
+          self._canceled = true;
+        }
+      };
+
+      this._article = this._modal._container.querySelector('article');
+
+      this._modal.on('click', 'a[href]', function (modal, target) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+        return true;
+      }.bind(this));
     }.bind(this));
 
     on(this._control, 'click', function (event) {
       event.preventDefault();
 
-      var searchString = this._container.querySelector("#cozy-search-string");
-      var url = this.options.searchUrl + searchString.value;
-      var parent = this._modal._container.querySelector('ul');
+      var searchString = this._container.querySelector("#cozy-search-string").value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
 
-      // remove old search results and annotations
-      while (parent.hasChildNodes()) {
-        parent.removeChild(parent.lastChild);
+      if (!searchString) {
+        // just punt
+        return;
       }
-      reader.annotations.reset();
 
-      $.getJSON(url, function (data) {
+      if (searchString == this.searchString) {
+        // cached results
+        self.openModalResults();
+      } else {
+        this.searchString = searchString;
+        self.openModalWaiting();
+        self.submitQuery();
+      }
+    }, this);
+
+    return container;
+  },
+
+  openModalWaiting: function openModalWaiting() {
+    this._processing = true;
+    this._emptyArticle();
+    var value = this.searchString;
+    this._article.innerHTML = '<p class="spinner">Submitting query for <em>' + value + '</em>...</p>';
+    this._modal.activate();
+  },
+
+  openModalResults: function openModalResults() {
+    if (this._canceled) {
+      this._canceled = false;
+      return;
+    }
+    this._buildResults();
+    this._modal.activate();
+  },
+
+  submitQuery: function submitQuery() {
+    var self = this;
+
+    var url = this.options.searchUrl + this.searchString;
+
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+
+    request.onload = function () {
+      if (this.status >= 200 && this.status < 400) {
+        // Success!
+        var data = JSON.parse(this.response);
         console.log("SEARCH DATA", data);
 
-        data.search_results.forEach(function (result) {
+        self._data = data;
+      } else {
+        // We reached our target server, but it returned an error
+
+        self._data = null;
+        console.log(this.response);
+      }
+
+      self.openModalResults();
+    };
+
+    request.onerror = function () {
+      // There was a connection error of some sort
+      self._data = null;
+      self.openModalResults();
+    };
+
+    request.send();
+  },
+
+  _emptyArticle: function _emptyArticle() {
+    while (this._article.hasChildNodes()) {
+      this._article.removeChild(this._article.lastChild);
+    }
+  },
+
+  _buildResults: function _buildResults() {
+    var self = this;
+    var content;
+
+    this._processing = false;
+
+    self._emptyArticle();
+
+    var reader = this._reader;
+    reader.annotations.reset();
+
+    if (this._data) {
+      if (this._data.search_results.length) {
+        content = create$1('ul');
+
+        this._data.search_results.forEach(function (result) {
           var option = create$1('li');
           var anchor = create$1('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
@@ -3919,32 +4116,20 @@ var Search = Control.extend({
           anchor.appendChild(document.createTextNode(result.snippet));
 
           anchor.setAttribute("href", cfiRange);
-          parent.appendChild(option);
+          content.appendChild(option);
 
           reader.annotations.highlight(cfiRange);
         });
-      }).fail(function (jqxhr, textStatus, error) {
-        console.log(textStatus);
-        console.log(error);
-        var noResults = create$1("p");
-        noResults.textContent = 'No results found for "' + searchString.value + '"';
-        parent.appendChild(noResults);
-      }).always(function () {
-        self._modal.activate();
-      });
-    }, this);
+      } else {
+        content = create$1("p");
+        content.textContent = 'No results found for "' + self.searchString + '"';
+      }
+    } else {
+      content = create$1("p");
+      content.textContent = 'There was a problem processing this query.';
+    }
 
-    // DomEvent.on(this._modal._container, 'click', function(event) {
-    //   event.preventDefault();
-    //   var target = event.target;
-    //   if ( target.tagName == 'A' ) {
-    //     target = target.getAttribute('href');
-    //     this._reader.gotoPage(target);
-    //   }
-    //   this._modal.deactivate();
-    // }, this);
-
-    return container;
+    self._article.appendChild(content);
   },
 
   EOT: true
@@ -3953,6 +4138,8 @@ var Search = Control.extend({
 var search = function search(options) {
   return new Search(options);
 };
+
+// Title + Chapter
 
 var BibliographicInformation = Control.extend({
   options: {
@@ -4263,6 +4450,9 @@ var Navigator = Control.extend({
 var navigator$1 = function navigator(options) {
   return new Navigator(options);
 };
+
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -4804,6 +4994,8 @@ var reader = function reader(id, options) {
 
   return engines[engine].apply(_this, [id, options]);
 };
+
+// misc
 
 var oldCozy = window.cozy;
 function noConflict() {
