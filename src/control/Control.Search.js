@@ -38,36 +38,135 @@ export var Search = Control.extend({
     this._control = container.querySelector("[data-toggle=open]");
     container.style.position = 'relative';
 
-    this._modal = this._reader.modal({
-      template: '<ul></ul>',
-      title: 'Search Results',
-      className: 'cozy-modal-search',
-      region: 'left'
-    });
+    this._data = null;
+    this._canceled = false;
+    this._processing = false;
 
-    this._modal.on('click', 'a[href]', function(modal, target) {
-      target = target.getAttribute('href');
-      this._reader.gotoPage(target);
-      return true;
+    this._reader.on('ready', function() {
+
+      this._modal = this._reader.modal({
+        template: '<article></article>',
+        title: 'Search Results',
+        className: { container: 'cozy-modal-search' },
+        region: 'left',
+      });
+
+      this._modal.callbacks.onClose = function() {
+        if ( self._processing ) {
+          self._canceled = true;
+        }
+      };
+
+      this._article = this._modal._container.querySelector('article');
+
+      this._modal.on('click', 'a[href]', function(modal, target) {
+        target = target.getAttribute('href');
+        this._reader.gotoPage(target);
+        return true;
+      }.bind(this));
+
     }.bind(this));
 
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
 
-      var searchString = this._container.querySelector("#cozy-search-string");
-      var url = this.options.searchUrl + searchString.value;
-      var parent = this._modal._container.querySelector('ul');
+      var searchString = this._container.querySelector("#cozy-search-string").value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
 
-      // remove old search results and annotations
-      while (parent.hasChildNodes()) {
-        parent.removeChild(parent.lastChild);
+      if ( ! searchString ) {
+        // just punt
+        return;
       }
-      reader.annotations.reset();
 
-      $.getJSON(url, function(data) {
+      if ( searchString == this.searchString ) {
+        // cached results
+        self.openModalResults();
+      } else {
+        this.searchString = searchString;
+        self.openModalWaiting();
+        self.submitQuery();
+      }
+    }, this);
+
+    return container;
+  },
+
+  openModalWaiting: function() {
+    this._processing = true;
+    this._emptyArticle();
+    var value = this.searchString;
+    this._article.innerHTML = '<p class="spinner">Submitting query for <em>' + value + '</em>...</p>';
+    this._modal.activate();
+  },
+
+  openModalResults: function() {
+    if ( this._canceled ) {
+      this._canceled = false;
+      return;
+    }
+    this._buildResults();
+    this._modal.activate();
+  },
+
+  submitQuery: function() {
+    var self = this;
+
+    var url = this.options.searchUrl + this.searchString;
+
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+
+    request.onload = function() {
+      if (this.status >= 200 && this.status < 400) {
+        // Success!
+        var data = JSON.parse(this.response);
         console.log("SEARCH DATA", data);
 
-        data.search_results.forEach(function(result) {
+        self._data = data;
+
+      } else {
+        // We reached our target server, but it returned an error
+
+        self._data = null;
+        console.log(this.response);
+      }
+
+      self.openModalResults();
+
+    };
+
+    request.onerror = function() {
+      // There was a connection error of some sort
+      self._data = null;
+      self.openModalResults();
+    };
+
+    request.send();
+
+  },
+
+  _emptyArticle: function() {
+    while (this._article.hasChildNodes()) {
+      this._article.removeChild(this._article.lastChild);
+    }
+  },
+
+  _buildResults: function() {
+    var self = this;
+    var content;
+
+    this._processing = false;
+
+    self._emptyArticle();
+
+    var reader = this._reader;
+    reader.annotations.reset();
+
+    if ( this._data ) {
+      if ( this._data.search_results.length ) {
+        content = DomUtil.create('ul');
+
+        this._data.search_results.forEach(function(result) {
           var option = DomUtil.create('li');
           var anchor = DomUtil.create('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
@@ -80,35 +179,20 @@ export var Search = Control.extend({
           anchor.appendChild(document.createTextNode(result.snippet));
 
           anchor.setAttribute("href", cfiRange);
-          parent.appendChild(option);
+          content.appendChild(option);
 
           reader.annotations.highlight(cfiRange);
         });
-      })
-      .fail(function(jqxhr, textStatus, error) {
-        console.log(textStatus);
-        console.log(error);
-        var noResults = DomUtil.create("p")
-        noResults.textContent = 'No results found for "' + searchString.value + '"';
-        parent.appendChild(noResults);
-      })
-      .always(function() {
-        self._modal.activate();
-      });
+      } else {
+        content = DomUtil.create("p")
+        content.textContent = 'No results found for "' + self.searchString + '"';
+      }
+    } else {
+      content = DomUtil.create("p")
+      content.textContent = 'There was a problem processing this query.';
+    }
 
-    }, this);
-
-    // DomEvent.on(this._modal._container, 'click', function(event) {
-    //   event.preventDefault();
-    //   var target = event.target;
-    //   if ( target.tagName == 'A' ) {
-    //     target = target.getAttribute('href');
-    //     this._reader.gotoPage(target);
-    //   }
-    //   this._modal.deactivate();
-    // }, this);
-
-    return container;
+    self._article.appendChild(content);
   },
 
   EOT: true

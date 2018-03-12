@@ -245,6 +245,27 @@ $modal-width-fraction:    40%;
   will-change: transform;
 }
 
+// loading
+@keyframes modal-spinner {
+  to {transform: rotate(360deg);}
+}
+ 
+.modal-slide .spinner:before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  animation: modal-spinner .6s linear infinite;
+}
+
 // media queries
 @media screen and (min-width: 50em ) {
   .modal__container {
