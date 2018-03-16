@@ -18,8 +18,19 @@ Reader.Mock = Reader.extend({
         location: 'Ann Arbor, MI',
         pubdate: '2017-05-23'
       },
-      contents: [
-      ]
+      contents: {
+        toc: [
+          {id: 1, href: "/epubs/mock/ops/xhtml/TitlePage.xhtml", label: "Title", parent: null},
+          {id: 2, href: "/epubs/mock/ops/xhtml/Chapter01.xhtml", label: "Chapter 1", parent: null},
+          {id: 3, href: "/epubs/mock/ops/xhtml/Chapter02.xhtml", label: "Chapter 2", parent: null},
+          {id: 4, href: "/epubs/mock/ops/xhtml/Chapter03.xhtml", label: "Chapter 3", parent: null},
+          {id: 5, href: "/epubs/mock/ops/xhtml/Chapter04.xhtml", label: "Chapter 4", parent: null},
+          {id: 6, href: "/epubs/mock/ops/xhtml/Chapter05.xhtml", label: "Chapter 5", parent: null},
+          {id: 7, href: "/epubs/mock/ops/xhtml/Chapter06.xhtml", label: "Chapter 6", parent: null},
+          {id: 8, href: "/epubs/mock/ops/xhtml/Chapter07.xhtml", label: "Chapter 7", parent: null},
+          {id: 9, href: "/epubs/mock/ops/xhtml/Index.xhtml", label: "Index", parent: null},
+        ]
+      }
     };
 
     this._locations = [
@@ -55,6 +66,12 @@ Reader.Mock = Reader.extend({
     } else {
       this._panes['book'].style.overflow = 'auto';
     }
+    if ( typeof(target) == 'function' && cb === undefined ) {
+      callback = target;
+      target = undefined;
+    }
+    callback();
+    self.fire('ready');
   },
 
   next: function() {
@@ -140,6 +157,15 @@ Object.defineProperty(Reader.Mock.prototype, 'locations', {
     }
   }
 });
+
+Object.defineProperty(Reader.Mock.prototype, 'annotations', {
+  get: function() {
+    return {
+      reset: function() {},
+      highlight: function() {}
+    }
+  }
+})
 
 export function createReader(id, options) {
   return new Reader.Mock(id, options);

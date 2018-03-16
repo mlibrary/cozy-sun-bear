@@ -127,7 +127,7 @@ describe("Modal", function () {
 
   describe("event behaviors", function() {
     var modal;
-    var result;
+    var result = 'NOP';
     beforeEach(function() {
       modal = reader.modal({
               region: 'left',

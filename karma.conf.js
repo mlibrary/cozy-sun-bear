@@ -3,6 +3,14 @@ var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
 var commonjs = require('rollup-plugin-commonjs');
 var nodeResolve = require('rollup-plugin-node-resolve');
 
+function getSpecs(specList) {
+  if (specList) {
+    return specList.split(',')
+  } else {
+    return ['spec/**/*Spec.js'] // whatever your default glob is
+  }
+}
+
 // Karma configuration
 module.exports = function (config) {
   var files = [
@@ -11,8 +19,8 @@ module.exports = function (config) {
     "node_modules/expect.js/index.js",
 		"node_modules/happen/happen.js",
 		"node_modules/prosthetic-hand/dist/prosthetic-hand.js",
-		"spec/SpecHelper.js",
-		"spec/**/*Spec.js"
+		"spec/SpecHelper.js" //,
+		// "spec/**/*Spec.js"
   ];
 
 	var exclude = [
@@ -39,7 +47,7 @@ module.exports = function (config) {
 		frameworks: ['mocha'],
 
 		// list of files / patterns to load in the browser
-		files: files,
+		files: files.concat(getSpecs(process.env.KARMA_SPECS)),
 
 		// list of files / patterns to exclude from invoking
 		exclude: exclude,
@@ -61,7 +69,7 @@ module.exports = function (config) {
 		},
 
 		// test results reporter(s) to use possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-		reporters: ['dots', 'coverage', 'coveralls'],
+		reporters: ['dots', 'coverage', 'coveralls', 'progress'],
 		coverageReporter: {
 			type: 'lcov',
 			dir: 'coverage/'
@@ -72,7 +80,8 @@ module.exports = function (config) {
 
 		// level of logging
 		// possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-		logLevel: config.LOG_WARN,
+		logLevel: config.LOG_INFO,
+		// logLevel: config.LOG_DEBUG,
 
 		// enable / disable colors in the output (reporters and logs)
 		colors: true,
@@ -108,6 +117,13 @@ module.exports = function (config) {
 		      level: 'log',
 		      format: '%b %T: %m',
 		      terminal: true
+		},
+
+		client: {
+			captureConsole: true,
+			mocha: {
+				bail: true
+			}
 		},
 
 		// If browser does not capture in given timeout [ms], kill it

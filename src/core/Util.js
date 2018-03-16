@@ -245,29 +245,34 @@ export function cancelAnimFrame(id) {
 
 export var loader = {
     js: function(url) {
-        var handler = {};
+        var handler = { _resolved: false };
         handler.callbacks = [];
         handler.error = [];
         handler.then = function(cb) {
             handler.callbacks.push(cb);
+            if ( handler._resolved ) { return handler.resolve(); }
             return handler;
         }
         handler.catch = function(cb) {
             handler.error.push(cb);
+            if ( handler._resolved ) { return handler.reject(); }
             return handler;
         }
         handler.resolve = function(_argv) {
             // var _argv;
+            handler._resolved = true;
             while ( handler.callbacks.length ) {
                 var cb = handler.callbacks.shift();
                 var retval;
                 try {
                     _argv = cb(_argv);
                 } catch(e) {
+                    console.log(e);
                     handler.reject(e);
                     break;
                 }
             }
+            return handler;
         }
 
         handler.reject = function(e) {
@@ -277,12 +282,11 @@ export var loader = {
             }
             console.log(e);
             console.trace();
+            return handler;
         }
 
         if ( url == undefined ) {
-            setTimeout(function() {
-                handler.resolve(url);
-            }, 0);
+            handler._resolved = true;
             return handler;
         }
 

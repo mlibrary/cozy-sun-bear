@@ -13,34 +13,47 @@ describe("Control.Citation", function () {
           { format: 'Chicago', text: "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." }
         ]
       }
-    });    
+    });
   });
 
   it("can be added to an unloaded reader", function () {
     new cozy.Control.Citation(options).addTo(reader);
   });
 
-  it("can be added and use the default metadata via modal", function () {
-    var control = new cozy.Control.Citation(options).addTo(reader);
-    reader.start(function() {
-      happen.click(control._control);
+  describe("use the default metadata via modal", function() {
+    beforeEach(function() {
+      control = new cozy.Control.Citation(options).addTo(reader);
+      reader.start(function() {
+        happen.click(control._control);
+      });
+    })
 
-      var possibles = 
-        [
-          [ 'MLA', "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." ],
-          [ 'APA', "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." ],
-          [ 'Chicago', "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." ]
-        ];
+    var format; var test; var formatted;
+    var possibles = {
+      'MLA':  "Mock, Alex. <em>The Mock Life</em>. University Press, 2017.",
+      'APA': "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press.",
+      'Chicago': "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017."
+    };
 
-      for(var i in possibles) {
-        var value = possibles[i][0];
-        var test = possibles[i][1];
+    it("should format MLA", function() {
+      format = 'MLA';
+      formatted = control._formatCitation(format);
+      expect(formatted).to.eql(possibles[format]);
+    })
 
-        var formatted = control._formatCitation(value);
-        expect(formatted).to.be(test);
-      }
-    });
+    it("should format APA", function() {
+      format = 'APA';
+      formatted = control._formatCitation(format);
+      expect(formatted).to.eql(possibles[format]);
+    })
 
-  });
+    it("should format Chicago", function() {
+      format = 'Chicago';
+      formatted = control._formatCitation(format);
+      expect(formatted).to.eql(possibles[format]);
+    })
+
+
+  })
 });
 
