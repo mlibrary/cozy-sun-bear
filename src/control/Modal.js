@@ -4,6 +4,7 @@ import * as Util from '../core/Util';
 import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 
+import assign from 'lodash/assign';
 
 var activeModal;
 var dismissModalListener = false;
@@ -47,9 +48,9 @@ export var Modal = Class.extend({
     options = Util.setOptions(this, options);
     this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
     this._initializedEvents = false;
-    this.callbacks = this.options.callbacks;
-    this.actions = this.options.actions;
-    this.handlers = this.options.handlers;
+    this.callbacks = assign({}, this.options.callbacks);
+    this.actions = this.options.actions ? assign({}, this.options.actions) : null;
+    this.handlers = assign({}, this.options.handlers);
     if ( typeof(this.options.className) == 'string' ) {
       this.options.className = { container: this.options.className };
     }
