@@ -1,5 +1,5 @@
 describe("Control.Navigator", function () {
-  var reader;
+  var reader; var control;
   var options = { region: 'bottom.navigator' };
 
   var currentPercentage = function(reader) {
@@ -12,43 +12,33 @@ describe("Control.Navigator", function () {
   beforeEach(function() {
     reader = cozy.reader(document.createElement('div'), {
       engine: 'mock',
-      href: 'mock.epub',
-      metadata: {
-        doi: 'https://doi.org/10.0000/cozy.0000'
-      }
-    });    
-  });
+      href: 'mock.epub'
+    });
 
-  it("can be added to an unloaded reader", function () {
-    new cozy.Control.Navigator(options).addTo(reader);
+    control = new cozy.Control.Navigator(options).addTo(reader);
+    reader.start(function() {
+    })
   });
 
   it("responds to page changes", function () {
-    var control = new cozy.Control.Navigator(options).addTo(reader);
-    reader.start(function() {
-      reader.gotoPage(3);
-      expect(control._control.value).to.be('30'); // currentPercentage(reader).toString()
+    reader.gotoPage(3);
+    expect(control._control.value).to.be('30'); // currentPercentage(reader).toString()
 
-      reader.gotoPage(7);
-      expect(control._control.value).to.be('70');
-    });
+    reader.gotoPage(7);
+    expect(control._control.value).to.be('70');
 
   });
 
   it("reader responds to control changes", function () {
-    var control = new cozy.Control.Navigator(options).addTo(reader);
-    reader.start(function() {
-      reader.gotoPage(3);
-      control._control.value = 70;
+    reader.gotoPage(3);
+    control._control.value = 70;
 
-      var event = document.createEvent('HTMLEvents');
-      event.initEvent('change', true, false);
-      control._control.dispatchEvent(event);
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('change', true, false);
+    control._control.dispatchEvent(event);
 
-      var current = reader.currentLocation();
-      expect(current.start.cfi).to.be(reader._locations[7]);
-    });
-
+    var current = reader.currentLocation();
+    expect(current.start.cfi).to.be(reader._locations[7]);
 
   });
 
