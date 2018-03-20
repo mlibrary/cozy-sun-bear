@@ -75,6 +75,25 @@ export var Preferences = Control.extend({
       template += '</fieldset>';
     }
 
+    if ( this.options.fields ) {
+      this.options.hasFields = true;
+      for(var i in this.options.fields) {
+        var field = this.options.fields[i];
+        var id = "preferences-custom-" + i;
+        template += `<fieldset class="custom-field">
+          <legend>${field.label}</legend>
+        `;
+        for(var j in field.inputs) {
+          var input = field.inputs[j];
+          var checked = input.value == field.value ? ' checked="checked"' : '';
+          template += `<label><input id="preferences-custom-${i}-${j}" type="radio" name="${field.name}" value="${input.value}" ${checked}/>${input.label}</label>`;
+        }
+        if ( field.hint ) {
+          template += `<p class="hint" style="font-size: 90%">${field.hint}</p>`;
+        }
+      }
+    }
+
     template = '<form>' + template + '</form>';
 
     this._modal = this._reader.modal({
@@ -94,25 +113,27 @@ export var Preferences = Control.extend({
 
     this._form = this._modal._container.querySelector('form');
     this._initializeForm();
-
-    window.xmodal = this._modal;
   },
 
   _initializeForm: function() {
     var input, input_id;
+    this._lastValues = {};
     /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
     input_id = "preferences-input-" + ( this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc' );
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
+    input.parentElement.parentElement.dataset.last = input.value;
 
     input_id = "preferences-input-size-" + ( this._reader.options.text_size || 'auto' );
     input = this._form.querySelector("#" + input_id);
     input.checked = true;
+    input.parentElement.parentElement.dataset.last = input.value;
 
     if ( this.options.hasThemes ) {
       input_id = "preferences-input-theme-" + ( this._reader.options.theme || 'default' );
       input = this._form.querySelector("#" + input_id);
       input.checked = true;
+      input.parentElement.parentElement.dataset.last = input.value;
     }
   },
 
@@ -120,19 +141,44 @@ export var Preferences = Control.extend({
     var self = this;
     event.preventDefault();
 
+    var doUpdate = false;
     var options = {};
     var input = this._form.querySelector("input[name='flow']:checked");
+    doUpdate = doUpdate || ( input.value != input.parentElement.parentElement.dataset.last );
     options.flow = input.value;
+    input.parentElement.parentElement.dataset.last = input.value;
+
     input = this._form.querySelector("input[name='text_size']:checked");
+    doUpdate = doUpdate || ( input.value != input.parentElement.parentElement.dataset.last );
     options.text_size = input.value;
+    input.parentElement.parentElement.dataset.last = input.value;
+
     if ( this.options.hasThemes ) {
       input = this._form.querySelector("input[name='theme']:checked");
+      doUpdate = doUpdate || ( input.value != input.parentElement.parentElement.dataset.last );
       options.theme = input.value;
+      input.parentElement.parentElement.dataset.last = input.value;
     }
+
+    if ( this.options.hasFields ) {
+      for(var i in this.options.fields) {
+        var field = this.options.fields[i];
+        var id = "preferences-custom-" + i;
+        var input = this._form.querySelector(`input[name="${field.name}"]:checked`);
+        if ( input.value != field.value ) {
+          field.value = input.value;
+          field.callback(field.value);
+        }
+      }
+    }
+
     this._modal.deactivate();
-    setTimeout(function() {
-      self._reader.reopen(options);
-    }, 100);
+
+    if ( doUpdate ) {
+      setTimeout(function() {
+        self._reader.reopen(options);
+      }, 100);
+    }
   },
 
   EOT: true
