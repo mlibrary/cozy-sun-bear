@@ -15693,9 +15693,10 @@ var DefaultViewManager = function () {
 				this.scrollLeft = this.container.scrollLeft;
 				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
 				var ratio = left / this.container.scrollWidth;
-				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", ratio, "::", left <= this.container.scrollWidth, "vs.", ratio >= 0.99 && ratio <= 1.05);
-				if (left <= this.container.scrollWidth) {
-					// || ( ratio >= 0.99 && ratio <= 1.05 )
+				var ratio_1 = 0.99;
+				var ratio_2 = 1.005;
+				console.log("AHOY NEXT", left, "=", this.container.scrollLeft, "+", this.container.offsetWidth, "+", this.layout.delta, "/", this.container.scrollWidth, "/", ratio, "::", left <= this.container.scrollWidth, "vs.", ratio >= ratio_1 && ratio <= ratio_2);
+				if (left <= this.container.scrollWidth || ratio >= ratio_1 && ratio <= ratio_2) {
 					console.log("AHOY NEXT SCROLLBY", this.layout.delta);
 					this.scrollBy(this.layout.delta, 0, true);
 				} else if (left - this.layout.columnWidth === this.container.scrollWidth) {
