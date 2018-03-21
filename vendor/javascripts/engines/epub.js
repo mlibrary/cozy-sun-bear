@@ -15763,7 +15763,14 @@ var DefaultViewManager = function () {
 					}
 				}.bind(this)).then(function () {
 					if (this.settings.axis === "horizontal") {
+						var view = this.views.first();
+						var lastScrollWidth = this.container.scrollWidth;
 						this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+						setTimeout(function () {
+							if (this.container.scrollWidth != lastScrollWidth) {
+								this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+							}
+						}.bind(this), 0);
 					}
 					this.views.show();
 				}.bind(this));
