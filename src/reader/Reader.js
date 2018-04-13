@@ -6,6 +6,7 @@ import * as DomEvent from '../dom/DomEvent';
 import * as DomUtil from '../dom/DomUtil';
 
 import debounce from 'lodash/debounce';
+import assign from 'lodash/assign';
 
 import {screenfull} from '../screenfull';
 
@@ -47,6 +48,7 @@ export var Reader = Evented.extend({
     fontSizeSmall: '90%',
     fontSizeDefault: '100%',
     trackResize: true,
+    text_size: 100,
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
     theme: 'default',
     themes: []
@@ -55,7 +57,11 @@ export var Reader = Evented.extend({
   initialize: function(id, options) {
     var self = this
 
+    if ( localStorage.getItem('cozy.options') ) {
+      options = assign(options, JSON.parse(localStorage.getItem('cozy.options')));
+    }
     options = Util.setOptions(this, options);
+
     this._checkFeatureCompatibility();
 
     this.metadata = this.options.metadata; // initial seed
@@ -131,6 +137,10 @@ export var Reader = Evented.extend({
     return;
     this.draw(target);
     this.fire('reopen');
+  },
+
+  saveOptions: function(options) {
+    localStorage.setItem('cozy.options', JSON.stringify(options));
   },
 
   _updateTheme: function() {
@@ -316,6 +326,36 @@ export var Reader = Evented.extend({
         self.gotoPage(event.state.cfi);
       }
     })
+
+    document.addEventListener('keydown', function(event) {
+      var keyName = event.key;
+      var target = event.target;
+      var IGNORE_TARGETS = [ 'input', 'target' ];
+      if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
+        return;
+      }
+
+      self.fire('keyDown', { keyName: keyName });
+    });
+
+    self.on('keyDown', function(keyName) {
+      switch(keyName.keyName) {
+        case 'ArrowRight':
+        case 'PageDown':
+          self.next();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          self.prev();
+          break;
+        case 'Home':
+          self._scroll('HOME');
+          break;
+        case 'End':
+          self._scroll('END')
+          break;
+      }
+    });
   },
 
   // _onResize: function() {
@@ -423,9 +463,10 @@ export var Reader = Evented.extend({
       this.options.flow = 'scrolled-doc';
     }
     if ( this._checkMobileDevice() ) {
-      this.options.fontSizeLarge = '160%';
-      this.options.fontSizeSmall ='100%';
-      this.options.fontSizeDefault = '120%';
+      // this.options.fontSizeLarge = '160%';
+      // this.options.fontSizeSmall ='100%';
+      // this.options.fontSizeDefault = '120%';
+      this.options.text_size = 120;
     }
   },
 
