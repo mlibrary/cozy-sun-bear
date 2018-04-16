@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.00c2f28d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.07bafcf5, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4559,7 +4559,7 @@ var Preferences = Control.extend({
 
   _action: function _action() {
     var self = this;
-    self._initializeForm();
+    self.initializeForm();
     self._modal.activate();
   },
 
@@ -4601,7 +4601,7 @@ var Preferences = Control.extend({
     this._fieldsets = [];
     possible_fieldsets.forEach(function (cls) {
       var fieldset = new Preferences.fieldset[cls](this);
-      template$$1 += fieldset._template();
+      template$$1 += fieldset.template();
       this._fieldsets.push(fieldset);
     }.bind(this));
 
@@ -4631,7 +4631,7 @@ var Preferences = Control.extend({
       actions: [{
         label: 'Save Changes',
         callback: function callback(event) {
-          self._updatePreferences(event);
+          self.updatePreferences(event);
         }
       }],
       region: 'right'
@@ -4640,20 +4640,20 @@ var Preferences = Control.extend({
     this._form = this._modal._container.querySelector('form');
   },
 
-  _initializeForm: function _initializeForm() {
+  initializeForm: function initializeForm() {
     this._fieldsets.forEach(function (fieldset) {
-      fieldset._initializeForm(this._form);
+      fieldset.initializeForm(this._form);
     }.bind(this));
   },
 
-  _updatePreferences: function _updatePreferences(event) {
+  updatePreferences: function updatePreferences(event) {
     event.preventDefault();
 
     var doUpdate = false;
     var new_options = {};
     this._fieldsets.forEach(function (fieldset) {
-      // doUpdate = doUpdate || fieldset._updateForm(this._form, new_options);
-      assign_1(new_options, fieldset._updateForm(this._form));
+      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
+      assign_1(new_options, fieldset.updateForm(this._form));
     }.bind(this));
 
     if (this.options.hasFields) {
@@ -4692,7 +4692,7 @@ var Fieldset = Class.extend({
     this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
   },
 
-  _template: function _template() {},
+  template: function template$$1() {},
 
   EOT: true
 
@@ -4700,7 +4700,7 @@ var Fieldset = Class.extend({
 
 Preferences.fieldset.TextSize = Fieldset.extend({
 
-  _initializeForm: function _initializeForm(form) {
+  initializeForm: function initializeForm(form) {
     if (!this._input) {
       this._input = form.querySelector('#x' + this._id + '-input');
       this._output = form.querySelector('#x' + this._id + '-output');
@@ -4719,19 +4719,19 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  _updateForm: function _updateForm(form) {
+  updateForm: function updateForm(form) {
     return { text_size: this._input.value };
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
 
+  template: function template$$1() {
+    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
+  },
+
   _updatePreview: function _updatePreview() {
     this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
     this._output.value = this._input.value + '%';
-  },
-
-  _template: function _template() {
-    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
   },
 
   EOT: true
@@ -4740,7 +4740,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 
 Preferences.fieldset.Display = Fieldset.extend({
 
-  _initializeForm: function _initializeForm(form) {
+  initializeForm: function initializeForm(form) {
     var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
     if (flow == 'auto') {
       flow = 'paginated';
@@ -4751,14 +4751,12 @@ Preferences.fieldset.Display = Fieldset.extend({
     this._current.flow = flow;
   },
 
-  _updateForm: function _updateForm(form) {
+  updateForm: function updateForm(form) {
     var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
     return { flow: input.value };
-    // options.flow = input.value;
-    // return ( input.value != this._current.flow );
   },
 
-  _template: function _template() {
+  template: function template$$1() {
     return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" />Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n          </fieldset>';
   },
 
@@ -4768,7 +4766,7 @@ Preferences.fieldset.Display = Fieldset.extend({
 
 Preferences.fieldset.Theme = Fieldset.extend({
 
-  _initializeForm: function _initializeForm(form) {
+  initializeForm: function initializeForm(form) {
     var theme = this._control._reader.options.theme || 'default';
 
     var input = form.querySelector('#x' + this._id + '-input-theme-' + theme);
@@ -4776,12 +4774,12 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  _updateForm: function _updateForm(form) {
+  updateForm: function updateForm(form) {
     var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
     return { theme: input.value };
   },
 
-  _template: function _template() {
+  template: function template$$1() {
     var template$$1 = '<fieldset>\n            <legend>Theme</legend>\n            <label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-default" value="default" />Default</label>';
 
     this._control._reader.options.themes.forEach(function (theme) {

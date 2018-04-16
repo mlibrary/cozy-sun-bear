@@ -32,7 +32,7 @@ export var Preferences = Control.extend({
 
   _action: function() {
     var self = this;
-    self._initializeForm();
+    self.initializeForm();
     self._modal.activate();
   },
 
@@ -74,7 +74,7 @@ export var Preferences = Control.extend({
     this._fieldsets = [];
     possible_fieldsets.forEach(function(cls) {
       var fieldset = new Preferences.fieldset[cls](this);
-      template += fieldset._template();
+      template += fieldset.template();
       this._fieldsets.push(fieldset);
     }.bind(this))
 
@@ -107,7 +107,7 @@ export var Preferences = Control.extend({
         {
           label: 'Save Changes',
           callback: function(event) {
-            self._updatePreferences(event);
+            self.updatePreferences(event);
           }
         }
       ],
@@ -117,20 +117,20 @@ export var Preferences = Control.extend({
     this._form = this._modal._container.querySelector('form');
   },
 
-  _initializeForm: function() {
+  initializeForm: function() {
     this._fieldsets.forEach(function(fieldset) {
-      fieldset._initializeForm(this._form);
+      fieldset.initializeForm(this._form);
     }.bind(this));
   },
 
-  _updatePreferences: function(event) {
+  updatePreferences: function(event) {
     event.preventDefault();
 
     var doUpdate = false;
     var new_options = {};
     this._fieldsets.forEach(function(fieldset) {
-      // doUpdate = doUpdate || fieldset._updateForm(this._form, new_options);
-      assign(new_options, fieldset._updateForm(this._form));
+      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
+      assign(new_options, fieldset.updateForm(this._form));
     }.bind(this));
 
     if ( this.options.hasFields ) {
@@ -169,7 +169,7 @@ var Fieldset = Class.extend({
       this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
   },
 
-  _template: function() {
+  template: function() {
 
   },
 
@@ -180,7 +180,7 @@ var Fieldset = Class.extend({
 
 Preferences.fieldset.TextSize = Fieldset.extend({
 
-  _initializeForm: function(form) {
+  initializeForm: function(form) {
     if ( ! this._input ) {
       this._input = form.querySelector(`#x${this._id}-input`);
       this._output = form.querySelector(`#x${this._id}-output`);
@@ -197,18 +197,13 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  _updateForm: function(form) {
+  updateForm: function(form) {
     return { text_size: this._input.value };
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
 
-  _updatePreview: function() {
-    this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
-    this._output.value = `${this._input.value}%`;
-  },
-
-  _template: function() {
+  template: function() {
     return `<fieldset class="cozy-fieldset-text_size">
         <legend>Text Size</legend>
         <div class="preview--text_size" id="x${this._id}-preview">
@@ -226,13 +221,18 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       </fieldset>`;
   },
 
+  _updatePreview: function() {
+    this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
+    this._output.value = `${this._input.value}%`;
+  },
+
   EOT: true
 
 });
 
 Preferences.fieldset.Display = Fieldset.extend({
 
-  _initializeForm: function(form) {
+  initializeForm: function(form) {
     var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
     if ( flow == 'auto' ) { flow = 'paginated'; }
 
@@ -242,14 +242,12 @@ Preferences.fieldset.Display = Fieldset.extend({
 
   },
 
-  _updateForm: function(form) {
+  updateForm: function(form) {
     var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
     return { flow: input.value };
-    // options.flow = input.value;
-    // return ( input.value != this._current.flow );
   },
 
-  _template: function() {
+  template: function() {
     return `<fieldset>
             <legend>Display</legend>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" />Page-by-Page</label>
@@ -263,7 +261,7 @@ Preferences.fieldset.Display = Fieldset.extend({
 
 Preferences.fieldset.Theme = Fieldset.extend({
 
-  _initializeForm: function(form) {
+  initializeForm: function(form) {
     var theme = this._control._reader.options.theme || 'default';
 
     var input = form.querySelector(`#x${this._id}-input-theme-${theme}`);
@@ -271,12 +269,12 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  _updateForm: function(form) {
+  updateForm: function(form) {
     var input = form.querySelector(`input[name="x${this._id}-theme"]:checked`);
     return { theme: input.value };
   },
 
-  _template: function() {
+  template: function() {
     var template = `<fieldset>
             <legend>Theme</legend>
             <label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-default" value="default" />Default</label>`;
