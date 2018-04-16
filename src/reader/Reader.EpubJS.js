@@ -184,10 +184,18 @@ Reader.EpubJS = Reader.extend({
 
   reopen: function(options, target) {
     // different per reader?
-    var _this = this;
     var target = target || this.currentLocation();
     if( target.start ) { target = target.start ; }
     if ( target.cfi ) { target = target.cfi ; }
+
+    var doUpdate = false;
+    Object.keys(options).forEach(function(key) {
+      doUpdate = doUpdate || ( options[key] != this.options[key] );
+    }.bind(this));
+
+    if ( ! doUpdate ) {
+      return;
+    }
 
     Util.extend(this.options, options);
 

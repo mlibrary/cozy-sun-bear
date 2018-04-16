@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.09139d35, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.00c2f28d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4559,6 +4559,7 @@ var Preferences = Control.extend({
 
   _action: function _action() {
     var self = this;
+    self._initializeForm();
     self._modal.activate();
   },
 
@@ -4582,49 +4583,49 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
-    var template = '';
+    var template$$1 = '';
 
-    if (self._reader.metadata.layout == 'pre-paginated') {
-      // something else
+    var possible_fieldsets = [];
+    if (this._reader.metadata.layout == 'pre-paginated') {
+      // different panel
     } else {
-
-      template += '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="preferences-input-text_size" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="output-text_size">100</output>\n        </p>\n      </fieldset>';
+      possible_fieldsets.push('TextSize');
     }
-
-    template += '<fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>';
+    possible_fieldsets.push('Display');
 
     if (this._reader.options.themes && this._reader.options.themes.length > 0) {
-      self.options.hasThemes = true;
-      template += '<fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>';
-
-      this._reader.options.themes.forEach(function (theme) {
-        template += '<label><input name="theme" type="radio" id="preferences-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
-      });
-
-      template += '</fieldset>';
+      this.options.hasThemes = true;
+      possible_fieldsets.push('Theme');
     }
+
+    this._fieldsets = [];
+    possible_fieldsets.forEach(function (cls) {
+      var fieldset = new Preferences.fieldset[cls](this);
+      template$$1 += fieldset._template();
+      this._fieldsets.push(fieldset);
+    }.bind(this));
 
     if (this.options.fields) {
       this.options.hasFields = true;
       for (var i in this.options.fields) {
         var field = this.options.fields[i];
         var id = "preferences-custom-" + i;
-        template += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
+        template$$1 += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
         for (var j in field.inputs) {
           var input = field.inputs[j];
           var checked = input.value == field.value ? ' checked="checked"' : '';
-          template += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
+          template$$1 += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="x' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
         }
         if (field.hint) {
-          template += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
+          template$$1 += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
         }
       }
     }
 
-    template = '<form>' + template + '</form>';
+    template$$1 = '<form>' + template$$1 + '</form>';
 
     this._modal = this._reader.modal({
-      template: template,
+      template: template$$1,
       title: 'Preferences',
       className: 'cozy-modal-preferences',
       actions: [{
@@ -4637,77 +4638,29 @@ var Preferences = Control.extend({
     });
 
     this._form = this._modal._container.querySelector('form');
-    this._initializeForm();
   },
 
   _initializeForm: function _initializeForm() {
-    var input, input_id;
-    this._lastValues = {};
-    var flow = this._reader.options.flow;
-    if (flow == 'auto') {
-      flow = 'paginated';
-    }
-    input_id = "preferences-input-" + flow;
-    input = this._form.querySelector("#" + input_id);
-    input.checked = true;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    input_id = "preferences-input-text_size";
-    input = this._form.querySelector('#' + input_id);
-    var text_size = this._reader.options.text_size || 100;
-    if (text_size == 'auto') {
-      text_size = 100;
-    }
-    input.value = text_size;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    var text_size_preview = this._form.querySelector('.preview--text_size');
-    var text_size_output = this._form.querySelector('#output-text_size');
-    var update_text_size_preview = function update_text_size_preview() {
-      text_size_preview.style.fontSize = parseInt(this.value, 10) / 100 + 'em';
-      text_size_output.value = this.value + '%';
-    };
-
-    input.addEventListener('input', update_text_size_preview);
-    input.addEventListener('change', update_text_size_preview);
-    update_text_size_preview.bind(input).call();
-
-    if (this.options.hasThemes) {
-      input_id = "preferences-input-theme-" + (this._reader.options.theme || 'default');
-      input = this._form.querySelector("#" + input_id);
-      input.checked = true;
-      input.parentElement.parentElement.dataset.last = input.value;
-    }
+    this._fieldsets.forEach(function (fieldset) {
+      fieldset._initializeForm(this._form);
+    }.bind(this));
   },
 
   _updatePreferences: function _updatePreferences(event) {
-    var self = this;
     event.preventDefault();
 
     var doUpdate = false;
-    var options = {};
-    var input = this._form.querySelector("input[name='flow']:checked");
-    doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-    options.flow = input.value;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    input = this._form.querySelector("input[name='text_size']");
-    doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-    options.text_size = input.value;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    if (this.options.hasThemes) {
-      input = this._form.querySelector("input[name='theme']:checked");
-      doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-      options.theme = input.value;
-      input.parentElement.parentElement.dataset.last = input.value;
-    }
+    var new_options = {};
+    this._fieldsets.forEach(function (fieldset) {
+      // doUpdate = doUpdate || fieldset._updateForm(this._form, new_options);
+      assign_1(new_options, fieldset._updateForm(this._form));
+    }.bind(this));
 
     if (this.options.hasFields) {
       for (var i in this.options.fields) {
         var field = this.options.fields[i];
         var id = "preferences-custom-" + i;
-        var input = this._form.querySelector('input[name="' + field.name + '"]:checked');
+        var input = this._form.querySelector('input[name="x' + field.name + '"]:checked');
         if (input.value != field.value) {
           field.value = input.value;
           field.callback(field.value);
@@ -4717,15 +4670,131 @@ var Preferences = Control.extend({
 
     this._modal.deactivate();
 
-    if (doUpdate) {
-      setTimeout(function () {
-        self._reader.saveOptions(options);
-        self._reader.reopen(options);
-      }, 100);
-    }
+    setTimeout(function () {
+      this._reader.saveOptions(new_options);
+      this._reader.reopen(new_options);
+    }.bind(this), 100);
   },
 
   EOT: true
+});
+
+Preferences.fieldset = {};
+
+var Fieldset = Class.extend({
+
+  options: {},
+
+  initialize: function initialize(control$$1, options) {
+    setOptions(this, options);
+    this._control = control$$1;
+    this._current = {};
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+  },
+
+  _template: function _template() {},
+
+  EOT: true
+
+});
+
+Preferences.fieldset.TextSize = Fieldset.extend({
+
+  _initializeForm: function _initializeForm(form) {
+    if (!this._input) {
+      this._input = form.querySelector('#x' + this._id + '-input');
+      this._output = form.querySelector('#x' + this._id + '-output');
+      this._preview = form.querySelector('#x' + this._id + '-preview');
+
+      this._input.addEventListener('input', this._updatePreview.bind(this));
+      this._input.addEventListener('change', this._updatePreview.bind(this));
+    }
+
+    var text_size = this._control._reader.options.text_size || 100;
+    if (text_size == 'auto') {
+      text_size = 100;
+    }
+    this._current.text_size = text_size;
+    this._input.value = text_size;
+    this._updatePreview();
+  },
+
+  _updateForm: function _updateForm(form) {
+    return { text_size: this._input.value };
+    // options.text_size = this._input.value;
+    // return ( this._input.value != this._current.text_size );
+  },
+
+  _updatePreview: function _updatePreview() {
+    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
+    this._output.value = this._input.value + '%';
+  },
+
+  _template: function _template() {
+    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Display = Fieldset.extend({
+
+  _initializeForm: function _initializeForm(form) {
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
+    if (flow == 'auto') {
+      flow = 'paginated';
+    }
+
+    var input = form.querySelector('#x' + this._id + '-input-' + flow);
+    input.checked = true;
+    this._current.flow = flow;
+  },
+
+  _updateForm: function _updateForm(form) {
+    var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
+    return { flow: input.value };
+    // options.flow = input.value;
+    // return ( input.value != this._current.flow );
+  },
+
+  _template: function _template() {
+    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" />Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n          </fieldset>';
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Theme = Fieldset.extend({
+
+  _initializeForm: function _initializeForm(form) {
+    var theme = this._control._reader.options.theme || 'default';
+
+    var input = form.querySelector('#x' + this._id + '-input-theme-' + theme);
+    input.checked = true;
+    this._current.theme = theme;
+  },
+
+  _updateForm: function _updateForm(form) {
+    var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
+    return { theme: input.value };
+  },
+
+  _template: function _template() {
+    var template$$1 = '<fieldset>\n            <legend>Theme</legend>\n            <label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-default" value="default" />Default</label>';
+
+    this._control._reader.options.themes.forEach(function (theme) {
+      template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
+    }.bind(this));
+
+    template$$1 += '</fieldset>';
+
+    return template$$1;
+  },
+
+  EOT: true
+
 });
 
 var preferences = function preferences(options) {
@@ -5798,13 +5867,21 @@ Reader.EpubJS = Reader.extend({
 
   reopen: function reopen(options, target) {
     // different per reader?
-    var _this = this;
     var target = target || this.currentLocation();
     if (target.start) {
       target = target.start;
     }
     if (target.cfi) {
       target = target.cfi;
+    }
+
+    var doUpdate = false;
+    Object.keys(options).forEach(function (key) {
+      doUpdate = doUpdate || options[key] != this.options[key];
+    }.bind(this));
+
+    if (!doUpdate) {
+      return;
     }
 
     extend(this.options, options);
