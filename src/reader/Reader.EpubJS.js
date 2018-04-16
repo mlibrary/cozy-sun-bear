@@ -200,7 +200,7 @@ Reader.EpubJS = Reader.extend({
     Util.extend(this.options, options);
 
     if ( this._rendition.settings.flow != options.flow ) {
-      if ( this.options.flow == 'auto' ) {
+      if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
         this._panes['book'].style.overflow = 'hidden';
       } else {
         this._panes['book'].style.overflow = 'auto';
