@@ -535,6 +535,21 @@ div.cozy-panel-footer {
   }
 }
 
+.cozy-modal fieldset p {
+  width: 90%; 
+  margin: 0 auto;
+  text-align: center;
+}
+
+.preview--text_size {
+  width: 90%; 
+  height: 8rem; 
+  margin: 1rem auto; 
+  border: 1px dotted #666; 
+  padding: 1rem; 
+  overflow: hidden;
+}
+
 // modal contents styles
 .cozy-modal main {
 

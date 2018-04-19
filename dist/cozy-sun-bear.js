@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.04bd819f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0c8958fa, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -2127,878 +2127,6 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
-var document$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
-var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
-
-var fn = function () {
-  var val;
-
-  var fnMap = [['requestFullscreen', 'exitFullscreen', 'fullscreenElement', 'fullscreenEnabled', 'fullscreenchange', 'fullscreenerror'],
-  // New WebKit
-  ['webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitFullscreenElement', 'webkitFullscreenEnabled', 'webkitfullscreenchange', 'webkitfullscreenerror'],
-  // Old WebKit (Safari 5.1)
-  ['webkitRequestFullScreen', 'webkitCancelFullScreen', 'webkitCurrentFullScreenElement', 'webkitCancelFullScreen', 'webkitfullscreenchange', 'webkitfullscreenerror'], ['mozRequestFullScreen', 'mozCancelFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled', 'mozfullscreenchange', 'mozfullscreenerror'], ['msRequestFullscreen', 'msExitFullscreen', 'msFullscreenElement', 'msFullscreenEnabled', 'MSFullscreenChange', 'MSFullscreenError']];
-
-  var i = 0;
-  var l = fnMap.length;
-  var ret = {};
-
-  for (; i < l; i++) {
-    val = fnMap[i];
-    if (val && val[1] in document$1) {
-      for (i = 0; i < val.length; i++) {
-        ret[fnMap[0][i]] = val[i];
-      }
-      return ret;
-    }
-  }
-
-  return false;
-}();
-
-var eventNameMap = {
-  change: fn.fullscreenchange,
-  error: fn.fullscreenerror
-};
-
-var screenfull = {
-  request: function request(elem) {
-    var request = fn.requestFullscreen;
-
-    elem = elem || document$1.documentElement;
-
-    // Work around Safari 5.1 bug: reports support for
-    // keyboard in fullscreen even though it doesn't.
-    // Browser sniffing, since the alternative with
-    // setTimeout is even worse.
-    if (/5\.1[.\d]* Safari/.test(navigator.userAgent)) {
-      elem[request]();
-    } else {
-      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
-    }
-  },
-  exit: function exit() {
-    document$1[fn.exitFullscreen]();
-  },
-  toggle: function toggle(elem) {
-    if (this.isFullscreen) {
-      this.exit();
-    } else {
-      this.request(elem);
-    }
-  },
-  onchange: function onchange(callback) {
-    this.on('change', callback);
-  },
-  onerror: function onerror(callback) {
-    this.on('error', callback);
-  },
-  on: function on(event, callback) {
-    var eventName = eventNameMap[event];
-    if (eventName) {
-      document$1.addEventListener(eventName, callback, false);
-    }
-  },
-  off: function off(event, callback) {
-    var eventName = eventNameMap[event];
-    if (eventName) {
-      document$1.removeEventListener(eventName, callback, false);
-    }
-  },
-  raw: fn
-};
-
-Object.defineProperties(screenfull, {
-  isFullscreen: {
-    get: function get() {
-      return Boolean(document$1[fn.fullscreenElement]);
-    }
-  },
-  element: {
-    enumerable: true,
-    get: function get() {
-      return document$1[fn.fullscreenElement];
-    }
-  },
-  enabled: {
-    enumerable: true,
-    get: function get() {
-      // Coerce to boolean in case of old WebKit
-      return Boolean(document$1[fn.fullscreenEnabled]);
-    }
-  }
-});
-
-var Reader = Evented.extend({
-  options: {
-    regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
-    metadata: {},
-    flow: 'auto',
-    engine: 'epubjs',
-    fontSizeLarge: '140%',
-    fontSizeSmall: '90%',
-    fontSizeDefault: '100%',
-    trackResize: true,
-    mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
-    theme: 'default',
-    themes: []
-  },
-
-  initialize: function initialize(id, options) {
-    var self = this;
-
-    options = setOptions(this, options);
-    this._checkFeatureCompatibility();
-
-    this.metadata = this.options.metadata; // initial seed
-
-    this._initContainer(id);
-    this._initLayout();
-
-    if (this.options.themes && this.options.themes.length > 0) {
-      this.options.themes.forEach(function (theme) {
-        if (theme.href) {
-          return;
-        }
-        var klass = theme.klass;
-        var rules = {};
-        for (var rule in theme.rules) {
-          var new_rule = '.' + klass;
-          if (rule == 'body') {
-            new_rule = 'body' + new_rule;
-          } else {
-            new_rule += ' ' + rule;
-          }
-          rules[new_rule] = theme.rules[rule];
-        }
-        theme.rules = rules;
-      });
-    }
-
-    this._updateTheme();
-
-    // hack for https://github.com/Leaflet/Leaflet/issues/1980
-    // this._onResize = Util.bind(this._onResize, this);
-
-    this._initEvents();
-
-    this.callInitHooks();
-
-    this._mode = this.options.mode;
-  },
-
-  start: function start(target, cb) {
-    var self = this;
-
-    if (typeof target == 'function' && cb === undefined) {
-      cb = target;
-      target = undefined;
-    }
-
-    loader.js(this.options.engine_href).then(function () {
-      self._start(target, cb);
-      self._loaded = true;
-    });
-  },
-
-  _start: function _start(target, cb) {
-    var self = this;
-    target = target || 0;
-
-    self.open(function () {
-      self.draw(target, cb);
-    });
-  },
-
-  switch: function _switch(flow, target) {
-    var target = target || this.currentLocation();
-    if (flow === undefined) {
-      flow = this.options.flow == 'auto' ? 'scrolled-doc' : 'auto';
-    }
-    this.options.flow = flow;
-    this.destroy();
-    this.draw(target);
-  },
-
-  reopen: function reopen(options, target) {
-    var target = target || this.currentLocation();
-    extend(this.options, options);
-    this.destroy();
-    console.log("AHOY REOPENED?");
-    return;
-    this.draw(target);
-    this.fire('reopen');
-  },
-
-  _updateTheme: function _updateTheme() {
-    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'default'));
-    addClass(this._container, 'cozy-theme-' + this.options.theme);
-    this._container.dataset.theme = this.options.theme;
-  },
-
-  draw: function draw(target) {
-    // NOOP
-  },
-
-  next: function next() {
-    // NOOP
-  },
-
-  prev: function prev() {
-    // NOOP
-  },
-
-  display: function display(index) {
-    // NOOP
-  },
-
-  gotoPage: function gotoPage(target) {
-    // NOOP
-  },
-
-  goBack: function goBack() {
-    history.back();
-  },
-
-  goForward: function goForward() {
-    history.forward();
-  },
-
-  requestFullscreen: function requestFullscreen() {
-    if (screenfull.enabled) {
-      // this._preResize();
-      screenfull.toggle(this._container);
-    }
-  },
-
-  _preResize: function _preResize() {},
-
-  _initContainer: function _initContainer(id) {
-    var container = this._container = get$1(id);
-
-    if (!container) {
-      throw new Error('Reader container not found.');
-    } else if (container._cozy_id) {
-      throw new Error('Reader container is already initialized.');
-    }
-
-    on(container, 'scroll', this._onScroll, this);
-    this._containerId = stamp(container);
-  },
-
-  _initLayout: function _initLayout() {
-    var container = this._container;
-
-    this._fadeAnimated = this.options.fadeAnimation && any3d;
-
-    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
-
-    var position = getStyle(container, 'position');
-
-    this._initPanes();
-
-    if (!columnCount) {
-      this.options.flow = 'scrolled-doc';
-    }
-  },
-
-  _initPanes: function _initPanes() {
-    var self = this;
-
-    var panes = this._panes = {};
-
-    var l = 'cozy-';
-    var container = this._container;
-
-    var prefix = 'cozy-module-';
-
-    addClass(container, 'cozy-container');
-    panes['top'] = create$1('div', prefix + 'top', container);
-    panes['main'] = create$1('div', prefix + 'main', container);
-    panes['bottom'] = create$1('div', prefix + 'bottom', container);
-
-    panes['left'] = create$1('div', prefix + 'left', panes['main']);
-    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
-    panes['right'] = create$1('div', prefix + 'right', panes['main']);
-    panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
-    panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
-    this._initLoader();
-  },
-
-  _checkIfLoaded: function _checkIfLoaded() {
-    if (!this._loaded) {
-      throw new Error('Set map center and zoom first.');
-    }
-  },
-
-  // DOM event handling
-
-  // @section Interaction events
-  _initEvents: function _initEvents(remove$$1) {
-    this._targets = {};
-    this._targets[stamp(this._container)] = this;
-
-    var onOff = remove$$1 ? off : on;
-
-    // @event click: MouseEvent
-    // Fired when the user clicks (or taps) the map.
-    // @event dblclick: MouseEvent
-    // Fired when the user double-clicks (or double-taps) the map.
-    // @event mousedown: MouseEvent
-    // Fired when the user pushes the mouse button on the map.
-    // @event mouseup: MouseEvent
-    // Fired when the user releases the mouse button on the map.
-    // @event mouseover: MouseEvent
-    // Fired when the mouse enters the map.
-    // @event mouseout: MouseEvent
-    // Fired when the mouse leaves the map.
-    // @event mousemove: MouseEvent
-    // Fired while the mouse moves over the map.
-    // @event contextmenu: MouseEvent
-    // Fired when the user pushes the right mouse button on the map, prevents
-    // default browser context menu from showing if there are listeners on
-    // this event. Also fired on mobile when the user holds a single touch
-    // for a second (also called long press).
-    // @event keypress: KeyboardEvent
-    // Fired when the user presses a key from the keyboard while the map is focused.
-    // onOff(this._container, 'click dblclick mousedown mouseup ' +
-    //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
-
-    // if (this.options.trackResize) {
-    //   var self = this;
-    //   var fn = debounce(function(){ self.invalidateSize({}); }, 150);
-    //   onOff(window, 'resize', fn, this);
-    // }
-
-    if (any3d && this.options.transform3DLimit) {
-      (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
-    }
-
-    var self = this;
-    if (screenfull.enabled) {
-      screenfull.on('change', function () {
-        // setTimeout(function() {
-        //   self.invalidateSize({});
-        // }, 100);
-        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
-      });
-    }
-
-    self.on("updateLocation", function (location) {
-      var location_href = location.start;
-
-      if (self._ignoreHistory) {
-        self._ignoreHistory = false;
-      } else {
-        var tmp_href = window.location.href.split("#");
-        tmp_href[1] = location_href.substr(8, location_href.length - 8 - 1);
-        history.pushState({ cfi: location_href }, '', tmp_href.join('#'));
-      }
-
-      // window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
-    });
-
-    window.addEventListener('popstate', function (event) {
-      if (event.isTrusted && event.state !== null) {
-        self._ignoreHistory = true;
-        self.gotoPage(event.state.cfi);
-      }
-    });
-  },
-
-  // _onResize: function() {
-  //   if ( ! this._resizeRequest ) {
-  //     this._resizeRequest = Util.requestAnimFrame(function() {
-  //       this.invalidateSize({})
-  //     }, this);
-  //   }
-  // },
-
-  _onScroll: function _onScroll() {
-    this._container.scrollTop = 0;
-    this._container.scrollLeft = 0;
-  },
-
-  _handleDOMEvent: function _handleDOMEvent(e) {
-    if (!this._loaded || skipped(e)) {
-      return;
-    }
-
-    var type = e.type === 'keypress' && e.keyCode === 13 ? 'click' : e.type;
-
-    if (type === 'mousedown') {
-      // prevents outline when clicking on keyboard-focusable element
-      preventOutline(e.target || e.srcElement);
-    }
-
-    this._fireDOMEvent(e, type);
-  },
-
-  _fireDOMEvent: function _fireDOMEvent(e, type, targets) {
-
-    if (e.type === 'click') {
-      // Fire a synthetic 'preclick' event which propagates up (mainly for closing popups).
-      // @event preclick: MouseEvent
-      // Fired before mouse click on the map (sometimes useful when you
-      // want something to happen on click before any existing click
-      // handlers start running).
-      var synth = extend({}, e);
-      synth.type = 'preclick';
-      this._fireDOMEvent(synth, synth.type, targets);
-    }
-
-    if (e._stopped) {
-      return;
-    }
-
-    // Find the layer the event is propagating from and its parents.
-    targets = (targets || []).concat(this._findEventTargets(e, type));
-
-    if (!targets.length) {
-      return;
-    }
-
-    var target = targets[0];
-    if (type === 'contextmenu' && target.listens(type, true)) {
-      preventDefault(e);
-    }
-
-    var data = {
-      originalEvent: e
-    };
-
-    if (e.type !== 'keypress') {
-      var isMarker = target.options && 'icon' in target.options;
-      data.containerPoint = isMarker ? this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
-      data.layerPoint = this.containerPointToLayerPoint(data.containerPoint);
-      data.latlng = isMarker ? target.getLatLng() : this.layerPointToLatLng(data.layerPoint);
-    }
-
-    for (var i = 0; i < targets.length; i++) {
-      targets[i].fire(type, data, true);
-      if (data.originalEvent._stopped || targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1) {
-        return;
-      }
-    }
-  },
-
-  getFixedBookPanelSize: function getFixedBookPanelSize() {
-    // have to make the book 
-    var style = window.getComputedStyle(this._panes['book']);
-    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
-    var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
-    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
-  },
-
-  invalidateSize: function invalidateSize(options) {
-    // TODO: IS THIS EVER USED?
-    var self = this;
-
-    if (!self._drawn) {
-      return;
-    }
-
-    cancelAnimFrame(this._resizeRequest);
-
-    if (!this._loaded) {
-      return this;
-    }
-
-    this.fire('resized');
-  },
-
-  _resizeBookPane: function _resizeBookPane() {},
-
-  _setupHooks: function _setupHooks() {},
-
-  _checkFeatureCompatibility: function _checkFeatureCompatibility() {
-    if (!isPropertySupported('columnCount') || this._checkMobileDevice()) {
-      // force
-      this.options.flow = 'scrolled-doc';
-    }
-    if (this._checkMobileDevice()) {
-      this.options.fontSizeLarge = '160%';
-      this.options.fontSizeSmall = '100%';
-      this.options.fontSizeDefault = '120%';
-    }
-  },
-
-  _checkMobileDevice: function _checkMobileDevice() {
-    if (this._isMobile === undefined) {
-      this._isMobile = false;
-      if (this.options.mobileMediaQuery) {
-        this._isMobile = window.matchMedia(this.options.mobileMediaQuery).matches;
-      }
-    }
-    return this._isMobile;
-  },
-
-  _initLoader: function _initLoader() {
-    // is this not awesome?
-    var template$$1 = '<div class="socket">\n      <div class="gel center-gel">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c1 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c2 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c3 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c4 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c5 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c6 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c7 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c8 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c9 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c10 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c11 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c12 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c13 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c14 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c15 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c16 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c17 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c18 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c19 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c20 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c21 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c22 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c23 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c24 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c25 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c26 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c28 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c29 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c30 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c31 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c32 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c33 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c34 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c35 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c36 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c37 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n    </div>';
-
-    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
-    while (body.children.length) {
-      this._panes['loader'].appendChild(body.children[0]);
-    }
-  },
-
-  EOT: true
-});
-
-var Control = Class.extend({
-    // @section
-    // @aka Control options
-    options: {
-        // @option region: String = 'topright'
-        // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-        // `'topright'`, `'bottomleft'` or `'bottomright'`
-    },
-
-    initialize: function initialize(options) {
-        setOptions(this, options);
-        if (options.container) {
-            this._container = options.container;
-            this._locked = true;
-        }
-        this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
-    },
-
-    /* @section
-     * Classes extending L.Control will inherit the following methods:
-     *
-     * @method getRegion: string
-     * Returns the region of the control.
-     */
-    getRegion: function getRegion() {
-        return this.options.region;
-    },
-
-    // @method setRegion(region: string): this
-    // Sets the region of the control.
-    setRegion: function setRegion(region) {
-        var reader = this._reader;
-
-        if (reader) {
-            reader.removeControl(this);
-        }
-
-        this.options.region = region;
-
-        if (reader) {
-            reader.addControl(this);
-        }
-
-        return this;
-    },
-
-    // @method getContainer: HTMLElement
-    // Returns the HTMLElement that contains the control.
-    getContainer: function getContainer() {
-        return this._container;
-    },
-
-    // @method addTo(reader: Map): this
-    // Adds the control to the given reader.
-    addTo: function addTo(reader) {
-        this.remove();
-        this._reader = reader;
-
-        var container = this._container = this.onAdd(reader);
-
-        addClass(container, 'cozy-control');
-
-        if (!this._locked) {
-            var region = this.getRegion();
-            var area = reader.getControlRegion(region);
-            area.appendChild(container);
-        }
-
-        return this;
-    },
-
-    // @method remove: this
-    // Removes the control from the reader it is currently active on.
-    remove: function remove$$1() {
-        if (!this._reader) {
-            return this;
-        }
-
-        if (!this._container) {
-            return this;
-        }
-
-        if (!this._locked) {
-            remove(this._container);
-        }
-
-        if (this.onRemove) {
-            this.onRemove(this._reader);
-        }
-
-        this._reader = null;
-
-        return this;
-    },
-
-    _refocusOnMap: function _refocusOnMap(e) {
-        // if reader exists and event is not a keyboard event
-        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
-            this._reader.getContainer().focus();
-        }
-    },
-
-    _className: function _className(widget) {
-        var className = ['cozy-control'];
-        if (this.options.direction) {
-            className.push('cozy-control-' + this.options.direction);
-        }
-        if (widget) {
-            className.push('cozy-control-' + widget);
-        }
-        return className.join(' ');
-    }
-});
-
-var control = function control(options) {
-    return new Control(options);
-};
-
-/* @section Extension methods
- * @uninheritable
- *
- * Every control should extend from `L.Control` and (re-)implement the following methods.
- *
- * @method onAdd(reader: Map): HTMLElement
- * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
- *
- * @method onRemove(reader: Map)
- * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
- */
-
-/* @namespace Map
- * @section Methods for Layers and Controls
- */
-Reader.include({
-    // @method addControl(control: Control): this
-    // Adds the given control to the reader
-    addControl: function addControl(control) {
-        control.addTo(this);
-        return this;
-    },
-
-    // @method removeControl(control: Control): this
-    // Removes the given control from the reader
-    removeControl: function removeControl(control) {
-        control.remove();
-        return this;
-    },
-
-    getControlContainer: function getControlContainer() {
-        var l = 'cozy-';
-        if (!this._controlContainer) {
-            this._controlContainer = create$1('div', l + 'control-container', this._container);
-        }
-        return this._controlContainer;
-    },
-
-    getControlRegion: function getControlRegion(target) {
-
-        if (!this._panes[target]) {
-            // target is dot-delimited string
-            // first dot is the panel
-            var parts = target.split('.');
-            var tmp = [];
-            var parent = this._container;
-            var x = 0;
-            while (parts.length) {
-                var slug = parts.shift();
-                tmp.push(slug);
-                var panel = tmp.join(".");
-                var className = 'cozy-panel-' + slug;
-                if (!this._panes[panel]) {
-                    this._panes[panel] = create$1('div', className, parent);
-                }
-                parent = this._panes[panel];
-                x += 1;
-                if (x > 100) {
-                    break;
-                }
-            }
-        }
-        return this._panes[target];
-    },
-
-    getControlRegion_1: function getControlRegion_1(target) {
-
-        var tmp = target.split('.');
-        var region = tmp.shift();
-        var slot = tmp.pop() || '-slot';
-
-        var container = this._panes[region];
-        if (!this._panes[target]) {
-            var className = 'cozy-' + region + '--item cozy-slot-' + slot;
-            if (!this._panes[region + '.' + slot]) {
-                var div = create$1('div', className);
-                if (slot == 'left' || slot == 'bottom') {
-                    var childElement = this._panes[region].firstChild;
-                    this._panes[region].insertBefore(div, childElement);
-                } else {
-                    this._panes[region].appendChild(div);
-                }
-                this._panes[region + '.' + slot] = div;
-            }
-            className = this._classify(tmp);
-            this._panes[target] = create$1('div', className, this._panes[region + '.' + slot]);
-        }
-
-        return this._panes[target];
-    },
-
-    _classify: function _classify(tmp) {
-        var l = 'cozy-';
-        var className = [];
-        for (var i in tmp) {
-            className.push(l + tmp[i]);
-        }
-        className = className.join(' ');
-        return className;
-    },
-
-    _clearControlRegion: function _clearControlRegion() {
-        for (var i in this._controlRegions) {
-            remove(this._controlRegions[i]);
-        }
-        remove(this._controlContainer);
-        delete this._controlRegions;
-        delete this._controlContainer;
-    }
-});
-
-var PageControl = Control.extend({
-  onAdd: function onAdd(reader) {
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-
-      var className = this._className(),
-          options = this.options;
-      container = create$1('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
-    }
-    this._bindEvents();
-
-    return container;
-  },
-
-  _createButton: function _createButton(html, title, className, container) {
-    var link = create$1('a', className, container);
-    link.innerHTML = html;
-    link.href = '#';
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-
-    return link;
-  },
-
-  _bindEvents: function _bindEvents() {
-    var self = this;
-    disableClickPropagation(this._control);
-    on(this._control, 'click', stop);
-    on(this._control, 'click', this._action, this);
-
-    this._reader.on('reopen', function (data) {
-      // update the button text / titles
-      var html = self.options.html || self.options.label;
-      self._control.innerHTML = self._fill(html);
-      self._control.setAttribute('title', self._fill(self.options.label));
-      self._control.setAttribute('aria-label', self._fill(self.options.label));
-    });
-  },
-
-  _unit: function _unit() {
-    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
-  },
-
-  _fill: function _fill(s) {
-    var unit = this._unit();
-    return s.replace(/\$\{unit\}/g, unit);
-  },
-
-  _label: function _label() {
-    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
-  },
-
-  EOT: true
-});
-
-var PagePrevious = PageControl.extend({
-  options: {
-    region: 'edge.left',
-    direction: 'previous',
-    label: 'Previous ${unit}',
-    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
-  },
-
-  _action: function _action(e) {
-    this._reader.prev();
-  }
-});
-
-var PageNext = PageControl.extend({
-  options: {
-    region: 'edge.right',
-    direction: 'next',
-    label: 'Next ${unit}',
-    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
-  },
-
-  _action: function _action(e) {
-    this._reader.next();
-  }
-});
-
-var PageFirst = PageControl.extend({
-  options: {
-    direction: 'first',
-    label: 'First ${unit}'
-  },
-  _action: function _action(e) {
-    this._reader.first();
-  }
-});
-
-var PageLast = PageControl.extend({
-  options: {
-    direction: 'last',
-    label: 'Last ${unit}'
-  },
-  _action: function _action(e) {
-    this._reader.last();
-  }
-});
-
-var pageNext = function pageNext(options) {
-  return new PageNext(options);
-};
-
-var pagePrevious = function pagePrevious(options) {
-  return new PagePrevious(options);
-};
-
-var pageFirst = function pageFirst(options) {
-  return new PageFirst(options);
-};
-
-var pageLast = function pageLast(options) {
-  return new PageLast(options);
-};
-
 var asyncTag = '[object AsyncFunction]';
 var funcTag = '[object Function]';
 var genTag = '[object GeneratorFunction]';
@@ -3966,6 +3094,918 @@ var assign = _createAssigner(function(object, source) {
 
 var assign_1 = assign;
 
+var document$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
+var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
+
+var fn = function () {
+  var val;
+
+  var fnMap = [['requestFullscreen', 'exitFullscreen', 'fullscreenElement', 'fullscreenEnabled', 'fullscreenchange', 'fullscreenerror'],
+  // New WebKit
+  ['webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitFullscreenElement', 'webkitFullscreenEnabled', 'webkitfullscreenchange', 'webkitfullscreenerror'],
+  // Old WebKit (Safari 5.1)
+  ['webkitRequestFullScreen', 'webkitCancelFullScreen', 'webkitCurrentFullScreenElement', 'webkitCancelFullScreen', 'webkitfullscreenchange', 'webkitfullscreenerror'], ['mozRequestFullScreen', 'mozCancelFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled', 'mozfullscreenchange', 'mozfullscreenerror'], ['msRequestFullscreen', 'msExitFullscreen', 'msFullscreenElement', 'msFullscreenEnabled', 'MSFullscreenChange', 'MSFullscreenError']];
+
+  var i = 0;
+  var l = fnMap.length;
+  var ret = {};
+
+  for (; i < l; i++) {
+    val = fnMap[i];
+    if (val && val[1] in document$1) {
+      for (i = 0; i < val.length; i++) {
+        ret[fnMap[0][i]] = val[i];
+      }
+      return ret;
+    }
+  }
+
+  return false;
+}();
+
+var eventNameMap = {
+  change: fn.fullscreenchange,
+  error: fn.fullscreenerror
+};
+
+var screenfull = {
+  request: function request(elem) {
+    var request = fn.requestFullscreen;
+
+    elem = elem || document$1.documentElement;
+
+    // Work around Safari 5.1 bug: reports support for
+    // keyboard in fullscreen even though it doesn't.
+    // Browser sniffing, since the alternative with
+    // setTimeout is even worse.
+    if (/5\.1[.\d]* Safari/.test(navigator.userAgent)) {
+      elem[request]();
+    } else {
+      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+    }
+  },
+  exit: function exit() {
+    document$1[fn.exitFullscreen]();
+  },
+  toggle: function toggle(elem) {
+    if (this.isFullscreen) {
+      this.exit();
+    } else {
+      this.request(elem);
+    }
+  },
+  onchange: function onchange(callback) {
+    this.on('change', callback);
+  },
+  onerror: function onerror(callback) {
+    this.on('error', callback);
+  },
+  on: function on(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.addEventListener(eventName, callback, false);
+    }
+  },
+  off: function off(event, callback) {
+    var eventName = eventNameMap[event];
+    if (eventName) {
+      document$1.removeEventListener(eventName, callback, false);
+    }
+  },
+  raw: fn
+};
+
+Object.defineProperties(screenfull, {
+  isFullscreen: {
+    get: function get() {
+      return Boolean(document$1[fn.fullscreenElement]);
+    }
+  },
+  element: {
+    enumerable: true,
+    get: function get() {
+      return document$1[fn.fullscreenElement];
+    }
+  },
+  enabled: {
+    enumerable: true,
+    get: function get() {
+      // Coerce to boolean in case of old WebKit
+      return Boolean(document$1[fn.fullscreenEnabled]);
+    }
+  }
+});
+
+var Reader = Evented.extend({
+  options: {
+    regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
+    metadata: {},
+    flow: 'auto',
+    engine: 'epubjs',
+    fontSizeLarge: '140%',
+    fontSizeSmall: '90%',
+    fontSizeDefault: '100%',
+    trackResize: true,
+    text_size: 100,
+    mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
+    theme: 'default',
+    themes: []
+  },
+
+  initialize: function initialize(id, options) {
+    var self = this;
+
+    if (localStorage.getItem('cozy.options')) {
+      options = assign_1(options, JSON.parse(localStorage.getItem('cozy.options')));
+    }
+    options = setOptions(this, options);
+
+    this._checkFeatureCompatibility();
+
+    this.metadata = this.options.metadata; // initial seed
+
+    this._initContainer(id);
+    this._initLayout();
+
+    if (this.options.themes && this.options.themes.length > 0) {
+      this.options.themes.forEach(function (theme) {
+        if (theme.href) {
+          return;
+        }
+        var klass = theme.klass;
+        var rules = {};
+        for (var rule in theme.rules) {
+          var new_rule = '.' + klass;
+          if (rule == 'body') {
+            new_rule = 'body' + new_rule;
+          } else {
+            new_rule += ' ' + rule;
+          }
+          rules[new_rule] = theme.rules[rule];
+        }
+        theme.rules = rules;
+      });
+    }
+
+    this._updateTheme();
+
+    // hack for https://github.com/Leaflet/Leaflet/issues/1980
+    // this._onResize = Util.bind(this._onResize, this);
+
+    this._initEvents();
+
+    this.callInitHooks();
+
+    this._mode = this.options.mode;
+  },
+
+  start: function start(target, cb) {
+    var self = this;
+
+    if (typeof target == 'function' && cb === undefined) {
+      cb = target;
+      target = undefined;
+    }
+
+    loader.js(this.options.engine_href).then(function () {
+      self._start(target, cb);
+      self._loaded = true;
+    });
+  },
+
+  _start: function _start(target, cb) {
+    var self = this;
+    target = target || 0;
+
+    self.open(function () {
+      self.draw(target, cb);
+    });
+  },
+
+  switch: function _switch(flow, target) {
+    var target = target || this.currentLocation();
+    if (flow === undefined) {
+      flow = this.options.flow == 'auto' ? 'scrolled-doc' : 'auto';
+    }
+    this.options.flow = flow;
+    this.destroy();
+    this.draw(target);
+  },
+
+  reopen: function reopen(options, target) {
+    var target = target || this.currentLocation();
+    extend(this.options, options);
+    this.destroy();
+    console.log("AHOY REOPENED?");
+    return;
+    this.draw(target);
+    this.fire('reopen');
+  },
+
+  saveOptions: function saveOptions(options) {
+    localStorage.setItem('cozy.options', JSON.stringify(options));
+  },
+
+  _updateTheme: function _updateTheme() {
+    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'default'));
+    addClass(this._container, 'cozy-theme-' + this.options.theme);
+    this._container.dataset.theme = this.options.theme;
+  },
+
+  draw: function draw(target) {
+    // NOOP
+  },
+
+  next: function next() {
+    // NOOP
+  },
+
+  prev: function prev() {
+    // NOOP
+  },
+
+  display: function display(index) {
+    // NOOP
+  },
+
+  gotoPage: function gotoPage(target) {
+    // NOOP
+  },
+
+  goBack: function goBack() {
+    history.back();
+  },
+
+  goForward: function goForward() {
+    history.forward();
+  },
+
+  requestFullscreen: function requestFullscreen() {
+    if (screenfull.enabled) {
+      // this._preResize();
+      screenfull.toggle(this._container);
+    }
+  },
+
+  _preResize: function _preResize() {},
+
+  _initContainer: function _initContainer(id) {
+    var container = this._container = get$1(id);
+
+    if (!container) {
+      throw new Error('Reader container not found.');
+    } else if (container._cozy_id) {
+      throw new Error('Reader container is already initialized.');
+    }
+
+    on(container, 'scroll', this._onScroll, this);
+    this._containerId = stamp(container);
+  },
+
+  _initLayout: function _initLayout() {
+    var container = this._container;
+
+    this._fadeAnimated = this.options.fadeAnimation && any3d;
+
+    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
+
+    var position = getStyle(container, 'position');
+
+    this._initPanes();
+
+    if (!columnCount) {
+      this.options.flow = 'scrolled-doc';
+    }
+  },
+
+  _initPanes: function _initPanes() {
+    var self = this;
+
+    var panes = this._panes = {};
+
+    var l = 'cozy-';
+    var container = this._container;
+
+    var prefix = 'cozy-module-';
+
+    addClass(container, 'cozy-container');
+    panes['top'] = create$1('div', prefix + 'top', container);
+    panes['main'] = create$1('div', prefix + 'main', container);
+    panes['bottom'] = create$1('div', prefix + 'bottom', container);
+
+    panes['left'] = create$1('div', prefix + 'left', panes['main']);
+    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
+    panes['right'] = create$1('div', prefix + 'right', panes['main']);
+    panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
+    panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
+    this._initLoader();
+  },
+
+  _checkIfLoaded: function _checkIfLoaded() {
+    if (!this._loaded) {
+      throw new Error('Set map center and zoom first.');
+    }
+  },
+
+  // DOM event handling
+
+  // @section Interaction events
+  _initEvents: function _initEvents(remove$$1) {
+    this._targets = {};
+    this._targets[stamp(this._container)] = this;
+
+    var onOff = remove$$1 ? off : on;
+
+    // @event click: MouseEvent
+    // Fired when the user clicks (or taps) the map.
+    // @event dblclick: MouseEvent
+    // Fired when the user double-clicks (or double-taps) the map.
+    // @event mousedown: MouseEvent
+    // Fired when the user pushes the mouse button on the map.
+    // @event mouseup: MouseEvent
+    // Fired when the user releases the mouse button on the map.
+    // @event mouseover: MouseEvent
+    // Fired when the mouse enters the map.
+    // @event mouseout: MouseEvent
+    // Fired when the mouse leaves the map.
+    // @event mousemove: MouseEvent
+    // Fired while the mouse moves over the map.
+    // @event contextmenu: MouseEvent
+    // Fired when the user pushes the right mouse button on the map, prevents
+    // default browser context menu from showing if there are listeners on
+    // this event. Also fired on mobile when the user holds a single touch
+    // for a second (also called long press).
+    // @event keypress: KeyboardEvent
+    // Fired when the user presses a key from the keyboard while the map is focused.
+    // onOff(this._container, 'click dblclick mousedown mouseup ' +
+    //   'mouseover mouseout mousemove contextmenu keypress', this._handleDOMEvent, this);
+
+    // if (this.options.trackResize) {
+    //   var self = this;
+    //   var fn = debounce(function(){ self.invalidateSize({}); }, 150);
+    //   onOff(window, 'resize', fn, this);
+    // }
+
+    if (any3d && this.options.transform3DLimit) {
+      (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
+    }
+
+    var self = this;
+    if (screenfull.enabled) {
+      screenfull.on('change', function () {
+        // setTimeout(function() {
+        //   self.invalidateSize({});
+        // }, 100);
+        console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
+      });
+    }
+
+    self.on("updateLocation", function (location) {
+      var location_href = location.start;
+
+      if (self._ignoreHistory) {
+        self._ignoreHistory = false;
+      } else {
+        var tmp_href = window.location.href.split("#");
+        tmp_href[1] = location_href.substr(8, location_href.length - 8 - 1);
+        history.pushState({ cfi: location_href }, '', tmp_href.join('#'));
+      }
+
+      // window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+    });
+
+    window.addEventListener('popstate', function (event) {
+      if (event.isTrusted && event.state !== null) {
+        self._ignoreHistory = true;
+        self.gotoPage(event.state.cfi);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      var keyName = event.key;
+      var target = event.target;
+      var IGNORE_TARGETS = ['input', 'target'];
+      if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
+        return;
+      }
+
+      self.fire('keyDown', { keyName: keyName });
+    });
+
+    self.on('keyDown', function (keyName) {
+      switch (keyName.keyName) {
+        case 'ArrowRight':
+        case 'PageDown':
+          self.next();
+          break;
+        case 'ArrowLeft':
+        case 'PageUp':
+          self.prev();
+          break;
+        case 'Home':
+          self._scroll('HOME');
+          break;
+        case 'End':
+          self._scroll('END');
+          break;
+      }
+    });
+  },
+
+  // _onResize: function() {
+  //   if ( ! this._resizeRequest ) {
+  //     this._resizeRequest = Util.requestAnimFrame(function() {
+  //       this.invalidateSize({})
+  //     }, this);
+  //   }
+  // },
+
+  _onScroll: function _onScroll() {
+    this._container.scrollTop = 0;
+    this._container.scrollLeft = 0;
+  },
+
+  _handleDOMEvent: function _handleDOMEvent(e) {
+    if (!this._loaded || skipped(e)) {
+      return;
+    }
+
+    var type = e.type === 'keypress' && e.keyCode === 13 ? 'click' : e.type;
+
+    if (type === 'mousedown') {
+      // prevents outline when clicking on keyboard-focusable element
+      preventOutline(e.target || e.srcElement);
+    }
+
+    this._fireDOMEvent(e, type);
+  },
+
+  _fireDOMEvent: function _fireDOMEvent(e, type, targets) {
+
+    if (e.type === 'click') {
+      // Fire a synthetic 'preclick' event which propagates up (mainly for closing popups).
+      // @event preclick: MouseEvent
+      // Fired before mouse click on the map (sometimes useful when you
+      // want something to happen on click before any existing click
+      // handlers start running).
+      var synth = extend({}, e);
+      synth.type = 'preclick';
+      this._fireDOMEvent(synth, synth.type, targets);
+    }
+
+    if (e._stopped) {
+      return;
+    }
+
+    // Find the layer the event is propagating from and its parents.
+    targets = (targets || []).concat(this._findEventTargets(e, type));
+
+    if (!targets.length) {
+      return;
+    }
+
+    var target = targets[0];
+    if (type === 'contextmenu' && target.listens(type, true)) {
+      preventDefault(e);
+    }
+
+    var data = {
+      originalEvent: e
+    };
+
+    if (e.type !== 'keypress') {
+      var isMarker = target.options && 'icon' in target.options;
+      data.containerPoint = isMarker ? this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
+      data.layerPoint = this.containerPointToLayerPoint(data.containerPoint);
+      data.latlng = isMarker ? target.getLatLng() : this.layerPointToLatLng(data.layerPoint);
+    }
+
+    for (var i = 0; i < targets.length; i++) {
+      targets[i].fire(type, data, true);
+      if (data.originalEvent._stopped || targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1) {
+        return;
+      }
+    }
+  },
+
+  getFixedBookPanelSize: function getFixedBookPanelSize() {
+    // have to make the book 
+    var style = window.getComputedStyle(this._panes['book']);
+    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
+    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
+  },
+
+  invalidateSize: function invalidateSize(options) {
+    // TODO: IS THIS EVER USED?
+    var self = this;
+
+    if (!self._drawn) {
+      return;
+    }
+
+    cancelAnimFrame(this._resizeRequest);
+
+    if (!this._loaded) {
+      return this;
+    }
+
+    this.fire('resized');
+  },
+
+  _resizeBookPane: function _resizeBookPane() {},
+
+  _setupHooks: function _setupHooks() {},
+
+  _checkFeatureCompatibility: function _checkFeatureCompatibility() {
+    if (!isPropertySupported('columnCount') || this._checkMobileDevice()) {
+      // force
+      this.options.flow = 'scrolled-doc';
+    }
+    if (this._checkMobileDevice()) {
+      // this.options.fontSizeLarge = '160%';
+      // this.options.fontSizeSmall ='100%';
+      // this.options.fontSizeDefault = '120%';
+      this.options.text_size = 120;
+    }
+  },
+
+  _checkMobileDevice: function _checkMobileDevice() {
+    if (this._isMobile === undefined) {
+      this._isMobile = false;
+      if (this.options.mobileMediaQuery) {
+        this._isMobile = window.matchMedia(this.options.mobileMediaQuery).matches;
+      }
+    }
+    return this._isMobile;
+  },
+
+  _initLoader: function _initLoader() {
+    // is this not awesome?
+    var template$$1 = '<div class="socket">\n      <div class="gel center-gel">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c1 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c2 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c3 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c4 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c5 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c6 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c7 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c8 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c9 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c10 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c11 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c12 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c13 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c14 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c15 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c16 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c17 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c18 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c19 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c20 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c21 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c22 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c23 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c24 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c25 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c26 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c28 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c29 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c30 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c31 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c32 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c33 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c34 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c35 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c36 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c37 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n    </div>';
+
+    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
+    while (body.children.length) {
+      this._panes['loader'].appendChild(body.children[0]);
+    }
+  },
+
+  EOT: true
+});
+
+var Control = Class.extend({
+    // @section
+    // @aka Control options
+    options: {
+        // @option region: String = 'topright'
+        // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+        // `'topright'`, `'bottomleft'` or `'bottomright'`
+    },
+
+    initialize: function initialize(options) {
+        setOptions(this, options);
+        if (options.container) {
+            this._container = options.container;
+            this._locked = true;
+        }
+        this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+    },
+
+    /* @section
+     * Classes extending L.Control will inherit the following methods:
+     *
+     * @method getRegion: string
+     * Returns the region of the control.
+     */
+    getRegion: function getRegion() {
+        return this.options.region;
+    },
+
+    // @method setRegion(region: string): this
+    // Sets the region of the control.
+    setRegion: function setRegion(region) {
+        var reader = this._reader;
+
+        if (reader) {
+            reader.removeControl(this);
+        }
+
+        this.options.region = region;
+
+        if (reader) {
+            reader.addControl(this);
+        }
+
+        return this;
+    },
+
+    // @method getContainer: HTMLElement
+    // Returns the HTMLElement that contains the control.
+    getContainer: function getContainer() {
+        return this._container;
+    },
+
+    // @method addTo(reader: Map): this
+    // Adds the control to the given reader.
+    addTo: function addTo(reader) {
+        this.remove();
+        this._reader = reader;
+
+        var container = this._container = this.onAdd(reader);
+
+        addClass(container, 'cozy-control');
+
+        if (!this._locked) {
+            var region = this.getRegion();
+            var area = reader.getControlRegion(region);
+            area.appendChild(container);
+        }
+
+        return this;
+    },
+
+    // @method remove: this
+    // Removes the control from the reader it is currently active on.
+    remove: function remove$$1() {
+        if (!this._reader) {
+            return this;
+        }
+
+        if (!this._container) {
+            return this;
+        }
+
+        if (!this._locked) {
+            remove(this._container);
+        }
+
+        if (this.onRemove) {
+            this.onRemove(this._reader);
+        }
+
+        this._reader = null;
+
+        return this;
+    },
+
+    _refocusOnMap: function _refocusOnMap(e) {
+        // if reader exists and event is not a keyboard event
+        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
+            this._reader.getContainer().focus();
+        }
+    },
+
+    _className: function _className(widget) {
+        var className = ['cozy-control'];
+        if (this.options.direction) {
+            className.push('cozy-control-' + this.options.direction);
+        }
+        if (widget) {
+            className.push('cozy-control-' + widget);
+        }
+        return className.join(' ');
+    }
+});
+
+var control = function control(options) {
+    return new Control(options);
+};
+
+/* @section Extension methods
+ * @uninheritable
+ *
+ * Every control should extend from `L.Control` and (re-)implement the following methods.
+ *
+ * @method onAdd(reader: Map): HTMLElement
+ * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
+ *
+ * @method onRemove(reader: Map)
+ * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
+ */
+
+/* @namespace Map
+ * @section Methods for Layers and Controls
+ */
+Reader.include({
+    // @method addControl(control: Control): this
+    // Adds the given control to the reader
+    addControl: function addControl(control) {
+        control.addTo(this);
+        return this;
+    },
+
+    // @method removeControl(control: Control): this
+    // Removes the given control from the reader
+    removeControl: function removeControl(control) {
+        control.remove();
+        return this;
+    },
+
+    getControlContainer: function getControlContainer() {
+        var l = 'cozy-';
+        if (!this._controlContainer) {
+            this._controlContainer = create$1('div', l + 'control-container', this._container);
+        }
+        return this._controlContainer;
+    },
+
+    getControlRegion: function getControlRegion(target) {
+
+        if (!this._panes[target]) {
+            // target is dot-delimited string
+            // first dot is the panel
+            var parts = target.split('.');
+            var tmp = [];
+            var parent = this._container;
+            var x = 0;
+            while (parts.length) {
+                var slug = parts.shift();
+                tmp.push(slug);
+                var panel = tmp.join(".");
+                var className = 'cozy-panel-' + slug;
+                if (!this._panes[panel]) {
+                    this._panes[panel] = create$1('div', className, parent);
+                }
+                parent = this._panes[panel];
+                x += 1;
+                if (x > 100) {
+                    break;
+                }
+            }
+        }
+        return this._panes[target];
+    },
+
+    getControlRegion_1: function getControlRegion_1(target) {
+
+        var tmp = target.split('.');
+        var region = tmp.shift();
+        var slot = tmp.pop() || '-slot';
+
+        var container = this._panes[region];
+        if (!this._panes[target]) {
+            var className = 'cozy-' + region + '--item cozy-slot-' + slot;
+            if (!this._panes[region + '.' + slot]) {
+                var div = create$1('div', className);
+                if (slot == 'left' || slot == 'bottom') {
+                    var childElement = this._panes[region].firstChild;
+                    this._panes[region].insertBefore(div, childElement);
+                } else {
+                    this._panes[region].appendChild(div);
+                }
+                this._panes[region + '.' + slot] = div;
+            }
+            className = this._classify(tmp);
+            this._panes[target] = create$1('div', className, this._panes[region + '.' + slot]);
+        }
+
+        return this._panes[target];
+    },
+
+    _classify: function _classify(tmp) {
+        var l = 'cozy-';
+        var className = [];
+        for (var i in tmp) {
+            className.push(l + tmp[i]);
+        }
+        className = className.join(' ');
+        return className;
+    },
+
+    _clearControlRegion: function _clearControlRegion() {
+        for (var i in this._controlRegions) {
+            remove(this._controlRegions[i]);
+        }
+        remove(this._controlContainer);
+        delete this._controlRegions;
+        delete this._controlContainer;
+    }
+});
+
+var PageControl = Control.extend({
+  onAdd: function onAdd(reader) {
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+
+      var className = this._className(),
+          options = this.options;
+      container = create$1('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
+    }
+    this._bindEvents();
+
+    return container;
+  },
+
+  _createButton: function _createButton(html, title, className, container) {
+    var link = create$1('a', className, container);
+    link.innerHTML = html;
+    link.href = '#';
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+
+    return link;
+  },
+
+  _bindEvents: function _bindEvents() {
+    var self = this;
+    disableClickPropagation(this._control);
+    on(this._control, 'click', stop);
+    on(this._control, 'click', this._action, this);
+
+    this._reader.on('reopen', function (data) {
+      // update the button text / titles
+      var html = self.options.html || self.options.label;
+      self._control.innerHTML = self._fill(html);
+      self._control.setAttribute('title', self._fill(self.options.label));
+      self._control.setAttribute('aria-label', self._fill(self.options.label));
+    });
+  },
+
+  _unit: function _unit() {
+    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
+  },
+
+  _fill: function _fill(s) {
+    var unit = this._unit();
+    return s.replace(/\$\{unit\}/g, unit);
+  },
+
+  _label: function _label() {
+    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
+  },
+
+  EOT: true
+});
+
+var PagePrevious = PageControl.extend({
+  options: {
+    region: 'edge.left',
+    direction: 'previous',
+    label: 'Previous ${unit}',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
+  },
+
+  _action: function _action(e) {
+    this._reader.prev();
+  }
+});
+
+var PageNext = PageControl.extend({
+  options: {
+    region: 'edge.right',
+    direction: 'next',
+    label: 'Next ${unit}',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
+  },
+
+  _action: function _action(e) {
+    this._reader.next();
+  }
+});
+
+var PageFirst = PageControl.extend({
+  options: {
+    direction: 'first',
+    label: 'First ${unit}'
+  },
+  _action: function _action(e) {
+    this._reader.first();
+  }
+});
+
+var PageLast = PageControl.extend({
+  options: {
+    direction: 'last',
+    label: 'Last ${unit}'
+  },
+  _action: function _action(e) {
+    this._reader.last();
+  }
+});
+
+var pageNext = function pageNext(options) {
+  return new PageNext(options);
+};
+
+var pagePrevious = function pagePrevious(options) {
+  return new PagePrevious(options);
+};
+
+var pageFirst = function pageFirst(options) {
+  return new PageFirst(options);
+};
+
+var pageLast = function pageLast(options) {
+  return new PageLast(options);
+};
+
 var activeModal;
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
@@ -4519,6 +4559,7 @@ var Preferences = Control.extend({
 
   _action: function _action() {
     var self = this;
+    self.initializeForm();
     self._modal.activate();
   },
 
@@ -4542,105 +4583,84 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
-    var template = '<fieldset>\n        <legend>Text Size</legend>\n        <label><input name="text_size" type="radio" id="preferences-input-size-small" value="small" />Small</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-auto" value="auto" />Default</label>\n        <label><input name="text_size" type="radio" id="preferences-input-size-large" value="large" />Large</label>\n      </fieldset>          \n      <fieldset>\n        <legend>Text Display</legend>\n        <label><input name="flow" type="radio" id="preferences-input-paginated" value="paginated" />Page-by-Page</label>\n        <label><input name="flow" type="radio" id="preferences-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n      </fieldset>';
+    var template$$1 = '';
+
+    var possible_fieldsets = [];
+    if (this._reader.metadata.layout == 'pre-paginated') {
+      // different panel
+    } else {
+      possible_fieldsets.push('TextSize');
+    }
+    possible_fieldsets.push('Display');
 
     if (this._reader.options.themes && this._reader.options.themes.length > 0) {
-      self.options.hasThemes = true;
-      template += '<fieldset>\n        <legend>Theme</legend>\n        <label><input name="theme" type="radio" id="preferences-input-theme-default" value="default" />Default</label>';
-
-      this._reader.options.themes.forEach(function (theme) {
-        template += '<label><input name="theme" type="radio" id="preferences-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
-      });
-
-      template += '</fieldset>';
+      this.options.hasThemes = true;
+      possible_fieldsets.push('Theme');
     }
+
+    this._fieldsets = [];
+    possible_fieldsets.forEach(function (cls) {
+      var fieldset = new Preferences.fieldset[cls](this);
+      template$$1 += fieldset.template();
+      this._fieldsets.push(fieldset);
+    }.bind(this));
 
     if (this.options.fields) {
       this.options.hasFields = true;
       for (var i in this.options.fields) {
         var field = this.options.fields[i];
         var id = "preferences-custom-" + i;
-        template += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
+        template$$1 += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
         for (var j in field.inputs) {
           var input = field.inputs[j];
           var checked = input.value == field.value ? ' checked="checked"' : '';
-          template += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
+          template$$1 += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="x' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
         }
         if (field.hint) {
-          template += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
+          template$$1 += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
         }
       }
     }
 
-    template = '<form>' + template + '</form>';
+    template$$1 = '<form>' + template$$1 + '</form>';
 
     this._modal = this._reader.modal({
-      template: template,
+      template: template$$1,
       title: 'Preferences',
       className: 'cozy-modal-preferences',
       actions: [{
         label: 'Save Changes',
         callback: function callback(event) {
-          self._updatePreferences(event);
+          self.updatePreferences(event);
         }
       }],
       region: 'right'
     });
 
     this._form = this._modal._container.querySelector('form');
-    this._initializeForm();
   },
 
-  _initializeForm: function _initializeForm() {
-    var input, input_id;
-    this._lastValues = {};
-    /// input_id = "preferences-input-" + ( this._reader.options.flow == 'scrolled-doc' ? 'scrollable' : 'reflowable' );
-    input_id = "preferences-input-" + (this._reader.options.flow == 'auto' ? 'paginated' : 'scrolled-doc');
-    input = this._form.querySelector("#" + input_id);
-    input.checked = true;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    input_id = "preferences-input-size-" + (this._reader.options.text_size || 'auto');
-    input = this._form.querySelector("#" + input_id);
-    input.checked = true;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    if (this.options.hasThemes) {
-      input_id = "preferences-input-theme-" + (this._reader.options.theme || 'default');
-      input = this._form.querySelector("#" + input_id);
-      input.checked = true;
-      input.parentElement.parentElement.dataset.last = input.value;
-    }
+  initializeForm: function initializeForm() {
+    this._fieldsets.forEach(function (fieldset) {
+      fieldset.initializeForm(this._form);
+    }.bind(this));
   },
 
-  _updatePreferences: function _updatePreferences(event) {
-    var self = this;
+  updatePreferences: function updatePreferences(event) {
     event.preventDefault();
 
     var doUpdate = false;
-    var options = {};
-    var input = this._form.querySelector("input[name='flow']:checked");
-    doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-    options.flow = input.value;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    input = this._form.querySelector("input[name='text_size']:checked");
-    doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-    options.text_size = input.value;
-    input.parentElement.parentElement.dataset.last = input.value;
-
-    if (this.options.hasThemes) {
-      input = this._form.querySelector("input[name='theme']:checked");
-      doUpdate = doUpdate || input.value != input.parentElement.parentElement.dataset.last;
-      options.theme = input.value;
-      input.parentElement.parentElement.dataset.last = input.value;
-    }
+    var new_options = {};
+    this._fieldsets.forEach(function (fieldset) {
+      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
+      assign_1(new_options, fieldset.updateForm(this._form));
+    }.bind(this));
 
     if (this.options.hasFields) {
       for (var i in this.options.fields) {
         var field = this.options.fields[i];
         var id = "preferences-custom-" + i;
-        var input = this._form.querySelector('input[name="' + field.name + '"]:checked');
+        var input = this._form.querySelector('input[name="x' + field.name + '"]:checked');
         if (input.value != field.value) {
           field.value = input.value;
           field.callback(field.value);
@@ -4650,14 +4670,129 @@ var Preferences = Control.extend({
 
     this._modal.deactivate();
 
-    if (doUpdate) {
-      setTimeout(function () {
-        self._reader.reopen(options);
-      }, 100);
-    }
+    setTimeout(function () {
+      this._reader.saveOptions(new_options);
+      this._reader.reopen(new_options);
+    }.bind(this), 100);
   },
 
   EOT: true
+});
+
+Preferences.fieldset = {};
+
+var Fieldset = Class.extend({
+
+  options: {},
+
+  initialize: function initialize(control$$1, options) {
+    setOptions(this, options);
+    this._control = control$$1;
+    this._current = {};
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+  },
+
+  template: function template$$1() {},
+
+  EOT: true
+
+});
+
+Preferences.fieldset.TextSize = Fieldset.extend({
+
+  initializeForm: function initializeForm(form) {
+    if (!this._input) {
+      this._input = form.querySelector('#x' + this._id + '-input');
+      this._output = form.querySelector('#x' + this._id + '-output');
+      this._preview = form.querySelector('#x' + this._id + '-preview');
+
+      this._input.addEventListener('input', this._updatePreview.bind(this));
+      this._input.addEventListener('change', this._updatePreview.bind(this));
+    }
+
+    var text_size = this._control._reader.options.text_size || 100;
+    if (text_size == 'auto') {
+      text_size = 100;
+    }
+    this._current.text_size = text_size;
+    this._input.value = text_size;
+    this._updatePreview();
+  },
+
+  updateForm: function updateForm(form) {
+    return { text_size: this._input.value };
+    // options.text_size = this._input.value;
+    // return ( this._input.value != this._current.text_size );
+  },
+
+  template: function template$$1() {
+    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
+  },
+
+  _updatePreview: function _updatePreview() {
+    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
+    this._output.value = this._input.value + '%';
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Display = Fieldset.extend({
+
+  initializeForm: function initializeForm(form) {
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
+    if (flow == 'auto') {
+      flow = 'paginated';
+    }
+
+    var input = form.querySelector('#x' + this._id + '-input-' + flow);
+    input.checked = true;
+    this._current.flow = flow;
+  },
+
+  updateForm: function updateForm(form) {
+    var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
+    return { flow: input.value };
+  },
+
+  template: function template$$1() {
+    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" />Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n          </fieldset>';
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Theme = Fieldset.extend({
+
+  initializeForm: function initializeForm(form) {
+    var theme = this._control._reader.options.theme || 'default';
+
+    var input = form.querySelector('#x' + this._id + '-input-theme-' + theme);
+    input.checked = true;
+    this._current.theme = theme;
+  },
+
+  updateForm: function updateForm(form) {
+    var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
+    return { theme: input.value };
+  },
+
+  template: function template$$1() {
+    var template$$1 = '<fieldset>\n            <legend>Theme</legend>\n            <label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-default" value="default" />Default</label>';
+
+    this._control._reader.options.themes.forEach(function (theme) {
+      template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
+    }.bind(this));
+
+    template$$1 += '</fieldset>';
+
+    return template$$1;
+  },
+
+  EOT: true
+
 });
 
 var preferences = function preferences(options) {
@@ -5597,6 +5732,11 @@ Reader.EpubJS = Reader.extend({
       self._rendition.hooks.content.register(function (contents) {
         self.fire('ready:contents', contents);
         self.fire('readyContents', contents);
+        contents.document.addEventListener('keydown', function (event) {
+          var keyName = event.key;
+          self.fire('keyDown', { keyName: keyName });
+          console.log('inner keydown event: ', keyName);
+        });
       });
 
       if (target && target.start) {
@@ -5626,6 +5766,34 @@ Reader.EpubJS = Reader.extend({
     });
   },
 
+  _scroll: function _scroll(delta) {
+    var self = this;
+    if (self.options.flow == 'scrolled-doc') {
+      var container = self._rendition.manager.container;
+      var rect = container.getBoundingClientRect();
+      var scrollTop = container.scrollTop;
+      var newScrollTop = scrollTop;
+      var scrollBy = rect.height * 0.98;
+      switch (delta) {
+        case 'PREV':
+          newScrollTop = -(scrollTop + scrollBy);
+          break;
+        case 'NEXT':
+          newScrollTop = scrollTop + scrollBy;
+          break;
+        case 'HOME':
+          newScrollTop = 0;
+          break;
+        case 'END':
+          newScrollTop = container.scrollHeight - scrollBy;
+          break;
+      }
+      container.scrollTop = newScrollTop;
+      return Math.floor(container.scrollTop) != Math.floor(scrollTop);
+    }
+    return false;
+  },
+
   _navigate: function _navigate(promise, callback) {
     var self = this;
     var t = setTimeout(function () {
@@ -5649,11 +5817,11 @@ Reader.EpubJS = Reader.extend({
 
   next: function next() {
     var self = this;
-    self._navigate(this._rendition.next());
+    self._scroll('NEXT') || self._navigate(this._rendition.next());
   },
 
   prev: function prev() {
-    this._navigate(this._rendition.prev());
+    this._scroll('PREV') || this._navigate(this._rendition.prev());
   },
 
   first: function first() {
@@ -5697,7 +5865,6 @@ Reader.EpubJS = Reader.extend({
 
   reopen: function reopen(options, target) {
     // different per reader?
-    var _this = this;
     var target = target || this.currentLocation();
     if (target.start) {
       target = target.start;
@@ -5706,10 +5873,19 @@ Reader.EpubJS = Reader.extend({
       target = target.cfi;
     }
 
+    var doUpdate = false;
+    Object.keys(options).forEach(function (key) {
+      doUpdate = doUpdate || options[key] != this.options[key];
+    }.bind(this));
+
+    if (!doUpdate) {
+      return;
+    }
+
     extend(this.options, options);
 
     if (this._rendition.settings.flow != options.flow) {
-      if (this.options.flow == 'auto') {
+      if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
         this._panes['book'].style.overflow = 'hidden';
       } else {
         this._panes['book'].style.overflow = 'auto';
@@ -5831,13 +6007,15 @@ Reader.EpubJS = Reader.extend({
   },
 
   _updateFontSize: function _updateFontSize() {
-    if (this.options.text_size == 'large') {
-      this._rendition.themes.fontSize(this.options.fontSizeLarge);
-    } else if (this.options.text_size == 'small') {
-      this._rendition.themes.fontSize(this.options.fontSizeSmall);
-    } else {
-      this._rendition.themes.fontSize(this.options.fontSizeDefault);
-    }
+    var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
+    this._rendition.themes.fontSize(text_size + '%');
+    // if ( this.options.text_size == 'large' ) {
+    //   this._rendition.themes.fontSize(this.options.fontSizeLarge);
+    // } else if ( this.options.text_size == 'small' ) {
+    //   this._rendition.themes.fontSize(this.options.fontSizeSmall);
+    // } else {
+    //   this._rendition.themes.fontSize(this.options.fontSizeDefault);
+    // }
   },
 
   EOT: true

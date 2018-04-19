@@ -14,7 +14,6 @@ function getSpecs(specList) {
 // Karma configuration
 module.exports = function (config) {
   var files = [
-    "src/cozy.js",
     "node_modules/sinon/pkg/sinon.js",
     "node_modules/expect.js/index.js",
 		"node_modules/happen/happen.js",
@@ -22,6 +21,12 @@ module.exports = function (config) {
 		"spec/SpecHelper.js" //,
 		// "spec/**/*Spec.js"
   ];
+
+  if ( process.env.KARMA_USE_DIST) {
+  	files.unshift("dist/cozy-sun-bear.js");
+  } else {
+  	files.unshift("src/cozy.js");
+  }
 
 	var exclude = [
   ];

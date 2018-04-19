@@ -67,7 +67,7 @@ describe("Control.Preferences", function () {
     	var input = fieldset.querySelector("input:not(:checked)");
     	input.checked = true;
     	var event = { preventDefault: function() { }};
-    	control._updatePreferences(event);
+    	control.updatePreferences(event);
     	expect(control._custom).to.eql(input.value);
     })
   })
