@@ -96,7 +96,7 @@ Reader.EpubJS = Reader.extend({
       var rect = container.getBoundingClientRect();
       var scrollTop = container.scrollTop;
       var newScrollTop = scrollTop;
-      var scrollBy = ( rect.height * 0.95 );
+      var scrollBy = ( rect.height * 0.98 );
       switch(delta) {
         case 'PREV':
           newScrollTop = -( scrollTop + scrollBy );
