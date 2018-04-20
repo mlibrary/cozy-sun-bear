@@ -95,7 +95,7 @@ export var Search = Control.extend({
     this._processing = true;
     this._emptyArticle();
     var value = this.searchString;
-    this._article.innerHTML = '<p class="spinner">Submitting query for <em>' + value + '</em>...</p>';
+    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate();
     this._modal.activate();
   },
 

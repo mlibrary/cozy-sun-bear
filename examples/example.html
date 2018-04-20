@@ -259,7 +259,7 @@
                 // obviously search will only work for this example if your environment is set up to handle it.
                 // if you're running ./tools/serve you can proxy to a heliotrope search with
                 // USE_EPUB_SEARCH=http://127.0.0.1:3000/epub_search/hd76s004z
-                cozy.control.search({
+                reader.__search = cozy.control.search({
                     region: 'top.toolbar.left',
                     searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
                 }).addTo(reader);
