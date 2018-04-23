@@ -24,8 +24,8 @@ export var Title = Control.extend({
     this._reader.on('updateSection', function(data) {
       if ( data && data.label ) {
         self._section.textContent = data.label;
-        DomUtil.setOpacity(self._section, 1.0);
-        DomUtil.setOpacity(self._divider, 1.0);
+        DomUtil.setOpacity(self._section, 0.0); // TODO: Set to 1.0 when solution to section title is found
+        DomUtil.setOpacity(self._divider, 0.0); // TODO: Set to 1.0 when solution to section title is found
       } else {
         DomUtil.setOpacity(self._section, 0);
         DomUtil.setOpacity(self._divider, 0);
