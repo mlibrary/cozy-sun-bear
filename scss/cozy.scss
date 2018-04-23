@@ -407,6 +407,7 @@ div.cozy-panel-footer {
 }
 
 .cozy-control {
+  display: flex;
   .cozy-h1 {
     @include scope-one;
     margin: .3em .5em 0;
@@ -420,11 +421,20 @@ div.cozy-panel-footer {
 
   button.button--sm {
     font-size: 1em;
-    height: 100%;
+    display: flex;
+    flex: 1 1 auto;
+    // height: 100%;
     border-radius: 0;
-    padding: 0 1em;
+    padding: .5em 1em;
     text-transform: uppercase;
+
+    i {
+      display: flex;
+      flex: 1 1 auto;
+    }
+
   }
+
 }
 
 ///////////////////////////////////
@@ -519,7 +529,7 @@ div.cozy-panel-footer {
   height: 100%;
 
   button.button--sm {
-    padding: 0 .5em;
+    padding: .5em .5em;
   }
 
   button i.icon-magnifying-glass {
@@ -536,17 +546,17 @@ div.cozy-panel-footer {
 }
 
 .cozy-modal fieldset p {
-  width: 90%; 
+  width: 90%;
   margin: 0 auto;
   text-align: center;
 }
 
 .preview--text_size {
-  width: 90%; 
-  height: 8rem; 
-  margin: 1rem auto; 
-  border: 1px dotted #666; 
-  padding: 1rem; 
+  width: 90%;
+  height: 8rem;
+  margin: 1rem auto;
+  border: 1px dotted #666;
+  padding: 1rem;
   overflow: hidden;
 }
 

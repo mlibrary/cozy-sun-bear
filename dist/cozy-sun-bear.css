@@ -1224,6 +1224,8 @@
 .cozy-container .cozy-panel-navigator {
   width: 100%;
   margin: 0 auto; }
+  .cozy-container .cozy-panel-navigator .cozy-control {
+    display: block; }
   .cozy-container .cozy-panel-navigator .cozy-control-navigator {
     width: 100%;
     opacity: 0;
@@ -1547,22 +1549,27 @@ div.cozy-panel-footer {
 .cozy-module-top .cozy-panel-toolbar .cozy-panel-right {
   justify-content: flex-end; }
 
-.cozy-control .cozy-h1 {
-  font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
-  margin: .3em .5em 0;
-  font-size: 1.5em;
-  line-height: normal;
-  max-width: 95vw;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; }
-
-.cozy-control button.button--sm {
-  font-size: 1em;
-  height: 100%;
-  border-radius: 0;
-  padding: 0 1em;
-  text-transform: uppercase; }
+.cozy-control {
+  display: flex; }
+  .cozy-control .cozy-h1 {
+    font-family: 'Scope One', Georgia, Times, "Times New Roman", serif;
+    margin: .3em .5em 0;
+    font-size: 1.5em;
+    line-height: normal;
+    max-width: 95vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
+  .cozy-control button.button--sm {
+    font-size: 1em;
+    display: flex;
+    flex: 1 1 auto;
+    border-radius: 0;
+    padding: .5em 1em;
+    text-transform: uppercase; }
+    .cozy-control button.button--sm i {
+      display: flex;
+      flex: 1 1 auto; }
 
 .cozy-publisher {
   float: left; }
@@ -1635,7 +1642,7 @@ div.cozy-panel-footer {
   display: inline-flex;
   height: 100%; }
   .cozy-control form.search button.button--sm {
-    padding: 0 .5em; }
+    padding: .5em .5em; }
   .cozy-control form.search button i.icon-magnifying-glass {
     font-size: 1em; }
 
