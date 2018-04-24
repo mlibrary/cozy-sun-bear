@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.04eb3894, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0e6e3c1b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3881,7 +3881,7 @@ var Reader = Evented.extend({
   },
 
   loaderTemplate: function loaderTemplate() {
-    return '<div class="cozy-loader-spinner">\n    <div class="spinner-quarter spinner-quarter--1"></div>\n    <div class="spinner-quarter spinner-quarter--2"></div>\n    <div class="spinner-quarter spinner-quarter--3"></div>\n    <div class="spinner-quarter spinner-quarter--4"></div>\n  </div>';
+    return '<div class="cozy-loader-spinner">\n    <div class="spinner-backdrop spinner-backdrop--1"></div>\n    <div class="spinner-backdrop spinner-backdrop--2"></div>\n    <div class="spinner-backdrop spinner-backdrop--3"></div>\n    <div class="spinner-backdrop spinner-backdrop--4"></div>\n    <div class="spinner-quarter spinner-quarter--1"></div>\n    <div class="spinner-quarter spinner-quarter--2"></div>\n    <div class="spinner-quarter spinner-quarter--3"></div>\n    <div class="spinner-quarter spinner-quarter--4"></div>\n  </div>';
   },
 
   EOT: true

@@ -1,7 +1,7 @@
 $spinner-color: #222;
 $spinner-size: 100px;
 $spinner-thickness: 8px;
-$spinner-speed: 1.5s;
+$spinner-speed: 1.5s / 4;
 
 $bigger-spinner-size: $spinner-size * 2.5;
 $bigger-spinner-thickness: $spinner-thickness * 2;
@@ -39,7 +39,7 @@ $bigger-spinner-thickness: $spinner-thickness * 2;
 }
 
 // Spinner quarters
-.cozy-loader-spinner .spinner-quarter {
+.cozy-loader-spinner .spinner-quarter, .cozy-loader-spinner .spinner-backdrop {
   position: absolute;
   top: 0;
   left: 0;
@@ -47,12 +47,15 @@ $bigger-spinner-thickness: $spinner-thickness * 2;
   height: inherit;
   width: inherit;
   border: $spinner-thickness solid transparent;
-  animation: cozy-loader-blink $spinner-speed infinite ease-out;
   border-radius: 50%;
 }
 
-.cozy-module-book-loading .cozy-loader-spinner .spinner-quarter {
-  border: $bigger-spinner-thickness solid transparent;
+.cozy-loader-spinner .spinner-quarter {
+  animation: cozy-loader-blink $spinner-speed infinite ease-out;
+}
+
+.cozy-module-book-loading .cozy-loader-spinner .spinner-quarter, .cozy-module-book-loading .cozy-loader-spinner .spinner-backdrop {
+  border-top-width: $bigger-spinner-thickness;
 }
 
 // blink animation
@@ -69,5 +72,13 @@ $bigger-spinner-thickness: $spinner-thickness * 2;
       transform: rotate($i * 90deg);
       animation-delay: $spinner-speed * $i / 4;
     }
-  }  
+  }
+
+  @for $i from 0 through 3 {
+    .spinner-backdrop--#{$i + 1} {
+      transform: rotate($i * 90deg);
+      border-top-color: rgba($spinner-color, 0.10);
+      // animation-delay: $spinner-speed * $i / 4;
+    }
+  }
 }
