@@ -16,27 +16,31 @@ export var Title = Control.extend({
     // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
 
     var h1 = DomUtil.create('h1', 'cozy-h1', container);
+    DomUtil.setOpacity(h1, 0);
     this._title = DomUtil.create('span', 'cozy-title', h1);
     this._divider = DomUtil.create('span', 'cozy-divider', h1);
     this._divider.textContent = " · ";
     this._section = DomUtil.create('span', 'cozy-section', h1);
 
-    this._reader.on('updateSection', function(data) {
-      if ( data && data.label ) {
-        self._section.textContent = data.label;
-        DomUtil.setOpacity(self._section, 0.0); // TODO: Set to 1.0 when solution to section title is found
-        DomUtil.setOpacity(self._divider, 0.0); // TODO: Set to 1.0 when solution to section title is found
-      } else {
-        DomUtil.setOpacity(self._section, 0);
-        DomUtil.setOpacity(self._divider, 0);
-      }
-    })
+    // --- TODO: disable until we can work out how to 
+    // --- more reliably match the current section to the contents
+    // this._reader.on('updateSection', function(data) {
+    //   if ( data && data.label ) {
+    //     self._section.textContent = data.label;
+    //     DomUtil.setOpacity(self._section, 1.0);
+    //     DomUtil.setOpacity(self._divider, 1.0);
+    //   } else {
+    //     DomUtil.setOpacity(self._section, 0);
+    //     DomUtil.setOpacity(self._divider, 0);
+    //   }
+    // })
 
     this._reader.on('updateTitle', function(data) {
       if ( data ) {
         self._title.textContent = data.title || data.bookTitle;
         DomUtil.setOpacity(self._section, 0);
         DomUtil.setOpacity(self._divider, 0);
+        DomUtil.setOpacity(h1, 1);
       }
     })
 
