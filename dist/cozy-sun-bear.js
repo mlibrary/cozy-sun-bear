@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0f80d5a6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0b8a14eb, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4974,7 +4974,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
   },
 
   template: function template$$1() {
-    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
+    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
   },
 
   _updatePreview: function _updatePreview() {

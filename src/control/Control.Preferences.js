@@ -211,7 +211,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         </div>
         <p style="white-space: no-wrap">
           <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%" />
+          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
           <span>T+</span>
         </p>
         <p>
