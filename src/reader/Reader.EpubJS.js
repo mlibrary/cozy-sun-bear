@@ -37,7 +37,7 @@ Reader.EpubJS = Reader.extend({
     this.settings = { flow: this.options.flow };
     this.settings.manager = this.options.manager || 'default';
 
-    if ( this.options.flow == 'auto' ) {
+    if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       this._panes['book'].style.overflow = 'hidden';
     } else {
       this._panes['book'].style.overflow = 'auto';
