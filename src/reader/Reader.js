@@ -335,11 +335,11 @@ export var Reader = Evented.extend({
         return;
       }
 
-      self.fire('keyDown', { keyName: keyName });
+      self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey });
     });
 
-    self.on('keyDown', function(keyName) {
-      switch(keyName.keyName) {
+    self.on('keyDown', function(data) {
+      switch(data.keyName) {
         case 'ArrowRight':
         case 'PageDown':
           self.next();
