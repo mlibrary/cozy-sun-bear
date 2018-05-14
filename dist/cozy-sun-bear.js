@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0b8a14eb, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0e6e3c1b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3628,7 +3628,7 @@ var Reader = Evented.extend({
     panes['right'] = create$1('div', prefix + 'right', panes['main']);
     panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
-    this._initLoader();
+    this._initBookLoader();
   },
 
   _checkIfLoaded: function _checkIfLoaded() {
@@ -3819,7 +3819,7 @@ var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function getFixedBookPanelSize() {
-    // have to make the book 
+    // have to make the book
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
@@ -3870,14 +3870,18 @@ var Reader = Evented.extend({
     return this._isMobile;
   },
 
-  _initLoader: function _initLoader() {
+  _initBookLoader: function _initBookLoader() {
     // is this not awesome?
-    var template$$1 = '<div class="socket">\n      <div class="gel center-gel">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c1 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c2 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c3 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c4 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c5 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c6 r1">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c7 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      \n      <div class="gel c8 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c9 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c10 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c11 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c12 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c13 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c14 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c15 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c16 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c17 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c18 r2">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c19 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c20 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c21 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c22 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c23 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c24 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c25 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c26 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c28 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c29 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c30 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c31 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c32 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c33 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c34 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c35 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c36 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n      <div class="gel c37 r3">\n        <div class="hex-brick h1"></div>\n        <div class="hex-brick h2"></div>\n        <div class="hex-brick h3"></div>\n      </div>\n    </div>';
+    var template$$1 = this.options.loader_template || this.loaderTemplate();
 
     var body = new DOMParser().parseFromString(template$$1, "text/html").body;
     while (body.children.length) {
       this._panes['loader'].appendChild(body.children[0]);
     }
+  },
+
+  loaderTemplate: function loaderTemplate() {
+    return '<div class="cozy-loader-spinner">\n    <div class="spinner-backdrop spinner-backdrop--1"></div>\n    <div class="spinner-backdrop spinner-backdrop--2"></div>\n    <div class="spinner-backdrop spinner-backdrop--3"></div>\n    <div class="spinner-backdrop spinner-backdrop--4"></div>\n    <div class="spinner-quarter spinner-quarter--1"></div>\n    <div class="spinner-quarter spinner-quarter--2"></div>\n    <div class="spinner-quarter spinner-quarter--3"></div>\n    <div class="spinner-quarter spinner-quarter--4"></div>\n  </div>';
   },
 
   EOT: true
@@ -4680,7 +4684,7 @@ var Title = Control.extend({
     this._divider.textContent = " · ";
     this._section = create$1('span', 'cozy-section', h1);
 
-    // --- TODO: disable until we can work out how to 
+    // --- TODO: disable until we can work out how to
     // --- more reliably match the current section to the contents
     // this._reader.on('updateSection', function(data) {
     //   if ( data && data.label ) {
@@ -5448,7 +5452,7 @@ var Search = Control.extend({
     this._processing = true;
     this._emptyArticle();
     var value = this.searchString;
-    this._article.innerHTML = '<p class="spinner">Submitting query for <em>' + value + '</em>...</p>';
+    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate();
     this._modal.activate();
   },
 
@@ -5965,7 +5969,7 @@ Reader.EpubJS = Reader.extend({
       this._panes['book'].style.overflow = 'auto';
     }
 
-    // start the rendition after all the epub parts 
+    // start the rendition after all the epub parts
     // have been loaded
     this._book.ready.then(function () {
 
