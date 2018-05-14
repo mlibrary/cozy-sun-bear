@@ -47,7 +47,7 @@ export var Contents = Control.extend({
       });
 
       this._modal.on('click', 'a[href]', function(modal, target) {
-        target = target.getAttribute('href');
+        target = target.getAttribute('data-href');
         this._reader.gotoPage(target);
         return true;
       }.bind(this))
@@ -55,18 +55,27 @@ export var Contents = Control.extend({
       this._setupSkipLink();
 
       var parent = self._modal._container.querySelector('ul');
-      var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      while ( s.length ) {
-        var tuple = s.shift();
-        var chapter = tuple[0];
-        var tabindex = tuple[1];
-        var parent = tuple[2];
+      // var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
+      // while ( s.length ) {
+      //   var tuple = s.shift();
+      //   var chapter = tuple[0];
+      //   var tabindex = tuple[1];
+      //   var parent = tuple[2];
 
-        var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-          s.unshift([chapter_, tabindex + 1, option]);
-        });
+      //   var option = self._createOption(chapter, tabindex, parent);
+      //   data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+      //     s.unshift([chapter_, tabindex + 1, option]);
+      //   });
+      // }
+      var _process = function(items, tabindex, parent) {
+        items.forEach(function(item) {
+          var option = self._createOption(item, tabindex, parent);
+          if ( item.subitems.length ) {
+            _process(item.subitems, tabindex + 1, option);
+          }
+        })
       }
+      _process(data.toc, 0, parent);
     }.bind(this))
 
     return container;
@@ -83,6 +92,7 @@ export var Contents = Control.extend({
     // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
     // option.textContent = tab + chapter.label;
     anchor.setAttribute('href', chapter.href);
+    anchor.setAttribute('data-href', chapter.href);
 
     if ( parent.tagName == 'LI' ) {
       // need to nest

@@ -4,11 +4,14 @@ import * as epubjs from '../epubjs';
 import * as DomUtil from '../dom/DomUtil';
 import * as Browser from '../core/Browser';
 
+import path from "path-webpack";
+
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
     Reader.prototype.initialize.apply(this, arguments);
     this._epubjs_ready = false;
+    window.xpath = path;
   },
 
   open: function(callback) {
@@ -17,6 +20,7 @@ Reader.EpubJS = Reader.extend({
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
+      console.log("AHOY TOC", toc);
       self.fire('updateContents', toc);
       self.fire('updateTitle', self._book.package.metadata);
     })
@@ -61,9 +65,20 @@ Reader.EpubJS = Reader.extend({
         self.fire('readyContents', contents);
         contents.document.addEventListener('keydown', (event) => {
           const keyName = event.key;
-          self.fire('keyDown', { keyName: keyName });
+          self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
           console.log('inner keydown event: ', keyName);
         });
+        // var links = contents.document.querySelectorAll('a[href]');
+        // for(var i =0; i < links.length; i++) {
+        //   var link = links[i];
+        //   link.addEventListener('focus', (event) => {
+        //     var target = event.target;
+        //     var position = target.getBoundingClientRect();
+        //     var c = self._rendition.manager.container;
+        //     var cr = c.scrollLeft + c.offsetWidth;
+        //     console.log('inner link focus', cr, position, position.x > cr);
+        //   })
+        // }
       })
 
       if ( target && target.start ) { target = target.start; }
@@ -155,7 +170,30 @@ Reader.EpubJS = Reader.extend({
 
   gotoPage: function(target, callback) {
     if ( target ) {
-      var section = this._book.spine.get(target);
+      var section = this._book.spine.get(target); 
+      if ( ! section) {
+        // maybe it needs to be resolved
+        var guessed = target;
+        if ( guessed.indexOf("://") < 0 ) {
+          var path1 = path.resolve(this._book.path.directory, this._book.package.navPath);
+          var path2 = path.resolve(path.dirname(path1), target);
+          guessed = this._book.canonical(path2);
+        }
+        if ( guessed.indexOf("#") !== 0 ) {
+          guessed = guessed.split('#')[0];
+        }
+
+        this._book.spine.each(function(item) {
+          if ( item.canonical == guessed ) {
+            section = item;
+            target = section.href;
+            return;
+          }
+        })
+
+        console.log("AHOY GUESSED", target);
+      }
+
       if ( ! section ) {
         if ( ! this._epubjs_ready ) {
           target = 0;
@@ -272,27 +310,101 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on("rendered", function(section, view) {
       if ( view.contents ) {
-        view.contents.on("linkClicked", function(href) {
-          self._rendition.display(href);
-        })
-      }
-      if ( ! self._rendition.manager.__scroll ) {
-        var ticking;
-        self._rendition.manager.container.addEventListener("scroll", function(event) {
-          if ( ! ticking ) {
-            var mod = event.target.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-            if ( mod > 0 ) {
-              ticking = true;
-              var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-              var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
-              self._rendition.manager.scrollBy(delta);
-              setTimeout(function() { ticking = false; }, 100);
-            }
+        view.contents.on("xxlinkClicked", function(href) {
+          console.log("AHOY CLICKED", href);
+          var tmp = href.split("#");
+          href = tmp[0];
+          var hash = tmp[1]
+          // var current = self.currentLocation().start.href;
+          // var section = self._book.spine.get(current.href);
+          console.log("AHOY CLICKED CHECK", section.canonical, href);
+          if ( section.canonical.indexOf(href) < 0 ) {
+            self.gotoPage(href);
+            // self._rendition.display(href);
+
+          } else if ( hash ) {
+            // we're already on this page, so we need to scroll to this location
+            var node = view.contents.content.querySelector('#' + hash);
+            console.log("AHOY INTERNAL", hash, view.contents, node);
           }
+          // self._rendition.display(href);
         })
-        self._rendition.manager.views.__scroll = true;
       }
+      if (false) {
+        if ( ! self._rendition.manager.__scroll ) {
+          var ticking;
+          var lastScrollLeft = self._rendition.manager.container.scrollLeft;
+          self._rendition.manager.container.addEventListener("scroll", function(event) {
+            if ( ! ticking ) {
+              var newScrollLeft = event.target.scrollLeft;
+              var mod = event.target.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+              var tweak = self._rendition.manager.views._views[0].document.activeElement;
+              if ( mod > 10 ) {
+                console.log("AHOY ADJUSTING SCROLL", mod, tweak, newScrollLeft, lastScrollLeft, newScrollLeft > lastScrollLeft);
+                ticking = true;
+                var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+                var y = event.target.scrollLeft;
+                if ( event.target.scrollLeft > lastScrollLeft ) { y *= 1 ; }
+                else { y *= -1; }
+                var delta = ( x * self._rendition.manager.layout.delta) + y;
+                self._rendition.manager.scrollBy(delta);
+                setTimeout(function() { lastScrollLeft = newScrollLeft; ticking = false; }, 100);
+              }
+            }
+          })
+          self._rendition.manager.views.__scroll = true;
+        }
+      }
+
+      if(true) {
+        if ( ! self._rendition.manager.__scroll ) {
+          var ticking;
+          self._rendition.manager.container.addEventListener("scroll", function(event) {
+            var container = self._rendition.manager.container;
+            var mod = container.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+            console.log("AHOY DETECTED SCROLL", mod, mod / self._rendition.manager.layout.delta);
+          });
+          self._rendition.manager.views.__scroll = true;
+        }
+      }
+
+      self.on('keyDown', function(data) {
+        if ( data.keyName == 'Tab' && data.inner ) {
+          var container = self._rendition.manager.container;
+          var mod;
+          var delta;
+          var x; var xyz;
+          setTimeout(function() {
+            var scrollLeft = container.scrollLeft;
+            mod = scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+            if ( mod > 0 && ( mod / self._rendition.manager.layout.delta ) < 0.99 ) {
+              // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+              // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
+              x = Math.floor(container.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10));
+              if ( data.shiftKey ) { x -= 0 ; } 
+              else { x += 1; }
+              var y = container.scrollLeft;
+              delta = ( x * self._rendition.manager.layout.delta ) - y;
+              xyz = ( x * self._rendition.manager.layout.delta );
+              // if ( data.shiftKey ) { delta *= -1 ; }
+              if ( true || ! data.shiftKey ) {
+                self._rendition.manager.scrollBy(delta);
+              }
+            }
+            console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
+          }, 0);
+        }
+      })
+
+
     })
+  },
+
+  _debugScroll: function() {
+    var self = this;
+    var container = self._rendition.manager.container;
+    var mod = container.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+    console.log("AHOY DEBUG MOD", mod);
   },
 
   _initializeReaderStyles: function() {
