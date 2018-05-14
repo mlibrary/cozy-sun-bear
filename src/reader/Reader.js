@@ -492,10 +492,6 @@ export var Reader = Evented.extend({
 
   loaderTemplate: function() {
     return `<div class="cozy-loader-spinner">
-    <div class="spinner-backdrop spinner-backdrop--1"></div>
-    <div class="spinner-backdrop spinner-backdrop--2"></div>
-    <div class="spinner-backdrop spinner-backdrop--3"></div>
-    <div class="spinner-backdrop spinner-backdrop--4"></div>
     <div class="spinner-quarter spinner-quarter--1"></div>
     <div class="spinner-quarter spinner-quarter--2"></div>
     <div class="spinner-quarter spinner-quarter--3"></div>
