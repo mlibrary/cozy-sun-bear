@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0e6e3c1b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.07553c96, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3819,7 +3819,7 @@ var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function getFixedBookPanelSize() {
-    // have to make the book
+    // have to make the book 
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
@@ -4684,7 +4684,7 @@ var Title = Control.extend({
     this._divider.textContent = " · ";
     this._section = create$1('span', 'cozy-section', h1);
 
-    // --- TODO: disable until we can work out how to
+    // --- TODO: disable until we can work out how to 
     // --- more reliably match the current section to the contents
     // this._reader.on('updateSection', function(data) {
     //   if ( data && data.label ) {
@@ -5525,15 +5525,17 @@ var Search = Control.extend({
           var anchor = create$1('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
 
-          if (result.title) {
-            var chapterTitle = create$1('i');
-            chapterTitle.textContent = result.title + ": ";
-            anchor.appendChild(chapterTitle);
-          }
-          anchor.appendChild(document.createTextNode(result.snippet));
+          if (result.snippet) {
+            if (result.title) {
+              var chapterTitle = create$1('i');
+              chapterTitle.textContent = result.title + ": ";
+              anchor.appendChild(chapterTitle);
+            }
+            anchor.appendChild(document.createTextNode(result.snippet));
 
-          anchor.setAttribute("href", cfiRange);
-          content.appendChild(option);
+            anchor.setAttribute("href", cfiRange);
+            content.appendChild(option);
+          }
 
           reader.annotations.highlight(cfiRange);
         });
@@ -5969,7 +5971,7 @@ Reader.EpubJS = Reader.extend({
       this._panes['book'].style.overflow = 'auto';
     }
 
-    // start the rendition after all the epub parts
+    // start the rendition after all the epub parts 
     // have been loaded
     this._book.ready.then(function () {
 
