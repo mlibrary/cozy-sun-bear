@@ -171,15 +171,17 @@ export var Search = Control.extend({
           var anchor = DomUtil.create('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
 
-          if (result.title) {
-            var chapterTitle = DomUtil.create('i');
-            chapterTitle.textContent = result.title + ": ";
-            anchor.appendChild(chapterTitle);
-          }
-          anchor.appendChild(document.createTextNode(result.snippet));
+          if (result.snippet) {
+            if (result.title) {
+              var chapterTitle = DomUtil.create('i');
+              chapterTitle.textContent = result.title + ": ";
+              anchor.appendChild(chapterTitle);
+            }
+            anchor.appendChild(document.createTextNode(result.snippet));
 
-          anchor.setAttribute("href", cfiRange);
-          content.appendChild(option);
+            anchor.setAttribute("href", cfiRange);
+            content.appendChild(option);
+          }
 
           reader.annotations.highlight(cfiRange);
         });
