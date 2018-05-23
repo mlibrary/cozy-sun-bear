@@ -114,9 +114,11 @@ export var Reader = Evented.extend({
     var self = this;
     target = target || 0;
 
-    self.open(function() {
-      self.draw(target, cb);
-    });
+    // self.open(function() {
+    //   self.draw(target, cb);
+    // });
+
+    self.open(target, cb);
   },
 
   switch: function(flow, target) {
