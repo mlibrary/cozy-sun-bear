@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0b9a5b1d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.06f3041d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7099,7 +7099,6 @@ Reader.EpubJS = Reader.extend({
     this._book.loaded.navigation.then(function (toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
-      console.log("AHOY TOC", toc);
       self.fire('updateContents', toc);
       self.fire('updateTitle', self._book.package.metadata);
     });
@@ -7177,71 +7176,6 @@ Reader.EpubJS = Reader.extend({
       self.fire('opened');
       self.fire('ready');
       self._epubjs_ready = true;
-    });
-  },
-
-  drawXX: function drawXX(target, callback) {
-    var self = this;
-    this.settings = { flow: this.options.flow };
-    this.settings.manager = this.options.manager || 'default';
-
-    if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
-      this._panes['book'].style.overflow = 'hidden';
-    } else {
-      this._panes['book'].style.overflow = 'auto';
-    }
-
-    // start the rendition after all the epub parts 
-    // have been loaded
-    this._book.ready.then(function () {
-
-      // have to set fixed dimensions to avoid edge clipping
-      var size = self.getFixedBookPanelSize();
-      self.settings.height = size.height; //  + 'px';
-      self.settings.width = size.width; //  + 'px';
-      self.settings.height = '100%';
-      self.settings.width = '100%';
-
-      self.settings['ignoreClass'] = 'annotator-hl';
-      self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-      self._updateFontSize();
-      self._bindEvents();
-      self._drawn = true;
-
-      self._rendition.hooks.content.register(function (contents) {
-        self.fire('ready:contents', contents);
-        self.fire('readyContents', contents);
-        contents.document.addEventListener('keydown', function (event) {
-          var keyName = event.key;
-          self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
-          console.log('inner keydown event: ', keyName);
-        });
-      });
-
-      if (target && target.start) {
-        target = target.start;
-      }
-      if (!target && window.location.hash) {
-        if (window.location.hash.substr(1, 3) == '/6/') {
-          target = "epubcfi(" + window.location.hash.substr(1) + ")";
-        } else {
-          target = window.location.hash.substr(2);
-          target = self._book.url.path().resolve(target);
-        }
-      }
-
-      self.gotoPage(target, function () {
-        window._loaded = true;
-        self._initializeReaderStyles();
-
-        if (callback) {
-          callback();
-        }
-
-        self.fire('opened');
-        self.fire('ready');
-        self._epubjs_ready = true;
-      });
     });
   },
 
@@ -7459,39 +7393,25 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on("rendered", function (section, view) {
       if (view.contents) {
-        view.contents.on("xxlinkClicked", function (href) {
-          console.log("AHOY CLICKED", href);
-          var tmp = href.split("#");
-          href = tmp[0];
-          var hash = tmp[1];
-          // var current = self.currentLocation().start.href;
-          // var section = self._book.spine.get(current.href);
-          console.log("AHOY CLICKED CHECK", section.canonical, href);
-          if (section.canonical.indexOf(href) < 0) {
-            self.gotoPage(href);
-            // self._rendition.display(href);
-          } else if (hash) {
-            // we're already on this page, so we need to scroll to this location
-            var node = view.contents.content.querySelector('#' + hash);
-            console.log("AHOY INTERNAL", hash, view.contents, node);
-          }
-          // self._rendition.display(href);
-        });
-      }
-      var ticking;
+        // view.contents.on("xxlinkClicked", function(href) {
+        //   console.log("AHOY CLICKED", href);
+        //   var tmp = href.split("#");
+        //   href = tmp[0];
+        //   var hash = tmp[1]
+        //   // var current = self.currentLocation().start.href;
+        //   // var section = self._book.spine.get(current.href);
+        //   console.log("AHOY CLICKED CHECK", section.canonical, href);
+        //   if ( section.canonical.indexOf(href) < 0 ) {
+        //     self.gotoPage(href);
+        //     // self._rendition.display(href);
 
-{
-        if (!self._rendition.manager.container.dataset.__scroll) {
-          var ticking;
-          self._rendition.manager.container.addEventListener("scroll", function (event) {
-            if (self._rendition && self._rendition.manager) {
-              var container = self._rendition.manager.container;
-              var mod = container.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-              console.log("AHOY DETECTED SCROLL", mod, mod / self._rendition.manager.layout.delta);
-            }
-          });
-          self._rendition.manager.container.dataset.__scroll = true;
-        }
+        //   } else if ( hash ) {
+        //     // we're already on this page, so we need to scroll to this location
+        //     var node = view.contents.content.querySelector('#' + hash);
+        //     console.log("AHOY INTERNAL", hash, view.contents, node);
+        //   }
+        //   // self._rendition.display(href);
+        // })
       }
 
       self.on('keyDown', function (data) {
@@ -7525,13 +7445,6 @@ Reader.EpubJS = Reader.extend({
         }
       });
     });
-  },
-
-  _debugScroll: function _debugScroll() {
-    var self = this;
-    var container = self._rendition.manager.container;
-    var mod = container.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-    console.log("AHOY DEBUG MOD", mod);
   },
 
   _initializeReaderStyles: function _initializeReaderStyles() {
