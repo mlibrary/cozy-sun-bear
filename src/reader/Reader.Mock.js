@@ -8,7 +8,7 @@ Reader.Mock = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function(callback) {
+  open: function(target, callback) {
     var self = this;
     this._book = {
       metadata: {
@@ -52,7 +52,7 @@ Reader.Mock = Reader.extend({
     this.fire('updateContents', this._book.contents);
     this.fire('updateTitle', this._metadata);
     this.fire('updateLocations', this._locations);
-    callback();
+    this.draw(target, callback);
   },
 
   draw: function(target, callback) {

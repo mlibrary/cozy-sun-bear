@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.05af0973, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0236f939, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7530,7 +7530,7 @@ Reader.Mock = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function open(callback) {
+  open: function open(target, callback) {
     var self = this;
     this._book = {
       metadata: {
@@ -7553,7 +7553,7 @@ Reader.Mock = Reader.extend({
     this.fire('updateContents', this._book.contents);
     this.fire('updateTitle', this._metadata);
     this.fire('updateLocations', this._locations);
-    callback();
+    this.draw(target, callback);
   },
 
   draw: function draw(target, callback) {
