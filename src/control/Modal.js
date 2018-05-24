@@ -131,7 +131,9 @@ export var Modal = Class.extend({
     var self = this;
     this.modal.setAttribute('aria-hidden', 'true');
     this.removeEventListeners();
-    this.activeElement.focus();
+    if ( this.activeElement ) {
+      this.activeElement.focus();
+    }
     this.callbacks.onClose(this.modal);
   },
 
