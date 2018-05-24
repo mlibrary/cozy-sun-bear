@@ -121,24 +121,8 @@ export var Reader = Evented.extend({
     self.open(target, cb);
   },
 
-  switch: function(flow, target) {
-    var target = target || this.currentLocation();
-    if ( flow === undefined ) {
-      flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
-    }
-    this.options.flow = flow;
-    this.destroy();
-    this.draw(target);
-  },
-
   reopen: function(options, target) {
-    var target = target || this.currentLocation();
-    Util.extend(this.options, options);
-    this.destroy();
-    console.log("AHOY REOPENED?");
-    return;
-    this.draw(target);
-    this.fire('reopen');
+    /* NOP */
   },
 
   saveOptions: function(options) {
@@ -332,6 +316,11 @@ export var Reader = Evented.extend({
     document.addEventListener('keydown', function(event) {
       var keyName = event.key;
       var target = event.target;
+
+      if ( document.activeElement.nodeName != 'BODY' ) {
+        return;
+      }
+
       var IGNORE_TARGETS = [ 'input', 'target' ];
       if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
         return;

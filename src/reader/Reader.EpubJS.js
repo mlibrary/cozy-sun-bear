@@ -54,7 +54,14 @@ Reader.EpubJS = Reader.extend({
     this.settings = { flow: this.options.flow };
     this.settings.manager = this.options.manager || 'default';
 
-    if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
+    if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
+      // dumb check to see if 
+      if ( this._container.offsetWidth < 1500 ) {
+        this.settings.flow = 'scrolled-doc';
+      }
+    }
+
+    if ( this.settings.flow == 'auto' || this.settings.flow == 'paginated' ) {
       this._panes['book'].style.overflow = 'hidden';
       this.settings.manager = 'default';
     } else {
