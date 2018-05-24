@@ -32,9 +32,22 @@ Reader.EpubJS = Reader.extend({
     })
     this._book.ready.then(function() {
       self.draw(target, callback);
-      self._book.locations.generate(1600).then(function(locations) {
+      if ( self.metadata.layout == 'pre-paginated' ) {
+        // fake it with the spine
+        var locations = [];
+        self._book.spine.each(function(item) {
+          locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
+          self.locations._locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
+        });
+        self.locations.total = locations.length;
         self.fire('updateLocations', locations);
-      })
+      } else {
+        self._book.locations.generate(1600).then(function(locations) {
+          console.log("AHOY LOCATIONS", locations);
+          window.xxlocations = locations;
+          self.fire('updateLocations', locations);
+        })
+      }
     })
     // .then(callback);
   },
