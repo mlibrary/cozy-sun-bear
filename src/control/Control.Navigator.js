@@ -17,10 +17,17 @@ export var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function(locations) {
+      // if ( ! this._reader.currentLocation() ) {
+      //   return;
+      // }
       this._initiated = true;
       this._total = this._reader.locations.total;
-      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-      this._last_value = this._control.value;
+      if ( this._reader.currentLocation() ) {
+        this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+        this._last_value = this._control.value;
+      } else {
+        this._last_value = this._control.value;
+      }
 
       this._spanTotalLocations.innerHTML = this._total;
 
@@ -115,8 +122,10 @@ export var Navigator = Control.extend({
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
     var current = this._reader.currentLocation();
-    var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-    this._spanCurrentLocation.innerHTML = ( current_location );
+    if ( current ) {
+      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
+      this._spanCurrentLocation.innerHTML = ( current_location );
+    }
     self._last_delta = self._last_value > value; self._last_value = value;
   },
 

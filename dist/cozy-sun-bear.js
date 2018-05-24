@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0236f939, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.01da6df5, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -6350,10 +6350,17 @@ var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function (locations) {
+      // if ( ! this._reader.currentLocation() ) {
+      //   return;
+      // }
       this._initiated = true;
       this._total = this._reader.locations.total;
-      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-      this._last_value = this._control.value;
+      if (this._reader.currentLocation()) {
+        this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+        this._last_value = this._control.value;
+      } else {
+        this._last_value = this._control.value;
+      }
 
       this._spanTotalLocations.innerHTML = this._total;
 
@@ -6445,8 +6452,10 @@ var Navigator = Control.extend({
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
     var current = this._reader.currentLocation();
-    var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-    this._spanCurrentLocation.innerHTML = current_location;
+    if (current) {
+      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
+      this._spanCurrentLocation.innerHTML = current_location;
+    }
     self._last_delta = self._last_value > value;self._last_value = value;
   },
 
@@ -7097,9 +7106,22 @@ Reader.EpubJS = Reader.extend({
     });
     this._book.ready.then(function () {
       self.draw(target, callback);
-      self._book.locations.generate(1600).then(function (locations) {
+      if (self.metadata.layout == 'pre-paginated') {
+        // fake it with the spine
+        var locations = [];
+        self._book.spine.each(function (item) {
+          locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+          self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+        });
+        self.locations.total = locations.length;
         self.fire('updateLocations', locations);
-      });
+      } else {
+        self._book.locations.generate(1600).then(function (locations) {
+          console.log("AHOY LOCATIONS", locations);
+          window.xxlocations = locations;
+          self.fire('updateLocations', locations);
+        });
+      }
     });
     // .then(callback);
   },
