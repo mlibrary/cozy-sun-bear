@@ -233,8 +233,8 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 Preferences.fieldset.Display = Fieldset.extend({
 
   initializeForm: function(form) {
-    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
-    if ( flow == 'auto' ) { flow = 'paginated'; }
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
+    // if ( flow == 'auto' ) { flow = 'paginated'; }
 
     var input = form.querySelector(`#x${this._id}-input-${flow}`);
     input.checked = true;
@@ -244,12 +244,17 @@ Preferences.fieldset.Display = Fieldset.extend({
 
   updateForm: function(form) {
     var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
+    if ( input.value == 'auto' ) {
+      // we do NOT want to save flow as a preference
+      return {};
+    }
     return { flow: input.value };
   },
 
   template: function() {
     return `<fieldset>
             <legend>Display</legend>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" />Auto</label>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" />Page-by-Page</label>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
           </fieldset>`;
