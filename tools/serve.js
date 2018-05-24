@@ -61,7 +61,6 @@ function listen(port) {
       app.use('/cozy-sun-bear/vendor/javascripts/engines/', proxy(process.env.USE_DEV_EPUB, { 
         https: false,
         forwardPath: function(req) {
-          console.log("WUT?", require('url').parse(req.url).path);
           return '/dist' + require('url').parse(req.url).path;
         }
       }));
