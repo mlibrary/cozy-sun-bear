@@ -68,8 +68,9 @@ Reader.EpubJS = Reader.extend({
     this.settings.manager = this.options.manager || 'default';
 
     if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-      // dumb check to see if 
-      if ( this._container.offsetWidth < 1500 ) {
+      // dumb check to see if the window is _tall_ enough to put
+      // two pages side by side
+      if ( this._container.offsetHeight < 1200 ) {
         this.settings.flow = 'scrolled-doc';
       }
     }
@@ -287,21 +288,32 @@ Reader.EpubJS = Reader.extend({
     var custom_stylesheet_rules = [];
 
     // force 90% height instead of default 60%
-    this._rendition.hooks.content.register(function(contents) {
-      contents.addStylesheetRules({
-        "img" : {
-          "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-          "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-          "object-fit": "contain",
-          "page-break-inside": "avoid"
-        },
-        "svg" : {
-          "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-          "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-          "page-break-inside": "avoid"
-        }
-      });
-    }.bind(this._rendition))
+    if ( this.metadata.layout != 'pre-paginated' ) {
+      this._rendition.hooks.content.register(function(contents) {
+        contents.addStylesheetRules({
+          "img" : {
+            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+            "object-fit": "contain",
+            "page-break-inside": "avoid"
+          },
+          "svg" : {
+            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+            "page-break-inside": "avoid"
+          }
+        });
+      }.bind(this._rendition))
+    } else {
+      this._rendition.hooks.content.register(function(contents) {
+        contents.addStylesheetRules({
+          "img" : {
+            "border": "64px solid black !important",
+            "box-sizing": "border-box"
+          }
+        });
+      }.bind(this._rendition));
+    }
 
     this._updateFontSize();
 
