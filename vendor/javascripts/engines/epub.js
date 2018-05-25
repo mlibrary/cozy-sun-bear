@@ -8178,7 +8178,7 @@ var IframeView = function () {
 			var colorR = Math.floor(Math.random() * 100).toString();
 			var colorG = Math.floor(Math.random() * 100).toString();
 			var colorB = Math.floor(Math.random() * 100).toString();
-			element.style.backgroundColor = "#" + colorR + colorG + colorB;
+			// element.style.backgroundColor = `#${colorR}${colorG}${colorB}`;
 
 			return element;
 		}
