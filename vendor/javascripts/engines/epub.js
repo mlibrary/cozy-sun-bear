@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("xmldom"), (function webpackLoadOptionalExternalModule() { try { return require("jszip"); } catch(e) {} }()));
 	else if(typeof define === 'function' && define.amd)
-		define(["xmldom", "jszip"], factory);
+		define("ePub", ["xmldom", "jszip"], factory);
 	else if(typeof exports === 'object')
 		exports["ePub"] = factory(require("xmldom"), (function webpackLoadOptionalExternalModule() { try { return require("jszip"); } catch(e) {} }()));
 	else
@@ -5442,6 +5442,7 @@ var DefaultViewManager = function () {
 
 			// Check to make sure the section we want isn't already shown
 			var visible = this.views.find(section);
+			console.log("AHOY manager.display : visible=", visible);
 
 			// View is already shown, just move to correct location in view
 			if (visible && section) {
@@ -5477,7 +5478,8 @@ var DefaultViewManager = function () {
 				displaying.reject(err);
 			}).then(function () {
 				var next;
-				if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+				if (this.layout.name === "pre-paginated" && this.layout.flow != 'scrolled' && // RRE
+				this.layout.divisor > 1) {
 					next = section.next();
 					if (next) {
 						return this.add(next);
@@ -6788,6 +6790,7 @@ var Rendition = function () {
 				return displayed;
 			}
 
+			console.log("AHOY rendition._display", section.href);
 			this.manager.display(section, target).then(function () {
 				displaying.resolve(section);
 				_this.displaying = undefined;
@@ -8172,6 +8175,11 @@ var IframeView = function () {
 				element.style.flex = "initial";
 			}
 
+			var colorR = Math.floor(Math.random() * 100).toString();
+			var colorG = Math.floor(Math.random() * 100).toString();
+			var colorB = Math.floor(Math.random() * 100).toString();
+			element.style.backgroundColor = "#" + colorR + colorG + colorB;
+
 			return element;
 		}
 	}, {
@@ -8586,6 +8594,7 @@ var IframeView = function () {
 
 			if (!this.displayed) {
 
+				console.log("AHOY view.display render", this.section.href);
 				this.render(request).then(function () {
 
 					this.emit(_constants.EVENTS.VIEWS.DISPLAYED, this);
@@ -8597,6 +8606,7 @@ var IframeView = function () {
 					displayed.reject(err, this);
 				});
 			} else {
+				console.log("AHOY view.display resolve", this.section.href);
 				displayed.resolve(this);
 			}
 
@@ -9453,11 +9463,18 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 			var visibleLength = horizontal ? bounds.width : bounds.height;
 			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
 
+			var prePaginated = this.layout.props.name == 'pre-paginated';
+
 			var prepend = function prepend() {
 				var first = _this5.views.first();
 				var prev = first && first.section.prev();
 
 				if (prev) {
+					// if ( prePaginated && newViews.length > 5 ) {
+					// 	console.log("AHOY prepend pre-paginated", first.section.href, ">", newViews.length);
+					// 	return ; 
+					// }
+					// console.log("AHOY check prev", first.section.href, ">", prev.href, ":", window.COUNTS[prev.href])
 					newViews.push(_this5.prepend(prev));
 				}
 			};
@@ -9467,6 +9484,11 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 				var next = last && last.section.next();
 
 				if (next) {
+					// if ( prePaginated && newViews.length > 5 ) {
+					// 	console.log("AHOY prepend pre-paginated", last.section.href, ">", newViews.length);
+					// 	return ; 
+					// }
+					// console.log("AHOY check next", last.section.href, ">", next.href, newViews.length)
 					newViews.push(_this5.append(next));
 				}
 			};
@@ -9493,7 +9515,7 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 
 			if (newViews.length) {
 				return Promise.all(promises).then(function () {
-					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread) {
+					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow != 'scrolled') {
 						return _this5.check();
 					}
 				}).then(function () {
@@ -9553,6 +9575,7 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 
 			var bounds = view.bounds();
 
+			console.log("AHOY erase", view.section.href);
 			this.views.remove(view);
 
 			if (above) {
