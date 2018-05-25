@@ -8175,9 +8175,9 @@ var IframeView = function () {
 				element.style.flex = "initial";
 			}
 
-			var colorR = Math.floor(Math.random() * 100).toString();
-			var colorG = Math.floor(Math.random() * 100).toString();
-			var colorB = Math.floor(Math.random() * 100).toString();
+			// var colorR = Math.floor(Math.random() * 100).toString();
+			// var colorG = Math.floor(Math.random() * 100).toString();
+			// var colorB = Math.floor(Math.random() * 100).toString();
 			// element.style.backgroundColor = `#${colorR}${colorG}${colorB}`;
 
 			return element;
@@ -9242,6 +9242,16 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 	}
 
 	_createClass(ContinuousViewManager, [{
+		key: "createView",
+		value: function createView(section) {
+			var view = new this.View(section, this.viewSettings);
+			var colorR = Math.floor(Math.random() * 100).toString();
+			var colorG = Math.floor(Math.random() * 100).toString();
+			var colorB = Math.floor(Math.random() * 100).toString();
+			view.element.style.backgroundColor = "#" + colorR + colorG + colorB;
+			return view;
+		}
+	}, {
 		key: "display",
 		value: function display(section, target) {
 			return _default2.default.prototype.display.call(this, section, target).then(function () {
@@ -9515,11 +9525,13 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 
 			if (newViews.length) {
 				return Promise.all(promises).then(function () {
-					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow != 'scrolled') {
+					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
+						console.log("AHOY check again");
 						return _this5.check();
 					}
 				}).then(function () {
 					// Check to see if anything new is on screen after rendering
+					console.log("AHOY update again");
 					return _this5.update(delta);
 				}, function (err) {
 					return err;
