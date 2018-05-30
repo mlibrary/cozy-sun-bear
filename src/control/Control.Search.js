@@ -163,6 +163,10 @@ export var Search = Control.extend({
     reader.annotations.reset();
 
     if ( this._data ) {
+      var highlight = true
+      if (this._data.highlight_off == "yes") {
+        highlight = false;
+      }
       if ( this._data.search_results.length ) {
         content = DomUtil.create('ul');
 
@@ -182,8 +186,9 @@ export var Search = Control.extend({
             anchor.setAttribute("href", cfiRange);
             content.appendChild(option);
           }
-
-          reader.annotations.highlight(cfiRange);
+          if (highlight) {
+            reader.annotations.highlight(cfiRange);
+          }
         });
       } else {
         content = DomUtil.create("p")
