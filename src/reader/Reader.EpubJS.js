@@ -481,6 +481,15 @@ Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
         highlight: function(cfiRange) { /* NOOP */ }
       }
     }
+    if ( ! this._rendition.annotations.reset ) {
+      this._rendition.annotations.reset = function(){
+        for(var hash in this._annotations) {
+            var cfiRange = decodeURI(hash);
+            this.remove(cfiRange);
+        }
+        this._annotationsBySectionIndex = {};
+      }.bind(this._rendition.annotations);
+    }
     return this._rendition.annotations;
   }
 });
