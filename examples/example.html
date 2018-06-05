@@ -148,12 +148,26 @@
         var reader;
         var available_books;
 
-        if ( location.search ) {
+        var params = {};
+        if ( location.search && location.search.indexOf("=") < 0 ) {
+            params = new URLSearchParams("url=" + location.search.substr(1));
+        } else {
+            params = URLSearchParams && new URLSearchParams(document.location.search.substring(1));
+        }
+
+        if ( params.get('url') ) {
             $("body").addClass("reading");
 
             var engine_href = '../vendor/javascripts/engines/' + engine_base_href;
             var cozy_href = '../dist/cozy-sun-bear.js';
-            var book_id = location.search.substr(1);
+            var book_id = params.get('url');
+
+            window.fitWidth = params.get('fitWidth');
+            var manager = params.get('manager');
+            if ( manager == 'prepaginated' ) {
+                window.fitWidth = true;
+            }
+            var flow = params.get('flow') || 'auto';
 
             COZY_EPUB_ENGINE_HREF = '../vendor/javascripts/engines/' + engine_base_href;
 
@@ -238,7 +252,8 @@
                             }
                         }
                     ],
-                    flow: 'auto'
+                    flow: flow,
+                    manager: manager,
                 });
 
                 cozy.control.title({ region: 'top.header.left' }).addTo(reader);
