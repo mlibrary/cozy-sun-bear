@@ -10323,6 +10323,7 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
 			var visibleLength = horizontal ? bounds.width : bounds.height;
 			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+			visibleLength *= 2; // maybe?
 
 			// var prePaginated = this.layout.props.name == 'pre-paginated';
 
