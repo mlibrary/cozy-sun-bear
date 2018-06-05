@@ -119,8 +119,6 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
-    // return;
-
     self.gotoPage(target, function() {
       window._loaded = true;
       self._initializeReaderStyles();
