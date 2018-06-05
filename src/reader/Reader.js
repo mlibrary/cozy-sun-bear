@@ -126,7 +126,13 @@ export var Reader = Evented.extend({
   },
 
   saveOptions: function(options) {
-    localStorage.setItem('cozy.options', JSON.stringify(options));
+    var saved_options = {};
+    assign(saved_options, options);
+    if ( saved_options.flow == 'auto' ) {
+      // do not save
+      delete saved_options.flow;
+    }
+    localStorage.setItem('cozy.options', JSON.stringify(saved_options));
   },
 
   _updateTheme: function() {

@@ -25,8 +25,6 @@ export var Preferences = Control.extend({
     this._control = this._createButton(options.html || options.label, options.label,
             className, container, this._action)
 
-    this._createPanel();
-
     return container;
   },
 
@@ -56,6 +54,8 @@ export var Preferences = Control.extend({
 
   _createPanel: function() {
     var self = this;
+    if ( this._modal ) { return; }
+    
     var template = '';
 
     var possible_fieldsets = [];
@@ -118,6 +118,7 @@ export var Preferences = Control.extend({
   },
 
   initializeForm: function() {
+    this._createPanel();
     this._fieldsets.forEach(function(fieldset) {
       fieldset.initializeForm(this._form);
     }.bind(this));
@@ -244,10 +245,10 @@ Preferences.fieldset.Display = Fieldset.extend({
 
   updateForm: function(form) {
     var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
-    if ( input.value == 'auto' ) {
-      // we do NOT want to save flow as a preference
-      return {};
-    }
+    // if ( input.value == 'auto' ) {
+    //   // we do NOT want to save flow as a preference
+    //   return {};
+    // }
     return { flow: input.value };
   },
 

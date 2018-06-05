@@ -80,11 +80,15 @@ Reader.EpubJS = Reader.extend({
       this.settings.manager = 'default';
     } else {
       this._panes['book'].style.overflow = 'auto';
-      this.settings.manager = 'continuous';
+      if ( this.settings.manager == 'default' ) {
+        this.settings.manager = 'continuous';
+      }
     }
 
     self.settings.height = '100%';
     self.settings.width = '100%';
+
+    self._panes['book'].dataset.manager = this.settings.manager;
 
     self.settings['ignoreClass'] = 'annotator-hl';
     self._rendition = self._book.renderTo(self._panes['book'], self.settings);
@@ -112,6 +116,8 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
+    // return;
+
     self.gotoPage(target, function() {
       window._loaded = true;
       self._initializeReaderStyles();
@@ -121,6 +127,7 @@ Reader.EpubJS = Reader.extend({
       self.fire('opened');
       self.fire('ready');
       self._epubjs_ready = true;
+      self._manager = self._rendition.manager;
     })
 
   },
@@ -308,8 +315,12 @@ Reader.EpubJS = Reader.extend({
       this._rendition.hooks.content.register(function(contents) {
         contents.addStylesheetRules({
           "img" : {
-            "border": "64px solid black !important",
-            "box-sizing": "border-box"
+            // "border": "64px solid black !important",
+            "box-sizing": "border-box !important"
+          },
+          "figure": {
+            "box-sizing": "border-box !important",
+            "margin": "0 !important"
           }
         });
       }.bind(this._rendition));

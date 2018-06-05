@@ -607,6 +607,12 @@ div.cozy-panel-footer {
 
 }
 
+.cozy-module-book[data-manager=prepaginated] {
+  .epub-view {
+      background: rgba(238,238,238,0.40);
+  }
+}
+
 // media queries
 @media screen and (max-width: 50em ) {
 

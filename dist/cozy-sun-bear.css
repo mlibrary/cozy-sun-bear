@@ -1477,6 +1477,9 @@ div.cozy-panel-footer {
 .cozy-container.cozy-engine-readium #scrolled-content-frame {
   position: absolute; }
 
+.cozy-module-book[data-manager=prepaginated] .epub-view {
+  background: rgba(238, 238, 238, 0.4); }
+
 @media screen and (max-width: 50em) {
   .permalink-label,
   .cozy-control.cozy-container-fullscreen {
