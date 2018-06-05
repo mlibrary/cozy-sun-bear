@@ -324,10 +324,6 @@ export var Reader = Evented.extend({
       var keyName = event.key;
       var target = event.target;
 
-      if ( document.activeElement.nodeName != 'BODY' ) {
-        return;
-      }
-
       var IGNORE_TARGETS = [ 'input', 'target' ];
       if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
         return;
