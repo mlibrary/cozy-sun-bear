@@ -82,8 +82,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 var support = __webpack_require__(7);
 var base64 = __webpack_require__(55);
-var nodejsUtils = __webpack_require__(21);
-var setImmediate = __webpack_require__(137);
+var nodejsUtils = __webpack_require__(22);
+var setImmediate = __webpack_require__(139);
 var external = __webpack_require__(15);
 
 
@@ -1043,7 +1043,7 @@ function parse(markup, mime, forceXMLDom) {
 	var Parser;
 
 	if (typeof DOMParser === "undefined" || forceXMLDom) {
-		Parser = __webpack_require__(39).DOMParser;
+		Parser = __webpack_require__(41).DOMParser;
 	} else {
 		Parser = DOMParser;
 	}
@@ -2843,6 +2843,71 @@ module.exports = g;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+// Dom events to listen for
+var DOM_EVENTS = exports.DOM_EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
+
+var EVENTS = exports.EVENTS = {
+  BOOK: {
+    OPEN_FAILED: "openFailed"
+  },
+  CONTENTS: {
+    EXPAND: "expand",
+    RESIZE: "resize",
+    SELECTED: "selected",
+    SELECTED_RANGE: "selectedRange",
+    LINK_CLICKED: "linkClicked"
+  },
+  LOCATIONS: {
+    CHANGED: "changed"
+  },
+  MANAGERS: {
+    RESIZE: "resize",
+    RESIZED: "resized",
+    ORIENTATION_CHANGE: "orientationchange",
+    ADDED: "added",
+    SCROLL: "scroll",
+    SCROLLED: "scrolled"
+  },
+  VIEWS: {
+    AXIS: "axis",
+    LOAD_ERROR: "loaderror",
+    RENDERED: "rendered",
+    RESIZED: "resized",
+    DISPLAYED: "displayed",
+    SHOWN: "shown",
+    HIDDEN: "hidden",
+    MARK_CLICKED: "markClicked"
+  },
+  RENDITION: {
+    STARTED: "started",
+    ATTACHED: "attached",
+    DISPLAYED: "displayed",
+    DISPLAY_ERROR: "displayerror",
+    RENDERED: "rendered",
+    REMOVED: "removed",
+    RESIZED: "resized",
+    ORIENTATION_CHANGE: "orientationchange",
+    LOCATION_CHANGED: "locationChanged",
+    RELOCATED: "relocated",
+    MARK_CLICKED: "markClicked",
+    SELECTED: "selected",
+    LAYOUT: "layout"
+  },
+  LAYOUT: {
+    UPDATED: "updated"
+  }
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var d        = __webpack_require__(78)
   , callable = __webpack_require__(92)
 
@@ -2974,71 +3039,6 @@ module.exports = exports = function (o) {
 };
 exports.methods = methods;
 
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-// Dom events to listen for
-var DOM_EVENTS = exports.DOM_EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
-
-var EVENTS = exports.EVENTS = {
-  BOOK: {
-    OPEN_FAILED: "openFailed"
-  },
-  CONTENTS: {
-    EXPAND: "expand",
-    RESIZE: "resize",
-    SELECTED: "selected",
-    SELECTED_RANGE: "selectedRange",
-    LINK_CLICKED: "linkClicked"
-  },
-  LOCATIONS: {
-    CHANGED: "changed"
-  },
-  MANAGERS: {
-    RESIZE: "resize",
-    RESIZED: "resized",
-    ORIENTATION_CHANGE: "orientationchange",
-    ADDED: "added",
-    SCROLL: "scroll",
-    SCROLLED: "scrolled"
-  },
-  VIEWS: {
-    AXIS: "axis",
-    LOAD_ERROR: "loaderror",
-    RENDERED: "rendered",
-    RESIZED: "resized",
-    DISPLAYED: "displayed",
-    SHOWN: "shown",
-    HIDDEN: "hidden",
-    MARK_CLICKED: "markClicked"
-  },
-  RENDITION: {
-    STARTED: "started",
-    ATTACHED: "attached",
-    DISPLAYED: "displayed",
-    DISPLAY_ERROR: "displayerror",
-    RENDERED: "rendered",
-    REMOVED: "removed",
-    RESIZED: "resized",
-    ORIENTATION_CHANGE: "orientationchange",
-    LOCATION_CHANGED: "locationChanged",
-    RELOCATED: "relocated",
-    MARK_CLICKED: "markClicked",
-    SELECTED: "selected",
-    LAYOUT: "layout"
-  },
-  LAYOUT: {
-    UPDATED: "updated"
-  }
-};
 
 /***/ }),
 /* 7 */
@@ -3233,7 +3233,7 @@ exports.setTyped(TYPED_OK);
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(20);
+var processNextTick = __webpack_require__(21);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -3253,7 +3253,7 @@ util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 var Readable = __webpack_require__(50);
-var Writable = __webpack_require__(33);
+var Writable = __webpack_require__(35);
 
 util.inherits(Duplex, Readable);
 
@@ -3478,7 +3478,7 @@ module.exports = exports["default"];
 
 var utils = __webpack_require__(0);
 var support = __webpack_require__(7);
-var nodejsUtils = __webpack_require__(21);
+var nodejsUtils = __webpack_require__(22);
 var GenericWorker = __webpack_require__(2);
 
 /**
@@ -3766,9 +3766,9 @@ exports.Utf8EncodeWorker = Utf8EncodeWorker;
 
 
 
-var base64 = __webpack_require__(122)
-var ieee754 = __webpack_require__(123)
-var isArray = __webpack_require__(124)
+var base64 = __webpack_require__(124)
+var ieee754 = __webpack_require__(125)
+var isArray = __webpack_require__(126)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -5706,7 +5706,7 @@ var ES6Promise = null;
 if (typeof Promise !== "undefined") {
     ES6Promise = Promise;
 } else {
-    ES6Promise = __webpack_require__(151);
+    ES6Promise = __webpack_require__(153);
 }
 
 /**
@@ -6576,6 +6576,1001 @@ function substitute(content, urls, replacements) {
 
 /***/ }),
 /* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventEmitter = __webpack_require__(6);
+
+var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
+
+var _core = __webpack_require__(1);
+
+var _mapping = __webpack_require__(45);
+
+var _mapping2 = _interopRequireDefault(_mapping);
+
+var _queue = __webpack_require__(27);
+
+var _queue2 = _interopRequireDefault(_queue);
+
+var _stage = __webpack_require__(108);
+
+var _stage2 = _interopRequireDefault(_stage);
+
+var _views = __webpack_require__(118);
+
+var _views2 = _interopRequireDefault(_views);
+
+var _constants = __webpack_require__(5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DefaultViewManager = function () {
+	function DefaultViewManager(options) {
+		_classCallCheck(this, DefaultViewManager);
+
+		this.name = "default";
+		this.View = options.view;
+		this.request = options.request;
+		this.renditionQueue = options.queue;
+		this.q = new _queue2.default(this);
+
+		this.settings = (0, _core.extend)(this.settings || {}, {
+			infinite: true,
+			hidden: false,
+			width: undefined,
+			height: undefined,
+			axis: undefined,
+			flow: "scrolled",
+			ignoreClass: ""
+		});
+
+		(0, _core.extend)(this.settings, options.settings || {});
+
+		this.viewSettings = {
+			ignoreClass: this.settings.ignoreClass,
+			axis: this.settings.axis,
+			flow: this.settings.flow,
+			layout: this.layout,
+			method: this.settings.method, // srcdoc, blobUrl, write
+			width: 0,
+			height: 0,
+			forceEvenPages: true
+		};
+
+		this.rendered = false;
+	}
+
+	_createClass(DefaultViewManager, [{
+		key: "render",
+		value: function render(element, size) {
+			var tag = element.tagName;
+
+			if (tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
+				this.fullsize = true;
+			}
+
+			if (this.fullsize) {
+				this.settings.overflow = "visible";
+				this.overflow = this.settings.overflow;
+			}
+
+			this.settings.size = size;
+
+			// Save the stage
+			this.stage = new _stage2.default({
+				width: size.width,
+				height: size.height,
+				overflow: this.overflow,
+				hidden: this.settings.hidden,
+				axis: this.settings.axis,
+				fullsize: this.fullsize,
+				direction: this.settings.direction
+			});
+
+			this.stage.attachTo(element);
+
+			// Get this stage container div
+			this.container = this.stage.getContainer();
+
+			// Views array methods
+			this.views = new _views2.default(this.container);
+
+			// Calculate Stage Size
+			this._bounds = this.bounds();
+			this._stageSize = this.stage.size();
+
+			// Set the dimensions for views
+			this.viewSettings.width = this._stageSize.width;
+			this.viewSettings.height = this._stageSize.height;
+
+			// Function to handle a resize event.
+			// Will only attach if width and height are both fixed.
+			this.stage.onResize(this.onResized.bind(this));
+
+			this.stage.onOrientationChange(this.onOrientationChange.bind(this));
+
+			// Add Event Listeners
+			this.addEventListeners();
+
+			// Add Layout method
+			// this.applyLayoutMethod();
+			if (this.layout) {
+				this.updateLayout();
+			}
+
+			this.rendered = true;
+		}
+	}, {
+		key: "addEventListeners",
+		value: function addEventListeners() {
+			var scroller;
+
+			window.addEventListener("unload", function (e) {
+				this.destroy();
+			}.bind(this));
+
+			if (!this.fullsize) {
+				scroller = this.container;
+			} else {
+				scroller = window;
+			}
+
+			scroller.addEventListener("scroll", this.onScroll.bind(this));
+		}
+	}, {
+		key: "removeEventListeners",
+		value: function removeEventListeners() {
+			var scroller;
+
+			if (!this.fullsize) {
+				scroller = this.container;
+			} else {
+				scroller = window;
+			}
+
+			scroller.removeEventListener("scroll", this.onScroll.bind(this));
+		}
+	}, {
+		key: "destroy",
+		value: function destroy() {
+			clearTimeout(this.orientationTimeout);
+			clearTimeout(this.resizeTimeout);
+			clearTimeout(this.afterScrolled);
+
+			this.clear();
+
+			this.removeEventListeners();
+
+			this.stage.destroy();
+
+			this.rendered = false;
+
+			/*
+   		clearTimeout(this.trimTimeout);
+   	if(this.settings.hidden) {
+   		this.element.removeChild(this.wrapper);
+   	} else {
+   		this.element.removeChild(this.container);
+   	}
+   */
+		}
+	}, {
+		key: "onOrientationChange",
+		value: function onOrientationChange(e) {
+			var _window = window,
+			    orientation = _window.orientation;
+
+
+			this.resize();
+
+			// Per ampproject:
+			// In IOS 10.3, the measured size of an element is incorrect if the
+			// element size depends on window size directly and the measurement
+			// happens in window.resize event. Adding a timeout for correct
+			// measurement. See https://github.com/ampproject/amphtml/issues/8479
+			clearTimeout(this.orientationTimeout);
+			this.orientationTimeout = setTimeout(function () {
+				this.orientationTimeout = undefined;
+				this.resize();
+				this.emit(_constants.EVENTS.MANAGERS.ORIENTATION_CHANGE, orientation);
+			}.bind(this), 500);
+		}
+	}, {
+		key: "onResized",
+		value: function onResized(e) {
+			this.resize();
+		}
+	}, {
+		key: "resize",
+		value: function resize(width, height) {
+			var stageSize = this.stage.size(width, height);
+
+			// For Safari, wait for orientation to catch up
+			// if the window is a square
+			this.winBounds = (0, _core.windowBounds)();
+			if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
+				// reset the stage size for next resize
+				this._stageSize = undefined;
+				return;
+			}
+
+			if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
+				// Size is the same, no need to resize
+				return;
+			}
+
+			this._stageSize = stageSize;
+
+			this._bounds = this.bounds();
+
+			// Clear current views
+			this.clear();
+
+			// Update for new views
+			this.viewSettings.width = this._stageSize.width;
+			this.viewSettings.height = this._stageSize.height;
+
+			this.updateLayout();
+
+			this.emit(_constants.EVENTS.MANAGERS.RESIZED, {
+				width: this._stageSize.width,
+				height: this._stageSize.height
+			});
+		}
+	}, {
+		key: "createView",
+		value: function createView(section) {
+			return new this.View(section, this.viewSettings);
+		}
+	}, {
+		key: "display",
+		value: function display(section, target) {
+
+			var displaying = new _core.defer();
+			var displayed = displaying.promise;
+
+			// Check if moving to target is needed
+			if (target === section.href || (0, _core.isNumber)(target)) {
+				target = undefined;
+			}
+
+			// Check to make sure the section we want isn't already shown
+			var visible = this.views.find(section);
+
+			// View is already shown, just move to correct location in view
+			if (visible && section) {
+				var offset = visible.offset();
+
+				if (this.settings.direction === "ltr") {
+					this.scrollTo(offset.left, offset.top, true);
+				} else {
+					var width = visible.width();
+					this.scrollTo(offset.left + width, offset.top, true);
+				}
+
+				if (target) {
+					var _offset = visible.locationOf(target);
+					this.moveTo(_offset);
+				}
+
+				displaying.resolve();
+				return displayed;
+			}
+
+			// Hide all current views
+			this.clear();
+
+			this.add(section).then(function (view) {
+
+				// Move to correct place within the section, if needed
+				if (target) {
+					var _offset2 = view.locationOf(target);
+					this.moveTo(_offset2);
+				}
+			}.bind(this), function (err) {
+				displaying.reject(err);
+			}).then(function () {
+				var next;
+				if (this.layout.name === "pre-paginated" && this.layout.flow != 'scrolled' && // RRE
+				this.layout.divisor > 1) {
+					next = section.next();
+					if (next) {
+						return this.add(next);
+					}
+				}
+			}.bind(this)).then(function () {
+
+				this.views.show();
+
+				displaying.resolve();
+			}.bind(this));
+			// .then(function(){
+			// 	return this.hooks.display.trigger(view);
+			// }.bind(this))
+			// .then(function(){
+			// 	this.views.show();
+			// }.bind(this));
+			return displayed;
+		}
+	}, {
+		key: "afterDisplayed",
+		value: function afterDisplayed(view) {
+			this.emit(_constants.EVENTS.MANAGERS.ADDED, view);
+		}
+	}, {
+		key: "afterResized",
+		value: function afterResized(view) {
+			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
+		}
+	}, {
+		key: "moveTo",
+		value: function moveTo(offset) {
+			var distX = 0,
+			    distY = 0;
+
+			if (!this.isPaginated) {
+				distY = offset.top;
+			} else {
+				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+
+				if (distX + this.layout.delta > this.container.scrollWidth) {
+					distX = this.container.scrollWidth - this.layout.delta;
+				}
+			}
+			this.scrollTo(distX, distY, true);
+		}
+	}, {
+		key: "add",
+		value: function add(section) {
+			var _this = this;
+
+			var view = this.createView(section);
+
+			this.views.append(view);
+
+			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
+
+			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+				_this.updateAxis(axis);
+			});
+
+			return view.display(this.request);
+		}
+	}, {
+		key: "append",
+		value: function append(section) {
+			var _this2 = this;
+
+			var view = this.createView(section);
+			this.views.append(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
+
+			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+				_this2.updateAxis(axis);
+			});
+
+			return view.display(this.request);
+		}
+	}, {
+		key: "prepend",
+		value: function prepend(section) {
+			var _this3 = this;
+
+			var view = this.createView(section);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				_this3.counter(bounds);
+			});
+
+			this.views.prepend(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
+
+			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+				_this3.updateAxis(axis);
+			});
+
+			return view.display(this.request);
+		}
+	}, {
+		key: "counter",
+		value: function counter(bounds) {
+			if (this.settings.axis === "vertical") {
+				this.scrollBy(0, bounds.heightDelta, true);
+			} else {
+				this.scrollBy(bounds.widthDelta, 0, true);
+			}
+		}
+
+		// resizeView(view) {
+		//
+		// 	if(this.settings.globalLayoutProperties.layout === "pre-paginated") {
+		// 		view.lock("both", this.bounds.width, this.bounds.height);
+		// 	} else {
+		// 		view.lock("width", this.bounds.width, this.bounds.height);
+		// 	}
+		//
+		// };
+
+	}, {
+		key: "next",
+		value: function next() {
+			var next;
+			var left;
+
+			var dir = this.settings.direction;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
+
+				this.scrollLeft = this.container.scrollLeft;
+
+				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
+
+				if (left <= this.container.scrollWidth) {
+					this.scrollBy(this.layout.delta, 0, true);
+				} else {
+					next = this.views.last().section.next();
+				}
+			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
+
+				this.scrollLeft = this.container.scrollLeft;
+
+				left = this.container.scrollLeft;
+
+				if (left > 0) {
+					this.scrollBy(this.layout.delta, 0, true);
+				} else {
+					next = this.views.last().section.next();
+				}
+			} else if (this.isPaginated && this.settings.axis === "vertical") {
+
+				this.scrollTop = this.container.scrollTop;
+
+				var top = this.container.scrollTop + this.container.offsetHeight;
+
+				if (top < this.container.scrollHeight) {
+					this.scrollBy(0, this.layout.height, true);
+				} else {
+					next = this.views.last().section.next();
+				}
+			} else {
+				next = this.views.last().section.next();
+			}
+
+			if (next) {
+				this.clear();
+
+				return this.append(next).then(function () {
+					var right;
+					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+						right = next.next();
+						if (right) {
+							return this.append(right);
+						}
+					}
+				}.bind(this), function (err) {
+					displaying.reject(err);
+				}).then(function () {
+					this.views.show();
+				}.bind(this));
+			}
+		}
+	}, {
+		key: "prev",
+		value: function prev() {
+			var prev;
+			var left;
+			var dir = this.settings.direction;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
+
+				this.scrollLeft = this.container.scrollLeft;
+
+				left = this.container.scrollLeft;
+
+				if (left > 0) {
+					this.scrollBy(-this.layout.delta, 0, true);
+				} else {
+					prev = this.views.first().section.prev();
+				}
+			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
+
+				this.scrollLeft = this.container.scrollLeft;
+
+				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
+
+				if (left <= this.container.scrollWidth) {
+					this.scrollBy(-this.layout.delta, 0, true);
+				} else {
+					prev = this.views.first().section.prev();
+				}
+			} else if (this.isPaginated && this.settings.axis === "vertical") {
+
+				this.scrollTop = this.container.scrollTop;
+
+				var top = this.container.scrollTop;
+
+				if (top > 0) {
+					this.scrollBy(0, -this.layout.height, true);
+				} else {
+					prev = this.views.first().section.prev();
+				}
+			} else {
+
+				prev = this.views.first().section.prev();
+			}
+
+			if (prev) {
+				this.clear();
+
+				return this.prepend(prev).then(function () {
+					var left;
+					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+						left = prev.prev();
+						if (left) {
+							return this.prepend(left);
+						}
+					}
+				}.bind(this), function (err) {
+					displaying.reject(err);
+				}).then(function () {
+					if (this.isPaginated && this.settings.axis === "horizontal") {
+						if (this.settings.direction === "rtl") {
+							this.scrollTo(0, 0, true);
+						} else {
+							this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+						}
+					}
+					this.views.show();
+				}.bind(this));
+			}
+		}
+	}, {
+		key: "current",
+		value: function current() {
+			var visible = this.visible();
+			if (visible.length) {
+				// Current is the last visible view
+				return visible[visible.length - 1];
+			}
+			return null;
+		}
+	}, {
+		key: "clear",
+		value: function clear() {
+
+			// this.q.clear();
+
+			if (this.views) {
+				this.views.hide();
+				this.scrollTo(0, 0, true);
+				this.views.clear();
+			}
+		}
+	}, {
+		key: "currentLocation",
+		value: function currentLocation() {
+
+			if (this.settings.axis === "vertical") {
+				this.location = this.scrolledLocation();
+			} else {
+				this.location = this.paginatedLocation();
+			}
+			return this.location;
+		}
+	}, {
+		key: "scrolledLocation",
+		value: function scrolledLocation() {
+			var _this4 = this;
+
+			var visible = this.visible();
+			var container = this.container.getBoundingClientRect();
+			var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
+
+			var offset = 0;
+			var used = 0;
+
+			if (this.fullsize) {
+				offset = window.scrollY;
+			}
+
+			var sections = visible.map(function (view) {
+				var _view$section = view.section,
+				    index = _view$section.index,
+				    href = _view$section.href;
+
+				var position = view.position();
+				var height = view.height();
+
+				var startPos = offset + container.top - position.top + used;
+				var endPos = startPos + pageHeight - used;
+				if (endPos > height) {
+					endPos = height;
+					used = endPos - startPos;
+				}
+
+				var totalPages = _this4.layout.count(height, pageHeight).pages;
+
+				var currPage = Math.ceil(startPos / pageHeight);
+				var pages = [];
+				var endPage = Math.ceil(endPos / pageHeight);
+
+				pages = [];
+				for (var i = currPage; i <= endPage; i++) {
+					var pg = i + 1;
+					pages.push(pg);
+				}
+
+				var mapping = _this4.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
+
+				return {
+					index: index,
+					href: href,
+					pages: pages,
+					totalPages: totalPages,
+					mapping: mapping
+				};
+			});
+
+			return sections;
+		}
+	}, {
+		key: "paginatedLocation",
+		value: function paginatedLocation() {
+			var _this5 = this;
+
+			var visible = this.visible();
+			var container = this.container.getBoundingClientRect();
+
+			var left = 0;
+			var used = 0;
+
+			if (this.fullsize) {
+				left = window.scrollX;
+			}
+
+			var sections = visible.map(function (view) {
+				var _view$section2 = view.section,
+				    index = _view$section2.index,
+				    href = _view$section2.href;
+
+				var offset = view.offset().left;
+				var position = view.position().left;
+				var width = view.width();
+
+				// Find mapping
+				var start = left + container.left - position + used;
+				var end = start + _this5.layout.width - used;
+
+				var mapping = _this5.mapping.page(view.contents, view.section.cfiBase, start, end);
+
+				// Find displayed pages
+				//console.log("pre", end, offset + width);
+				// if (end > offset + width) {
+				// 	end = offset + width;
+				// 	used = this.layout.pageWidth;
+				// }
+				// console.log("post", end);
+
+				var totalPages = _this5.layout.count(width).pages;
+				var startPage = Math.floor(start / _this5.layout.pageWidth);
+				var pages = [];
+				var endPage = Math.floor(end / _this5.layout.pageWidth);
+
+				// start page should not be negative
+				if (startPage < 0) {
+					startPage = 0;
+					endPage = endPage + 1;
+				}
+
+				// Reverse page counts for rtl
+				if (_this5.settings.direction === "rtl") {
+					var tempStartPage = startPage;
+					startPage = totalPages - endPage;
+					endPage = totalPages - tempStartPage;
+				}
+
+				for (var i = startPage + 1; i <= endPage; i++) {
+					var pg = i;
+					pages.push(pg);
+				}
+
+				return {
+					index: index,
+					href: href,
+					pages: pages,
+					totalPages: totalPages,
+					mapping: mapping
+				};
+			});
+
+			return sections;
+		}
+	}, {
+		key: "isVisible",
+		value: function isVisible(view, offsetPrev, offsetNext, _container) {
+			var position = view.position();
+			var container = _container || this.bounds();
+
+			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
+
+				return true;
+			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev && position.top < container.bottom + offsetNext) {
+
+				return true;
+			}
+
+			return false;
+		}
+	}, {
+		key: "visible",
+		value: function visible() {
+			var container = this.bounds();
+			var views = this.views.displayed();
+			var viewsLength = views.length;
+			var visible = [];
+			var isVisible;
+			var view;
+
+			for (var i = 0; i < viewsLength; i++) {
+				view = views[i];
+				isVisible = this.isVisible(view, 0, 0, container);
+
+				if (isVisible === true) {
+					visible.push(view);
+				}
+			}
+			return visible;
+		}
+	}, {
+		key: "scrollBy",
+		value: function scrollBy(x, y, silent) {
+			var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+			if (silent) {
+				this.ignore = true;
+			}
+
+			if (!this.fullsize) {
+				if (x) this.container.scrollLeft += x * dir;
+				if (y) this.container.scrollTop += y;
+			} else {
+				window.scrollBy(x * dir, y * dir);
+			}
+			this.scrolled = true;
+		}
+	}, {
+		key: "scrollTo",
+		value: function scrollTo(x, y, silent) {
+			if (silent) {
+				this.ignore = true;
+			}
+
+			if (!this.fullsize) {
+				this.container.scrollLeft = x;
+				this.container.scrollTop = y;
+			} else {
+				window.scrollTo(x, y);
+			}
+			this.scrolled = true;
+		}
+	}, {
+		key: "onScroll",
+		value: function onScroll() {
+			var scrollTop = void 0;
+			var scrollLeft = void 0;
+
+			if (!this.fullsize) {
+				scrollTop = this.container.scrollTop;
+				scrollLeft = this.container.scrollLeft;
+			} else {
+				scrollTop = window.scrollY;
+				scrollLeft = window.scrollX;
+			}
+
+			this.scrollTop = scrollTop;
+			this.scrollLeft = scrollLeft;
+
+			if (!this.ignore) {
+				this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
+					top: scrollTop,
+					left: scrollLeft
+				});
+
+				clearTimeout(this.afterScrolled);
+				this.afterScrolled = setTimeout(function () {
+					this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+						top: this.scrollTop,
+						left: this.scrollLeft
+					});
+				}.bind(this), 20);
+			} else {
+				this.ignore = false;
+			}
+		}
+	}, {
+		key: "bounds",
+		value: function bounds() {
+			var bounds;
+
+			bounds = this.stage.bounds();
+
+			return bounds;
+		}
+	}, {
+		key: "applyLayout",
+		value: function applyLayout(layout) {
+
+			this.layout = layout;
+			this.updateLayout();
+			// this.manager.layout(this.layout.format);
+		}
+	}, {
+		key: "updateLayout",
+		value: function updateLayout() {
+
+			if (!this.stage) {
+				return;
+			}
+
+			this._stageSize = this.stage.size();
+
+			if (!this.isPaginated) {
+				this.layout.calculate(this._stageSize.width, this._stageSize.height);
+			} else {
+				this.layout.calculate(this._stageSize.width, this._stageSize.height, this.settings.gap);
+
+				// Set the look ahead offset for what is visible
+				this.settings.offset = this.layout.delta;
+
+				// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
+			}
+
+			// Set the dimensions for views
+			this.viewSettings.width = this.layout.width;
+			this.viewSettings.height = this.layout.height;
+
+			this.setLayout(this.layout);
+		}
+	}, {
+		key: "setLayout",
+		value: function setLayout(layout) {
+
+			this.viewSettings.layout = layout;
+
+			this.mapping = new _mapping2.default(layout.props, this.settings.direction, this.settings.axis);
+
+			if (this.views) {
+
+				this.views.forEach(function (view) {
+					if (view) {
+						view.setLayout(layout);
+					}
+				});
+			}
+		}
+	}, {
+		key: "updateAxis",
+		value: function updateAxis(axis, forceUpdate) {
+
+			if (!this.isPaginated) {
+				axis = "vertical";
+			}
+
+			if (!forceUpdate && axis === this.settings.axis) {
+				return;
+			}
+
+			this.settings.axis = axis;
+
+			this.stage && this.stage.axis(axis);
+
+			this.viewSettings.axis = axis;
+
+			if (this.mapping) {
+				this.mapping = new _mapping2.default(this.layout.props, this.settings.direction, this.settings.axis);
+			}
+
+			if (this.layout) {
+				if (axis === "vertical") {
+					this.layout.spread("none");
+				} else {
+					this.layout.spread(this.layout.settings.spread);
+				}
+			}
+		}
+	}, {
+		key: "updateFlow",
+		value: function updateFlow(flow) {
+			var isPaginated = flow === "paginated" || flow === "auto";
+
+			this.isPaginated = isPaginated;
+
+			if (flow === "scrolled-doc" || flow === "scrolled-continuous" || flow === "scrolled") {
+				this.updateAxis("vertical");
+			}
+
+			this.viewSettings.flow = flow;
+
+			if (!this.settings.overflow) {
+				this.overflow = isPaginated ? "hidden" : "auto";
+			} else {
+				this.overflow = this.settings.overflow;
+			}
+			// this.views.forEach(function(view){
+			// 	view.setAxis(axis);
+			// });
+
+			this.updateLayout();
+		}
+	}, {
+		key: "getContents",
+		value: function getContents() {
+			var contents = [];
+			if (!this.views) {
+				return contents;
+			}
+			this.views.forEach(function (view) {
+				var viewContents = view && view.contents;
+				if (viewContents) {
+					contents.push(viewContents);
+				}
+			});
+			return contents;
+		}
+	}, {
+		key: "direction",
+		value: function direction() {
+			var dir = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ltr";
+
+			this.settings.direction = dir;
+
+			this.stage && this.stage.direction(dir);
+
+			this.viewSettings.direction = dir;
+
+			this.updateLayout();
+		}
+	}, {
+		key: "isRendered",
+		value: function isRendered() {
+			return this.rendered;
+		}
+	}]);
+
+	return DefaultViewManager;
+}();
+
+//-- Enable binding events to Manager
+
+
+(0, _eventEmitter2.default)(DefaultViewManager.prototype);
+
+exports.default = DefaultViewManager;
+module.exports = exports["default"];
+
+/***/ }),
+/* 20 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -6765,7 +7760,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6813,10 +7808,10 @@ function nextTick(fn, arg1, arg2, arg3) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20)))
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6876,7 +7871,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12).Buffer))
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -6885,7 +7880,7 @@ var global = module.exports = typeof window != 'undefined' && window.Math == Mat
 if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6899,7 +7894,7 @@ module.exports = function (val) {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6995,7 +7990,7 @@ exports.default = Hook;
 module.exports = exports["default"];
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7156,7 +8151,7 @@ exports.default = request;
 module.exports = exports["default"];
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7439,7 +8434,7 @@ exports.default = Queue;
 exports.Task = Task;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7451,7 +8446,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -7461,13 +8456,13 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _mapping = __webpack_require__(43);
+var _mapping = __webpack_require__(45);
 
 var _mapping2 = _interopRequireDefault(_mapping);
 
 var _replacements = __webpack_require__(18);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8617,12 +9612,22 @@ var Contents = function () {
 	}, {
 		key: "fit",
 		value: function fit(width, height) {
+
 			var viewport = this.viewport();
 			var widthScale = width / parseInt(viewport.width);
 			var heightScale = height / parseInt(viewport.height);
-			var scale = widthScale < heightScale ? widthScale : heightScale;
+			// var scale = widthScale < heightScale ? widthScale : heightScale;
+			// var scale = widthScale < heightScale ? heightScale : widthScale;
+			var scale;var offsetY;
+			if (window.fitWidth) {
+				scale = widthScale < heightScale ? heightScale : widthScale;
+				offsetY = 0;
+			} else {
+				scale = widthScale < heightScale ? widthScale : heightScale;
+				offsetY = (height - viewport.height * scale) / 2;
+			}
 
-			var offsetY = (height - viewport.height * scale) / 2;
+			// var offsetY = (height - (viewport.height * scale)) / 2;
 
 			this.layoutStyle("paginated");
 
@@ -8769,1003 +9774,201 @@ exports.default = Contents;
 module.exports = exports["default"];
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var isObject = __webpack_require__(30),
+    now = __webpack_require__(110),
+    toNumber = __webpack_require__(112);
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeMin = Math.min;
+
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked. The debounced function comes with a `cancel` method to cancel
+ * delayed `func` invocations and a `flush` method to immediately invoke them.
+ * Provide `options` to indicate whether `func` should be invoked on the
+ * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+ * with the last arguments provided to the debounced function. Subsequent
+ * calls to the debounced function return the result of the last `func`
+ * invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the debounced function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `_.debounce` and `_.throttle`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0] The number of milliseconds to delay.
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=false]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {number} [options.maxWait]
+ *  The maximum time `func` is allowed to be delayed before it's invoked.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // Avoid costly calculations while the window size is in flux.
+ * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+ *
+ * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+ * jQuery(element).on('click', _.debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }));
+ *
+ * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+ * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+ * var source = new EventSource('/stream');
+ * jQuery(source).on('message', debounced);
+ *
+ * // Cancel the trailing debounced invocation.
+ * jQuery(window).on('popstate', debounced.cancel);
+ */
+function debounce(func, wait, options) {
+  var lastArgs,
+      lastThis,
+      maxWait,
+      result,
+      timerId,
+      lastCallTime,
+      lastInvokeTime = 0,
+      leading = false,
+      maxing = false,
+      trailing = true;
+
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  wait = toNumber(wait) || 0;
+  if (isObject(options)) {
+    leading = !!options.leading;
+    maxing = 'maxWait' in options;
+    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
+  }
+
+  function invokeFunc(time) {
+    var args = lastArgs,
+        thisArg = lastThis;
+
+    lastArgs = lastThis = undefined;
+    lastInvokeTime = time;
+    result = func.apply(thisArg, args);
+    return result;
+  }
+
+  function leadingEdge(time) {
+    // Reset any `maxWait` timer.
+    lastInvokeTime = time;
+    // Start the timer for the trailing edge.
+    timerId = setTimeout(timerExpired, wait);
+    // Invoke the leading edge.
+    return leading ? invokeFunc(time) : result;
+  }
+
+  function remainingWait(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime,
+        result = wait - timeSinceLastCall;
+
+    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+  }
+
+  function shouldInvoke(time) {
+    var timeSinceLastCall = time - lastCallTime,
+        timeSinceLastInvoke = time - lastInvokeTime;
+
+    // Either this is the first call, activity has stopped and we're at the
+    // trailing edge, the system time has gone backwards and we're treating
+    // it as the trailing edge, or we've hit the `maxWait` limit.
+    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+  }
+
+  function timerExpired() {
+    var time = now();
+    if (shouldInvoke(time)) {
+      return trailingEdge(time);
+    }
+    // Restart the timer.
+    timerId = setTimeout(timerExpired, remainingWait(time));
+  }
+
+  function trailingEdge(time) {
+    timerId = undefined;
+
+    // Only invoke if we have `lastArgs` which means `func` has been
+    // debounced at least once.
+    if (trailing && lastArgs) {
+      return invokeFunc(time);
+    }
+    lastArgs = lastThis = undefined;
+    return result;
+  }
+
+  function cancel() {
+    if (timerId !== undefined) {
+      clearTimeout(timerId);
+    }
+    lastInvokeTime = 0;
+    lastArgs = lastCallTime = lastThis = timerId = undefined;
+  }
+
+  function flush() {
+    return timerId === undefined ? result : trailingEdge(now());
+  }
+
+  function debounced() {
+    var time = now(),
+        isInvoking = shouldInvoke(time);
+
+    lastArgs = arguments;
+    lastThis = this;
+    lastCallTime = time;
+
+    if (isInvoking) {
+      if (timerId === undefined) {
+        return leadingEdge(lastCallTime);
+      }
+      if (maxing) {
+        // Handle invocations in a tight loop.
+        timerId = setTimeout(timerExpired, wait);
+        return invokeFunc(lastCallTime);
+      }
+    }
+    if (timerId === undefined) {
+      timerId = setTimeout(timerExpired, wait);
+    }
+    return result;
+  }
+  debounced.cancel = cancel;
+  debounced.flush = flush;
+  return debounced;
+}
+
+module.exports = debounce;
 
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _eventEmitter = __webpack_require__(5);
-
-var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
-
-var _core = __webpack_require__(1);
-
-var _mapping = __webpack_require__(43);
-
-var _mapping2 = _interopRequireDefault(_mapping);
-
-var _queue = __webpack_require__(26);
-
-var _queue2 = _interopRequireDefault(_queue);
-
-var _stage = __webpack_require__(108);
-
-var _stage2 = _interopRequireDefault(_stage);
-
-var _views = __webpack_require__(118);
-
-var _views2 = _interopRequireDefault(_views);
-
-var _constants = __webpack_require__(6);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DefaultViewManager = function () {
-	function DefaultViewManager(options) {
-		_classCallCheck(this, DefaultViewManager);
-
-		this.name = "default";
-		this.View = options.view;
-		this.request = options.request;
-		this.renditionQueue = options.queue;
-		this.q = new _queue2.default(this);
-
-		this.settings = (0, _core.extend)(this.settings || {}, {
-			infinite: true,
-			hidden: false,
-			width: undefined,
-			height: undefined,
-			axis: undefined,
-			flow: "scrolled",
-			ignoreClass: ""
-		});
-
-		(0, _core.extend)(this.settings, options.settings || {});
-
-		this.viewSettings = {
-			ignoreClass: this.settings.ignoreClass,
-			axis: this.settings.axis,
-			flow: this.settings.flow,
-			layout: this.layout,
-			method: this.settings.method, // srcdoc, blobUrl, write
-			width: 0,
-			height: 0,
-			forceEvenPages: true
-		};
-
-		this.rendered = false;
-	}
-
-	_createClass(DefaultViewManager, [{
-		key: "render",
-		value: function render(element, size) {
-			var tag = element.tagName;
-
-			if (tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
-				this.fullsize = true;
-			}
-
-			if (this.fullsize) {
-				this.settings.overflow = "visible";
-				this.overflow = this.settings.overflow;
-			}
-
-			this.settings.size = size;
-
-			// Save the stage
-			this.stage = new _stage2.default({
-				width: size.width,
-				height: size.height,
-				overflow: this.overflow,
-				hidden: this.settings.hidden,
-				axis: this.settings.axis,
-				fullsize: this.fullsize,
-				direction: this.settings.direction
-			});
-
-			this.stage.attachTo(element);
-
-			// Get this stage container div
-			this.container = this.stage.getContainer();
-
-			// Views array methods
-			this.views = new _views2.default(this.container);
-
-			// Calculate Stage Size
-			this._bounds = this.bounds();
-			this._stageSize = this.stage.size();
-
-			// Set the dimensions for views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			// Function to handle a resize event.
-			// Will only attach if width and height are both fixed.
-			this.stage.onResize(this.onResized.bind(this));
-
-			this.stage.onOrientationChange(this.onOrientationChange.bind(this));
-
-			// Add Event Listeners
-			this.addEventListeners();
-
-			// Add Layout method
-			// this.applyLayoutMethod();
-			if (this.layout) {
-				this.updateLayout();
-			}
-
-			this.rendered = true;
-		}
-	}, {
-		key: "addEventListeners",
-		value: function addEventListeners() {
-			var scroller;
-
-			window.addEventListener("unload", function (e) {
-				this.destroy();
-			}.bind(this));
-
-			if (!this.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.addEventListener("scroll", this.onScroll.bind(this));
-		}
-	}, {
-		key: "removeEventListeners",
-		value: function removeEventListeners() {
-			var scroller;
-
-			if (!this.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this.onScroll.bind(this));
-		}
-	}, {
-		key: "destroy",
-		value: function destroy() {
-			clearTimeout(this.orientationTimeout);
-			clearTimeout(this.resizeTimeout);
-			clearTimeout(this.afterScrolled);
-
-			this.clear();
-
-			this.removeEventListeners();
-
-			this.stage.destroy();
-
-			this.rendered = false;
-
-			/*
-   		clearTimeout(this.trimTimeout);
-   	if(this.settings.hidden) {
-   		this.element.removeChild(this.wrapper);
-   	} else {
-   		this.element.removeChild(this.container);
-   	}
-   */
-		}
-	}, {
-		key: "onOrientationChange",
-		value: function onOrientationChange(e) {
-			var _window = window,
-			    orientation = _window.orientation;
-
-
-			this.resize();
-
-			// Per ampproject:
-			// In IOS 10.3, the measured size of an element is incorrect if the
-			// element size depends on window size directly and the measurement
-			// happens in window.resize event. Adding a timeout for correct
-			// measurement. See https://github.com/ampproject/amphtml/issues/8479
-			clearTimeout(this.orientationTimeout);
-			this.orientationTimeout = setTimeout(function () {
-				this.orientationTimeout = undefined;
-				this.resize();
-				this.emit(_constants.EVENTS.MANAGERS.ORIENTATION_CHANGE, orientation);
-			}.bind(this), 500);
-		}
-	}, {
-		key: "onResized",
-		value: function onResized(e) {
-			this.resize();
-		}
-	}, {
-		key: "resize",
-		value: function resize(width, height) {
-			var stageSize = this.stage.size(width, height);
-
-			// For Safari, wait for orientation to catch up
-			// if the window is a square
-			this.winBounds = (0, _core.windowBounds)();
-			if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
-				// reset the stage size for next resize
-				this._stageSize = undefined;
-				return;
-			}
-
-			if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
-				// Size is the same, no need to resize
-				return;
-			}
-
-			this._stageSize = stageSize;
-
-			this._bounds = this.bounds();
-
-			// Clear current views
-			this.clear();
-
-			// Update for new views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			this.updateLayout();
-
-			this.emit(_constants.EVENTS.MANAGERS.RESIZED, {
-				width: this._stageSize.width,
-				height: this._stageSize.height
-			});
-		}
-	}, {
-		key: "createView",
-		value: function createView(section) {
-			return new this.View(section, this.viewSettings);
-		}
-	}, {
-		key: "display",
-		value: function display(section, target) {
-
-			var displaying = new _core.defer();
-			var displayed = displaying.promise;
-
-			// Check if moving to target is needed
-			if (target === section.href || (0, _core.isNumber)(target)) {
-				target = undefined;
-			}
-
-			// Check to make sure the section we want isn't already shown
-			var visible = this.views.find(section);
-			console.log("AHOY manager.display : visible=", visible);
-
-			// View is already shown, just move to correct location in view
-			if (visible && section) {
-				var offset = visible.offset();
-
-				if (this.settings.direction === "ltr") {
-					this.scrollTo(offset.left, offset.top, true);
-				} else {
-					var width = visible.width();
-					this.scrollTo(offset.left + width, offset.top, true);
-				}
-
-				if (target) {
-					var _offset = visible.locationOf(target);
-					this.moveTo(_offset);
-				}
-
-				displaying.resolve();
-				return displayed;
-			}
-
-			// Hide all current views
-			this.clear();
-
-			this.add(section).then(function (view) {
-
-				// Move to correct place within the section, if needed
-				if (target) {
-					var _offset2 = view.locationOf(target);
-					this.moveTo(_offset2);
-				}
-			}.bind(this), function (err) {
-				displaying.reject(err);
-			}).then(function () {
-				var next;
-				if (this.layout.name === "pre-paginated" && this.layout.flow != 'scrolled' && // RRE
-				this.layout.divisor > 1) {
-					next = section.next();
-					if (next) {
-						return this.add(next);
-					}
-				}
-			}.bind(this)).then(function () {
-
-				this.views.show();
-
-				displaying.resolve();
-			}.bind(this));
-			// .then(function(){
-			// 	return this.hooks.display.trigger(view);
-			// }.bind(this))
-			// .then(function(){
-			// 	this.views.show();
-			// }.bind(this));
-			return displayed;
-		}
-	}, {
-		key: "afterDisplayed",
-		value: function afterDisplayed(view) {
-			this.emit(_constants.EVENTS.MANAGERS.ADDED, view);
-		}
-	}, {
-		key: "afterResized",
-		value: function afterResized(view) {
-			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
-		}
-	}, {
-		key: "moveTo",
-		value: function moveTo(offset) {
-			var distX = 0,
-			    distY = 0;
-
-			if (!this.isPaginated) {
-				distY = offset.top;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-
-				if (distX + this.layout.delta > this.container.scrollWidth) {
-					distX = this.container.scrollWidth - this.layout.delta;
-				}
-			}
-			this.scrollTo(distX, distY, true);
-		}
-	}, {
-		key: "add",
-		value: function add(section) {
-			var _this = this;
-
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-	}, {
-		key: "append",
-		value: function append(section) {
-			var _this2 = this;
-
-			var view = this.createView(section);
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this2.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-	}, {
-		key: "prepend",
-		value: function prepend(section) {
-			var _this3 = this;
-
-			var view = this.createView(section);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				_this3.counter(bounds);
-			});
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this3.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-	}, {
-		key: "counter",
-		value: function counter(bounds) {
-			if (this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-
-		// resizeView(view) {
-		//
-		// 	if(this.settings.globalLayoutProperties.layout === "pre-paginated") {
-		// 		view.lock("both", this.bounds.width, this.bounds.height);
-		// 	} else {
-		// 		view.lock("width", this.bounds.width, this.bounds.height);
-		// 	}
-		//
-		// };
-
-	}, {
-		key: "next",
-		value: function next() {
-			var next;
-			var left;
-
-			var dir = this.settings.direction;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if (left <= this.container.scrollWidth) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft;
-
-				if (left > 0) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				var top = this.container.scrollTop + this.container.offsetHeight;
-
-				if (top < this.container.scrollHeight) {
-					this.scrollBy(0, this.layout.height, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else {
-				next = this.views.last().section.next();
-			}
-
-			if (next) {
-				this.clear();
-
-				return this.append(next).then(function () {
-					var right;
-					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-						right = next.next();
-						if (right) {
-							return this.append(right);
-						}
-					}
-				}.bind(this), function (err) {
-					displaying.reject(err);
-				}).then(function () {
-					this.views.show();
-				}.bind(this));
-			}
-		}
-	}, {
-		key: "prev",
-		value: function prev() {
-			var prev;
-			var left;
-			var dir = this.settings.direction;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft;
-
-				if (left > 0) {
-					this.scrollBy(-this.layout.delta, 0, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if (left <= this.container.scrollWidth) {
-					this.scrollBy(-this.layout.delta, 0, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				var top = this.container.scrollTop;
-
-				if (top > 0) {
-					this.scrollBy(0, -this.layout.height, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-			} else {
-
-				prev = this.views.first().section.prev();
-			}
-
-			if (prev) {
-				this.clear();
-
-				return this.prepend(prev).then(function () {
-					var left;
-					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-						left = prev.prev();
-						if (left) {
-							return this.prepend(left);
-						}
-					}
-				}.bind(this), function (err) {
-					displaying.reject(err);
-				}).then(function () {
-					if (this.isPaginated && this.settings.axis === "horizontal") {
-						if (this.settings.direction === "rtl") {
-							this.scrollTo(0, 0, true);
-						} else {
-							this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
-						}
-					}
-					this.views.show();
-				}.bind(this));
-			}
-		}
-	}, {
-		key: "current",
-		value: function current() {
-			var visible = this.visible();
-			if (visible.length) {
-				// Current is the last visible view
-				return visible[visible.length - 1];
-			}
-			return null;
-		}
-	}, {
-		key: "clear",
-		value: function clear() {
-
-			// this.q.clear();
-
-			if (this.views) {
-				this.views.hide();
-				this.scrollTo(0, 0, true);
-				this.views.clear();
-			}
-		}
-	}, {
-		key: "currentLocation",
-		value: function currentLocation() {
-
-			if (this.settings.axis === "vertical") {
-				this.location = this.scrolledLocation();
-			} else {
-				this.location = this.paginatedLocation();
-			}
-			return this.location;
-		}
-	}, {
-		key: "scrolledLocation",
-		value: function scrolledLocation() {
-			var _this4 = this;
-
-			var visible = this.visible();
-			var container = this.container.getBoundingClientRect();
-			var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
-
-			var offset = 0;
-			var used = 0;
-
-			if (this.fullsize) {
-				offset = window.scrollY;
-			}
-
-			var sections = visible.map(function (view) {
-				var _view$section = view.section,
-				    index = _view$section.index,
-				    href = _view$section.href;
-
-				var position = view.position();
-				var height = view.height();
-
-				var startPos = offset + container.top - position.top + used;
-				var endPos = startPos + pageHeight - used;
-				if (endPos > height) {
-					endPos = height;
-					used = endPos - startPos;
-				}
-
-				var totalPages = _this4.layout.count(height, pageHeight).pages;
-
-				var currPage = Math.ceil(startPos / pageHeight);
-				var pages = [];
-				var endPage = Math.ceil(endPos / pageHeight);
-
-				pages = [];
-				for (var i = currPage; i <= endPage; i++) {
-					var pg = i + 1;
-					pages.push(pg);
-				}
-
-				var mapping = _this4.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
-
-				return {
-					index: index,
-					href: href,
-					pages: pages,
-					totalPages: totalPages,
-					mapping: mapping
-				};
-			});
-
-			return sections;
-		}
-	}, {
-		key: "paginatedLocation",
-		value: function paginatedLocation() {
-			var _this5 = this;
-
-			var visible = this.visible();
-			var container = this.container.getBoundingClientRect();
-
-			var left = 0;
-			var used = 0;
-
-			if (this.fullsize) {
-				left = window.scrollX;
-			}
-
-			var sections = visible.map(function (view) {
-				var _view$section2 = view.section,
-				    index = _view$section2.index,
-				    href = _view$section2.href;
-
-				var offset = view.offset().left;
-				var position = view.position().left;
-				var width = view.width();
-
-				// Find mapping
-				var start = left + container.left - position + used;
-				var end = start + _this5.layout.width - used;
-
-				var mapping = _this5.mapping.page(view.contents, view.section.cfiBase, start, end);
-
-				// Find displayed pages
-				//console.log("pre", end, offset + width);
-				// if (end > offset + width) {
-				// 	end = offset + width;
-				// 	used = this.layout.pageWidth;
-				// }
-				// console.log("post", end);
-
-				var totalPages = _this5.layout.count(width).pages;
-				var startPage = Math.floor(start / _this5.layout.pageWidth);
-				var pages = [];
-				var endPage = Math.floor(end / _this5.layout.pageWidth);
-
-				// start page should not be negative
-				if (startPage < 0) {
-					startPage = 0;
-					endPage = endPage + 1;
-				}
-
-				// Reverse page counts for rtl
-				if (_this5.settings.direction === "rtl") {
-					var tempStartPage = startPage;
-					startPage = totalPages - endPage;
-					endPage = totalPages - tempStartPage;
-				}
-
-				for (var i = startPage + 1; i <= endPage; i++) {
-					var pg = i;
-					pages.push(pg);
-				}
-
-				return {
-					index: index,
-					href: href,
-					pages: pages,
-					totalPages: totalPages,
-					mapping: mapping
-				};
-			});
-
-			return sections;
-		}
-	}, {
-		key: "isVisible",
-		value: function isVisible(view, offsetPrev, offsetNext, _container) {
-			var position = view.position();
-			var container = _container || this.bounds();
-
-			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
-
-				return true;
-			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev && position.top < container.bottom + offsetNext) {
-
-				return true;
-			}
-
-			return false;
-		}
-	}, {
-		key: "visible",
-		value: function visible() {
-			var container = this.bounds();
-			var views = this.views.displayed();
-			var viewsLength = views.length;
-			var visible = [];
-			var isVisible;
-			var view;
-
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-				isVisible = this.isVisible(view, 0, 0, container);
-
-				if (isVisible === true) {
-					visible.push(view);
-				}
-			}
-			return visible;
-		}
-	}, {
-		key: "scrollBy",
-		value: function scrollBy(x, y, silent) {
-			var dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if (silent) {
-				this.ignore = true;
-			}
-
-			if (!this.fullsize) {
-				if (x) this.container.scrollLeft += x * dir;
-				if (y) this.container.scrollTop += y;
-			} else {
-				window.scrollBy(x * dir, y * dir);
-			}
-			this.scrolled = true;
-		}
-	}, {
-		key: "scrollTo",
-		value: function scrollTo(x, y, silent) {
-			if (silent) {
-				this.ignore = true;
-			}
-
-			if (!this.fullsize) {
-				this.container.scrollLeft = x;
-				this.container.scrollTop = y;
-			} else {
-				window.scrollTo(x, y);
-			}
-			this.scrolled = true;
-		}
-	}, {
-		key: "onScroll",
-		value: function onScroll() {
-			var scrollTop = void 0;
-			var scrollLeft = void 0;
-
-			if (!this.fullsize) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY;
-				scrollLeft = window.scrollX;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if (!this.ignore) {
-				this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
-					top: scrollTop,
-					left: scrollLeft
-				});
-
-				clearTimeout(this.afterScrolled);
-				this.afterScrolled = setTimeout(function () {
-					this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
-						top: this.scrollTop,
-						left: this.scrollLeft
-					});
-				}.bind(this), 20);
-			} else {
-				this.ignore = false;
-			}
-		}
-	}, {
-		key: "bounds",
-		value: function bounds() {
-			var bounds;
-
-			bounds = this.stage.bounds();
-
-			return bounds;
-		}
-	}, {
-		key: "applyLayout",
-		value: function applyLayout(layout) {
-
-			this.layout = layout;
-			this.updateLayout();
-			// this.manager.layout(this.layout.format);
-		}
-	}, {
-		key: "updateLayout",
-		value: function updateLayout() {
-
-			if (!this.stage) {
-				return;
-			}
-
-			this._stageSize = this.stage.size();
-
-			if (!this.isPaginated) {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height);
-			} else {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height, this.settings.gap);
-
-				// Set the look ahead offset for what is visible
-				this.settings.offset = this.layout.delta;
-
-				// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
-			}
-
-			// Set the dimensions for views
-			this.viewSettings.width = this.layout.width;
-			this.viewSettings.height = this.layout.height;
-
-			this.setLayout(this.layout);
-		}
-	}, {
-		key: "setLayout",
-		value: function setLayout(layout) {
-
-			this.viewSettings.layout = layout;
-
-			this.mapping = new _mapping2.default(layout.props, this.settings.direction, this.settings.axis);
-
-			if (this.views) {
-
-				this.views.forEach(function (view) {
-					if (view) {
-						view.setLayout(layout);
-					}
-				});
-			}
-		}
-	}, {
-		key: "updateAxis",
-		value: function updateAxis(axis, forceUpdate) {
-
-			if (!this.isPaginated) {
-				axis = "vertical";
-			}
-
-			if (!forceUpdate && axis === this.settings.axis) {
-				return;
-			}
-
-			this.settings.axis = axis;
-
-			this.stage && this.stage.axis(axis);
-
-			this.viewSettings.axis = axis;
-
-			if (this.mapping) {
-				this.mapping = new _mapping2.default(this.layout.props, this.settings.direction, this.settings.axis);
-			}
-
-			if (this.layout) {
-				if (axis === "vertical") {
-					this.layout.spread("none");
-				} else {
-					this.layout.spread(this.layout.settings.spread);
-				}
-			}
-		}
-	}, {
-		key: "updateFlow",
-		value: function updateFlow(flow) {
-			var isPaginated = flow === "paginated" || flow === "auto";
-
-			this.isPaginated = isPaginated;
-
-			if (flow === "scrolled-doc" || flow === "scrolled-continuous" || flow === "scrolled") {
-				this.updateAxis("vertical");
-			}
-
-			this.viewSettings.flow = flow;
-
-			if (!this.settings.overflow) {
-				this.overflow = isPaginated ? "hidden" : "auto";
-			} else {
-				this.overflow = this.settings.overflow;
-			}
-			// this.views.forEach(function(view){
-			// 	view.setAxis(axis);
-			// });
-
-			this.updateLayout();
-		}
-	}, {
-		key: "getContents",
-		value: function getContents() {
-			var contents = [];
-			if (!this.views) {
-				return contents;
-			}
-			this.views.forEach(function (view) {
-				var viewContents = view && view.contents;
-				if (viewContents) {
-					contents.push(viewContents);
-				}
-			});
-			return contents;
-		}
-	}, {
-		key: "direction",
-		value: function direction() {
-			var dir = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ltr";
-
-			this.settings.direction = dir;
-
-			this.stage && this.stage.direction(dir);
-
-			this.viewSettings.direction = dir;
-
-			this.updateLayout();
-		}
-	}, {
-		key: "isRendered",
-		value: function isRendered() {
-			return this.rendered;
-		}
-	}]);
-
-	return DefaultViewManager;
-}();
-
-//-- Enable binding events to Manager
-
-
-(0, _eventEmitter2.default)(DefaultViewManager.prototype);
-
-exports.default = DefaultViewManager;
-module.exports = exports["default"];
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /**
@@ -9802,7 +10005,665 @@ module.exports = isObject;
 
 
 /***/ }),
-/* 30 */
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(1);
+
+var _default = __webpack_require__(19);
+
+var _default2 = _interopRequireDefault(_default);
+
+var _constants = __webpack_require__(5);
+
+var _debounce = __webpack_require__(29);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ContinuousViewManager = function (_DefaultViewManager) {
+	_inherits(ContinuousViewManager, _DefaultViewManager);
+
+	function ContinuousViewManager(options) {
+		_classCallCheck(this, ContinuousViewManager);
+
+		var _this = _possibleConstructorReturn(this, (ContinuousViewManager.__proto__ || Object.getPrototypeOf(ContinuousViewManager)).call(this, options));
+
+		_this.name = "continuous";
+
+		_this.settings = (0, _core.extend)(_this.settings || {}, {
+			infinite: true,
+			overflow: undefined,
+			axis: undefined,
+			flow: "scrolled",
+			offset: 500,
+			offsetDelta: 250,
+			width: undefined,
+			height: undefined
+		});
+
+		(0, _core.extend)(_this.settings, options.settings || {});
+
+		// Gap can be 0, but defaults doesn't handle that
+		if (options.settings.gap != "undefined" && options.settings.gap === 0) {
+			_this.settings.gap = options.settings.gap;
+		}
+
+		_this.viewSettings = {
+			ignoreClass: _this.settings.ignoreClass,
+			axis: _this.settings.axis,
+			flow: _this.settings.flow,
+			layout: _this.layout,
+			width: 0,
+			height: 0,
+			forceEvenPages: false
+		};
+
+		_this.scrollTop = 0;
+		_this.scrollLeft = 0;
+		return _this;
+	}
+
+	// RRE - debugging
+
+
+	_createClass(ContinuousViewManager, [{
+		key: "createView",
+		value: function createView(section) {
+			// console.log("AHOY continuous.createView", section.href);
+			var view = new this.View(section, this.viewSettings);
+			if (window.debugManager && this.layout.name == 'pre-paginated' && view.element.style.backgroundColor == "") {
+				var colorR = Math.floor(Math.random() * 100).toString();
+				var colorG = Math.floor(Math.random() * 100).toString();
+				var colorB = Math.floor(Math.random() * 100).toString();
+				view.element.style.backgroundColor = "#" + colorR + colorG + colorB;
+				view.element.style.width = '100%';
+				view.element.style.textAlign = 'center';
+				view.element.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(125,125,125,0.4);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section.href + " :: " + window.ABC[section.href] + "%3c/text%3e%3c/svg%3e\")";
+			}
+			return view;
+		}
+	}, {
+		key: "display",
+		value: function display(section, target) {
+
+			return _default2.default.prototype.display.call(this, section, target).then(function () {
+				return this.fill();
+			}.bind(this));
+		}
+	}, {
+		key: "fill",
+		value: function fill(_full) {
+			var _this2 = this;
+
+			var full = _full || new _core.defer();
+
+			this.q.enqueue(function () {
+				return _this2.check();
+			}).then(function (result) {
+				if (result) {
+					_this2.fill(full);
+				} else {
+					full.resolve();
+				}
+			});
+
+			return full.promise;
+		}
+	}, {
+		key: "moveTo",
+		value: function moveTo(offset) {
+			// var bounds = this.stage.bounds();
+			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+			var distX = 0,
+			    distY = 0;
+
+			var offsetX = 0,
+			    offsetY = 0;
+
+			if (!this.isPaginated) {
+				distY = offset.top;
+				offsetY = offset.top + this.settings.offset;
+			} else {
+				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+				offsetX = distX + this.settings.offset;
+			}
+
+			if (distX > 0 || distY > 0) {
+				this.scrollBy(distX, distY, true);
+			}
+		}
+	}, {
+		key: "afterResized",
+		value: function afterResized(view) {
+			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
+		}
+
+		// Remove Previous Listeners if present
+
+	}, {
+		key: "removeShownListeners",
+		value: function removeShownListeners(view) {
+
+			// view.off("shown", this.afterDisplayed);
+			// view.off("shown", this.afterDisplayedAbove);
+			view.onDisplayed = function () {};
+		}
+	}, {
+		key: "add",
+		value: function add(section) {
+			var _this3 = this;
+
+			var view = this.createView(section);
+
+			this.views.append(view);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				view.expanded = true;
+			});
+
+			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+				_this3.updateAxis(axis);
+			});
+
+			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
+
+			return view.display(this.request);
+		}
+	}, {
+		key: "append",
+		value: function append(section) {
+			var view = this.createView(section);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				view.expanded = true;
+				// do not do this
+				// this.counter(bounds); // RRE
+			});
+
+			/*
+   view.on(EVENTS.VIEWS.AXIS, (axis) => {
+   	this.updateAxis(axis);
+   });
+   */
+
+			this.views.append(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "prepend",
+		value: function prepend(section) {
+			var _this4 = this;
+
+			var view = this.createView(section);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				_this4.counter(bounds);
+				view.expanded = true;
+			});
+
+			/*
+   view.on(EVENTS.VIEWS.AXIS, (axis) => {
+   	this.updateAxis(axis);
+   });
+   */
+
+			this.views.prepend(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "counter",
+		value: function counter(bounds) {
+			if (this.settings.axis === "vertical") {
+				this.scrollBy(0, bounds.heightDelta, true);
+			} else {
+				this.scrollBy(bounds.widthDelta, 0, true);
+			}
+		}
+	}, {
+		key: "update",
+		value: function update(_offset) {
+			var container = this.bounds();
+			var views = this.views.all();
+			var viewsLength = views.length;
+			var visible = [];
+			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+			var isVisible;
+			var view;
+
+			var updating = new _core.defer();
+			var promises = [];
+			for (var i = 0; i < viewsLength; i++) {
+				view = views[i];
+
+				isVisible = this.isVisible(view, offset, offset, container);
+
+				if (isVisible === true) {
+					// console.log("visible " + view.index);
+
+					if (!view.displayed) {
+						var displayed = view.display(this.request).then(function (view) {
+							view.show();
+						}, function (err) {
+							view.hide();
+						});
+						promises.push(displayed);
+					} else {
+						view.show();
+					}
+					visible.push(view);
+				} else {
+					this.q.enqueue(view.destroy.bind(view));
+					// console.log("hidden " + view.index);
+
+					clearTimeout(this.trimTimeout);
+					this.trimTimeout = setTimeout(function () {
+						this.q.enqueue(this.trim.bind(this));
+					}.bind(this), 250);
+				}
+			}
+
+			if (promises.length) {
+				return Promise.all(promises).catch(function (err) {
+					updating.reject(err);
+				});
+			} else {
+				updating.resolve();
+				return updating.promise;
+			}
+		}
+	}, {
+		key: "check",
+		value: function check(_offsetLeft, _offsetTop) {
+			var _this5 = this;
+
+			var checking = new _core.defer();
+			var newViews = [];
+
+			var horizontal = this.settings.axis === "horizontal";
+			var delta = this.settings.offset || 0;
+
+			if (_offsetLeft && horizontal) {
+				delta = _offsetLeft;
+			}
+
+			if (_offsetTop && !horizontal) {
+				delta = _offsetTop;
+			}
+
+			var bounds = this._bounds; // bounds saved this until resize
+
+			var rtl = this.settings.direction === "rtl";
+			var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+			var visibleLength = horizontal ? bounds.width : bounds.height;
+			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+			// var prePaginated = this.layout.props.name == 'pre-paginated';
+
+			// console.log("continuous.check prePaginated =", prePaginated, "offset=", 
+			// 	offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
+			// 	" == ", offset + visibleLength + delta >= contentLength,
+			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
+
+			var prepend = function prepend() {
+				var first = _this5.views.first();
+				var prev = first && first.section.prev();
+
+				if (prev) {
+					newViews.push(_this5.prepend(prev));
+				}
+			};
+
+			var append = function append() {
+				var last = _this5.views.last();
+				var next = last && last.section.next();
+
+				if (next) {
+					newViews.push(_this5.append(next));
+				}
+			};
+
+			if (offset + visibleLength + delta >= contentLength) {
+				if (horizontal && rtl) {
+					prepend();
+				} else {
+					append();
+				}
+			}
+
+			if (offset - delta < 0) {
+				if (horizontal && rtl) {
+					append();
+				} else {
+					prepend();
+				}
+			}
+
+			var promises = newViews.map(function (view) {
+				return view.displayed;
+			});
+
+			if (newViews.length) {
+				return Promise.all(promises).then(function () {
+					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
+						return _this5.check();
+					}
+				}).then(function () {
+					// Check to see if anything new is on screen after rendering
+					return _this5.update(delta);
+				}, function (err) {
+					return err;
+				});
+			} else {
+				this.q.enqueue(function () {
+					this.update();
+				}.bind(this));
+				checking.resolve(false);
+				return checking.promise;
+			}
+		}
+	}, {
+		key: "trim",
+		value: function trim() {
+			var task = new _core.defer();
+			var displayed = this.views.displayed();
+			var first = displayed[0];
+			var last = displayed[displayed.length - 1];
+			var firstIndex = this.views.indexOf(first);
+			var lastIndex = this.views.indexOf(last);
+			var above = this.views.slice(0, firstIndex);
+			var below = this.views.slice(lastIndex + 1);
+
+			// Erase all but last above
+			for (var i = 0; i < above.length - 1; i++) {
+				this.erase(above[i], above);
+			}
+
+			// Erase all except first below
+			for (var j = 1; j < below.length; j++) {
+				this.erase(below[j]);
+			}
+
+			task.resolve();
+			return task.promise;
+		}
+	}, {
+		key: "erase",
+		value: function erase(view, above) {
+			//Trim
+
+			var prevTop;
+			var prevLeft;
+
+			if (this.settings.height) {
+				prevTop = this.container.scrollTop;
+				prevLeft = this.container.scrollLeft;
+			} else {
+				prevTop = window.scrollY;
+				prevLeft = window.scrollX;
+			}
+
+			var bounds = view.bounds();
+
+			this.views.remove(view);
+
+			if (above) {
+				if (this.settings.axis === "vertical") {
+					this.scrollTo(0, prevTop - bounds.height, true);
+				} else {
+					this.scrollTo(prevLeft - bounds.width, 0, true);
+				}
+			}
+		}
+	}, {
+		key: "addEventListeners",
+		value: function addEventListeners(stage) {
+
+			window.addEventListener("unload", function (e) {
+				this.ignore = true;
+				// this.scrollTo(0,0);
+				this.destroy();
+			}.bind(this));
+
+			this.addScrollListeners();
+		}
+	}, {
+		key: "addScrollListeners",
+		value: function addScrollListeners() {
+			var scroller;
+
+			this.tick = _core.requestAnimationFrame;
+
+			if (this.settings.height) {
+				this.prevScrollTop = this.container.scrollTop;
+				this.prevScrollLeft = this.container.scrollLeft;
+			} else {
+				this.prevScrollTop = window.scrollY;
+				this.prevScrollLeft = window.scrollX;
+			}
+
+			this.scrollDeltaVert = 0;
+			this.scrollDeltaHorz = 0;
+
+			if (this.settings.height) {
+				scroller = this.container;
+				this.scrollTop = this.container.scrollTop;
+				this.scrollLeft = this.container.scrollLeft;
+			} else {
+				scroller = window;
+				this.scrollTop = window.scrollY;
+				this.scrollLeft = window.scrollX;
+			}
+
+			scroller.addEventListener("scroll", this.onScroll.bind(this));
+			this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
+			// this.tick.call(window, this.onScroll.bind(this));
+
+			this.didScroll = false;
+		}
+	}, {
+		key: "removeEventListeners",
+		value: function removeEventListeners() {
+			var scroller;
+
+			if (this.settings.height) {
+				scroller = this.container;
+			} else {
+				scroller = window;
+			}
+
+			scroller.removeEventListener("scroll", this.onScroll.bind(this));
+		}
+	}, {
+		key: "onScroll",
+		value: function onScroll() {
+			var scrollTop = void 0;
+			var scrollLeft = void 0;
+			var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+			if (this.settings.height) {
+				scrollTop = this.container.scrollTop;
+				scrollLeft = this.container.scrollLeft;
+			} else {
+				scrollTop = window.scrollY * dir;
+				scrollLeft = window.scrollX * dir;
+			}
+
+			this.scrollTop = scrollTop;
+			this.scrollLeft = scrollLeft;
+
+			if (!this.ignore) {
+
+				this._scrolled();
+			} else {
+				this.ignore = false;
+			}
+
+			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+			this.prevScrollTop = scrollTop;
+			this.prevScrollLeft = scrollLeft;
+
+			clearTimeout(this.scrollTimeout);
+			this.scrollTimeout = setTimeout(function () {
+				this.scrollDeltaVert = 0;
+				this.scrollDeltaHorz = 0;
+			}.bind(this), 150);
+
+			this.didScroll = false;
+		}
+	}, {
+		key: "isVisible",
+		value: function isVisible(view, offsetPrev, offsetNext, _container) {
+			var position = view.position();
+			var container = _container || this.bounds();
+			var height = container.height;
+
+			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
+
+				return true;
+			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev * 2 && position.top < container.bottom + offsetNext * 2) {
+
+				return true;
+			}
+
+			return false;
+		}
+	}, {
+		key: "scrolled",
+		value: function scrolled() {
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+
+			this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
+				top: this.scrollTop,
+				left: this.scrollLeft
+			});
+
+			clearTimeout(this.afterScrolled);
+			this.afterScrolled = setTimeout(function () {
+				this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+					top: this.scrollTop,
+					left: this.scrollLeft
+				});
+			}.bind(this));
+		}
+	}, {
+		key: "next",
+		value: function next() {
+
+			var dir = this.settings.direction;
+			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal") {
+
+				this.scrollBy(delta, 0, true);
+			} else {
+
+				this.scrollBy(0, this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "prev",
+		value: function prev() {
+
+			var dir = this.settings.direction;
+			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal") {
+
+				this.scrollBy(-delta, 0, true);
+			} else {
+
+				this.scrollBy(0, -this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "updateAxis",
+		value: function updateAxis(axis, forceUpdate) {
+
+			if (!this.isPaginated) {
+				axis = "vertical";
+			}
+
+			if (!forceUpdate && axis === this.settings.axis) {
+				return;
+			}
+
+			this.settings.axis = axis;
+
+			this.stage && this.stage.axis(axis);
+
+			this.viewSettings.axis = axis;
+
+			if (this.mapping) {
+				this.mapping.axis(axis);
+			}
+
+			if (this.layout) {
+				if (axis === "vertical") {
+					this.layout.spread("none");
+				} else {
+					this.layout.spread(this.layout.settings.spread);
+				}
+			}
+
+			if (axis === "vertical") {
+				this.settings.infinite = true;
+			} else {
+				this.settings.infinite = false;
+			}
+		}
+	}]);
+
+	return ContinuousViewManager;
+}(_default2.default);
+
+exports.default = ContinuousViewManager;
+module.exports = exports["default"];
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -10110,20 +10971,20 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(50);
 exports.Stream = exports;
 exports.Readable = exports;
-exports.Writable = __webpack_require__(33);
+exports.Writable = __webpack_require__(35);
 exports.Duplex = __webpack_require__(9);
 exports.Transform = __webpack_require__(54);
-exports.PassThrough = __webpack_require__(132);
+exports.PassThrough = __webpack_require__(134);
 
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
@@ -10191,7 +11052,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10224,7 +11085,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(20);
+var processNextTick = __webpack_require__(21);
 /*</replacement>*/
 
 module.exports = Writable;
@@ -10267,7 +11128,7 @@ util.inherits = __webpack_require__(13);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(131)
+  deprecate: __webpack_require__(133)
 };
 /*</replacement>*/
 
@@ -10276,7 +11137,7 @@ var Stream = __webpack_require__(51);
 /*</replacement>*/
 
 /*<replacement>*/
-var Buffer = __webpack_require__(32).Buffer;
+var Buffer = __webpack_require__(34).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -10859,10 +11720,10 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(19), __webpack_require__(129).setImmediate, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20), __webpack_require__(131).setImmediate, __webpack_require__(4)))
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports) {
 
 module.exports = function(it){
@@ -10870,7 +11731,7 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Thank's IE8 for his funny defineProperty
@@ -10879,7 +11740,7 @@ module.exports = !__webpack_require__(58)(function(){
 });
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10961,7 +11822,7 @@ module.exports = CompressedObject;
 
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11045,7 +11906,7 @@ module.exports = function crc32wrapper(input, crc) {
 
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11084,7 +11945,7 @@ module.exports = {
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 function DOMParser(options){
@@ -11334,14 +12195,14 @@ function appendElement (hander,node) {
 
 //if(typeof require == 'function'){
 	var XMLReader = __webpack_require__(93).XMLReader;
-	var DOMImplementation = exports.DOMImplementation = __webpack_require__(40).DOMImplementation;
-	exports.XMLSerializer = __webpack_require__(40).XMLSerializer ;
+	var DOMImplementation = exports.DOMImplementation = __webpack_require__(42).DOMImplementation;
+	exports.XMLSerializer = __webpack_require__(42).XMLSerializer ;
 	exports.DOMParser = DOMParser;
 //}
 
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports) {
 
 /*
@@ -12591,7 +13452,7 @@ try{
 
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12774,7 +13635,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12796,13 +13657,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
 // Default View Managers
 
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
 var _core = __webpack_require__(1);
 
-var _hook = __webpack_require__(24);
+var _hook = __webpack_require__(25);
 
 var _hook2 = _interopRequireDefault(_hook);
 
@@ -12810,7 +13671,7 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _queue = __webpack_require__(26);
+var _queue = __webpack_require__(27);
 
 var _queue2 = _interopRequireDefault(_queue);
 
@@ -12822,7 +13683,7 @@ var _themes = __webpack_require__(103);
 
 var _themes2 = _interopRequireDefault(_themes);
 
-var _contents = __webpack_require__(27);
+var _contents = __webpack_require__(28);
 
 var _contents2 = _interopRequireDefault(_contents);
 
@@ -12830,19 +13691,23 @@ var _annotations = __webpack_require__(104);
 
 var _annotations2 = _interopRequireDefault(_annotations);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
-var _iframe = __webpack_require__(44);
+var _iframe = __webpack_require__(46);
 
 var _iframe2 = _interopRequireDefault(_iframe);
 
-var _index = __webpack_require__(28);
+var _index = __webpack_require__(19);
 
 var _index2 = _interopRequireDefault(_index);
 
-var _index3 = __webpack_require__(48);
+var _index3 = __webpack_require__(31);
 
 var _index4 = _interopRequireDefault(_index3);
+
+var _prepaginated = __webpack_require__(119);
+
+var _prepaginated2 = _interopRequireDefault(_prepaginated);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13006,6 +13871,9 @@ var Rendition = function () {
 				viewManager = _index2.default;
 			} else if (typeof manager === "string" && manager === "continuous") {
 				viewManager = _index4.default;
+			} else if (typeof manager === "string" && manager === "prepaginated") {
+				// technically we could switch on continuous if we know the work is pre-paginated
+				viewManager = _prepaginated2.default;
 			} else {
 				// otherwise, assume we were passed a class function
 				viewManager = manager;
@@ -13056,6 +13924,8 @@ var Rendition = function () {
 					settings: this.settings
 				});
 			}
+
+			// this.manager.spine = this.book.spine;
 
 			this.direction(this.book.package.metadata.direction);
 
@@ -13172,7 +14042,7 @@ var Rendition = function () {
 				return displayed;
 			}
 
-			console.log("AHOY rendition._display", section.href);
+			// console.log("AHOY rendition._display", section.href)
 			this.manager.display(section, target).then(function () {
 				displaying.resolve(section);
 				_this.displaying = undefined;
@@ -13981,7 +14851,7 @@ exports.default = Rendition;
 module.exports = exports["default"];
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14459,7 +15329,7 @@ exports.default = Mapping;
 module.exports = exports["default"];
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14471,7 +15341,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -14481,11 +15351,11 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _contents = __webpack_require__(27);
+var _contents = __webpack_require__(28);
 
 var _contents2 = _interopRequireDefault(_contents);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
 var _marksPane = __webpack_require__(105);
 
@@ -14540,6 +15410,12 @@ var IframeView = function () {
 	_createClass(IframeView, [{
 		key: "container",
 		value: function container(axis) {
+			var check = document.querySelector("div[ref='" + this.index + "']");
+			if (check) {
+				check.dataset.reused = 'true';
+				return check;
+			}
+
 			var element = document.createElement("div");
 
 			element.classList.add("epub-view");
@@ -14556,11 +15432,6 @@ var IframeView = function () {
 			} else {
 				element.style.flex = "initial";
 			}
-
-			// var colorR = Math.floor(Math.random() * 100).toString();
-			// var colorG = Math.floor(Math.random() * 100).toString();
-			// var colorB = Math.floor(Math.random() * 100).toString();
-			// element.style.backgroundColor = `#${colorR}${colorG}${colorB}`;
 
 			return element;
 		}
@@ -14598,6 +15469,7 @@ var IframeView = function () {
 			this._height = 0;
 
 			this.element.setAttribute("ref", this.index);
+			this.element.setAttribute("data-href", this.section.href);
 
 			this.element.appendChild(this.iframe);
 			this.added = true;
@@ -14762,8 +15634,17 @@ var IframeView = function () {
 			this._expanding = true;
 
 			if (this.layout.name === "pre-paginated") {
+				// width = this.layout.flow() == 'scrolled' ? this.layout.spreadWidth : this.layout.columnWidth;
 				width = this.layout.columnWidth;
+				// width = this.layout.columnWidth + ( this.layout.columnWidth * 0.10 );
 				height = this.layout.height;
+				if (this.layout.flow() == 'scrolled') {
+					if (this.element.hasAttribute('original-height')) {
+						height = parseInt(this.element.getAttribute('original-height'), 10);
+					} else if (window.fitWidth) {
+						height = this.contents.textHeight();
+					}
+				}
 			}
 			// Expand Horizontally
 			else if (this.settings.axis === "horizontal") {
@@ -14784,14 +15665,9 @@ var IframeView = function () {
 				} // Expand Vertically
 				else if (this.settings.axis === "vertical") {
 						height = this.contents.textHeight();
-						window.dd = window.dd || {};
-						window.dd[this.section.href] = this;
-						// var m = 1.0175;
-						// console.log("AHOY expand.height", height, height * m );
-						// height *= m;
 						var rect = this.contents.content.getBoundingClientRect();
 						var m = rect.top;
-						console.log("AHOY expand.height", this.section.href, height, height + m);
+						// console.log("AHOY expand.height", this.section.href, height, height + m );
 						height += m;
 					}
 
@@ -14823,6 +15699,10 @@ var IframeView = function () {
 				this.element.style.width = width + "px";
 				this.iframe.style.width = width + "px";
 				this._width = width;
+			}
+			if (this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled') {
+				// because we want the iframe to fit within the larger viewer
+				this.element.style.width = '100%';
 			}
 
 			if ((0, _core.isNumber)(height)) {
@@ -14976,7 +15856,6 @@ var IframeView = function () {
 
 			if (!this.displayed) {
 
-				console.log("AHOY view.display render", this.section.href);
 				this.render(request).then(function () {
 
 					this.emit(_constants.EVENTS.VIEWS.DISPLAYED, this);
@@ -14988,7 +15867,6 @@ var IframeView = function () {
 					displayed.reject(err, this);
 				});
 			} else {
-				console.log("AHOY view.display resolve", this.section.href);
 				displayed.resolve(this);
 			}
 
@@ -15327,201 +16205,7 @@ exports.default = IframeView;
 module.exports = exports["default"];
 
 /***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(29),
-    now = __webpack_require__(110),
-    toNumber = __webpack_require__(112);
-
-/** Error message constants. */
-var FUNC_ERROR_TEXT = 'Expected a function';
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax = Math.max,
-    nativeMin = Math.min;
-
-/**
- * Creates a debounced function that delays invoking `func` until after `wait`
- * milliseconds have elapsed since the last time the debounced function was
- * invoked. The debounced function comes with a `cancel` method to cancel
- * delayed `func` invocations and a `flush` method to immediately invoke them.
- * Provide `options` to indicate whether `func` should be invoked on the
- * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
- * with the last arguments provided to the debounced function. Subsequent
- * calls to the debounced function return the result of the last `func`
- * invocation.
- *
- * **Note:** If `leading` and `trailing` options are `true`, `func` is
- * invoked on the trailing edge of the timeout only if the debounced function
- * is invoked more than once during the `wait` timeout.
- *
- * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
- * until to the next tick, similar to `setTimeout` with a timeout of `0`.
- *
- * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
- * for details over the differences between `_.debounce` and `_.throttle`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to debounce.
- * @param {number} [wait=0] The number of milliseconds to delay.
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
- * @returns {Function} Returns the new debounced function.
- * @example
- *
- * // Avoid costly calculations while the window size is in flux.
- * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
- *
- * // Invoke `sendMail` when clicked, debouncing subsequent calls.
- * jQuery(element).on('click', _.debounce(sendMail, 300, {
- *   'leading': true,
- *   'trailing': false
- * }));
- *
- * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
- * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
- * var source = new EventSource('/stream');
- * jQuery(source).on('message', debounced);
- *
- * // Cancel the trailing debounced invocation.
- * jQuery(window).on('popstate', debounced.cancel);
- */
-function debounce(func, wait, options) {
-  var lastArgs,
-      lastThis,
-      maxWait,
-      result,
-      timerId,
-      lastCallTime,
-      lastInvokeTime = 0,
-      leading = false,
-      maxing = false,
-      trailing = true;
-
-  if (typeof func != 'function') {
-    throw new TypeError(FUNC_ERROR_TEXT);
-  }
-  wait = toNumber(wait) || 0;
-  if (isObject(options)) {
-    leading = !!options.leading;
-    maxing = 'maxWait' in options;
-    maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
-    trailing = 'trailing' in options ? !!options.trailing : trailing;
-  }
-
-  function invokeFunc(time) {
-    var args = lastArgs,
-        thisArg = lastThis;
-
-    lastArgs = lastThis = undefined;
-    lastInvokeTime = time;
-    result = func.apply(thisArg, args);
-    return result;
-  }
-
-  function leadingEdge(time) {
-    // Reset any `maxWait` timer.
-    lastInvokeTime = time;
-    // Start the timer for the trailing edge.
-    timerId = setTimeout(timerExpired, wait);
-    // Invoke the leading edge.
-    return leading ? invokeFunc(time) : result;
-  }
-
-  function remainingWait(time) {
-    var timeSinceLastCall = time - lastCallTime,
-        timeSinceLastInvoke = time - lastInvokeTime,
-        result = wait - timeSinceLastCall;
-
-    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
-  }
-
-  function shouldInvoke(time) {
-    var timeSinceLastCall = time - lastCallTime,
-        timeSinceLastInvoke = time - lastInvokeTime;
-
-    // Either this is the first call, activity has stopped and we're at the
-    // trailing edge, the system time has gone backwards and we're treating
-    // it as the trailing edge, or we've hit the `maxWait` limit.
-    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
-      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
-  }
-
-  function timerExpired() {
-    var time = now();
-    if (shouldInvoke(time)) {
-      return trailingEdge(time);
-    }
-    // Restart the timer.
-    timerId = setTimeout(timerExpired, remainingWait(time));
-  }
-
-  function trailingEdge(time) {
-    timerId = undefined;
-
-    // Only invoke if we have `lastArgs` which means `func` has been
-    // debounced at least once.
-    if (trailing && lastArgs) {
-      return invokeFunc(time);
-    }
-    lastArgs = lastThis = undefined;
-    return result;
-  }
-
-  function cancel() {
-    if (timerId !== undefined) {
-      clearTimeout(timerId);
-    }
-    lastInvokeTime = 0;
-    lastArgs = lastCallTime = lastThis = timerId = undefined;
-  }
-
-  function flush() {
-    return timerId === undefined ? result : trailingEdge(now());
-  }
-
-  function debounced() {
-    var time = now(),
-        isInvoking = shouldInvoke(time);
-
-    lastArgs = arguments;
-    lastThis = this;
-    lastCallTime = time;
-
-    if (isInvoking) {
-      if (timerId === undefined) {
-        return leadingEdge(lastCallTime);
-      }
-      if (maxing) {
-        // Handle invocations in a tight loop.
-        timerId = setTimeout(timerExpired, wait);
-        return invokeFunc(lastCallTime);
-      }
-    }
-    if (timerId === undefined) {
-      timerId = setTimeout(timerExpired, wait);
-    }
-    return result;
-  }
-  debounced.cancel = cancel;
-  debounced.flush = flush;
-  return debounced;
-}
-
-module.exports = debounce;
-
-
-/***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var freeGlobal = __webpack_require__(111);
@@ -15536,656 +16220,16 @@ module.exports = root;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(46);
+var root = __webpack_require__(47);
 
 /** Built-in value references. */
 var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _core = __webpack_require__(1);
-
-var _default = __webpack_require__(28);
-
-var _default2 = _interopRequireDefault(_default);
-
-var _constants = __webpack_require__(6);
-
-var _debounce = __webpack_require__(45);
-
-var _debounce2 = _interopRequireDefault(_debounce);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var ContinuousViewManager = function (_DefaultViewManager) {
-	_inherits(ContinuousViewManager, _DefaultViewManager);
-
-	function ContinuousViewManager(options) {
-		_classCallCheck(this, ContinuousViewManager);
-
-		var _this = _possibleConstructorReturn(this, (ContinuousViewManager.__proto__ || Object.getPrototypeOf(ContinuousViewManager)).call(this, options));
-
-		_this.name = "continuous";
-
-		_this.settings = (0, _core.extend)(_this.settings || {}, {
-			infinite: true,
-			overflow: undefined,
-			axis: undefined,
-			flow: "scrolled",
-			offset: 500,
-			offsetDelta: 250,
-			width: undefined,
-			height: undefined
-		});
-
-		(0, _core.extend)(_this.settings, options.settings || {});
-
-		// Gap can be 0, but defaults doesn't handle that
-		if (options.settings.gap != "undefined" && options.settings.gap === 0) {
-			_this.settings.gap = options.settings.gap;
-		}
-
-		_this.viewSettings = {
-			ignoreClass: _this.settings.ignoreClass,
-			axis: _this.settings.axis,
-			flow: _this.settings.flow,
-			layout: _this.layout,
-			width: 0,
-			height: 0,
-			forceEvenPages: false
-		};
-
-		_this.scrollTop = 0;
-		_this.scrollLeft = 0;
-		return _this;
-	}
-
-	// RRE - debugging
-
-
-	_createClass(ContinuousViewManager, [{
-		key: "createView",
-		value: function createView(section) {
-			var view = new this.View(section, this.viewSettings);
-			var colorR = Math.floor(Math.random() * 100).toString();
-			var colorG = Math.floor(Math.random() * 100).toString();
-			var colorB = Math.floor(Math.random() * 100).toString();
-			view.element.style.backgroundColor = "#" + colorR + colorG + colorB;
-			return view;
-		}
-	}, {
-		key: "display",
-		value: function display(section, target) {
-			return _default2.default.prototype.display.call(this, section, target).then(function () {
-				return this.fill();
-			}.bind(this));
-		}
-	}, {
-		key: "fill",
-		value: function fill(_full) {
-			var _this2 = this;
-
-			var full = _full || new _core.defer();
-
-			this.q.enqueue(function () {
-				return _this2.check();
-			}).then(function (result) {
-				if (result) {
-					_this2.fill(full);
-				} else {
-					full.resolve();
-				}
-			});
-
-			return full.promise;
-		}
-	}, {
-		key: "moveTo",
-		value: function moveTo(offset) {
-			// var bounds = this.stage.bounds();
-			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-			var distX = 0,
-			    distY = 0;
-
-			var offsetX = 0,
-			    offsetY = 0;
-
-			if (!this.isPaginated) {
-				distY = offset.top;
-				offsetY = offset.top + this.settings.offset;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-				offsetX = distX + this.settings.offset;
-			}
-
-			if (distX > 0 || distY > 0) {
-				this.scrollBy(distX, distY, true);
-			}
-		}
-	}, {
-		key: "afterResized",
-		value: function afterResized(view) {
-			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
-		}
-
-		// Remove Previous Listeners if present
-
-	}, {
-		key: "removeShownListeners",
-		value: function removeShownListeners(view) {
-
-			// view.off("shown", this.afterDisplayed);
-			// view.off("shown", this.afterDisplayedAbove);
-			view.onDisplayed = function () {};
-		}
-	}, {
-		key: "add",
-		value: function add(section) {
-			var _this3 = this;
-
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				view.expanded = true;
-			});
-
-			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this3.updateAxis(axis);
-			});
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			return view.display(this.request);
-		}
-	}, {
-		key: "append",
-		value: function append(section) {
-			var view = this.createView(section);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				view.expanded = true;
-			});
-
-			/*
-   view.on(EVENTS.VIEWS.AXIS, (axis) => {
-   	this.updateAxis(axis);
-   });
-   */
-
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "prepend",
-		value: function prepend(section) {
-			var _this4 = this;
-
-			var view = this.createView(section);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				_this4.counter(bounds);
-				view.expanded = true;
-			});
-
-			/*
-   view.on(EVENTS.VIEWS.AXIS, (axis) => {
-   	this.updateAxis(axis);
-   });
-   */
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "counter",
-		value: function counter(bounds) {
-			if (this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-	}, {
-		key: "update",
-		value: function update(_offset) {
-			var container = this.bounds();
-			var views = this.views.all();
-			var viewsLength = views.length;
-			var visible = [];
-			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-			var isVisible;
-			var view;
-
-			var updating = new _core.defer();
-			var promises = [];
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-
-				isVisible = this.isVisible(view, offset, offset, container);
-
-				if (isVisible === true) {
-					// console.log("visible " + view.index);
-
-					if (!view.displayed) {
-						var displayed = view.display(this.request).then(function (view) {
-							view.show();
-						}, function (err) {
-							view.hide();
-						});
-						promises.push(displayed);
-					} else {
-						view.show();
-					}
-					visible.push(view);
-				} else {
-					this.q.enqueue(view.destroy.bind(view));
-					// console.log("hidden " + view.index);
-
-					clearTimeout(this.trimTimeout);
-					this.trimTimeout = setTimeout(function () {
-						this.q.enqueue(this.trim.bind(this));
-					}.bind(this), 250);
-				}
-			}
-
-			if (promises.length) {
-				return Promise.all(promises).catch(function (err) {
-					updating.reject(err);
-				});
-			} else {
-				updating.resolve();
-				return updating.promise;
-			}
-		}
-	}, {
-		key: "check",
-		value: function check(_offsetLeft, _offsetTop) {
-			var _this5 = this;
-
-			var checking = new _core.defer();
-			var newViews = [];
-
-			var horizontal = this.settings.axis === "horizontal";
-			var delta = this.settings.offset || 0;
-
-			if (_offsetLeft && horizontal) {
-				delta = _offsetLeft;
-			}
-
-			if (_offsetTop && !horizontal) {
-				delta = _offsetTop;
-			}
-
-			var bounds = this._bounds; // bounds saved this until resize
-
-			var rtl = this.settings.direction === "rtl";
-			var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-			var visibleLength = horizontal ? bounds.width : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			var prePaginated = this.layout.props.name == 'pre-paginated';
-
-			var prepend = function prepend() {
-				var first = _this5.views.first();
-				var prev = first && first.section.prev();
-
-				if (prev) {
-					// if ( prePaginated && newViews.length > 5 ) {
-					// 	console.log("AHOY prepend pre-paginated", first.section.href, ">", newViews.length);
-					// 	return ; 
-					// }
-					// console.log("AHOY check prev", first.section.href, ">", prev.href, ":", window.COUNTS[prev.href])
-					newViews.push(_this5.prepend(prev));
-				}
-			};
-
-			var append = function append() {
-				var last = _this5.views.last();
-				var next = last && last.section.next();
-
-				if (next) {
-					// if ( prePaginated && newViews.length > 5 ) {
-					// 	console.log("AHOY prepend pre-paginated", last.section.href, ">", newViews.length);
-					// 	return ; 
-					// }
-					// console.log("AHOY check next", last.section.href, ">", next.href, newViews.length)
-					newViews.push(_this5.append(next));
-				}
-			};
-
-			if (offset + visibleLength + delta >= contentLength) {
-				if (horizontal && rtl) {
-					prepend();
-				} else {
-					append();
-				}
-			}
-
-			if (offset - delta < 0) {
-				if (horizontal && rtl) {
-					append();
-				} else {
-					prepend();
-				}
-			}
-
-			var promises = newViews.map(function (view) {
-				return view.displayed;
-			});
-
-			if (newViews.length) {
-				return Promise.all(promises).then(function () {
-					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
-						console.log("AHOY check again");
-						return _this5.check();
-					}
-				}).then(function () {
-					// Check to see if anything new is on screen after rendering
-					console.log("AHOY update again");
-					return _this5.update(delta);
-				}, function (err) {
-					return err;
-				});
-			} else {
-				this.q.enqueue(function () {
-					this.update();
-				}.bind(this));
-				checking.resolve(false);
-				return checking.promise;
-			}
-		}
-	}, {
-		key: "trim",
-		value: function trim() {
-			var task = new _core.defer();
-			var displayed = this.views.displayed();
-			var first = displayed[0];
-			var last = displayed[displayed.length - 1];
-			var firstIndex = this.views.indexOf(first);
-			var lastIndex = this.views.indexOf(last);
-			var above = this.views.slice(0, firstIndex);
-			var below = this.views.slice(lastIndex + 1);
-
-			// Erase all but last above
-			for (var i = 0; i < above.length - 1; i++) {
-				this.erase(above[i], above);
-			}
-
-			// Erase all except first below
-			for (var j = 1; j < below.length; j++) {
-				this.erase(below[j]);
-			}
-
-			task.resolve();
-			return task.promise;
-		}
-	}, {
-		key: "erase",
-		value: function erase(view, above) {
-			//Trim
-
-			var prevTop;
-			var prevLeft;
-
-			if (this.settings.height) {
-				prevTop = this.container.scrollTop;
-				prevLeft = this.container.scrollLeft;
-			} else {
-				prevTop = window.scrollY;
-				prevLeft = window.scrollX;
-			}
-
-			var bounds = view.bounds();
-
-			console.log("AHOY erase", view.section.href);
-			this.views.remove(view);
-
-			if (above) {
-				if (this.settings.axis === "vertical") {
-					this.scrollTo(0, prevTop - bounds.height, true);
-				} else {
-					this.scrollTo(prevLeft - bounds.width, 0, true);
-				}
-			}
-		}
-	}, {
-		key: "addEventListeners",
-		value: function addEventListeners(stage) {
-
-			window.addEventListener("unload", function (e) {
-				this.ignore = true;
-				// this.scrollTo(0,0);
-				this.destroy();
-			}.bind(this));
-
-			this.addScrollListeners();
-		}
-	}, {
-		key: "addScrollListeners",
-		value: function addScrollListeners() {
-			var scroller;
-
-			this.tick = _core.requestAnimationFrame;
-
-			if (this.settings.height) {
-				this.prevScrollTop = this.container.scrollTop;
-				this.prevScrollLeft = this.container.scrollLeft;
-			} else {
-				this.prevScrollTop = window.scrollY;
-				this.prevScrollLeft = window.scrollX;
-			}
-
-			this.scrollDeltaVert = 0;
-			this.scrollDeltaHorz = 0;
-
-			if (this.settings.height) {
-				scroller = this.container;
-				this.scrollTop = this.container.scrollTop;
-				this.scrollLeft = this.container.scrollLeft;
-			} else {
-				scroller = window;
-				this.scrollTop = window.scrollY;
-				this.scrollLeft = window.scrollX;
-			}
-
-			scroller.addEventListener("scroll", this.onScroll.bind(this));
-			this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
-			// this.tick.call(window, this.onScroll.bind(this));
-
-			this.didScroll = false;
-		}
-	}, {
-		key: "removeEventListeners",
-		value: function removeEventListeners() {
-			var scroller;
-
-			if (this.settings.height) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this.onScroll.bind(this));
-		}
-	}, {
-		key: "onScroll",
-		value: function onScroll() {
-			var scrollTop = void 0;
-			var scrollLeft = void 0;
-			var dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if (this.settings.height) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY * dir;
-				scrollLeft = window.scrollX * dir;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if (!this.ignore) {
-
-				this._scrolled();
-			} else {
-				this.ignore = false;
-			}
-
-			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
-
-			this.prevScrollTop = scrollTop;
-			this.prevScrollLeft = scrollLeft;
-
-			clearTimeout(this.scrollTimeout);
-			this.scrollTimeout = setTimeout(function () {
-				this.scrollDeltaVert = 0;
-				this.scrollDeltaHorz = 0;
-			}.bind(this), 150);
-
-			this.didScroll = false;
-		}
-	}, {
-		key: "scrolled",
-		value: function scrolled() {
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-
-			this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
-				top: this.scrollTop,
-				left: this.scrollLeft
-			});
-
-			clearTimeout(this.afterScrolled);
-			this.afterScrolled = setTimeout(function () {
-				this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
-					top: this.scrollTop,
-					left: this.scrollLeft
-				});
-			}.bind(this));
-		}
-	}, {
-		key: "next",
-		value: function next() {
-
-			var dir = this.settings.direction;
-			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(delta, 0, true);
-			} else {
-
-				this.scrollBy(0, this.layout.height, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "prev",
-		value: function prev() {
-
-			var dir = this.settings.direction;
-			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(-delta, 0, true);
-			} else {
-
-				this.scrollBy(0, -this.layout.height, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "updateAxis",
-		value: function updateAxis(axis, forceUpdate) {
-
-			if (!this.isPaginated) {
-				axis = "vertical";
-			}
-
-			if (!forceUpdate && axis === this.settings.axis) {
-				return;
-			}
-
-			this.settings.axis = axis;
-
-			this.stage && this.stage.axis(axis);
-
-			this.viewSettings.axis = axis;
-
-			if (this.mapping) {
-				this.mapping.axis(axis);
-			}
-
-			if (this.layout) {
-				if (axis === "vertical") {
-					this.layout.spread("none");
-				} else {
-					this.layout.spread(this.layout.settings.spread);
-				}
-			}
-
-			if (axis === "vertical") {
-				this.settings.infinite = true;
-			} else {
-				this.settings.infinite = false;
-			}
-		}
-	}]);
-
-	return ContinuousViewManager;
-}(_default2.default);
-
-exports.default = ContinuousViewManager;
-module.exports = exports["default"];
 
 /***/ }),
 /* 49 */
@@ -16199,7 +16243,7 @@ module.exports = exports["default"];
  * reduce the final size of the bundle (only one stream implementation, not
  * two).
  */
-module.exports = __webpack_require__(125);
+module.exports = __webpack_require__(127);
 
 
 /***/ }),
@@ -16232,13 +16276,13 @@ module.exports = __webpack_require__(125);
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(20);
+var processNextTick = __webpack_require__(21);
 /*</replacement>*/
 
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(126);
+var isArray = __webpack_require__(128);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -16248,7 +16292,7 @@ var Duplex;
 Readable.ReadableState = ReadableState;
 
 /*<replacement>*/
-var EE = __webpack_require__(30).EventEmitter;
+var EE = __webpack_require__(32).EventEmitter;
 
 var EElistenerCount = function (emitter, type) {
   return emitter.listeners(type).length;
@@ -16262,7 +16306,7 @@ var Stream = __webpack_require__(51);
 // TODO(bmeurer): Change this back to const once hole checks are
 // properly optimized away early in Ignition+TurboFan.
 /*<replacement>*/
-var Buffer = __webpack_require__(32).Buffer;
+var Buffer = __webpack_require__(34).Buffer;
 var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
@@ -16278,7 +16322,7 @@ util.inherits = __webpack_require__(13);
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = __webpack_require__(127);
+var debugUtil = __webpack_require__(129);
 var debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
@@ -16287,7 +16331,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(128);
+var BufferList = __webpack_require__(130);
 var destroyImpl = __webpack_require__(52);
 var StringDecoder;
 
@@ -17214,13 +17258,13 @@ function indexOf(xs, x) {
   }
   return -1;
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(20)))
 
 /***/ }),
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(30).EventEmitter;
+module.exports = __webpack_require__(32).EventEmitter;
 
 
 /***/ }),
@@ -17232,7 +17276,7 @@ module.exports = __webpack_require__(30).EventEmitter;
 
 /*<replacement>*/
 
-var processNextTick = __webpack_require__(20);
+var processNextTick = __webpack_require__(21);
 /*</replacement>*/
 
 // undocumented cb() API, needed for core, not for public API
@@ -17873,7 +17917,7 @@ if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
 /***/ (function(module, exports, __webpack_require__) {
 
 // optional / simple context binding
-var aFunction = __webpack_require__(140);
+var aFunction = __webpack_require__(142);
 module.exports = function(fn, that, length){
   aFunction(fn);
   if(that === undefined)return fn;
@@ -17909,8 +17953,8 @@ module.exports = function(exec){
 /* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isObject = __webpack_require__(34)
-  , document = __webpack_require__(22).document
+var isObject = __webpack_require__(36)
+  , document = __webpack_require__(23).document
   // in old IE typeof document.createElement is 'object'
   , is = isObject(document) && isObject(document.createElement);
 module.exports = function(it){
@@ -17925,7 +17969,7 @@ module.exports = function(it){
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 
 var utils = __webpack_require__(0);
-var ConvertWorker = __webpack_require__(153);
+var ConvertWorker = __webpack_require__(155);
 var GenericWorker = __webpack_require__(2);
 var base64 = __webpack_require__(55);
 var support = __webpack_require__(7);
@@ -17934,7 +17978,7 @@ var external = __webpack_require__(15);
 var NodejsStreamOutputAdapter = null;
 if (support.nodestream) {
     try {
-        NodejsStreamOutputAdapter = __webpack_require__(154);
+        NodejsStreamOutputAdapter = __webpack_require__(156);
     } catch(e) {}
 }
 
@@ -18322,7 +18366,7 @@ module.exports = DataLengthProbe;
 
 
 var GenericWorker = __webpack_require__(2);
-var crc32 = __webpack_require__(37);
+var crc32 = __webpack_require__(39);
 var utils = __webpack_require__(0);
 
 /**
@@ -18363,7 +18407,7 @@ exports.STORE = {
         return new GenericWorker("STORE decompression");
     }
 };
-exports.DEFLATE = __webpack_require__(157);
+exports.DEFLATE = __webpack_require__(159);
 
 
 /***/ }),
@@ -18835,8 +18879,8 @@ exports.DATA_DESCRIPTOR = "PK\x07\x08";
 var utils = __webpack_require__(0);
 var support = __webpack_require__(7);
 var ArrayReader = __webpack_require__(73);
-var StringReader = __webpack_require__(171);
-var NodeBufferReader = __webpack_require__(172);
+var StringReader = __webpack_require__(173);
+var NodeBufferReader = __webpack_require__(174);
 var Uint8ArrayReader = __webpack_require__(75);
 
 /**
@@ -19091,7 +19135,7 @@ var _book = __webpack_require__(77);
 
 var _book2 = _interopRequireDefault(_book);
 
-var _rendition = __webpack_require__(42);
+var _rendition = __webpack_require__(44);
 
 var _rendition2 = _interopRequireDefault(_rendition);
 
@@ -19099,7 +19143,7 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _contents = __webpack_require__(27);
+var _contents = __webpack_require__(28);
 
 var _contents2 = _interopRequireDefault(_contents);
 
@@ -19107,17 +19151,17 @@ var _core = __webpack_require__(1);
 
 var utils = _interopRequireWildcard(_core);
 
-__webpack_require__(174);
+__webpack_require__(176);
 
-var _iframe = __webpack_require__(44);
+var _iframe = __webpack_require__(46);
 
 var _iframe2 = _interopRequireDefault(_iframe);
 
-var _default = __webpack_require__(28);
+var _default = __webpack_require__(19);
 
 var _default2 = _interopRequireDefault(_default);
 
-var _continuous = __webpack_require__(48);
+var _continuous = __webpack_require__(31);
 
 var _continuous2 = _interopRequireDefault(_continuous);
 
@@ -19167,7 +19211,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -19209,15 +19253,15 @@ var _pagelist = __webpack_require__(101);
 
 var _pagelist2 = _interopRequireDefault(_pagelist);
 
-var _rendition = __webpack_require__(42);
+var _rendition = __webpack_require__(44);
 
 var _rendition2 = _interopRequireDefault(_rendition);
 
-var _archive = __webpack_require__(119);
+var _archive = __webpack_require__(121);
 
 var _archive2 = _interopRequireDefault(_archive);
 
-var _request2 = __webpack_require__(25);
+var _request2 = __webpack_require__(26);
 
 var _request3 = _interopRequireDefault(_request2);
 
@@ -19225,7 +19269,7 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20110,7 +20154,7 @@ module.exports = function () {
 "use strict";
 
 
-var isValue = __webpack_require__(23);
+var isValue = __webpack_require__(24);
 
 var keys = Object.keys;
 
@@ -20137,7 +20181,7 @@ module.exports = function () {};
 "use strict";
 
 
-var isValue = __webpack_require__(23);
+var isValue = __webpack_require__(24);
 
 module.exports = function (value) {
 	if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
@@ -20152,7 +20196,7 @@ module.exports = function (value) {
 "use strict";
 
 
-var isValue = __webpack_require__(23);
+var isValue = __webpack_require__(24);
 
 var forEach = Array.prototype.forEach, create = Object.create;
 
@@ -20896,7 +20940,7 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _hook = __webpack_require__(24);
+var _hook = __webpack_require__(25);
 
 var _hook2 = _interopRequireDefault(_hook);
 
@@ -21191,6 +21235,23 @@ var Spine = function () {
 			this.baseUrl = undefined;
 			this.length = undefined;
 		}
+	}, {
+		key: "buildManifest",
+		value: function buildManifest() {
+			var manifest = {};
+			this.each(function (section) {
+				var key = section.href;
+				section.load().then(function (contents) {
+					var meta = contents.querySelector('meta[name="viewport"]');
+					var value = meta.getAttribute('content');
+					var tmp = value.split(",");
+					manifest[key] = {};
+					manifest[key].width = parseInt(tmp[0].replace('width=', ''), 10);
+					manifest[key].height = parseInt(tmp[1].replace('height=', ''), 10);
+				});
+			});
+			return manifest;
+		}
 	}]);
 
 	return Spine;
@@ -21218,7 +21279,7 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _hook = __webpack_require__(24);
+var _hook = __webpack_require__(25);
 
 var _hook2 = _interopRequireDefault(_hook);
 
@@ -21274,7 +21335,7 @@ var Section = function () {
 	_createClass(Section, [{
 		key: "load",
 		value: function load(_request) {
-			var request = _request || this.request || __webpack_require__(25);
+			var request = _request || this.request || __webpack_require__(26);
 			var loading = new _core.defer();
 			var loaded = loading.promise;
 
@@ -21327,7 +21388,7 @@ var Section = function () {
 				var isIE = userAgent.indexOf('Trident') >= 0 && !userAgent.match(/Trident\/[678]\.\d/);
 				var Serializer;
 				if (typeof XMLSerializer === "undefined" || isIE) {
-					Serializer = __webpack_require__(39).XMLSerializer;
+					Serializer = __webpack_require__(41).XMLSerializer;
 				} else {
 					Serializer = XMLSerializer;
 				}
@@ -21514,7 +21575,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _core = __webpack_require__(1);
 
-var _queue = __webpack_require__(26);
+var _queue = __webpack_require__(27);
 
 var _queue2 = _interopRequireDefault(_queue);
 
@@ -21522,9 +21583,9 @@ var _epubcfi = __webpack_require__(3);
 
 var _epubcfi2 = _interopRequireDefault(_epubcfi);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -22819,7 +22880,7 @@ var _url = __webpack_require__(16);
 
 var _url2 = _interopRequireDefault(_url);
 
-var _mime = __webpack_require__(41);
+var _mime = __webpack_require__(43);
 
 var _mime2 = _interopRequireDefault(_mime);
 
@@ -23451,9 +23512,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _core = __webpack_require__(1);
 
-var _constants = __webpack_require__(6);
+var _constants = __webpack_require__(5);
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -23996,7 +24057,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _eventEmitter = __webpack_require__(5);
+var _eventEmitter = __webpack_require__(6);
 
 var _eventEmitter2 = _interopRequireDefault(_eventEmitter);
 
@@ -25232,8 +25293,8 @@ module.exports = exports["default"];
 /* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var debounce = __webpack_require__(45),
-    isObject = __webpack_require__(29);
+var debounce = __webpack_require__(29),
+    isObject = __webpack_require__(30);
 
 /** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -25307,7 +25368,7 @@ module.exports = throttle;
 /* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(46);
+var root = __webpack_require__(47);
 
 /**
  * Gets the timestamp of the number of milliseconds that have elapsed since
@@ -25347,7 +25408,7 @@ module.exports = freeGlobal;
 /* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isObject = __webpack_require__(29),
+var isObject = __webpack_require__(30),
     isSymbol = __webpack_require__(113);
 
 /** Used as references for various `Number` constants. */
@@ -25454,7 +25515,7 @@ module.exports = isSymbol;
 /* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(47),
+var Symbol = __webpack_require__(48),
     getRawTag = __webpack_require__(115),
     objectToString = __webpack_require__(116);
 
@@ -25488,7 +25549,7 @@ module.exports = baseGetTag;
 /* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(47);
+var Symbol = __webpack_require__(48);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -25820,11 +25881,1083 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _core = __webpack_require__(1);
 
-var _request = __webpack_require__(25);
+var _default = __webpack_require__(19);
+
+var _default2 = _interopRequireDefault(_default);
+
+var _index = __webpack_require__(31);
+
+var _index2 = _interopRequireDefault(_index);
+
+var _prefab = __webpack_require__(120);
+
+var _prefab2 = _interopRequireDefault(_prefab);
+
+var _constants = __webpack_require__(5);
+
+var _debounce = __webpack_require__(29);
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
+	_inherits(PrePaginatedContinuousViewManager, _ContinuousViewManage);
+
+	function PrePaginatedContinuousViewManager(options) {
+		_classCallCheck(this, PrePaginatedContinuousViewManager);
+
+		var _this = _possibleConstructorReturn(this, (PrePaginatedContinuousViewManager.__proto__ || Object.getPrototypeOf(PrePaginatedContinuousViewManager)).call(this, options));
+
+		_this.name = "prepaginated";
+
+		_this._manifest = null;
+		_this._spine = [];
+		return _this;
+	}
+
+	_createClass(PrePaginatedContinuousViewManager, [{
+		key: "render",
+		value: function render(element, size) {
+			_index2.default.prototype.render.call(this, element, size);
+			// Views array methods
+			// use prefab views
+			this.views = new _prefab2.default(this.container);
+		}
+	}, {
+		key: "resize",
+		value: function resize(width, height) {
+			var self = this;
+
+			for (var i = 0; i < self._spine.length; i++) {
+				var href = self._spine[i];
+				// console.log("AHOY DRAWING", href);
+				var section_ = self._manifest[href];
+				// var r = self.container.offsetWidth / section_.viewport.width;
+				// var h = Math.floor(dim.height * r);
+				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+				var r = w / section_.viewport.width;
+				var h = Math.floor(section_.viewport.height * r);
+
+				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+				div.setAttribute('original-height', h);
+			}
+
+			_index2.default.prototype.resize.call(this, width, height);
+
+			setTimeout(function () {
+				this.update();
+			}.bind(this), 100);
+		}
+
+		// RRE - debugging
+
+	}, {
+		key: "createView",
+		value: function createView(section) {
+
+			var view = this.views.find(section);
+			if (view) {
+				return view;
+			}
+			var view = new this.View(section, this.viewSettings);
+			return view;
+		}
+	}, {
+		key: "display",
+		value: function display(section, target) {
+			var self = this;
+			var promises = [];
+
+			if (!this._manifest) {
+				self._manifest = {};
+				var _buildManifest = function _buildManifest(section) {
+					promises.push(section.load().then(function (contents) {
+						var meta = contents.querySelector('meta[name="viewport"]');
+						var value = meta.getAttribute('content');
+						var tmp = value.split(",");
+						var key = section.href;
+						section.viewport = {};
+						self._manifest[key] = section;
+						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
+						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
+					}));
+				};
+
+				// can we build a manifest here?
+				var prev_ = section.prev();
+				while (prev_) {
+					self._spine.unshift(prev_.href);
+					_buildManifest(prev_);
+					prev_ = prev_.prev();
+				}
+
+				self._spine.push(section.href);
+				_buildManifest(section);
+
+				var next_ = section.next();
+				while (next_) {
+					self._spine.push(next_.href);
+					_buildManifest(next_);
+					next_ = next_.next();
+				}
+			}
+
+			return Promise.all(promises).then(function () {
+
+				var check = document.querySelector('.epub-view');
+				if (!check) {
+					// console.log("AHOY DRAWING", self._spine.length);
+					for (var i = 0; i < self._spine.length; i++) {
+						var href = self._spine[i];
+						// console.log("AHOY DRAWING", href);
+						var section_ = self._manifest[href];
+						// var r = self.container.offsetWidth / section_.viewport.width;
+						// var h = Math.floor(dim.height * r);
+						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+						var r = w / section_.viewport.width;
+						var h = Math.floor(section_.viewport.height * r);
+
+						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
+						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+						div.setAttribute('original-height', h);
+
+						if (window.debugManager) {
+							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
+							var colorR = Math.floor(Math.random() * 100).toString();
+							var colorG = Math.floor(Math.random() * 100).toString();
+							var colorB = Math.floor(Math.random() * 100).toString();
+							div.style.backgroundColor = "#" + colorR + colorG + colorB;
+						}
+					}
+				}
+
+				// find the <div> with this section
+				// console.log("AHOY continuous.display START", section.href);
+				var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
+				div.scrollIntoView();
+
+				return this.update();
+
+				// return DefaultViewManager.prototype.display.call(this, section, target)
+				// 	.then(function () {
+				// 		return this.fill();
+				// 	}.bind(this));
+			}.bind(this));
+		}
+	}, {
+		key: "fill",
+		value: function fill(_full) {
+			var _this2 = this;
+
+			var full = _full || new _core.defer();
+
+			this.q.enqueue(function () {
+				return _this2.check();
+			}).then(function (result) {
+				if (result) {
+					_this2.fill(full);
+				} else {
+					full.resolve();
+				}
+			});
+
+			return full.promise;
+		}
+	}, {
+		key: "moveTo",
+		value: function moveTo(offset) {
+			// var bounds = this.stage.bounds();
+			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+			var distX = 0,
+			    distY = 0;
+
+			var offsetX = 0,
+			    offsetY = 0;
+
+			if (!this.isPaginated) {
+				distY = offset.top;
+				offsetY = offset.top + this.settings.offset;
+			} else {
+				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+				offsetX = distX + this.settings.offset;
+			}
+
+			if (distX > 0 || distY > 0) {
+				this.scrollBy(distX, distY, true);
+			}
+		}
+	}, {
+		key: "afterResized",
+		value: function afterResized(view) {
+			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
+		}
+
+		// Remove Previous Listeners if present
+
+	}, {
+		key: "removeShownListeners",
+		value: function removeShownListeners(view) {
+
+			// view.off("shown", this.afterDisplayed);
+			// view.off("shown", this.afterDisplayedAbove);
+			view.onDisplayed = function () {};
+		}
+	}, {
+		key: "add",
+		value: function add(section) {
+			var _this3 = this;
+
+			var view = this.createView(section);
+
+			this.views.append(view);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				view.expanded = true;
+			});
+
+			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+				_this3.updateAxis(axis);
+			});
+
+			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+			view.onDisplayed = this.afterDisplayed.bind(this);
+			view.onResize = this.afterResized.bind(this);
+
+			return view.display(this.request);
+		}
+	}, {
+		key: "append",
+		value: function append(section) {
+
+			var view = this.createView(section);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				view.expanded = true;
+				// do not do this
+				// this.counter(bounds); // RRE
+			});
+
+			/*
+   view.on(EVENTS.VIEWS.AXIS, (axis) => {
+   	this.updateAxis(axis);
+   });
+   */
+
+			this.views.append(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "prepend",
+		value: function prepend(section) {
+			var _this4 = this;
+
+			var view = this.createView(section);
+
+			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+				_this4.counter(bounds);
+				view.expanded = true;
+			});
+
+			/*
+   view.on(EVENTS.VIEWS.AXIS, (axis) => {
+   	this.updateAxis(axis);
+   });
+   */
+
+			this.views.prepend(view);
+
+			view.onDisplayed = this.afterDisplayed.bind(this);
+
+			return view;
+		}
+	}, {
+		key: "counter",
+		value: function counter(bounds) {
+			// return;
+			if (this.settings.axis === "vertical") {
+				// if ( ! this._timer ) {
+				// 	this._timer = setTimeout(function() {
+				// 		this._timer = null;
+				// 		console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+				// 		this.scrollBy(0, bounds.heightDelta, true);
+				// 		this.x1(`COUNTER ${bounds.heightDelta}`);
+				// 	}.bind(this), 500);
+				// } else {
+				// 	console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+				// }
+				// console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+				this.scrollBy(0, bounds.heightDelta, true);
+			} else {
+				this.scrollBy(bounds.widthDelta, 0, true);
+			}
+		}
+	}, {
+		key: "updateXXX",
+		value: function updateXXX(_offset) {
+			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+			var visibleLength = horizontal ? bounds.width : bounds.height;
+			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+			var divs = document.querySelectorAll('.epub-view');
+			var visible = [];
+			for (var i = 0; i < divs.length; i++) {
+				var div = divs[i];
+				var rect = div.getBoundingClientRect();
+				var marker = '';
+				// if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+				// if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+				if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+					marker = '**';
+					var section = this._manifest[div.dataset.href];
+					visible.push(section);
+					// if ( ! div.querySelector('iframe') ) {
+					// 	newViews.push(this.append(section))
+					// }
+					// var idx = this._spine.indexOf(section.href);
+					// if ( idx > 0 ) {
+					// 	visible.push(this._manifest[this._spine[idx - 1]]);
+					// }
+					// if ( idx < this._spine.length - 1 ) {
+					// 	visible.push(this._manifest[this._spine[idx + 1]]);	
+					// }
+				}
+				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+			}
+		}
+	}, {
+		key: "update",
+		value: function update(_offset) {
+			var container = this.bounds();
+			var views = this.views.all();
+			var viewsLength = views.length;
+			var visible = [];
+			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+			var isVisible;
+			var view;
+
+			var updating = new _core.defer();
+			var promises = [];
+			var queued = {};
+			for (var i = 0; i < viewsLength; i++) {
+				view = views[i];
+
+				isVisible = this.isVisible(view, offset, offset, container);
+				if (isVisible === true) {
+					queued[i] = true;
+				}
+			}
+
+			for (var i = 0; i < viewsLength; i++) {
+				view = views[i];
+				var isVisible = queued[i];
+				if (isVisible === true) {
+					// console.log("visible " + view.index);
+
+					if (!view.displayed) {
+						// console.log("AHOY continuous.update !displayed", view.section.href);
+						var displayed = view.display(this.request).then(function (view) {
+							view.show();
+						}, function (err) {
+							// console.log("AHOY continuous.update ERROR", err);
+							view.hide();
+						});
+						promises.push(displayed);
+					} else {
+						// console.log("AHOY continuous.update show", view.section.href);
+						view.show();
+					}
+					visible.push(view);
+				} else {
+					this.q.enqueue(view.destroy.bind(view));
+					// console.log("hidden " + view.index);
+
+					clearTimeout(this.trimTimeout);
+					this.trimTimeout = setTimeout(function () {
+						this.q.enqueue(this.trim.bind(this));
+					}.bind(this), 250);
+				}
+			}
+
+			if (promises.length) {
+				return Promise.all(promises).catch(function (err) {
+					updating.reject(err);
+				});
+			} else {
+				updating.resolve();
+				return updating.promise;
+			}
+		}
+	}, {
+		key: "check",
+		value: function check(_offsetLeft, _offsetTop) {
+			var _this5 = this;
+
+			var checking = new _core.defer();
+			var newViews = [];
+
+			var horizontal = this.settings.axis === "horizontal";
+			var delta = this.settings.offset || 0;
+
+			if (_offsetLeft && horizontal) {
+				delta = _offsetLeft;
+			}
+
+			if (_offsetTop && !horizontal) {
+				delta = _offsetTop;
+			}
+
+			var bounds = this._bounds; // bounds saved this until resize
+
+			var rtl = this.settings.direction === "rtl";
+			var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+			var visibleLength = horizontal ? bounds.width : bounds.height;
+			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+			var prePaginated = this.layout.props.name == 'pre-paginated';
+
+			// console.log("continuous.check prePaginated =", prePaginated, "offset=", 
+			// 	offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
+			// 	" == ", offset + visibleLength + delta >= contentLength,
+			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
+
+			var prepend = function prepend() {
+				var first = _this5.views.first();
+				var prev = first && first.section.prev();
+
+				if (prev) {
+					newViews.push(_this5.prepend(prev));
+				}
+			};
+
+			var append = function append() {
+				var last = _this5.views.last();
+				var next = last && last.section.next();
+
+				if (next) {
+					newViews.push(_this5.append(next));
+				}
+			};
+
+			var adjusted_top = offset - bounds.height * 8;
+			var adjusted_end = offset + bounds.height * 8;
+			// console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
+
+			// need to figure out which divs are viewable
+			var divs = document.querySelectorAll('.epub-view');
+			var visible = [];
+			for (var i = 0; i < divs.length; i++) {
+				var div = divs[i];
+				var rect = div.getBoundingClientRect();
+				var marker = '';
+				// if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+				// if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+				if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+					marker = '**';
+					var section = this._manifest[div.dataset.href];
+					visible.push(section);
+					// if ( ! div.querySelector('iframe') ) {
+					// 	newViews.push(this.append(section))
+					// }
+					// var idx = this._spine.indexOf(section.href);
+					// if ( idx > 0 ) {
+					// 	visible.push(this._manifest[this._spine[idx - 1]]);
+					// }
+					// if ( idx < this._spine.length - 1 ) {
+					// 	visible.push(this._manifest[this._spine[idx + 1]]);	
+					// }
+				}
+				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+			}
+
+			var section = visible[0];
+			if (section && section.prev()) {
+				visible.unshift(section.prev());
+			}
+			section = visible[visible.length - 1];
+			if (section && section.next()) {
+				visible.push(section.next());
+			}
+
+			for (var i = 0; i < visible.length; i++) {
+				var section = visible[i];
+				// var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
+				// if ( div.querySelector('iframe') ) {
+				// 	continue;
+				// }
+				newViews.push(this.append(section));
+			}
+
+			// let promises = newViews.map((view) => {
+			// 	return view.displayed;
+			// });
+
+			var promises = [];
+			for (var i = 0; i < newViews.length; i++) {
+				if (newViews[i]) {
+					promises.push(newViews[i]);
+				}
+			}
+
+			if (newViews.length) {
+				return Promise.all(promises).then(function () {
+					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
+						// console.log("AHOY check again");
+						return _this5.check();
+					}
+				}).then(function () {
+					// Check to see if anything new is on screen after rendering
+					// console.log("AHOY update again");
+					return _this5.update(delta);
+				}, function (err) {
+					return err;
+				});
+			} else {
+				this.q.enqueue(function () {
+					this.update();
+				}.bind(this));
+				checking.resolve(false);
+				return checking.promise;
+			}
+		}
+	}, {
+		key: "trim",
+		value: function trim() {
+			var task = new _core.defer();
+			var displayed = this.views.displayed();
+			var first = displayed[0];
+			var last = displayed[displayed.length - 1];
+			var firstIndex = this.views.indexOf(first);
+			var lastIndex = this.views.indexOf(last);
+			var above = this.views.slice(0, firstIndex);
+			var below = this.views.slice(lastIndex + 1);
+
+			// Erase all but last above
+			for (var i = 0; i < above.length - 3; i++) {
+				if (above[i]) {
+					// console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
+					this.erase(above[i], above);
+				}
+			}
+
+			// Erase all except first below
+			for (var j = 3; j < below.length; j++) {
+				if (below[j]) {
+					// console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
+					this.erase(below[j]);
+				}
+			}
+
+			task.resolve();
+			return task.promise;
+		}
+	}, {
+		key: "erase",
+		value: function erase(view, above) {
+			//Trim
+
+			var prevTop;
+			var prevLeft;
+
+			if (this.settings.height) {
+				prevTop = this.container.scrollTop;
+				prevLeft = this.container.scrollLeft;
+			} else {
+				prevTop = window.scrollY;
+				prevLeft = window.scrollX;
+			}
+
+			var bounds = view.bounds();
+
+			// console.log("AHOY erase", view.section.href, above);
+			this.views.remove(view);
+
+			if (above) {
+				if (this.settings.axis === "vertical") {
+					// this.scrollTo(0, prevTop - bounds.height, true);
+				} else {
+					this.scrollTo(prevLeft - bounds.width, 0, true);
+				}
+			}
+		}
+	}, {
+		key: "addEventListeners",
+		value: function addEventListeners(stage) {
+
+			window.addEventListener("unload", function (e) {
+				this.ignore = true;
+				// this.scrollTo(0,0);
+				this.destroy();
+			}.bind(this));
+
+			this.addScrollListeners();
+		}
+	}, {
+		key: "addScrollListeners",
+		value: function addScrollListeners() {
+			var scroller;
+
+			this.tick = _core.requestAnimationFrame;
+
+			if (this.settings.height) {
+				this.prevScrollTop = this.container.scrollTop;
+				this.prevScrollLeft = this.container.scrollLeft;
+			} else {
+				this.prevScrollTop = window.scrollY;
+				this.prevScrollLeft = window.scrollX;
+			}
+
+			this.scrollDeltaVert = 0;
+			this.scrollDeltaHorz = 0;
+
+			if (this.settings.height) {
+				scroller = this.container;
+				this.scrollTop = this.container.scrollTop;
+				this.scrollLeft = this.container.scrollLeft;
+			} else {
+				scroller = window;
+				this.scrollTop = window.scrollY;
+				this.scrollLeft = window.scrollX;
+			}
+
+			scroller.addEventListener("scroll", this.onScroll.bind(this));
+			this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
+			// this.tick.call(window, this.onScroll.bind(this));
+
+			this.didScroll = false;
+		}
+	}, {
+		key: "removeEventListeners",
+		value: function removeEventListeners() {
+			var scroller;
+
+			if (this.settings.height) {
+				scroller = this.container;
+			} else {
+				scroller = window;
+			}
+
+			scroller.removeEventListener("scroll", this.onScroll.bind(this));
+		}
+	}, {
+		key: "onScroll",
+		value: function onScroll() {
+			var scrollTop = void 0;
+			var scrollLeft = void 0;
+			var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+			if (this.settings.height) {
+				scrollTop = this.container.scrollTop;
+				scrollLeft = this.container.scrollLeft;
+			} else {
+				scrollTop = window.scrollY * dir;
+				scrollLeft = window.scrollX * dir;
+			}
+
+			this.scrollTop = scrollTop;
+			this.scrollLeft = scrollLeft;
+
+			if (!this.ignore) {
+
+				this._scrolled();
+			} else {
+				this.ignore = false;
+			}
+
+			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+			this.prevScrollTop = scrollTop;
+			this.prevScrollLeft = scrollLeft;
+
+			clearTimeout(this.scrollTimeout);
+			this.scrollTimeout = setTimeout(function () {
+				this.scrollDeltaVert = 0;
+				this.scrollDeltaHorz = 0;
+			}.bind(this), 150);
+
+			this.didScroll = false;
+		}
+	}, {
+		key: "isVisible",
+		value: function isVisible(view, offsetPrev, offsetNext, _container) {
+			var position = view.position();
+			var container = _container || this.bounds();
+			var height = container.height;
+
+			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
+
+				return true;
+			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev * 2 && position.top < container.bottom + offsetNext * 2) {
+
+				return true;
+			}
+
+			return false;
+		}
+	}, {
+		key: "scrolled",
+		value: function scrolled() {
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+
+			this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
+				top: this.scrollTop,
+				left: this.scrollLeft
+			});
+
+			clearTimeout(this.afterScrolled);
+			this.afterScrolled = setTimeout(function () {
+				this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+					top: this.scrollTop,
+					left: this.scrollLeft
+				});
+			}.bind(this));
+		}
+	}, {
+		key: "next",
+		value: function next() {
+
+			var dir = this.settings.direction;
+			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal") {
+
+				this.scrollBy(delta, 0, true);
+			} else {
+
+				this.scrollBy(0, this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "prev",
+		value: function prev() {
+
+			var dir = this.settings.direction;
+			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+			if (!this.views.length) return;
+
+			if (this.isPaginated && this.settings.axis === "horizontal") {
+
+				this.scrollBy(-delta, 0, true);
+			} else {
+
+				this.scrollBy(0, -this.layout.height, true);
+			}
+
+			this.q.enqueue(function () {
+				this.check();
+			}.bind(this));
+		}
+	}, {
+		key: "updateAxis",
+		value: function updateAxis(axis, forceUpdate) {
+
+			if (!this.isPaginated) {
+				axis = "vertical";
+			}
+
+			if (!forceUpdate && axis === this.settings.axis) {
+				return;
+			}
+
+			this.settings.axis = axis;
+
+			this.stage && this.stage.axis(axis);
+
+			this.viewSettings.axis = axis;
+
+			if (this.mapping) {
+				this.mapping.axis(axis);
+			}
+
+			if (this.layout) {
+				if (axis === "vertical") {
+					this.layout.spread("none");
+				} else {
+					this.layout.spread(this.layout.settings.spread);
+				}
+			}
+
+			if (axis === "vertical") {
+				this.settings.infinite = true;
+			} else {
+				this.settings.infinite = false;
+			}
+		}
+	}]);
+
+	return PrePaginatedContinuousViewManager;
+}(_index2.default);
+
+exports.default = PrePaginatedContinuousViewManager;
+module.exports = exports["default"];
+
+/***/ }),
+/* 120 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PrefabViews = function () {
+	function PrefabViews(container) {
+		_classCallCheck(this, PrefabViews);
+
+		this.container = container;
+		this._views = [];
+		this.length = 0;
+		this.hidden = false;
+	}
+
+	_createClass(PrefabViews, [{
+		key: 'all',
+		value: function all() {
+			return this._views;
+		}
+	}, {
+		key: 'first',
+		value: function first() {
+			return this._views[0];
+		}
+	}, {
+		key: 'last',
+		value: function last() {
+			return this._views[this._views.length - 1];
+		}
+	}, {
+		key: 'indexOf',
+		value: function indexOf(view) {
+			return this._views.indexOf(view);
+		}
+	}, {
+		key: 'slice',
+		value: function slice() {
+			return this._views.slice.apply(this._views, arguments);
+		}
+	}, {
+		key: 'get',
+		value: function get(i) {
+			return this._views[i];
+		}
+	}, {
+		key: 'append',
+		value: function append(view) {
+			var check = false;
+			this.forEach(function (v) {
+				if (v.section.href == view.section.href) {
+					check = true;
+				}
+			});
+			if (check) {
+				return view;
+			}
+			// if ( check ) { console.log("AHOY views.append WUT", view.section.href)}
+			this._views.push(view);
+			this._views.sort(function (a, b) {
+				return a.section.href > b.section.href ? 1 : b.section.href > a.section.href ? -1 : 0;
+			});
+			if (this.container && view.element.dataset.reused != 'true') {
+				this.container.appendChild(view.element);
+			}
+			this.length++;
+			return view;
+		}
+	}, {
+		key: 'dump',
+		value: function dump() {
+			return this._views.map(function (v) {
+				return v.section.href;
+			});
+		}
+	}, {
+		key: 'prepend',
+		value: function prepend(view) {
+			this._views.unshift(view);
+			if (this.container && view.element.dataset.reused != 'true') {
+				this.container.insertBefore(view.element, this.container.firstChild);
+			}
+			this.length++;
+			return view;
+		}
+	}, {
+		key: 'insert',
+		value: function insert(view, index) {
+			this._views.splice(index, 0, view);
+
+			if (this.container && view.element.dataset.reused != 'true') {
+				if (index < this.container.children.length) {
+					this.container.insertBefore(view.element, this.container.children[index]);
+				} else {
+					this.container.appendChild(view.element);
+				}
+			}
+
+			this.length++;
+			return view;
+		}
+	}, {
+		key: 'remove',
+		value: function remove(view) {
+			var index = this._views.indexOf(view);
+
+			if (index > -1) {
+				this._views.splice(index, 1);
+			}
+
+			this.destroy(view);
+
+			this.length--;
+		}
+	}, {
+		key: 'destroy',
+		value: function destroy(view) {
+			if (view.displayed) {
+				view.destroy();
+			}
+
+			if (this.container && view.element.dataset.reused != 'true') {
+				this.container.removeChild(view.element);
+			}
+			view = null;
+		}
+
+		// Iterators
+
+	}, {
+		key: 'forEach',
+		value: function forEach() {
+			return this._views.forEach.apply(this._views, arguments);
+		}
+	}, {
+		key: 'clear',
+		value: function clear() {
+			// Remove all views
+			var view;
+			var len = this.length;
+
+			if (!this.length) return;
+
+			for (var i = 0; i < len; i++) {
+				view = this._views[i];
+				this.destroy(view);
+			}
+
+			this._views = [];
+			this.length = 0;
+		}
+	}, {
+		key: 'find',
+		value: function find(section) {
+
+			var view;
+			var len = this.length;
+
+			for (var i = 0; i < len; i++) {
+				view = this._views[i];
+				if (view.displayed && view.section.index == section.index) {
+					return view;
+				}
+			}
+		}
+	}, {
+		key: 'displayed',
+		value: function displayed() {
+			var displayed = [];
+			var view;
+			var len = this.length;
+
+			for (var i = 0; i < len; i++) {
+				view = this._views[i];
+				if (view.displayed) {
+					displayed.push(view);
+				}
+			}
+			return displayed;
+		}
+	}, {
+		key: 'show',
+		value: function show() {
+			var view;
+			var len = this.length;
+
+			for (var i = 0; i < len; i++) {
+				view = this._views[i];
+				if (view.displayed) {
+					view.show();
+				}
+			}
+			this.hidden = false;
+		}
+	}, {
+		key: 'hide',
+		value: function hide() {
+			var view;
+			var len = this.length;
+
+			for (var i = 0; i < len; i++) {
+				view = this._views[i];
+				if (view.displayed) {
+					view.hide();
+				}
+			}
+			this.hidden = true;
+		}
+	}]);
+
+	return PrefabViews;
+}();
+
+exports.default = PrefabViews;
+module.exports = exports['default'];
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _core = __webpack_require__(1);
+
+var _request = __webpack_require__(26);
 
 var _request2 = _interopRequireDefault(_request);
 
-var _mime = __webpack_require__(41);
+var _mime = __webpack_require__(43);
 
 var _mime2 = _interopRequireDefault(_mime);
 
@@ -25862,7 +26995,7 @@ var Archive = function () {
 		value: function checkRequirements() {
 			try {
 				if (typeof JSZip === "undefined") {
-					var _JSZip = __webpack_require__(120);
+					var _JSZip = __webpack_require__(122);
 					this.zip = new _JSZip();
 				} else {
 					this.zip = new JSZip();
@@ -26115,7 +27248,7 @@ exports.default = Archive;
 module.exports = exports["default"];
 
 /***/ }),
-/* 120 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26156,8 +27289,8 @@ function JSZip() {
         return newObj;
     };
 }
-JSZip.prototype = __webpack_require__(121);
-JSZip.prototype.loadAsync = __webpack_require__(169);
+JSZip.prototype = __webpack_require__(123);
+JSZip.prototype.loadAsync = __webpack_require__(171);
 JSZip.support = __webpack_require__(7);
 JSZip.defaults = __webpack_require__(61);
 
@@ -26174,7 +27307,7 @@ module.exports = JSZip;
 
 
 /***/ }),
-/* 121 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26184,11 +27317,11 @@ var utils = __webpack_require__(0);
 var GenericWorker = __webpack_require__(2);
 var StreamHelper = __webpack_require__(60);
 var defaults = __webpack_require__(61);
-var CompressedObject = __webpack_require__(36);
-var ZipObject = __webpack_require__(155);
-var generate = __webpack_require__(156);
-var nodejsUtils = __webpack_require__(21);
-var NodejsStreamInputAdapter = __webpack_require__(168);
+var CompressedObject = __webpack_require__(38);
+var ZipObject = __webpack_require__(157);
+var generate = __webpack_require__(158);
+var nodejsUtils = __webpack_require__(22);
+var NodejsStreamInputAdapter = __webpack_require__(170);
 
 
 /**
@@ -26570,7 +27703,7 @@ module.exports = out;
 
 
 /***/ }),
-/* 122 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26691,7 +27824,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 123 */
+/* 125 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -26781,7 +27914,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 124 */
+/* 126 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -26792,7 +27925,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 125 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -26818,15 +27951,15 @@ module.exports = Array.isArray || function (arr) {
 
 module.exports = Stream;
 
-var EE = __webpack_require__(30).EventEmitter;
+var EE = __webpack_require__(32).EventEmitter;
 var inherits = __webpack_require__(13);
 
 inherits(Stream, EE);
-Stream.Readable = __webpack_require__(31);
-Stream.Writable = __webpack_require__(133);
-Stream.Duplex = __webpack_require__(134);
-Stream.Transform = __webpack_require__(135);
-Stream.PassThrough = __webpack_require__(136);
+Stream.Readable = __webpack_require__(33);
+Stream.Writable = __webpack_require__(135);
+Stream.Duplex = __webpack_require__(136);
+Stream.Transform = __webpack_require__(137);
+Stream.PassThrough = __webpack_require__(138);
 
 // Backwards-compat with node 0.4.x
 Stream.Stream = Stream;
@@ -26925,7 +28058,7 @@ Stream.prototype.pipe = function(dest, options) {
 
 
 /***/ }),
-/* 126 */
+/* 128 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -26936,13 +28069,13 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 127 */
+/* 129 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 128 */
+/* 130 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26952,7 +28085,7 @@ module.exports = Array.isArray || function (arr) {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Buffer = __webpack_require__(32).Buffer;
+var Buffer = __webpack_require__(34).Buffer;
 /*</replacement>*/
 
 function copyBuffer(src, target, offset) {
@@ -27022,7 +28155,7 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 129 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -27075,13 +28208,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(130);
+__webpack_require__(132);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 130 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -27271,10 +28404,10 @@ exports.clearImmediate = clearImmediate;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(19)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(20)))
 
 /***/ }),
-/* 131 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -27348,7 +28481,7 @@ function config (name) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 132 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -27401,59 +28534,59 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 133 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(33);
-
-
-/***/ }),
-/* 134 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(9);
-
-
-/***/ }),
 /* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(31).Transform
+module.exports = __webpack_require__(35);
 
 
 /***/ }),
 /* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(31).PassThrough
+module.exports = __webpack_require__(9);
 
 
 /***/ }),
 /* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(138);
-module.exports = __webpack_require__(56).setImmediate;
+module.exports = __webpack_require__(33).Transform
+
 
 /***/ }),
 /* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var $export = __webpack_require__(139)
-  , $task   = __webpack_require__(147);
+module.exports = __webpack_require__(33).PassThrough
+
+
+/***/ }),
+/* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(140);
+module.exports = __webpack_require__(56).setImmediate;
+
+/***/ }),
+/* 140 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var $export = __webpack_require__(141)
+  , $task   = __webpack_require__(149);
 $export($export.G + $export.B, {
   setImmediate:   $task.set,
   clearImmediate: $task.clear
 });
 
 /***/ }),
-/* 139 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global    = __webpack_require__(22)
+var global    = __webpack_require__(23)
   , core      = __webpack_require__(56)
   , ctx       = __webpack_require__(57)
-  , hide      = __webpack_require__(141)
+  , hide      = __webpack_require__(143)
   , PROTOTYPE = 'prototype';
 
 var $export = function(type, name, source){
@@ -27513,7 +28646,7 @@ $export.R = 128; // real proto method for `library`
 module.exports = $export;
 
 /***/ }),
-/* 140 */
+/* 142 */
 /***/ (function(module, exports) {
 
 module.exports = function(it){
@@ -27522,12 +28655,12 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 141 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP         = __webpack_require__(142)
-  , createDesc = __webpack_require__(146);
-module.exports = __webpack_require__(35) ? function(object, key, value){
+var dP         = __webpack_require__(144)
+  , createDesc = __webpack_require__(148);
+module.exports = __webpack_require__(37) ? function(object, key, value){
   return dP.f(object, key, createDesc(1, value));
 } : function(object, key, value){
   object[key] = value;
@@ -27535,15 +28668,15 @@ module.exports = __webpack_require__(35) ? function(object, key, value){
 };
 
 /***/ }),
-/* 142 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var anObject       = __webpack_require__(143)
-  , IE8_DOM_DEFINE = __webpack_require__(144)
-  , toPrimitive    = __webpack_require__(145)
+var anObject       = __webpack_require__(145)
+  , IE8_DOM_DEFINE = __webpack_require__(146)
+  , toPrimitive    = __webpack_require__(147)
   , dP             = Object.defineProperty;
 
-exports.f = __webpack_require__(35) ? Object.defineProperty : function defineProperty(O, P, Attributes){
+exports.f = __webpack_require__(37) ? Object.defineProperty : function defineProperty(O, P, Attributes){
   anObject(O);
   P = toPrimitive(P, true);
   anObject(Attributes);
@@ -27556,29 +28689,29 @@ exports.f = __webpack_require__(35) ? Object.defineProperty : function definePro
 };
 
 /***/ }),
-/* 143 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isObject = __webpack_require__(34);
+var isObject = __webpack_require__(36);
 module.exports = function(it){
   if(!isObject(it))throw TypeError(it + ' is not an object!');
   return it;
 };
 
 /***/ }),
-/* 144 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = !__webpack_require__(35) && !__webpack_require__(58)(function(){
+module.exports = !__webpack_require__(37) && !__webpack_require__(58)(function(){
   return Object.defineProperty(__webpack_require__(59)('div'), 'a', {get: function(){ return 7; }}).a != 7;
 });
 
 /***/ }),
-/* 145 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // 7.1.1 ToPrimitive(input [, PreferredType])
-var isObject = __webpack_require__(34);
+var isObject = __webpack_require__(36);
 // instead of the ES6 spec version, we didn't implement @@toPrimitive case
 // and the second argument - flag - preferred type is a string
 module.exports = function(it, S){
@@ -27591,7 +28724,7 @@ module.exports = function(it, S){
 };
 
 /***/ }),
-/* 146 */
+/* 148 */
 /***/ (function(module, exports) {
 
 module.exports = function(bitmap, value){
@@ -27604,14 +28737,14 @@ module.exports = function(bitmap, value){
 };
 
 /***/ }),
-/* 147 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ctx                = __webpack_require__(57)
-  , invoke             = __webpack_require__(148)
-  , html               = __webpack_require__(149)
+  , invoke             = __webpack_require__(150)
+  , html               = __webpack_require__(151)
   , cel                = __webpack_require__(59)
-  , global             = __webpack_require__(22)
+  , global             = __webpack_require__(23)
   , process            = global.process
   , setTask            = global.setImmediate
   , clearTask          = global.clearImmediate
@@ -27646,7 +28779,7 @@ if(!setTask || !clearTask){
     delete queue[id];
   };
   // Node.js 0.8-
-  if(__webpack_require__(150)(process) == 'process'){
+  if(__webpack_require__(152)(process) == 'process'){
     defer = function(id){
       process.nextTick(ctx(run, id, 1));
     };
@@ -27684,7 +28817,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 148 */
+/* 150 */
 /***/ (function(module, exports) {
 
 // fast apply, http://jsperf.lnkit.com/fast-apply/5
@@ -27705,13 +28838,13 @@ module.exports = function(fn, args, that){
 };
 
 /***/ }),
-/* 149 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(22).document && document.documentElement;
+module.exports = __webpack_require__(23).document && document.documentElement;
 
 /***/ }),
-/* 150 */
+/* 152 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -27721,12 +28854,12 @@ module.exports = function(it){
 };
 
 /***/ }),
-/* 151 */
+/* 153 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var immediate = __webpack_require__(152);
+var immediate = __webpack_require__(154);
 
 /* istanbul ignore next */
 function INTERNAL() {}
@@ -27981,7 +29114,7 @@ function race(iterable) {
 
 
 /***/ }),
-/* 152 */
+/* 154 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28058,7 +29191,7 @@ function immediate(task) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 153 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28091,7 +29224,7 @@ module.exports = ConvertWorker;
 
 
 /***/ }),
-/* 154 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28140,7 +29273,7 @@ module.exports = NodejsStreamOutputAdapter;
 
 
 /***/ }),
-/* 155 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28149,7 +29282,7 @@ module.exports = NodejsStreamOutputAdapter;
 var StreamHelper = __webpack_require__(60);
 var DataWorker = __webpack_require__(62);
 var utf8 = __webpack_require__(11);
-var CompressedObject = __webpack_require__(36);
+var CompressedObject = __webpack_require__(38);
 var GenericWorker = __webpack_require__(2);
 
 /**
@@ -28280,14 +29413,14 @@ module.exports = ZipObject;
 
 
 /***/ }),
-/* 156 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var compressions = __webpack_require__(65);
-var ZipFileWorker = __webpack_require__(167);
+var ZipFileWorker = __webpack_require__(169);
 
 /**
  * Find the compression to use.
@@ -28344,14 +29477,14 @@ exports.generateWorker = function (zip, options, comment) {
 
 
 /***/ }),
-/* 157 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 var USE_TYPEDARRAY = (typeof Uint8Array !== 'undefined') && (typeof Uint16Array !== 'undefined') && (typeof Uint32Array !== 'undefined');
 
-var pako = __webpack_require__(158);
+var pako = __webpack_require__(160);
 var utils = __webpack_require__(0);
 var GenericWorker = __webpack_require__(2);
 
@@ -28436,7 +29569,7 @@ exports.uncompressWorker = function () {
 
 
 /***/ }),
-/* 158 */
+/* 160 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28445,8 +29578,8 @@ exports.uncompressWorker = function () {
 
 var assign    = __webpack_require__(8).assign;
 
-var deflate   = __webpack_require__(159);
-var inflate   = __webpack_require__(162);
+var deflate   = __webpack_require__(161);
+var inflate   = __webpack_require__(164);
 var constants = __webpack_require__(70);
 
 var pako = {};
@@ -28457,17 +29590,17 @@ module.exports = pako;
 
 
 /***/ }),
-/* 159 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_deflate = __webpack_require__(160);
+var zlib_deflate = __webpack_require__(162);
 var utils        = __webpack_require__(8);
 var strings      = __webpack_require__(68);
-var msg          = __webpack_require__(38);
+var msg          = __webpack_require__(40);
 var ZStream      = __webpack_require__(69);
 
 var toString = Object.prototype.toString;
@@ -28864,7 +29997,7 @@ exports.gzip = gzip;
 
 
 /***/ }),
-/* 160 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -28890,10 +30023,10 @@ exports.gzip = gzip;
 // 3. This notice may not be removed or altered from any source distribution.
 
 var utils   = __webpack_require__(8);
-var trees   = __webpack_require__(161);
+var trees   = __webpack_require__(163);
 var adler32 = __webpack_require__(66);
 var crc32   = __webpack_require__(67);
-var msg     = __webpack_require__(38);
+var msg     = __webpack_require__(40);
 
 /* Public constants ==========================================================*/
 /* ===========================================================================*/
@@ -30745,7 +31878,7 @@ exports.deflateTune = deflateTune;
 
 
 /***/ }),
-/* 161 */
+/* 163 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -31972,20 +33105,20 @@ exports._tr_align = _tr_align;
 
 
 /***/ }),
-/* 162 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 
-var zlib_inflate = __webpack_require__(163);
+var zlib_inflate = __webpack_require__(165);
 var utils        = __webpack_require__(8);
 var strings      = __webpack_require__(68);
 var c            = __webpack_require__(70);
-var msg          = __webpack_require__(38);
+var msg          = __webpack_require__(40);
 var ZStream      = __webpack_require__(69);
-var GZheader     = __webpack_require__(166);
+var GZheader     = __webpack_require__(168);
 
 var toString = Object.prototype.toString;
 
@@ -32397,7 +33530,7 @@ exports.ungzip  = inflate;
 
 
 /***/ }),
-/* 163 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -32425,8 +33558,8 @@ exports.ungzip  = inflate;
 var utils         = __webpack_require__(8);
 var adler32       = __webpack_require__(66);
 var crc32         = __webpack_require__(67);
-var inflate_fast  = __webpack_require__(164);
-var inflate_table = __webpack_require__(165);
+var inflate_fast  = __webpack_require__(166);
+var inflate_table = __webpack_require__(167);
 
 var CODES = 0;
 var LENS = 1;
@@ -33960,7 +35093,7 @@ exports.inflateUndermine = inflateUndermine;
 
 
 /***/ }),
-/* 164 */
+/* 166 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34312,7 +35445,7 @@ module.exports = function inflate_fast(strm, start) {
 
 
 /***/ }),
-/* 165 */
+/* 167 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34662,7 +35795,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 
 
 /***/ }),
-/* 166 */
+/* 168 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34727,7 +35860,7 @@ module.exports = GZheader;
 
 
 /***/ }),
-/* 167 */
+/* 169 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34736,7 +35869,7 @@ module.exports = GZheader;
 var utils = __webpack_require__(0);
 var GenericWorker = __webpack_require__(2);
 var utf8 = __webpack_require__(11);
-var crc32 = __webpack_require__(37);
+var crc32 = __webpack_require__(39);
 var signature = __webpack_require__(71);
 
 /**
@@ -35274,7 +36407,7 @@ module.exports = ZipFileWorker;
 
 
 /***/ }),
-/* 168 */
+/* 170 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35355,7 +36488,7 @@ module.exports = NodejsStreamInputAdapter;
 
 
 /***/ }),
-/* 169 */
+/* 171 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35364,9 +36497,9 @@ var utils = __webpack_require__(0);
 var external = __webpack_require__(15);
 var utf8 = __webpack_require__(11);
 var utils = __webpack_require__(0);
-var ZipEntries = __webpack_require__(170);
+var ZipEntries = __webpack_require__(172);
 var Crc32Probe = __webpack_require__(64);
-var nodejsUtils = __webpack_require__(21);
+var nodejsUtils = __webpack_require__(22);
 
 /**
  * Check the CRC32 of an entry.
@@ -35444,7 +36577,7 @@ module.exports = function(data, options) {
 
 
 /***/ }),
-/* 170 */
+/* 172 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35452,7 +36585,7 @@ module.exports = function(data, options) {
 var readerFor = __webpack_require__(72);
 var utils = __webpack_require__(0);
 var sig = __webpack_require__(71);
-var ZipEntry = __webpack_require__(173);
+var ZipEntry = __webpack_require__(175);
 var utf8 = __webpack_require__(11);
 var support = __webpack_require__(7);
 //  class ZipEntries {{{
@@ -35713,7 +36846,7 @@ module.exports = ZipEntries;
 
 
 /***/ }),
-/* 171 */
+/* 173 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35758,7 +36891,7 @@ module.exports = StringReader;
 
 
 /***/ }),
-/* 172 */
+/* 174 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35784,15 +36917,15 @@ module.exports = NodeBufferReader;
 
 
 /***/ }),
-/* 173 */
+/* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 var readerFor = __webpack_require__(72);
 var utils = __webpack_require__(0);
-var CompressedObject = __webpack_require__(36);
-var crc32fn = __webpack_require__(37);
+var CompressedObject = __webpack_require__(38);
+var crc32fn = __webpack_require__(39);
 var utf8 = __webpack_require__(11);
 var compressions = __webpack_require__(65);
 var support = __webpack_require__(7);
@@ -36083,7 +37216,7 @@ module.exports = ZipEntry;
 
 
 /***/ }),
-/* 174 */
+/* 176 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -36696,10 +37829,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
   return jURL;
 });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(175)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(177)(module)))
 
 /***/ }),
-/* 175 */
+/* 177 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {

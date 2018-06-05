@@ -50,6 +50,7 @@ export var Reader = Evented.extend({
     trackResize: true,
     text_size: 100,
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
+    forceScrolledDocHeight: 1200,
     theme: 'default',
     themes: []
   },

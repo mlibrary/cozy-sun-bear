@@ -43,8 +43,6 @@ Reader.EpubJS = Reader.extend({
         self.fire('updateLocations', locations);
       } else {
         self._book.locations.generate(1600).then(function(locations) {
-          console.log("AHOY LOCATIONS", locations);
-          window.xxlocations = locations;
           self.fire('updateLocations', locations);
         })
       }
@@ -58,10 +56,7 @@ Reader.EpubJS = Reader.extend({
     if ( self._rendition ) {
       // self._unbindEvents();
       var container = self._rendition.manager.container;
-      console.log("AHOY WUT", container, container.parentElement);
       self._rendition.destroy();
-      // var parent = container.parentElement;
-      // parent.removeChild(container);
     }
 
     this.settings = { flow: this.options.flow };
@@ -70,8 +65,9 @@ Reader.EpubJS = Reader.extend({
     if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
       // dumb check to see if the window is _tall_ enough to put
       // two pages side by side
-      if ( this._container.offsetHeight < 1200 ) {
+      if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
         this.settings.flow = 'scrolled-doc';
+        this.settings.manager = 'prepaginated';
       }
     }
 
@@ -83,6 +79,13 @@ Reader.EpubJS = Reader.extend({
       if ( this.settings.manager == 'default' ) {
         this.settings.manager = 'continuous';
       }
+    }
+
+    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
+      // STILL A HACK
+      window.fitWidth = true;
+    } else {
+      window.fitWidth = false;
     }
 
     self.settings.height = '100%';
