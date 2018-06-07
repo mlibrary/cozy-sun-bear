@@ -4063,6 +4063,11 @@ var Reader = Evented.extend({
       var keyName = event.key;
       var target = event.target;
 
+      // check if the activeElement is ".special-panel"
+      if (document.activeElement.classList.contains('special-panel')) {
+        return;
+      }
+
       var IGNORE_TARGETS = ['input', 'target'];
       if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
         return;
