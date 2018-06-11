@@ -16,25 +16,15 @@ export var Navigator = Control.extend({
     }
     this._setup(container);
 
-    this._reader.on('updateLocations', function(locations) {
-      // if ( ! this._reader.currentLocation() ) {
-      //   return;
-      // }
-      this._initiated = true;
-      this._total = this._reader.locations.total;
-      if ( this._reader.currentLocation() ) {
-        this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-        this._last_value = this._control.value;
-      } else {
-        this._last_value = this._control.value;
+    this._reader.on('updateLocations', function(locations) {      
+      if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
+        console.log("AHOY updateLocations NO START");
+        setTimeout(function() {
+          this._initializeNavigator(locations);
+        }.bind(this), 100);
+        return;
       }
-
-      this._spanTotalLocations.innerHTML = this._total;
-
-      this._update();
-      setTimeout(function() {
-        DomUtil.addClass(this._container, 'initialized');
-      }.bind(this), 0);
+      this._initializeNavigator(locations);
     }.bind(this));
 
     return container;
@@ -111,6 +101,13 @@ export var Navigator = Control.extend({
   _update: function() {
     var self = this;
 
+    var current = this._reader.currentLocation();
+    if ( ! current || ! current.start ) {
+      setTimeout(function() {
+        this._update();
+      }.bind(this), 100);
+    }
+
     var rangeBg = this._background;
     var range = self._control;
 
@@ -121,12 +118,30 @@ export var Navigator = Control.extend({
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
-    var current = this._reader.currentLocation();
-    if ( current ) {
+    if ( current && current.start ) {
       var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
       this._spanCurrentLocation.innerHTML = ( current_location );
     }
     self._last_delta = self._last_value > value; self._last_value = value;
+  },
+
+  _initializeNavigator: function(locations) {
+    console.log("AHOY updateLocations PROCESSING LOCATION");
+    this._initiated = true;
+    this._total = this._reader.locations.total;
+    if ( this._reader.currentLocation().start ) {
+      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+      this._last_value = this._control.value;
+    } else {
+      this._last_value = this._control.value;
+    }
+
+    this._spanTotalLocations.innerHTML = this._total;
+
+    this._update();
+    setTimeout(function() {
+      DomUtil.addClass(this._container, 'initialized');
+    }.bind(this), 0);
   },
 
   EOT: true

@@ -325,8 +325,12 @@ export var Reader = Evented.extend({
       var target = event.target;
 
       // check if the activeElement is ".special-panel"
-      if ( document.activeElement.classList.contains('special-panel') ) {
-        return;
+      var check = document.activeElement;
+      while ( check.localName != 'body' ) {
+        if ( check.classList.contains('special-panel') ) {
+          return;
+        }
+        check = check.parentElement;
       }
 
       var IGNORE_TARGETS = [ 'input', 'target' ];

@@ -40,9 +40,12 @@ Reader.EpubJS = Reader.extend({
           self.locations._locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
         });
         self.locations.total = locations.length;
-        self.fire('updateLocations', locations);
+        setTimeout(function() {
+          self.fire('updateLocations', locations);
+        }, 100);
       } else {
         self._book.locations.generate(1600).then(function(locations) {
+          // console.log("AHOY WUT", locations);
           self.fire('updateLocations', locations);
         })
       }
@@ -198,7 +201,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target, callback) {
-    if ( target ) {
+    if ( target != null ) {
       var section = this._book.spine.get(target); 
       if ( ! section) {
         // maybe it needs to be resolved
@@ -221,7 +224,10 @@ Reader.EpubJS = Reader.extend({
         })
 
         console.log("AHOY GUESSED", target);
-      }
+      } else if ( target.toString().match(/^\d+$/) ) {
+        console.log("AHOY USING", section.href);
+        target = section.href;
+      } 
 
       if ( ! section ) {
         if ( ! this._epubjs_ready ) {
@@ -350,9 +356,11 @@ Reader.EpubJS = Reader.extend({
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
+      self.fire("relocated", location);
     });
 
     this._rendition.on("rendered", function(section, view) {
+
       if ( view.contents ) {
         // view.contents.on("xxlinkClicked", function(href) {
         //   console.log("AHOY CLICKED", href);

@@ -14043,7 +14043,6 @@ var Rendition = function () {
 				return displayed;
 			}
 
-			// console.log("AHOY rendition._display", section.href)
 			this.manager.display(section, target).then(function () {
 				displaying.resolve(section);
 				_this.displaying = undefined;
@@ -15446,6 +15445,11 @@ var IframeView = function () {
 
 			if (!this.element) {
 				this.element = this.createContainer();
+			}
+
+			this.iframe = this.element.querySelector("iframe");
+			if (this.iframe) {
+				return this.iframe;
 			}
 
 			this.iframe = document.createElement("iframe");
@@ -25953,7 +25957,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			_index2.default.prototype.resize.call(this, width, height);
 
 			setTimeout(function () {
-				this.update();
+				this.check();
 			}.bind(this), 100);
 		}
 
@@ -26044,7 +26048,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
 				div.scrollIntoView();
 
-				return this.update();
+				if (!check) {
+					setTimeout(function () {
+						// this is ... lame
+						this.scrolled();
+					}.bind(this), 500);
+				}
+
+				return check ? this.update() : this.check();
 
 				// return DefaultViewManager.prototype.display.call(this, section, target)
 				// 	.then(function () {

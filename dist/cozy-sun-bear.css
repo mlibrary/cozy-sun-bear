@@ -1478,7 +1478,10 @@ div.cozy-panel-footer {
   position: absolute; }
 
 .cozy-module-book[data-manager=prepaginated] .epub-view {
-  background: rgba(238, 238, 238, 0.4); }
+  margin-bottom: 16px; }
+
+.cozy-module-book[data-manager=prepaginated] .epub-view iframe {
+  border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
 @media screen and (max-width: 50em) {
   .permalink-label,

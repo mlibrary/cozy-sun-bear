@@ -3780,7 +3780,6 @@ Object.defineProperties(screenfull, {
   }
 });
 
-// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -4064,8 +4063,12 @@ var Reader = Evented.extend({
       var target = event.target;
 
       // check if the activeElement is ".special-panel"
-      if (document.activeElement.classList.contains('special-panel')) {
-        return;
+      var check = document.activeElement;
+      while (check.localName != 'body') {
+        if (check.classList.contains('special-panel')) {
+          return;
+        }
+        check = check.parentElement;
       }
 
       var IGNORE_TARGETS = ['input', 'target'];
@@ -6123,24 +6126,14 @@ var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function (locations) {
-      // if ( ! this._reader.currentLocation() ) {
-      //   return;
-      // }
-      this._initiated = true;
-      this._total = this._reader.locations.total;
-      if (this._reader.currentLocation()) {
-        this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-        this._last_value = this._control.value;
-      } else {
-        this._last_value = this._control.value;
+      if (!this._reader.currentLocation() || !this._reader.currentLocation().start) {
+        console.log("AHOY updateLocations NO START");
+        setTimeout(function () {
+          this._initializeNavigator(locations);
+        }.bind(this), 100);
+        return;
       }
-
-      this._spanTotalLocations.innerHTML = this._total;
-
-      this._update();
-      setTimeout(function () {
-        addClass(this._container, 'initialized');
-      }.bind(this), 0);
+      this._initializeNavigator(locations);
     }.bind(this));
 
     return container;
@@ -6214,6 +6207,13 @@ var Navigator = Control.extend({
   _update: function _update() {
     var self = this;
 
+    var current = this._reader.currentLocation();
+    if (!current || !current.start) {
+      setTimeout(function () {
+        this._update();
+      }.bind(this), 100);
+    }
+
     var rangeBg = this._background;
     var range = self._control;
 
@@ -6224,12 +6224,30 @@ var Navigator = Control.extend({
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
-    var current = this._reader.currentLocation();
-    if (current) {
+    if (current && current.start) {
       var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
       this._spanCurrentLocation.innerHTML = current_location;
     }
     self._last_delta = self._last_value > value;self._last_value = value;
+  },
+
+  _initializeNavigator: function _initializeNavigator(locations) {
+    console.log("AHOY updateLocations PROCESSING LOCATION");
+    this._initiated = true;
+    this._total = this._reader.locations.total;
+    if (this._reader.currentLocation().start) {
+      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+      this._last_value = this._control.value;
+    } else {
+      this._last_value = this._control.value;
+    }
+
+    this._spanTotalLocations.innerHTML = this._total;
+
+    this._update();
+    setTimeout(function () {
+      addClass(this._container, 'initialized');
+    }.bind(this), 0);
   },
 
   EOT: true
@@ -6884,9 +6902,12 @@ Reader.EpubJS = Reader.extend({
           self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
         });
         self.locations.total = locations.length;
-        self.fire('updateLocations', locations);
+        setTimeout(function () {
+          self.fire('updateLocations', locations);
+        }, 100);
       } else {
         self._book.locations.generate(1600).then(function (locations) {
+          // console.log("AHOY WUT", locations);
           self.fire('updateLocations', locations);
         });
       }
@@ -7049,7 +7070,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function gotoPage(target, callback) {
-    if (target) {
+    if (target != null) {
       var section = this._book.spine.get(target);
       if (!section) {
         // maybe it needs to be resolved
@@ -7072,6 +7093,9 @@ Reader.EpubJS = Reader.extend({
         });
 
         console.log("AHOY GUESSED", target);
+      } else if (target.toString().match(/^\d+$/)) {
+        console.log("AHOY USING", section.href);
+        target = section.href;
       }
 
       if (!section) {
@@ -7205,9 +7229,11 @@ Reader.EpubJS = Reader.extend({
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
+      self.fire("relocated", location);
     });
 
     this._rendition.on("rendered", function (section, view) {
+
       if (view.contents) {
         // view.contents.on("xxlinkClicked", function(href) {
         //   console.log("AHOY CLICKED", href);
