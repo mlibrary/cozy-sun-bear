@@ -84,6 +84,10 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
+    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
+        this.settings.manager = 'prepaginated';
+    }
+
     if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
       // STILL A HACK
       window.fitWidth = true;
