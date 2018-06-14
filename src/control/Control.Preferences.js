@@ -255,9 +255,9 @@ Preferences.fieldset.Display = Fieldset.extend({
   template: function() {
     return `<fieldset>
             <legend>Display</legend>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" />Auto</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" />Page-by-Page</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll</label>
           </fieldset>`;
   },
 

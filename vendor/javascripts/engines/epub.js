@@ -9597,7 +9597,7 @@ var Contents = function () {
 			this.css("transform-origin", "top left");
 
 			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px)";
 			}
 
 			this.css("transform", scaleStr + translateStr);
@@ -14043,6 +14043,7 @@ var Rendition = function () {
 				return displayed;
 			}
 
+			// console.log("AHOY rendition._display", section.href)
 			this.manager.display(section, target).then(function () {
 				displaying.resolve(section);
 				_this.displaying = undefined;
