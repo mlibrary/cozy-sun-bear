@@ -132,10 +132,14 @@ Reader.EpubJS = Reader.extend({
 
       if ( callback ) { callback(); }
 
-      self.fire('opened');
-      self.fire('ready');
       self._epubjs_ready = true;
       self._manager = self._rendition.manager;
+
+      setTimeout(function() {
+        self.fire('opened');
+        self.fire('ready');
+      }, 0);
+
     })
 
   },

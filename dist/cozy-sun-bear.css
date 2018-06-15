@@ -1436,7 +1436,7 @@ div.cozy-panel-footer {
 .cozy-control-preferences button {
   padding: .8em 1em 0 .6em; }
 
-.cozy-modal fieldset p {
+.cozy-modal fieldset.cozy-fieldset-text_size p {
   width: 90%;
   margin: 0 auto;
   text-align: center; }
@@ -1451,7 +1451,8 @@ div.cozy-panel-footer {
 
 .cozy-modal main fieldset {
   border: 1px solid #002c63;
-  margin: 1rem; }
+  margin: 1rem;
+  padding: 0.35em 0.75em; }
 
 .cozy-modal main label {
   display: block;
