@@ -138,7 +138,7 @@ Reader.EpubJS = Reader.extend({
       setTimeout(function() {
         self.fire('opened');
         self.fire('ready');
-      }, 0);
+      }, 100);
 
     })
 
