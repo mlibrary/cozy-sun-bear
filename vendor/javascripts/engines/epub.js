@@ -6630,6 +6630,7 @@ var DefaultViewManager = function () {
 			hidden: false,
 			width: undefined,
 			height: undefined,
+			fullsize: undefined,
 			axis: undefined,
 			flow: "scrolled",
 			ignoreClass: ""
@@ -6656,7 +6657,7 @@ var DefaultViewManager = function () {
 		value: function render(element, size) {
 			var tag = element.tagName;
 
-			if (tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
+			if (this.settings.fullsize || tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
 				this.fullsize = true;
 			}
 
@@ -6688,7 +6689,7 @@ var DefaultViewManager = function () {
 
 			// Calculate Stage Size
 			this._bounds = this.bounds();
-			this._stageSize = this.stage.size();
+			this._stageSize = this.stage.size;
 
 			// Set the dimensions for views
 			this.viewSettings.width = this._stageSize.width;
@@ -6794,7 +6795,7 @@ var DefaultViewManager = function () {
 	}, {
 		key: "resize",
 		value: function resize(width, height) {
-			var stageSize = this.stage.size(width, height);
+			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
 			// if the window is a square
@@ -7159,7 +7160,7 @@ var DefaultViewManager = function () {
 		key: "clear",
 		value: function clear() {
 
-			// this.q.clear();
+			this.q.clear();
 
 			if (this.views) {
 				this.views.hide();
@@ -7433,7 +7434,7 @@ var DefaultViewManager = function () {
 				return;
 			}
 
-			this._stageSize = this.stage.size();
+			this._stageSize = this.stage.size;
 
 			if (!this.isPaginated) {
 				this.layout.calculate(this._stageSize.width, this._stageSize.height);
@@ -7555,6 +7556,15 @@ var DefaultViewManager = function () {
 		key: "isRendered",
 		value: function isRendered() {
 			return this.rendered;
+		}
+	}, {
+		key: "scale",
+		value: function scale(s) {
+			this.settings.scale = s;
+
+			if (this.stage) {
+				this.stage.scale(s);
+			}
 		}
 	}]);
 
@@ -8086,7 +8096,7 @@ function request(url, type, withCredentials, headers) {
 				responseXML = this.responseXML;
 			}
 
-			if (this.status === 200 || responseXML) {
+			if (this.status === 200 || this.status === 0 || responseXML) {
 				//-- Firefox is reporting 0 for blob urls
 				var r;
 
@@ -8468,8 +8478,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var isChrome = /Chrome/.test(navigator.userAgent);
-var isWebkit = !isChrome && /AppleWebKit/.test(navigator.userAgent);
+var hasNavigator = typeof navigator !== "undefined";
+
+var isChrome = hasNavigator && /Chrome/.test(navigator.userAgent);
+var isWebkit = hasNavigator && !isChrome && /AppleWebKit/.test(navigator.userAgent);
 
 var ELEMENT_NODE = 1;
 var TEXT_NODE = 3;
@@ -9208,7 +9220,7 @@ var Contents = function () {
 			if (!this.document || !rules || rules.length === 0) return;
 
 			// Check if link already exists
-			styleEl = this.document.getElementById("#" + key);
+			styleEl = this.document.getElementById(key);
 			if (!styleEl) {
 				styleEl = this.document.createElement("style");
 				styleEl.id = key;
@@ -9597,7 +9609,7 @@ var Contents = function () {
 			this.css("transform-origin", "top left");
 
 			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px)";
+				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
 			}
 
 			this.css("transform", scaleStr + translateStr);
@@ -9635,8 +9647,22 @@ var Contents = function () {
 			this.height(height);
 			this.overflow("hidden");
 
+			if (viewport.width == 'auto' || viewport.height == 'auto') {
+				this.content.style.overflow = 'auto';
+				this.addStylesheetRules({
+					"body": {
+						"margin": 0,
+						"padding": "1em",
+						"box-sizing": "border-box"
+					}
+				});
+			}
+
 			// Scale to the correct size
-			this.scaler(scale, 0, offsetY);
+			// RRE add offsetX
+			var offsetX = 0;
+			offsetX = this.window.innerWidth;
+			this.scaler(scale, offsetX, offsetY);
 
 			this.css("background-color", "transparent");
 		}
@@ -10104,6 +10130,7 @@ var ContinuousViewManager = function (_DefaultViewManager) {
 		value: function display(section, target) {
 
 			return _default2.default.prototype.display.call(this, section, target).then(function () {
+				this.q.clear();
 				return this.fill();
 			}.bind(this));
 		}
@@ -14838,6 +14865,11 @@ var Rendition = function () {
 			}
 			doc.getElementsByTagName("head")[0].appendChild(meta);
 		}
+	}, {
+		key: "scale",
+		value: function scale(s) {
+			return this.manager && this.manager.scale(s);
+		}
 	}]);
 
 	return Rendition;
@@ -16190,13 +16222,15 @@ var IframeView = function () {
 				this.stopExpanding = true;
 				this.element.removeChild(this.iframe);
 
-				this.iframe = null;
+				this.iframe = undefined;
+				this.contents = undefined;
 
 				this._textWidth = null;
 				this._textHeight = null;
 				this._width = null;
 				this._height = null;
 			}
+
 			// this.element.style.height = "0px";
 			// this.element.style.width = "0px";
 		}
@@ -19213,8 +19247,6 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _eventEmitter = __webpack_require__(6);
@@ -19305,6 +19337,7 @@ var INPUT_TYPE = {
  * @param {string} [options.encoding=binary] optional to pass 'binary' or base64' for archived Epubs
  * @param {string} [options.replacements=none] use base64, blobUrl, or none for replacing assets in archived Epubs
  * @param {method} [options.canonical] optional function to determine canonical urls for a path
+ * @param {string} [options.openAs] optional string to determine the input type
  * @returns {Book}
  * @example new Book("/path/to/book.epub", {})
  * @example new Book({ replacements: "blobUrl" })
@@ -19317,7 +19350,7 @@ var Book = function () {
 		_classCallCheck(this, Book);
 
 		// Allow passing just options to the Book
-		if (typeof options === "undefined" && (typeof url === "undefined" ? "undefined" : _typeof(url)) === "object") {
+		if (typeof options === "undefined" && typeof url !== "string" && url instanceof Blob === false) {
 			options = url;
 			url = undefined;
 		}
@@ -19328,7 +19361,8 @@ var Book = function () {
 			requestHeaders: undefined,
 			encoding: undefined,
 			replacements: undefined,
-			canonical: undefined
+			canonical: undefined,
+			openAs: undefined
 		});
 
 		(0, _core.extend)(this.settings, options);
@@ -19463,7 +19497,7 @@ var Book = function () {
 		// this.toc = undefined;
 
 		if (url) {
-			this.open(url).catch(function (error) {
+			this.open(url, this.settings.openAs).catch(function (error) {
 				var err = new Error("Cannot load book at " + url);
 				_this.emit(_constants.EVENTS.BOOK.OPEN_FAILED, err);
 			});
@@ -23989,15 +24023,18 @@ var Themes = function () {
 		}
 	}, {
 		key: "override",
-		value: function override(name, value) {
+		value: function override(name, value, priority) {
 			var _this2 = this;
 
 			var contents = this.rendition.getContents();
 
-			this._overrides[name] = value;
+			this._overrides[name] = {
+				value: value,
+				priority: priority === true
+			};
 
 			contents.forEach(function (content) {
-				content.css(name, _this2._overrides[name]);
+				content.css(name, _this2._overrides[name].value, _this2._overrides[name].priority);
 			});
 		}
 	}, {
@@ -24007,7 +24044,7 @@ var Themes = function () {
 
 			for (var rule in overrides) {
 				if (overrides.hasOwnProperty(rule)) {
-					contents.css(rule, overrides[rule]);
+					contents.css(rule, overrides[rule].value, overrides[rule].priority);
 				}
 			}
 		}
@@ -24031,7 +24068,7 @@ var Themes = function () {
 	}, {
 		key: "font",
 		value: function font(f) {
-			this.override("font-family", f);
+			this.override("font-family", f, true);
 		}
 	}, {
 		key: "destroy",
@@ -24972,6 +25009,7 @@ var Stage = function () {
 		this.id = "epubjs-container-" + (0, _core.uuid)();
 
 		this.container = this.create(this.settings);
+		this.size = { width: this.settings.width, height: this.settings.height };
 
 		if (this.settings.hidden) {
 			this.wrapper = this.wrap(this.container);
@@ -24987,19 +25025,10 @@ var Stage = function () {
 	_createClass(Stage, [{
 		key: "create",
 		value: function create(options) {
-			var height = options.height; // !== false ? options.height : "100%";
-			var width = options.width; // !== false ? options.width : "100%";
 			var overflow = options.overflow || false;
 			var axis = options.axis || "vertical";
 			var direction = options.direction;
-
-			if (options.height && (0, _core.isNumber)(options.height)) {
-				height = options.height + "px";
-			}
-
-			if (options.width && (0, _core.isNumber)(options.width)) {
-				width = options.width + "px";
-			}
+			var scale = options.scale;
 
 			// Create new container element
 			var container = document.createElement("div");
@@ -25012,21 +25041,13 @@ var Stage = function () {
 			container.style.wordSpacing = "0";
 			container.style.lineHeight = "0";
 			container.style.verticalAlign = "top";
-			container.style.position = "relative";
+			// container.style.position = "relative";
 
 			if (axis === "horizontal") {
 				// container.style.whiteSpace = "nowrap";
 				container.style.display = "flex";
 				container.style.flexDirection = "row";
 				container.style.flexWrap = "nowrap";
-			}
-
-			if (width) {
-				container.style.width = width;
-			}
-
-			if (height) {
-				container.style.height = height;
 			}
 
 			if (overflow) {
@@ -25040,6 +25061,12 @@ var Stage = function () {
 
 			if (direction && this.settings.fullsize) {
 				document.body.style["direction"] = direction;
+			}
+
+			if (scale) {
+				container.style["transform-origin"] = "top left";
+				container.style["transform"] = "scale(" + scale + ")";
+				container.style.overflow = "visible";
 			}
 
 			return container;
@@ -25117,74 +25144,6 @@ var Stage = function () {
 		value: function onOrientationChange(func) {
 			this.orientationChangeFunc = func;
 			window.addEventListener("orientationchange", this.orientationChangeFunc, false);
-		}
-	}, {
-		key: "size",
-		value: function size(width, height) {
-			var bounds;
-			// var width = _width || this.settings.width;
-			// var height = _height || this.settings.height;
-
-			// If width or height are set to false, inherit them from containing element
-			// should the width x height === null??
-			if (width === null) {
-				bounds = this.element.getBoundingClientRect();
-
-				if (bounds.width) {
-					// width = bounds.width;
-					// this.container.style.width = bounds.width + "px";
-					width = 2 * Math.floor(bounds.width / 2);
-					this.container.style.width = width + 'px';
-				}
-			}
-
-			if (height === null) {
-				bounds = bounds || this.element.getBoundingClientRect();
-
-				if (bounds.height) {
-					height = bounds.height;
-					this.container.style.height = bounds.height + "px";
-				}
-			}
-
-			if (!(0, _core.isNumber)(width)) {
-				bounds = this.container.getBoundingClientRect();
-				width = bounds.width;
-				//height = bounds.height;
-			}
-
-			if (!(0, _core.isNumber)(height)) {
-				bounds = bounds || this.container.getBoundingClientRect();
-				//width = bounds.width;
-				height = bounds.height;
-			}
-
-			this.containerStyles = window.getComputedStyle(this.container);
-
-			this.containerPadding = {
-				left: parseFloat(this.containerStyles["padding-left"]) || 0,
-				right: parseFloat(this.containerStyles["padding-right"]) || 0,
-				top: parseFloat(this.containerStyles["padding-top"]) || 0,
-				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
-			};
-
-			// Bounds not set, get them from window
-			var _windowBounds = (0, _core.windowBounds)();
-			if (!width) {
-				width = _windowBounds.width;
-			}
-			if (this.settings.fullsize || !height) {
-				height = _windowBounds.height;
-			}
-
-			var _round = function _round(value) {
-				return 2 * Math.round(value / 2);
-			};
-
-			return {
-				width: _round(width - this.containerPadding.left - this.containerPadding.right),
-				height: _round(height - this.containerPadding.top - this.containerPadding.bottom)
-			};
 		}
 	}, {
 		key: "bounds",
@@ -25267,6 +25226,14 @@ var Stage = function () {
 			}
 		}
 	}, {
+		key: "scale",
+		value: function scale(s) {
+			if (this.container) {
+				this.container.style["transform-origin"] = "top left";
+				this.container.style["transform"] = "scale(" + s + ")";
+			}
+		}
+	}, {
 		key: "destroy",
 		value: function destroy() {
 			var base;
@@ -25285,6 +25252,68 @@ var Stage = function () {
 
 				window.removeEventListener("resize", this.resizeFunc);
 				window.removeEventListener("orientationChange", this.orientationChangeFunc);
+			}
+		}
+	}, {
+		key: "size",
+		get: function get() {
+			var bounds;
+			var width;
+			var height;
+
+			if (this.settings.fullsize) {
+				// Bounds not set, get them from window
+				bounds = (0, _core.windowBounds)();
+				width = bounds.width;
+				height = bounds.height;
+			} else {
+				bounds = this.container.getBoundingClientRect();
+				width = bounds.width;
+				// width = 2 * Math.floor(bounds.width / 2); ???
+				height = bounds.height;
+			}
+
+			this.containerStyles = window.getComputedStyle(this.container);
+
+			this.containerPadding = {
+				left: parseFloat(this.containerStyles["padding-left"]) || 0,
+				right: parseFloat(this.containerStyles["padding-right"]) || 0,
+				top: parseFloat(this.containerStyles["padding-top"]) || 0,
+				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
+			};
+
+			var _round = function _round(value) {
+				return 2 * Math.round(value / 2);
+			};
+
+			return {
+				width: _round(width - this.containerPadding.left - this.containerPadding.right),
+				height: _round(height - this.containerPadding.top - this.containerPadding.bottom)
+			};
+		},
+		set: function set(obj) {
+			var width = obj.width,
+			    height = obj.height;
+
+			var bounds;
+
+			if (this.settings.fullsize !== true && typeof width !== "undefined" && typeof height !== "undefined") {
+
+				if ((0, _core.isNumber)(width)) {
+					this.container.style.width = width + "px";
+				} else {
+					this.container.style.width = width;
+				}
+
+				if ((0, _core.isNumber)(height)) {
+					this.container.style.height = height + "px";
+				} else {
+					this.container.style.height = height;
+				}
+
+				bounds = this.container.getBoundingClientRect();
+				width = bounds.width;
+				height = bounds.height;
 			}
 		}
 	}]);
@@ -25951,8 +25980,10 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				var r = w / section_.viewport.width;
 				var h = Math.floor(section_.viewport.height * r);
 
+				h = this.layout.height;
+
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-				div.setAttribute('original-height', h);
+				// div.setAttribute('original-height', h);
 			}
 
 			_index2.default.prototype.resize.call(this, width, height);
@@ -26018,6 +26049,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			return Promise.all(promises).then(function () {
 
 				var check = document.querySelector('.epub-view');
+				console.log("AHOY PREPAGINATED", check);
 				if (!check) {
 					// console.log("AHOY DRAWING", self._spine.length);
 					for (var i = 0; i < self._spine.length; i++) {
@@ -26030,9 +26062,12 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						var r = w / section_.viewport.width;
 						var h = Math.floor(section_.viewport.height * r);
 
+						h = self.layout.height;
+
 						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
 						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-						div.setAttribute('original-height', h);
+						// div.setAttribute('use-')
+						// div.setAttribute('original-height', h);
 
 						if (window.debugManager) {
 							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
@@ -26050,10 +26085,26 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				div.scrollIntoView();
 
 				if (!check) {
+					var w = this.layout.columnWidth;
+					var wrapper = this.container.parentElement;
+					var scale = this.container.offsetWidth * 0.75 / w;
+					var w1 = wrapper.scrollWidth * scale;
+					var w2 = this.layout.columnWidth * scale;
+					this.scale(scale);
+					var w3 = w1 - w2 - wrapper.offsetWidth / 2;
+					wrapper.scrollLeft = w3;
+					console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
+
 					setTimeout(function () {
 						// this is ... lame
 						this.scrolled();
 					}.bind(this), 500);
+
+					// setTimeout(function() {
+					// 	var w3 = ( w1 - w2 ) - ( wrapper.offsetWidth / 2 );
+					// 	wrapper.scrollLeft = w3;
+					// 	console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
+					// }.bind(this), 500);
 				}
 
 				return check ? this.update() : this.check();

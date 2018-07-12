@@ -52,6 +52,7 @@ export var Reader = Evented.extend({
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
     forceScrolledDocHeight: 1200,
     theme: 'default',
+    rootfilePath: '',
     themes: []
   },
 
@@ -205,7 +206,7 @@ export var Reader = Evented.extend({
       (Browser.ielt9 ? ' cozy-oldie' : '') +
       (Browser.safari ? ' cozy-safari' : '') +
       (this._fadeAnimated ? ' cozy-fade-anim' : '') +
-      ' cozy-engine-' + this.options.engine + 
+      ' cozy-engine-' + this.options.engine +
       ' cozy-theme-' + this.options.theme);
 
     var position = DomUtil.getStyle(container, 'position');
@@ -237,6 +238,7 @@ export var Reader = Evented.extend({
     panes['right'] = DomUtil.create('div', prefix + 'right', panes['main']);
     panes['book'] = DomUtil.create('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = DomUtil.create('div', prefix + 'book-loading', panes['book']);
+    panes['epub'] = DomUtil.create('div', prefix + 'book-epub', panes['book']);
     this._initBookLoader();
   },
 
@@ -432,7 +434,7 @@ export var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function() {
-    // have to make the book 
+    // have to make the book
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);

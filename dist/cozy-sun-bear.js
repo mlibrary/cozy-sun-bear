@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.019b4b04, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.011c9453, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3794,6 +3794,7 @@ var Reader = Evented.extend({
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
     forceScrolledDocHeight: 1200,
     theme: 'default',
+    rootfilePath: '',
     themes: []
   },
 
@@ -3975,6 +3976,7 @@ var Reader = Evented.extend({
     panes['right'] = create$1('div', prefix + 'right', panes['main']);
     panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
+    panes['epub'] = create$1('div', prefix + 'book-epub', panes['book']);
     this._initBookLoader();
   },
 
@@ -4176,7 +4178,7 @@ var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function getFixedBookPanelSize() {
-    // have to make the book 
+    // have to make the book
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
@@ -5196,6 +5198,11 @@ var Preferences = Control.extend({
     }
     possible_fieldsets.push('Display');
 
+    if (this._reader.rootfiles.length > 1) {
+      // this.options.hasPackagePaths = true;
+      possible_fieldsets.push('Rendition');
+    }
+
     if (this._reader.options.themes && this._reader.options.themes.length > 0) {
       this.options.hasThemes = true;
       possible_fieldsets.push('Theme');
@@ -5255,9 +5262,11 @@ var Preferences = Control.extend({
 
     var doUpdate = false;
     var new_options = {};
+    var saveable_options = {};
     this._fieldsets.forEach(function (fieldset) {
       // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
-      assign_1(new_options, fieldset.updateForm(this._form));
+      // assign(new_options, fieldset.updateForm(this._form));
+      fieldset.updateForm(this._form, new_options, saveable_options);
     }.bind(this));
 
     if (this.options.hasFields) {
@@ -5275,7 +5284,7 @@ var Preferences = Control.extend({
     this._modal.deactivate();
 
     setTimeout(function () {
-      this._reader.saveOptions(new_options);
+      this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
   },
@@ -5323,8 +5332,9 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  updateForm: function updateForm(form) {
-    return { text_size: this._input.value };
+  updateForm: function updateForm(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.text_size = saveable.text_size = this._input.value;
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
@@ -5353,13 +5363,17 @@ Preferences.fieldset.Display = Fieldset.extend({
     this._current.flow = flow;
   },
 
-  updateForm: function updateForm(form) {
+  updateForm: function updateForm(form, options, saveable) {
     var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
+    options.flow = input.value;
+    if (options.flow != 'auto') {
+      saveable.flow = options.flow;
+    }
     // if ( input.value == 'auto' ) {
     //   // we do NOT want to save flow as a preference
     //   return {};
     // }
-    return { flow: input.value };
+    // return { flow: input.value };
   },
 
   template: function template$$1() {
@@ -5380,9 +5394,10 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  updateForm: function updateForm(form) {
+  updateForm: function updateForm(form, options, saveable) {
     var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
-    return { theme: input.value };
+    options.theme = saveable.theme = input.value;
+    // return { theme: input.value };
   },
 
   template: function template$$1() {
@@ -5390,6 +5405,41 @@ Preferences.fieldset.Theme = Fieldset.extend({
 
     this._control._reader.options.themes.forEach(function (theme) {
       template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
+    }.bind(this));
+
+    template$$1 += '</fieldset>';
+
+    return template$$1;
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Rendition = Fieldset.extend({
+
+  initializeForm: function initializeForm(form) {
+    var rootfiles = this._control._reader.rootfiles;
+    var rootfilePath = this._control._reader.options.rootfilePath;
+    var expr = rootfilePath ? '[value="' + rootfilePath + '"]' : ":first-child";
+    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]' + expr);
+    input.checked = true;
+    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
+  },
+
+  updateForm: function updateForm(form, options, saveable) {
+    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]:checked');
+    if (input.value != this._current.rootfilePath) {
+      options.rootfilePath = input.value;
+      this._current.rootfilePath = input.value;
+    }
+  },
+
+  template: function template$$1() {
+    var template$$1 = '<fieldset>\n            <legend>Rendition</legend>\n    ';
+
+    this._control._reader.rootfiles.forEach(function (rootfile, i) {
+      template$$1 += '<label><input name="x' + this._id + '-rootfilePath" type="radio" id="x' + this._id + '-input-rootfilePath-' + i + '" value="' + rootfile.rootfilePath + '" />' + (rootfile.label || rootfile.accessMode || rootfile.rootfilePath) + '</label>';
     }.bind(this));
 
     template$$1 += '</fieldset>';
@@ -6885,7 +6935,37 @@ Reader.EpubJS = Reader.extend({
     if (callback == null) {
       callback = function callback() {};
     }
-    this._book = ePub(this.options.href);
+
+    // okay, we need to do some hacking to fetch the dang files
+    // but this isn't going to be done async
+    self.rootfiles = [];
+    var request = new XMLHttpRequest();
+    request.open('GET', this.options.href + "/META-INF/container.xml");
+    request.responseType = 'document';
+    request.onload = function () {
+      var containerDoc = request.responseXML;
+      var rootfiles = containerDoc.querySelectorAll("rootfile");
+      if (rootfiles.length > 1) {
+        console.log("AHOY ROOTFILES MULTIPLE RENDITIONS", rootfiles.length);
+        for (var i = 0; i < rootfiles.length; i++) {
+          var rootfile = rootfiles[i];
+          var rootfilePath = rootfile.getAttribute('full-path');
+          var label = rootfile.getAttribute('rendition:label');
+          var layout = rootfile.getAttribute('rendition:layout');
+          self.rootfiles.push({
+            rootfilePath: rootfilePath,
+            label: label,
+            layout: layout
+          });
+        }
+      }
+    };
+    request.send();
+
+    this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
+    this._book = ePub(this.options.href + this.options.rootfilePath);
+    sessionStorage.removeItem('rootfilePath');
+    // this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function (toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
@@ -6937,22 +7017,42 @@ Reader.EpubJS = Reader.extend({
     }
 
     if (this.settings.flow == 'auto' || this.settings.flow == 'paginated') {
-      this._panes['book'].style.overflow = 'hidden';
+      this._panes['epub'].style.overflow = 'hidden';
       this.settings.manager = 'default';
     } else {
-      this._panes['book'].style.overflow = 'auto';
+      this._panes['epub'].style.overflow = 'auto';
       if (this.settings.manager == 'default') {
         this.settings.manager = 'continuous';
       }
+    }
+
+    if (!callback) {
+      callback = function callback() {};
     }
 
     if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
       this.settings.manager = 'prepaginated';
     }
 
+    var attached_callback = function attached_callback() {};
     if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated') {
       // STILL A HACK
-      window.fitWidth = true;
+      window.fitWidth = false;
+
+      // attached_callback = function() {
+      //   var scale = 1.75;
+      //   console.log("AHOY SCALING?");
+      //   self._manager = self._rendition.manager;
+      //   self._rendition.scale(scale);
+      //   var w = self._manager.layout.columnWidth;
+      //   var w1 = self._panes['epub'].scrollWidth;
+      //   var w2 = self._manager.layout.columnWidth * scale;
+      //   // var w3 = ( ( w1 / 2 ) - ( w2 / 2 ) ) / scale;
+      //   var w3 = ( w1 - w2 ) - ( self._panes['epub'].offsetWidth / 2 );
+      //   this._panes['epub'].scrollLeft = w3;
+      //   this._panes['epub'].style.overflowX = 'hidden';
+      //   console.log("AHOY SCROLL LEFT", w3);
+      // }.bind(this)
     } else {
       window.fitWidth = false;
     }
@@ -6963,10 +7063,12 @@ Reader.EpubJS = Reader.extend({
     self._panes['book'].dataset.manager = this.settings.manager;
 
     self.settings['ignoreClass'] = 'annotator-hl';
-    self._rendition = self._book.renderTo(self._panes['book'], self.settings);
+    self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
     self._updateFontSize();
     self._bindEvents();
     self._drawn = true;
+
+    self._rendition.on('attached', attached_callback);
 
     self._rendition.hooks.content.register(function (contents) {
       self.fire('ready:contents', contents);
@@ -6999,7 +7101,6 @@ Reader.EpubJS = Reader.extend({
       }
 
       self._epubjs_ready = true;
-      self._manager = self._rendition.manager;
 
       setTimeout(function () {
         self.fire('opened');
@@ -7149,6 +7250,13 @@ Reader.EpubJS = Reader.extend({
     }.bind(this));
 
     if (!doUpdate) {
+      return;
+    }
+
+    if (options.rootfilePath && options.rootfilePath != this.options.rootfilePath) {
+      // we need to REOPEN THE DANG BOOK
+      sessionStorage.setItem('rootfilePath', options.rootfilePath);
+      location.reload();
       return;
     }
 

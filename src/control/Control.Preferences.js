@@ -66,6 +66,11 @@ export var Preferences = Control.extend({
     }
     possible_fieldsets.push('Display');
 
+    if ( this._reader.rootfiles.length > 1 ) {
+      // this.options.hasPackagePaths = true;
+      possible_fieldsets.push('Rendition');
+    }
+
     if ( this._reader.options.themes && this._reader.options.themes.length > 0 ) {
       this.options.hasThemes = true;
       possible_fieldsets.push('Theme');
@@ -129,9 +134,11 @@ export var Preferences = Control.extend({
 
     var doUpdate = false;
     var new_options = {};
+    var saveable_options = {};
     this._fieldsets.forEach(function(fieldset) {
       // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
-      assign(new_options, fieldset.updateForm(this._form));
+      // assign(new_options, fieldset.updateForm(this._form));
+      fieldset.updateForm(this._form, new_options, saveable_options);
     }.bind(this));
 
     if ( this.options.hasFields ) {
@@ -149,7 +156,7 @@ export var Preferences = Control.extend({
     this._modal.deactivate();
 
     setTimeout(function() {
-      this._reader.saveOptions(new_options);
+      this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
   },
@@ -198,8 +205,9 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  updateForm: function(form) {
-    return { text_size: this._input.value };
+  updateForm: function(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.text_size = saveable.text_size = this._input.value;
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
@@ -243,13 +251,17 @@ Preferences.fieldset.Display = Fieldset.extend({
 
   },
 
-  updateForm: function(form) {
+  updateForm: function(form, options, saveable) {
     var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
+    options.flow = input.value;
+    if ( options.flow != 'auto' ) {
+      saveable.flow = options.flow;
+    }
     // if ( input.value == 'auto' ) {
     //   // we do NOT want to save flow as a preference
     //   return {};
     // }
-    return { flow: input.value };
+    // return { flow: input.value };
   },
 
   template: function() {
@@ -275,9 +287,10 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  updateForm: function(form) {
+  updateForm: function(form, options, saveable) {
     var input = form.querySelector(`input[name="x${this._id}-theme"]:checked`);
-    return { theme: input.value };
+    options.theme = saveable.theme = input.value;
+    // return { theme: input.value };
   },
 
   template: function() {
@@ -288,6 +301,44 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._control._reader.options.themes.forEach(function(theme) {
       template += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`
     }.bind(this));
+
+    template += '</fieldset>';
+
+    return template;
+
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Rendition = Fieldset.extend({
+
+  initializeForm: function(form) {
+    var rootfiles = this._control._reader.rootfiles;
+    var rootfilePath = this._control._reader.options.rootfilePath;
+    var expr = rootfilePath ? `[value="${rootfilePath}"]` : ":first-child";
+    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]${expr}`);
+    input.checked = true;
+    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
+  },
+
+  updateForm: function(form, options, saveable) {
+    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]:checked`);
+    if ( input.value != this._current.rootfilePath ) {
+      options.rootfilePath = input.value;
+      this._current.rootfilePath = input.value;
+    }
+  },
+
+  template: function() {
+    var template = `<fieldset>
+            <legend>Rendition</legend>
+    `;
+
+    this._control._reader.rootfiles.forEach(function(rootfile, i) {
+      template += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
+    }.bind(this))
 
     template += '</fieldset>';
 
