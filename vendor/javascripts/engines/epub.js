@@ -9609,7 +9609,9 @@ var Contents = function () {
 			this.css("transform-origin", "top left");
 
 			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px)";
+			} else if (offsetX || offsetY) {
+				translateStr = " translate(" + offsetX + "," + offsetY + ")";
 			}
 
 			this.css("transform", scaleStr + translateStr);
@@ -9630,13 +9632,18 @@ var Contents = function () {
 			var heightScale = height / parseInt(viewport.height);
 			// var scale = widthScale < heightScale ? widthScale : heightScale;
 			// var scale = widthScale < heightScale ? heightScale : widthScale;
-			var scale;var offsetY;
+			var scale;var offsetY;var offsetX;
 			if (window.fitWidth) {
 				scale = widthScale < heightScale ? heightScale : widthScale;
 				offsetY = 0;
 			} else {
 				scale = widthScale < heightScale ? widthScale : heightScale;
 				offsetY = (height - viewport.height * scale) / 2;
+				if (heightScale == scale) {
+					offsetX = width / height * width;
+				}
+				// offsetX = (width - ( viewport.width * scale)) / 2;
+				console.log("AHOY CONTENTS FIT", width, height, ":", viewport.width, viewport.height, scale, widthScale, heightScale, ":", width / height, height / width, ":", Math.min(widthScale, heightScale));
 			}
 
 			// var offsetY = (height - (viewport.height * scale)) / 2;
@@ -9659,9 +9666,12 @@ var Contents = function () {
 			}
 
 			// Scale to the correct size
-			// RRE add offsetX
-			var offsetX = 0;
-			offsetX = this.window.innerWidth;
+			// RRE add offsetX --- ???
+			// 
+			// var offsetX = 0;
+			// if ( ( width / height) / ( height / width ) >= 0.80 ) {
+			// 	offsetX = this.window.innerWidth;
+			// }
 			this.scaler(scale, offsetX, offsetY);
 
 			this.css("background-color", "transparent");
@@ -19781,6 +19791,7 @@ var Book = function () {
 			this.isOpen = true;
 
 			if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
+				console.log("UM...");
 				this.replacements().then(function () {
 					_this6.opening.resolve(_this6);
 				}).catch(function (err) {
@@ -21423,6 +21434,29 @@ var Section = function () {
 			var rendered = rendering.promise;
 			this.output; // TODO: better way to return this from hooks?
 
+			var absolute = function absolute(base, relative) {
+				var stack = base.split("/"),
+				    parts = relative.split("/");
+				stack.pop(); // remove current file name (or empty string)
+				// (omit if "base" is the current folder without trailing slash)
+				for (var i = 0; i < parts.length; i++) {
+					if (parts[i] == ".") continue;
+					if (parts[i] == "..") stack.pop();else stack.push(parts[i]);
+				}
+				return stack.join("/");
+			};
+
+			var munge = function munge(base_href, nodes, attr) {
+				for (var i = 0; i < nodes.length; i++) {
+					var node = nodes[i];
+					var href = node.getAttribute(attr);
+					if (href.substr(0, 4) != 'http') {
+						console.log("AHOY SECTION RENDER", href, absolute(base_href, href));
+						node.setAttribute(attr, absolute(base_href, href));
+					}
+				}
+			};
+
 			this.load(_request).then(function (contents) {
 				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
 				var isIE = userAgent.indexOf('Trident') >= 0 && !userAgent.match(/Trident\/[678]\.\d/);
@@ -21431,6 +21465,13 @@ var Section = function () {
 					Serializer = __webpack_require__(41).XMLSerializer;
 				} else {
 					Serializer = XMLSerializer;
+				}
+				var base = contents.querySelector('base');
+				if (base) {
+					var base_href = base.getAttribute('href');
+					var links = contents.querySelectorAll("link");
+					munge(base_href, links, 'href');
+					munge(base_href, contents.querySelectorAll('img'), 'src');
 				}
 				var serializer = new Serializer();
 				this.output = serializer.serializeToString(contents);
