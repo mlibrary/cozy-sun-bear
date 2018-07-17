@@ -4752,6 +4752,7 @@ var Modal = Class.extend({
   _resize: function _resize() {
     var container = this._reader._container;
     this.container.style.height = container.offsetHeight + 'px';
+    console.log("AHOY MODAL", this.container.style.height);
     if (!this.options.className.container) {
       this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
     }
@@ -5155,6 +5156,20 @@ var Preferences = Control.extend({
     this._activated = false;
     this._control = this._createButton(options.html || options.label, options.label, className, container, this._action);
 
+    // self.initializeForm();
+    this._modal = this._reader.modal({
+      // template: '<form></form>',
+      title: 'Preferences',
+      className: 'cozy-modal-preferences',
+      actions: [{
+        label: 'Save Changes',
+        callback: function callback(event) {
+          self.updatePreferences(event);
+        }
+      }],
+      region: 'right'
+    });
+
     return container;
   },
 
@@ -5184,7 +5199,7 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
-    if (this._modal) {
+    if (this._modal._container.querySelector('form')) {
       return;
     }
 
@@ -5234,19 +5249,22 @@ var Preferences = Control.extend({
 
     template$$1 = '<form>' + template$$1 + '</form>';
 
-    this._modal = this._reader.modal({
-      template: template$$1,
-      title: 'Preferences',
-      className: 'cozy-modal-preferences',
-      actions: [{
-        label: 'Save Changes',
-        callback: function callback(event) {
-          self.updatePreferences(event);
-        }
-      }],
-      region: 'right'
-    });
+    // this._modal = this._reader.modal({
+    //   template: template,
+    //   title: 'Preferences',
+    //   className: 'cozy-modal-preferences',
+    //   actions: [
+    //     {
+    //       label: 'Save Changes',
+    //       callback: function(event) {
+    //         self.updatePreferences(event);
+    //       }
+    //     }
+    //   ],
+    //   region: 'right'
+    // });
 
+    this._modal._container.querySelector('main').innerHTML = template$$1;
     this._form = this._modal._container.querySelector('form');
   },
 
@@ -7049,6 +7067,7 @@ Reader.EpubJS = Reader.extend({
     if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated') {
       // STILL A HACK
       window.fitWidth = false;
+      this._panes['epub'].style.overflowX = 'hidden';
 
       // attached_callback = function() {
       //   var scale = 1.75;

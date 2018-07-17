@@ -184,6 +184,7 @@ export var Modal = Class.extend({
   _resize: function() {
     var container = this._reader._container;
     this.container.style.height = container.offsetHeight + 'px';
+    console.log("AHOY MODAL", this.container.style.height);
     if ( ! this.options.className.container  ) {
       this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
     }

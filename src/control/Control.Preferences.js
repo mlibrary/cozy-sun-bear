@@ -25,6 +25,23 @@ export var Preferences = Control.extend({
     this._control = this._createButton(options.html || options.label, options.label,
             className, container, this._action)
 
+    // self.initializeForm();
+    this._modal = this._reader.modal({
+      // template: '<form></form>',
+      title: 'Preferences',
+      className: 'cozy-modal-preferences',
+      actions: [
+        {
+          label: 'Save Changes',
+          callback: function(event) {
+            self.updatePreferences(event);
+          }
+        }
+      ],
+      region: 'right'
+    });
+
+
     return container;
   },
 
@@ -54,8 +71,8 @@ export var Preferences = Control.extend({
 
   _createPanel: function() {
     var self = this;
-    if ( this._modal ) { return; }
-    
+    if ( this._modal._container.querySelector('form') ) { return; }
+
     var template = '';
 
     var possible_fieldsets = [];
@@ -104,21 +121,22 @@ export var Preferences = Control.extend({
 
     template = '<form>' + template + '</form>';
 
-    this._modal = this._reader.modal({
-      template: template,
-      title: 'Preferences',
-      className: 'cozy-modal-preferences',
-      actions: [
-        {
-          label: 'Save Changes',
-          callback: function(event) {
-            self.updatePreferences(event);
-          }
-        }
-      ],
-      region: 'right'
-    });
+    // this._modal = this._reader.modal({
+    //   template: template,
+    //   title: 'Preferences',
+    //   className: 'cozy-modal-preferences',
+    //   actions: [
+    //     {
+    //       label: 'Save Changes',
+    //       callback: function(event) {
+    //         self.updatePreferences(event);
+    //       }
+    //     }
+    //   ],
+    //   region: 'right'
+    // });
 
+    this._modal._container.querySelector('main').innerHTML = template;
     this._form = this._modal._container.querySelector('form');
   },
 

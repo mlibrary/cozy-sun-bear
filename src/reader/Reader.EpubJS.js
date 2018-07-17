@@ -137,6 +137,7 @@ Reader.EpubJS = Reader.extend({
     if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
       // STILL A HACK
       window.fitWidth = false;
+      this._panes['epub'].style.overflowX = 'hidden';
 
       // attached_callback = function() {
       //   var scale = 1.75;
