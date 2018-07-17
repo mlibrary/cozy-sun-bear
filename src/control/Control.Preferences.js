@@ -66,7 +66,7 @@ export var Preferences = Control.extend({
     }
     possible_fieldsets.push('Display');
 
-    if ( this._reader.rootfiles.length > 1 ) {
+    if ( this._reader.rootfiles && this._reader.rootfiles.length > 1 ) {
       // this.options.hasPackagePaths = true;
       possible_fieldsets.push('Rendition');
     }

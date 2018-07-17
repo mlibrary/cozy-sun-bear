@@ -9643,7 +9643,7 @@ var Contents = function () {
 					offsetX = width / height * width;
 				}
 				// offsetX = (width - ( viewport.width * scale)) / 2;
-				console.log("AHOY CONTENTS FIT", width, height, ":", viewport.width, viewport.height, scale, widthScale, heightScale, ":", width / height, height / width, ":", Math.min(widthScale, heightScale));
+				// console.log("AHOY CONTENTS FIT", width, height, ":", viewport.width, viewport.height, scale, widthScale, heightScale, ":", width / height, height / width, ":", Math.min(widthScale, heightScale));
 			}
 
 			// var offsetY = (height - (viewport.height * scale)) / 2;
@@ -19791,7 +19791,6 @@ var Book = function () {
 			this.isOpen = true;
 
 			if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
-				console.log("UM...");
 				this.replacements().then(function () {
 					_this6.opening.resolve(_this6);
 				}).catch(function (err) {
@@ -21467,7 +21466,7 @@ var Section = function () {
 					Serializer = XMLSerializer;
 				}
 				var base = contents.querySelector('base');
-				if (base) {
+				if (false) {
 					var base_href = base.getAttribute('href');
 					var links = contents.querySelectorAll("link");
 					munge(base_href, links, 'href');
@@ -25270,6 +25269,7 @@ var Stage = function () {
 		key: "scale",
 		value: function scale(s) {
 			if (this.container) {
+				console.log("AHOY STAGE scale", s);
 				this.container.style["transform-origin"] = "top left";
 				this.container.style["transform"] = "scale(" + s + ")";
 			}
@@ -25352,9 +25352,14 @@ var Stage = function () {
 					this.container.style.height = height;
 				}
 
-				bounds = this.container.getBoundingClientRect();
-				width = bounds.width;
-				height = bounds.height;
+				if (this.container.parentElement) {
+					bounds = this.container.getBoundingClientRect();
+					width = bounds.width;
+					height = bounds.height;
+				}
+				// bounds = this.container.getBoundingClientRect();
+				// width = bounds.width;
+				// height = bounds.height;
 			}
 		}
 	}]);
@@ -26010,26 +26015,52 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 		key: "resize",
 		value: function resize(width, height) {
 			var self = this;
+			var scaleTimeout;
 
-			for (var i = 0; i < self._spine.length; i++) {
-				var href = self._spine[i];
-				// console.log("AHOY DRAWING", href);
-				var section_ = self._manifest[href];
-				// var r = self.container.offsetWidth / section_.viewport.width;
-				// var h = Math.floor(dim.height * r);
-				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-				var r = w / section_.viewport.width;
-				var h = Math.floor(section_.viewport.height * r);
+			// // reset the scale
+			// this.scale(1.0);
 
-				h = this.layout.height;
-
-				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-				// div.setAttribute('original-height', h);
+			if (scaleTimeout) {
+				clearTimeout(scaleTimeout);
 			}
 
 			_index2.default.prototype.resize.call(this, width, height);
 
-			setTimeout(function () {
+			for (var i = 0; i < self._spine.length; i++) {
+				var href = self._spine[i];
+				// // console.log("AHOY DRAWING", href);
+				var section_ = self._manifest[href];
+				// // var r = self.container.offsetWidth / section_.viewport.width;
+				// // var h = Math.floor(dim.height * r);
+				// var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
+				// var r = w / section_.viewport.width;
+				// var h = Math.floor(section_.viewport.height * r);
+
+				var h = this.layout.height;
+
+				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+				div.style.height = h + "px";
+				// div.setAttribute('original-height', h);
+			}
+
+			scaleTimeout = setTimeout(function () {
+
+				var w = this.layout.columnWidth;
+				var wrapper = this.container.parentElement;
+				var scale = this.container.offsetWidth * 0.75 / w;
+				var w1 = wrapper.scrollWidth * scale;
+				var w2 = this.layout.columnWidth * scale;
+				this.scale(scale);
+
+				// setTimeout(function() {
+				// 	var w3 = ( w1 - w2 ) - ( wrapper.offsetWidth / 2 );
+				// 	wrapper.scrollLeft = w3;
+				// 	console.log("AHOY SCALING", scale, w3);
+				// }, 100);
+
+				var w3 = w1 - w2 - wrapper.offsetWidth / 2;
+				wrapper.scrollLeft = w3;
+				console.log("AHOY SCALING", scale, w3);
 				this.check();
 			}.bind(this), 100);
 		}
@@ -26062,6 +26093,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						var tmp = value.split(",");
 						var key = section.href;
 						section.viewport = {};
+						section.contents = contents;
 						self._manifest[key] = section;
 						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
 						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
@@ -26090,7 +26122,6 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			return Promise.all(promises).then(function () {
 
 				var check = document.querySelector('.epub-view');
-				console.log("AHOY PREPAGINATED", check);
 				if (!check) {
 					// console.log("AHOY DRAWING", self._spine.length);
 					for (var i = 0; i < self._spine.length; i++) {
@@ -26140,14 +26171,9 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						// this is ... lame
 						this.scrolled();
 					}.bind(this), 500);
-
-					// setTimeout(function() {
-					// 	var w3 = ( w1 - w2 ) - ( wrapper.offsetWidth / 2 );
-					// 	wrapper.scrollLeft = w3;
-					// 	console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
-					// }.bind(this), 500);
 				}
 
+				// this.q.clear();
 				return check ? this.update() : this.check();
 
 				// return DefaultViewManager.prototype.display.call(this, section, target)
@@ -26486,6 +26512,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
 			}
 
+			this.__check_visible = visible;
+
 			var section = visible[0];
 			if (section && section.prev()) {
 				visible.unshift(section.prev());
@@ -26695,27 +26723,16 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.didScroll = false;
 		}
 	}, {
-		key: "isVisible",
-		value: function isVisible(view, offsetPrev, offsetNext, _container) {
-			var position = view.position();
-			var container = _container || this.bounds();
-			var height = container.height;
-
-			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
-
-				return true;
-			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev * 2 && position.top < container.bottom + offsetNext * 2) {
-
-				return true;
-			}
-
-			return false;
-		}
-	}, {
 		key: "scrolled",
 		value: function scrolled() {
 			this.q.enqueue(function () {
 				this.check();
+				setTimeout(function () {
+					this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+						top: this.scrollTop,
+						left: this.scrollLeft
+					});
+				}.bind(this), 500);
 			}.bind(this));
 
 			this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
@@ -26948,9 +26965,9 @@ var PrefabViews = function () {
 				view.destroy();
 			}
 
-			if (this.container && view.element.dataset.reused != 'true') {
-				this.container.removeChild(view.element);
-			}
+			// if(this.container && view.element.dataset.reused != 'true'){
+			// 	 this.container.removeChild(view.element);
+			// }
 			view = null;
 		}
 

@@ -5198,7 +5198,7 @@ var Preferences = Control.extend({
     }
     possible_fieldsets.push('Display');
 
-    if (this._reader.rootfiles.length > 1) {
+    if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
       // this.options.hasPackagePaths = true;
       possible_fieldsets.push('Rendition');
     }
@@ -6176,13 +6176,13 @@ var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function (locations) {
-      if (!this._reader.currentLocation() || !this._reader.currentLocation().start) {
-        console.log("AHOY updateLocations NO START");
-        setTimeout(function () {
-          this._initializeNavigator(locations);
-        }.bind(this), 100);
-        return;
-      }
+      // if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
+      //   console.log("AHOY updateLocations NO START", this._reader.currentLocation().then);
+      //   setTimeout(function() {
+      //     this._initializeNavigator(locations);
+      //   }.bind(this), 100);
+      //   return;
+      // }
       this._initializeNavigator(locations);
     }.bind(this));
 
@@ -6982,9 +6982,20 @@ Reader.EpubJS = Reader.extend({
           self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
         });
         self.locations.total = locations.length;
-        setTimeout(function () {
-          self.fire('updateLocations', locations);
-        }, 100);
+        var t;
+        var f = function f() {
+          if (self._rendition.manager) {
+            var location = self._rendition.currentLocation();
+            if (location && location.start) {
+              self.fire('updateLocations', locations);
+              clearTimeout(t);
+              return;
+            }
+          }
+          t = setTimeout(f, 100);
+        };
+
+        t = setTimeout(f, 100);
       } else {
         self._book.locations.generate(1600).then(function (locations) {
           // console.log("AHOY WUT", locations);
@@ -7139,10 +7150,12 @@ Reader.EpubJS = Reader.extend({
 
   _navigate: function _navigate(promise, callback) {
     var self = this;
+    console.log("AHOY NAVIGATE", promise);
     var t = setTimeout(function () {
       self._panes['loader'].style.display = 'block';
     }, 100);
     promise.then(function () {
+      console.log("AHOY NAVIGATE FIN");
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
       if (callback) {
@@ -7154,6 +7167,7 @@ Reader.EpubJS = Reader.extend({
       if (callback) {
         callback();
       }
+      console.log("AHOY NAVIGATE ERROR", e);
       throw e;
     });
   },
@@ -7335,6 +7349,10 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on('relocated', function (location) {
       self.fire('relocated', location);
+    });
+
+    this._rendition.on('displayerror', function (err) {
+      console.log("AHOY RENDITION DISPLAY ERROR", err);
     });
 
     this._rendition.on("locationChanged", function (location) {

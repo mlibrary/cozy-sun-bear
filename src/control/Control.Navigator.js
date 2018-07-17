@@ -17,13 +17,13 @@ export var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function(locations) {      
-      if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
-        console.log("AHOY updateLocations NO START");
-        setTimeout(function() {
-          this._initializeNavigator(locations);
-        }.bind(this), 100);
-        return;
-      }
+      // if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
+      //   console.log("AHOY updateLocations NO START", this._reader.currentLocation().then);
+      //   setTimeout(function() {
+      //     this._initializeNavigator(locations);
+      //   }.bind(this), 100);
+      //   return;
+      // }
       this._initializeNavigator(locations);
     }.bind(this));
 
