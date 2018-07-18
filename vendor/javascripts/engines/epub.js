@@ -26012,16 +26012,28 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.views = new _prefab2.default(this.container);
 		}
 	}, {
+		key: "onResized",
+		value: function onResized(e) {
+			if (this.resizeTimeout) {
+				clearTimeout(this.resizeTimeout);
+			}
+			console.log("AHOY PREPAGINATED onResized queued");
+			this.resizeTimeout = setTimeout(function () {
+				this.resize();
+				console.log("AHOY PREPAGINATED onResized actual");
+				this.resizeTimeout = null;
+			}.bind(this), 500);
+			// this.resize();
+		}
+	}, {
 		key: "resize",
 		value: function resize(width, height) {
 			var self = this;
-			var scaleTimeout;
-
 			// // reset the scale
 			// this.scale(1.0);
 
-			if (scaleTimeout) {
-				clearTimeout(scaleTimeout);
+			if (this.scaleTimeout) {
+				clearTimeout(this.scaleTimeout);
 			}
 
 			_index2.default.prototype.resize.call(this, width, height);
@@ -26043,22 +26055,21 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// div.setAttribute('original-height', h);
 			}
 
-			scaleTimeout = setTimeout(function () {
+			this.scaleTimeout = setTimeout(function () {
 
 				var w = this.layout.columnWidth;
 				var wrapper = this.container.parentElement;
-				var scale = this.container.offsetWidth * 0.75 / w;
+				var scale = this.container.offsetWidth * 0.90 / w;
+				if (scale < 1.0) {
+					scale = 1.5;
+				}
 				var w1 = wrapper.scrollWidth * scale;
 				var w2 = this.layout.columnWidth * scale;
 				this.scale(scale);
 
-				// setTimeout(function() {
-				// 	var w3 = ( w1 - w2 ) - ( wrapper.offsetWidth / 2 );
-				// 	wrapper.scrollLeft = w3;
-				// 	console.log("AHOY SCALING", scale, w3);
-				// }, 100);
-
 				var w3 = w1 - w2 - wrapper.offsetWidth / 2;
+				w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+
 				wrapper.scrollLeft = w3;
 				console.log("AHOY SCALING", scale, w3);
 				this.check();
@@ -26093,7 +26104,6 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						var tmp = value.split(",");
 						var key = section.href;
 						section.viewport = {};
-						section.contents = contents;
 						self._manifest[key] = section;
 						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
 						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
@@ -26159,16 +26169,20 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				if (!check) {
 					var w = this.layout.columnWidth;
 					var wrapper = this.container.parentElement;
-					var scale = this.container.offsetWidth * 0.75 / w;
+					var scale = this.container.offsetWidth * 0.90 / w;
+					if (scale < 1.0) {
+						scale = 1.5;
+					}
 					var w1 = wrapper.scrollWidth * scale;
 					var w2 = this.layout.columnWidth * scale;
 					this.scale(scale);
-					var w3 = w1 - w2 - wrapper.offsetWidth / 2;
-					wrapper.scrollLeft = w3;
-					console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
 
 					setTimeout(function () {
 						// this is ... lame
+						var w3 = Math.abs(wrapper.scrollWidth - w2 - wrapper.offsetWidth / 2);
+						w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+						wrapper.scrollLeft = w3;
+						console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
 						this.scrolled();
 					}.bind(this), 500);
 				}
