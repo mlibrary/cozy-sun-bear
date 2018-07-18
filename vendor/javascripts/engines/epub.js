@@ -23752,6 +23752,10 @@ var Layout = function () {
 			}
 
 			spreadWidth = columnWidth * divisor + gap;
+			// // RRE - hacking
+			// if ( this.name === 'pre-paginated' ) {
+			// 	height = spreadWidth * 1.5;
+			// }
 
 			delta = Math.ceil(width);
 
@@ -26769,6 +26773,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			var dir = this.settings.direction;
 			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
 
+			delta = this.container.offsetHeight / this.settings.scale;
+
 			if (!this.views.length) return;
 
 			if (this.isPaginated && this.settings.axis === "horizontal") {
@@ -26776,7 +26782,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				this.scrollBy(delta, 0, true);
 			} else {
 
-				this.scrollBy(0, this.layout.height, true);
+				// this.scrollBy(0, this.layout.height, true);
+				this.scrollBy(0, delta, true);
 			}
 
 			this.q.enqueue(function () {

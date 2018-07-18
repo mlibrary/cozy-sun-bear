@@ -7069,20 +7069,9 @@ Reader.EpubJS = Reader.extend({
       window.fitWidth = false;
       this._panes['epub'].style.overflowX = 'hidden';
 
-      // attached_callback = function() {
-      //   var scale = 1.75;
-      //   console.log("AHOY SCALING?");
-      //   self._manager = self._rendition.manager;
-      //   self._rendition.scale(scale);
-      //   var w = self._manager.layout.columnWidth;
-      //   var w1 = self._panes['epub'].scrollWidth;
-      //   var w2 = self._manager.layout.columnWidth * scale;
-      //   // var w3 = ( ( w1 / 2 ) - ( w2 / 2 ) ) / scale;
-      //   var w3 = ( w1 - w2 ) - ( self._panes['epub'].offsetWidth / 2 );
-      //   this._panes['epub'].scrollLeft = w3;
-      //   this._panes['epub'].style.overflowX = 'hidden';
-      //   console.log("AHOY SCROLL LEFT", w3);
-      // }.bind(this)
+      // // this yields a columnWidth the size of the window, which makes for
+      // // strangely squat layouts
+      // this.settings.spread = 'none';
     } else {
       window.fitWidth = false;
     }
