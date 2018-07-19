@@ -180,6 +180,14 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
+    // this is the dumbest
+    self._queueTimeout = setTimeout(function() {
+      if ( self._rendition.q._q.length ) {
+        console.log("AHOY RUNNING THE QUEUE");
+        self._rendition.q.run();
+      }
+    }, 1000);
+
     self.gotoPage(target, function() {
       window._loaded = true;
       self._initializeReaderStyles();
@@ -191,6 +199,7 @@ Reader.EpubJS = Reader.extend({
       setTimeout(function() {
         self.fire('opened');
         self.fire('ready');
+        clearTimeout(self._queueTimeout);
       }, 100);
 
     })

@@ -8319,7 +8319,7 @@ var Queue = function () {
 
 					_this.dequeue().then(function () {
 						this.run();
-					}.bind(_this));
+					}.bind(_this)).catch(console.log.bind(console));
 				} else {
 					_this.defered.resolve();
 					_this.running = undefined;
@@ -15790,9 +15790,18 @@ var IframeView = function () {
 				return loaded;
 			}
 
+			if (this._loaded) {
+				this._loaded += 1;
+				console.log("AHOY IFRAME REDUX", this.index, this._loaded);
+				return loaded;
+				// this.onLoad(null, loading);
+				// return loaded;
+			}
+
 			this.iframe.onload = function (event) {
 
 				this.onLoad(event, loading);
+				this._loaded = 1;
 			}.bind(this);
 
 			if (this.settings.method === "blobUrl") {
@@ -16239,6 +16248,7 @@ var IframeView = function () {
 				this._textHeight = null;
 				this._width = null;
 				this._height = null;
+				this._loaded = 0;
 			}
 
 			// this.element.style.height = "0px";
@@ -26067,15 +26077,9 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				if (scale < 1.0) {
 					scale = 1.5;
 				}
-				var w1 = wrapper.scrollWidth * scale;
-				var w2 = this.layout.columnWidth * scale;
 				this.scale(scale);
-
-				var w3 = w1 - w2 - wrapper.offsetWidth / 2;
-				w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
-
-				wrapper.scrollLeft = w3;
-				console.log("AHOY SCALING", scale, w3);
+				this.recenter();
+				console.log("AHOY SCALING", scale);
 				this.check();
 			}.bind(this), 100);
 		}
@@ -26183,10 +26187,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 					setTimeout(function () {
 						// this is ... lame
-						var w3 = Math.abs(wrapper.scrollWidth - w2 - wrapper.offsetWidth / 2);
-						w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
-						wrapper.scrollLeft = w3;
-						console.log("AHOY PRE-PAGINATED RENDER", scale, w1, w2, w3, wrapper.scrollWidth);
+						this.recenter();
+						console.log("AHOY PRE-PAGINATED RENDER", scale);
 						this.scrolled();
 					}.bind(this), 500);
 				}
@@ -26745,6 +26747,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 		value: function scrolled() {
 			this.q.enqueue(function () {
 				this.check();
+				this.recenter();
 				setTimeout(function () {
 					this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
 						top: this.scrollTop,
@@ -26846,6 +26849,13 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			} else {
 				this.settings.infinite = false;
 			}
+		}
+	}, {
+		key: "recenter",
+		value: function recenter() {
+			var wrapper = this.container.parentElement;
+			var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+			wrapper.scrollLeft = w3;
 		}
 	}]);
 

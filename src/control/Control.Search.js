@@ -146,7 +146,7 @@ export var Search = Control.extend({
   },
 
   _emptyArticle: function() {
-    while (this._article.hasChildNodes()) {
+    while (this._article && this._article.hasChildNodes()) {
       this._article.removeChild(this._article.lastChild);
     }
   },
