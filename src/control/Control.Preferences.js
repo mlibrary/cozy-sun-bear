@@ -283,11 +283,15 @@ Preferences.fieldset.Display = Fieldset.extend({
   },
 
   template: function() {
+    var scrolled_help = '';
+    if ( this._control._reader.metadata.layout != 'pre-paginated' ) {
+      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
+    }
     return `<fieldset>
             <legend>Display</legend>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll</label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll${scrolled_help}</label>
           </fieldset>`;
   },
 
