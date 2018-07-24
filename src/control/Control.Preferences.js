@@ -25,7 +25,22 @@ export var Preferences = Control.extend({
     this._control = this._createButton(options.html || options.label, options.label,
             className, container, this._action)
 
-    this._createPanel();
+    // self.initializeForm();
+    this._modal = this._reader.modal({
+      // template: '<form></form>',
+      title: 'Preferences',
+      className: 'cozy-modal-preferences',
+      actions: [
+        {
+          label: 'Save Changes',
+          callback: function(event) {
+            self.updatePreferences(event);
+          }
+        }
+      ],
+      region: 'right'
+    });
+
 
     return container;
   },
@@ -56,6 +71,8 @@ export var Preferences = Control.extend({
 
   _createPanel: function() {
     var self = this;
+    if ( this._modal._container.querySelector('form') ) { return; }
+
     var template = '';
 
     var possible_fieldsets = [];
@@ -65,6 +82,11 @@ export var Preferences = Control.extend({
       possible_fieldsets.push('TextSize');
     }
     possible_fieldsets.push('Display');
+
+    if ( this._reader.rootfiles && this._reader.rootfiles.length > 1 ) {
+      // this.options.hasPackagePaths = true;
+      possible_fieldsets.push('Rendition');
+    }
 
     if ( this._reader.options.themes && this._reader.options.themes.length > 0 ) {
       this.options.hasThemes = true;
@@ -99,25 +121,27 @@ export var Preferences = Control.extend({
 
     template = '<form>' + template + '</form>';
 
-    this._modal = this._reader.modal({
-      template: template,
-      title: 'Preferences',
-      className: 'cozy-modal-preferences',
-      actions: [
-        {
-          label: 'Save Changes',
-          callback: function(event) {
-            self.updatePreferences(event);
-          }
-        }
-      ],
-      region: 'right'
-    });
+    // this._modal = this._reader.modal({
+    //   template: template,
+    //   title: 'Preferences',
+    //   className: 'cozy-modal-preferences',
+    //   actions: [
+    //     {
+    //       label: 'Save Changes',
+    //       callback: function(event) {
+    //         self.updatePreferences(event);
+    //       }
+    //     }
+    //   ],
+    //   region: 'right'
+    // });
 
+    this._modal._container.querySelector('main').innerHTML = template;
     this._form = this._modal._container.querySelector('form');
   },
 
   initializeForm: function() {
+    this._createPanel();
     this._fieldsets.forEach(function(fieldset) {
       fieldset.initializeForm(this._form);
     }.bind(this));
@@ -128,9 +152,11 @@ export var Preferences = Control.extend({
 
     var doUpdate = false;
     var new_options = {};
+    var saveable_options = {};
     this._fieldsets.forEach(function(fieldset) {
       // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
-      assign(new_options, fieldset.updateForm(this._form));
+      // assign(new_options, fieldset.updateForm(this._form));
+      fieldset.updateForm(this._form, new_options, saveable_options);
     }.bind(this));
 
     if ( this.options.hasFields ) {
@@ -148,7 +174,7 @@ export var Preferences = Control.extend({
     this._modal.deactivate();
 
     setTimeout(function() {
-      this._reader.saveOptions(new_options);
+      this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
   },
@@ -197,8 +223,9 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  updateForm: function(form) {
-    return { text_size: this._input.value };
+  updateForm: function(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.text_size = saveable.text_size = this._input.value;
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
@@ -233,8 +260,8 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 Preferences.fieldset.Display = Fieldset.extend({
 
   initializeForm: function(form) {
-    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
-    if ( flow == 'auto' ) { flow = 'paginated'; }
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
+    // if ( flow == 'auto' ) { flow = 'paginated'; }
 
     var input = form.querySelector(`#x${this._id}-input-${flow}`);
     input.checked = true;
@@ -242,16 +269,29 @@ Preferences.fieldset.Display = Fieldset.extend({
 
   },
 
-  updateForm: function(form) {
+  updateForm: function(form, options, saveable) {
     var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
-    return { flow: input.value };
+    options.flow = input.value;
+    if ( options.flow != 'auto' ) {
+      saveable.flow = options.flow;
+    }
+    // if ( input.value == 'auto' ) {
+    //   // we do NOT want to save flow as a preference
+    //   return {};
+    // }
+    // return { flow: input.value };
   },
 
   template: function() {
+    var scrolled_help = '';
+    if ( this._control._reader.metadata.layout != 'pre-paginated' ) {
+      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
+    }
     return `<fieldset>
             <legend>Display</legend>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" />Page-by-Page</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" />Scroll</label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
+            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll${scrolled_help}</label>
           </fieldset>`;
   },
 
@@ -269,9 +309,10 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  updateForm: function(form) {
+  updateForm: function(form, options, saveable) {
     var input = form.querySelector(`input[name="x${this._id}-theme"]:checked`);
-    return { theme: input.value };
+    options.theme = saveable.theme = input.value;
+    // return { theme: input.value };
   },
 
   template: function() {
@@ -282,6 +323,44 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._control._reader.options.themes.forEach(function(theme) {
       template += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`
     }.bind(this));
+
+    template += '</fieldset>';
+
+    return template;
+
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Rendition = Fieldset.extend({
+
+  initializeForm: function(form) {
+    var rootfiles = this._control._reader.rootfiles;
+    var rootfilePath = this._control._reader.options.rootfilePath;
+    var expr = rootfilePath ? `[value="${rootfilePath}"]` : ":first-child";
+    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]${expr}`);
+    input.checked = true;
+    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
+  },
+
+  updateForm: function(form, options, saveable) {
+    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]:checked`);
+    if ( input.value != this._current.rootfilePath ) {
+      options.rootfilePath = input.value;
+      this._current.rootfilePath = input.value;
+    }
+  },
+
+  template: function() {
+    var template = `<fieldset>
+            <legend>Rendition</legend>
+    `;
+
+    this._control._reader.rootfiles.forEach(function(rootfile, i) {
+      template += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
+    }.bind(this))
 
     template += '</fieldset>';
 

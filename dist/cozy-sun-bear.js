@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0d4a0b11, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0ec9d779, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7,6 +7,600 @@
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = global.cozy || {})));
 }(this, (function (exports) { 'use strict';
+
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+(function(global) {
+  /**
+   * Polyfill URLSearchParams
+   *
+   * Inspired from : https://github.com/WebReflection/url-search-params/blob/master/src/url-search-params.js
+   */
+
+  var checkIfIteratorIsSupported = function() {
+    try {
+      return !!Symbol.iterator;
+    } catch(error) {
+      return false;
+    }
+  };
+
+
+  var iteratorSupported = checkIfIteratorIsSupported();
+
+  var createIterator = function(items) {
+    var iterator = {
+      next: function() {
+        var value = items.shift();
+        return { done: value === void 0, value: value };
+      }
+    };
+
+    if(iteratorSupported) {
+      iterator[Symbol.iterator] = function() {
+        return iterator;
+      };
+    }
+
+    return iterator;
+  };
+
+  /**
+   * Search param name and values should be encoded according to https://url.spec.whatwg.org/#urlencoded-serializing
+   * encodeURIComponent() produces the same result except encoding spaces as `%20` instead of `+`.
+   */
+  var serializeParam = function(value) {
+    return encodeURIComponent(value).replace(/%20/g, '+');
+  };
+
+  var deserializeParam = function(value) {
+    return decodeURIComponent(value).replace(/\+/g, ' ');
+  };
+
+  var polyfillURLSearchParams= function() {
+
+    var URLSearchParams = function(searchString) {
+      Object.defineProperty(this, '_entries', { value: {} });
+
+      if(typeof searchString === 'string') {
+        if(searchString !== '') {
+          searchString = searchString.replace(/^\?/, '');
+          var attributes = searchString.split('&');
+          var attribute;
+          for(var i = 0; i < attributes.length; i++) {
+            attribute = attributes[i].split('=');
+            this.append(
+              deserializeParam(attribute[0]),
+              (attribute.length > 1) ? deserializeParam(attribute[1]) : ''
+            );
+          }
+        }
+      } else if(searchString instanceof URLSearchParams) {
+        var _this = this;
+        searchString.forEach(function(value, name) {
+          _this.append(value, name);
+        });
+      }
+    };
+
+    var proto = URLSearchParams.prototype;
+
+    proto.append = function(name, value) {
+      if(name in this._entries) {
+        this._entries[name].push(value.toString());
+      } else {
+        this._entries[name] = [value.toString()];
+      }
+    };
+
+    proto.delete = function(name) {
+      delete this._entries[name];
+    };
+
+    proto.get = function(name) {
+      return (name in this._entries) ? this._entries[name][0] : null;
+    };
+
+    proto.getAll = function(name) {
+      return (name in this._entries) ? this._entries[name].slice(0) : [];
+    };
+
+    proto.has = function(name) {
+      return (name in this._entries);
+    };
+
+    proto.set = function(name, value) {
+      this._entries[name] = [value.toString()];
+    };
+
+    proto.forEach = function(callback, thisArg) {
+      var entries;
+      for(var name in this._entries) {
+        if(this._entries.hasOwnProperty(name)) {
+          entries = this._entries[name];
+          for(var i = 0; i < entries.length; i++) {
+            callback.call(thisArg, entries[i], name, this);
+          }
+        }
+      }
+    };
+
+    proto.keys = function() {
+      var items = [];
+      this.forEach(function(value, name) { items.push(name); });
+      return createIterator(items);
+    };
+
+    proto.values = function() {
+      var items = [];
+      this.forEach(function(value) { items.push(value); });
+      return createIterator(items);
+    };
+
+    proto.entries = function() {
+      var items = [];
+      this.forEach(function(value, name) { items.push([name, value]); });
+      return createIterator(items);
+    };
+
+    if(iteratorSupported) {
+      proto[Symbol.iterator] = proto.entries;
+    }
+
+    proto.toString = function() {
+      var searchString = '';
+      this.forEach(function(value, name) {
+        if(searchString.length > 0) searchString+= '&';
+        searchString += serializeParam(name) + '=' + serializeParam(value);
+      });
+      return searchString;
+    };
+
+    global.URLSearchParams = URLSearchParams;
+  };
+
+  if(!('URLSearchParams' in global) || (new URLSearchParams('?a=1').toString() !== 'a=1')) {
+    polyfillURLSearchParams();
+  }
+
+  // HTMLAnchorElement
+
+})(
+  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
+    : ((typeof window !== 'undefined') ? window
+    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
+);
+
+(function(global) {
+  /**
+   * Polyfill URL
+   *
+   * Inspired from : https://github.com/arv/DOM-URL-Polyfill/blob/master/src/url.js
+   */
+
+  var checkIfURLIsSupported = function() {
+    try {
+      var u = new URL('b', 'http://a');
+      u.pathname = 'c%20d';
+      return (u.href === 'http://a/c%20d') && u.searchParams;
+    } catch(e) {
+      return false;
+    }
+  };
+
+
+  var polyfillURL = function() {
+    var _URL = global.URL;
+
+    var URL = function(url, base) {
+      if(typeof url !== 'string') url = String(url);
+
+      var doc = document.implementation.createHTMLDocument('');
+      window.doc = doc;
+      if(base) {
+        var baseElement = doc.createElement('base');
+        baseElement.href = base;
+        doc.head.appendChild(baseElement);
+      }
+
+      var anchorElement = doc.createElement('a');
+      anchorElement.href = url;
+      doc.body.appendChild(anchorElement);
+      anchorElement.href = anchorElement.href; // force href to refresh
+
+      if(anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
+        throw new TypeError('Invalid URL');
+      }
+
+      Object.defineProperty(this, '_anchorElement', {
+        value: anchorElement
+      });
+    };
+
+    var proto = URL.prototype;
+
+    var linkURLWithAnchorAttribute = function(attributeName) {
+      Object.defineProperty(proto, attributeName, {
+        get: function() {
+          return this._anchorElement[attributeName];
+        },
+        set: function(value) {
+          this._anchorElement[attributeName] = value;
+        },
+        enumerable: true
+      });
+    };
+
+    ['hash', 'host', 'hostname', 'port', 'protocol', 'search']
+    .forEach(function(attributeName) {
+      linkURLWithAnchorAttribute(attributeName);
+    });
+
+    Object.defineProperties(proto, {
+
+      'toString': {
+        get: function() {
+          var _this = this;
+          return function() {
+            return _this.href;
+          };
+        }
+      },
+
+      'href' : {
+        get: function() {
+          return this._anchorElement.href.replace(/\?$/,'');
+        },
+        set: function(value) {
+          this._anchorElement.href = value;
+        },
+        enumerable: true
+      },
+
+      'pathname' : {
+        get: function() {
+          return this._anchorElement.pathname.replace(/(^\/?)/,'/');
+        },
+        set: function(value) {
+          this._anchorElement.pathname = value;
+        },
+        enumerable: true
+      },
+
+      'origin': {
+        get: function() {
+          // get expected port from protocol
+          var expectedPort = {'http:': 80, 'https:': 443, 'ftp:': 21}[this._anchorElement.protocol];
+          // add port to origin if, expected port is different than actual port
+          // and it is not empty f.e http://foo:8080
+          // 8080 != 80 && 8080 != ''
+          var addPortToOrigin = this._anchorElement.port != expectedPort &&
+            this._anchorElement.port !== '';
+
+          return this._anchorElement.protocol +
+            '//' +
+            this._anchorElement.hostname +
+            (addPortToOrigin ? (':' + this._anchorElement.port) : '');
+        },
+        enumerable: true
+      },
+
+      'password': { // TODO
+        get: function() {
+          return '';
+        },
+        set: function(value) {
+        },
+        enumerable: true
+      },
+
+      'username': { // TODO
+        get: function() {
+          return '';
+        },
+        set: function(value) {
+        },
+        enumerable: true
+      },
+
+      'searchParams': {
+        get: function() {
+          var searchParams = new URLSearchParams(this.search);
+          var _this = this;
+          ['append', 'delete', 'set'].forEach(function(methodName) {
+            var method = searchParams[methodName];
+            searchParams[methodName] = function() {
+              method.apply(searchParams, arguments);
+              _this.search = searchParams.toString();
+            };
+          });
+          return searchParams;
+        },
+        enumerable: true
+      }
+    });
+
+    URL.createObjectURL = function(blob) {
+      return _URL.createObjectURL.apply(_URL, arguments);
+    };
+
+    URL.revokeObjectURL = function(url) {
+      return _URL.revokeObjectURL.apply(_URL, arguments);
+    };
+
+    global.URL = URL;
+
+  };
+
+  if(!checkIfURLIsSupported()) {
+    polyfillURL();
+  }
+
+  if((global.location !== void 0) && !('origin' in global.location)) {
+    var getOrigin = function() {
+      return global.location.protocol + '//' + global.location.hostname + (global.location.port ? (':' + global.location.port) : '');
+    };
+
+    try {
+      Object.defineProperty(global.location, 'origin', {
+        get: getOrigin,
+        enumerable: true
+      });
+    } catch(e) {
+      setInterval(function() {
+        global.location.origin = getOrigin();
+      }, 100);
+    }
+  }
+
+})(
+  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
+    : ((typeof window !== 'undefined') ? window
+    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
+);
+
+/*
+ * classList.js: Cross-browser full element.classList implementation.
+ * 1.1.20170427
+ *
+ * By Eli Grey, http://eligrey.com
+ * License: Dedicated to the public domain.
+ *   See https://github.com/eligrey/classList.js/blob/master/LICENSE.md
+ */
+
+/*global self, document, DOMException */
+
+/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js */
+
+if ("document" in window.self) {
+
+// Full polyfill for browsers with no classList support
+// Including IE < Edge missing SVGElement.classList
+if (!("classList" in document.createElement("_")) 
+	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
+
+(function (view) {
+
+"use strict";
+
+if (!('Element' in view)) return;
+
+var
+	  classListProp = "classList"
+	, protoProp = "prototype"
+	, elemCtrProto = view.Element[protoProp]
+	, objCtr = Object
+	, strTrim = String[protoProp].trim || function () {
+		return this.replace(/^\s+|\s+$/g, "");
+	}
+	, arrIndexOf = Array[protoProp].indexOf || function (item) {
+		var
+			  i = 0
+			, len = this.length;
+		for (; i < len; i++) {
+			if (i in this && this[i] === item) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	// Vendors: please allow content code to instantiate DOMExceptions
+	, DOMEx = function (type, message) {
+		this.name = type;
+		this.code = DOMException[type];
+		this.message = message;
+	}
+	, checkTokenAndGetIndex = function (classList, token) {
+		if (token === "") {
+			throw new DOMEx(
+				  "SYNTAX_ERR"
+				, "An invalid or illegal string was specified"
+			);
+		}
+		if (/\s/.test(token)) {
+			throw new DOMEx(
+				  "INVALID_CHARACTER_ERR"
+				, "String contains an invalid character"
+			);
+		}
+		return arrIndexOf.call(classList, token);
+	}
+	, ClassList = function (elem) {
+		var
+			  trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
+			, classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
+			, i = 0
+			, len = classes.length;
+		for (; i < len; i++) {
+			this.push(classes[i]);
+		}
+		this._updateClassName = function () {
+			elem.setAttribute("class", this.toString());
+		};
+	}
+	, classListProto = ClassList[protoProp] = []
+	, classListGetter = function () {
+		return new ClassList(this);
+	};
+// Most DOMException implementations don't allow calling DOMException's toString()
+// on non-DOMExceptions. Error's toString() is sufficient here.
+DOMEx[protoProp] = Error[protoProp];
+classListProto.item = function (i) {
+	return this[i] || null;
+};
+classListProto.contains = function (token) {
+	token += "";
+	return checkTokenAndGetIndex(this, token) !== -1;
+};
+classListProto.add = function () {
+	var
+		  tokens = arguments
+		, i = 0
+		, l = tokens.length
+		, token
+		, updated = false;
+	do {
+		token = tokens[i] + "";
+		if (checkTokenAndGetIndex(this, token) === -1) {
+			this.push(token);
+			updated = true;
+		}
+	}
+	while (++i < l);
+
+	if (updated) {
+		this._updateClassName();
+	}
+};
+classListProto.remove = function () {
+	var
+		  tokens = arguments
+		, i = 0
+		, l = tokens.length
+		, token
+		, updated = false
+		, index;
+	do {
+		token = tokens[i] + "";
+		index = checkTokenAndGetIndex(this, token);
+		while (index !== -1) {
+			this.splice(index, 1);
+			updated = true;
+			index = checkTokenAndGetIndex(this, token);
+		}
+	}
+	while (++i < l);
+
+	if (updated) {
+		this._updateClassName();
+	}
+};
+classListProto.toggle = function (token, force) {
+	token += "";
+
+	var
+		  result = this.contains(token)
+		, method = result ?
+			force !== true && "remove"
+		:
+			force !== false && "add";
+
+	if (method) {
+		this[method](token);
+	}
+
+	if (force === true || force === false) {
+		return force;
+	} else {
+		return !result;
+	}
+};
+classListProto.toString = function () {
+	return this.join(" ");
+};
+
+if (objCtr.defineProperty) {
+	var classListPropDesc = {
+		  get: classListGetter
+		, enumerable: true
+		, configurable: true
+	};
+	try {
+		objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+	} catch (ex) { // IE 8 doesn't support enumerable:true
+		// adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
+		// modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
+		if (ex.number === undefined || ex.number === -0x7FF5EC54) {
+			classListPropDesc.enumerable = false;
+			objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+		}
+	}
+} else if (objCtr[protoProp].__defineGetter__) {
+	elemCtrProto.__defineGetter__(classListProp, classListGetter);
+}
+
+}(window.self));
+
+}
+
+// There is full or partial native classList support, so just check if we need
+// to normalize the add/remove and toggle APIs.
+
+(function () {
+	"use strict";
+
+	var testElement = document.createElement("_");
+
+	testElement.classList.add("c1", "c2");
+
+	// Polyfill for IE 10/11 and Firefox <26, where classList.add and
+	// classList.remove exist but support only one argument at a time.
+	if (!testElement.classList.contains("c2")) {
+		var createMethod = function(method) {
+			var original = DOMTokenList.prototype[method];
+
+			DOMTokenList.prototype[method] = function(token) {
+				var i, len = arguments.length;
+
+				for (i = 0; i < len; i++) {
+					token = arguments[i];
+					original.call(this, token);
+				}
+			};
+		};
+		createMethod('add');
+		createMethod('remove');
+	}
+
+	testElement.classList.toggle("c3", false);
+
+	// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
+	// support the second argument.
+	if (testElement.classList.contains("c3")) {
+		var _toggle = DOMTokenList.prototype.toggle;
+
+		DOMTokenList.prototype.toggle = function(token, force) {
+			if (1 in arguments && !this.contains(token) === !force) {
+				return force;
+			} else {
+				return _toggle.call(this, token);
+			}
+		};
+
+	}
+
+	testElement = null;
+}());
+
+}
 
 var version = "1.0.0";
 
@@ -356,14 +950,6 @@ var Util = (Object.freeze || Object)({
 	loader: loader
 });
 
-// @class Class
-// @aka L.Class
-
-// @section
-// @uninheritable
-
-// Thanks to John Resig and Dean Edwards for inspiration!
-
 function Class() {}
 
 Class.extend = function (props) {
@@ -490,31 +1076,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 } : function (obj) {
   return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
-
-/*
- * @class Evented
- * @aka L.Evented
- * @inherits Class
- *
- * A set of methods shared between event-powered classes (like `Map` and `Marker`). Generally, events allow you to execute some function when something happens with an object (e.g. the user clicks on the map, causing the map to fire `'click'` event).
- *
- * @example
- *
- * ```js
- * map.on('click', function(e) {
- * 	alert(e.latlng);
- * } );
- * ```
- *
- * Leaflet deals with event listeners by reference, so if you want to add a listener and then remove it, define it as a function:
- *
- * ```js
- * function onClick(e) { ... }
- *
- * map.on('click', onClick);
- * map.off('click', onClick);
- * ```
- */
 
 var Evented = Class.extend({
 
@@ -956,26 +1517,6 @@ var Browser = (Object.freeze || Object)({
 	classList: classList
 });
 
-/*
- * @class Point
- * @aka L.Point
- *
- * Represents a point with `x` and `y` coordinates in pixels.
- *
- * @example
- *
- * ```js
- * var point = L.point(200, 300);
- * ```
- *
- * All Leaflet methods and options that accept `Point` objects also accept them in a simple Array form (unless noted otherwise), so these lines are equivalent:
- *
- * ```js
- * map.panBy([200, 300]);
- * map.panBy(L.point(200, 300));
- * ```
- */
-
 function Point(x, y, round) {
 	// @property x: Number; The `x` coordinate of the point
 	this.x = round ? Math.round(x) : x;
@@ -1153,10 +1694,6 @@ function toPoint(x, y, round) {
 	return new Point(x, y, round);
 }
 
-/*
- * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
- */
-
 var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown';
 var POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove';
 var POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup';
@@ -1279,10 +1816,6 @@ function _addPointerEnd(obj, handler, id) {
 	obj.addEventListener(POINTER_CANCEL, onUp, false);
 }
 
-/*
- * Extends the event handling code with double tap support for mobile browsers.
- */
-
 var _touchstart = msPointer ? 'MSPointerDown' : pointer ? 'pointerdown' : 'touchstart';
 var _touchend = msPointer ? 'MSPointerUp' : pointer ? 'pointerup' : 'touchend';
 var _pre = '_leaflet_';
@@ -1371,22 +1904,6 @@ function removeDoubleTapListener(obj, id) {
 	return this;
 }
 
-/*
- * @namespace DomEvent
- * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
- */
-
-// Inspired by John Resig, Dean Edwards and YUI addEvent implementations.
-
-// @function on(el: HTMLElement, types: String, fn: Function, context?: Object): this
-// Adds a listener function (`fn`) to a particular DOM event type of the
-// element `el`. You can optionally specify the context of the listener
-// (object the `this` keyword will point to). You can also pass several
-// space-separated types (e.g. `'click dblclick'`).
-
-// @alternative
-// @function on(el: HTMLElement, eventMap: Object, context?: Object): this
-// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 function on(obj, types, fn, context) {
 
 	if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
@@ -1661,6 +2178,8 @@ function filterClick(e, handler) {
 	handler(e);
 }
 
+// @function addListener(…): this
+// Alias to [`L.DomEvent.on`](#domevent-on)
 
 
 var DomEvent = (Object.freeze || Object)({
@@ -1679,17 +2198,6 @@ var DomEvent = (Object.freeze || Object)({
 	addListener: on,
 	removeListener: off
 });
-
-/*
- * @namespace DomUtil
- *
- * Utility functions to work with the [DOM](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)
- * tree, used by Leaflet internally.
- *
- * Most functions expecting or returning a `HTMLElement` also work for
- * SVG elements. The only difference is that classes refer to CSS classes
- * in HTML and SVG classes in SVG.
- */
 
 if (!Element.prototype.matches) {
     var ep = Element.prototype;
@@ -2067,22 +2575,10 @@ function isObject(value) {
 
 var isObject_1 = isObject;
 
-var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-
-
-
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 var _freeGlobal = freeGlobal;
 
-/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -2090,12 +2586,10 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
-/** Built-in value references. */
 var Symbol$1 = _root.Symbol;
 
 var _Symbol = Symbol$1;
 
-/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -2163,7 +2657,6 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
-/** `Object#toString` result references. */
 var nullTag = '[object Null]';
 var undefinedTag = '[object Undefined]';
 
@@ -2218,7 +2711,6 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
-/** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]';
 var funcTag = '[object Function]';
 var genTag = '[object GeneratorFunction]';
@@ -2253,12 +2745,10 @@ function isFunction(value) {
 
 var isFunction_1 = isFunction;
 
-/** Used to detect overreaching core-js shims. */
 var coreJsData = _root['__core-js_shared__'];
 
 var _coreJsData = coreJsData;
 
-/** Used to detect methods masquerading as native. */
 var maskSrcKey = (function() {
   var uid = /[^.]+$/.exec(_coreJsData && _coreJsData.keys && _coreJsData.keys.IE_PROTO || '');
   return uid ? ('Symbol(src)_1.' + uid) : '';
@@ -2304,10 +2794,6 @@ function toSource(func) {
 
 var _toSource = toSource;
 
-/**
- * Used to match `RegExp`
- * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
- */
 var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
 
 /** Used to detect host constructors (Safari). */
@@ -2361,14 +2847,6 @@ function getValue(object, key) {
 
 var _getValue = getValue;
 
-/**
- * Gets the native function at `key` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the method to get.
- * @returns {*} Returns the function if it's native, else `undefined`.
- */
 function getNative(object, key) {
   var value = _getValue(object, key);
   return _baseIsNative(value) ? value : undefined;
@@ -2386,15 +2864,6 @@ var defineProperty$1 = (function() {
 
 var _defineProperty = defineProperty$1;
 
-/**
- * The base implementation of `assignValue` and `assignMergeValue` without
- * value checks.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */
 function baseAssignValue(object, key, value) {
   if (key == '__proto__' && _defineProperty) {
     _defineProperty(object, key, {
@@ -2448,7 +2917,6 @@ function eq(value, other) {
 
 var eq_1 = eq;
 
-/** Used for built-in method references. */
 var objectProto$3 = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -2474,16 +2942,6 @@ function assignValue(object, key, value) {
 
 var _assignValue = assignValue;
 
-/**
- * Copies properties of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy properties from.
- * @param {Array} props The property identifiers to copy.
- * @param {Object} [object={}] The object to copy properties to.
- * @param {Function} [customizer] The function to customize copied values.
- * @returns {Object} Returns `object`.
- */
 function copyObject(source, props, object, customizer) {
   var isNew = !object;
   object || (object = {});
@@ -2556,7 +3014,6 @@ function apply(func, thisArg, args) {
 
 var _apply = apply;
 
-/* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMax$1 = Math.max;
 
 /**
@@ -2618,14 +3075,6 @@ function constant(value) {
 
 var constant_1 = constant;
 
-/**
- * The base implementation of `setToString` without support for hot loop shorting.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */
 var baseSetToString = !_defineProperty ? identity_1 : function(func, string) {
   return _defineProperty(func, 'toString', {
     'configurable': true,
@@ -2675,26 +3124,10 @@ function shortOut(func) {
 
 var _shortOut = shortOut;
 
-/**
- * Sets the `toString` method of `func` to return `string`.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */
 var setToString = _shortOut(_baseSetToString);
 
 var _setToString = setToString;
 
-/**
- * The base implementation of `_.rest` which doesn't validate or coerce arguments.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @returns {Function} Returns the new function.
- */
 function baseRest(func, start) {
   return _setToString(_overRest(func, start, identity_1), func + '');
 }
@@ -2737,31 +3170,6 @@ function isLength(value) {
 
 var isLength_1 = isLength;
 
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */
 function isArrayLike(value) {
   return value != null && isLength_1(value.length) && !isFunction_1(value);
 }
@@ -2791,16 +3199,6 @@ function isIndex(value, length) {
 
 var _isIndex = isIndex;
 
-/**
- * Checks if the given arguments are from an iteratee call.
- *
- * @private
- * @param {*} value The potential iteratee value argument.
- * @param {*} index The potential iteratee index or key argument.
- * @param {*} object The potential iteratee object argument.
- * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
- *  else `false`.
- */
 function isIterateeCall(value, index, object) {
   if (!isObject_1(object)) {
     return false;
@@ -2817,13 +3215,6 @@ function isIterateeCall(value, index, object) {
 
 var _isIterateeCall = isIterateeCall;
 
-/**
- * Creates a function like `_.assign`.
- *
- * @private
- * @param {Function} assigner The function to assign values.
- * @returns {Function} Returns the new assigner function.
- */
 function createAssigner(assigner) {
   return _baseRest(function(object, sources) {
     var index = -1,
@@ -2892,7 +3283,6 @@ function baseTimes(n, iteratee) {
 
 var _baseTimes = baseTimes;
 
-/** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
 
 /**
@@ -2908,7 +3298,6 @@ function baseIsArguments(value) {
 
 var _baseIsArguments = baseIsArguments;
 
-/** Used for built-in method references. */
 var objectProto$7 = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -3026,7 +3415,6 @@ var isBuffer = nativeIsBuffer || stubFalse_1;
 module.exports = isBuffer;
 });
 
-/** `Object#toString` result references. */
 var argsTag$1 = '[object Arguments]';
 var arrayTag = '[object Array]';
 var boolTag = '[object Boolean]';
@@ -3121,7 +3509,6 @@ var nodeUtil = (function() {
 module.exports = nodeUtil;
 });
 
-/* Node.js helper references. */
 var nodeIsTypedArray = _nodeUtil && _nodeUtil.isTypedArray;
 
 /**
@@ -3145,7 +3532,6 @@ var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsType
 
 var isTypedArray_1 = isTypedArray;
 
-/** Used for built-in method references. */
 var objectProto$6 = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -3204,12 +3590,10 @@ function overArg(func, transform) {
 
 var _overArg = overArg;
 
-/* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeKeys = _overArg(Object.keys, Object);
 
 var _nativeKeys = nativeKeys;
 
-/** Used for built-in method references. */
 var objectProto$8 = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -3237,41 +3621,12 @@ function baseKeys(object) {
 
 var _baseKeys = baseKeys;
 
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */
 function keys(object) {
   return isArrayLike_1(object) ? _arrayLikeKeys(object) : _baseKeys(object);
 }
 
 var keys_1 = keys;
 
-/** Used for built-in method references. */
 var objectProto$2 = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -3425,7 +3780,6 @@ Object.defineProperties(screenfull, {
   }
 });
 
-// import {Class} from '../core/Class';
 var Reader = Evented.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
@@ -3438,7 +3792,9 @@ var Reader = Evented.extend({
     trackResize: true,
     text_size: 100,
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
+    forceScrolledDocHeight: 1200,
     theme: 'default',
+    rootfilePath: '',
     themes: []
   },
 
@@ -3507,33 +3863,25 @@ var Reader = Evented.extend({
     var self = this;
     target = target || 0;
 
-    self.open(function () {
-      self.draw(target, cb);
-    });
-  },
+    // self.open(function() {
+    //   self.draw(target, cb);
+    // });
 
-  switch: function _switch(flow, target) {
-    var target = target || this.currentLocation();
-    if (flow === undefined) {
-      flow = this.options.flow == 'auto' ? 'scrolled-doc' : 'auto';
-    }
-    this.options.flow = flow;
-    this.destroy();
-    this.draw(target);
+    self.open(target, cb);
   },
 
   reopen: function reopen(options, target) {
-    var target = target || this.currentLocation();
-    extend(this.options, options);
-    this.destroy();
-    console.log("AHOY REOPENED?");
-    return;
-    this.draw(target);
-    this.fire('reopen');
+    /* NOP */
   },
 
   saveOptions: function saveOptions(options) {
-    localStorage.setItem('cozy.options', JSON.stringify(options));
+    var saved_options = {};
+    assign_1(saved_options, options);
+    if (saved_options.flow == 'auto') {
+      // do not save
+      delete saved_options.flow;
+    }
+    localStorage.setItem('cozy.options', JSON.stringify(saved_options));
   },
 
   _updateTheme: function _updateTheme() {
@@ -3628,6 +3976,7 @@ var Reader = Evented.extend({
     panes['right'] = create$1('div', prefix + 'right', panes['main']);
     panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
+    panes['epub'] = create$1('div', prefix + 'book-epub', panes['book']);
     this._initBookLoader();
   },
 
@@ -3714,16 +4063,26 @@ var Reader = Evented.extend({
     document.addEventListener('keydown', function (event) {
       var keyName = event.key;
       var target = event.target;
+
+      // check if the activeElement is ".special-panel"
+      var check = document.activeElement;
+      while (check.localName != 'body') {
+        if (check.classList.contains('special-panel')) {
+          return;
+        }
+        check = check.parentElement;
+      }
+
       var IGNORE_TARGETS = ['input', 'target'];
       if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
         return;
       }
 
-      self.fire('keyDown', { keyName: keyName });
+      self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey });
     });
 
-    self.on('keyDown', function (keyName) {
-      switch (keyName.keyName) {
+    self.on('keyDown', function (data) {
+      switch (data.keyName) {
         case 'ArrowRight':
         case 'PageDown':
           self.next();
@@ -3819,7 +4178,7 @@ var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function getFixedBookPanelSize() {
-    // have to make the book 
+    // have to make the book
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
@@ -3886,15 +4245,6 @@ var Reader = Evented.extend({
 
   EOT: true
 });
-
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
 
 var Control = Class.extend({
     // @section
@@ -4250,7 +4600,6 @@ var pageLast = function pageLast(options) {
 };
 
 var activeModal;
-// from https://github.com/ghosh/micromodal/blob/master/src/index.js
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
 var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
@@ -4350,7 +4699,9 @@ var Modal = Class.extend({
     var self = this;
     this.modal.setAttribute('aria-hidden', 'true');
     this.removeEventListeners();
-    this.activeElement.focus();
+    if (this.activeElement) {
+      this.activeElement.focus();
+    }
     this.callbacks.onClose(this.modal);
   },
 
@@ -4401,6 +4752,7 @@ var Modal = Class.extend({
   _resize: function _resize() {
     var container = this._reader._container;
     this.container.style.height = container.offsetHeight + 'px';
+    console.log("AHOY MODAL", this.container.style.height);
     if (!this.options.className.container) {
       this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
     }
@@ -4576,7 +4928,7 @@ var Contents = Control.extend({
       });
 
       this._modal.on('click', 'a[href]', function (modal, target) {
-        target = target.getAttribute('href');
+        target = target.getAttribute('data-href');
         this._reader.gotoPage(target);
         return true;
       }.bind(this));
@@ -4584,24 +4936,27 @@ var Contents = Control.extend({
       this._setupSkipLink();
 
       var parent = self._modal._container.querySelector('ul');
-      var s = data.toc.filter(function (value) {
-        return value.parent == null;
-      }).map(function (value) {
-        return [value, 0, parent];
-      });
-      while (s.length) {
-        var tuple = s.shift();
-        var chapter = tuple[0];
-        var tabindex = tuple[1];
-        var parent = tuple[2];
+      // var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
+      // while ( s.length ) {
+      //   var tuple = s.shift();
+      //   var chapter = tuple[0];
+      //   var tabindex = tuple[1];
+      //   var parent = tuple[2];
 
-        var option = self._createOption(chapter, tabindex, parent);
-        data.toc.filter(function (value) {
-          return value.parent == chapter.id;
-        }).reverse().forEach(function (chapter_) {
-          s.unshift([chapter_, tabindex + 1, option]);
+      //   var option = self._createOption(chapter, tabindex, parent);
+      //   data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
+      //     s.unshift([chapter_, tabindex + 1, option]);
+      //   });
+      // }
+      var _process = function _process(items, tabindex, parent) {
+        items.forEach(function (item) {
+          var option = self._createOption(item, tabindex, parent);
+          if (item.subitems.length) {
+            _process(item.subitems, tabindex + 1, option);
+          }
         });
-      }
+      };
+      _process(data.toc, 0, parent);
     }.bind(this));
 
     return container;
@@ -4615,6 +4970,7 @@ var Contents = Control.extend({
     // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
     // option.textContent = tab + chapter.label;
     anchor.setAttribute('href', chapter.href);
+    anchor.setAttribute('data-href', chapter.href);
 
     if (parent.tagName == 'LI') {
       // need to nest
@@ -4664,8 +5020,6 @@ var Contents = Control.extend({
 var contents = function contents(options) {
   return new Contents(options);
 };
-
-// Title + Chapter
 
 var Title = Control.extend({
   onAdd: function onAdd(reader) {
@@ -4736,8 +5090,6 @@ var title = function title(options) {
   return new Title(options);
 };
 
-// Title + Chapter
-
 var PublicationMetadata = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
@@ -4804,7 +5156,19 @@ var Preferences = Control.extend({
     this._activated = false;
     this._control = this._createButton(options.html || options.label, options.label, className, container, this._action);
 
-    this._createPanel();
+    // self.initializeForm();
+    this._modal = this._reader.modal({
+      // template: '<form></form>',
+      title: 'Preferences',
+      className: 'cozy-modal-preferences',
+      actions: [{
+        label: 'Save Changes',
+        callback: function callback(event) {
+          self.updatePreferences(event);
+        }
+      }],
+      region: 'right'
+    });
 
     return container;
   },
@@ -4835,6 +5199,10 @@ var Preferences = Control.extend({
 
   _createPanel: function _createPanel() {
     var self = this;
+    if (this._modal._container.querySelector('form')) {
+      return;
+    }
+
     var template$$1 = '';
 
     var possible_fieldsets = [];
@@ -4844,6 +5212,11 @@ var Preferences = Control.extend({
       possible_fieldsets.push('TextSize');
     }
     possible_fieldsets.push('Display');
+
+    if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
+      // this.options.hasPackagePaths = true;
+      possible_fieldsets.push('Rendition');
+    }
 
     if (this._reader.options.themes && this._reader.options.themes.length > 0) {
       this.options.hasThemes = true;
@@ -4876,23 +5249,27 @@ var Preferences = Control.extend({
 
     template$$1 = '<form>' + template$$1 + '</form>';
 
-    this._modal = this._reader.modal({
-      template: template$$1,
-      title: 'Preferences',
-      className: 'cozy-modal-preferences',
-      actions: [{
-        label: 'Save Changes',
-        callback: function callback(event) {
-          self.updatePreferences(event);
-        }
-      }],
-      region: 'right'
-    });
+    // this._modal = this._reader.modal({
+    //   template: template,
+    //   title: 'Preferences',
+    //   className: 'cozy-modal-preferences',
+    //   actions: [
+    //     {
+    //       label: 'Save Changes',
+    //       callback: function(event) {
+    //         self.updatePreferences(event);
+    //       }
+    //     }
+    //   ],
+    //   region: 'right'
+    // });
 
+    this._modal._container.querySelector('main').innerHTML = template$$1;
     this._form = this._modal._container.querySelector('form');
   },
 
   initializeForm: function initializeForm() {
+    this._createPanel();
     this._fieldsets.forEach(function (fieldset) {
       fieldset.initializeForm(this._form);
     }.bind(this));
@@ -4903,9 +5280,11 @@ var Preferences = Control.extend({
 
     var doUpdate = false;
     var new_options = {};
+    var saveable_options = {};
     this._fieldsets.forEach(function (fieldset) {
       // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
-      assign_1(new_options, fieldset.updateForm(this._form));
+      // assign(new_options, fieldset.updateForm(this._form));
+      fieldset.updateForm(this._form, new_options, saveable_options);
     }.bind(this));
 
     if (this.options.hasFields) {
@@ -4923,7 +5302,7 @@ var Preferences = Control.extend({
     this._modal.deactivate();
 
     setTimeout(function () {
-      this._reader.saveOptions(new_options);
+      this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
   },
@@ -4971,8 +5350,9 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
 
-  updateForm: function updateForm(form) {
-    return { text_size: this._input.value };
+  updateForm: function updateForm(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.text_size = saveable.text_size = this._input.value;
     // options.text_size = this._input.value;
     // return ( this._input.value != this._current.text_size );
   },
@@ -4993,23 +5373,33 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 Preferences.fieldset.Display = Fieldset.extend({
 
   initializeForm: function initializeForm(form) {
-    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'paginated';
-    if (flow == 'auto') {
-      flow = 'paginated';
-    }
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
+    // if ( flow == 'auto' ) { flow = 'paginated'; }
 
     var input = form.querySelector('#x' + this._id + '-input-' + flow);
     input.checked = true;
     this._current.flow = flow;
   },
 
-  updateForm: function updateForm(form) {
+  updateForm: function updateForm(form, options, saveable) {
     var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
-    return { flow: input.value };
+    options.flow = input.value;
+    if (options.flow != 'auto') {
+      saveable.flow = options.flow;
+    }
+    // if ( input.value == 'auto' ) {
+    //   // we do NOT want to save flow as a preference
+    //   return {};
+    // }
+    // return { flow: input.value };
   },
 
   template: function template$$1() {
-    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" />Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" />Scroll</label>\n          </fieldset>';
+    var scrolled_help = '';
+    if (this._control._reader.metadata.layout != 'pre-paginated') {
+      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
+    }
+    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you\'re reading</small></label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" /> Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" /> Scroll' + scrolled_help + '</label>\n          </fieldset>';
   },
 
   EOT: true
@@ -5026,9 +5416,10 @@ Preferences.fieldset.Theme = Fieldset.extend({
     this._current.theme = theme;
   },
 
-  updateForm: function updateForm(form) {
+  updateForm: function updateForm(form, options, saveable) {
     var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
-    return { theme: input.value };
+    options.theme = saveable.theme = input.value;
+    // return { theme: input.value };
   },
 
   template: function template$$1() {
@@ -5036,6 +5427,41 @@ Preferences.fieldset.Theme = Fieldset.extend({
 
     this._control._reader.options.themes.forEach(function (theme) {
       template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
+    }.bind(this));
+
+    template$$1 += '</fieldset>';
+
+    return template$$1;
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Rendition = Fieldset.extend({
+
+  initializeForm: function initializeForm(form) {
+    var rootfiles = this._control._reader.rootfiles;
+    var rootfilePath = this._control._reader.options.rootfilePath;
+    var expr = rootfilePath ? '[value="' + rootfilePath + '"]' : ":first-child";
+    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]' + expr);
+    input.checked = true;
+    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
+  },
+
+  updateForm: function updateForm(form, options, saveable) {
+    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]:checked');
+    if (input.value != this._current.rootfilePath) {
+      options.rootfilePath = input.value;
+      this._current.rootfilePath = input.value;
+    }
+  },
+
+  template: function template$$1() {
+    var template$$1 = '<fieldset>\n            <legend>Rendition</legend>\n    ';
+
+    this._control._reader.rootfiles.forEach(function (rootfile, i) {
+      template$$1 += '<label><input name="x' + this._id + '-rootfilePath" type="radio" id="x' + this._id + '-input-rootfilePath-' + i + '" value="' + rootfile.rootfilePath + '" />' + (rootfile.label || rootfile.accessMode || rootfile.rootfilePath) + '</label>';
     }.bind(this));
 
     template$$1 += '</fieldset>';
@@ -5371,7 +5797,7 @@ var Search = Control.extend({
     html: '<span>Search</span>'
   },
 
-  defaultTemplate: '<form class="search">\n    <label class="u-screenreader" for="cozy-search-string">Search</label>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>\n    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
+  defaultTemplate: '<form class="search">\n    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>\n    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
 
   onAdd: function onAdd(reader) {
     var self = this;
@@ -5500,7 +5926,7 @@ var Search = Control.extend({
   },
 
   _emptyArticle: function _emptyArticle() {
-    while (this._article.hasChildNodes()) {
+    while (this._article && this._article.hasChildNodes()) {
       this._article.removeChild(this._article.lastChild);
     }
   },
@@ -5562,8 +5988,6 @@ var Search = Control.extend({
 var search = function search(options) {
   return new Search(options);
 };
-
-// Title + Chapter
 
 var BibliographicInformation = Control.extend({
   options: {
@@ -5774,17 +6198,14 @@ var Navigator = Control.extend({
     this._setup(container);
 
     this._reader.on('updateLocations', function (locations) {
-      this._initiated = true;
-      this._total = this._reader.locations.total;
-      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-      this._last_value = this._control.value;
-
-      this._spanTotalLocations.innerHTML = this._total;
-
-      this._update();
-      setTimeout(function () {
-        addClass(this._container, 'initialized');
-      }.bind(this), 0);
+      // if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
+      //   console.log("AHOY updateLocations NO START", this._reader.currentLocation().then);
+      //   setTimeout(function() {
+      //     this._initializeNavigator(locations);
+      //   }.bind(this), 100);
+      //   return;
+      // }
+      this._initializeNavigator(locations);
     }.bind(this));
 
     return container;
@@ -5858,6 +6279,13 @@ var Navigator = Control.extend({
   _update: function _update() {
     var self = this;
 
+    var current = this._reader.currentLocation();
+    if (!current || !current.start) {
+      setTimeout(function () {
+        this._update();
+      }.bind(this), 100);
+    }
+
     var rangeBg = this._background;
     var range = self._control;
 
@@ -5868,10 +6296,30 @@ var Navigator = Control.extend({
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
-    var current = this._reader.currentLocation();
-    var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-    this._spanCurrentLocation.innerHTML = current_location;
+    if (current && current.start) {
+      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
+      this._spanCurrentLocation.innerHTML = current_location;
+    }
     self._last_delta = self._last_value > value;self._last_value = value;
+  },
+
+  _initializeNavigator: function _initializeNavigator(locations) {
+    console.log("AHOY updateLocations PROCESSING LOCATION");
+    this._initiated = true;
+    this._total = this._reader.locations.total;
+    if (this._reader.currentLocation().start) {
+      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
+      this._last_value = this._control.value;
+    } else {
+      this._last_value = this._control.value;
+    }
+
+    this._spanTotalLocations.innerHTML = this._total;
+
+    this._update();
+    setTimeout(function () {
+      addClass(this._container, 'initialized');
+    }.bind(this), 0);
   },
 
   EOT: true
@@ -5880,9 +6328,6 @@ var Navigator = Control.extend({
 var navigator$1 = function navigator(options) {
   return new Navigator(options);
 };
-
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
 
 Control.PageNext = PageNext;
 Control.PagePrevious = PagePrevious;
@@ -5942,16 +6387,607 @@ function ePub(options) {
 	return window.ePub(options);
 }
 
+if (!process) {
+  var process = {
+    "cwd" : function () { return '/' }
+  };
+}
+
+function assertPath(path) {
+  if (typeof path !== 'string') {
+    throw new TypeError('Path must be a string. Received ' + path);
+  }
+}
+
+// Resolves . and .. elements in a path with directory names
+function normalizeStringPosix(path, allowAboveRoot) {
+  var res = '';
+  var lastSlash = -1;
+  var dots = 0;
+  var code;
+  for (var i = 0; i <= path.length; ++i) {
+    if (i < path.length)
+      code = path.charCodeAt(i);
+    else if (code === 47/*/*/)
+      break;
+    else
+      code = 47/*/*/;
+    if (code === 47/*/*/) {
+      if (lastSlash === i - 1 || dots === 1) {
+        // NOOP
+      } else if (lastSlash !== i - 1 && dots === 2) {
+        if (res.length < 2 ||
+            res.charCodeAt(res.length - 1) !== 46/*.*/ ||
+            res.charCodeAt(res.length - 2) !== 46/*.*/) {
+          if (res.length > 2) {
+            var start = res.length - 1;
+            var j = start;
+            for (; j >= 0; --j) {
+              if (res.charCodeAt(j) === 47/*/*/)
+                break;
+            }
+            if (j !== start) {
+              if (j === -1)
+                res = '';
+              else
+                res = res.slice(0, j);
+              lastSlash = i;
+              dots = 0;
+              continue;
+            }
+          } else if (res.length === 2 || res.length === 1) {
+            res = '';
+            lastSlash = i;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += '/..';
+          else
+            res = '..';
+        }
+      } else {
+        if (res.length > 0)
+          res += '/' + path.slice(lastSlash + 1, i);
+        else
+          res = path.slice(lastSlash + 1, i);
+      }
+      lastSlash = i;
+      dots = 0;
+    } else if (code === 46/*.*/ && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+
+function _format(sep, pathObject) {
+  var dir = pathObject.dir || pathObject.root;
+  var base = pathObject.base ||
+    ((pathObject.name || '') + (pathObject.ext || ''));
+  if (!dir) {
+    return base;
+  }
+  if (dir === pathObject.root) {
+    return dir + base;
+  }
+  return dir + sep + base;
+}
+
+var posix = {
+  // path.resolve([from ...], to)
+  resolve: function resolve() {
+    var resolvedPath = '';
+    var resolvedAbsolute = false;
+    var cwd;
+
+    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+      var path;
+      if (i >= 0)
+        path = arguments[i];
+      else {
+        if (cwd === undefined)
+          cwd = process.cwd();
+        path = cwd;
+      }
+
+      assertPath(path);
+
+      // Skip empty entries
+      if (path.length === 0) {
+        continue;
+      }
+
+      resolvedPath = path + '/' + resolvedPath;
+      resolvedAbsolute = path.charCodeAt(0) === 47/*/*/;
+    }
+
+    // At this point the path should be resolved to a full absolute path, but
+    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+    // Normalize the path
+    resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
+
+    if (resolvedAbsolute) {
+      if (resolvedPath.length > 0)
+        return '/' + resolvedPath;
+      else
+        return '/';
+    } else if (resolvedPath.length > 0) {
+      return resolvedPath;
+    } else {
+      return '.';
+    }
+  },
+
+
+  normalize: function normalize(path) {
+    assertPath(path);
+
+    if (path.length === 0)
+      return '.';
+
+    var isAbsolute = path.charCodeAt(0) === 47;
+    var trailingSeparator = path.charCodeAt(path.length - 1) === 47;
+
+    // Normalize the path
+    path = normalizeStringPosix(path, !isAbsolute);
+
+    if (path.length === 0 && !isAbsolute)
+      path = '.';
+    if (path.length > 0 && trailingSeparator)
+      path += '/';
+
+    if (isAbsolute)
+      return '/' + path;
+    return path;
+  },
+
+
+  isAbsolute: function isAbsolute(path) {
+    assertPath(path);
+    return path.length > 0 && path.charCodeAt(0) === 47/*/*/;
+  },
+
+
+  join: function join() {
+    if (arguments.length === 0)
+      return '.';
+    var joined;
+    for (var i = 0; i < arguments.length; ++i) {
+      var arg = arguments[i];
+      assertPath(arg);
+      if (arg.length > 0) {
+        if (joined === undefined)
+          joined = arg;
+        else
+          joined += '/' + arg;
+      }
+    }
+    if (joined === undefined)
+      return '.';
+    return posix.normalize(joined);
+  },
+
+
+  relative: function relative(from, to) {
+    assertPath(from);
+    assertPath(to);
+
+    if (from === to)
+      return '';
+
+    from = posix.resolve(from);
+    to = posix.resolve(to);
+
+    if (from === to)
+      return '';
+
+    // Trim any leading backslashes
+    var fromStart = 1;
+    for (; fromStart < from.length; ++fromStart) {
+      if (from.charCodeAt(fromStart) !== 47/*/*/)
+        break;
+    }
+    var fromEnd = from.length;
+    var fromLen = (fromEnd - fromStart);
+
+    // Trim any leading backslashes
+    var toStart = 1;
+    for (; toStart < to.length; ++toStart) {
+      if (to.charCodeAt(toStart) !== 47/*/*/)
+        break;
+    }
+    var toEnd = to.length;
+    var toLen = (toEnd - toStart);
+
+    // Compare paths to find the longest common path from root
+    var length = (fromLen < toLen ? fromLen : toLen);
+    var lastCommonSep = -1;
+    var i = 0;
+    for (; i <= length; ++i) {
+      if (i === length) {
+        if (toLen > length) {
+          if (to.charCodeAt(toStart + i) === 47/*/*/) {
+            // We get here if `from` is the exact base path for `to`.
+            // For example: from='/foo/bar'; to='/foo/bar/baz'
+            return to.slice(toStart + i + 1);
+          } else if (i === 0) {
+            // We get here if `from` is the root
+            // For example: from='/'; to='/foo'
+            return to.slice(toStart + i);
+          }
+        } else if (fromLen > length) {
+          if (from.charCodeAt(fromStart + i) === 47/*/*/) {
+            // We get here if `to` is the exact base path for `from`.
+            // For example: from='/foo/bar/baz'; to='/foo/bar'
+            lastCommonSep = i;
+          } else if (i === 0) {
+            // We get here if `to` is the root.
+            // For example: from='/foo'; to='/'
+            lastCommonSep = 0;
+          }
+        }
+        break;
+      }
+      var fromCode = from.charCodeAt(fromStart + i);
+      var toCode = to.charCodeAt(toStart + i);
+      if (fromCode !== toCode)
+        break;
+      else if (fromCode === 47/*/*/)
+        lastCommonSep = i;
+    }
+
+    var out = '';
+    // Generate the relative path based on the path difference between `to`
+    // and `from`
+    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
+      if (i === fromEnd || from.charCodeAt(i) === 47/*/*/) {
+        if (out.length === 0)
+          out += '..';
+        else
+          out += '/..';
+      }
+    }
+
+    // Lastly, append the rest of the destination (`to`) path that comes after
+    // the common path parts
+    if (out.length > 0)
+      return out + to.slice(toStart + lastCommonSep);
+    else {
+      toStart += lastCommonSep;
+      if (to.charCodeAt(toStart) === 47/*/*/)
+        ++toStart;
+      return to.slice(toStart);
+    }
+  },
+
+
+  _makeLong: function _makeLong(path) {
+    return path;
+  },
+
+
+  dirname: function dirname(path) {
+    assertPath(path);
+    if (path.length === 0)
+      return '.';
+    var code = path.charCodeAt(0);
+    var hasRoot = (code === 47/*/*/);
+    var end = -1;
+    var matchedSlash = true;
+    for (var i = path.length - 1; i >= 1; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47/*/*/) {
+        if (!matchedSlash) {
+          end = i;
+          break;
+        }
+      } else {
+        // We saw the first non-path separator
+        matchedSlash = false;
+      }
+    }
+
+    if (end === -1)
+      return hasRoot ? '/' : '.';
+    if (hasRoot && end === 1)
+      return '//';
+    return path.slice(0, end);
+  },
+
+
+  basename: function basename(path, ext) {
+    if (ext !== undefined && typeof ext !== 'string')
+      throw new TypeError('"ext" argument must be a string');
+    assertPath(path);
+
+    var start = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i;
+
+    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
+      if (ext.length === path.length && ext === path)
+        return '';
+      var extIdx = ext.length - 1;
+      var firstNonSlashEnd = -1;
+      for (i = path.length - 1; i >= 0; --i) {
+        var code = path.charCodeAt(i);
+        if (code === 47/*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            start = i + 1;
+            break;
+          }
+        } else {
+          if (firstNonSlashEnd === -1) {
+            // We saw the first non-path separator, remember this index in case
+            // we need it if the extension ends up not matching
+            matchedSlash = false;
+            firstNonSlashEnd = i + 1;
+          }
+          if (extIdx >= 0) {
+            // Try to match the explicit extension
+            if (code === ext.charCodeAt(extIdx)) {
+              if (--extIdx === -1) {
+                // We matched the extension, so mark this as the end of our path
+                // component
+                end = i;
+              }
+            } else {
+              // Extension does not match, so our result is the entire path
+              // component
+              extIdx = -1;
+              end = firstNonSlashEnd;
+            }
+          }
+        }
+      }
+
+      if (start === end)
+        end = firstNonSlashEnd;
+      else if (end === -1)
+        end = path.length;
+      return path.slice(start, end);
+    } else {
+      for (i = path.length - 1; i >= 0; --i) {
+        if (path.charCodeAt(i) === 47/*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            start = i + 1;
+            break;
+          }
+        } else if (end === -1) {
+          // We saw the first non-path separator, mark this as the end of our
+          // path component
+          matchedSlash = false;
+          end = i + 1;
+        }
+      }
+
+      if (end === -1)
+        return '';
+      return path.slice(start, end);
+    }
+  },
+
+
+  extname: function extname(path) {
+    assertPath(path);
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+    for (var i = path.length - 1; i >= 0; --i) {
+      var code = path.charCodeAt(i);
+      if (code === 47/*/*/) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          startPart = i + 1;
+          break;
+        }
+        continue;
+      }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46/*.*/) {
+        // If this is our first dot, mark it as the start of our extension
+        if (startDot === -1)
+          startDot = i;
+        else if (preDotState !== 1)
+          preDotState = 1;
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 ||
+        end === -1 ||
+        // We saw a non-dot character immediately before the dot
+        preDotState === 0 ||
+        // The (right-most) trimmed path component is exactly '..'
+        (preDotState === 1 &&
+         startDot === end - 1 &&
+         startDot === startPart + 1)) {
+      return '';
+    }
+    return path.slice(startDot, end);
+  },
+
+
+  format: function format(pathObject) {
+    if (pathObject === null || typeof pathObject !== 'object') {
+      throw new TypeError(
+        'Parameter "pathObject" must be an object, not ' + typeof(pathObject)
+      );
+    }
+    return _format('/', pathObject);
+  },
+
+
+  parse: function parse(path) {
+    assertPath(path);
+
+    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
+    if (path.length === 0)
+      return ret;
+    var code = path.charCodeAt(0);
+    var isAbsolute = (code === 47/*/*/);
+    var start;
+    if (isAbsolute) {
+      ret.root = '/';
+      start = 1;
+    } else {
+      start = 0;
+    }
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i = path.length - 1;
+
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+
+    // Get non-dir info
+    for (; i >= start; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47/*/*/) {
+        // If we reached a path separator that was not part of a set of path
+        // separators at the end of the string, stop now
+        if (!matchedSlash) {
+          startPart = i + 1;
+          break;
+        }
+        continue;
+      }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46/*.*/) {
+        // If this is our first dot, mark it as the start of our extension
+        if (startDot === -1)
+          startDot = i;
+        else if (preDotState !== 1)
+          preDotState = 1;
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 ||
+        end === -1 ||
+        // We saw a non-dot character immediately before the dot
+        preDotState === 0 ||
+        // The (right-most) trimmed path component is exactly '..'
+        (preDotState === 1 &&
+         startDot === end - 1 &&
+         startDot === startPart + 1)) {
+      if (end !== -1) {
+        if (startPart === 0 && isAbsolute)
+          ret.base = ret.name = path.slice(1, end);
+        else
+          ret.base = ret.name = path.slice(startPart, end);
+      }
+    } else {
+      if (startPart === 0 && isAbsolute) {
+        ret.name = path.slice(1, startDot);
+        ret.base = path.slice(1, end);
+      } else {
+        ret.name = path.slice(startPart, startDot);
+        ret.base = path.slice(startPart, end);
+      }
+      ret.ext = path.slice(startDot, end);
+    }
+
+    if (startPart > 0)
+      ret.dir = path.slice(0, startPart - 1);
+    else if (isAbsolute)
+      ret.dir = '/';
+
+    return ret;
+  },
+
+
+  sep: '/',
+  delimiter: ':',
+  posix: null
+};
+
+
+var path = posix;
+
 Reader.EpubJS = Reader.extend({
 
   initialize: function initialize(id, options) {
     Reader.prototype.initialize.apply(this, arguments);
     this._epubjs_ready = false;
+    window.xpath = path;
   },
 
-  open: function open(callback) {
+  open: function open(target, callback) {
     var self = this;
-    this._book = ePub(this.options.href);
+    if (typeof target == 'function') {
+      callback = target;
+      target = undefined;
+    }
+    if (callback == null) {
+      callback = function callback() {};
+    }
+
+    // okay, we need to do some hacking to fetch the dang files
+    // but this isn't going to be done async
+    self.rootfiles = [];
+    var request = new XMLHttpRequest();
+    request.open('GET', this.options.href + "/META-INF/container.xml");
+    request.responseType = 'document';
+    request.onload = function () {
+      var containerDoc = request.responseXML;
+      var rootfiles = containerDoc.querySelectorAll("rootfile");
+      if (rootfiles.length > 1) {
+        console.log("AHOY ROOTFILES MULTIPLE RENDITIONS", rootfiles.length);
+        for (var i = 0; i < rootfiles.length; i++) {
+          var rootfile = rootfiles[i];
+          var rootfilePath = rootfile.getAttribute('full-path');
+          var label = rootfile.getAttribute('rendition:label');
+          var layout = rootfile.getAttribute('rendition:layout');
+          self.rootfiles.push({
+            rootfilePath: rootfilePath,
+            label: label,
+            layout: layout
+          });
+        }
+      }
+    };
+    request.send();
+
+    this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
+    this._book = ePub(this.options.href + this.options.rootfilePath);
+    sessionStorage.removeItem('rootfilePath');
+    // this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function (toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
@@ -5959,80 +6995,155 @@ Reader.EpubJS = Reader.extend({
       self.fire('updateTitle', self._book.package.metadata);
     });
     this._book.ready.then(function () {
-      self._book.locations.generate(1600).then(function (locations) {
-        self.fire('updateLocations', locations);
-      });
-    }).then(callback);
+      self.draw(target, callback);
+      if (self.metadata.layout == 'pre-paginated') {
+        // fake it with the spine
+        var locations = [];
+        self._book.spine.each(function (item) {
+          locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+          self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+        });
+        self.locations.total = locations.length;
+        var t;
+        var f = function f() {
+          if (self._rendition.manager) {
+            var location = self._rendition.currentLocation();
+            if (location && location.start) {
+              self.fire('updateLocations', locations);
+              clearTimeout(t);
+              return;
+            }
+          }
+          t = setTimeout(f, 100);
+        };
+
+        t = setTimeout(f, 100);
+      } else {
+        self._book.locations.generate(1600).then(function (locations) {
+          // console.log("AHOY WUT", locations);
+          self.fire('updateLocations', locations);
+        });
+      }
+    });
+    // .then(callback);
   },
 
   draw: function draw(target, callback) {
     var self = this;
+
+    if (self._rendition) {
+      // self._unbindEvents();
+      var container = self._rendition.manager.container;
+      self._rendition.destroy();
+    }
+
     this.settings = { flow: this.options.flow };
     this.settings.manager = this.options.manager || 'default';
 
-    if (this.options.flow == 'auto') {
-      this._panes['book'].style.overflow = 'hidden';
-    } else {
-      this._panes['book'].style.overflow = 'auto';
+    if (this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated') {
+      // dumb check to see if the window is _tall_ enough to put
+      // two pages side by side
+      if (this._container.offsetHeight <= this.options.forceScrolledDocHeight) {
+        this.settings.flow = 'scrolled-doc';
+        this.settings.manager = 'prepaginated';
+      }
     }
 
-    // start the rendition after all the epub parts 
-    // have been loaded
-    this._book.ready.then(function () {
+    if (this.settings.flow == 'auto' || this.settings.flow == 'paginated') {
+      this._panes['epub'].style.overflow = 'hidden';
+      this.settings.manager = 'default';
+    } else {
+      this._panes['epub'].style.overflow = 'auto';
+      if (this.settings.manager == 'default') {
+        this.settings.manager = 'continuous';
+      }
+    }
 
-      // have to set fixed dimensions to avoid edge clipping
-      var size = self.getFixedBookPanelSize();
-      self.settings.height = size.height; //  + 'px';
-      self.settings.width = size.width; //  + 'px';
-      self.settings.height = '100%';
-      self.settings.width = '100%';
+    if (!callback) {
+      callback = function callback() {};
+    }
 
-      self.settings['ignoreClass'] = 'annotator-hl';
-      self._rendition = self._book.renderTo(self._panes['book'], self.settings);
-      self._updateFontSize();
-      self._bindEvents();
-      self._drawn = true;
+    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
+      this.settings.manager = 'prepaginated';
+    }
 
-      self._rendition.hooks.content.register(function (contents) {
-        self.fire('ready:contents', contents);
-        self.fire('readyContents', contents);
-        contents.document.addEventListener('keydown', function (event) {
-          var keyName = event.key;
-          self.fire('keyDown', { keyName: keyName });
-          console.log('inner keydown event: ', keyName);
-        });
+    var attached_callback = function attached_callback() {};
+    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated') {
+      // STILL A HACK
+      window.fitWidth = false;
+      this._panes['epub'].style.overflowX = 'hidden';
+
+      // // this yields a columnWidth the size of the window, which makes for
+      // // strangely squat layouts
+      // this.settings.spread = 'none';
+    } else {
+      window.fitWidth = false;
+    }
+
+    self.settings.height = '100%';
+    self.settings.width = '100%';
+
+    self._panes['book'].dataset.manager = this.settings.manager;
+
+    self.settings['ignoreClass'] = 'annotator-hl';
+    self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
+    self._updateFontSize();
+    self._bindEvents();
+    self._drawn = true;
+
+    self._rendition.on('attached', attached_callback);
+
+    self._rendition.hooks.content.register(function (contents) {
+      self.fire('ready:contents', contents);
+      self.fire('readyContents', contents);
+      contents.document.addEventListener('keydown', function (event) {
+        var keyName = event.key;
+        self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
+        console.log('inner keydown event: ', keyName);
       });
+    });
 
-      if (target && target.start) {
-        target = target.start;
+    if (target && target.start) {
+      target = target.start;
+    }
+    if (!target && window.location.hash) {
+      if (window.location.hash.substr(1, 3) == '/6/') {
+        target = "epubcfi(" + window.location.hash.substr(1) + ")";
+      } else {
+        target = window.location.hash.substr(2);
+        target = self._book.url.path().resolve(target);
       }
-      if (!target && window.location.hash) {
-        if (window.location.hash.substr(1, 3) == '/6/') {
-          target = "epubcfi(" + window.location.hash.substr(1) + ")";
-        } else {
-          target = window.location.hash.substr(2);
-          target = self._book.url.path().resolve(target);
-        }
+    }
+
+    // this is the dumbest
+    self._queueTimeout = setTimeout(function () {
+      if (self._rendition.q._q.length) {
+        console.log("AHOY RUNNING THE QUEUE");
+        self._rendition.q.run();
+      }
+    }, 1000);
+
+    self.gotoPage(target, function () {
+      window._loaded = true;
+      self._initializeReaderStyles();
+
+      if (callback) {
+        callback();
       }
 
-      self.gotoPage(target, function () {
-        window._loaded = true;
-        self._initializeReaderStyles();
+      self._epubjs_ready = true;
 
-        if (callback) {
-          callback();
-        }
-
+      setTimeout(function () {
         self.fire('opened');
         self.fire('ready');
-        self._epubjs_ready = true;
-      });
+        clearTimeout(self._queueTimeout);
+      }, 100);
     });
   },
 
   _scroll: function _scroll(delta) {
     var self = this;
-    if (self.options.flow == 'scrolled-doc') {
+    if (self.options.flow == 'XXscrolled-doc') {
       var container = self._rendition.manager.container;
       var rect = container.getBoundingClientRect();
       var scrollTop = container.scrollTop;
@@ -6060,10 +7171,12 @@ Reader.EpubJS = Reader.extend({
 
   _navigate: function _navigate(promise, callback) {
     var self = this;
+    console.log("AHOY NAVIGATE", promise);
     var t = setTimeout(function () {
       self._panes['loader'].style.display = 'block';
     }, 100);
     promise.then(function () {
+      console.log("AHOY NAVIGATE FIN");
       clearTimeout(t);
       self._panes['loader'].style.display = 'none';
       if (callback) {
@@ -6075,6 +7188,7 @@ Reader.EpubJS = Reader.extend({
       if (callback) {
         callback();
       }
+      console.log("AHOY NAVIGATE ERROR", e);
       throw e;
     });
   },
@@ -6099,8 +7213,34 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function gotoPage(target, callback) {
-    if (target) {
+    if (target != null) {
       var section = this._book.spine.get(target);
+      if (!section) {
+        // maybe it needs to be resolved
+        var guessed = target;
+        if (guessed.indexOf("://") < 0) {
+          var path1 = path.resolve(this._book.path.directory, this._book.package.navPath);
+          var path2 = path.resolve(path.dirname(path1), target);
+          guessed = this._book.canonical(path2);
+        }
+        if (guessed.indexOf("#") !== 0) {
+          guessed = guessed.split('#')[0];
+        }
+
+        this._book.spine.each(function (item) {
+          if (item.canonical == guessed) {
+            section = item;
+            target = section.href;
+            return;
+          }
+        });
+
+        console.log("AHOY GUESSED", target);
+      } else if (target.toString().match(/^\d+$/)) {
+        console.log("AHOY USING", section.href);
+        target = section.href;
+      }
+
       if (!section) {
         if (!this._epubjs_ready) {
           target = 0;
@@ -6109,6 +7249,8 @@ Reader.EpubJS = Reader.extend({
         }
       }
     }
+
+    console.log("AHOY gotoPage", target);
 
     this._navigate(this._rendition.display(target), callback);
   },
@@ -6146,20 +7288,20 @@ Reader.EpubJS = Reader.extend({
       return;
     }
 
-    extend(this.options, options);
-
-    if (this._rendition.settings.flow != options.flow) {
-      if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
-        this._panes['book'].style.overflow = 'hidden';
-      } else {
-        this._panes['book'].style.overflow = 'auto';
-      }
-      this._rendition.flow(this.options.flow);
+    if (options.rootfilePath && options.rootfilePath != this.options.rootfilePath) {
+      // we need to REOPEN THE DANG BOOK
+      sessionStorage.setItem('rootfilePath', options.rootfilePath);
+      location.reload();
+      return;
     }
 
-    this._updateFontSize();
-    this._updateTheme();
-    this._selectTheme(true);
+    extend(this.options, options);
+
+    this.draw(target, function () {
+      this._updateFontSize();
+      this._updateTheme();
+      this._selectTheme(true);
+    }.bind(this));
   },
 
   currentLocation: function currentLocation() {
@@ -6182,17 +7324,37 @@ Reader.EpubJS = Reader.extend({
 
     var custom_stylesheet_rules = [];
 
-    // if ( add_max_img_styles ) {
-    //   // WHY IN HEAVENS NAME?
-    //   // var style = window.getComputedStyle(this._panes['book']);
-    //   var style = window.getComputedStyle(this._rendition.manager.container);
-    //   var height = parseInt(style.getPropertyValue('height'));
-    //   height -= parseInt(style.getPropertyValue('padding-top'));
-    //   height -= parseInt(style.getPropertyValue('padding-bottom'));
-    //   // height -= 100;
-    //   console.log("AHOY", height, style);
-    //   custom_stylesheet_rules.push([ 'img', [ 'max-height', height + 'px !important' ], [ 'max-width', '100% !important'], [ 'height', 'auto' ], [ 'width', 'auto' ]]);
-    // }
+    // force 90% height instead of default 60%
+    if (this.metadata.layout != 'pre-paginated') {
+      this._rendition.hooks.content.register(function (contents) {
+        contents.addStylesheetRules({
+          "img": {
+            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
+            "object-fit": "contain",
+            "page-break-inside": "avoid"
+          },
+          "svg": {
+            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
+            "page-break-inside": "avoid"
+          }
+        });
+      }.bind(this._rendition));
+    } else {
+      this._rendition.hooks.content.register(function (contents) {
+        contents.addStylesheetRules({
+          "img": {
+            // "border": "64px solid black !important",
+            "box-sizing": "border-box !important"
+          },
+          "figure": {
+            "box-sizing": "border-box !important",
+            "margin": "0 !important"
+          }
+        });
+      }.bind(this._rendition));
+    }
 
     this._updateFontSize();
 
@@ -6210,6 +7372,10 @@ Reader.EpubJS = Reader.extend({
       self.fire('relocated', location);
     });
 
+    this._rendition.on('displayerror', function (err) {
+      console.log("AHOY RENDITION DISPLAY ERROR", err);
+    });
+
     this._rendition.on("locationChanged", function (location) {
       var view = this.manager.current();
       var section = view.section;
@@ -6217,32 +7383,63 @@ Reader.EpubJS = Reader.extend({
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
+      self.fire("relocated", location);
     });
 
     this._rendition.on("rendered", function (section, view) {
+
       if (view.contents) {
-        view.contents.on("linkClicked", function (href) {
-          self._rendition.display(href);
-        });
+        // view.contents.on("xxlinkClicked", function(href) {
+        //   console.log("AHOY CLICKED", href);
+        //   var tmp = href.split("#");
+        //   href = tmp[0];
+        //   var hash = tmp[1]
+        //   // var current = self.currentLocation().start.href;
+        //   // var section = self._book.spine.get(current.href);
+        //   console.log("AHOY CLICKED CHECK", section.canonical, href);
+        //   if ( section.canonical.indexOf(href) < 0 ) {
+        //     self.gotoPage(href);
+        //     // self._rendition.display(href);
+
+        //   } else if ( hash ) {
+        //     // we're already on this page, so we need to scroll to this location
+        //     var node = view.contents.content.querySelector('#' + hash);
+        //     console.log("AHOY INTERNAL", hash, view.contents, node);
+        //   }
+        //   // self._rendition.display(href);
+        // })
       }
-      if (!self._rendition.manager.__scroll) {
-        var ticking;
-        self._rendition.manager.container.addEventListener("scroll", function (event) {
-          if (!ticking) {
-            var mod = event.target.scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-            if (mod > 0) {
-              ticking = true;
-              var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-              var delta = x * self._rendition.manager.layout.delta - event.target.scrollLeft;
-              self._rendition.manager.scrollBy(delta);
-              setTimeout(function () {
-                ticking = false;
-              }, 100);
+
+      self.on('keyDown', function (data) {
+        if (data.keyName == 'Tab' && data.inner) {
+          var container = self._rendition.manager.container;
+          var mod;
+          var delta;
+          var x;var xyz;
+          setTimeout(function () {
+            var scrollLeft = container.scrollLeft;
+            mod = scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
+            if (mod > 0 && mod / self._rendition.manager.layout.delta < 0.99) {
+              // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+              // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
+              x = Math.floor(container.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10));
+              if (data.shiftKey) {
+                x -= 0;
+              } else {
+                x += 1;
+              }
+              var y = container.scrollLeft;
+              delta = x * self._rendition.manager.layout.delta - y;
+              xyz = x * self._rendition.manager.layout.delta;
+              // if ( data.shiftKey ) { delta *= -1 ; }
+              if (true || !data.shiftKey) {
+                self._rendition.manager.scrollBy(delta);
+              }
             }
-          }
-        });
-        self._rendition.manager.views.__scroll = true;
-      }
+            console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
+          }, 0);
+        }
+      });
     });
   },
 
@@ -6306,6 +7503,15 @@ Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
         highlight: function highlight(cfiRange) {/* NOOP */}
       };
     }
+    if (!this._rendition.annotations.reset) {
+      this._rendition.annotations.reset = function () {
+        for (var hash in this._annotations) {
+          var cfiRange = decodeURI(hash);
+          this.remove(cfiRange);
+        }
+        this._annotationsBySectionIndex = {};
+      }.bind(this._rendition.annotations);
+    }
     return this._rendition.annotations;
   }
 });
@@ -6329,7 +7535,7 @@ Reader.Mock = Reader.extend({
     Reader.prototype.initialize.apply(this, arguments);
   },
 
-  open: function open(callback) {
+  open: function open(target, callback) {
     var self = this;
     this._book = {
       metadata: {
@@ -6352,7 +7558,7 @@ Reader.Mock = Reader.extend({
     this.fire('updateContents', this._book.contents);
     this.fire('updateTitle', this._metadata);
     this.fire('updateLocations', this._locations);
-    callback();
+    this.draw(target, callback);
   },
 
   draw: function draw(target, callback) {
@@ -6484,8 +7690,6 @@ var reader = function reader(id, options) {
 
   return engines[engine].apply(_this, [id, options]);
 };
-
-// misc
 
 var oldCozy = window.cozy;
 function noConflict() {

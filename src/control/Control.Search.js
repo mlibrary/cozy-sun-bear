@@ -10,8 +10,8 @@ export var Search = Control.extend({
   },
 
   defaultTemplate: `<form class="search">
-    <label class="u-screenreader" for="cozy-search-string">Search</label>
-    <input id="cozy-search-string" name="search" type="text" placeholder="Enter Search..."/>
+    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>
+    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>
     <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
   </form>`,
 
@@ -146,7 +146,7 @@ export var Search = Control.extend({
   },
 
   _emptyArticle: function() {
-    while (this._article.hasChildNodes()) {
+    while (this._article && this._article.hasChildNodes()) {
       this._article.removeChild(this._article.lastChild);
     }
   },

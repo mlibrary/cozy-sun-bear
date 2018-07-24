@@ -57,22 +57,31 @@ function listen(port) {
   }
 
   if ( process.env.USE_DEV_EPUB ) {
-    var epubJsPath = path.resolve(process.env.USE_DEV_EPUB);
-    app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.js', function(req, res) {
-      res.sendFile(epubJsPath + '/epub.js');
-    });
-    app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.js.map', function(req, res) {
-      res.sendFile(epubJsPath + '/epub.js.map');
-    });
-    app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.min.js', function(req, res) {
-      res.sendFile(epubJsPath + '/epub.legacy.min.js');
-    });
-    app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.js', function(req, res) {
-      res.sendFile(epubJsPath + '/epub.legacy.js');
-    });
-    app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.js.map', function(req, res) {
-      res.sendFile(epubJsPath + '/epub.legacy.js.map');
-    });
+    if ( process.env.USE_DEV_EPUB.indexOf('http://') > -1 ) {
+      app.use('/cozy-sun-bear/vendor/javascripts/engines/', proxy(process.env.USE_DEV_EPUB, { 
+        https: false,
+        forwardPath: function(req) {
+          return '/dist' + require('url').parse(req.url).path;
+        }
+      }));
+    } else {
+      var epubJsPath = path.resolve(process.env.USE_DEV_EPUB);
+      app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.js', function(req, res) {
+        res.sendFile(epubJsPath + '/epub.js');
+      });
+      app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.js.map', function(req, res) {
+        res.sendFile(epubJsPath + '/epub.js.map');
+      });
+      app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.min.js', function(req, res) {
+        res.sendFile(epubJsPath + '/epub.legacy.min.js');
+      });
+      app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.js', function(req, res) {
+        res.sendFile(epubJsPath + '/epub.legacy.js');
+      });
+      app.get('/cozy-sun-bear/vendor/javascripts/engines/epub.legacy.js.map', function(req, res) {
+        res.sendFile(epubJsPath + '/epub.legacy.js.map');
+      });      
+    }
   }
 
   if ( process.env.USE_EPUB_SEARCH ) {

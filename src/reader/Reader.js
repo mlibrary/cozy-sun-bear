@@ -50,7 +50,9 @@ export var Reader = Evented.extend({
     trackResize: true,
     text_size: 100,
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
+    forceScrolledDocHeight: 1200,
     theme: 'default',
+    rootfilePath: '',
     themes: []
   },
 
@@ -114,33 +116,25 @@ export var Reader = Evented.extend({
     var self = this;
     target = target || 0;
 
-    self.open(function() {
-      self.draw(target, cb);
-    });
-  },
+    // self.open(function() {
+    //   self.draw(target, cb);
+    // });
 
-  switch: function(flow, target) {
-    var target = target || this.currentLocation();
-    if ( flow === undefined ) {
-      flow = ( this.options.flow == 'auto' ) ? 'scrolled-doc' : 'auto';
-    }
-    this.options.flow = flow;
-    this.destroy();
-    this.draw(target);
+    self.open(target, cb);
   },
 
   reopen: function(options, target) {
-    var target = target || this.currentLocation();
-    Util.extend(this.options, options);
-    this.destroy();
-    console.log("AHOY REOPENED?");
-    return;
-    this.draw(target);
-    this.fire('reopen');
+    /* NOP */
   },
 
   saveOptions: function(options) {
-    localStorage.setItem('cozy.options', JSON.stringify(options));
+    var saved_options = {};
+    assign(saved_options, options);
+    if ( saved_options.flow == 'auto' ) {
+      // do not save
+      delete saved_options.flow;
+    }
+    localStorage.setItem('cozy.options', JSON.stringify(saved_options));
   },
 
   _updateTheme: function() {
@@ -212,7 +206,7 @@ export var Reader = Evented.extend({
       (Browser.ielt9 ? ' cozy-oldie' : '') +
       (Browser.safari ? ' cozy-safari' : '') +
       (this._fadeAnimated ? ' cozy-fade-anim' : '') +
-      ' cozy-engine-' + this.options.engine + 
+      ' cozy-engine-' + this.options.engine +
       ' cozy-theme-' + this.options.theme);
 
     var position = DomUtil.getStyle(container, 'position');
@@ -244,6 +238,7 @@ export var Reader = Evented.extend({
     panes['right'] = DomUtil.create('div', prefix + 'right', panes['main']);
     panes['book'] = DomUtil.create('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = DomUtil.create('div', prefix + 'book-loading', panes['book']);
+    panes['epub'] = DomUtil.create('div', prefix + 'book-epub', panes['book']);
     this._initBookLoader();
   },
 
@@ -330,16 +325,26 @@ export var Reader = Evented.extend({
     document.addEventListener('keydown', function(event) {
       var keyName = event.key;
       var target = event.target;
+
+      // check if the activeElement is ".special-panel"
+      var check = document.activeElement;
+      while ( check.localName != 'body' ) {
+        if ( check.classList.contains('special-panel') ) {
+          return;
+        }
+        check = check.parentElement;
+      }
+
       var IGNORE_TARGETS = [ 'input', 'target' ];
       if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
         return;
       }
 
-      self.fire('keyDown', { keyName: keyName });
+      self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey });
     });
 
-    self.on('keyDown', function(keyName) {
-      switch(keyName.keyName) {
+    self.on('keyDown', function(data) {
+      switch(data.keyName) {
         case 'ArrowRight':
         case 'PageDown':
           self.next();
@@ -429,7 +434,7 @@ export var Reader = Evented.extend({
   },
 
   getFixedBookPanelSize: function() {
-    // have to make the book 
+    // have to make the book
     var style = window.getComputedStyle(this._panes['book']);
     var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
     var w = this._panes['book'].clientWidth - parseFloat(style.paddingRight) - parseFloat(style.paddingLeft);
