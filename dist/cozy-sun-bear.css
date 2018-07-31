@@ -1476,6 +1476,12 @@ div.cozy-panel-footer {
   font-size: 1em;
   text-transform: none; }
 
+.cozy-control button.button--sm.cozy-citation.desktop {
+  display: flex; }
+
+.cozy-control button.button--sm.cozy-citation.mobile {
+  display: none; }
+
 .cozy-control form.search {
   display: inline-flex;
   height: 100%; }
@@ -1544,7 +1550,38 @@ div.cozy-panel-footer {
 .cozy-module-book[data-layout=pre-paginated][data-manager=default] .epub-view iframe {
   border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
+@media screen and (max-width: 65em) {
+  .cozy-control button.button--sm.cozy-citation.desktop {
+    display: none; }
+  .cozy-control button.button--sm.cozy-citation.mobile {
+    display: flex; } }
+
 @media screen and (max-width: 50em) {
   .permalink-label,
   .cozy-control.cozy-container-fullscreen {
-    display: none; } }
+    display: none; }
+  .cozy-panel-header {
+    display: none !important; }
+  .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range__status {
+    font-size: .7em; }
+  #select-available-books {
+    display: none; }
+  .cozy-control form.search {
+    width: 60%; }
+  .cozy-control button.button--sm {
+    font-size: .8em;
+    padding: .4em .8em; }
+    .cozy-control button.button--sm i.icon-menu {
+      font-size: .8em !important; }
+  .cozy-control form.search button.button--sm {
+    padding: .4em .5em; }
+  .cozy-control button.button--sm.cozy-citation {
+    font-size: .8em; }
+  .cozy-container i[class^="icon-"] {
+    font-size: 1.5em; }
+  .cozy-container i[class^="icon-chevron-"] {
+    font-size: 1.7rem; }
+  .cozy-control-preferences button {
+    padding: .6em .8em 0 .4em; }
+  .cozy-container input[type="text"] {
+    font-size: .75em; } }
