@@ -8319,7 +8319,7 @@ var Queue = function () {
 
 					_this.dequeue().then(function () {
 						this.run();
-					}.bind(_this)).catch(console.log.bind(console));
+					}.bind(_this));
 				} else {
 					_this.defered.resolve();
 					_this.running = undefined;
@@ -9640,7 +9640,9 @@ var Contents = function () {
 				scale = widthScale < heightScale ? widthScale : heightScale;
 				offsetY = (height - viewport.height * scale) / 2;
 				if (heightScale == scale) {
-					offsetX = width / height * width;
+					offsetX = width / height * width / 2;
+					offsetX = width * heightScale;
+					console.log("AHOY CONTENTS", heightScale, width, height, offsetX);
 				}
 				// offsetX = (width - ( viewport.width * scale)) / 2;
 				// console.log("AHOY CONTENTS FIT", width, height, ":", viewport.width, viewport.height, scale, widthScale, heightScale, ":", width / height, height / width, ":", Math.min(widthScale, heightScale));
@@ -23762,10 +23764,6 @@ var Layout = function () {
 			}
 
 			spreadWidth = columnWidth * divisor + gap;
-			// // RRE - hacking
-			// if ( this.name === 'pre-paginated' ) {
-			// 	height = spreadWidth * 1.5;
-			// }
 
 			delta = Math.ceil(width);
 
@@ -26098,8 +26096,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			return view;
 		}
 	}, {
-		key: "display",
-		value: function display(section, target) {
+		key: "displayXX",
+		value: function displayXX(section, target) {
 			var self = this;
 			var promises = [];
 
@@ -26181,6 +26179,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 					if (scale < 1.0) {
 						scale = 1.5;
 					}
+					console.log("AHOY PRE-PAGINATED", w, scale);
 					var w1 = wrapper.scrollWidth * scale;
 					var w2 = this.layout.columnWidth * scale;
 					this.scale(scale);
@@ -26203,6 +26202,182 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			}.bind(this));
 		}
 	}, {
+		key: "display",
+		value: function display(section, target) {
+			var self = this;
+			var promises = [];
+
+			this.q.clear();
+			var display = new _core.defer();
+			var promises = [];
+
+			if (!this._manifest) {
+				this.emit("building");
+				self._manifest = {};
+				var _buildManifest = function _buildManifest(section) {
+					self._manifest[section.href] = false;
+					self.q.enqueue(function () {
+						section.load().then(function (contents) {
+							var meta = contents.querySelector('meta[name="viewport"]');
+							var value = meta.getAttribute('content');
+							var tmp = value.split(",");
+							var key = section.href;
+							var idx = self._spine.indexOf(key);
+							self.emit("building", { index: idx + 1, total: self._spine.length });
+							section.viewport = {};
+							self._manifest[key] = section;
+							self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
+							self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
+						});
+					});
+				};
+
+				// can we build a manifest here?
+				var prev_ = section.prev();
+				while (prev_) {
+					self._spine.unshift(prev_.href);
+					_buildManifest(prev_);
+					prev_ = prev_.prev();
+				}
+
+				self._spine.push(section.href);
+				_buildManifest(section);
+
+				var next_ = section.next();
+				while (next_) {
+					self._spine.push(next_.href);
+					_buildManifest(next_);
+					next_ = next_.next();
+				}
+
+				console.log("AHOY PRE-PAGINATED", promises.length);
+			}
+
+			var _display = function () {
+
+				var check = document.querySelector('.epub-view');
+				if (!check) {
+					console.log("AHOY DRAWING", self._spine.length);
+					for (var i = 0; i < self._spine.length; i++) {
+						var href = self._spine[i];
+						// console.log("AHOY DRAWING", href);
+						var section_ = self._manifest[href];
+						// var r = self.container.offsetWidth / section_.viewport.width;
+						// var h = Math.floor(dim.height * r);
+						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+						var r = w / section_.viewport.width;
+						var h = Math.floor(section_.viewport.height * r);
+
+						h = self.layout.height;
+
+						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
+						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+						// div.setAttribute('use-')
+						// div.setAttribute('original-height', h);
+
+						if (window.debugManager) {
+							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
+							var colorR = Math.floor(Math.random() * 100).toString();
+							var colorG = Math.floor(Math.random() * 100).toString();
+							var colorB = Math.floor(Math.random() * 100).toString();
+							div.style.backgroundColor = "#" + colorR + colorG + colorB;
+						}
+					}
+				}
+
+				// find the <div> with this section
+				// console.log("AHOY continuous.display START", section.href);
+				var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
+				div.scrollIntoView();
+
+				if (!check) {
+					var w = this.layout.columnWidth;
+					var wrapper = this.container.parentElement;
+					var scale = this.container.offsetWidth * 0.90 / w;
+					if (scale < 1.0) {
+						scale = 1.5;
+					}
+					var w1 = wrapper.scrollWidth * scale;
+					var w2 = this.layout.columnWidth * scale;
+					this.scale(scale);
+
+					setTimeout(function () {
+						// this is ... lame
+						this.recenter();
+						console.log("AHOY PRE-PAGINATED RENDER", scale);
+						this.scrolled();
+					}.bind(this), 500);
+				}
+
+				// this.q.clear();
+				// return check ? this.update() : this.check();
+				var retval = check ? this.update() : this.check();
+				retval.then(function () {
+					this.q.clear();
+					this.emit("built");
+					return display.resolve();
+				}.bind(this));
+
+				// return DefaultViewManager.prototype.display.call(this, section, target)
+				// 	.then(function () {
+				// 		return this.fill();
+				// 	}.bind(this));
+			}.bind(this);
+
+			// // promises.push(_display);
+			// while(promises.length) {
+			// 	this.q.enqueue(promises.shift);
+			// }
+
+			// console.log("AHOY PREPAGINATED", this.q._q.length);
+			// this.q.enqueue().then((result) => {
+			// 	display.resolve();
+			// })
+
+			var q = function () {
+				return this.q.enqueue(function (result) {
+					var waiting = 0;
+					for (var i = 0; i < self._spine.length; i++) {
+						var href = self._spine[i];
+						var has_section = self._manifest[href];
+						if (has_section == false) {
+							waiting += 1;
+						}
+					}
+					// console.log("AHOY PRE-PAGINATED WAITING", waiting);
+					if (waiting == 0) {
+						return _display();
+					} else {
+						q();
+					}
+				});
+			}.bind(this);
+
+			return q();
+
+			return display.promise;
+		}
+	}, {
+		key: "_checkStillLoading",
+		value: function _checkStillLoading() {
+			this.q.enqueue(function (result) {
+				var waiting = 0;
+				for (var i = 0; i < self._spine.length; i++) {
+					var href = self._spine[i];
+					var has_section = self._manifest[href];
+					if (has_section == false) {
+						waiting += 1;
+					}
+				}
+				console.log("AHOY PRE-PAGINATED WAITING", waiting);
+				if (waiting == 0) {
+					return _display();
+				} else {
+					q();
+				}
+			});
+		}
+	}, {
 		key: "fill",
 		value: function fill(_full) {
 			var _this2 = this;
@@ -26210,10 +26385,29 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			var full = _full || new _core.defer();
 
 			this.q.enqueue(function () {
-				return _this2.check();
+				return _this2._checkStillLoading();
 			}).then(function (result) {
 				if (result) {
 					_this2.fill(full);
+				} else {
+					full.resolve();
+				}
+			});
+
+			return full.promise;
+		}
+	}, {
+		key: "fillXX",
+		value: function fillXX(_full) {
+			var _this3 = this;
+
+			var full = _full || new _core.defer();
+
+			this.q.enqueue(function () {
+				return _this3.check();
+			}).then(function (result) {
+				if (result) {
+					_this3.fill(full);
 				} else {
 					full.resolve();
 				}
@@ -26263,7 +26457,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "add",
 		value: function add(section) {
-			var _this3 = this;
+			var _this4 = this;
 
 			var view = this.createView(section);
 
@@ -26274,7 +26468,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			});
 
 			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this3.updateAxis(axis);
+				_this4.updateAxis(axis);
 			});
 
 			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
@@ -26310,12 +26504,12 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "prepend",
 		value: function prepend(section) {
-			var _this4 = this;
+			var _this5 = this;
 
 			var view = this.createView(section);
 
 			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				_this4.counter(bounds);
+				_this5.counter(bounds);
 				view.expanded = true;
 			});
 
@@ -26451,7 +26645,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "check",
 		value: function check(_offsetLeft, _offsetTop) {
-			var _this5 = this;
+			var _this6 = this;
 
 			var checking = new _core.defer();
 			var newViews = [];
@@ -26484,20 +26678,20 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
 
 			var prepend = function prepend() {
-				var first = _this5.views.first();
+				var first = _this6.views.first();
 				var prev = first && first.section.prev();
 
 				if (prev) {
-					newViews.push(_this5.prepend(prev));
+					newViews.push(_this6.prepend(prev));
 				}
 			};
 
 			var append = function append() {
-				var last = _this5.views.last();
+				var last = _this6.views.last();
 				var next = last && last.section.next();
 
 				if (next) {
-					newViews.push(_this5.append(next));
+					newViews.push(_this6.append(next));
 				}
 			};
 
@@ -26565,14 +26759,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 			if (newViews.length) {
 				return Promise.all(promises).then(function () {
-					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
+					if (_this6.layout.name === "pre-paginated" && _this6.layout.props.spread && _this6.layout.flow() != 'scrolled') {
 						// console.log("AHOY check again");
-						return _this5.check();
+						return _this6.check();
 					}
 				}).then(function () {
 					// Check to see if anything new is on screen after rendering
 					// console.log("AHOY update again");
-					return _this5.update(delta);
+					return _this6.update(delta);
 				}, function (err) {
 					return err;
 				});
