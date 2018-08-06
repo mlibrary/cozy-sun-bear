@@ -158,6 +158,19 @@ Reader.EpubJS = Reader.extend({
     self._bindEvents();
     self._drawn = true;
 
+    self._rendition.on('started', function() {
+      console.log("AHOY RENDITION STARTED", self._rendition.manager);
+      self._rendition.manager.on("building", function(status) {
+        if ( status ) {
+          self._panes['loader-status'].innerHTML = `<span>${status.index} / ${status.total}</span>`;
+        } else {
+          self._enableBookLoader(-1);
+        }
+      })
+      self._rendition.manager.on("built", function() {
+        self._disableBookLoader(true);
+      })
+    })
     self._rendition.on('attached', attached_callback)
 
     self._rendition.hooks.content.register(function(contents) {
@@ -237,17 +250,14 @@ Reader.EpubJS = Reader.extend({
   _navigate: function(promise, callback) {
     var self = this;
     console.log("AHOY NAVIGATE", promise);
-    var t = setTimeout(function() {
-      self._panes['loader'].style.display = 'block';
-    }, 100);
+    self._enableBookLoader(100);
     promise.then(function() {
       console.log("AHOY NAVIGATE FIN");
-      clearTimeout(t);
-      self._panes['loader'].style.display = 'none';
+      self._disableBookLoader();
       if ( callback ) { callback(); }
     }).catch(function(e) {
       clearTimeout(t);
-      self._panes['loader'].style.display = 'none';
+      self._disableBookLoader();
       if ( callback ) { callback(); }
       console.log("AHOY NAVIGATE ERROR", e);
       throw(e);
