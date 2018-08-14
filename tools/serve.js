@@ -36,11 +36,19 @@ function allowCrossDomain(req, res, next) {
     next();
 }
 
+function setHeaders(res, path) {
+  if ( false && path.indexOf(".opf") > -1 ) {
+    res.setHeader('Content-Type', 'text/html');
+  }
+}
 
 function listen(port) {
 
   var app = express();
-  var staticServer = serveStatic(path.resolve(__dirname, '../../'), {'index': ['index.html', 'index.htm']})
+  var staticServer = serveStatic(path.resolve(__dirname, '../../'), {
+    'index': ['index.html', 'index.htm'],
+    'setHeaders': setHeaders
+  })
   var appPath = path.resolve(__dirname + '/../../');
   var indexPaths = process.env.EPUB3_PATH || 'epub3-local:epub3-samples';
   indexPaths = indexPaths.split(':');
