@@ -19583,6 +19583,7 @@ var Book = function () {
 			return this.unarchive(data, encoding || this.settings.encoding).then(function () {
 				return _this2.openContainer(CONTAINER_PATH);
 			}).then(function (packagePath) {
+				console.log("AHOY RESOLVED", packagePath);
 				return _this2.openPackaging(packagePath);
 			});
 		}
@@ -19601,7 +19602,8 @@ var Book = function () {
 
 			return this.load(url).then(function (xml) {
 				_this3.container = new _container2.default(xml);
-				return _this3.resolve(_this3.container.packagePath);
+				console.log("AHOY packagePath", _this3.container.packagePath);
+				return _this3.resolve(_this3.settings.packagePath || _this3.container.packagePath);
 			});
 		}
 
@@ -21446,22 +21448,30 @@ var Section = function () {
 			this.output; // TODO: better way to return this from hooks?
 
 			var absolute = function absolute(base, relative) {
-				var stack = base.split("/"),
-				    parts = relative.split("/");
+				var base2 = base;
+				var stack;
+				if (base2.indexOf('http') == 0) {
+					base2 = base2.replace(/https?:\/\//, '');
+					stack = base2.split("/");
+					stack.shift();
+				} else {
+					var stack = base2.split("/");
+				}
+				var parts = relative.split("/");
 				stack.pop(); // remove current file name (or empty string)
 				// (omit if "base" is the current folder without trailing slash)
 				for (var i = 0; i < parts.length; i++) {
 					if (parts[i] == ".") continue;
 					if (parts[i] == "..") stack.pop();else stack.push(parts[i]);
 				}
-				return stack.join("/");
+				return '/' + stack.join("/");
 			};
 
 			var munge = function munge(base_href, nodes, attr) {
 				for (var i = 0; i < nodes.length; i++) {
 					var node = nodes[i];
 					var href = node.getAttribute(attr);
-					if (href.substr(0, 4) != 'http') {
+					if (!href.match('^blob:|^https?:') && href.substr(0, 1) != '/') {
 						console.log("AHOY SECTION RENDER", href, absolute(base_href, href));
 						node.setAttribute(attr, absolute(base_href, href));
 					}
@@ -21478,10 +21488,11 @@ var Section = function () {
 					Serializer = XMLSerializer;
 				}
 				var base = contents.querySelector('base');
+				// this has the potential to break ... ?
 				if (false) {
 					var base_href = base.getAttribute('href');
 					var links = contents.querySelectorAll("link");
-					munge(base_href, links, 'href');
+					// munge(base_href, links, 'href');
 					munge(base_href, contents.querySelectorAll('img'), 'src');
 				}
 				var serializer = new Serializer();
@@ -23115,14 +23126,30 @@ var Resources = function () {
 				}.bind(this));
 			}
 
-			var replacements = this.urls.map(function (url) {
-				var absolute = _this.settings.resolver(url);
+			// var replacements = this.urls.
+			// 	map( (url) => {
+			// 		var absolute = this.settings.resolver(url);
 
-				return _this.createUrl(absolute).catch(function (err) {
-					console.error(err);
-					return null;
-				});
-			});
+			// 		return this.createUrl(absolute).
+			// 			catch((err) => {
+			// 				console.error(err);
+			// 				return null;
+			// 			});
+			// 	});
+
+
+			var replacements = [];
+			for (var i = 0; i < this.urls.length; i++) {
+				var url = this.urls[i];
+				if (url.indexOf("http") < 0 && url.substr(0, 1) != '/') {
+					var absolute = this.settings.resolver(url);
+
+					replacements.push(this.createUrl(absolute).catch(function (err) {
+						console.error(err);
+						return null;
+					}));
+				}
+			}
 
 			return Promise.all(replacements).then(function (replacementUrls) {
 				_this.replacementUrls = replacementUrls.filter(function (url) {
@@ -26042,7 +26069,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 		value: function resize(width, height) {
 			var self = this;
 			// // reset the scale
-			// this.scale(1.0);
+			this.scale(1.0);
 
 			if (this.scaleTimeout) {
 				clearTimeout(this.scaleTimeout);
@@ -26060,11 +26087,21 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// var r = w / section_.viewport.width;
 				// var h = Math.floor(section_.viewport.height * r);
 
-				var h = this.layout.height;
+				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+				var r = w / section_.viewport.width;
+				var h = Math.floor(section_.viewport.height * r);
+				self.layout.height = h;
+
+				// var h = this.layout.height;
 
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 				div.style.height = h + "px";
 				// div.setAttribute('original-height', h);
+
+				var view = this.views.find(section_);
+				if (view) {
+					view.size(w, h);
+				}
 			}
 
 			this.scaleTimeout = setTimeout(function () {
@@ -26104,13 +26141,13 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			if (!this._manifest) {
 				self._manifest = {};
 				var _buildManifest = function _buildManifest(section) {
-					promises.push(section.load().then(function (contents) {
+					promises.push(section.load(self.request).then(function (contents) {
 						var meta = contents.querySelector('meta[name="viewport"]');
 						var value = meta.getAttribute('content');
 						var tmp = value.split(",");
 						var key = section.href;
-						section.viewport = {};
-						self._manifest[key] = section;
+						// section.viewport = {};
+						self._manifest[key] = {}; // section;
 						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
 						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
 					}));
@@ -26210,26 +26247,37 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.q.clear();
 			var display = new _core.defer();
 			var promises = [];
+			this.faking = {};
 
 			if (!this._manifest) {
+				console.log("AHOY PREPAGINATED", this.settings.viewports);
 				this.emit("building");
 				self._manifest = {};
-				var _buildManifest = function _buildManifest(section) {
-					self._manifest[section.href] = false;
-					self.q.enqueue(function () {
-						section.load().then(function (contents) {
-							var meta = contents.querySelector('meta[name="viewport"]');
-							var value = meta.getAttribute('content');
-							var tmp = value.split(",");
-							var key = section.href;
-							var idx = self._spine.indexOf(key);
-							self.emit("building", { index: idx + 1, total: self._spine.length });
-							section.viewport = {};
-							self._manifest[key] = section;
-							self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
-							self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
+				var _buildManifest = function _buildManifest(section_) {
+					self._manifest[section_.href] = false;
+					if (self.settings.viewports && self.settings.viewports[section_.href]) {
+						section_.viewport = self.settings.viewports[section_.href];
+						self._manifest[section_.href] = section_;
+					} else {
+						self.q.enqueue(function () {
+							section_.load(self.request).then(function (contents) {
+								var meta = contents.querySelector('meta[name="viewport"]');
+								var value = meta.getAttribute('content');
+								var tmp = value.split(",");
+								var key = section_.href;
+								var idx = self._spine.indexOf(key);
+								self.emit("building", { index: idx + 1, total: self._spine.length });
+								section_.viewport = {};
+								self._manifest[key] = section_;
+								// self._manifest[key] = { viewport : {} };
+								// self._manifest[key].index = section_.index;
+								// self._manifest[key].href = section_.href;
+								self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
+								self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
+								self.faking[key] = self._manifest[key].viewport;
+							});
 						});
-					});
+					}
 				};
 
 				// can we build a manifest here?
@@ -26267,13 +26315,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
 						var r = w / section_.viewport.width;
 						var h = Math.floor(section_.viewport.height * r);
+						self.layout.height = h;
 
-						h = self.layout.height;
+						// h = self.layout.height;
 
 						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
 						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 						// div.setAttribute('use-')
-						// div.setAttribute('original-height', h);
+						div.setAttribute('original-height', h);
 
 						if (window.debugManager) {
 							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
@@ -26312,8 +26361,10 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// this.q.clear();
 				// return check ? this.update() : this.check();
 				var retval = check ? this.update() : this.check();
+				console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
 				retval.then(function () {
 					this.q.clear();
+					console.log("AHOY MANAGER BUILT");
 					this.emit("built");
 					return display.resolve();
 				}.bind(this));
@@ -26322,6 +26373,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// 	.then(function () {
 				// 		return this.fill();
 				// 	}.bind(this));
+
+				return retval;
 			}.bind(this);
 
 			// // promises.push(_display);
@@ -26729,13 +26782,22 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.__check_visible = visible;
 
 			var section = visible[0];
-			if (section && section.prev()) {
-				visible.unshift(section.prev());
+			if (section && section.index > 0) {
+				visible.unshift(this._manifest[this._spine[section.index - 1]]);
 			}
-			section = visible[visible.length - 1];
-			if (section && section.next()) {
-				visible.push(section.next());
+			if (section) {
+				var tmp = this._spine[section.index + 1];
+				if (tmp) {
+					visible.push(this._manifest[tmp]);
+				}
 			}
+			// if ( section && section.prev() ) {
+			// 	visible.unshift(section.prev());
+			// }
+			// section = visible[visible.length - 1];
+			// if (section && section.next() ) {
+			// 	visible.push(section.next());
+			// }
 
 			for (var i = 0; i < visible.length; i++) {
 				var section = visible[i];

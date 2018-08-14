@@ -51,7 +51,16 @@ Reader.EpubJS = Reader.extend({
     request.send();
 
     this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
-    this._book = epubjs.ePub(this.options.href + this.options.rootfilePath );
+    var book_href = this.options.href;
+    // if ( this.options.rootfilePath ) {
+    //  book_href += this.options.rootfilePath;
+    //}
+    var book_options = { packagePath: this.options.rootfilePath };
+    if ( this.options.useArchive ) {
+      book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
+      book_options.openAs = 'epub';
+    }
+    this._book = epubjs.ePub(book_href, book_options);
     sessionStorage.removeItem('rootfilePath');
     // this._book = epubjs.ePub(this.options.href);
     this._book.loaded.navigation.then(function(toc) {
@@ -72,7 +81,7 @@ Reader.EpubJS = Reader.extend({
         self.locations.total = locations.length;
         var t;
         var f = function() {
-          if ( self._rendition.manager ) {
+          if ( self._rendition && self._rendition.manager ) {
             var location = self._rendition.currentLocation();
             if ( location && location.start) {
               self.fire('updateLocations', locations);
@@ -133,45 +142,82 @@ Reader.EpubJS = Reader.extend({
         this.settings.manager = 'prepaginated';
     }
 
-    var attached_callback = function() { };
-    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
-      // STILL A HACK
-      window.fitWidth = false;
-      this._panes['epub'].style.overflowX = 'hidden';
-
-      // // this yields a columnWidth the size of the window, which makes for
-      // // strangely squat layouts
-      // this.settings.spread = 'none';
-
-    } else {
-      window.fitWidth = false;
+    if ( false && this.metadata.layout == 'pre-paginated' && this.settings.manager == 'default' ) {
+      this.settings.spread = 'none';
+      this._panes['epub'].style.overflow = 'auto';
     }
 
     self.settings.height = '100%';
     self.settings.width = '100%';
-
-    self._panes['book'].dataset.manager = this.settings.manager;
-
     self.settings['ignoreClass'] = 'annotator-hl';
+
+    self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
+
+    self._maybeConfigureManagerViewports(function() {
+      self._drawRendition(target, callback);
+    })
+  },
+
+  _maybeConfigureManagerViewports: function(callback) {
+    var self = this;
+
+    if ( this.settings.manager == 'prepaginated' ) {
+      var viewports = null;
+      var request = new XMLHttpRequest();
+      var viewport_href = self._book.container.packagePath.replace("/", "__") + ".viewports.js";
+      request.open('GET', self._book.url.resolve(viewport_href));
+      request.responseType = 'json';
+      request.onloadend = function(event) {
+        if ( request.status == 200 ) {
+          self.settings.viewports = event.target.response;
+        }
+        callback();
+      }
+      request.send();
+    } else {
+      callback();
+    }
+  },
+
+  _drawRendition: function(target, callback) {
+    var self = this;
+
     self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
     self._updateFontSize();
     self._bindEvents();
     self._drawn = true;
 
+    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
+      this._panes['epub'].style.overflowX = 'hidden';
+    }
+
+    var status_index = 0;
     self._rendition.on('started', function() {
       console.log("AHOY RENDITION STARTED", self._rendition.manager);
+      // self._rendition.manager.settings.viewports = viewports;
+
+      //var t;
+      //t = setInterval(function() {
+      //  if ( self._rendition.manager.stage && self.metadata.layout == 'pre-paginated' && self.settings.manager == 'default' ) {
+      //    self._rendition.manager.scale(1.75);
+      //    clearInterval(t)
+      // }
+      //}, 100);
+
       self._rendition.manager.on("building", function(status) {
         if ( status ) {
-          self._panes['loader-status'].innerHTML = `<span>${status.index} / ${status.total}</span>`;
+          status_index += 1;
+          self._panes['loader-status'].innerHTML = `<span>${Math.round((status_index / status.total) * 100.0)}%</span>`;
         } else {
           self._enableBookLoader(-1);
         }
       })
       self._rendition.manager.on("built", function() {
+        console.log("AHOY manager built");
         self._disableBookLoader(true);
       })
     })
-    self._rendition.on('attached', attached_callback)
+    // self._rendition.on('attached', attached_callback)
 
     self._rendition.hooks.content.register(function(contents) {
       self.fire('ready:contents', contents);
@@ -193,14 +239,6 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
-    // this is the dumbest
-    self._queueTimeout = setTimeout(function() {
-      if ( self._rendition.q._q.length ) {
-        console.log("AHOY RUNNING THE QUEUE");
-        self._rendition.q.run();
-      }
-    }, 1000);
-
     self.gotoPage(target, function() {
       window._loaded = true;
       self._initializeReaderStyles();
@@ -216,7 +254,6 @@ Reader.EpubJS = Reader.extend({
       }, 100);
 
     })
-
   },
 
   _scroll: function(delta) {
@@ -256,7 +293,6 @@ Reader.EpubJS = Reader.extend({
       self._disableBookLoader();
       if ( callback ) { callback(); }
     }).catch(function(e) {
-      clearTimeout(t);
       self._disableBookLoader();
       if ( callback ) { callback(); }
       console.log("AHOY NAVIGATE ERROR", e);
