@@ -7021,9 +7021,6 @@ Reader.EpubJS = Reader.extend({
 
     this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
     var book_href = this.options.href;
-    // if ( this.options.rootfilePath ) {
-    //  book_href += this.options.rootfilePath;
-    //}
     var book_options = { packagePath: this.options.rootfilePath };
     if (this.options.useArchive) {
       book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
@@ -7050,7 +7047,7 @@ Reader.EpubJS = Reader.extend({
         self.locations.total = locations.length;
         var t;
         var f = function f() {
-          if (self._rendition && self._rendition.manager) {
+          if (self._rendition && self._rendition.manager && self._rendition.manager.stage) {
             var location = self._rendition.currentLocation();
             if (location && location.start) {
               self.fire('updateLocations', locations);

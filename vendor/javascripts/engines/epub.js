@@ -26096,7 +26096,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 				div.style.height = h + "px";
-				// div.setAttribute('original-height', h);
+				div.setAttribute('original-height', h);
 
 				var view = this.views.find(section_);
 				if (view) {
@@ -26131,112 +26131,6 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			}
 			var view = new this.View(section, this.viewSettings);
 			return view;
-		}
-	}, {
-		key: "displayXX",
-		value: function displayXX(section, target) {
-			var self = this;
-			var promises = [];
-
-			if (!this._manifest) {
-				self._manifest = {};
-				var _buildManifest = function _buildManifest(section) {
-					promises.push(section.load(self.request).then(function (contents) {
-						var meta = contents.querySelector('meta[name="viewport"]');
-						var value = meta.getAttribute('content');
-						var tmp = value.split(",");
-						var key = section.href;
-						// section.viewport = {};
-						self._manifest[key] = {}; // section;
-						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
-						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
-					}));
-				};
-
-				// can we build a manifest here?
-				var prev_ = section.prev();
-				while (prev_) {
-					self._spine.unshift(prev_.href);
-					_buildManifest(prev_);
-					prev_ = prev_.prev();
-				}
-
-				self._spine.push(section.href);
-				_buildManifest(section);
-
-				var next_ = section.next();
-				while (next_) {
-					self._spine.push(next_.href);
-					_buildManifest(next_);
-					next_ = next_.next();
-				}
-			}
-
-			return Promise.all(promises).then(function () {
-
-				var check = document.querySelector('.epub-view');
-				if (!check) {
-					// console.log("AHOY DRAWING", self._spine.length);
-					for (var i = 0; i < self._spine.length; i++) {
-						var href = self._spine[i];
-						// console.log("AHOY DRAWING", href);
-						var section_ = self._manifest[href];
-						// var r = self.container.offsetWidth / section_.viewport.width;
-						// var h = Math.floor(dim.height * r);
-						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-						var r = w / section_.viewport.width;
-						var h = Math.floor(section_.viewport.height * r);
-
-						h = self.layout.height;
-
-						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
-						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-						// div.setAttribute('use-')
-						// div.setAttribute('original-height', h);
-
-						if (window.debugManager) {
-							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
-							var colorR = Math.floor(Math.random() * 100).toString();
-							var colorG = Math.floor(Math.random() * 100).toString();
-							var colorB = Math.floor(Math.random() * 100).toString();
-							div.style.backgroundColor = "#" + colorR + colorG + colorB;
-						}
-					}
-				}
-
-				// find the <div> with this section
-				// console.log("AHOY continuous.display START", section.href);
-				var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
-				div.scrollIntoView();
-
-				if (!check) {
-					var w = this.layout.columnWidth;
-					var wrapper = this.container.parentElement;
-					var scale = this.container.offsetWidth * 0.90 / w;
-					if (scale < 1.0) {
-						scale = 1.5;
-					}
-					console.log("AHOY PRE-PAGINATED", w, scale);
-					var w1 = wrapper.scrollWidth * scale;
-					var w2 = this.layout.columnWidth * scale;
-					this.scale(scale);
-
-					setTimeout(function () {
-						// this is ... lame
-						this.recenter();
-						console.log("AHOY PRE-PAGINATED RENDER", scale);
-						this.scrolled();
-					}.bind(this), 500);
-				}
-
-				// this.q.clear();
-				return check ? this.update() : this.check();
-
-				// return DefaultViewManager.prototype.display.call(this, section, target)
-				// 	.then(function () {
-				// 		return this.fill();
-				// 	}.bind(this));
-			}.bind(this));
 		}
 	}, {
 		key: "display",
