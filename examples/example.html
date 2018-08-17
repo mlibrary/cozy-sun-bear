@@ -218,6 +218,7 @@
                 book_href = book_prefix + book_id;
                 reader = cozy.reader('reader', {
                     href: book_href,
+                    useArchive: params.get('useArchive') || false,
                     themes: [
                         {
                             name: 'Solarized Light',
