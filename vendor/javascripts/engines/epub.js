@@ -15689,7 +15689,7 @@ var IframeView = function () {
 				// width = this.layout.columnWidth + ( this.layout.columnWidth * 0.10 );
 				height = this.layout.height;
 				if (this.layout.flow() == 'scrolled') {
-					if (this.element.hasAttribute('original-height')) {
+					if (this.element.hasAttribute('original-height') && this.element.hasAttribute('original-height') != 'auto') {
 						height = parseInt(this.element.getAttribute('original-height'), 10);
 					} else if (window.fitWidth) {
 						height = this.contents.textHeight();
@@ -26087,12 +26087,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// var r = w / section_.viewport.width;
 				// var h = Math.floor(section_.viewport.height * r);
 
+				var h = self.layout.height;
 				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-				var r = w / section_.viewport.width;
-				var h = Math.floor(section_.viewport.height * r);
-				self.layout.height = h;
 
-				// var h = this.layout.height;
+				if (section_.viewport.height != 'auto') {
+					var r = w / section_.viewport.width;
+					var h = Math.floor(section_.viewport.height * r);
+					self.layout.height = h;
+				}
 
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 				div.style.height = h + "px";
@@ -26100,7 +26102,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 				var view = this.views.find(section_);
 				if (view) {
-					view.size(w, h);
+					view.size(self.layout.columWidth, h);
 				}
 			}
 
@@ -26165,8 +26167,16 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 								// self._manifest[key] = { viewport : {} };
 								// self._manifest[key].index = section_.index;
 								// self._manifest[key].href = section_.href;
-								self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
-								self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
+								var viewport_width = tmp[0].replace('width=', '');
+								var viewport_height = tmp[1].replace('height=', '');
+								if (!viewport_height.match(/^\d+$/)) {
+									viewport_width = viewport_height = 'auto';
+								} else {
+									viewport_width = parseInt(viewport_width, 10);
+									viewport_height = parseInt(viewport_height, 10);
+								}
+								self._manifest[key].viewport.width = viewport_width;
+								self._manifest[key].viewport.height = viewport_height;
 								self.faking[key] = self._manifest[key].viewport;
 							});
 						});
@@ -26205,10 +26215,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 						var section_ = self._manifest[href];
 						// var r = self.container.offsetWidth / section_.viewport.width;
 						// var h = Math.floor(dim.height * r);
-						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-						var r = w / section_.viewport.width;
-						var h = Math.floor(section_.viewport.height * r);
-						self.layout.height = h;
+
+						var h = self.layout.height;
+						if (section_.viewport.height != 'auto') {
+							var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+							var r = w / section_.viewport.width;
+							var h = Math.floor(section_.viewport.height * r);
+							self.layout.height = h;
+						}
 
 						// h = self.layout.height;
 
