@@ -36,20 +36,33 @@ function allowCrossDomain(req, res, next) {
     next();
 }
 
+function setHeaders(res, path) {
+  if ( false && path.indexOf(".opf") > -1 ) {
+    res.setHeader('Content-Type', 'text/html');
+  }
+}
 
 function listen(port) {
 
   var app = express();
-  var staticServer = serveStatic(path.resolve(__dirname, '../../'), {'index': ['index.html', 'index.htm']})
+  var staticServer = serveStatic(path.resolve(__dirname, '../../'), {
+    'index': ['index.html', 'index.htm'],
+    'setHeaders': setHeaders
+  })
   var appPath = path.resolve(__dirname + '/../../');
-  var indexPaths = [];
-  indexPaths.push(path.resolve(appPath, 'epub3-samples'));
-  indexPaths.push(path.resolve(appPath, 'epub3-local'));
+  var indexPaths = process.env.EPUB3_PATH || 'epub3-local:epub3-samples';
+  indexPaths = indexPaths.split(':');
+  for(var i = 0; i < indexPaths.length; i++) {
+    if ( indexPaths[i].substr(0,1) != '/' ) {
+      indexPaths[i] = path.resolve(appPath, indexPaths[i]);
+    }
+  }
 
   var server = http.createServer(app);
 
   app.use(allowCrossDomain);
   if ( process.env.USE_SLOW ) {
+    log(`Delaying requests ${process.env.USE_SLOW}`.yellow);
     app.use(slow({
       url: /\/epub3/i,
       delay: process.env.USE_SLOW

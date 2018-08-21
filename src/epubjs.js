@@ -2,9 +2,9 @@
 // var ePub = window.ePub;
 // export {ePub};
 
-export function ePub(options) {
+export function ePub(href, options) {
 	if ( window.require !== undefined ) {
 		window.ePub = require("ePub");
 	}
-  return window.ePub(options);
+  return window.ePub(href, options);
 }

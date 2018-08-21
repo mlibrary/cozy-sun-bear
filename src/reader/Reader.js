@@ -485,6 +485,36 @@ export var Reader = Evented.extend({
     return this._isMobile;
   },
 
+  _enableBookLoader: function(delay=0) {
+    var self = this;
+    self._clearBookLoaderTimeout();
+    if ( delay < 0 ) {
+      delay = 0;
+      self._force_progress = true;
+    }
+    self._loader_timeout = setTimeout(function() {
+      self._panes['loader'].style.display = 'block';
+    }, delay);
+  },
+
+  _disableBookLoader: function(force=false) {
+    var self = this;
+    self._clearBookLoaderTimeout();
+    if ( ! self._force_progress || force ) {
+      self._panes['loader'].style.display = 'none';
+      self._force_progress = false;
+      self._panes['loader-status'].innerHTML = '';
+    }
+  },
+
+  _clearBookLoaderTimeout: function() {
+    var self = this;
+    if ( self._loader_timeout ) {
+      clearTimeout(self._loader_timeout);
+      self._loader_timeout = null;
+    }
+  },
+
   _initBookLoader: function() {
     // is this not awesome?
     var template = this.options.loader_template || this.loaderTemplate();
@@ -493,6 +523,7 @@ export var Reader = Evented.extend({
     while ( body.children.length ) {
       this._panes['loader'].appendChild(body.children[0]);
     }
+    this._panes['loader-status'] = DomUtil.create('div', 'cozy-module-book-loading-status', this._panes['loader']);
   },
 
   loaderTemplate: function() {

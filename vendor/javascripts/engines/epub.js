@@ -8319,7 +8319,7 @@ var Queue = function () {
 
 					_this.dequeue().then(function () {
 						this.run();
-					}.bind(_this)).catch(console.log.bind(console));
+					}.bind(_this));
 				} else {
 					_this.defered.resolve();
 					_this.running = undefined;
@@ -9640,7 +9640,9 @@ var Contents = function () {
 				scale = widthScale < heightScale ? widthScale : heightScale;
 				offsetY = (height - viewport.height * scale) / 2;
 				if (heightScale == scale) {
-					offsetX = width / height * width;
+					offsetX = width / height * width / 2;
+					offsetX = width * heightScale;
+					console.log("AHOY CONTENTS", heightScale, width, height, offsetX);
 				}
 				// offsetX = (width - ( viewport.width * scale)) / 2;
 				// console.log("AHOY CONTENTS FIT", width, height, ":", viewport.width, viewport.height, scale, widthScale, heightScale, ":", width / height, height / width, ":", Math.min(widthScale, heightScale));
@@ -15687,7 +15689,7 @@ var IframeView = function () {
 				// width = this.layout.columnWidth + ( this.layout.columnWidth * 0.10 );
 				height = this.layout.height;
 				if (this.layout.flow() == 'scrolled') {
-					if (this.element.hasAttribute('original-height')) {
+					if (this.element.hasAttribute('original-height') && this.element.hasAttribute('original-height') != 'auto') {
 						height = parseInt(this.element.getAttribute('original-height'), 10);
 					} else if (window.fitWidth) {
 						height = this.contents.textHeight();
@@ -19581,6 +19583,7 @@ var Book = function () {
 			return this.unarchive(data, encoding || this.settings.encoding).then(function () {
 				return _this2.openContainer(CONTAINER_PATH);
 			}).then(function (packagePath) {
+				console.log("AHOY RESOLVED", packagePath);
 				return _this2.openPackaging(packagePath);
 			});
 		}
@@ -19599,7 +19602,8 @@ var Book = function () {
 
 			return this.load(url).then(function (xml) {
 				_this3.container = new _container2.default(xml);
-				return _this3.resolve(_this3.container.packagePath);
+				console.log("AHOY packagePath", _this3.container.packagePath);
+				return _this3.resolve(_this3.settings.packagePath || _this3.container.packagePath);
 			});
 		}
 
@@ -21444,22 +21448,30 @@ var Section = function () {
 			this.output; // TODO: better way to return this from hooks?
 
 			var absolute = function absolute(base, relative) {
-				var stack = base.split("/"),
-				    parts = relative.split("/");
+				var base2 = base;
+				var stack;
+				if (base2.indexOf('http') == 0) {
+					base2 = base2.replace(/https?:\/\//, '');
+					stack = base2.split("/");
+					stack.shift();
+				} else {
+					var stack = base2.split("/");
+				}
+				var parts = relative.split("/");
 				stack.pop(); // remove current file name (or empty string)
 				// (omit if "base" is the current folder without trailing slash)
 				for (var i = 0; i < parts.length; i++) {
 					if (parts[i] == ".") continue;
 					if (parts[i] == "..") stack.pop();else stack.push(parts[i]);
 				}
-				return stack.join("/");
+				return '/' + stack.join("/");
 			};
 
 			var munge = function munge(base_href, nodes, attr) {
 				for (var i = 0; i < nodes.length; i++) {
 					var node = nodes[i];
 					var href = node.getAttribute(attr);
-					if (href.substr(0, 4) != 'http') {
+					if (!href.match('^blob:|^https?:') && href.substr(0, 1) != '/') {
 						console.log("AHOY SECTION RENDER", href, absolute(base_href, href));
 						node.setAttribute(attr, absolute(base_href, href));
 					}
@@ -21476,10 +21488,11 @@ var Section = function () {
 					Serializer = XMLSerializer;
 				}
 				var base = contents.querySelector('base');
+				// this has the potential to break ... ?
 				if (false) {
 					var base_href = base.getAttribute('href');
 					var links = contents.querySelectorAll("link");
-					munge(base_href, links, 'href');
+					// munge(base_href, links, 'href');
 					munge(base_href, contents.querySelectorAll('img'), 'src');
 				}
 				var serializer = new Serializer();
@@ -23113,14 +23126,30 @@ var Resources = function () {
 				}.bind(this));
 			}
 
-			var replacements = this.urls.map(function (url) {
-				var absolute = _this.settings.resolver(url);
+			// var replacements = this.urls.
+			// 	map( (url) => {
+			// 		var absolute = this.settings.resolver(url);
 
-				return _this.createUrl(absolute).catch(function (err) {
-					console.error(err);
-					return null;
-				});
-			});
+			// 		return this.createUrl(absolute).
+			// 			catch((err) => {
+			// 				console.error(err);
+			// 				return null;
+			// 			});
+			// 	});
+
+
+			var replacements = [];
+			for (var i = 0; i < this.urls.length; i++) {
+				var url = this.urls[i];
+				if (url.indexOf("http") < 0 && url.substr(0, 1) != '/') {
+					var absolute = this.settings.resolver(url);
+
+					replacements.push(this.createUrl(absolute).catch(function (err) {
+						console.error(err);
+						return null;
+					}));
+				}
+			}
 
 			return Promise.all(replacements).then(function (replacementUrls) {
 				_this.replacementUrls = replacementUrls.filter(function (url) {
@@ -23762,10 +23791,6 @@ var Layout = function () {
 			}
 
 			spreadWidth = columnWidth * divisor + gap;
-			// // RRE - hacking
-			// if ( this.name === 'pre-paginated' ) {
-			// 	height = spreadWidth * 1.5;
-			// }
 
 			delta = Math.ceil(width);
 
@@ -26044,7 +26069,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 		value: function resize(width, height) {
 			var self = this;
 			// // reset the scale
-			// this.scale(1.0);
+			this.scale(1.0);
 
 			if (this.scaleTimeout) {
 				clearTimeout(this.scaleTimeout);
@@ -26062,11 +26087,23 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				// var r = w / section_.viewport.width;
 				// var h = Math.floor(section_.viewport.height * r);
 
-				var h = this.layout.height;
+				var h = self.layout.height;
+				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+
+				if (section_.viewport.height != 'auto') {
+					var r = w / section_.viewport.width;
+					var h = Math.floor(section_.viewport.height * r);
+					self.layout.height = h;
+				}
 
 				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 				div.style.height = h + "px";
-				// div.setAttribute('original-height', h);
+				div.setAttribute('original-height', h);
+
+				var view = this.views.find(section_);
+				if (view) {
+					view.size(self.layout.columWidth, h);
+				}
 			}
 
 			this.scaleTimeout = setTimeout(function () {
@@ -26103,19 +26140,47 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			var self = this;
 			var promises = [];
 
+			this.q.clear();
+			var display = new _core.defer();
+			var promises = [];
+			this.faking = {};
+
 			if (!this._manifest) {
+				this.emit("building");
 				self._manifest = {};
-				var _buildManifest = function _buildManifest(section) {
-					promises.push(section.load().then(function (contents) {
-						var meta = contents.querySelector('meta[name="viewport"]');
-						var value = meta.getAttribute('content');
-						var tmp = value.split(",");
-						var key = section.href;
-						section.viewport = {};
-						self._manifest[key] = section;
-						self._manifest[key].viewport.width = parseInt(tmp[0].replace('width=', ''), 10);
-						self._manifest[key].viewport.height = parseInt(tmp[1].replace('height=', ''), 10);
-					}));
+				var _buildManifest = function _buildManifest(section_) {
+					self._manifest[section_.href] = false;
+					if (self.settings.viewports && self.settings.viewports[section_.href]) {
+						section_.viewport = self.settings.viewports[section_.href];
+						self._manifest[section_.href] = section_;
+					} else {
+						self.q.enqueue(function () {
+							section_.load(self.request).then(function (contents) {
+								var meta = contents.querySelector('meta[name="viewport"]');
+								var value = meta.getAttribute('content');
+								var tmp = value.split(",");
+								var key = section_.href;
+								var idx = self._spine.indexOf(key);
+								self.emit("building", { index: idx + 1, total: self._spine.length });
+								section_.viewport = {};
+								self._manifest[key] = section_;
+								// self._manifest[key] = { viewport : {} };
+								// self._manifest[key].index = section_.index;
+								// self._manifest[key].href = section_.href;
+								var viewport_width = tmp[0].replace('width=', '');
+								var viewport_height = tmp[1].replace('height=', '');
+								if (!viewport_height.match(/^\d+$/)) {
+									viewport_width = viewport_height = 'auto';
+								} else {
+									viewport_width = parseInt(viewport_width, 10);
+									viewport_height = parseInt(viewport_height, 10);
+								}
+								self._manifest[key].viewport.width = viewport_width;
+								self._manifest[key].viewport.height = viewport_height;
+								self.faking[key] = self._manifest[key].viewport;
+							});
+						});
+					}
 				};
 
 				// can we build a manifest here?
@@ -26135,29 +26200,36 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 					_buildManifest(next_);
 					next_ = next_.next();
 				}
+
+				console.log("AHOY PRE-PAGINATED", promises.length);
 			}
 
-			return Promise.all(promises).then(function () {
+			var _display = function () {
 
 				var check = document.querySelector('.epub-view');
 				if (!check) {
-					// console.log("AHOY DRAWING", self._spine.length);
+					console.log("AHOY DRAWING", self._spine.length);
 					for (var i = 0; i < self._spine.length; i++) {
 						var href = self._spine[i];
 						// console.log("AHOY DRAWING", href);
 						var section_ = self._manifest[href];
 						// var r = self.container.offsetWidth / section_.viewport.width;
 						// var h = Math.floor(dim.height * r);
-						var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-						var r = w / section_.viewport.width;
-						var h = Math.floor(section_.viewport.height * r);
 
-						h = self.layout.height;
+						var h = self.layout.height;
+						if (section_.viewport.height != 'auto') {
+							var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
+							var r = w / section_.viewport.width;
+							var h = Math.floor(section_.viewport.height * r);
+							self.layout.height = h;
+						}
+
+						// h = self.layout.height;
 
 						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
 						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
 						// div.setAttribute('use-')
-						// div.setAttribute('original-height', h);
+						div.setAttribute('original-height', h);
 
 						if (window.debugManager) {
 							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
@@ -26194,13 +26266,76 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 				}
 
 				// this.q.clear();
-				return check ? this.update() : this.check();
+				// return check ? this.update() : this.check();
+				var retval = check ? this.update() : this.check();
+				console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
+				retval.then(function () {
+					this.q.clear();
+					console.log("AHOY MANAGER BUILT");
+					this.emit("built");
+					return display.resolve();
+				}.bind(this));
 
 				// return DefaultViewManager.prototype.display.call(this, section, target)
 				// 	.then(function () {
 				// 		return this.fill();
 				// 	}.bind(this));
-			}.bind(this));
+
+				return retval;
+			}.bind(this);
+
+			// // promises.push(_display);
+			// while(promises.length) {
+			// 	this.q.enqueue(promises.shift);
+			// }
+
+			// console.log("AHOY PREPAGINATED", this.q._q.length);
+			// this.q.enqueue().then((result) => {
+			// 	display.resolve();
+			// })
+
+			var q = function () {
+				return this.q.enqueue(function (result) {
+					var waiting = 0;
+					for (var i = 0; i < self._spine.length; i++) {
+						var href = self._spine[i];
+						var has_section = self._manifest[href];
+						if (has_section == false) {
+							waiting += 1;
+						}
+					}
+					// console.log("AHOY PRE-PAGINATED WAITING", waiting);
+					if (waiting == 0) {
+						return _display();
+					} else {
+						q();
+					}
+				});
+			}.bind(this);
+
+			return q();
+
+			return display.promise;
+		}
+	}, {
+		key: "_checkStillLoading",
+		value: function _checkStillLoading() {
+			this.q.enqueue(function (result) {
+				var waiting = 0;
+				for (var i = 0; i < self._spine.length; i++) {
+					var href = self._spine[i];
+					var has_section = self._manifest[href];
+					if (has_section == false) {
+						waiting += 1;
+					}
+				}
+				console.log("AHOY PRE-PAGINATED WAITING", waiting);
+				if (waiting == 0) {
+					return _display();
+				} else {
+					q();
+				}
+			});
 		}
 	}, {
 		key: "fill",
@@ -26210,10 +26345,29 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			var full = _full || new _core.defer();
 
 			this.q.enqueue(function () {
-				return _this2.check();
+				return _this2._checkStillLoading();
 			}).then(function (result) {
 				if (result) {
 					_this2.fill(full);
+				} else {
+					full.resolve();
+				}
+			});
+
+			return full.promise;
+		}
+	}, {
+		key: "fillXX",
+		value: function fillXX(_full) {
+			var _this3 = this;
+
+			var full = _full || new _core.defer();
+
+			this.q.enqueue(function () {
+				return _this3.check();
+			}).then(function (result) {
+				if (result) {
+					_this3.fill(full);
 				} else {
 					full.resolve();
 				}
@@ -26263,7 +26417,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "add",
 		value: function add(section) {
-			var _this3 = this;
+			var _this4 = this;
 
 			var view = this.createView(section);
 
@@ -26274,7 +26428,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			});
 
 			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this3.updateAxis(axis);
+				_this4.updateAxis(axis);
 			});
 
 			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
@@ -26310,12 +26464,12 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "prepend",
 		value: function prepend(section) {
-			var _this4 = this;
+			var _this5 = this;
 
 			var view = this.createView(section);
 
 			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				_this4.counter(bounds);
+				_this5.counter(bounds);
 				view.expanded = true;
 			});
 
@@ -26451,7 +26605,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 	}, {
 		key: "check",
 		value: function check(_offsetLeft, _offsetTop) {
-			var _this5 = this;
+			var _this6 = this;
 
 			var checking = new _core.defer();
 			var newViews = [];
@@ -26484,20 +26638,20 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
 
 			var prepend = function prepend() {
-				var first = _this5.views.first();
+				var first = _this6.views.first();
 				var prev = first && first.section.prev();
 
 				if (prev) {
-					newViews.push(_this5.prepend(prev));
+					newViews.push(_this6.prepend(prev));
 				}
 			};
 
 			var append = function append() {
-				var last = _this5.views.last();
+				var last = _this6.views.last();
 				var next = last && last.section.next();
 
 				if (next) {
-					newViews.push(_this5.append(next));
+					newViews.push(_this6.append(next));
 				}
 			};
 
@@ -26535,13 +26689,22 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.__check_visible = visible;
 
 			var section = visible[0];
-			if (section && section.prev()) {
-				visible.unshift(section.prev());
+			if (section && section.index > 0) {
+				visible.unshift(this._manifest[this._spine[section.index - 1]]);
 			}
-			section = visible[visible.length - 1];
-			if (section && section.next()) {
-				visible.push(section.next());
+			if (section) {
+				var tmp = this._spine[section.index + 1];
+				if (tmp) {
+					visible.push(this._manifest[tmp]);
+				}
 			}
+			// if ( section && section.prev() ) {
+			// 	visible.unshift(section.prev());
+			// }
+			// section = visible[visible.length - 1];
+			// if (section && section.next() ) {
+			// 	visible.push(section.next());
+			// }
 
 			for (var i = 0; i < visible.length; i++) {
 				var section = visible[i];
@@ -26565,14 +26728,14 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 			if (newViews.length) {
 				return Promise.all(promises).then(function () {
-					if (_this5.layout.name === "pre-paginated" && _this5.layout.props.spread && _this5.layout.flow() != 'scrolled') {
+					if (_this6.layout.name === "pre-paginated" && _this6.layout.props.spread && _this6.layout.flow() != 'scrolled') {
 						// console.log("AHOY check again");
-						return _this5.check();
+						return _this6.check();
 					}
 				}).then(function () {
 					// Check to see if anything new is on screen after rendering
 					// console.log("AHOY update again");
-					return _this5.update(delta);
+					return _this6.update(delta);
 				}, function (err) {
 					return err;
 				});
