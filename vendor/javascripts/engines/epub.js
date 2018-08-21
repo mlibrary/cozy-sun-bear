@@ -26144,7 +26144,6 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 			this.faking = {};
 
 			if (!this._manifest) {
-				console.log("AHOY PREPAGINATED", this.settings.viewports);
 				this.emit("building");
 				self._manifest = {};
 				var _buildManifest = function _buildManifest(section_) {

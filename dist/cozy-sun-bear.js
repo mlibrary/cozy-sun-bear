@@ -7108,6 +7108,7 @@ Reader.EpubJS = Reader.extend({
       this.settings.manager = 'prepaginated';
     }
 
+    // would pre-paginated work better if we scaled the default view from the start? maybe?
     if (false && this.metadata.layout == 'pre-paginated' && this.settings.manager == 'default') {
       this.settings.spread = 'none';
       this._panes['epub'].style.overflow = 'auto';
@@ -7119,30 +7120,7 @@ Reader.EpubJS = Reader.extend({
 
     self._panes['book'].dataset.manager = this.settings.manager + (this.settings.spread ? '-' + this.settings.spread : '');
 
-    self._maybeConfigureManagerViewports(function () {
-      self._drawRendition(target, callback);
-    });
-  },
-
-  _maybeConfigureManagerViewports: function _maybeConfigureManagerViewports(callback) {
-    var self = this;
-
-    if (this.settings.manager == 'prepaginated') {
-      var viewports = null;
-      var request = new XMLHttpRequest();
-      var viewport_href = self._book.container.packagePath.replace("/", "__") + ".viewports.js";
-      request.open('GET', self._book.url.resolve(viewport_href));
-      request.responseType = 'json';
-      request.onloadend = function (event) {
-        if (request.status == 200) {
-          self.settings.viewports = event.target.response;
-        }
-        callback();
-      };
-      request.send();
-    } else {
-      callback();
-    }
+    self._drawRendition(target, callback);
   },
 
   _drawRendition: function _drawRendition(target, callback) {
@@ -7159,8 +7137,6 @@ Reader.EpubJS = Reader.extend({
 
     var status_index = 0;
     self._rendition.on('started', function () {
-      console.log("AHOY RENDITION STARTED", self._rendition.manager);
-      // self._rendition.manager.settings.viewports = viewports;
 
       //var t;
       //t = setInterval(function() {
