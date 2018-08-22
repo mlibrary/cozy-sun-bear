@@ -9,7 +9,7 @@ export var Citation = Control.extend({
     html: '<span class="desktop">Get Citation</span><span class="mobile">Cite</span>'
   },
 
-  defaultTemplate: `<button class="button--sm cozy-citation desktop" data-toggle="open">Get Citation</button><button class="button--sm cozy-citation mobile" data-toggle="open">Cite</button>`,
+  defaultTemplate: '<button class="button--sm cozy-citation desktop" data-toggle="open">Get Citation</button><button class="button--sm cozy-citation mobile" data-toggle="open">Cite</button>',
 
 
   onAdd: function(reader) {
