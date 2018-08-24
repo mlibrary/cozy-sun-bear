@@ -163,10 +163,6 @@ Reader.EpubJS = Reader.extend({
     var self = this;
 
     self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
-    if ( ! self.__ridx ) { self.__ridx = 0 ; }
-    self.__ridx += 1;
-    self._rendition.__ridx = self.__ridx;
-    console.log("AHOY RE-OPENED RENDITION", self._rendition, self._rendition.__ridx);
     self._updateFontSize();
     self._bindEvents();
     self._drawn = true;
@@ -340,11 +336,6 @@ Reader.EpubJS = Reader.extend({
     }
 
     console.log("AHOY gotoPage", target);
-
-    // setTimeout(function() {
-    //   console.log("AHOY REGOING TO PAGE", target);
-    //   this._rendition.display(target);
-    // }.bind(this), 100);
 
     var navigating = this._rendition.display(target).then(function() {
       this._rendition.display(target);
