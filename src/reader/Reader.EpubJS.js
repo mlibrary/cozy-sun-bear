@@ -106,7 +106,12 @@ Reader.EpubJS = Reader.extend({
     if ( self._rendition ) {
       // self._unbindEvents();
       var container = self._rendition.manager.container;
+      Object.keys(self._rendition.hooks).forEach(function(key) {
+        console.log("AHOY draw clearing", key);
+        self._rendition.hooks[key].clear();
+      })
       self._rendition.destroy();
+      self._rendition = null;
     }
 
     this.settings = { flow: this.options.flow };
@@ -158,6 +163,10 @@ Reader.EpubJS = Reader.extend({
     var self = this;
 
     self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
+    if ( ! self.__ridx ) { self.__ridx = 0 ; }
+    self.__ridx += 1;
+    self._rendition.__ridx = self.__ridx;
+    console.log("AHOY RE-OPENED RENDITION", self._rendition, self._rendition.__ridx);
     self._updateFontSize();
     self._bindEvents();
     self._drawn = true;
@@ -332,7 +341,15 @@ Reader.EpubJS = Reader.extend({
 
     console.log("AHOY gotoPage", target);
 
-    this._navigate(this._rendition.display(target), callback);
+    // setTimeout(function() {
+    //   console.log("AHOY REGOING TO PAGE", target);
+    //   this._rendition.display(target);
+    // }.bind(this), 100);
+
+    var navigating = this._rendition.display(target).then(function() {
+      this._rendition.display(target);
+    }.bind(this));
+    this._navigate(navigating, callback);
   },
 
   percentageFromCfi: function(cfi) {
@@ -356,6 +373,7 @@ Reader.EpubJS = Reader.extend({
     if ( target.cfi ) { target = target.cfi ; }
 
     var doUpdate = false;
+    if ( options === true ) { doUpdate = true; options = {}; }
     Object.keys(options).forEach(function(key) {
       doUpdate = doUpdate || ( options[key] != this.options[key] );
     }.bind(this));
