@@ -7953,6 +7953,31 @@ var Hook = function () {
 				}
 			}
 		}
+	}, {
+		key: "deregister",
+		value: function deregister() {
+			for (var i = 0; i < arguments.length; ++i) {
+				if (typeof arguments[i] === "null" || typeof arguments[i] === "undefined") {
+					// NOOP
+				} else if (typeof arguments[i] === "function") {
+					var j = this.hooks.indexOf(arguments[i]);
+					if (j > 0) {
+						this.hooks.splice(j, 1);
+					}
+				} else {
+					// unpack array
+					for (var j = 0; j < arguments[i].length; ++j) {
+						var k = this.hooks.indexOf(arguments[i][j]);
+						if (k > 0) {
+							console.log("AHOY hooks deregistering", arguments[i][j]);
+							this.hooks.splice(k, 1);
+						} else {
+							console.log("AHOY hooks deregistering FAILED", arguments[i][j]);
+						}
+					}
+				}
+			}
+		}
 
 		/**
    * Triggers a hook to run all functions
@@ -13816,14 +13841,17 @@ var Rendition = function () {
 		this.hooks.content.register(this.passEvents.bind(this));
 		this.hooks.content.register(this.adjustImages.bind(this));
 
-		this.book.spine.hooks.content.register(this.injectIdentifier.bind(this));
+		this._injectIdentifier = this.injectIdentifier.bind(this);
+		this.book.spine.hooks.content.register(this._injectIdentifier);
 
 		if (this.settings.stylesheet) {
-			this.book.spine.hooks.content.register(this.injectStylesheet.bind(this));
+			this._injectStylesheet = this.injectStylesheet.bind(this);
+			this.book.spine.hooks.content.register(this._injectStylesheet);
 		}
 
 		if (this.settings.script) {
-			this.book.spine.hooks.content.register(this.injectScript.bind(this));
+			this._injectScript = this.injectScript.bind(this);
+			this.book.spine.hooks.content.register(this._injectScript);
 		}
 
 		/**
@@ -14623,6 +14651,9 @@ var Rendition = function () {
 			// this.q = undefined;
 
 			this.manager && this.manager.destroy();
+			this.book.spine.hooks.content.deregister(this._injectIdentifier);
+			this.book.spine.hooks.content.deregister(this._injectScript);
+			this.book.spine.hooks.content.deregister(this._injectStylesheet);
 
 			this.book = undefined;
 
