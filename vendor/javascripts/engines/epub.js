@@ -6561,7 +6561,11 @@ function replaceLinks(contents, fn) {
 	}.bind(this);
 
 	for (var i = 0; i < links.length; i++) {
-		replaceLink(links[i]);
+		try {
+			replaceLink(links[i]);
+		} catch (error) {
+			console.log("AHOY REPLACEMENTS", links[i], error);
+		}
 	}
 }
 
@@ -6795,6 +6799,7 @@ var DefaultViewManager = function () {
 	}, {
 		key: "resize",
 		value: function resize(width, height) {
+			this.scale(1.0);
 			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
@@ -25339,9 +25344,10 @@ var Stage = function () {
 		key: "scale",
 		value: function scale(s) {
 			if (this.container) {
-				console.log("AHOY STAGE scale", s);
+				console.log("AHOY RENDITION STAGE scale", s);
 				this.container.style["transform-origin"] = "top left";
 				this.container.style["transform"] = "scale(" + s + ")";
+				this._scale = s;
 			}
 		}
 	}, {
