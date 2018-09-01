@@ -804,7 +804,7 @@
   padding-left: 1.2rem;
   list-style: none; }
 
-.modal__content ul li a {
+.modal__content ul li a, .modal__content ul li span {
   display: block;
   padding: 1em 1em 1em 1.2em;
   border-top: 1px solid #ccc;
