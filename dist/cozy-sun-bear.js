@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0f2c655e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.021f3ab4, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5240,12 +5240,17 @@ var Contents = Control.extend({
   _createOption: function _createOption(chapter, tabindex, parent) {
 
     var option = create$1('li');
-    var anchor = create$1('a', null, option);
-    anchor.textContent = chapter.label;
-    // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
-    // option.textContent = tab + chapter.label;
-    anchor.setAttribute('href', chapter.href);
-    anchor.setAttribute('data-href', chapter.href);
+    if (chapter.href) {
+      var anchor = create$1('a', null, option);
+      anchor.textContent = chapter.label;
+      // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+      // option.textContent = tab + chapter.label;
+      anchor.setAttribute('href', chapter.href);
+      anchor.setAttribute('data-href', chapter.href);
+    } else {
+      var span = create$1('span', null, option);
+      span.textContent = chapter.label;
+    }
 
     if (parent.tagName == 'LI') {
       // need to nest

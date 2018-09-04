@@ -22796,14 +22796,21 @@ var Navigation = function () {
 		key: "navItem",
 		value: function navItem(item) {
 			var id = item.getAttribute("id") || this._generateId(item);
-			var content = (0, _core.filterChildren)(item, "a", true);
+			var content = (0, _core.filterChildren)(item, "a", true) || (0, _core.filterChildren)(item, "span", true);
 
-			if (!content) {
-				return;
+			// if (!content) {
+			// 	return;
+			// }
+
+			var src = content ? content.getAttribute("href") : "";
+			var text = void 0;
+			if (content) {
+				text = content.textContent;
+			} else {
+				text = [].reduce.call(item.childNodes, function (a, b) {
+					return a + (b.nodeType === 3 ? b.textContent : '');
+				}, '');
 			}
-
-			var src = content.getAttribute("href") || "";
-			var text = content.textContent || "";
 			var subitems = [];
 			var parentItem = (0, _core.getParentByTagName)(item, "li");
 			var parent = void 0;
@@ -26304,7 +26311,8 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 				// this.q.clear();
 				// return check ? this.update() : this.check();
-				var retval = check ? this.update() : this.check();
+				// var retval = check ? this.update() : this.check();
+				var retval = this.check();
 				console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
 				retval.then(function () {
 					this.q.clear();
@@ -26570,7 +26578,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 					// 	visible.push(this._manifest[this._spine[idx - 1]]);
 					// }
 					// if ( idx < this._spine.length - 1 ) {
-					// 	visible.push(this._manifest[this._spine[idx + 1]]);	
+					// 	visible.push(this._manifest[this._spine[idx + 1]]);
 					// }
 				}
 				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
@@ -26669,7 +26677,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 
 			var prePaginated = this.layout.props.name == 'pre-paginated';
 
-			// console.log("continuous.check prePaginated =", prePaginated, "offset=", 
+			// console.log("continuous.check prePaginated =", prePaginated, "offset=",
 			// 	offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
 			// 	" == ", offset + visibleLength + delta >= contentLength,
 			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
@@ -26717,7 +26725,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
 					// 	visible.push(this._manifest[this._spine[idx - 1]]);
 					// }
 					// if ( idx < this._spine.length - 1 ) {
-					// 	visible.push(this._manifest[this._spine[idx + 1]]);	
+					// 	visible.push(this._manifest[this._spine[idx + 1]]);
 					// }
 				}
 				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);

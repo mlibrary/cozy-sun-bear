@@ -87,12 +87,17 @@ export var Contents = Control.extend({
         return (value.toString().length < length) ? pad("-"+value, length):value;
     }
     var option = DomUtil.create('li');
-    var anchor = DomUtil.create('a', null, option);
-    anchor.textContent = chapter.label;
-    // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
-    // option.textContent = tab + chapter.label;
-    anchor.setAttribute('href', chapter.href);
-    anchor.setAttribute('data-href', chapter.href);
+    if ( chapter.href ) {
+      var anchor = DomUtil.create('a', null, option);
+      anchor.textContent = chapter.label;
+      // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+      // option.textContent = tab + chapter.label;
+      anchor.setAttribute('href', chapter.href);
+      anchor.setAttribute('data-href', chapter.href);
+    } else {
+      var span = DomUtil.create('span', null, option);
+      span.textContent = chapter.label;
+    }
 
     if ( parent.tagName == 'LI' ) {
       // need to nest
