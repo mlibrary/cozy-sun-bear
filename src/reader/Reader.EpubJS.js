@@ -51,6 +51,7 @@ Reader.EpubJS = Reader.extend({
     request.send();
 
     this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
+
     var book_href = this.options.href;
     var book_options = { packagePath: this.options.rootfilePath };
     if ( this.options.useArchive ) {
@@ -229,6 +230,11 @@ Reader.EpubJS = Reader.extend({
         self.fire('opened');
         self.fire('ready');
         clearTimeout(self._queueTimeout);
+        self.tracking.event("openBook", {
+          rootFilePath: self.options.rootFilePath,
+          flow: self.settings.flow,
+          manager: self.settings.manager
+        });
       }, 100);
 
     })
@@ -264,7 +270,6 @@ Reader.EpubJS = Reader.extend({
 
   _navigate: function(promise, callback) {
     var self = this;
-    console.log("AHOY NAVIGATE", promise);
     self._enableBookLoader(100);
     promise.then(function() {
       console.log("AHOY NAVIGATE FIN");
@@ -280,21 +285,25 @@ Reader.EpubJS = Reader.extend({
 
   next: function() {
     var self = this;
+    this.tracking.action('reader/go/next');
     self._scroll('NEXT') || self._navigate(this._rendition.next());
   },
 
   prev: function() {
+    this.tracking.action('reader/go/previous');
     this._scroll('PREV') || this._navigate(this._rendition.prev());
   },
 
   first: function() {
-    this._navigate(this._rendition.display(0));
+    this.tracking.action('reader/go/first');
+    this._navigate(this._rendition.display(0), undefined);
   },
 
   last: function() {
     var self = this;
+    this.tracking.action('reader/go/last');
     var target = this._book.spine.length - 1;
-    this._navigate(this._rendition.display(target));
+    this._navigate(this._rendition.display(target), undefined);
   },
 
   gotoPage: function(target, callback) {
@@ -468,7 +477,7 @@ Reader.EpubJS = Reader.extend({
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
-      self.fire("relocated", location);
+      // self.fire("relocated", location);
     });
 
     this._rendition.on("rendered", function(section, view) {

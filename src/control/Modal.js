@@ -238,6 +238,7 @@ export var Modal = Class.extend({
     // padding. We don't want clicks on these closing the modal.
     // Just close the modal now for direct clicks on a '.data-modal-close'.
     if (target.hasAttribute('data-modal-close')) {
+      this.fire('closed');
       this.closeModal();
       return;
     }
@@ -281,7 +282,17 @@ export var Modal = Class.extend({
     if (! this.handlers[event] ) {
       this.handlers[event] = {};
     }
+    if (typeof(selector) == 'function') {
+      handler = selector;
+      selector = '*';
+    }
     this.handlers[event][selector] = handler;
+  },
+
+  fire: function(event) {
+    if ( this.handlers[event] && this.handlers[event]['*'] ) {
+      this.handlers[event]['*'](this);
+    }
   },
 
   maintainFocus: function(event) {

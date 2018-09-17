@@ -59,6 +59,8 @@ export var Reader = Evented.extend({
   initialize: function(id, options) {
     var self = this
 
+    self._original_document_title = document.title;
+
     if ( localStorage.getItem('cozy.options') ) {
       options = assign(options, JSON.parse(localStorage.getItem('cozy.options')));
     }
@@ -255,6 +257,39 @@ export var Reader = Evented.extend({
     this._targets = {};
     this._targets[Util.stamp(this._container)] = this;
 
+    this.tracking = function(reader) {
+      var _action = [];
+      var _last_location_start;
+      var _reader = reader;
+      return {
+        action: function(v) {
+          if ( v ) {
+            _action = [v];
+            this.event(v);
+            // _reader.fire('trackAction', { action: v })
+          } else {
+            return _action.pop();
+          }
+        },
+
+        event: function(action, data) {
+          if ( data == null ) { data = {}; }
+          data.action = action;
+          _reader.fire("trackAction", data);
+        },
+
+        pageview: function(location) {
+          if ( location.start != _last_location_start ) {
+            _last_location_start = location.start;
+            // console.log("AHOY RELOCATED", location, location.start, location.href, location.location, this.action());
+            _reader.fire('trackPageview', { cfi: location.start, href: location.href, action: this.action()})
+            return true;
+          }
+          return false;
+        }
+      }
+    }(this);
+
     var onOff = remove ? DomEvent.off : DomEvent.on;
 
     // @event click: MouseEvent
@@ -306,13 +341,19 @@ export var Reader = Evented.extend({
 
       if ( self._ignoreHistory ) {
         self._ignoreHistory = false;
-      } else {
-        var tmp_href = window.location.href.split("#");
-        tmp_href[1] = location_href.substr(8, location_href.length - 8 - 1);
-        history.pushState({ cfi: location_href }, '', tmp_href.join('#'));
+        return;
       }
 
-      // window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+      if ( self.tracking.pageview(location) ) {
+        var tmp_href = window.location.href.split("#");
+        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
+        history.pushState({ cfi: location.start }, '', tmp_href.join('#'));
+
+        if ( location.percentage ) {
+          var p = Math.ceil(location.percentage * 100);
+          document.title = `${self._original_document_title} - ${p}%`;
+        }        
+      }
     })
 
     window.addEventListener('popstate', function(event) {

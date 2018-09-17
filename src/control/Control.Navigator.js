@@ -95,6 +95,7 @@ export var Navigator = Control.extend({
     var value = this._control.value;
     var locations = this._reader.locations;
     var cfi = locations.cfiFromPercentage(value / 100);
+    this._reader.tracking.action("navigator/go");
     this._reader.gotoPage(cfi);
   },
 

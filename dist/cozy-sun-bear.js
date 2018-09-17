@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.021f3ab4, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.022a1c15, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -4031,6 +4031,8 @@ var Reader = Evented.extend({
   initialize: function initialize(id, options) {
     var self = this;
 
+    self._original_document_title = document.title;
+
     if (localStorage.getItem('cozy.options')) {
       options = assign_1(options, JSON.parse(localStorage.getItem('cozy.options')));
     }
@@ -4223,6 +4225,41 @@ var Reader = Evented.extend({
     this._targets = {};
     this._targets[stamp(this._container)] = this;
 
+    this.tracking = function (reader) {
+      var _action = [];
+      var _last_location_start;
+      var _reader = reader;
+      return {
+        action: function action(v) {
+          if (v) {
+            _action = [v];
+            this.event(v);
+            // _reader.fire('trackAction', { action: v })
+          } else {
+            return _action.pop();
+          }
+        },
+
+        event: function event(action, data) {
+          if (data == null) {
+            data = {};
+          }
+          data.action = action;
+          _reader.fire("trackAction", data);
+        },
+
+        pageview: function pageview(location) {
+          if (location.start != _last_location_start) {
+            _last_location_start = location.start;
+            // console.log("AHOY RELOCATED", location, location.start, location.href, location.location, this.action());
+            _reader.fire('trackPageview', { cfi: location.start, href: location.href, action: this.action() });
+            return true;
+          }
+          return false;
+        }
+      };
+    }(this);
+
     var onOff = remove$$1 ? off : on;
 
     // @event click: MouseEvent
@@ -4274,13 +4311,19 @@ var Reader = Evented.extend({
 
       if (self._ignoreHistory) {
         self._ignoreHistory = false;
-      } else {
-        var tmp_href = window.location.href.split("#");
-        tmp_href[1] = location_href.substr(8, location_href.length - 8 - 1);
-        history.pushState({ cfi: location_href }, '', tmp_href.join('#'));
+        return;
       }
 
-      // window.location.hash = '#' + location_href.substr(8, location_href.length - 8 - 1);
+      if (self.tracking.pageview(location)) {
+        var tmp_href = window.location.href.split("#");
+        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
+        history.pushState({ cfi: location.start }, '', tmp_href.join('#'));
+
+        if (location.percentage) {
+          var p = Math.ceil(location.percentage * 100);
+          document.title = self._original_document_title + ' - ' + p + '%';
+        }
+      }
     });
 
     window.addEventListener('popstate', function (event) {
@@ -5087,6 +5130,7 @@ var Modal = Class.extend({
     // padding. We don't want clicks on these closing the modal.
     // Just close the modal now for direct clicks on a '.data-modal-close'.
     if (target.hasAttribute('data-modal-close')) {
+      this.fire('closed');
       this.closeModal();
       return;
     }
@@ -5130,7 +5174,17 @@ var Modal = Class.extend({
     if (!this.handlers[event]) {
       this.handlers[event] = {};
     }
+    if (typeof selector == 'function') {
+      handler = selector;
+      selector = '*';
+    }
     this.handlers[event][selector] = handler;
+  },
+
+  fire: function fire(event) {
+    if (this.handlers[event] && this.handlers[event]['*']) {
+      this.handlers[event]['*'](this);
+    }
   },
 
   maintainFocus: function maintainFocus(event) {
@@ -5192,6 +5246,7 @@ var Contents = Control.extend({
 
       on(this._control, 'click', function (event) {
         event.preventDefault();
+        self._reader.tracking.action('contents/open');
         self._modal.activate();
       }, this);
 
@@ -5204,9 +5259,14 @@ var Contents = Control.extend({
 
       this._modal.on('click', 'a[href]', function (modal, target) {
         target = target.getAttribute('data-href');
+        this._reader.tracking.action('contents/go');
         this._reader.gotoPage(target);
         return true;
       }.bind(this));
+
+      this._modal.on('closed', function () {
+        self._reader.tracking.action('contents/close');
+      });
 
       this._setupSkipLink();
 
@@ -6129,8 +6189,13 @@ var Search = Control.extend({
 
       this._modal.on('click', 'a[href]', function (modal, target) {
         target = target.getAttribute('href');
+        this._reader.tracking.action('search/go');
         this._reader.gotoPage(target);
         return true;
+      }.bind(this));
+
+      this._modal.on('closed', function () {
+        this._reader.tracking.action('contents/close');
       }.bind(this));
     }.bind(this));
 
@@ -6173,6 +6238,7 @@ var Search = Control.extend({
     }
     this._buildResults();
     this._modal.activate();
+    this._reader.tracking.action("search/open");
   },
 
   submitQuery: function submitQuery() {
@@ -6197,6 +6263,7 @@ var Search = Control.extend({
         console.log(this.response);
       }
 
+      self._reader.tracking.action("search/submitQuery");
       self.openModalResults();
     };
 
@@ -6559,6 +6626,7 @@ var Navigator = Control.extend({
     var value = this._control.value;
     var locations = this._reader.locations;
     var cfi = locations.cfiFromPercentage(value / 100);
+    this._reader.tracking.action("navigator/go");
     this._reader.gotoPage(cfi);
   },
 
@@ -7274,6 +7342,7 @@ Reader.EpubJS = Reader.extend({
     request.send();
 
     this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
+
     var book_href = this.options.href;
     var book_options = { packagePath: this.options.rootfilePath };
     if (this.options.useArchive) {
@@ -7456,6 +7525,11 @@ Reader.EpubJS = Reader.extend({
         self.fire('opened');
         self.fire('ready');
         clearTimeout(self._queueTimeout);
+        self.tracking.event("openBook", {
+          rootFilePath: self.options.rootFilePath,
+          flow: self.settings.flow,
+          manager: self.settings.manager
+        });
       }, 100);
     });
   },
@@ -7490,7 +7564,6 @@ Reader.EpubJS = Reader.extend({
 
   _navigate: function _navigate(promise, callback) {
     var self = this;
-    console.log("AHOY NAVIGATE", promise);
     self._enableBookLoader(100);
     promise.then(function () {
       console.log("AHOY NAVIGATE FIN");
@@ -7510,21 +7583,25 @@ Reader.EpubJS = Reader.extend({
 
   next: function next() {
     var self = this;
+    this.tracking.action('reader/go/next');
     self._scroll('NEXT') || self._navigate(this._rendition.next());
   },
 
   prev: function prev() {
+    this.tracking.action('reader/go/previous');
     this._scroll('PREV') || this._navigate(this._rendition.prev());
   },
 
   first: function first() {
-    this._navigate(this._rendition.display(0));
+    this.tracking.action('reader/go/first');
+    this._navigate(this._rendition.display(0), undefined);
   },
 
   last: function last() {
     var self = this;
+    this.tracking.action('reader/go/last');
     var target = this._book.spine.length - 1;
-    this._navigate(this._rendition.display(target));
+    this._navigate(this._rendition.display(target), undefined);
   },
 
   gotoPage: function gotoPage(target, callback) {
@@ -7704,7 +7781,7 @@ Reader.EpubJS = Reader.extend({
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
-      self.fire("relocated", location);
+      // self.fire("relocated", location);
     });
 
     this._rendition.on("rendered", function (section, view) {
