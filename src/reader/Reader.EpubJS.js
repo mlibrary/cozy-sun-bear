@@ -145,6 +145,10 @@ Reader.EpubJS = Reader.extend({
         this.settings.manager = 'prepaginated';
     }
 
+    if ( this.settings.manager == 'prepaginated' ) {
+      this.settings.spread = 'none';
+    }
+
     // would pre-paginated work better if we scaled the default view from the start? maybe?
     if ( false && this.metadata.layout == 'pre-paginated' && this.settings.manager == 'default' ) {
       this.settings.spread = 'none';
@@ -154,6 +158,10 @@ Reader.EpubJS = Reader.extend({
     self.settings.height = '100%';
     self.settings.width = '100%';
     self.settings['ignoreClass'] = 'annotator-hl';
+
+    if ( self.options.scale != '100' ) {
+      self.settings.scale = parseInt(self.options.scale, 10) / 100;
+    }
 
     self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
 
@@ -168,9 +176,9 @@ Reader.EpubJS = Reader.extend({
     self._bindEvents();
     self._drawn = true;
 
-    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
-      this._panes['epub'].style.overflowX = 'hidden';
-    }
+    // if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
+    //   this._panes['epub'].style.overflowX = 'hidden';
+    // }
 
     var status_index = 0;
     self._rendition.on('started', function() {
@@ -374,11 +382,23 @@ Reader.EpubJS = Reader.extend({
 
     var doUpdate = false;
     if ( options === true ) { doUpdate = true; options = {}; }
+    var changed = {};
     Object.keys(options).forEach(function(key) {
-      doUpdate = doUpdate || ( options[key] != this.options[key] );
+      if ( options[key] != this.options[key] ) {
+        doUpdate = true;
+        changed[key] = true;
+      }
+      // doUpdate = doUpdate || ( options[key] != this.options[key] );
     }.bind(this));
 
     if ( ! doUpdate ) {
+      return;
+    }
+
+    // performance hack
+    if ( Object.keys(changed).length == 1 && changed.scale ) {
+      reader.options.scale = options.scale;
+      this._updateScale();
       return;
     }
 
@@ -393,6 +413,7 @@ Reader.EpubJS = Reader.extend({
 
     this.draw(target, function() {
       this._updateFontSize();
+      this._updateScale();
       this._updateTheme();
       this._selectTheme(true);
     }.bind(this))
@@ -584,6 +605,14 @@ Reader.EpubJS = Reader.extend({
     // } else {
     //   this._rendition.themes.fontSize(this.options.fontSizeDefault);
     // }
+  },
+
+  _updateScale: function() {
+    var scale = this.options.scale;
+    if ( scale ) {
+      scale = parseInt(scale, 10) / 100.0;
+      this._rendition.scale(scale);
+    }
   },
 
   EOT: true

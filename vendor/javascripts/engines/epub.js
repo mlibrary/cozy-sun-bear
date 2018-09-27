@@ -6799,7 +6799,7 @@ var DefaultViewManager = function () {
 	}, {
 		key: "resize",
 		value: function resize(width, height) {
-			this.scale(1.0);
+			// this.scale(1.0);
 			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
@@ -9671,7 +9671,7 @@ var Contents = function () {
 				offsetY = (height - viewport.height * scale) / 2;
 				if (heightScale == scale) {
 					offsetX = width / height * width / 2;
-					offsetX = width * heightScale;
+					offsetX = 0; // width * heightScale;
 					console.log("AHOY CONTENTS", heightScale, width, height, offsetX);
 				}
 				// offsetX = (width - ( viewport.width * scale)) / 2;
@@ -15479,6 +15479,7 @@ var IframeView = function () {
 		this.epubcfi = new _epubcfi2.default();
 
 		this.layout = this.settings.layout;
+		this._layout_height = null;
 		// Dom events to listen for
 		// this.listenedEvents = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
 
@@ -15526,6 +15527,11 @@ var IframeView = function () {
 
 			if (!this.element) {
 				this.element = this.createContainer();
+			}
+
+			if (this.element.hasAttribute('layout-height')) {
+				var height = parseInt(this.element.getAttribute('layout-height'), 10);
+				this._layout_height = height;
 			}
 
 			this.iframe = this.element.querySelector("iframe");
@@ -15724,13 +15730,17 @@ var IframeView = function () {
 				width = this.layout.columnWidth;
 				// width = this.layout.columnWidth + ( this.layout.columnWidth * 0.10 );
 				height = this.layout.height;
-				if (this.layout.flow() == 'scrolled') {
-					if (this.element.hasAttribute('original-height') && this.element.hasAttribute('original-height') != 'auto') {
-						height = parseInt(this.element.getAttribute('original-height'), 10);
-					} else if (window.fitWidth) {
-						height = this.contents.textHeight();
-					}
-				}
+				// if ( this.element.hasAttribute('layout-height') ) {
+				// 	height = parseInt(this.element.getAttribute('layout-height'), 10);
+				// 	this._layout_height = height;
+				// }
+				// if ( this.layout.flow() == 'scrolled' ) {
+				// 	if ( this.element.hasAttribute('original-height') && this.element.hasAttribute('original-height') != 'auto' )	{
+				// 		height = parseInt(this.element.getAttribute('original-height'), 10);
+				// 	} else if ( window.fitWidth ) {
+				// 		height = this.contents.textHeight()
+				// 	}
+				// }
 			}
 			// Expand Horizontally
 			else if (this.settings.axis === "horizontal") {
@@ -15788,7 +15798,10 @@ var IframeView = function () {
 			}
 			if (this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled') {
 				// because we want the iframe to fit within the larger viewer
-				this.element.style.width = '100%';
+				// this.element.style.width = '80%';
+				this.iframe.style.width = this.element.offsetWidth;
+				console.log("AHOY", this.element, this.element.offsetWidth);
+				this._width = this.element.offsetWidth;
 			}
 
 			if ((0, _core.isNumber)(height)) {
@@ -23829,6 +23842,10 @@ var Layout = function () {
 				pageWidth = width;
 			}
 
+			if (this.name === 'pre-paginated') {
+				columnWidth *= 0.80;
+			}
+
 			if (this.name === "pre-paginated" && divisor > 1) {
 				width = columnWidth;
 			}
@@ -23878,10 +23895,13 @@ var Layout = function () {
 	}, {
 		key: "format",
 		value: function format(contents) {
+			var args = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
 			var formating;
 
 			if (this.name === "pre-paginated") {
 				formating = contents.fit(this.columnWidth, this.height);
+				console.log("AHOY LAYOUT", this.columnWidth, this.height);
 			} else if (this._flow === "paginated") {
 				formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
 			} else {
@@ -26038,8 +26058,10 @@ module.exports = exports["default"];
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -26072,1002 +26094,1022 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
-	_inherits(PrePaginatedContinuousViewManager, _ContinuousViewManage);
-
-	function PrePaginatedContinuousViewManager(options) {
-		_classCallCheck(this, PrePaginatedContinuousViewManager);
-
-		var _this = _possibleConstructorReturn(this, (PrePaginatedContinuousViewManager.__proto__ || Object.getPrototypeOf(PrePaginatedContinuousViewManager)).call(this, options));
-
-		_this.name = "prepaginated";
-
-		_this._manifest = null;
-		_this._spine = [];
-		return _this;
-	}
-
-	_createClass(PrePaginatedContinuousViewManager, [{
-		key: "render",
-		value: function render(element, size) {
-			_index2.default.prototype.render.call(this, element, size);
-			// Views array methods
-			// use prefab views
-			this.views = new _prefab2.default(this.container);
-		}
-	}, {
-		key: "onResized",
-		value: function onResized(e) {
-			if (this.resizeTimeout) {
-				clearTimeout(this.resizeTimeout);
-			}
-			console.log("AHOY PREPAGINATED onResized queued");
-			this.resizeTimeout = setTimeout(function () {
-				this.resize();
-				console.log("AHOY PREPAGINATED onResized actual");
-				this.resizeTimeout = null;
-			}.bind(this), 500);
-			// this.resize();
-		}
-	}, {
-		key: "resize",
-		value: function resize(width, height) {
-			var self = this;
-			// // reset the scale
-			this.scale(1.0);
-
-			if (this.scaleTimeout) {
-				clearTimeout(this.scaleTimeout);
-			}
-
-			_index2.default.prototype.resize.call(this, width, height);
-
-			for (var i = 0; i < self._spine.length; i++) {
-				var href = self._spine[i];
-				// // console.log("AHOY DRAWING", href);
-				var section_ = self._manifest[href];
-				// // var r = self.container.offsetWidth / section_.viewport.width;
-				// // var h = Math.floor(dim.height * r);
-				// var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
-				// var r = w / section_.viewport.width;
-				// var h = Math.floor(section_.viewport.height * r);
-
-				var h = self.layout.height;
-				var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-
-				if (section_.viewport.height != 'auto') {
-					var r = w / section_.viewport.width;
-					var h = Math.floor(section_.viewport.height * r);
-					self.layout.height = h;
-				}
-
-				var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-				div.style.height = h + "px";
-				div.setAttribute('original-height', h);
-
-				var view = this.views.find(section_);
-				if (view) {
-					view.size(self.layout.columWidth, h);
-				}
-			}
-
-			this.scaleTimeout = setTimeout(function () {
-
-				var w = this.layout.columnWidth;
-				var wrapper = this.container.parentElement;
-				var scale = this.container.offsetWidth * 0.90 / w;
-				if (scale < 1.0) {
-					scale = 1.5;
-				}
-				this.scale(scale);
-				this.recenter();
-				console.log("AHOY SCALING", scale);
-				this.check();
-			}.bind(this), 100);
-		}
-
-		// RRE - debugging
-
-	}, {
-		key: "createView",
-		value: function createView(section) {
-
-			var view = this.views.find(section);
-			if (view) {
-				return view;
-			}
-			var view = new this.View(section, this.viewSettings);
-			return view;
-		}
-	}, {
-		key: "display",
-		value: function display(section, target) {
-			var self = this;
-			var promises = [];
-
-			this.q.clear();
-			var display = new _core.defer();
-			var promises = [];
-			this.faking = {};
-
-			if (!this._manifest) {
-				this.emit("building");
-				self._manifest = {};
-				var _buildManifest = function _buildManifest(section_) {
-					self._manifest[section_.href] = false;
-					if (self.settings.viewports && self.settings.viewports[section_.href]) {
-						section_.viewport = self.settings.viewports[section_.href];
-						self._manifest[section_.href] = section_;
-					} else {
-						self.q.enqueue(function () {
-							section_.load(self.request).then(function (contents) {
-								var meta = contents.querySelector('meta[name="viewport"]');
-								var value = meta.getAttribute('content');
-								var tmp = value.split(",");
-								var key = section_.href;
-								var idx = self._spine.indexOf(key);
-								self.emit("building", { index: idx + 1, total: self._spine.length });
-								section_.viewport = {};
-								self._manifest[key] = section_;
-								// self._manifest[key] = { viewport : {} };
-								// self._manifest[key].index = section_.index;
-								// self._manifest[key].href = section_.href;
-								var viewport_width = tmp[0].replace('width=', '');
-								var viewport_height = tmp[1].replace('height=', '');
-								if (!viewport_height.match(/^\d+$/)) {
-									viewport_width = viewport_height = 'auto';
-								} else {
-									viewport_width = parseInt(viewport_width, 10);
-									viewport_height = parseInt(viewport_height, 10);
-								}
-								self._manifest[key].viewport.width = viewport_width;
-								self._manifest[key].viewport.height = viewport_height;
-								self.faking[key] = self._manifest[key].viewport;
-							});
-						});
-					}
-				};
-
-				// can we build a manifest here?
-				var prev_ = section.prev();
-				while (prev_) {
-					self._spine.unshift(prev_.href);
-					_buildManifest(prev_);
-					prev_ = prev_.prev();
-				}
-
-				self._spine.push(section.href);
-				_buildManifest(section);
-
-				var next_ = section.next();
-				while (next_) {
-					self._spine.push(next_.href);
-					_buildManifest(next_);
-					next_ = next_.next();
-				}
-
-				console.log("AHOY PRE-PAGINATED", promises.length);
-			}
-
-			var _display = function () {
-
-				var check = document.querySelector('.epub-view');
-				if (!check) {
-					console.log("AHOY DRAWING", self._spine.length);
-					for (var i = 0; i < self._spine.length; i++) {
-						var href = self._spine[i];
-						// console.log("AHOY DRAWING", href);
-						var section_ = self._manifest[href];
-						// var r = self.container.offsetWidth / section_.viewport.width;
-						// var h = Math.floor(dim.height * r);
-
-						var h = self.layout.height;
-						if (section_.viewport.height != 'auto') {
-							var w = self.layout.columnWidth + self.layout.columnWidth * 0.10;
-							var r = w / section_.viewport.width;
-							var h = Math.floor(section_.viewport.height * r);
-							self.layout.height = h;
-						}
-
-						// h = self.layout.height;
-
-						self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: 100%; height: " + h + "px; text-align: center\"></div>";
-						var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
-						// div.setAttribute('use-')
-						div.setAttribute('original-height', h);
-
-						if (window.debugManager) {
-							div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
-							var colorR = Math.floor(Math.random() * 100).toString();
-							var colorG = Math.floor(Math.random() * 100).toString();
-							var colorB = Math.floor(Math.random() * 100).toString();
-							div.style.backgroundColor = "#" + colorR + colorG + colorB;
-						}
-					}
-				}
-
-				// find the <div> with this section
-				// console.log("AHOY continuous.display START", section.href);
-				var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
-				div.scrollIntoView();
-
-				if (!check) {
-					var w = this.layout.columnWidth;
-					var wrapper = this.container.parentElement;
-					var scale = this.container.offsetWidth * 0.90 / w;
-					if (scale < 1.0) {
-						scale = 1.5;
-					}
-					var w1 = wrapper.scrollWidth * scale;
-					var w2 = this.layout.columnWidth * scale;
-					this.scale(scale);
-
-					setTimeout(function () {
-						// this is ... lame
-						this.recenter();
-						console.log("AHOY PRE-PAGINATED RENDER", scale);
-						this.scrolled();
-					}.bind(this), 500);
-				}
-
-				// this.q.clear();
-				// return check ? this.update() : this.check();
-				// var retval = check ? this.update() : this.check();
-				var retval = this.check();
-				console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
-				retval.then(function () {
-					this.q.clear();
-					console.log("AHOY MANAGER BUILT");
-					this.emit("built");
-					return display.resolve();
-				}.bind(this));
-
-				// return DefaultViewManager.prototype.display.call(this, section, target)
-				// 	.then(function () {
-				// 		return this.fill();
-				// 	}.bind(this));
-
-				return retval;
-			}.bind(this);
-
-			// // promises.push(_display);
-			// while(promises.length) {
-			// 	this.q.enqueue(promises.shift);
-			// }
-
-			// console.log("AHOY PREPAGINATED", this.q._q.length);
-			// this.q.enqueue().then((result) => {
-			// 	display.resolve();
-			// })
-
-			var q = function () {
-				return this.q.enqueue(function (result) {
-					var waiting = 0;
-					for (var i = 0; i < self._spine.length; i++) {
-						var href = self._spine[i];
-						var has_section = self._manifest[href];
-						if (has_section == false) {
-							waiting += 1;
-						}
-					}
-					// console.log("AHOY PRE-PAGINATED WAITING", waiting);
-					if (waiting == 0) {
-						return _display();
-					} else {
-						q();
-					}
-				});
-			}.bind(this);
-
-			return q();
-
-			return display.promise;
-		}
-	}, {
-		key: "_checkStillLoading",
-		value: function _checkStillLoading() {
-			this.q.enqueue(function (result) {
-				var waiting = 0;
-				for (var i = 0; i < self._spine.length; i++) {
-					var href = self._spine[i];
-					var has_section = self._manifest[href];
-					if (has_section == false) {
-						waiting += 1;
-					}
-				}
-				console.log("AHOY PRE-PAGINATED WAITING", waiting);
-				if (waiting == 0) {
-					return _display();
-				} else {
-					q();
-				}
-			});
-		}
-	}, {
-		key: "fill",
-		value: function fill(_full) {
-			var _this2 = this;
-
-			var full = _full || new _core.defer();
-
-			this.q.enqueue(function () {
-				return _this2._checkStillLoading();
-			}).then(function (result) {
-				if (result) {
-					_this2.fill(full);
-				} else {
-					full.resolve();
-				}
-			});
-
-			return full.promise;
-		}
-	}, {
-		key: "fillXX",
-		value: function fillXX(_full) {
-			var _this3 = this;
-
-			var full = _full || new _core.defer();
-
-			this.q.enqueue(function () {
-				return _this3.check();
-			}).then(function (result) {
-				if (result) {
-					_this3.fill(full);
-				} else {
-					full.resolve();
-				}
-			});
-
-			return full.promise;
-		}
-	}, {
-		key: "moveTo",
-		value: function moveTo(offset) {
-			// var bounds = this.stage.bounds();
-			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-			var distX = 0,
-			    distY = 0;
-
-			var offsetX = 0,
-			    offsetY = 0;
-
-			if (!this.isPaginated) {
-				distY = offset.top;
-				offsetY = offset.top + this.settings.offset;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-				offsetX = distX + this.settings.offset;
-			}
-
-			if (distX > 0 || distY > 0) {
-				this.scrollBy(distX, distY, true);
-			}
-		}
-	}, {
-		key: "afterResized",
-		value: function afterResized(view) {
-			this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
-		}
-
-		// Remove Previous Listeners if present
-
-	}, {
-		key: "removeShownListeners",
-		value: function removeShownListeners(view) {
-
-			// view.off("shown", this.afterDisplayed);
-			// view.off("shown", this.afterDisplayedAbove);
-			view.onDisplayed = function () {};
-		}
-	}, {
-		key: "add",
-		value: function add(section) {
-			var _this4 = this;
-
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				view.expanded = true;
-			});
-
-			view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
-				_this4.updateAxis(axis);
-			});
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			return view.display(this.request);
-		}
-	}, {
-		key: "append",
-		value: function append(section) {
-
-			var view = this.createView(section);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				view.expanded = true;
-				// do not do this
-				// this.counter(bounds); // RRE
-			});
-
-			/*
-   view.on(EVENTS.VIEWS.AXIS, (axis) => {
-   	this.updateAxis(axis);
-   });
-   */
-
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "prepend",
-		value: function prepend(section) {
-			var _this5 = this;
-
-			var view = this.createView(section);
-
-			view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
-				_this5.counter(bounds);
-				view.expanded = true;
-			});
-
-			/*
-   view.on(EVENTS.VIEWS.AXIS, (axis) => {
-   	this.updateAxis(axis);
-   });
-   */
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-	}, {
-		key: "counter",
-		value: function counter(bounds) {
-			// return;
-			if (this.settings.axis === "vertical") {
-				// if ( ! this._timer ) {
-				// 	this._timer = setTimeout(function() {
-				// 		this._timer = null;
-				// 		console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-				// 		this.scrollBy(0, bounds.heightDelta, true);
-				// 		this.x1(`COUNTER ${bounds.heightDelta}`);
-				// 	}.bind(this), 500);
-				// } else {
-				// 	console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-				// }
-				// console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-	}, {
-		key: "updateXXX",
-		value: function updateXXX(_offset) {
-			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-			var visibleLength = horizontal ? bounds.width : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			var divs = document.querySelectorAll('.epub-view');
-			var visible = [];
-			for (var i = 0; i < divs.length; i++) {
-				var div = divs[i];
-				var rect = div.getBoundingClientRect();
-				var marker = '';
-				// if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-				// if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-				if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-					marker = '**';
-					var section = this._manifest[div.dataset.href];
-					visible.push(section);
-					// if ( ! div.querySelector('iframe') ) {
-					// 	newViews.push(this.append(section))
-					// }
-					// var idx = this._spine.indexOf(section.href);
-					// if ( idx > 0 ) {
-					// 	visible.push(this._manifest[this._spine[idx - 1]]);
-					// }
-					// if ( idx < this._spine.length - 1 ) {
-					// 	visible.push(this._manifest[this._spine[idx + 1]]);
-					// }
-				}
-				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-			}
-		}
-	}, {
-		key: "update",
-		value: function update(_offset) {
-			var container = this.bounds();
-			var views = this.views.all();
-			var viewsLength = views.length;
-			var visible = [];
-			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-			var isVisible;
-			var view;
-
-			var updating = new _core.defer();
-			var promises = [];
-			var queued = {};
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-
-				isVisible = this.isVisible(view, offset, offset, container);
-				if (isVisible === true) {
-					queued[i] = true;
-				}
-			}
-
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-				var isVisible = queued[i];
-				if (isVisible === true) {
-					// console.log("visible " + view.index);
-
-					if (!view.displayed) {
-						// console.log("AHOY continuous.update !displayed", view.section.href);
-						var displayed = view.display(this.request).then(function (view) {
-							view.show();
-						}, function (err) {
-							// console.log("AHOY continuous.update ERROR", err);
-							view.hide();
-						});
-						promises.push(displayed);
-					} else {
-						// console.log("AHOY continuous.update show", view.section.href);
-						view.show();
-					}
-					visible.push(view);
-				} else {
-					this.q.enqueue(view.destroy.bind(view));
-					// console.log("hidden " + view.index);
-
-					clearTimeout(this.trimTimeout);
-					this.trimTimeout = setTimeout(function () {
-						this.q.enqueue(this.trim.bind(this));
-					}.bind(this), 250);
-				}
-			}
-
-			if (promises.length) {
-				return Promise.all(promises).catch(function (err) {
-					updating.reject(err);
-				});
-			} else {
-				updating.resolve();
-				return updating.promise;
-			}
-		}
-	}, {
-		key: "check",
-		value: function check(_offsetLeft, _offsetTop) {
-			var _this6 = this;
-
-			var checking = new _core.defer();
-			var newViews = [];
-
-			var horizontal = this.settings.axis === "horizontal";
-			var delta = this.settings.offset || 0;
-
-			if (_offsetLeft && horizontal) {
-				delta = _offsetLeft;
-			}
-
-			if (_offsetTop && !horizontal) {
-				delta = _offsetTop;
-			}
-
-			var bounds = this._bounds; // bounds saved this until resize
-
-			var rtl = this.settings.direction === "rtl";
-			var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-			var visibleLength = horizontal ? bounds.width : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			var prePaginated = this.layout.props.name == 'pre-paginated';
-
-			// console.log("continuous.check prePaginated =", prePaginated, "offset=",
-			// 	offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
-			// 	" == ", offset + visibleLength + delta >= contentLength,
-			// 	" || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
-
-			var prepend = function prepend() {
-				var first = _this6.views.first();
-				var prev = first && first.section.prev();
-
-				if (prev) {
-					newViews.push(_this6.prepend(prev));
-				}
-			};
-
-			var append = function append() {
-				var last = _this6.views.last();
-				var next = last && last.section.next();
-
-				if (next) {
-					newViews.push(_this6.append(next));
-				}
-			};
-
-			var adjusted_top = offset - bounds.height * 8;
-			var adjusted_end = offset + bounds.height * 8;
-			// console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
-
-			// need to figure out which divs are viewable
-			var divs = document.querySelectorAll('.epub-view');
-			var visible = [];
-			for (var i = 0; i < divs.length; i++) {
-				var div = divs[i];
-				var rect = div.getBoundingClientRect();
-				var marker = '';
-				// if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-				// if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-				if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-					marker = '**';
-					var section = this._manifest[div.dataset.href];
-					visible.push(section);
-					// if ( ! div.querySelector('iframe') ) {
-					// 	newViews.push(this.append(section))
-					// }
-					// var idx = this._spine.indexOf(section.href);
-					// if ( idx > 0 ) {
-					// 	visible.push(this._manifest[this._spine[idx - 1]]);
-					// }
-					// if ( idx < this._spine.length - 1 ) {
-					// 	visible.push(this._manifest[this._spine[idx + 1]]);
-					// }
-				}
-				// console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-			}
-
-			this.__check_visible = visible;
-
-			var section = visible[0];
-			if (section && section.index > 0) {
-				visible.unshift(this._manifest[this._spine[section.index - 1]]);
-			}
-			if (section) {
-				var tmp = this._spine[section.index + 1];
-				if (tmp) {
-					visible.push(this._manifest[tmp]);
-				}
-			}
-			// if ( section && section.prev() ) {
-			// 	visible.unshift(section.prev());
-			// }
-			// section = visible[visible.length - 1];
-			// if (section && section.next() ) {
-			// 	visible.push(section.next());
-			// }
-
-			for (var i = 0; i < visible.length; i++) {
-				var section = visible[i];
-				// var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
-				// if ( div.querySelector('iframe') ) {
-				// 	continue;
-				// }
-				newViews.push(this.append(section));
-			}
-
-			// let promises = newViews.map((view) => {
-			// 	return view.displayed;
-			// });
-
-			var promises = [];
-			for (var i = 0; i < newViews.length; i++) {
-				if (newViews[i]) {
-					promises.push(newViews[i]);
-				}
-			}
-
-			if (newViews.length) {
-				return Promise.all(promises).then(function () {
-					if (_this6.layout.name === "pre-paginated" && _this6.layout.props.spread && _this6.layout.flow() != 'scrolled') {
-						// console.log("AHOY check again");
-						return _this6.check();
-					}
-				}).then(function () {
-					// Check to see if anything new is on screen after rendering
-					// console.log("AHOY update again");
-					return _this6.update(delta);
-				}, function (err) {
-					return err;
-				});
-			} else {
-				this.q.enqueue(function () {
-					this.update();
-				}.bind(this));
-				checking.resolve(false);
-				return checking.promise;
-			}
-		}
-	}, {
-		key: "trim",
-		value: function trim() {
-			var task = new _core.defer();
-			var displayed = this.views.displayed();
-			var first = displayed[0];
-			var last = displayed[displayed.length - 1];
-			var firstIndex = this.views.indexOf(first);
-			var lastIndex = this.views.indexOf(last);
-			var above = this.views.slice(0, firstIndex);
-			var below = this.views.slice(lastIndex + 1);
-
-			// Erase all but last above
-			for (var i = 0; i < above.length - 3; i++) {
-				if (above[i]) {
-					// console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
-					this.erase(above[i], above);
-				}
-			}
-
-			// Erase all except first below
-			for (var j = 3; j < below.length; j++) {
-				if (below[j]) {
-					// console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
-					this.erase(below[j]);
-				}
-			}
-
-			task.resolve();
-			return task.promise;
-		}
-	}, {
-		key: "erase",
-		value: function erase(view, above) {
-			//Trim
-
-			var prevTop;
-			var prevLeft;
-
-			if (this.settings.height) {
-				prevTop = this.container.scrollTop;
-				prevLeft = this.container.scrollLeft;
-			} else {
-				prevTop = window.scrollY;
-				prevLeft = window.scrollX;
-			}
-
-			var bounds = view.bounds();
-
-			// console.log("AHOY erase", view.section.href, above);
-			this.views.remove(view);
-
-			if (above) {
-				if (this.settings.axis === "vertical") {
-					// this.scrollTo(0, prevTop - bounds.height, true);
-				} else {
-					this.scrollTo(prevLeft - bounds.width, 0, true);
-				}
-			}
-		}
-	}, {
-		key: "addEventListeners",
-		value: function addEventListeners(stage) {
-
-			window.addEventListener("unload", function (e) {
-				this.ignore = true;
-				// this.scrollTo(0,0);
-				this.destroy();
-			}.bind(this));
-
-			this.addScrollListeners();
-		}
-	}, {
-		key: "addScrollListeners",
-		value: function addScrollListeners() {
-			var scroller;
-
-			this.tick = _core.requestAnimationFrame;
-
-			if (this.settings.height) {
-				this.prevScrollTop = this.container.scrollTop;
-				this.prevScrollLeft = this.container.scrollLeft;
-			} else {
-				this.prevScrollTop = window.scrollY;
-				this.prevScrollLeft = window.scrollX;
-			}
-
-			this.scrollDeltaVert = 0;
-			this.scrollDeltaHorz = 0;
-
-			if (this.settings.height) {
-				scroller = this.container;
-				this.scrollTop = this.container.scrollTop;
-				this.scrollLeft = this.container.scrollLeft;
-			} else {
-				scroller = window;
-				this.scrollTop = window.scrollY;
-				this.scrollLeft = window.scrollX;
-			}
-
-			scroller.addEventListener("scroll", this.onScroll.bind(this));
-			this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
-			// this.tick.call(window, this.onScroll.bind(this));
-
-			this.didScroll = false;
-		}
-	}, {
-		key: "removeEventListeners",
-		value: function removeEventListeners() {
-			var scroller;
-
-			if (this.settings.height) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this.onScroll.bind(this));
-		}
-	}, {
-		key: "onScroll",
-		value: function onScroll() {
-			var scrollTop = void 0;
-			var scrollLeft = void 0;
-			var dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if (this.settings.height) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY * dir;
-				scrollLeft = window.scrollX * dir;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if (!this.ignore) {
-
-				this._scrolled();
-			} else {
-				this.ignore = false;
-			}
-
-			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
-
-			this.prevScrollTop = scrollTop;
-			this.prevScrollLeft = scrollLeft;
-
-			clearTimeout(this.scrollTimeout);
-			this.scrollTimeout = setTimeout(function () {
-				this.scrollDeltaVert = 0;
-				this.scrollDeltaHorz = 0;
-			}.bind(this), 150);
-
-			this.didScroll = false;
-		}
-	}, {
-		key: "scrolled",
-		value: function scrolled() {
-			this.q.enqueue(function () {
-				this.check();
-				this.recenter();
-				setTimeout(function () {
-					this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
-						top: this.scrollTop,
-						left: this.scrollLeft
-					});
-				}.bind(this), 500);
-			}.bind(this));
-
-			this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
-				top: this.scrollTop,
-				left: this.scrollLeft
-			});
-
-			clearTimeout(this.afterScrolled);
-			this.afterScrolled = setTimeout(function () {
-				this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
-					top: this.scrollTop,
-					left: this.scrollLeft
-				});
-			}.bind(this));
-		}
-	}, {
-		key: "next",
-		value: function next() {
-
-			var dir = this.settings.direction;
-			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			delta = this.container.offsetHeight / this.settings.scale;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(delta, 0, true);
-			} else {
-
-				// this.scrollBy(0, this.layout.height, true);
-				this.scrollBy(0, delta, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "prev",
-		value: function prev() {
-
-			var dir = this.settings.direction;
-			var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(-delta, 0, true);
-			} else {
-
-				this.scrollBy(0, -this.layout.height, true);
-			}
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-	}, {
-		key: "updateAxis",
-		value: function updateAxis(axis, forceUpdate) {
-
-			if (!this.isPaginated) {
-				axis = "vertical";
-			}
-
-			if (!forceUpdate && axis === this.settings.axis) {
-				return;
-			}
-
-			this.settings.axis = axis;
-
-			this.stage && this.stage.axis(axis);
-
-			this.viewSettings.axis = axis;
-
-			if (this.mapping) {
-				this.mapping.axis(axis);
-			}
-
-			if (this.layout) {
-				if (axis === "vertical") {
-					this.layout.spread("none");
-				} else {
-					this.layout.spread(this.layout.settings.spread);
-				}
-			}
-
-			if (axis === "vertical") {
-				this.settings.infinite = true;
-			} else {
-				this.settings.infinite = false;
-			}
-		}
-	}, {
-		key: "recenter",
-		value: function recenter() {
-			var wrapper = this.container.parentElement;
-			var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
-			wrapper.scrollLeft = w3;
-		}
-	}]);
-
-	return PrePaginatedContinuousViewManager;
+  _inherits(PrePaginatedContinuousViewManager, _ContinuousViewManage);
+
+  function PrePaginatedContinuousViewManager(options) {
+    _classCallCheck(this, PrePaginatedContinuousViewManager);
+
+    var _this = _possibleConstructorReturn(this, (PrePaginatedContinuousViewManager.__proto__ || Object.getPrototypeOf(PrePaginatedContinuousViewManager)).call(this, options));
+
+    _this.name = "prepaginated";
+
+    _this._manifest = null;
+    _this._spine = [];
+    _this.settings.scale = _this.settings.scale || 1.0;
+    return _this;
+  }
+
+  _createClass(PrePaginatedContinuousViewManager, [{
+    key: "render",
+    value: function render(element, size) {
+      _index2.default.prototype.render.call(this, element, size);
+      // Views array methods
+      // use prefab views
+      this.views = new _prefab2.default(this.container);
+    }
+  }, {
+    key: "onResized",
+    value: function onResized(e) {
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+      }
+      console.log("AHOY PREPAGINATED onResized queued");
+      this.resizeTimeout = setTimeout(function () {
+        this.resize();
+        console.log("AHOY PREPAGINATED onResized actual");
+        this.resizeTimeout = null;
+      }.bind(this), 500);
+      // this.resize();
+    }
+  }, {
+    key: "resize",
+    value: function resize(width, height) {
+      var self = this;
+
+      _index2.default.prototype.resize.call(this, width, height);
+      this._redrawViews();
+    }
+  }, {
+    key: "_redrawViews",
+    value: function _redrawViews() {
+      var self = this;
+      for (var i = 0; i < self._spine.length; i++) {
+        var href = self._spine[i];
+        // // console.log("AHOY DRAWING", href);
+        var section_ = self._manifest[href];
+        // // var r = self.container.offsetWidth / section_.viewport.width;
+        // // var h = Math.floor(dim.height * r);
+        // var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
+        // var r = w / section_.viewport.width;
+        // var h = Math.floor(section_.viewport.height * r);
+
+        var h, w;
+
+        var _self$sizeToViewport = self.sizeToViewport(section_);
+
+        var _self$sizeToViewport2 = _slicedToArray(_self$sizeToViewport, 2);
+
+        w = _self$sizeToViewport2[0];
+        h = _self$sizeToViewport2[1];
+
+
+        var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+        div.style.width = w + "px";
+        div.style.height = h + "px";
+        div.setAttribute('original-height', h);
+        div.setAttribute('layout-height', h);
+
+        var view = this.views.find(section_);
+        if (view) {
+          view.size(w, h);
+        }
+      }
+    }
+
+    // RRE - debugging
+
+  }, {
+    key: "createView",
+    value: function createView(section) {
+
+      var view = this.views.find(section);
+      if (view) {
+        return view;
+      }
+
+      var w, h;
+
+      var _sizeToViewport = this.sizeToViewport(section);
+
+      var _sizeToViewport2 = _slicedToArray(_sizeToViewport, 2);
+
+      w = _sizeToViewport2[0];
+      h = _sizeToViewport2[1];
+
+      var viewSettings = Object.assign({}, this.viewSettings);
+      viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+      viewSettings.layout.height = h;
+      viewSettings.layout.columnWidth = w;
+      console.log("AHOY ??", w);
+      var view = new this.View(section, viewSettings);
+      return view;
+    }
+  }, {
+    key: "display",
+    value: function display(section, target) {
+      var self = this;
+      var promises = [];
+
+      this.q.clear();
+      var display = new _core.defer();
+      var promises = [];
+      this.faking = {};
+
+      if (!this._manifest) {
+        this.emit("building");
+        self._manifest = {};
+        var _buildManifest = function _buildManifest(section_) {
+          self._manifest[section_.href] = false;
+          if (self.settings.viewports && self.settings.viewports[section_.href]) {
+            section_.viewport = self.settings.viewports[section_.href];
+            self._manifest[section_.href] = section_;
+          } else {
+            self.q.enqueue(function () {
+              section_.load(self.request).then(function (contents) {
+                var meta = contents.querySelector('meta[name="viewport"]');
+                var value = meta.getAttribute('content');
+                var tmp = value.split(",");
+                var key = section_.href;
+                var idx = self._spine.indexOf(key);
+                self.emit("building", { index: idx + 1, total: self._spine.length });
+                section_.viewport = {};
+                self._manifest[key] = section_;
+                // self._manifest[key] = { viewport : {} };
+                // self._manifest[key].index = section_.index;
+                // self._manifest[key].href = section_.href;
+                var viewport_width = tmp[0].replace('width=', '');
+                var viewport_height = tmp[1].replace('height=', '');
+                if (!viewport_height.match(/^\d+$/)) {
+                  viewport_width = viewport_height = 'auto';
+                } else {
+                  viewport_width = parseInt(viewport_width, 10);
+                  viewport_height = parseInt(viewport_height, 10);
+                }
+                self._manifest[key].viewport.width = viewport_width;
+                self._manifest[key].viewport.height = viewport_height;
+                self.faking[key] = self._manifest[key].viewport;
+              });
+            });
+          }
+        };
+
+        // can we build a manifest here?
+        var prev_ = section.prev();
+        while (prev_) {
+          self._spine.unshift(prev_.href);
+          _buildManifest(prev_);
+          prev_ = prev_.prev();
+        }
+
+        self._spine.push(section.href);
+        _buildManifest(section);
+
+        var next_ = section.next();
+        while (next_) {
+          self._spine.push(next_.href);
+          _buildManifest(next_);
+          next_ = next_.next();
+        }
+
+        console.log("AHOY PRE-PAGINATED", promises.length);
+      }
+
+      var _display = function () {
+
+        var check = document.querySelector('.epub-view');
+        if (!check) {
+          self._max_height = self._max_viewport_height = 0;
+          self._max_width = self._max_viewport_width = 0;
+          console.log("AHOY DRAWING", self._spine.length);
+          for (var i = 0; i < self._spine.length; i++) {
+            var href = self._spine[i];
+            var section_ = self._manifest[href];
+            var w, h;
+
+            var _self$sizeToViewport3 = self.sizeToViewport(section_);
+
+            var _self$sizeToViewport4 = _slicedToArray(_self$sizeToViewport3, 2);
+
+            w = _self$sizeToViewport4[0];
+            h = _self$sizeToViewport4[1];
+
+
+            self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: " + w + "px; height: " + h + "px; text-align: center; margin-left: auto; margin-right: auto\"></div>";
+            var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+            // div.setAttribute('use-')
+            div.setAttribute('original-height', h);
+            div.setAttribute('layout-height', h);
+
+            if (window.debugManager) {
+              div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
+              var colorR = Math.floor(Math.random() * 100).toString();
+              var colorG = Math.floor(Math.random() * 100).toString();
+              var colorB = Math.floor(Math.random() * 100).toString();
+              div.style.backgroundColor = "#" + colorR + colorG + colorB;
+            }
+          }
+        }
+
+        // find the <div> with this section
+        // console.log("AHOY continuous.display START", section.href);
+        var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
+        div.scrollIntoView();
+
+        // this.q.clear();
+        // return check ? this.update() : this.check();
+        // var retval = check ? this.update() : this.check();
+        var retval = this.check();
+        console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
+        retval.then(function () {
+          this.q.clear();
+          console.log("AHOY MANAGER BUILT");
+          this.emit("built");
+          return display.resolve();
+        }.bind(this));
+
+        // return DefaultViewManager.prototype.display.call(this, section, target)
+        //  .then(function () {
+        //    return this.fill();
+        //  }.bind(this));
+
+        return retval;
+      }.bind(this);
+
+      // // promises.push(_display);
+      // while(promises.length) {
+      //  this.q.enqueue(promises.shift);
+      // }
+
+      // console.log("AHOY PREPAGINATED", this.q._q.length);
+      // this.q.enqueue().then((result) => {
+      //  display.resolve();
+      // })
+
+      var q = function () {
+        return this.q.enqueue(function (result) {
+          var waiting = 0;
+          for (var i = 0; i < self._spine.length; i++) {
+            var href = self._spine[i];
+            var has_section = self._manifest[href];
+            if (has_section == false) {
+              waiting += 1;
+            }
+          }
+          // console.log("AHOY PRE-PAGINATED WAITING", waiting);
+          if (waiting == 0) {
+            return _display();
+          } else {
+            q();
+          }
+        });
+      }.bind(this);
+
+      return q();
+
+      return display.promise;
+    }
+  }, {
+    key: "_checkStillLoading",
+    value: function _checkStillLoading() {
+      this.q.enqueue(function (result) {
+        var waiting = 0;
+        for (var i = 0; i < self._spine.length; i++) {
+          var href = self._spine[i];
+          var has_section = self._manifest[href];
+          if (has_section == false) {
+            waiting += 1;
+          }
+        }
+        console.log("AHOY PRE-PAGINATED WAITING", waiting);
+        if (waiting == 0) {
+          return _display();
+        } else {
+          q();
+        }
+      });
+    }
+  }, {
+    key: "fill",
+    value: function fill(_full) {
+      var _this2 = this;
+
+      var full = _full || new _core.defer();
+
+      this.q.enqueue(function () {
+        return _this2._checkStillLoading();
+      }).then(function (result) {
+        if (result) {
+          _this2.fill(full);
+        } else {
+          full.resolve();
+        }
+      });
+
+      return full.promise;
+    }
+  }, {
+    key: "fillXX",
+    value: function fillXX(_full) {
+      var _this3 = this;
+
+      var full = _full || new _core.defer();
+
+      this.q.enqueue(function () {
+        return _this3.check();
+      }).then(function (result) {
+        if (result) {
+          _this3.fill(full);
+        } else {
+          full.resolve();
+        }
+      });
+
+      return full.promise;
+    }
+  }, {
+    key: "moveTo",
+    value: function moveTo(offset) {
+      // var bounds = this.stage.bounds();
+      // var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+      var distX = 0,
+          distY = 0;
+
+      var offsetX = 0,
+          offsetY = 0;
+
+      if (!this.isPaginated) {
+        distY = offset.top;
+        offsetY = offset.top + this.settings.offset;
+      } else {
+        distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+        offsetX = distX + this.settings.offset;
+      }
+
+      if (distX > 0 || distY > 0) {
+        this.scrollBy(distX, distY, true);
+      }
+    }
+  }, {
+    key: "afterResized",
+    value: function afterResized(view) {
+      this.emit(_constants.EVENTS.MANAGERS.RESIZE, view.section);
+    }
+
+    // Remove Previous Listeners if present
+
+  }, {
+    key: "removeShownListeners",
+    value: function removeShownListeners(view) {
+
+      // view.off("shown", this.afterDisplayed);
+      // view.off("shown", this.afterDisplayedAbove);
+      view.onDisplayed = function () {};
+    }
+  }, {
+    key: "add",
+    value: function add(section) {
+      var _this4 = this;
+
+      var view = this.createView(section);
+
+      this.views.append(view);
+
+      view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+        view.expanded = true;
+      });
+
+      view.on(_constants.EVENTS.VIEWS.AXIS, function (axis) {
+        _this4.updateAxis(axis);
+      });
+
+      // view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+      view.onDisplayed = this.afterDisplayed.bind(this);
+      view.onResize = this.afterResized.bind(this);
+
+      return view.display(this.request);
+    }
+  }, {
+    key: "append",
+    value: function append(section) {
+
+      var view = this.createView(section);
+
+      view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+        view.expanded = true;
+        // do not do this
+        // this.counter(bounds); // RRE
+      });
+
+      /*
+      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+        this.updateAxis(axis);
+      });
+      */
+
+      this.views.append(view);
+
+      view.onDisplayed = this.afterDisplayed.bind(this);
+
+      return view;
+    }
+  }, {
+    key: "prepend",
+    value: function prepend(section) {
+      var _this5 = this;
+
+      var view = this.createView(section);
+
+      view.on(_constants.EVENTS.VIEWS.RESIZED, function (bounds) {
+        _this5.counter(bounds);
+        view.expanded = true;
+      });
+
+      /*
+      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+        this.updateAxis(axis);
+      });
+      */
+
+      this.views.prepend(view);
+
+      view.onDisplayed = this.afterDisplayed.bind(this);
+
+      return view;
+    }
+  }, {
+    key: "counter",
+    value: function counter(bounds) {
+      // return;
+      if (this.settings.axis === "vertical") {
+        // if ( ! this._timer ) {
+        //  this._timer = setTimeout(function() {
+        //    this._timer = null;
+        //    console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+        //    this.scrollBy(0, bounds.heightDelta, true);
+        //    this.x1(`COUNTER ${bounds.heightDelta}`);
+        //  }.bind(this), 500);
+        // } else {
+        //  console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+        // }
+        // console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+        this.scrollBy(0, bounds.heightDelta, true);
+      } else {
+        this.scrollBy(bounds.widthDelta, 0, true);
+      }
+    }
+  }, {
+    key: "updateXXX",
+    value: function updateXXX(_offset) {
+      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+      var visibleLength = horizontal ? bounds.width : bounds.height;
+      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+      var divs = document.querySelectorAll('.epub-view');
+      var visible = [];
+      for (var i = 0; i < divs.length; i++) {
+        var div = divs[i];
+        var rect = div.getBoundingClientRect();
+        var marker = '';
+        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+          marker = '**';
+          var section = this._manifest[div.dataset.href];
+          visible.push(section);
+          // if ( ! div.querySelector('iframe') ) {
+          //  newViews.push(this.append(section))
+          // }
+          // var idx = this._spine.indexOf(section.href);
+          // if ( idx > 0 ) {
+          //  visible.push(this._manifest[this._spine[idx - 1]]);
+          // }
+          // if ( idx < this._spine.length - 1 ) {
+          //  visible.push(this._manifest[this._spine[idx + 1]]);
+          // }
+        }
+        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+      }
+    }
+  }, {
+    key: "update",
+    value: function update(_offset) {
+      var container = this.bounds();
+      var views = this.views.all();
+      var viewsLength = views.length;
+      var visible = [];
+      var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+      var isVisible;
+      var view;
+
+      var updating = new _core.defer();
+      var promises = [];
+      var queued = {};
+      for (var i = 0; i < viewsLength; i++) {
+        view = views[i];
+
+        isVisible = this.isVisible(view, offset, offset, container);
+        if (isVisible === true) {
+          queued[i] = true;
+        }
+      }
+
+      for (var i = 0; i < viewsLength; i++) {
+        view = views[i];
+        var isVisible = queued[i];
+        if (isVisible === true) {
+          // console.log("visible " + view.index);
+
+          if (!view.displayed) {
+            // console.log("AHOY continuous.update !displayed", view.section.href);
+            var displayed = view.display(this.request).then(function (view) {
+              view.show();
+            }, function (err) {
+              // console.log("AHOY continuous.update ERROR", err);
+              view.hide();
+            });
+            promises.push(displayed);
+          } else {
+            // console.log("AHOY continuous.update show", view.section.href);
+            view.show();
+          }
+          visible.push(view);
+        } else {
+          this.q.enqueue(view.destroy.bind(view));
+          // console.log("hidden " + view.index);
+
+          clearTimeout(this.trimTimeout);
+          this.trimTimeout = setTimeout(function () {
+            this.q.enqueue(this.trim.bind(this));
+          }.bind(this), 250);
+        }
+      }
+
+      if (promises.length) {
+        return Promise.all(promises).catch(function (err) {
+          updating.reject(err);
+        });
+      } else {
+        updating.resolve();
+        return updating.promise;
+      }
+    }
+  }, {
+    key: "check",
+    value: function check(_offsetLeft, _offsetTop) {
+      var _this6 = this;
+
+      var checking = new _core.defer();
+      var newViews = [];
+
+      var horizontal = this.settings.axis === "horizontal";
+      var delta = this.settings.offset || 0;
+
+      if (_offsetLeft && horizontal) {
+        delta = _offsetLeft;
+      }
+
+      if (_offsetTop && !horizontal) {
+        delta = _offsetTop;
+      }
+
+      var bounds = this._bounds; // bounds saved this until resize
+
+      var rtl = this.settings.direction === "rtl";
+      var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+      var visibleLength = horizontal ? bounds.width : bounds.height;
+      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+      var prePaginated = this.layout.props.name == 'pre-paginated';
+
+      // console.log("continuous.check prePaginated =", prePaginated, "offset=",
+      //  offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
+      //  " == ", offset + visibleLength + delta >= contentLength,
+      //  " || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
+
+      var prepend = function prepend() {
+        var first = _this6.views.first();
+        var prev = first && first.section.prev();
+
+        if (prev) {
+          newViews.push(_this6.prepend(prev));
+        }
+      };
+
+      var append = function append() {
+        var last = _this6.views.last();
+        var next = last && last.section.next();
+
+        if (next) {
+          newViews.push(_this6.append(next));
+        }
+      };
+
+      var adjusted_top = offset - bounds.height * 8;
+      var adjusted_end = offset + bounds.height * 8;
+      // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
+
+      // need to figure out which divs are viewable
+      var divs = document.querySelectorAll('.epub-view');
+      var visible = [];
+      for (var i = 0; i < divs.length; i++) {
+        var div = divs[i];
+        var rect = div.getBoundingClientRect();
+        var marker = '';
+        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+          marker = '**';
+          var section = this._manifest[div.dataset.href];
+          visible.push(section);
+          // if ( ! div.querySelector('iframe') ) {
+          //  newViews.push(this.append(section))
+          // }
+          // var idx = this._spine.indexOf(section.href);
+          // if ( idx > 0 ) {
+          //  visible.push(this._manifest[this._spine[idx - 1]]);
+          // }
+          // if ( idx < this._spine.length - 1 ) {
+          //  visible.push(this._manifest[this._spine[idx + 1]]);
+          // }
+        }
+        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+      }
+
+      this.__check_visible = visible;
+
+      var section = visible[0];
+      if (section && section.index > 0) {
+        visible.unshift(this._manifest[this._spine[section.index - 1]]);
+      }
+      if (section) {
+        var tmp = this._spine[section.index + 1];
+        if (tmp) {
+          visible.push(this._manifest[tmp]);
+        }
+      }
+      // if ( section && section.prev() ) {
+      //  visible.unshift(section.prev());
+      // }
+      // section = visible[visible.length - 1];
+      // if (section && section.next() ) {
+      //  visible.push(section.next());
+      // }
+
+      for (var i = 0; i < visible.length; i++) {
+        var section = visible[i];
+        // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
+        // if ( div.querySelector('iframe') ) {
+        //  continue;
+        // }
+        newViews.push(this.append(section));
+      }
+
+      // let promises = newViews.map((view) => {
+      //  return view.displayed;
+      // });
+
+      var promises = [];
+      for (var i = 0; i < newViews.length; i++) {
+        if (newViews[i]) {
+          promises.push(newViews[i]);
+        }
+      }
+
+      if (newViews.length) {
+        return Promise.all(promises).then(function () {
+          // return this.check();
+          // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
+          //   // console.log("AHOY check again");
+          //   return this.check();
+          // }
+        }).then(function () {
+          // Check to see if anything new is on screen after rendering
+          // console.log("AHOY update again");
+          return _this6.update(delta);
+        }, function (err) {
+          return err;
+        });
+      } else {
+        this.q.enqueue(function () {
+          this.update();
+        }.bind(this));
+        checking.resolve(false);
+        return checking.promise;
+      }
+    }
+  }, {
+    key: "trim",
+    value: function trim() {
+      var task = new _core.defer();
+      var displayed = this.views.displayed();
+      var first = displayed[0];
+      var last = displayed[displayed.length - 1];
+      var firstIndex = this.views.indexOf(first);
+      var lastIndex = this.views.indexOf(last);
+      var above = this.views.slice(0, firstIndex);
+      var below = this.views.slice(lastIndex + 1);
+
+      // Erase all but last above
+      for (var i = 0; i < above.length - 3; i++) {
+        if (above[i]) {
+          // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
+          this.erase(above[i], above);
+        }
+      }
+
+      // Erase all except first below
+      for (var j = 3; j < below.length; j++) {
+        if (below[j]) {
+          // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
+          this.erase(below[j]);
+        }
+      }
+
+      task.resolve();
+      return task.promise;
+    }
+  }, {
+    key: "erase",
+    value: function erase(view, above) {
+      //Trim
+
+      var prevTop;
+      var prevLeft;
+
+      if (this.settings.height) {
+        prevTop = this.container.scrollTop;
+        prevLeft = this.container.scrollLeft;
+      } else {
+        prevTop = window.scrollY;
+        prevLeft = window.scrollX;
+      }
+
+      var bounds = view.bounds();
+
+      // console.log("AHOY erase", view.section.href, above);
+      this.views.remove(view);
+
+      if (above) {
+        if (this.settings.axis === "vertical") {
+          // this.scrollTo(0, prevTop - bounds.height, true);
+        } else {
+          this.scrollTo(prevLeft - bounds.width, 0, true);
+        }
+      }
+    }
+  }, {
+    key: "addEventListeners",
+    value: function addEventListeners(stage) {
+
+      window.addEventListener("unload", function (e) {
+        this.ignore = true;
+        // this.scrollTo(0,0);
+        this.destroy();
+      }.bind(this));
+
+      this.addScrollListeners();
+    }
+  }, {
+    key: "addScrollListeners",
+    value: function addScrollListeners() {
+      var scroller;
+
+      this.tick = _core.requestAnimationFrame;
+
+      if (this.settings.height) {
+        this.prevScrollTop = this.container.scrollTop;
+        this.prevScrollLeft = this.container.scrollLeft;
+      } else {
+        this.prevScrollTop = window.scrollY;
+        this.prevScrollLeft = window.scrollX;
+      }
+
+      this.scrollDeltaVert = 0;
+      this.scrollDeltaHorz = 0;
+
+      if (this.settings.height) {
+        scroller = this.container;
+        this.scrollTop = this.container.scrollTop;
+        this.scrollLeft = this.container.scrollLeft;
+      } else {
+        scroller = window;
+        this.scrollTop = window.scrollY;
+        this.scrollLeft = window.scrollX;
+      }
+
+      scroller.addEventListener("scroll", this.onScroll.bind(this));
+      this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
+      // this.tick.call(window, this.onScroll.bind(this));
+
+      this.didScroll = false;
+    }
+  }, {
+    key: "removeEventListeners",
+    value: function removeEventListeners() {
+      var scroller;
+
+      if (this.settings.height) {
+        scroller = this.container;
+      } else {
+        scroller = window;
+      }
+
+      scroller.removeEventListener("scroll", this.onScroll.bind(this));
+    }
+  }, {
+    key: "onScroll",
+    value: function onScroll() {
+      var scrollTop = void 0;
+      var scrollLeft = void 0;
+      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+      if (this.settings.height) {
+        scrollTop = this.container.scrollTop;
+        scrollLeft = this.container.scrollLeft;
+      } else {
+        scrollTop = window.scrollY * dir;
+        scrollLeft = window.scrollX * dir;
+      }
+
+      this.scrollTop = scrollTop;
+      this.scrollLeft = scrollLeft;
+
+      if (!this.ignore) {
+
+        this._scrolled();
+      } else {
+        this.ignore = false;
+      }
+
+      this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+      this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+      this.prevScrollTop = scrollTop;
+      this.prevScrollLeft = scrollLeft;
+
+      clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = setTimeout(function () {
+        this.scrollDeltaVert = 0;
+        this.scrollDeltaHorz = 0;
+      }.bind(this), 150);
+
+      this.didScroll = false;
+    }
+  }, {
+    key: "scrolled",
+    value: function scrolled() {
+      this.q.enqueue(function () {
+        this.check();
+        this.recenter();
+        setTimeout(function () {
+          this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+            top: this.scrollTop,
+            left: this.scrollLeft
+          });
+        }.bind(this), 500);
+      }.bind(this));
+
+      this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
+        top: this.scrollTop,
+        left: this.scrollLeft
+      });
+
+      clearTimeout(this.afterScrolled);
+      this.afterScrolled = setTimeout(function () {
+        this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+          top: this.scrollTop,
+          left: this.scrollLeft
+        });
+      }.bind(this));
+    }
+  }, {
+    key: "next",
+    value: function next() {
+
+      var dir = this.settings.direction;
+      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+      delta = this.container.offsetHeight / this.settings.scale;
+
+      if (!this.views.length) return;
+
+      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+        this.scrollBy(delta, 0, true);
+      } else {
+
+        // this.scrollBy(0, this.layout.height, true);
+        this.scrollBy(0, delta, true);
+      }
+
+      this.q.enqueue(function () {
+        this.check();
+      }.bind(this));
+    }
+  }, {
+    key: "prev",
+    value: function prev() {
+
+      var dir = this.settings.direction;
+      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+      if (!this.views.length) return;
+
+      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+        this.scrollBy(-delta, 0, true);
+      } else {
+
+        this.scrollBy(0, -this.layout.height, true);
+      }
+
+      this.q.enqueue(function () {
+        this.check();
+      }.bind(this));
+    }
+  }, {
+    key: "updateAxis",
+    value: function updateAxis(axis, forceUpdate) {
+
+      if (!this.isPaginated) {
+        axis = "vertical";
+      }
+
+      if (!forceUpdate && axis === this.settings.axis) {
+        return;
+      }
+
+      this.settings.axis = axis;
+
+      this.stage && this.stage.axis(axis);
+
+      this.viewSettings.axis = axis;
+
+      if (this.mapping) {
+        this.mapping.axis(axis);
+      }
+
+      if (this.layout) {
+        if (axis === "vertical") {
+          this.layout.spread("none");
+        } else {
+          this.layout.spread(this.layout.settings.spread);
+        }
+      }
+
+      if (axis === "vertical") {
+        this.settings.infinite = true;
+      } else {
+        this.settings.infinite = false;
+      }
+    }
+  }, {
+    key: "recenter",
+    value: function recenter() {
+      var wrapper = this.container.parentElement;
+      var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+      wrapper.scrollLeft = w3;
+    }
+  }, {
+    key: "sizeToViewport",
+    value: function sizeToViewport(section) {
+      var h = this.layout.height;
+      var w = this.layout.columnWidth * this.settings.scale;
+      if (section.viewport.height != 'auto') {
+        if (this.layout.columnWidth > section.viewport.width) {
+          w = section.viewport.width * this.settings.scale;
+        }
+        var r = w / section.viewport.width;
+        h = Math.floor(section.viewport.height * r);
+      }
+      return [w, h];
+    }
+  }, {
+    key: "scale",
+    value: function scale(_scale) {
+      var self = this;
+      this.settings.scale = _scale;
+      var current = this.currentLocation();
+      var index = current[0].index;
+
+      this.views.hide();
+      this.views.clear();
+      this._redrawViews();
+      this.views.show();
+      setTimeout(function () {
+        console.log("AHOY JUMPING TO", index);
+        var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+        div.scrollIntoView(true);
+        this.check().then(function () {
+          this.onScroll();
+        }.bind(this));
+      }.bind(this), 0);
+    }
+  }]);
+
+  return PrePaginatedContinuousViewManager;
 }(_index2.default);
 
 exports.default = PrePaginatedContinuousViewManager;
