@@ -6800,6 +6800,10 @@ var DefaultViewManager = function () {
 	}, {
 		key: "resize",
 		value: function resize(width, height) {
+<<<<<<< HEAD
+=======
+			// this.scale(1.0);
+>>>>>>> af5bd27... track new epub.js for prepaginated scaling
 			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
@@ -15800,6 +15804,7 @@ var IframeView = function () {
 				this.iframe.style.width = width + "px";
 				this._width = width;
 			}
+<<<<<<< HEAD
 			// if ( this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled' ) {
 			// 	// because we want the iframe to fit within the larger viewer
 			// 	// this.element.style.width = '80%';
@@ -15807,6 +15812,15 @@ var IframeView = function () {
 			// 	this.iframe.style.width = this.element.offsetWidth;
 			// 	this._width = this.element.offsetWidth;
 			// }
+=======
+			if (this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled') {
+				// because we want the iframe to fit within the larger viewer
+				// this.element.style.width = '80%';
+				this.iframe.style.width = this.element.offsetWidth;
+				console.log("AHOY", this.element, this.element.offsetWidth);
+				this._width = this.element.offsetWidth;
+			}
+>>>>>>> af5bd27... track new epub.js for prepaginated scaling
 
 			if ((0, _core.isNumber)(height)) {
 				this.element.style.height = height + "px";
@@ -26129,12 +26143,18 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
   _createClass(PrePaginatedContinuousViewManager, [{
     key: "render",
     value: function render(element, size) {
+<<<<<<< HEAD
       var scale = this.settings.scale;
       this.settings.scale = null; // we don't want the stage to scale
       _index2.default.prototype.render.call(this, element, size);
       // Views array methods
       // use prefab views
       this.settings.scale = scale;
+=======
+      _index2.default.prototype.render.call(this, element, size);
+      // Views array methods
+      // use prefab views
+>>>>>>> af5bd27... track new epub.js for prepaginated scaling
       this.views = new _prefab2.default(this.container);
     }
   }, {
@@ -26220,6 +26240,10 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
       viewSettings.layout.height = h;
       viewSettings.layout.columnWidth = w;
+<<<<<<< HEAD
+=======
+      console.log("AHOY ??", w);
+>>>>>>> af5bd27... track new epub.js for prepaginated scaling
       var view = new this.View(section, viewSettings);
       return view;
     }
@@ -26715,6 +26739,7 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
           newViews.push(_this6.prepend(prev));
         }
       };
+<<<<<<< HEAD
 
       var append = function append() {
         var last = _this6.views.last();
@@ -27138,6 +27163,421 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
     }
   }]);
 
+=======
+
+      var append = function append() {
+        var last = _this6.views.last();
+        var next = last && last.section.next();
+
+        if (next) {
+          newViews.push(_this6.append(next));
+        }
+      };
+
+      var adjusted_top = offset - bounds.height * 8;
+      var adjusted_end = offset + bounds.height * 8;
+      // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
+
+      // need to figure out which divs are viewable
+      var divs = document.querySelectorAll('.epub-view');
+      var visible = [];
+      for (var i = 0; i < divs.length; i++) {
+        var div = divs[i];
+        var rect = div.getBoundingClientRect();
+        var marker = '';
+        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+          marker = '**';
+          var section = this._manifest[div.dataset.href];
+          visible.push(section);
+          // if ( ! div.querySelector('iframe') ) {
+          //  newViews.push(this.append(section))
+          // }
+          // var idx = this._spine.indexOf(section.href);
+          // if ( idx > 0 ) {
+          //  visible.push(this._manifest[this._spine[idx - 1]]);
+          // }
+          // if ( idx < this._spine.length - 1 ) {
+          //  visible.push(this._manifest[this._spine[idx + 1]]);
+          // }
+        }
+        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+      }
+
+      this.__check_visible = visible;
+
+      var section = visible[0];
+      if (section && section.index > 0) {
+        visible.unshift(this._manifest[this._spine[section.index - 1]]);
+      }
+      if (section) {
+        var tmp = this._spine[section.index + 1];
+        if (tmp) {
+          visible.push(this._manifest[tmp]);
+        }
+      }
+      // if ( section && section.prev() ) {
+      //  visible.unshift(section.prev());
+      // }
+      // section = visible[visible.length - 1];
+      // if (section && section.next() ) {
+      //  visible.push(section.next());
+      // }
+
+      for (var i = 0; i < visible.length; i++) {
+        var section = visible[i];
+        // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
+        // if ( div.querySelector('iframe') ) {
+        //  continue;
+        // }
+        newViews.push(this.append(section));
+      }
+
+      // let promises = newViews.map((view) => {
+      //  return view.displayed;
+      // });
+
+      var promises = [];
+      for (var i = 0; i < newViews.length; i++) {
+        if (newViews[i]) {
+          promises.push(newViews[i]);
+        }
+      }
+
+      if (newViews.length) {
+        return Promise.all(promises).then(function () {
+          // return this.check();
+          // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
+          //   // console.log("AHOY check again");
+          //   return this.check();
+          // }
+        }).then(function () {
+          // Check to see if anything new is on screen after rendering
+          // console.log("AHOY update again");
+          return _this6.update(delta);
+        }, function (err) {
+          return err;
+        });
+      } else {
+        this.q.enqueue(function () {
+          this.update();
+        }.bind(this));
+        checking.resolve(false);
+        return checking.promise;
+      }
+    }
+  }, {
+    key: "trim",
+    value: function trim() {
+      var task = new _core.defer();
+      var displayed = this.views.displayed();
+      var first = displayed[0];
+      var last = displayed[displayed.length - 1];
+      var firstIndex = this.views.indexOf(first);
+      var lastIndex = this.views.indexOf(last);
+      var above = this.views.slice(0, firstIndex);
+      var below = this.views.slice(lastIndex + 1);
+
+      // Erase all but last above
+      for (var i = 0; i < above.length - 3; i++) {
+        if (above[i]) {
+          // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
+          this.erase(above[i], above);
+        }
+      }
+
+      // Erase all except first below
+      for (var j = 3; j < below.length; j++) {
+        if (below[j]) {
+          // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
+          this.erase(below[j]);
+        }
+      }
+
+      task.resolve();
+      return task.promise;
+    }
+  }, {
+    key: "erase",
+    value: function erase(view, above) {
+      //Trim
+
+      var prevTop;
+      var prevLeft;
+
+      if (this.settings.height) {
+        prevTop = this.container.scrollTop;
+        prevLeft = this.container.scrollLeft;
+      } else {
+        prevTop = window.scrollY;
+        prevLeft = window.scrollX;
+      }
+
+      var bounds = view.bounds();
+
+      // console.log("AHOY erase", view.section.href, above);
+      this.views.remove(view);
+
+      if (above) {
+        if (this.settings.axis === "vertical") {
+          // this.scrollTo(0, prevTop - bounds.height, true);
+        } else {
+          this.scrollTo(prevLeft - bounds.width, 0, true);
+        }
+      }
+    }
+  }, {
+    key: "addEventListeners",
+    value: function addEventListeners(stage) {
+
+      window.addEventListener("unload", function (e) {
+        this.ignore = true;
+        // this.scrollTo(0,0);
+        this.destroy();
+      }.bind(this));
+
+      this.addScrollListeners();
+    }
+  }, {
+    key: "addScrollListeners",
+    value: function addScrollListeners() {
+      var scroller;
+
+      this.tick = _core.requestAnimationFrame;
+
+      if (this.settings.height) {
+        this.prevScrollTop = this.container.scrollTop;
+        this.prevScrollLeft = this.container.scrollLeft;
+      } else {
+        this.prevScrollTop = window.scrollY;
+        this.prevScrollLeft = window.scrollX;
+      }
+
+      this.scrollDeltaVert = 0;
+      this.scrollDeltaHorz = 0;
+
+      if (this.settings.height) {
+        scroller = this.container;
+        this.scrollTop = this.container.scrollTop;
+        this.scrollLeft = this.container.scrollLeft;
+      } else {
+        scroller = window;
+        this.scrollTop = window.scrollY;
+        this.scrollLeft = window.scrollX;
+      }
+
+      scroller.addEventListener("scroll", this.onScroll.bind(this));
+      this._scrolled = (0, _debounce2.default)(this.scrolled.bind(this), 30);
+      // this.tick.call(window, this.onScroll.bind(this));
+
+      this.didScroll = false;
+    }
+  }, {
+    key: "removeEventListeners",
+    value: function removeEventListeners() {
+      var scroller;
+
+      if (this.settings.height) {
+        scroller = this.container;
+      } else {
+        scroller = window;
+      }
+
+      scroller.removeEventListener("scroll", this.onScroll.bind(this));
+    }
+  }, {
+    key: "onScroll",
+    value: function onScroll() {
+      var scrollTop = void 0;
+      var scrollLeft = void 0;
+      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+      if (this.settings.height) {
+        scrollTop = this.container.scrollTop;
+        scrollLeft = this.container.scrollLeft;
+      } else {
+        scrollTop = window.scrollY * dir;
+        scrollLeft = window.scrollX * dir;
+      }
+
+      this.scrollTop = scrollTop;
+      this.scrollLeft = scrollLeft;
+
+      if (!this.ignore) {
+
+        this._scrolled();
+      } else {
+        this.ignore = false;
+      }
+
+      this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+      this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+      this.prevScrollTop = scrollTop;
+      this.prevScrollLeft = scrollLeft;
+
+      clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = setTimeout(function () {
+        this.scrollDeltaVert = 0;
+        this.scrollDeltaHorz = 0;
+      }.bind(this), 150);
+
+      this.didScroll = false;
+    }
+  }, {
+    key: "scrolled",
+    value: function scrolled() {
+      this.q.enqueue(function () {
+        this.check();
+        this.recenter();
+        setTimeout(function () {
+          this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+            top: this.scrollTop,
+            left: this.scrollLeft
+          });
+        }.bind(this), 500);
+      }.bind(this));
+
+      this.emit(_constants.EVENTS.MANAGERS.SCROLL, {
+        top: this.scrollTop,
+        left: this.scrollLeft
+      });
+
+      clearTimeout(this.afterScrolled);
+      this.afterScrolled = setTimeout(function () {
+        this.emit(_constants.EVENTS.MANAGERS.SCROLLED, {
+          top: this.scrollTop,
+          left: this.scrollLeft
+        });
+      }.bind(this));
+    }
+  }, {
+    key: "next",
+    value: function next() {
+
+      var dir = this.settings.direction;
+      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+      delta = this.container.offsetHeight / this.settings.scale;
+
+      if (!this.views.length) return;
+
+      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+        this.scrollBy(delta, 0, true);
+      } else {
+
+        // this.scrollBy(0, this.layout.height, true);
+        this.scrollBy(0, delta, true);
+      }
+
+      this.q.enqueue(function () {
+        this.check();
+      }.bind(this));
+    }
+  }, {
+    key: "prev",
+    value: function prev() {
+
+      var dir = this.settings.direction;
+      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+      if (!this.views.length) return;
+
+      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+        this.scrollBy(-delta, 0, true);
+      } else {
+
+        this.scrollBy(0, -this.layout.height, true);
+      }
+
+      this.q.enqueue(function () {
+        this.check();
+      }.bind(this));
+    }
+  }, {
+    key: "updateAxis",
+    value: function updateAxis(axis, forceUpdate) {
+
+      if (!this.isPaginated) {
+        axis = "vertical";
+      }
+
+      if (!forceUpdate && axis === this.settings.axis) {
+        return;
+      }
+
+      this.settings.axis = axis;
+
+      this.stage && this.stage.axis(axis);
+
+      this.viewSettings.axis = axis;
+
+      if (this.mapping) {
+        this.mapping.axis(axis);
+      }
+
+      if (this.layout) {
+        if (axis === "vertical") {
+          this.layout.spread("none");
+        } else {
+          this.layout.spread(this.layout.settings.spread);
+        }
+      }
+
+      if (axis === "vertical") {
+        this.settings.infinite = true;
+      } else {
+        this.settings.infinite = false;
+      }
+    }
+  }, {
+    key: "recenter",
+    value: function recenter() {
+      var wrapper = this.container.parentElement;
+      var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+      wrapper.scrollLeft = w3;
+    }
+  }, {
+    key: "sizeToViewport",
+    value: function sizeToViewport(section) {
+      var h = this.layout.height;
+      var w = this.layout.columnWidth * this.settings.scale;
+      if (section.viewport.height != 'auto') {
+        if (this.layout.columnWidth > section.viewport.width) {
+          w = section.viewport.width * this.settings.scale;
+        }
+        var r = w / section.viewport.width;
+        h = Math.floor(section.viewport.height * r);
+      }
+      return [w, h];
+    }
+  }, {
+    key: "scale",
+    value: function scale(_scale) {
+      var self = this;
+      this.settings.scale = _scale;
+      var current = this.currentLocation();
+      var index = current[0].index;
+
+      this.views.hide();
+      this.views.clear();
+      this._redrawViews();
+      this.views.show();
+      setTimeout(function () {
+        console.log("AHOY JUMPING TO", index);
+        var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+        div.scrollIntoView(true);
+        this.check().then(function () {
+          this.onScroll();
+        }.bind(this));
+      }.bind(this), 0);
+    }
+  }]);
+
+>>>>>>> af5bd27... track new epub.js for prepaginated scaling
   return PrePaginatedContinuousViewManager;
 }(_index2.default);
 
