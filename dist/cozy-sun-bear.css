@@ -1528,6 +1528,9 @@ div.cozy-panel-footer {
 .cozy-module-book[data-manager=prepaginated] .epub-view iframe, .cozy-module-book[data-manager=prepaginated-none] .epub-view iframe {
   border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
+.cozy-module-book[data-layout=pre-paginated][data-manager=default] .epub-container {
+  justify-content: center; }
+
 @media screen and (max-width: 50em) {
   .permalink-label,
   .cozy-control.cozy-container-fullscreen {

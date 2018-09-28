@@ -164,6 +164,7 @@ Reader.EpubJS = Reader.extend({
     }
 
     self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
+    self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
     self._drawRendition(target, callback);
   },

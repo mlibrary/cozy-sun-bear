@@ -635,6 +635,12 @@ div.cozy-panel-footer {
   }
 }
 
+.cozy-module-book[data-layout=pre-paginated][data-manager=default] {
+  .epub-container {
+    justify-content: center;
+  }
+}
+
 // media queries
 @media screen and (max-width: 50em ) {
 
