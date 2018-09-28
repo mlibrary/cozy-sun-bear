@@ -177,8 +177,7 @@ Reader.EpubJS = Reader.extend({
     self._bindEvents();
     self._drawn = true;
 
-<<<<<<< HEAD
-    if ( target && target.start ) { target = target.start; }
+  if ( target && target.start ) { target = target.start; }
     if ( ! target && window.location.hash ) {
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
         target = "epubcfi(" + window.location.hash.substr(1) + ")";
@@ -187,11 +186,6 @@ Reader.EpubJS = Reader.extend({
         target = self._book.url.path().resolve(target);
       }
     }
-=======
-    // if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'prepaginated' ) {
-    //   this._panes['epub'].style.overflowX = 'hidden';
-    // }
->>>>>>> af5bd27... track new epub.js for prepaginated scaling
 
     var status_index = 0;
     self._rendition.on('started', function() {
@@ -622,6 +616,10 @@ Reader.EpubJS = Reader.extend({
   },
 
   _updateScale: function() {
+    if ( this.metadata.layout != 'pre-paginated') {
+      // we're not scaling for reflowable
+      return;
+    }
     var scale = this.options.scale;
     if ( scale ) {
       scale = parseInt(scale, 10) / 100.0;
