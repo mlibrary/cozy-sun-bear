@@ -128,7 +128,7 @@ Reader.EpubJS = Reader.extend({
     }
 
     if ( this.settings.flow == 'auto' || this.settings.flow == 'paginated' ) {
-      this._panes['epub'].style.overflow = 'hidden';
+      this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
       this.settings.manager = 'default';
     } else {
       this._panes['epub'].style.overflow = 'auto';
@@ -596,18 +596,20 @@ Reader.EpubJS = Reader.extend({
   },
 
   _updateFontSize: function() {
+    if ( this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginted
+      return;
+    }
+
     var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
     this._rendition.themes.fontSize(`${text_size}%`);
-    // if ( this.options.text_size == 'large' ) {
-    //   this._rendition.themes.fontSize(this.options.fontSizeLarge);
-    // } else if ( this.options.text_size == 'small' ) {
-    //   this._rendition.themes.fontSize(this.options.fontSizeSmall);
-    // } else {
-    //   this._rendition.themes.fontSize(this.options.fontSizeDefault);
-    // }
   },
 
   _updateScale: function() {
+    if ( this.metadata.layout != 'pre-paginated') {
+      // we're not scaling for reflowable
+      return;
+    }
     var scale = this.options.scale;
     if ( scale ) {
       scale = parseInt(scale, 10) / 100.0;

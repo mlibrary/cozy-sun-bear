@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0d71dfe2, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0af5bd27, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5437,9 +5437,16 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       this._input = form.querySelector('#x' + this._id + '-input');
       this._output = form.querySelector('#x' + this._id + '-output');
       this._preview = form.querySelector('#x' + this._id + '-preview');
+      this._actionReset = form.querySelector('#x' + this._id + '-reset');
 
       this._input.addEventListener('input', this._updatePreview.bind(this));
       this._input.addEventListener('change', this._updatePreview.bind(this));
+
+      this._actionReset.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._input.value = 100;
+        this._updatePreview();
+      }.bind(this));
     }
 
     var text_size = this._control._reader.options.text_size || 100;
@@ -5459,7 +5466,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
   },
 
   template: function template$$1() {
-    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n        </p>\n      </fieldset>';
+    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
   },
 
   _updatePreview: function _updatePreview() {
@@ -7219,7 +7226,7 @@ Reader.EpubJS = Reader.extend({
     }
 
     if (this.settings.flow == 'auto' || this.settings.flow == 'paginated') {
-      this._panes['epub'].style.overflow = 'hidden';
+      this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
       this.settings.manager = 'default';
     } else {
       this._panes['epub'].style.overflow = 'auto';
@@ -7687,18 +7694,20 @@ Reader.EpubJS = Reader.extend({
   },
 
   _updateFontSize: function _updateFontSize() {
+    if (this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginted
+      return;
+    }
+
     var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
     this._rendition.themes.fontSize(text_size + '%');
-    // if ( this.options.text_size == 'large' ) {
-    //   this._rendition.themes.fontSize(this.options.fontSizeLarge);
-    // } else if ( this.options.text_size == 'small' ) {
-    //   this._rendition.themes.fontSize(this.options.fontSizeSmall);
-    // } else {
-    //   this._rendition.themes.fontSize(this.options.fontSizeDefault);
-    // }
   },
 
   _updateScale: function _updateScale() {
+    if (this.metadata.layout != 'pre-paginated') {
+      // we're not scaling for reflowable
+      return;
+    }
     var scale = this.options.scale;
     if (scale) {
       scale = parseInt(scale, 10) / 100.0;

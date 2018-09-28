@@ -212,9 +212,16 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       this._input = form.querySelector(`#x${this._id}-input`);
       this._output = form.querySelector(`#x${this._id}-output`);
       this._preview = form.querySelector(`#x${this._id}-preview`);
+      this._actionReset = form.querySelector(`#x${this._id}-reset`);
 
       this._input.addEventListener('input', this._updatePreview.bind(this));
       this._input.addEventListener('change', this._updatePreview.bind(this));
+
+      this._actionReset.addEventListener('click', function(event) {
+        event.preventDefault();
+        this._input.value = 100;
+        this._updatePreview();
+      }.bind(this));
     }
 
     var text_size = this._control._reader.options.text_size || 100;
@@ -245,6 +252,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         <p>
           <span>Text Size: </span>
           <output for="preferences-input-text_size" id="x${this._id}-output">100</output>
+          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
         </p>
       </fieldset>`;
   },
