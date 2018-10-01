@@ -6680,7 +6680,8 @@ var DefaultViewManager = function () {
 				hidden: this.settings.hidden,
 				axis: this.settings.axis,
 				fullsize: this.fullsize,
-				direction: this.settings.direction
+				direction: this.settings.direction,
+				scale: this.settings.scale
 			});
 
 			this.stage.attachTo(element);
@@ -6799,7 +6800,6 @@ var DefaultViewManager = function () {
 	}, {
 		key: "resize",
 		value: function resize(width, height) {
-			// this.scale(1.0);
 			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
@@ -6828,6 +6828,7 @@ var DefaultViewManager = function () {
 			this.viewSettings.height = this._stageSize.height;
 
 			this.updateLayout();
+			// this.scale(this.settings.scale);
 
 			this.emit(_constants.EVENTS.MANAGERS.RESIZED, {
 				width: this._stageSize.width,
@@ -7565,6 +7566,9 @@ var DefaultViewManager = function () {
 	}, {
 		key: "scale",
 		value: function scale(s) {
+			if (s == null) {
+				s = 1.0;
+			}
 			this.settings.scale = s;
 
 			if (this.stage) {
@@ -15796,13 +15800,13 @@ var IframeView = function () {
 				this.iframe.style.width = width + "px";
 				this._width = width;
 			}
-			if (this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled') {
-				// because we want the iframe to fit within the larger viewer
-				// this.element.style.width = '80%';
-				this.iframe.style.width = this.element.offsetWidth;
-				console.log("AHOY", this.element, this.element.offsetWidth);
-				this._width = this.element.offsetWidth;
-			}
+			// if ( this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled' ) {
+			// 	// because we want the iframe to fit within the larger viewer
+			// 	// this.element.style.width = '80%';
+			// 	console.log("AHOY REFRAME", width, "==", this.element.offsetWidth);
+			// 	this.iframe.style.width = this.element.offsetWidth;
+			// 	this._width = this.element.offsetWidth;
+			// }
 
 			if ((0, _core.isNumber)(height)) {
 				this.element.style.height = height + "px";
@@ -15843,7 +15847,6 @@ var IframeView = function () {
 
 			if (this._loaded) {
 				this._loaded += 1;
-				console.log("AHOY IFRAME REDUX", this.index, this._loaded);
 				return loaded;
 				// this.onLoad(null, loading);
 				// return loaded;
@@ -25170,7 +25173,7 @@ var Stage = function () {
 			var overflow = options.overflow || false;
 			var axis = options.axis || "vertical";
 			var direction = options.direction;
-			var scale = options.scale;
+			var scale = options.scale || 1.0;
 
 			// Create new container element
 			var container = document.createElement("div");
@@ -25205,10 +25208,13 @@ var Stage = function () {
 				document.body.style["direction"] = direction;
 			}
 
-			if (scale) {
+			if (scale && scale > 1.0) {
 				container.style["transform-origin"] = "top left";
 				container.style["transform"] = "scale(" + scale + ")";
 				container.style.overflow = "visible";
+			} else {
+				container.style["transform-origin"] = null;
+				container.style["transform"] = null;
 			}
 
 			return container;
@@ -25371,10 +25377,16 @@ var Stage = function () {
 		key: "scale",
 		value: function scale(s) {
 			if (this.container) {
-				console.log("AHOY RENDITION STAGE scale", s);
-				this.container.style["transform-origin"] = "top left";
-				this.container.style["transform"] = "scale(" + s + ")";
-				this._scale = s;
+				if (s > 1.0) {
+					this.container.style["transform-origin"] = "top left";
+					this.container.style["transform"] = "scale(" + s + ")";
+					this.container.style.overflow = "visible";
+				} else {
+					this.container.style.overflow = null;
+					this.container.style["transform-origin"] = null;
+					this.container.style["transform"] = null;
+				}
+				this.settings.scale = s;
 			}
 		}
 	}, {
@@ -25415,6 +25427,11 @@ var Stage = function () {
 				width = bounds.width;
 				// width = 2 * Math.floor(bounds.width / 2); ???
 				height = bounds.height;
+			}
+
+			if (this.settings.scale) {
+				width /= this.settings.scale;
+				height /= this.settings.scale;
 			}
 
 			this.containerStyles = window.getComputedStyle(this.container);
@@ -26112,9 +26129,12 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
   _createClass(PrePaginatedContinuousViewManager, [{
     key: "render",
     value: function render(element, size) {
+      var scale = this.settings.scale;
+      this.settings.scale = null; // we don't want the stage to scale
       _index2.default.prototype.render.call(this, element, size);
       // Views array methods
       // use prefab views
+      this.settings.scale = scale;
       this.views = new _prefab2.default(this.container);
     }
   }, {
@@ -26200,7 +26220,6 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
       viewSettings.layout.height = h;
       viewSettings.layout.columnWidth = w;
-      console.log("AHOY ??", w);
       var view = new this.View(section, viewSettings);
       return view;
     }
@@ -27092,7 +27111,10 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       var self = this;
       this.settings.scale = _scale;
       var current = this.currentLocation();
-      var index = current[0].index;
+      var index = -1;
+      if (current[0]) {
+        index = current[0].index;
+      }
 
       this.views.hide();
       this.views.clear();
@@ -27100,12 +27122,19 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       this.views.show();
       setTimeout(function () {
         console.log("AHOY JUMPING TO", index);
-        var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
-        div.scrollIntoView(true);
+        if (index > -1) {
+          var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+          div.scrollIntoView(true);
+        }
         this.check().then(function () {
           this.onScroll();
         }.bind(this));
       }.bind(this), 0);
+    }
+  }, {
+    key: "resetScale",
+    value: function resetScale() {
+      // NOOP
     }
   }]);
 
