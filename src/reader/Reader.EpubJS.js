@@ -177,7 +177,7 @@ Reader.EpubJS = Reader.extend({
     self._bindEvents();
     self._drawn = true;
 
-  if ( target && target.start ) { target = target.start; }
+    if ( target && target.start ) { target = target.start; }
     if ( ! target && window.location.hash ) {
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
         target = "epubcfi(" + window.location.hash.substr(1) + ")";
@@ -625,6 +625,17 @@ Reader.EpubJS = Reader.extend({
       scale = parseInt(scale, 10) / 100.0;
       this._rendition.scale(scale);
     }
+  },
+
+  _queueScale: function(scale) {
+    this._queueTimeout = setTimeout(function() {
+      if ( this._rendition.manager && this._rendition.manager.stage ) {
+        console.log("AHOY SCALING", this.settings.scale);
+        this._rendition.scale(this.settings.scale);
+      } else {
+        this._queueScale();
+      }
+    }.bind(this), 100);
   },
 
   EOT: true

@@ -6801,9 +6801,12 @@ var DefaultViewManager = function () {
 		key: "resize",
 		value: function resize(width, height) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 			// this.scale(1.0);
 >>>>>>> af5bd27... track new epub.js for prepaginated scaling
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
 			var stageSize = this.stage.size = { width: width, height: height };
 
 			// For Safari, wait for orientation to catch up
@@ -15805,6 +15808,9 @@ var IframeView = function () {
 				this._width = width;
 			}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
 			// if ( this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled' ) {
 			// 	// because we want the iframe to fit within the larger viewer
 			// 	// this.element.style.width = '80%';
@@ -15812,6 +15818,7 @@ var IframeView = function () {
 			// 	this.iframe.style.width = this.element.offsetWidth;
 			// 	this._width = this.element.offsetWidth;
 			// }
+<<<<<<< HEAD
 =======
 			if (this.layout.name === "pre-paginated" && this.layout.flow() === 'scrolled') {
 				// because we want the iframe to fit within the larger viewer
@@ -15821,6 +15828,8 @@ var IframeView = function () {
 				this._width = this.element.offsetWidth;
 			}
 >>>>>>> af5bd27... track new epub.js for prepaginated scaling
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
 
 			if ((0, _core.isNumber)(height)) {
 				this.element.style.height = height + "px";
@@ -26144,17 +26153,23 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
     key: "render",
     value: function render(element, size) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
       var scale = this.settings.scale;
       this.settings.scale = null; // we don't want the stage to scale
       _index2.default.prototype.render.call(this, element, size);
       // Views array methods
       // use prefab views
       this.settings.scale = scale;
+<<<<<<< HEAD
 =======
       _index2.default.prototype.render.call(this, element, size);
       // Views array methods
       // use prefab views
 >>>>>>> af5bd27... track new epub.js for prepaginated scaling
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
       this.views = new _prefab2.default(this.container);
     }
   }, {
@@ -26241,9 +26256,12 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       viewSettings.layout.height = h;
       viewSettings.layout.columnWidth = w;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       console.log("AHOY ??", w);
 >>>>>>> af5bd27... track new epub.js for prepaginated scaling
+=======
+>>>>>>> 2d3f15c... better resizing tracking for scaling
       var view = new this.View(section, viewSettings);
       return view;
     }
@@ -27560,7 +27578,10 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       var self = this;
       this.settings.scale = _scale;
       var current = this.currentLocation();
-      var index = current[0].index;
+      var index = -1;
+      if (current[0]) {
+        index = current[0].index;
+      }
 
       this.views.hide();
       this.views.clear();
@@ -27568,12 +27589,19 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
       this.views.show();
       setTimeout(function () {
         console.log("AHOY JUMPING TO", index);
-        var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
-        div.scrollIntoView(true);
+        if (index > -1) {
+          var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+          div.scrollIntoView(true);
+        }
         this.check().then(function () {
           this.onScroll();
         }.bind(this));
       }.bind(this), 0);
+    }
+  }, {
+    key: "resetScale",
+    value: function resetScale() {
+      // NOOP
     }
   }]);
 
