@@ -18,7 +18,9 @@ module.exports = function (config) {
     "node_modules/expect.js/index.js",
 		"node_modules/happen/happen.js",
 		"node_modules/prosthetic-hand/dist/prosthetic-hand.js",
-		"spec/SpecHelper.js" //,
+		"spec/SpecHelper.js",
+		{pattern: 'spec/fixtures/**/*', watched: false, included: false, served: true},
+		{pattern: 'vendor/**/*', watched: false, included: false, served: true}
 		// "spec/**/*Spec.js"
   ];
 
@@ -37,7 +39,7 @@ module.exports = function (config) {
 
 		// plugins
 		plugins: [
-			'karma-rollup-plugin',
+			'karma-rollup-preprocessor',
 			'karma-mocha',
 			'karma-coverage',
 			'karma-coveralls',
@@ -59,7 +61,8 @@ module.exports = function (config) {
 
 		// Rollup the ES6 Cozy sources into just one ES5 file, before tests
 		preprocessors: {
-			'src/cozy.js': ['rollup', 'coverage']
+			// 'src/cozy.js': ['rollup', 'coverage']
+			'src/*.js': [ 'rollup', 'sourcemap' ]
 		},
 		rollupPreprocessor: {
 			plugins: [
@@ -68,8 +71,12 @@ module.exports = function (config) {
 				commonjs(),
 				buble()
 			],
-			format: 'umd',
-			moduleName: 'cozy' //,
+			output: {
+				format: 'umd',
+				name: 'cozy',
+				sourcemap: 'inline'
+			},
+			// moduleName: 'cozy' //,
 			// sourceMap: 'inline'
 		},
 
@@ -132,10 +139,10 @@ module.exports = function (config) {
 		},
 
 		// If browser does not capture in given timeout [ms], kill it
-		captureTimeout: 5000,
+		captureTimeout: 100000,
 
 		// Workaround for PhantomJS random DISCONNECTED error
-		browserDisconnectTimeout: 10000, // default 2000
+		browserDisconnectTimeout: 100000, // default 2000
 		browserDisconnectTolerance: 1, // default 0
 
 		// Continuous Integration mode
