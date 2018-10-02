@@ -36,6 +36,7 @@ export var Contents = Control.extend({
 
       DomEvent.on(this._control, 'click', function(event) {
         event.preventDefault();
+        self._reader.tracking.action('contents/open');
         self._modal.activate();
       }, this)
 
@@ -48,9 +49,14 @@ export var Contents = Control.extend({
 
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('data-href');
+        this._reader.tracking.action('contents/go');
         this._reader.gotoPage(target);
         return true;
       }.bind(this))
+
+      this._modal.on('closed', function() {
+        self._reader.tracking.action('contents/close');
+      })
 
       this._setupSkipLink();
 

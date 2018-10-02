@@ -241,6 +241,12 @@ $grid-padding:       1rem;
     font-size: $milli;
   }
 
+  .button--inline {
+    @include button;
+    padding: 0.75em 1.75em 0.825em 1.75em;
+    display: inline;
+  }
+
   ///////////////////////////////////
   // fields
   ///////////////////////////////////
@@ -618,7 +624,7 @@ div.cozy-panel-footer {
 
 }
 
-.cozy-module-book[data-manager=prepaginated] {
+.cozy-module-book[data-manager=prepaginated], .cozy-module-book[data-manager=prepaginated-none] {
   .epub-view {
     margin-bottom: 16px;
   }
@@ -626,6 +632,12 @@ div.cozy-panel-footer {
   .epub-view iframe {
       // background: rgba(238,238,238,0.40);
       border: 1px solid rgba(0, 0, 0,0.40) !important;
+  }
+}
+
+.cozy-module-book[data-layout=pre-paginated][data-manager=default] {
+  .epub-container {
+    justify-content: center;
   }
 }
 

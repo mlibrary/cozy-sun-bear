@@ -360,6 +360,13 @@
                     console.log("DETECTED RESIZE");
                 })
 
+                reader.on('trackPageview', function(data) {
+                    console.log("AHOY TRACK PAGEVIEW", data);
+                })
+                reader.on('trackAction', function(data) {
+                    console.log("AHOY TRACK ACTION", data);
+                })
+
                 // setTimeout(function() {
                 //     update_select_panel(available_books);
                 // }, 100);

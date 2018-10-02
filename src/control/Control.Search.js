@@ -61,9 +61,14 @@ export var Search = Control.extend({
 
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('href');
+        this._reader.tracking.action('search/go');
         this._reader.gotoPage(target);
         return true;
       }.bind(this));
+
+      this._modal.on('closed', function() {
+        this._reader.tracking.action('contents/close');
+      }.bind(this))
 
     }.bind(this));
 
@@ -106,6 +111,7 @@ export var Search = Control.extend({
     }
     this._buildResults();
     this._modal.activate();
+    this._reader.tracking.action("search/open");
   },
 
   submitQuery: function() {
@@ -131,6 +137,7 @@ export var Search = Control.extend({
         console.log(this.response);
       }
 
+      self._reader.tracking.action("search/submitQuery");
       self.openModalResults();
 
     };

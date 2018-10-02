@@ -78,6 +78,7 @@ export var Preferences = Control.extend({
     var possible_fieldsets = [];
     if ( this._reader.metadata.layout == 'pre-paginated' ) {
       // different panel
+      possible_fieldsets.push('Scale');
     } else {
       possible_fieldsets.push('TextSize');
     }
@@ -211,9 +212,16 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       this._input = form.querySelector(`#x${this._id}-input`);
       this._output = form.querySelector(`#x${this._id}-output`);
       this._preview = form.querySelector(`#x${this._id}-preview`);
+      this._actionReset = form.querySelector(`#x${this._id}-reset`);
 
       this._input.addEventListener('input', this._updatePreview.bind(this));
       this._input.addEventListener('change', this._updatePreview.bind(this));
+
+      this._actionReset.addEventListener('click', function(event) {
+        event.preventDefault();
+        this._input.value = 100;
+        this._updatePreview();
+      }.bind(this));
     }
 
     var text_size = this._control._reader.options.text_size || 100;
@@ -244,6 +252,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         <p>
           <span>Text Size: </span>
           <output for="preferences-input-text_size" id="x${this._id}-output">100</output>
+          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
         </p>
       </fieldset>`;
   },
@@ -366,6 +375,69 @@ Preferences.fieldset.Rendition = Fieldset.extend({
 
     return template;
 
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Scale = Fieldset.extend({
+
+  initializeForm: function(form) {
+    if ( ! this._input ) {
+      this._input = form.querySelector(`#x${this._id}-input`);
+      this._output = form.querySelector(`#x${this._id}-output`);
+      this._preview = form.querySelector(`#x${this._id}-preview > div`);
+      this._actionReset = form.querySelector(`#x${this._id}-reset`);
+
+      this._input.addEventListener('input', this._updatePreview.bind(this));
+      this._input.addEventListener('change', this._updatePreview.bind(this));
+
+      this._actionReset.addEventListener('click', function(event) {
+        event.preventDefault();
+        this._input.value = 100;
+        this._updatePreview();
+      }.bind(this));
+    }
+
+    var scale = this._control._reader.options.scale || 100;
+    if ( ! scale ) { scale = 100; }
+    this._current.scale = scale;
+    this._input.value = scale;
+    this._updatePreview();
+  },
+
+  updateForm: function(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.scale = saveable.scale = this._input.value;
+    // options.text_size = this._input.value;
+    // return ( this._input.value != this._current.text_size );
+  },
+
+  template: function() {
+    return `<fieldset class="cozy-fieldset-text_size">
+        <legend>Zoom In/Out</legend>
+        <div class="preview--scale" id="x${this._id}-preview" style="overflow: hidden; height: 5rem">
+          <div>
+            ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
+          </div>
+        </div>
+        <p style="white-space: no-wrap">
+          <span style="font-size: 150%">⊖<span class="u-screenreader"> Zoom Out</span></span>
+          <input name="scale" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
+          <span style="font-size: 150%">⊕<span class="u-screenreader">Zoom In </span></span>
+        </p>
+        <p>
+          <span>Scale: </span>
+          <output for="preferences-input-text_size" id="x${this._id}-output">100</output>
+          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
+        </p>
+      </fieldset>`;
+  },
+
+  _updatePreview: function() {
+    this._preview.style.transform = `scale(${( parseInt(this._input.value, 10) / 100 )}) translate(0,0)`;
+    this._output.value = `${this._input.value}%`;
   },
 
   EOT: true

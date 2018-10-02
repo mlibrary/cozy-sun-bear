@@ -725,7 +725,8 @@
 .oi[data-glyph=zoom-out]:before {
   content: '\e0de'; }
 
-/**************************  Basic Modal Styles
+/**************************\
+  Basic Modal Styles
 \**************************/
 .cozy-modal[aria-hidden=true] {
   visibility: hidden;
@@ -845,7 +846,8 @@
   padding: 1em;
   background: #a3a3a3; }
 
-/**************************  Modal Animation Style
+/**************************\
+  Modal Animation Style
 \**************************/
 @keyframes mmfadeIn {
   from {
@@ -1227,6 +1229,39 @@
       background: #e8e8e8; }
       .cozy-container .button--sm[disabled]:active {
         box-shadow: none; }
+  .cozy-container .button--inline {
+    font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    display: inline-block;
+    border-bottom: none;
+    border-radius: 4px;
+    color: #fff;
+    background: #00afec;
+    background-image: linear-gradient(to right, #002c63 50%, #00afec 50%);
+    background-position: -100%;
+    background-size: 201%;
+    background-repeat: no-repeat;
+    text-shadow: none;
+    text-decoration: none;
+    transition: 0.2s ease-in;
+    line-height: normal;
+    padding: 0.75em 1.75em 0.825em 1.75em;
+    display: inline; }
+    .cozy-container .button--inline:hover, .cozy-container .button--inline:active {
+      color: #fff;
+      background-position: 0;
+      transition: 0.2s ease-in; }
+    .cozy-container .button--inline:focus {
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba(0, 44, 99, 0.25); }
+    .cozy-container .button--inline:active {
+      box-shadow: inset 0 1px 12px rgba(17, 20, 23, 0.33); }
+    .cozy-container .button--inline[disabled] {
+      cursor-events: none;
+      background: #e8e8e8; }
+      .cozy-container .button--inline[disabled]:active {
+        box-shadow: none; }
   .cozy-container .doi-label form {
     display: inline-block; }
   .cozy-container input[type='text'] {
@@ -1487,11 +1522,14 @@ div.cozy-panel-footer {
 .cozy-container.cozy-engine-readium #scrolled-content-frame {
   position: absolute; }
 
-.cozy-module-book[data-manager=prepaginated] .epub-view {
+.cozy-module-book[data-manager=prepaginated] .epub-view, .cozy-module-book[data-manager=prepaginated-none] .epub-view {
   margin-bottom: 16px; }
 
-.cozy-module-book[data-manager=prepaginated] .epub-view iframe {
+.cozy-module-book[data-manager=prepaginated] .epub-view iframe, .cozy-module-book[data-manager=prepaginated-none] .epub-view iframe {
   border: 1px solid rgba(0, 0, 0, 0.4) !important; }
+
+.cozy-module-book[data-layout=pre-paginated][data-manager=default] .epub-container {
+  justify-content: center; }
 
 @media screen and (max-width: 50em) {
   .permalink-label,
