@@ -76,7 +76,7 @@ export var Contents = Control.extend({
       var _process = function(items, tabindex, parent) {
         items.forEach(function(item) {
           var option = self._createOption(item, tabindex, parent);
-          if ( item.subitems.length ) {
+          if ( item.subitems && item.subitems.length ) {
             _process(item.subitems, tabindex + 1, option);
           }
         })
