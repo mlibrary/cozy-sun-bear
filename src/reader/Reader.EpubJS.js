@@ -453,6 +453,9 @@ Reader.EpubJS = Reader.extend({
           "figure": {
             "box-sizing": "border-box !important",
             "margin": "0 !important"
+          },
+          "body" {
+            "margin": "0"
           }
         });
       }.bind(this._rendition));

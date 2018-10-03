@@ -635,6 +635,18 @@ div.cozy-panel-footer {
   }
 }
 
+.cozy-module-book[data-manager=default][data-layout=pre-paginated] {
+  .epub-view {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .epub-view iframe {
+      // background: rgba(238,238,238,0.40);
+      border: 1px solid rgba(0, 0, 0,0.40) !important;
+  }
+}
+
 .cozy-module-book[data-layout=pre-paginated][data-manager=default] {
   .epub-container {
     justify-content: center;
