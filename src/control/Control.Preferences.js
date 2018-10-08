@@ -251,7 +251,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         </p>
         <p>
           <span>Text Size: </span>
-          <output for="preferences-input-text_size" id="x${this._id}-output">100</output>
+          <span id="x${this._id}-output">100</span>
           <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
         </p>
       </fieldset>`;
@@ -259,7 +259,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 
   _updatePreview: function() {
     this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
-    this._output.value = `${this._input.value}%`;
+    this._output.innerHTML = `${this._input.value}%`;
   },
 
   EOT: true
@@ -429,7 +429,7 @@ Preferences.fieldset.Scale = Fieldset.extend({
         </p>
         <p>
           <span>Scale: </span>
-          <output for="preferences-input-text_size" id="x${this._id}-output">100</output>
+          <span id="x${this._id}-output">100</span>
           <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
         </p>
       </fieldset>`;
@@ -437,7 +437,7 @@ Preferences.fieldset.Scale = Fieldset.extend({
 
   _updatePreview: function() {
     this._preview.style.transform = `scale(${( parseInt(this._input.value, 10) / 100 )}) translate(0,0)`;
-    this._output.value = `${this._input.value}%`;
+    this._output.innerHTML = `${this._input.value}%`;
   },
 
   EOT: true
