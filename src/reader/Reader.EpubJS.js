@@ -302,6 +302,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target, callback) {
+    var hash;
     if ( target != null ) {
       var section = this._book.spine.get(target);
       if ( ! section) {
@@ -313,6 +314,7 @@ Reader.EpubJS = Reader.extend({
           guessed = this._book.canonical(path2);
         }
         if ( guessed.indexOf("#") !== 0 ) {
+          hash = guessed.split('#')[1];
           guessed = guessed.split('#')[0];
         }
 
@@ -341,8 +343,10 @@ Reader.EpubJS = Reader.extend({
 
     console.log("AHOY gotoPage", target);
 
+    this.__hash = hash;
     var navigating = this._rendition.display(target).then(function() {
-      this._rendition.display(target);
+      this._rendition.display(target).then(function(a) {
+      })
     }.bind(this));
     this._navigate(navigating, callback);
   },
@@ -485,6 +489,16 @@ Reader.EpubJS = Reader.extend({
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
+
+      if ( self.__hash && view.contents ) {
+        var check = section.contents.querySelector(`#${self.__hash}`);
+        if ( check ) {
+          var new_target = section.cfiFromElement(check);
+          this.display(new_target);
+          self.__hash = null;
+          return;
+        }
+      }
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);

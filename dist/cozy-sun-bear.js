@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 =======
 /*
- * Cozy Sun Bear 1.0.0805427e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0ea9e434, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5057,7 +5057,7 @@
 	  _resize: function _resize() {
 	    var container = this._reader._container;
 	    this.container.style.height = container.offsetHeight + 'px';
-	    console.log("AHOY MODAL", this.container.style.height);
+	    // console.log("AHOY MODAL", this.container.style.height);
 	    if (!this.options.className.container) {
 	      this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
 	    }
@@ -5272,7 +5272,7 @@
 	      var _process = function _process(items, tabindex, parent) {
 	        items.forEach(function (item) {
 	          var option = self._createOption(item, tabindex, parent);
-	          if (item.subitems.length) {
+	          if (item.subitems && item.subitems.length) {
 	            _process(item.subitems, tabindex + 1, option);
 	          }
 	        });
@@ -5690,12 +5690,12 @@
 	  },
 
 	  template: function template$$1() {
-	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
 	  _updatePreview: function _updatePreview() {
 	    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
-	    this._output.value = this._input.value + '%';
+	    this._output.innerHTML = this._input.value + '%';
 	  },
 
 	  EOT: true
@@ -5841,12 +5841,12 @@
 	  },
 
 	  template: function template$$1() {
-	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Zoom In/Out</legend>\n        <div class="preview--scale" id="x' + this._id + '-preview" style="overflow: hidden; height: 5rem">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style="white-space: no-wrap">\n          <span style="font-size: 150%">\u2296<span class="u-screenreader"> Zoom Out</span></span>\n          <input name="scale" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span style="font-size: 150%">\u2295<span class="u-screenreader">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <output for="preferences-input-text_size" id="x' + this._id + '-output">100</output>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Zoom In/Out</legend>\n        <div class="preview--scale" id="x' + this._id + '-preview" style="overflow: hidden; height: 5rem">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style="white-space: no-wrap">\n          <span style="font-size: 150%">\u2296<span class="u-screenreader"> Zoom Out</span></span>\n          <input name="scale" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span style="font-size: 150%">\u2295<span class="u-screenreader">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
 	  _updatePreview: function _updatePreview() {
 	    this._preview.style.transform = 'scale(' + parseInt(this._input.value, 10) / 100 + ') translate(0,0)';
-	    this._output.value = this._input.value + '%';
+	    this._output.innerHTML = this._input.value + '%';
 	  },
 
 	  EOT: true
@@ -7622,6 +7622,7 @@
 	  },
 
 	  gotoPage: function gotoPage(target, callback) {
+	    var hash;
 	    if (target != null) {
 	      var section = this._book.spine.get(target);
 	      if (!section) {
@@ -7633,6 +7634,7 @@
 	          guessed = this._book.canonical(path2);
 	        }
 	        if (guessed.indexOf("#") !== 0) {
+	          hash = guessed.split('#')[1];
 	          guessed = guessed.split('#')[0];
 	        }
 
@@ -7661,8 +7663,9 @@
 
 	    console.log("AHOY gotoPage", target);
 
+	    this.__hash = hash;
 	    var navigating = this._rendition.display(target).then(function () {
-	      this._rendition.display(target);
+	      this._rendition.display(target).then(function (a) {});
 	    }.bind(this));
 	    this._navigate(navigating, callback);
 	  },
@@ -7804,6 +7807,16 @@
 	      var view = this.manager.current();
 	      var section = view.section;
 	      var current = this.book.navigation.get(section.href);
+
+	      if (self.__hash && view.contents) {
+	        var check = section.contents.querySelector('#' + self.__hash);
+	        if (check) {
+	          var new_target = section.cfiFromElement(check);
+	          this.display(new_target);
+	          self.__hash = null;
+	          return;
+	        }
+	      }
 
 	      self.fire("updateSection", current);
 	      self.fire("updateLocation", location);
