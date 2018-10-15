@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-=======
 /*
- * Cozy Sun Bear 1.0.0ea9e434, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0ca2a254, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -1083,6 +1081,21 @@
 	  return typeof obj;
 	} : function (obj) {
 	  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+	};
+
+	var defineProperty = function (obj, key, value) {
+	  if (key in obj) {
+	    Object.defineProperty(obj, key, {
+	      value: value,
+	      enumerable: true,
+	      configurable: true,
+	      writable: true
+	    });
+	  } else {
+	    obj[key] = value;
+	  }
+
+	  return obj;
 	};
 
 	/*
@@ -7325,7 +7338,9 @@
 
 	var path = posix;
 
-	Reader.EpubJS = Reader.extend({
+	var _Reader$extend;
+
+	Reader.EpubJS = Reader.extend((_Reader$extend = {
 
 	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
@@ -7913,25 +7928,42 @@
 	        this._queueScale();
 	      }
 	    }.bind(this), 100);
-	  },
+	  }
 
-	  EOT: true
-
-	});
+	}, defineProperty(_Reader$extend, '_updateScale', function _updateScale() {
+	  if (this.metadata.layout != 'pre-paginated') {
+	    // we're not scaling for reflowable
+	    return;
+	  }
+	  var scale = this.options.scale;
+	  if (scale) {
+	    scale = parseInt(scale, 10) / 100.0;
+	    this._rendition.scale(scale);
+	  }
+	}), defineProperty(_Reader$extend, '_queueScale', function _queueScale(scale) {
+	  this._queueTimeout = setTimeout(function () {
+	    if (this._rendition.manager && this._rendition.manager.stage) {
+	      console.log("AHOY SCALING", this.settings.scale);
+	      this._rendition.scale(this.settings.scale);
+	    } else {
+	      this._queueScale();
+	    }
+	  }.bind(this), 100);
+	}), defineProperty(_Reader$extend, 'EOT', true), _Reader$extend));
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
-	  get: function get() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function set(data) {
+	  set: function set$$1(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
-	  get: function get() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    if (ie) {
 	      return {
@@ -7953,7 +7985,7 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
-	  get: function get() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._book.locations;
 	  }
@@ -8154,4 +8186,3 @@
 
 })));
 //# sourceMappingURL=cozy-sun-bear.js.map
->>>>>>> af5bd27... track new epub.js for prepaginated scaling
