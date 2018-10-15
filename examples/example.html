@@ -76,9 +76,9 @@
             background: #fff;
         }
 
-        .cozy-container .epub-container {
-            box-sizing: content-box;
-        }
+/*        .cozy-container .epub-container {
+            box-sizing: border-box;
+        }*/
 
         @media only screen and (min-device-width : 320px) and (max-device-width : 600px) {
             .cozy-module-book {
@@ -352,6 +352,7 @@
 
                 // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
                 // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
+
                 reader.start(function() {
                     load_books();
                 });

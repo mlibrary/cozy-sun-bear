@@ -24,31 +24,7 @@ Reader.EpubJS = Reader.extend({
       callback = function() { };
     }
 
-    // okay, we need to do some hacking to fetch the dang files
-    // but this isn't going to be done async
     self.rootfiles = [];
-    var request = new XMLHttpRequest();
-    request.open('GET', this.options.href + "/META-INF/container.xml");
-    request.responseType = 'document';
-    request.onload = function() {
-      var containerDoc = request.responseXML;
-      var rootfiles = containerDoc.querySelectorAll("rootfile");
-      if ( rootfiles.length > 1 ) {
-        console.log("AHOY ROOTFILES MULTIPLE RENDITIONS", rootfiles.length);
-        for(var i = 0; i < rootfiles.length; i++) {
-          var rootfile = rootfiles[i];
-          var rootfilePath = rootfile.getAttribute('full-path');
-          var label = rootfile.getAttribute('rendition:label');
-          var layout = rootfile.getAttribute('rendition:layout');
-          self.rootfiles.push({
-            rootfilePath: rootfilePath,
-            label: label,
-            layout: layout
-          })
-        }
-      }
-    }
-    request.send();
 
     this.options.rootfilePath = this.options.rootfilePath || sessionStorage.getItem('rootfilePath');
 
@@ -60,7 +36,7 @@ Reader.EpubJS = Reader.extend({
     }
     this._book = epubjs.ePub(book_href, book_options);
     sessionStorage.removeItem('rootfilePath');
-    // this._book = epubjs.ePub(this.options.href);
+
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
       self.metadata = self._book.package.metadata;
@@ -68,7 +44,10 @@ Reader.EpubJS = Reader.extend({
       self.fire('updateTitle', self._book.package.metadata);
     })
     this._book.ready.then(function() {
+      self.parseRootfiles();
+
       self.draw(target, callback);
+
       if ( self.metadata.layout == 'pre-paginated' ) {
         // fake it with the spine
         var locations = [];
@@ -99,6 +78,27 @@ Reader.EpubJS = Reader.extend({
       }
     })
     // .then(callback);
+  },
+
+  parseRootfiles: function() {
+    var self = this;
+    self._book.load(self._book.url.resolve("META-INF/container.xml")).then(function(containerDoc) {
+        var rootfiles = containerDoc.querySelectorAll("rootfile");
+        if ( rootfiles.length > 1 ) {
+          console.log("AHOY ROOTFILES MULTIPLE RENDITIONS", rootfiles.length);
+          for(var i = 0; i < rootfiles.length; i++) {
+            var rootfile = rootfiles[i];
+            var rootfilePath = rootfile.getAttribute('full-path');
+            var label = rootfile.getAttribute('rendition:label');
+            var layout = rootfile.getAttribute('rendition:layout');
+            self.rootfiles.push({
+              rootfilePath: rootfilePath,
+              label: label,
+              layout: layout
+            })
+          }
+        }
+    })
   },
 
   draw: function(target, callback) {
@@ -302,6 +302,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target, callback) {
+    var hash;
     if ( target != null ) {
       var section = this._book.spine.get(target);
       if ( ! section) {
@@ -313,6 +314,7 @@ Reader.EpubJS = Reader.extend({
           guessed = this._book.canonical(path2);
         }
         if ( guessed.indexOf("#") !== 0 ) {
+          hash = guessed.split('#')[1];
           guessed = guessed.split('#')[0];
         }
 
@@ -323,6 +325,10 @@ Reader.EpubJS = Reader.extend({
             return;
           }
         })
+
+        if ( hash ) {
+          target = target + '#' + hash;
+        }
 
         console.log("AHOY GUESSED", target);
       } else if ( target.toString().match(/^\d+$/) ) {
@@ -341,6 +347,7 @@ Reader.EpubJS = Reader.extend({
 
     console.log("AHOY gotoPage", target);
 
+    // this.__hash = hash;
     var navigating = this._rendition.display(target).then(function() {
       this._rendition.display(target);
     }.bind(this));
@@ -453,6 +460,9 @@ Reader.EpubJS = Reader.extend({
           "figure": {
             "box-sizing": "border-box !important",
             "margin": "0 !important"
+          },
+          "body": {
+            "margin": "0"
           }
         });
       }.bind(this._rendition));
@@ -482,6 +492,16 @@ Reader.EpubJS = Reader.extend({
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
+
+      // if ( self.__hash && view.contents ) {
+      //   var check = section.contents.querySelector(`#${self.__hash}`);
+      //   if ( check ) {
+      //     var new_target = section.cfiFromElement(check);
+      //     this.display(new_target);
+      //     self.__hash = null;
+      //     return;
+      //   }
+      // }
 
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
@@ -601,6 +621,29 @@ Reader.EpubJS = Reader.extend({
     if ( scale ) {
       this.settings.scale = parseInt(scale, 10) / 100.0;
       this._queueScale();
+    }
+  },
+
+  _queueScale: function(scale) {
+    this._queueTimeout = setTimeout(function() {
+      if ( this._rendition.manager && this._rendition.manager.stage ) {
+        console.log("AHOY SCALING", this.settings.scale);
+        this._rendition.scale(this.settings.scale);
+      } else {
+        this._queueScale();
+      }
+    }.bind(this), 100);
+  },
+
+  _updateScale: function() {
+    if ( this.metadata.layout != 'pre-paginated') {
+      // we're not scaling for reflowable
+      return;
+    }
+    var scale = this.options.scale;
+    if ( scale ) {
+      scale = parseInt(scale, 10) / 100.0;
+      this._rendition.scale(scale);
     }
   },
 

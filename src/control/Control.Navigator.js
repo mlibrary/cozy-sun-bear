@@ -130,7 +130,7 @@ export var Navigator = Control.extend({
     console.log("AHOY updateLocations PROCESSING LOCATION");
     this._initiated = true;
     this._total = this._reader.locations.total;
-    if ( this._reader.currentLocation().start ) {
+    if ( this._reader.currentLocation() && this._reader.currentLocation().start ) {
       this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
       this._last_value = this._control.value;
     } else {

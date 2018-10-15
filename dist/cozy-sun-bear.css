@@ -1026,7 +1026,8 @@
       text-align: center; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range {
       width: 90%;
-      height: 1.5em;
+      height: auto;
+      padding: 0.5rem 0;
       position: relative;
       display: flex;
       align-items: center;
@@ -1350,6 +1351,12 @@
   left: 0;
   bottom: 0; }
 
+.cozy-module-book[data-manager=default] .epub-container {
+  padding: 1rem 0; }
+
+.cozy-module-book[data-manager=default][data-layout=pre-paginated] .epub-container {
+  padding: 0.25rem 0; }
+
 .cozy-module-book-loading {
   height: 100%;
   width: 100%; }
@@ -1523,13 +1530,19 @@ div.cozy-panel-footer {
   position: absolute; }
 
 .cozy-module-book[data-manager=prepaginated] .epub-view, .cozy-module-book[data-manager=prepaginated-none] .epub-view {
-  margin-bottom: 16px; }
+  margin-bottom: 1rem; }
 
 .cozy-module-book[data-manager=prepaginated] .epub-view iframe, .cozy-module-book[data-manager=prepaginated-none] .epub-view iframe {
   border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
+.cozy-module-book[data-manager=default][data-layout=pre-paginated] .epub-view iframe {
+  border: 1px solid rgba(0, 0, 0, 0.4) !important; }
+
 .cozy-module-book[data-layout=pre-paginated][data-manager=default] .epub-container {
   justify-content: center; }
+
+.cozy-module-book[data-layout=pre-paginated][data-manager=default] .epub-view iframe {
+  border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
 @media screen and (max-width: 50em) {
   .permalink-label,

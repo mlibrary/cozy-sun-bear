@@ -25444,7 +25444,11 @@ var Stage = function () {
 			};
 
 			var _round = function _round(value) {
-				return 2 * Math.round(value / 2);
+				var retval = 2 * Math.round(value / 2);
+				if (retval > value) {
+					retval -= 2;
+				}
+				return retval;
 			};
 
 			return {
@@ -27102,6 +27106,34 @@ var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
         }
         var r = w / section.viewport.width;
         h = Math.floor(section.viewport.height * r);
+      }
+      return [w, h];
+    }
+  }, {
+    key: "sizeToViewport_X",
+    value: function sizeToViewport_X(section) {
+      var h = this.layout.height;
+      var w = this.layout.columnWidth * 0.80;
+
+      if (section.viewport.height != 'auto') {
+
+        var r = w / section.viewport.width;
+        h = section.viewport.height * r;
+        var f = 1 / 0.60;
+        var m = Math.min(f * this.layout.height / h, 1.0);
+        console.log("AHOY SHRINKING", "( " + f + " * " + this.layout.height + " ) / " + h + " = " + m + " :: " + h * m);
+        h *= m;
+
+        h *= this.settings.scale;
+        if (h > section.viewport.height) {
+          h = section.viewport.height;
+        }
+
+        r = h / section.viewport.height;
+        w = section.viewport.width * r;
+
+        h = Math.floor(h);
+        w = Math.floor(w);
       }
       return [w, h];
     }
