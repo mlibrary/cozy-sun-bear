@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0d834521, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.08e03b84, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -6029,10 +6029,10 @@
 	var Citation = Control.extend({
 	  options: {
 	    label: 'Citation',
-	    html: '<span class="desktop">Get Citation</span><span class="mobile">Cite</span>'
+	    html: '<span class="citation" aria-label="Get Citation"></span>'
 	  },
 
-	  defaultTemplate: '<button class="button--sm cozy-citation desktop" data-toggle="open">Get Citation</button><button class="button--sm cozy-citation mobile" data-toggle="open">Cite</button>',
+	  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" ariab-label="Get Citation"></button>',
 
 	  onAdd: function onAdd(reader) {
 	    var self = this;

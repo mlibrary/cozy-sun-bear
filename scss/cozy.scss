@@ -551,12 +551,8 @@ div.cozy-panel-footer {
   text-transform: none;
 }
 
-.cozy-control button.button--sm.cozy-citation.desktop {
-  display: flex;
-}
-
-.cozy-control button.button--sm.cozy-citation.mobile {
-  display: none;
+.cozy-control button.button--sm.cozy-citation.citation::after {
+  content: 'Get Citation';
 }
 
 // search widget
@@ -675,12 +671,8 @@ div.cozy-panel-footer {
 
 // media queries
 @media screen and (max-width: 65em ) {
-  .cozy-control button.button--sm.cozy-citation.desktop {
-    display: none;
-  }
-
-  .cozy-control button.button--sm.cozy-citation.mobile {
-    display: flex;
+  .cozy-control button.button--sm.cozy-citation.citation::after {
+    content: 'Cite';
   }
 }
 

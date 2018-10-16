@@ -1476,11 +1476,8 @@ div.cozy-panel-footer {
   font-size: 1em;
   text-transform: none; }
 
-.cozy-control button.button--sm.cozy-citation.desktop {
-  display: flex; }
-
-.cozy-control button.button--sm.cozy-citation.mobile {
-  display: none; }
+.cozy-control button.button--sm.cozy-citation.citation::after {
+  content: 'Get Citation'; }
 
 .cozy-control form.search {
   display: inline-flex;
@@ -1551,10 +1548,8 @@ div.cozy-panel-footer {
   border: 1px solid rgba(0, 0, 0, 0.4) !important; }
 
 @media screen and (max-width: 65em) {
-  .cozy-control button.button--sm.cozy-citation.desktop {
-    display: none; }
-  .cozy-control button.button--sm.cozy-citation.mobile {
-    display: flex; } }
+  .cozy-control button.button--sm.cozy-citation.citation::after {
+    content: 'Cite'; } }
 
 @media screen and (max-width: 50em) {
   .permalink-label,
