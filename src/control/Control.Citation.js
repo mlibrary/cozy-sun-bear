@@ -6,10 +6,10 @@ import * as DomEvent from '../dom/DomEvent';
 export var Citation = Control.extend({
   options: {
     label: 'Citation',
-    html: '<span class="desktop">Get Citation</span><span class="mobile">Cite</span>'
+    html: '<span class="citation" aria-label="Get Citation"></span>'
   },
 
-  defaultTemplate: '<button class="button--sm cozy-citation desktop" data-toggle="open">Get Citation</button><button class="button--sm cozy-citation mobile" data-toggle="open">Cite</button>',
+  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
 
 
   onAdd: function(reader) {
