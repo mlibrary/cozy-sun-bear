@@ -85,6 +85,10 @@
                 width: 100vw;
                 padding: 0;
             }
+
+            #select-available-books {
+              display: none;
+            }
         }
 
     </style>
@@ -303,7 +307,7 @@
                 cozy.control.title({ region: 'top.header.left' }).addTo(reader);
                 cozy.control.contents({ region: 'top.toolbar.left', skipLink: '.skip' }).addTo(reader);
 
-                cozy.control.citation({ 
+                cozy.control.citation({
                     region: 'top.toolbar.left',
                     citations: [
                       { format: 'MLA', text: "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." },
@@ -348,7 +352,7 @@
                 // cozy.control.pageFirst({ region: 'left.sidebar' }).addTo(reader);
                 cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
                 cozy.control.pageNext({ region: 'right.sidebar' }).addTo(reader);
-                cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);                    
+                cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);
 
                 // cozy.control.pageLast({ region: 'right.sidebar' }).addTo(reader);
                 // cozy.control.publicationMetadata({ region: 'bottom.footer' }).addTo(reader);
