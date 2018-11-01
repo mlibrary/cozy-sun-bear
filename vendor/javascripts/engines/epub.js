@@ -9183,7 +9183,8 @@ var Contents = function () {
 				var el = this.document.getElementById(id);
 
 				if (el) {
-					position = el.getBoundingClientRect();
+					// position = el.getBoundingClientRect();
+					position = { top: el.offsetTop, left: el.offsetLeft };
 				}
 			}
 
