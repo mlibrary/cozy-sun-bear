@@ -9183,8 +9183,16 @@ var Contents = function () {
 				var el = this.document.getElementById(id);
 
 				if (el) {
-					// position = el.getBoundingClientRect();
-					position = { top: el.offsetTop, left: el.offsetLeft };
+					position = el.getBoundingClientRect();
+					var offsetEl = el.offsetTop ? el : el.offsetParent;
+					if (offsetEl.nodeName == 'A') {
+						offsetEl = offsetEl.parentNode;
+					}
+					// console.log(`AHOY OFFSET GRRR : ${position.top} x ${position.left} // ${offsetEl.offsetTop} x ${offsetEl.offsetLeft}`);
+					// console.log(offsetEl);
+					if (position.top < 0) {
+						position = { top: offsetEl.offsetTop, left: offsetEl.offsetLeft };
+					}
 				}
 			}
 
@@ -14132,6 +14140,7 @@ var Rendition = function () {
      * @memberof Rendition
      */
 				_this.emit(_constants.EVENTS.RENDITION.DISPLAYED, section);
+				console.log("AHOY rendition._display", section);
 				_this.reportLocation();
 			}, function (err) {
 				/**
@@ -14140,6 +14149,7 @@ var Rendition = function () {
      * @param {Section} section
      * @memberof Rendition
      */
+				console.log("AHOY rendition._display ERROR", err);
 				_this.emit(_constants.EVENTS.RENDITION.DISPLAY_ERROR, err);
 			});
 
@@ -14858,7 +14868,9 @@ var Rendition = function () {
 			if (contents) {
 				contents.on(_constants.EVENTS.CONTENTS.LINK_CLICKED, function (href) {
 					var relative = _this6.book.path.relative(href);
-					_this6.display(relative);
+					_this6.display(relative).then(function () {
+						this.display(relative);
+					}.bind(_this6));
 				});
 			}
 		}
