@@ -166,6 +166,7 @@ Reader.EpubJS = Reader.extend({
     self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
     self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
+    window.location.hash = '#/6/18%5Bmup-mpsgoodman-0009%5D!/4/2%5Bch01%5D';
     self._drawRendition(target, callback);
   },
 
@@ -180,7 +181,11 @@ Reader.EpubJS = Reader.extend({
     if ( target && target.start ) { target = target.start; }
     if ( ! target && window.location.hash ) {
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
-        target = "epubcfi(" + window.location.hash.substr(1) + ")";
+        target = decodeURIComponent(window.location.hash.substr(1));
+        if ( target.match(/\]$/ ) ) {
+          target += '/2:1.0';
+        }
+        target = "epubcfi(" + target + ")";
       } else {
         target = window.location.hash.substr(2);
         target = self._book.url.path().resolve(target);

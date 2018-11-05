@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.02feb10b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0ebe9785, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7494,6 +7494,7 @@
 	    self._panes['book'].dataset.manager = this.settings.manager + (this.settings.spread ? '-' + this.settings.spread : '');
 	    self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
+	    window.location.hash = '#/6/18%5Bmup-mpsgoodman-0009%5D!/4/2%5Bch01%5D';
 	    self._drawRendition(target, callback);
 	  },
 
@@ -7510,7 +7511,11 @@
 	    }
 	    if (!target && window.location.hash) {
 	      if (window.location.hash.substr(1, 3) == '/6/') {
-	        target = "epubcfi(" + window.location.hash.substr(1) + ")";
+	        target = decodeURIComponent(window.location.hash.substr(1));
+	        if (target.match(/\]$/)) {
+	          target += '/2:1.0';
+	        }
+	        target = "epubcfi(" + target + ")";
 	      } else {
 	        target = window.location.hash.substr(2);
 	        target = self._book.url.path().resolve(target);
