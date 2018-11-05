@@ -182,7 +182,7 @@ Reader.EpubJS = Reader.extend({
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
         target = decodeURIComponent(window.location.hash.substr(1));
         if ( target.match(/\]$/ ) ) {
-          target += '/2:1.0';
+          target += '/2';
         }
         target = "epubcfi(" + target + ")";
       } else {
