@@ -166,7 +166,6 @@ Reader.EpubJS = Reader.extend({
     self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
     self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
-    window.location.hash = '#/6/18%5Bmup-mpsgoodman-0009%5D!/4/2%5Bch01%5D';
     self._drawRendition(target, callback);
   },
 
