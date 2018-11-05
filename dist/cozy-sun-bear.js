@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.08e03b84, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.023edb19, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -6032,7 +6032,7 @@
 	    html: '<span class="citation" aria-label="Get Citation"></span>'
 	  },
 
-	  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" ariab-label="Get Citation"></button>',
+	  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
 
 	  onAdd: function onAdd(reader) {
 	    var self = this;
@@ -7510,7 +7510,11 @@
 	    }
 	    if (!target && window.location.hash) {
 	      if (window.location.hash.substr(1, 3) == '/6/') {
-	        target = "epubcfi(" + window.location.hash.substr(1) + ")";
+	        target = decodeURIComponent(window.location.hash.substr(1));
+	        if (target.match(/\]$/)) {
+	          target += '/2';
+	        }
+	        target = "epubcfi(" + target + ")";
 	      } else {
 	        target = window.location.hash.substr(2);
 	        target = self._book.url.path().resolve(target);
@@ -7815,7 +7819,18 @@
 	    });
 
 	    this._rendition.on('relocated', function (location) {
+	      if (self._fired) {
+	        self._fired = false;return;
+	      }
 	      self.fire('relocated', location);
+	      if (safari && self._last_location_start && self._last_location_start != location.start.href) {
+	        console.log("AHOY RELOCATED", self._last_location_start, location.start.href);
+	        self._fired = true;
+	        setTimeout(function () {
+	          self._rendition.display(location.start.cfi);
+	        }, 0);
+	      }
+	      self._last_location_start = location.start.href;
 	    });
 
 	    this._rendition.on('displayerror', function (err) {
