@@ -481,7 +481,16 @@ Reader.EpubJS = Reader.extend({
     })
 
     this._rendition.on('relocated', function(location) {
+      if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
+      if ( Browser.safari && self._last_location_start && self._last_location_start != location.start.href ) {
+        console.log("AHOY RELOCATED", self._last_location_start, location.start.href);
+        self._fired = true;
+        setTimeout(function() {
+          self._rendition.display(location.start.cfi);
+        }, 0);
+      }
+      self._last_location_start = location.start.href;
     })
 
     this._rendition.on('displayerror', function(err) {

@@ -14868,9 +14868,10 @@ var Rendition = function () {
 			if (contents) {
 				contents.on(_constants.EVENTS.CONTENTS.LINK_CLICKED, function (href) {
 					var relative = _this6.book.path.relative(href);
-					_this6.display(relative).then(function () {
-						this.display(relative);
-					}.bind(_this6));
+					_this6.display(relative);
+					// this.display(relative).then(function() {
+					// 	this.display(relative);
+					// }.bind(this))
 				});
 			}
 		}
