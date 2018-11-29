@@ -108,10 +108,12 @@ export var Reader = Evented.extend({
       target = undefined;
     }
 
-    Util.loader.js(this.options.engine_href).then(function() {
-      self._start(target, cb);
-      self._loaded = true;
-    })
+    self._start(target, cb);
+
+    // Util.loader.js(this.options.engine_href).then(function() {
+    //   self._start(target, cb);
+    //   self._loaded = true;
+    // })
   },
 
   _start: function(target, cb) {
