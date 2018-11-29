@@ -1,10 +1,13 @@
 import * as Util from '../core/Util';
 import {Reader} from './Reader';
-import * as epubjs from '../epubjs';
+import ePub from 'epubjs';
 import * as DomUtil from '../dom/DomUtil';
 import * as Browser from '../core/Browser';
 
 import path from "path-webpack";
+
+import PrePaginatedContinuousViewManager from '../epubjs/managers/continuous/prepaginated';
+import ReusableIframeView from '../epubjs/managers/views/iframe';
 
 Reader.EpubJS = Reader.extend({
 
@@ -34,7 +37,7 @@ Reader.EpubJS = Reader.extend({
       book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
       book_options.openAs = 'epub';
     }
-    this._book = epubjs.ePub(book_href, book_options);
+    this._book = ePub(book_href, book_options);
     sessionStorage.removeItem('rootfilePath');
 
     this._book.loaded.navigation.then(function(toc) {
@@ -123,7 +126,8 @@ Reader.EpubJS = Reader.extend({
       // two pages side by side
       if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
         this.settings.flow = 'scrolled-doc';
-        this.settings.manager = 'prepaginated';
+        this.settings.manager = PrePaginatedContinuousViewManager;
+        this.settings.view = ReusableIframeView;
       }
     }
 
@@ -142,10 +146,12 @@ Reader.EpubJS = Reader.extend({
     }
 
     if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
-        this.settings.manager = 'prepaginated';
+        // this.settings.manager = 'prepaginated';
+        this.settings.manager = PrePaginatedContinuousViewManager;
+        this.settings.view = ReusableIframeView;
     }
 
-    if ( this.settings.manager == 'prepaginated' ) {
+    if ( this.settings.manager == PrePaginatedContinuousViewManager ) {
       this.settings.spread = 'none';
     }
 
