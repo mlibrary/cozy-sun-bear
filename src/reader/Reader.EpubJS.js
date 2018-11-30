@@ -181,10 +181,10 @@ Reader.EpubJS = Reader.extend({
     if ( ! target && window.location.hash ) {
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
         target = decodeURIComponent(window.location.hash.substr(1));
-        if ( target.match(/\]$/ ) ) {
-          // target += '/2';
-          target += '/1:0';
-        }
+        // if ( target.match(/\]$/ ) ) {
+        //   // target += '/2';
+        //   target += '/1:0';
+        // }
         target = "epubcfi(" + target + ")";
       } else {
         target = window.location.hash.substr(2);
@@ -227,16 +227,19 @@ Reader.EpubJS = Reader.extend({
 
       self._epubjs_ready = true;
 
-      setTimeout(function() {
-        self.fire('opened');
-        self.fire('ready');
-        clearTimeout(self._queueTimeout);
-        self.tracking.event("openBook", {
-          rootFilePath: self.options.rootFilePath,
-          flow: self.settings.flow,
-          manager: self.settings.manager
-        });
-      }, 100);
+      self.gotoPage(target, function() {
+        setTimeout(function() {
+          self.fire('opened');
+          self.fire('ready');
+          clearTimeout(self._queueTimeout);
+          self.tracking.event("openBook", {
+            rootFilePath: self.options.rootFilePath,
+            flow: self.settings.flow,
+            manager: self.settings.manager
+          });
+        }, 100);
+      })
+
     })
   },
 
