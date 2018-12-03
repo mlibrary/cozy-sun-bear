@@ -208,6 +208,11 @@
             var engine_href = '../vendor/javascripts/engines/' + engine_base_href;
             var cozy_href = '../dist/cozy-sun-bear.js';
             var book_id = params.get('url');
+            if ( book_id.indexOf('?') > -1 && book_id.indexOf('/?') < 0 ) {
+                book_id = book_id.replace('?', '/?');
+            } else if ( ! book_id.match('/$') ) {
+                book_id += '/';
+            }
 
             window.fitWidth = params.get('fitWidth');
             var manager = params.get('manager');

@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0fc3f411, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.080101ed, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7511,10 +7511,10 @@
 	    if (!target && window.location.hash) {
 	      if (window.location.hash.substr(1, 3) == '/6/') {
 	        target = decodeURIComponent(window.location.hash.substr(1));
-	        if (target.match(/\]$/)) {
-	          // target += '/2';
-	          target += '/1:0';
-	        }
+	        // if ( target.match(/\]$/ ) ) {
+	        //   // target += '/2';
+	        //   target += '/1:0';
+	        // }
 	        target = "epubcfi(" + target + ")";
 	      } else {
 	        target = window.location.hash.substr(2);
@@ -7559,16 +7559,18 @@
 
 	      self._epubjs_ready = true;
 
-	      setTimeout(function () {
-	        self.fire('opened');
-	        self.fire('ready');
-	        clearTimeout(self._queueTimeout);
-	        self.tracking.event("openBook", {
-	          rootFilePath: self.options.rootFilePath,
-	          flow: self.settings.flow,
-	          manager: self.settings.manager
-	        });
-	      }, 100);
+	      self.gotoPage(target, function () {
+	        setTimeout(function () {
+	          self.fire('opened');
+	          self.fire('ready');
+	          clearTimeout(self._queueTimeout);
+	          self.tracking.event("openBook", {
+	            rootFilePath: self.options.rootFilePath,
+	            flow: self.settings.flow,
+	            manager: self.settings.manager
+	          });
+	        }, 100);
+	      });
 	    });
 	  },
 
