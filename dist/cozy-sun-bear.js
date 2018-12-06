@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.080101ed, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.067c0977, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -24,7 +24,7 @@
 	  var checkIfIteratorIsSupported = function() {
 	    try {
 	      return !!Symbol.iterator;
-	    } catch(error) {
+	    } catch (error) {
 	      return false;
 	    }
 	  };
@@ -40,7 +40,7 @@
 	      }
 	    };
 
-	    if(iteratorSupported) {
+	    if (iteratorSupported) {
 	      iterator[Symbol.iterator] = function() {
 	        return iterator;
 	      };
@@ -61,39 +61,50 @@
 	    return decodeURIComponent(value).replace(/\+/g, ' ');
 	  };
 
-	  var polyfillURLSearchParams= function() {
+	  var polyfillURLSearchParams = function() {
 
 	    var URLSearchParams = function(searchString) {
-	      Object.defineProperty(this, '_entries', { value: {} });
+	      Object.defineProperty(this, '_entries', { writable: true, value: {} });
+	      var typeofSearchString = typeof searchString;
 
-	      if(typeof searchString === 'string') {
-	        if(searchString !== '') {
-	          searchString = searchString.replace(/^\?/, '');
-	          var attributes = searchString.split('&');
-	          var attribute;
-	          for(var i = 0; i < attributes.length; i++) {
-	            attribute = attributes[i].split('=');
-	            this.append(
-	              deserializeParam(attribute[0]),
-	              (attribute.length > 1) ? deserializeParam(attribute[1]) : ''
-	            );
-	          }
+	      if (typeofSearchString === 'undefined') ; else if (typeofSearchString === 'string') {
+	        if (searchString !== '') {
+	          this._fromString(searchString);
 	        }
-	      } else if(searchString instanceof URLSearchParams) {
+	      } else if (searchString instanceof URLSearchParams) {
 	        var _this = this;
 	        searchString.forEach(function(value, name) {
-	          _this.append(value, name);
+	          _this.append(name, value);
 	        });
+	      } else if ((searchString !== null) && (typeofSearchString === 'object')) {
+	        if (Object.prototype.toString.call(searchString) === '[object Array]') {
+	          for (var i = 0; i < searchString.length; i++) {
+	            var entry = searchString[i];
+	            if ((Object.prototype.toString.call(entry) === '[object Array]') || (entry.length !== 2)) {
+	              this.append(entry[0], entry[1]);
+	            } else {
+	              throw new TypeError('Expected [string, any] as entry at index ' + i + ' of URLSearchParams\'s input');
+	            }
+	          }
+	        } else {
+	          for (var key in searchString) {
+	            if (searchString.hasOwnProperty(key)) {
+	              this.append(key, searchString[key]);
+	            }
+	          }
+	        }
+	      } else {
+	        throw new TypeError('Unsupported input\'s type for URLSearchParams');
 	      }
 	    };
 
 	    var proto = URLSearchParams.prototype;
 
 	    proto.append = function(name, value) {
-	      if(name in this._entries) {
-	        this._entries[name].push(value.toString());
+	      if (name in this._entries) {
+	        this._entries[name].push(String(value));
 	      } else {
-	        this._entries[name] = [value.toString()];
+	        this._entries[name] = [String(value)];
 	      }
 	    };
 
@@ -114,15 +125,15 @@
 	    };
 
 	    proto.set = function(name, value) {
-	      this._entries[name] = [value.toString()];
+	      this._entries[name] = [String(value)];
 	    };
 
 	    proto.forEach = function(callback, thisArg) {
 	      var entries;
-	      for(var name in this._entries) {
-	        if(this._entries.hasOwnProperty(name)) {
+	      for (var name in this._entries) {
+	        if (this._entries.hasOwnProperty(name)) {
 	          entries = this._entries[name];
-	          for(var i = 0; i < entries.length; i++) {
+	          for (var i = 0; i < entries.length; i++) {
 	            callback.call(thisArg, entries[i], name, this);
 	          }
 	        }
@@ -131,40 +142,108 @@
 
 	    proto.keys = function() {
 	      var items = [];
-	      this.forEach(function(value, name) { items.push(name); });
+	      this.forEach(function(value, name) {
+	        items.push(name);
+	      });
 	      return createIterator(items);
 	    };
 
 	    proto.values = function() {
 	      var items = [];
-	      this.forEach(function(value) { items.push(value); });
+	      this.forEach(function(value) {
+	        items.push(value);
+	      });
 	      return createIterator(items);
 	    };
 
 	    proto.entries = function() {
 	      var items = [];
-	      this.forEach(function(value, name) { items.push([name, value]); });
+	      this.forEach(function(value, name) {
+	        items.push([name, value]);
+	      });
 	      return createIterator(items);
 	    };
 
-	    if(iteratorSupported) {
+	    if (iteratorSupported) {
 	      proto[Symbol.iterator] = proto.entries;
 	    }
 
 	    proto.toString = function() {
-	      var searchString = '';
+	      var searchArray = [];
 	      this.forEach(function(value, name) {
-	        if(searchString.length > 0) searchString+= '&';
-	        searchString += serializeParam(name) + '=' + serializeParam(value);
+	        searchArray.push(serializeParam(name) + '=' + serializeParam(value));
 	      });
-	      return searchString;
+	      return searchArray.join('&');
 	    };
+
 
 	    global.URLSearchParams = URLSearchParams;
 	  };
 
-	  if(!('URLSearchParams' in global) || (new URLSearchParams('?a=1').toString() !== 'a=1')) {
+	  if (!('URLSearchParams' in global) || (new URLSearchParams('?a=1').toString() !== 'a=1')) {
 	    polyfillURLSearchParams();
+	  }
+
+	  var proto = URLSearchParams.prototype;
+
+	  if (typeof proto.sort !== 'function') {
+	    proto.sort = function() {
+	      var _this = this;
+	      var items = [];
+	      this.forEach(function(value, name) {
+	        items.push([name, value]);
+	        if (!_this._entries) {
+	          _this.delete(name);
+	        }
+	      });
+	      items.sort(function(a, b) {
+	        if (a[0] < b[0]) {
+	          return -1;
+	        } else if (a[0] > b[0]) {
+	          return +1;
+	        } else {
+	          return 0;
+	        }
+	      });
+	      if (_this._entries) { // force reset because IE keeps keys index
+	        _this._entries = {};
+	      }
+	      for (var i = 0; i < items.length; i++) {
+	        this.append(items[i][0], items[i][1]);
+	      }
+	    };
+	  }
+
+	  if (typeof proto._fromString !== 'function') {
+	    Object.defineProperty(proto, '_fromString', {
+	      enumerable: false,
+	      configurable: false,
+	      writable: false,
+	      value: function(searchString) {
+	        if (this._entries) {
+	          this._entries = {};
+	        } else {
+	          var keys = [];
+	          this.forEach(function(value, name) {
+	            keys.push(name);
+	          });
+	          for (var i = 0; i < keys.length; i++) {
+	            this.delete(keys[i]);
+	          }
+	        }
+
+	        searchString = searchString.replace(/^\?/, '');
+	        var attributes = searchString.split('&');
+	        var attribute;
+	        for (var i = 0; i < attributes.length; i++) {
+	          attribute = attributes[i].split('=');
+	          this.append(
+	            deserializeParam(attribute[0]),
+	            (attribute.length > 1) ? deserializeParam(attribute[1]) : ''
+	          );
+	        }
+	      }
+	    });
 	  }
 
 	  // HTMLAnchorElement
@@ -187,7 +266,7 @@
 	      var u = new URL('b', 'http://a');
 	      u.pathname = 'c%20d';
 	      return (u.href === 'http://a/c%20d') && u.searchParams;
-	    } catch(e) {
+	    } catch (e) {
 	      return false;
 	    }
 	  };
@@ -197,27 +276,75 @@
 	    var _URL = global.URL;
 
 	    var URL = function(url, base) {
-	      if(typeof url !== 'string') url = String(url);
+	      if (typeof url !== 'string') url = String(url);
 
-	      var doc = document.implementation.createHTMLDocument('');
-	      window.doc = doc;
-	      if(base) {
-	        var baseElement = doc.createElement('base');
+	      // Only create another document if the base is different from current location.
+	      var doc = document, baseElement;
+	      if (base && (global.location === void 0 || base !== global.location.href)) {
+	        doc = document.implementation.createHTMLDocument('');
+	        baseElement = doc.createElement('base');
 	        baseElement.href = base;
 	        doc.head.appendChild(baseElement);
+	        try {
+	          if (baseElement.href.indexOf(base) !== 0) throw new Error(baseElement.href);
+	        } catch (err) {
+	          throw new Error('URL unable to set base ' + base + ' due to ' + err);
+	        }
 	      }
 
 	      var anchorElement = doc.createElement('a');
 	      anchorElement.href = url;
-	      doc.body.appendChild(anchorElement);
-	      anchorElement.href = anchorElement.href; // force href to refresh
+	      if (baseElement) {
+	        doc.body.appendChild(anchorElement);
+	        anchorElement.href = anchorElement.href; // force href to refresh
+	      }
 
-	      if(anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
+	      if (anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
 	        throw new TypeError('Invalid URL');
 	      }
 
 	      Object.defineProperty(this, '_anchorElement', {
 	        value: anchorElement
+	      });
+
+
+	      // create a linked searchParams which reflect its changes on URL
+	      var searchParams = new URLSearchParams(this.search);
+	      var enableSearchUpdate = true;
+	      var enableSearchParamsUpdate = true;
+	      var _this = this;
+	      ['append', 'delete', 'set'].forEach(function(methodName) {
+	        var method = searchParams[methodName];
+	        searchParams[methodName] = function() {
+	          method.apply(searchParams, arguments);
+	          if (enableSearchUpdate) {
+	            enableSearchParamsUpdate = false;
+	            _this.search = searchParams.toString();
+	            enableSearchParamsUpdate = true;
+	          }
+	        };
+	      });
+
+	      Object.defineProperty(this, 'searchParams', {
+	        value: searchParams,
+	        enumerable: true
+	      });
+
+	      var search = void 0;
+	      Object.defineProperty(this, '_updateSearchParams', {
+	        enumerable: false,
+	        configurable: false,
+	        writable: false,
+	        value: function() {
+	          if (this.search !== search) {
+	            search = this.search;
+	            if (enableSearchParamsUpdate) {
+	              enableSearchUpdate = false;
+	              this.searchParams._fromString(this.search);
+	              enableSearchUpdate = true;
+	            }
+	          }
+	        }
 	      });
 	    };
 
@@ -235,9 +362,20 @@
 	      });
 	    };
 
-	    ['hash', 'host', 'hostname', 'port', 'protocol', 'search']
-	    .forEach(function(attributeName) {
-	      linkURLWithAnchorAttribute(attributeName);
+	    ['hash', 'host', 'hostname', 'port', 'protocol']
+	      .forEach(function(attributeName) {
+	        linkURLWithAnchorAttribute(attributeName);
+	      });
+
+	    Object.defineProperty(proto, 'search', {
+	      get: function() {
+	        return this._anchorElement['search'];
+	      },
+	      set: function(value) {
+	        this._anchorElement['search'] = value;
+	        this._updateSearchParams();
+	      },
+	      enumerable: true
 	    });
 
 	    Object.defineProperties(proto, {
@@ -251,19 +389,20 @@
 	        }
 	      },
 
-	      'href' : {
+	      'href': {
 	        get: function() {
-	          return this._anchorElement.href.replace(/\?$/,'');
+	          return this._anchorElement.href.replace(/\?$/, '');
 	        },
 	        set: function(value) {
 	          this._anchorElement.href = value;
+	          this._updateSearchParams();
 	        },
 	        enumerable: true
 	      },
 
-	      'pathname' : {
+	      'pathname': {
 	        get: function() {
-	          return this._anchorElement.pathname.replace(/(^\/?)/,'/');
+	          return this._anchorElement.pathname.replace(/(^\/?)/, '/');
 	        },
 	        set: function(value) {
 	          this._anchorElement.pathname = value;
@@ -274,7 +413,7 @@
 	      'origin': {
 	        get: function() {
 	          // get expected port from protocol
-	          var expectedPort = {'http:': 80, 'https:': 443, 'ftp:': 21}[this._anchorElement.protocol];
+	          var expectedPort = { 'http:': 80, 'https:': 443, 'ftp:': 21 }[this._anchorElement.protocol];
 	          // add port to origin if, expected port is different than actual port
 	          // and it is not empty f.e http://foo:8080
 	          // 8080 != 80 && 8080 != ''
@@ -306,22 +445,6 @@
 	        },
 	        enumerable: true
 	      },
-
-	      'searchParams': {
-	        get: function() {
-	          var searchParams = new URLSearchParams(this.search);
-	          var _this = this;
-	          ['append', 'delete', 'set'].forEach(function(methodName) {
-	            var method = searchParams[methodName];
-	            searchParams[methodName] = function() {
-	              method.apply(searchParams, arguments);
-	              _this.search = searchParams.toString();
-	            };
-	          });
-	          return searchParams;
-	        },
-	        enumerable: true
-	      }
 	    });
 
 	    URL.createObjectURL = function(blob) {
@@ -336,11 +459,11 @@
 
 	  };
 
-	  if(!checkIfURLIsSupported()) {
+	  if (!checkIfURLIsSupported()) {
 	    polyfillURL();
 	  }
 
-	  if((global.location !== void 0) && !('origin' in global.location)) {
+	  if ((global.location !== void 0) && !('origin' in global.location)) {
 	    var getOrigin = function() {
 	      return global.location.protocol + '//' + global.location.hostname + (global.location.port ? (':' + global.location.port) : '');
 	    };
@@ -350,7 +473,7 @@
 	        get: getOrigin,
 	        enumerable: true
 	      });
-	    } catch(e) {
+	    } catch (e) {
 	      setInterval(function() {
 	        global.location.origin = getOrigin();
 	      }, 100);
@@ -3374,10 +3497,13 @@
 	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
 	 */
 	function isIndex(value, length) {
+	  var type = typeof value;
 	  length = length == null ? MAX_SAFE_INTEGER$1 : length;
+
 	  return !!length &&
-	    (typeof value == 'number' || reIsUint.test(value)) &&
-	    (value > -1 && value % 1 == 0 && value < length);
+	    (type == 'number' ||
+	      (type != 'symbol' && reIsUint.test(value))) &&
+	        (value > -1 && value % 1 == 0 && value < length);
 	}
 
 	var _isIndex = isIndex;
@@ -3705,6 +3831,14 @@
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = (function() {
 	  try {
+	    // Use `util.types` for Node.js 10+.
+	    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+	    if (types) {
+	      return types;
+	    }
+
+	    // Legacy `process.binding('util')` for Node.js < 10.
 	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
 	}());
@@ -6095,7 +6229,7 @@
 	    this._modal = this._reader.modal({
 	      template: template,
 	      title: 'Copy Citation to Clipboard',
-	      className: 'cozy-modal-citatation',
+	      className: 'cozy-modal-citation',
 	      actions: [{
 	        label: 'Copy Citation',
 	        callback: function callback(event) {
