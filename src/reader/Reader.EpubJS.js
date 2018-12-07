@@ -42,9 +42,9 @@ Reader.EpubJS = Reader.extend({
 
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
-      self.metadata = self._book.package.metadata;
+      self.metadata = self._book.packaging.metadata;
       self.fire('updateContents', toc);
-      self.fire('updateTitle', self._book.package.metadata);
+      self.fire('updateTitle', self._book.packaging.metadata);
     })
     this._book.ready.then(function() {
       self.parseRootfiles();
@@ -323,7 +323,7 @@ Reader.EpubJS = Reader.extend({
         // maybe it needs to be resolved
         var guessed = target;
         if ( guessed.indexOf("://") < 0 ) {
-          var path1 = path.resolve(this._book.path.directory, this._book.package.navPath);
+          var path1 = path.resolve(this._book.path.directory, this._book.packaging.navPath);
           var path2 = path.resolve(path.dirname(path1), target);
           guessed = this._book.canonical(path2);
         }
@@ -439,7 +439,7 @@ Reader.EpubJS = Reader.extend({
 
     // add a stylesheet to stop images from breaking their columns
     var add_max_img_styles = false;
-    if ( this._book.package.metadata.layout == 'pre-paginated' ) {
+    if ( this._book.packaging.metadata.layout == 'pre-paginated' ) {
       // NOOP
     } else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) {
       add_max_img_styles = true;

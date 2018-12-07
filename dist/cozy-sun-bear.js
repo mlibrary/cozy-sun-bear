@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.080101ed, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.08db0267, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -10164,12 +10164,18 @@
 			}
 
 			var absolute = href.indexOf("://") > -1;
-			var linkUrl = new Url(href, location);
 
 			if (absolute) {
 
 				link.setAttribute("target", "_blank");
 			} else {
+				var linkUrl;
+				try {
+					linkUrl = new Url(href, location);
+				} catch (error) {
+					// NOOP
+				}
+
 				link.onclick = function () {
 
 					if (linkUrl && linkUrl.hash) {
@@ -12876,7 +12882,7 @@
 
 			spreadWidth = columnWidth * divisor + gap;
 
-			delta = width;
+			delta = Math.ceil(width);
 
 			this.width = width;
 			this.height = height;
@@ -14366,7 +14372,7 @@
 			if (!this.document || !rules || rules.length === 0) return;
 
 			// Check if link already exists
-			styleEl = this.document.getElementById("#" + key);
+			styleEl = this.document.getElementById(key);
 			if (!styleEl) {
 				styleEl = this.document.createElement("style");
 				styleEl.id = key;
@@ -14728,20 +14734,43 @@
 	  */
 		fit(width, height) {
 			var viewport = this.viewport();
-			var widthScale = width / parseInt(viewport.width);
-			var heightScale = height / parseInt(viewport.height);
+			var viewportWidth = parseInt(viewport.width);
+			var viewportHeight = parseInt(viewport.height);
+			var widthScale = width / viewportWidth;
+			var heightScale = height / viewportHeight;
 			var scale = widthScale < heightScale ? widthScale : heightScale;
 
-			var offsetY = (height - viewport.height * scale) / 2;
+			// the translate does not work as intended, elements can end up unaligned
+			// var offsetY = (height - (viewportHeight * scale)) / 2;
+			// var offsetX = 0;
+			// if (this.sectionIndex % 2 === 1) {
+			// 	offsetX = width - (viewportWidth * scale);
+			// }
 
 			this.layoutStyle("paginated");
 
-			this.width(width);
-			this.height(height);
+			// scale needs width and height to be set
+			this.width(viewportWidth);
+			this.height(viewportHeight);
 			this.overflow("hidden");
 
+			if (viewport.width == 'auto' || viewport.height == 'auto') {
+				this.content.style.overflow = 'auto';
+				this.addStylesheetRules({
+					"body": {
+						"margin": 0,
+						"padding": "1em",
+						"box-sizing": "border-box"
+					}
+				});
+			}
+
 			// Scale to the correct size
-			this.scaler(scale, 0, offsetY);
+			this.scaler(scale, 0, 0);
+			// this.scaler(scale, offsetX > 0 ? offsetX : 0, offsetY);
+
+			// background images are not scaled by transform
+			this.css("background-size", viewportWidth * scale + "px " + viewportHeight * scale + "px");
 
 			this.css("background-color", "transparent");
 		}
@@ -16247,7 +16276,6 @@
 		}
 
 		mark(cfiRange, data = {}, cb) {
-
 			if (!this.contents) {
 				return;
 			}
@@ -16322,7 +16350,8 @@
 					rect = rects[i];
 					if (!left || rect.left < left) {
 						left = rect.left;
-						right = left + this.layout.columnWidth - this.layout.gap;
+						// right = rect.right;
+						right = Math.ceil(left / this.layout.props.pageWidth) * this.layout.props.pageWidth - this.layout.gap / 2;
 						top = rect.top;
 					}
 				}
@@ -16341,6 +16370,7 @@
 				item.listeners.forEach(l => {
 					if (l) {
 						item.element.removeEventListener("click", l);
+						item.element.removeEventListener("touchstart", l);
 					}			});
 				delete this.highlights[cfiRange];
 			}
@@ -16354,6 +16384,7 @@
 				item.listeners.forEach(l => {
 					if (l) {
 						item.element.removeEventListener("click", l);
+						item.element.removeEventListener("touchstart", l);
 					}			});
 				delete this.underlines[cfiRange];
 			}
@@ -16367,6 +16398,7 @@
 				item.listeners.forEach(l => {
 					if (l) {
 						item.element.removeEventListener("click", l);
+						item.element.removeEventListener("touchstart", l);
 					}			});
 				delete this.marks[cfiRange];
 			}
@@ -16967,6 +16999,7 @@
 			let overflow = options.overflow || false;
 			let axis = options.axis || "vertical";
 			let direction = options.direction;
+			let scale = options.scale || 1.0;
 
 			if (options.height && isNumber(options.height)) {
 				height = options.height + "px";
@@ -17015,6 +17048,15 @@
 
 			if (direction && this.settings.fullsize) {
 				document.body.style["direction"] = direction;
+			}
+
+			if (scale && scale > 1.0) {
+				container.style["transform-origin"] = "top left";
+				container.style["transform"] = "scale(" + scale + ")";
+				container.style.overflow = "visible";
+			} else {
+				container.style["transform-origin"] = null;
+				container.style["transform"] = null;
 			}
 
 			return container;
@@ -17246,6 +17288,21 @@
 		overflow(overflow) {
 			if (this.container) {
 				this.container.style["overflow"] = overflow;
+			}
+		}
+
+		scale(s) {
+			if (this.container) {
+				if (s > 1.0) {
+					this.container.style["transform-origin"] = "top left";
+					this.container.style["transform"] = "scale(" + s + ")";
+					this.container.style.overflow = "visible";
+				} else {
+					this.container.style.overflow = null;
+					this.container.style["transform-origin"] = null;
+					this.container.style["transform"] = null;
+				}
+				this.settings.scale = s;
 			}
 		}
 
@@ -17493,7 +17550,8 @@
 				hidden: this.settings.hidden,
 				axis: this.settings.axis,
 				fullsize: this.settings.fullsize,
-				direction: this.settings.direction
+				direction: this.settings.direction,
+				scale: this.settings.scale
 			});
 
 			this.stage.attachTo(element);
@@ -17698,7 +17756,8 @@
 				displaying.reject(err);
 			}).then(function () {
 				var next;
-				if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+				if (this.layout.name === "pre-paginated" && this.layout.divisor > 1 && section.index > 0) {
+					// First page (cover) should stand alone for pre-paginated books
 					next = section.next();
 					if (next) {
 						return this.add(next);
@@ -18324,6 +18383,17 @@
 
 		isRendered() {
 			return this.rendered;
+		}
+
+		scale(s) {
+			if (s == null) {
+				s = 1.0;
+			}
+			this.settings.scale = s;
+
+			if (this.stage) {
+				this.stage.scale(s);
+			}
 		}
 	}
 
@@ -19271,14 +19341,18 @@
 			this.hooks.content.register(this.passEvents.bind(this));
 			this.hooks.content.register(this.adjustImages.bind(this));
 
-			this.book.spine.hooks.content.register(this.injectIdentifier.bind(this));
+			this.injected = {};
+			this.injected['identifier'] = this.injectIdentifier.bind(this);
+			this.book.spine.hooks.content.register(this.injected['identifier']);
 
 			if (this.settings.stylesheet) {
-				this.book.spine.hooks.content.register(this.injectStylesheet.bind(this));
+				this.injected['stylesheet'] = this.injectStylesheet.bind(this);
+				this.book.spine.hooks.content.register(this.injected['stylesheet']);
 			}
 
 			if (this.settings.script) {
-				this.book.spine.hooks.content.register(this.injectScript.bind(this));
+				this.injected['script'] = this.injectScript.bind(this);
+				this.book.spine.hooks.content.register(this.injected['script']);
 			}
 
 			/**
@@ -19991,6 +20065,9 @@
 			// this.q = undefined;
 
 			this.manager && this.manager.destroy();
+			this.book.spine.hooks.content.deregister(this.injected['identifier']);
+			this.book.spine.hooks.content.deregister(this.injected['script']);
+			this.book.spine.hooks.content.deregister(this.injected['stylesheet']);
 
 			this.book = undefined;
 
@@ -20102,10 +20179,11 @@
 
 			let computed = contents.window.getComputedStyle(contents.content, null);
 			let height = (contents.content.offsetHeight - (parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom))) * .95;
+			let verticalPadding = parseFloat(computed.verticalPadding);
 
 			contents.addStylesheetRules({
 				"img": {
-					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+					"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
 					"max-height": height + "px" + "!important",
 					"object-fit": "contain",
 					"page-break-inside": "avoid",
@@ -20113,7 +20191,7 @@
 					"box-sizing": "border-box"
 				},
 				"svg": {
-					"max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+					"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
 					"max-height": height + "px" + "!important",
 					"page-break-inside": "avoid",
 					"break-inside": "avoid"
@@ -20206,6 +20284,9 @@
 			doc.getElementsByTagName("head")[0].appendChild(meta);
 		}
 
+		scale(s) {
+			return this.manager && this.manager.scale(s);
+		}
 	}
 
 	//-- Enable binding events to Renderer
@@ -23834,7 +23915,8 @@
 
 	  sizeToViewport(section) {
 	    var h = this.layout.height;
-	    var w = this.layout.columnWidth * this.settings.scale;
+	    // reduce to 80% to avoid hacking epubjs/layout.js
+	    var w = this.layout.columnWidth * 0.8 * this.settings.scale;
 	    if (section.viewport.height != 'auto') {
 	      if (this.layout.columnWidth > section.viewport.width) {
 	        w = section.viewport.width * this.settings.scale;
@@ -24046,9 +24128,9 @@
 
 	    this._book.loaded.navigation.then(function (toc) {
 	      self._contents = toc;
-	      self.metadata = self._book.package.metadata;
+	      self.metadata = self._book.packaging.metadata;
 	      self.fire('updateContents', toc);
-	      self.fire('updateTitle', self._book.package.metadata);
+	      self.fire('updateTitle', self._book.packaging.metadata);
 	    });
 	    this._book.ready.then(function () {
 	      self.parseRootfiles();
@@ -24327,7 +24409,7 @@
 	        // maybe it needs to be resolved
 	        var guessed = target;
 	        if (guessed.indexOf("://") < 0) {
-	          var path1 = path$1.resolve(this._book.path.directory, this._book.package.navPath);
+	          var path1 = path$1.resolve(this._book.path.directory, this._book.packaging.navPath);
 	          var path2 = path$1.resolve(path$1.dirname(path1), target);
 	          guessed = this._book.canonical(path2);
 	        }
@@ -24446,7 +24528,7 @@
 
 	  _bindEvents: function () {
 	    var self = this;
-	    if (this._book.package.metadata.layout == 'pre-paginated') ; else if (this.options.flow == 'auto' || this.options.flow == 'paginated') ;
+	    if (this._book.packaging.metadata.layout == 'pre-paginated') ; else if (this.options.flow == 'auto' || this.options.flow == 'paginated') ;
 
 	    var custom_stylesheet_rules = [];
 
