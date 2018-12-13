@@ -95,7 +95,11 @@ export var Contents = Control.extend({
     var option = DomUtil.create('li');
     if ( chapter.href ) {
       var anchor = DomUtil.create('a', null, option);
-      anchor.textContent = chapter.label;
+      if ( chapter.html ) {
+        anchor.innerHTML = chapter.html;
+      } else {
+        anchor.textContent = chapter.label;
+      }
       // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
       // option.textContent = tab + chapter.label;
       anchor.setAttribute('href', chapter.href);
