@@ -17,7 +17,7 @@ describe("Control.BibliographicInformation", function () {
       console.log("AHOY READER");
       expect(reader._rendition).to.not.be(null);
       expect(reader._rendition.manager).to.not.be(null);
-      expect(reader._rendition.manager.constructor.toString()).to.be('continuous');
+      expect(reader._rendition.manager.constructor.name).to.be('ScrollingContinuousViewManager');
       done();
     })
   })

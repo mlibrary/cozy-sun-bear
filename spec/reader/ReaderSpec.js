@@ -32,7 +32,7 @@ describe("Reader", function () {
     })
   })
 
-it("will create draw a book", function(done) {
+  it("will create draw a book", function(done) {
     this.timeout(100000);
     var div = document.createElement('div');
     document.body.appendChild(div);
