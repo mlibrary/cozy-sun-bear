@@ -246,7 +246,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         </div>
         <p style="white-space: no-wrap">
           <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
+          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />
           <span>T+</span>
         </p>
         <p>
@@ -260,6 +260,8 @@ Preferences.fieldset.TextSize = Fieldset.extend({
   _updatePreview: function() {
     this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
     this._output.innerHTML = `${this._input.value}%`;
+    this._input.setAttribute('aria-valuenow',`${this._input.value}`);
+    this._input.setAttribute('aria-valuetext',`${this._input.value} percent`);
   },
 
   EOT: true
