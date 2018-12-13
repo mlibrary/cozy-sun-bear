@@ -68,8 +68,10 @@
   "dependencies": {
     "epubjs": "file:../epub.js",
     "event-emitter": "^0.3.4",
+    "in-vp": "^1.0.0",
     "lodash": "^4.17.4",
-    "mustache": "^2.3.0"
+    "mustache": "^2.3.0",
+    "viewprt": "^3.1.0"
   },
   "style": "dist/cozy.css"
 }

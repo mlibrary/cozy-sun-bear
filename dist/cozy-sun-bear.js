@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.08db0267, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0798e770, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -18,34 +18,33 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
-	(function(global) {
+	(function (global) {
 	  /**
 	   * Polyfill URLSearchParams
 	   *
 	   * Inspired from : https://github.com/WebReflection/url-search-params/blob/master/src/url-search-params.js
 	   */
 
-	  var checkIfIteratorIsSupported = function() {
+	  var checkIfIteratorIsSupported = function checkIfIteratorIsSupported() {
 	    try {
 	      return !!Symbol.iterator;
-	    } catch(error) {
+	    } catch (error) {
 	      return false;
 	    }
 	  };
 
-
 	  var iteratorSupported = checkIfIteratorIsSupported();
 
-	  var createIterator = function(items) {
+	  var createIterator = function createIterator(items) {
 	    var iterator = {
-	      next: function() {
+	      next: function next() {
 	        var value = items.shift();
 	        return { done: value === void 0, value: value };
 	      }
 	    };
 
-	    if(iteratorSupported) {
-	      iterator[Symbol.iterator] = function() {
+	    if (iteratorSupported) {
+	      iterator[Symbol.iterator] = function () {
 	        return iterator;
 	      };
 	    }
@@ -57,35 +56,32 @@
 	   * Search param name and values should be encoded according to https://url.spec.whatwg.org/#urlencoded-serializing
 	   * encodeURIComponent() produces the same result except encoding spaces as `%20` instead of `+`.
 	   */
-	  var serializeParam = function(value) {
+	  var serializeParam = function serializeParam(value) {
 	    return encodeURIComponent(value).replace(/%20/g, '+');
 	  };
 
-	  var deserializeParam = function(value) {
+	  var deserializeParam = function deserializeParam(value) {
 	    return decodeURIComponent(value).replace(/\+/g, ' ');
 	  };
 
-	  var polyfillURLSearchParams= function() {
+	  var polyfillURLSearchParams = function polyfillURLSearchParams() {
 
-	    var URLSearchParams = function(searchString) {
+	    var URLSearchParams = function URLSearchParams(searchString) {
 	      Object.defineProperty(this, '_entries', { value: {} });
 
-	      if(typeof searchString === 'string') {
-	        if(searchString !== '') {
+	      if (typeof searchString === 'string') {
+	        if (searchString !== '') {
 	          searchString = searchString.replace(/^\?/, '');
 	          var attributes = searchString.split('&');
 	          var attribute;
-	          for(var i = 0; i < attributes.length; i++) {
+	          for (var i = 0; i < attributes.length; i++) {
 	            attribute = attributes[i].split('=');
-	            this.append(
-	              deserializeParam(attribute[0]),
-	              (attribute.length > 1) ? deserializeParam(attribute[1]) : ''
-	            );
+	            this.append(deserializeParam(attribute[0]), attribute.length > 1 ? deserializeParam(attribute[1]) : '');
 	          }
 	        }
-	      } else if(searchString instanceof URLSearchParams) {
+	      } else if (searchString instanceof URLSearchParams) {
 	        var _this = this;
-	        searchString.forEach(function(value, name) {
+	        searchString.forEach(function (value, name) {
 	          _this.append(value, name);
 	        });
 	      }
@@ -93,72 +89,78 @@
 
 	    var proto = URLSearchParams.prototype;
 
-	    proto.append = function(name, value) {
-	      if(name in this._entries) {
+	    proto.append = function (name, value) {
+	      if (name in this._entries) {
 	        this._entries[name].push(value.toString());
 	      } else {
 	        this._entries[name] = [value.toString()];
 	      }
 	    };
 
-	    proto.delete = function(name) {
+	    proto.delete = function (name) {
 	      delete this._entries[name];
 	    };
 
-	    proto.get = function(name) {
-	      return (name in this._entries) ? this._entries[name][0] : null;
+	    proto.get = function (name) {
+	      return name in this._entries ? this._entries[name][0] : null;
 	    };
 
-	    proto.getAll = function(name) {
-	      return (name in this._entries) ? this._entries[name].slice(0) : [];
+	    proto.getAll = function (name) {
+	      return name in this._entries ? this._entries[name].slice(0) : [];
 	    };
 
-	    proto.has = function(name) {
-	      return (name in this._entries);
+	    proto.has = function (name) {
+	      return name in this._entries;
 	    };
 
-	    proto.set = function(name, value) {
+	    proto.set = function (name, value) {
 	      this._entries[name] = [value.toString()];
 	    };
 
-	    proto.forEach = function(callback, thisArg) {
+	    proto.forEach = function (callback, thisArg) {
 	      var entries;
-	      for(var name in this._entries) {
-	        if(this._entries.hasOwnProperty(name)) {
+	      for (var name in this._entries) {
+	        if (this._entries.hasOwnProperty(name)) {
 	          entries = this._entries[name];
-	          for(var i = 0; i < entries.length; i++) {
+	          for (var i = 0; i < entries.length; i++) {
 	            callback.call(thisArg, entries[i], name, this);
 	          }
 	        }
 	      }
 	    };
 
-	    proto.keys = function() {
+	    proto.keys = function () {
 	      var items = [];
-	      this.forEach(function(value, name) { items.push(name); });
+	      this.forEach(function (value, name) {
+	        items.push(name);
+	      });
 	      return createIterator(items);
 	    };
 
-	    proto.values = function() {
+	    proto.values = function () {
 	      var items = [];
-	      this.forEach(function(value) { items.push(value); });
+	      this.forEach(function (value) {
+	        items.push(value);
+	      });
 	      return createIterator(items);
 	    };
 
-	    proto.entries = function() {
+	    proto.entries = function () {
 	      var items = [];
-	      this.forEach(function(value, name) { items.push([name, value]); });
+	      this.forEach(function (value, name) {
+	        items.push([name, value]);
+	      });
 	      return createIterator(items);
 	    };
 
-	    if(iteratorSupported) {
+	    if (iteratorSupported) {
 	      proto[Symbol.iterator] = proto.entries;
 	    }
 
-	    proto.toString = function() {
+	    proto.toString = function () {
 	      var searchString = '';
-	      this.forEach(function(value, name) {
-	        if(searchString.length > 0) searchString+= '&';
+	      this.forEach(function (value, name) {
+	        if (searchString.length > 0) searchString += '&';
 	        searchString += serializeParam(name) + '=' + serializeParam(value);
 	      });
 	      return searchString;
@@ -167,45 +169,39 @@
 	    global.URLSearchParams = URLSearchParams;
 	  };
 
-	  if(!('URLSearchParams' in global) || (new URLSearchParams('?a=1').toString() !== 'a=1')) {
+	  if (!('URLSearchParams' in global) || new URLSearchParams('?a=1').toString() !== 'a=1') {
 	    polyfillURLSearchParams();
 	  }
 
 	  // HTMLAnchorElement
+	})(typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : commonjsGlobal);
 
-	})(
-	  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
-	    : ((typeof window !== 'undefined') ? window
-	    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
-	);
-
-	(function(global) {
+	(function (global) {
 	  /**
 	   * Polyfill URL
 	   *
 	   * Inspired from : https://github.com/arv/DOM-URL-Polyfill/blob/master/src/url.js
 	   */
 
-	  var checkIfURLIsSupported = function() {
+	  var checkIfURLIsSupported = function checkIfURLIsSupported() {
 	    try {
 	      var u = new URL('b', 'http://a');
 	      u.pathname = 'c%20d';
-	      return (u.href === 'http://a/c%20d') && u.searchParams;
-	    } catch(e) {
+	      return u.href === 'http://a/c%20d' && u.searchParams;
+	    } catch (e) {
 	      return false;
 	    }
 	  };
 
-
-	  var polyfillURL = function() {
+	  var polyfillURL = function polyfillURL() {
 	    var _URL = global.URL;
 
-	    var URL = function(url, base) {
-	      if(typeof url !== 'string') url = String(url);
+	    var URL = function URL(url, base) {
+	      if (typeof url !== 'string') url = String(url);
 
 	      var doc = document.implementation.createHTMLDocument('');
 	      window.doc = doc;
-	      if(base) {
+	      if (base) {
 	        var baseElement = doc.createElement('base');
 	        baseElement.href = base;
 	        doc.head.appendChild(baseElement);
@@ -216,7 +212,7 @@
 	      doc.body.appendChild(anchorElement);
 	      anchorElement.href = anchorElement.href; // force href to refresh
 
-	      if(anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
+	      if (anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
 	        throw new TypeError('Invalid URL');
 	      }
 
@@ -227,97 +223,90 @@
 
 	    var proto = URL.prototype;
 
-	    var linkURLWithAnchorAttribute = function(attributeName) {
+	    var linkURLWithAnchorAttribute = function linkURLWithAnchorAttribute(attributeName) {
 	      Object.defineProperty(proto, attributeName, {
-	        get: function() {
+	        get: function get() {
 	          return this._anchorElement[attributeName];
 	        },
-	        set: function(value) {
+	        set: function set(value) {
 	          this._anchorElement[attributeName] = value;
 	        },
 	        enumerable: true
 	      });
 	    };
 
-	    ['hash', 'host', 'hostname', 'port', 'protocol', 'search']
-	    .forEach(function(attributeName) {
+	    ['hash', 'host', 'hostname', 'port', 'protocol', 'search'].forEach(function (attributeName) {
 	      linkURLWithAnchorAttribute(attributeName);
 	    });
 
 	    Object.defineProperties(proto, {
 
 	      'toString': {
-	        get: function() {
+	        get: function get() {
 	          var _this = this;
-	          return function() {
+	          return function () {
 	            return _this.href;
 	          };
 	        }
 	      },
 
-	      'href' : {
-	        get: function() {
-	          return this._anchorElement.href.replace(/\?$/,'');
+	      'href': {
+	        get: function get() {
+	          return this._anchorElement.href.replace(/\?$/, '');
 	        },
-	        set: function(value) {
+	        set: function set(value) {
 	          this._anchorElement.href = value;
 	        },
 	        enumerable: true
 	      },
 
-	      'pathname' : {
-	        get: function() {
-	          return this._anchorElement.pathname.replace(/(^\/?)/,'/');
+	      'pathname': {
+	        get: function get() {
+	          return this._anchorElement.pathname.replace(/(^\/?)/, '/');
 	        },
-	        set: function(value) {
+	        set: function set(value) {
 	          this._anchorElement.pathname = value;
 	        },
 	        enumerable: true
 	      },
 
 	      'origin': {
-	        get: function() {
+	        get: function get() {
 	          // get expected port from protocol
-	          var expectedPort = {'http:': 80, 'https:': 443, 'ftp:': 21}[this._anchorElement.protocol];
+	          var expectedPort = { 'http:': 80, 'https:': 443, 'ftp:': 21 }[this._anchorElement.protocol];
 	          // add port to origin if, expected port is different than actual port
 	          // and it is not empty f.e http://foo:8080
 	          // 8080 != 80 && 8080 != ''
-	          var addPortToOrigin = this._anchorElement.port != expectedPort &&
-	            this._anchorElement.port !== '';
+	          var addPortToOrigin = this._anchorElement.port != expectedPort && this._anchorElement.port !== '';
 
-	          return this._anchorElement.protocol +
-	            '//' +
-	            this._anchorElement.hostname +
-	            (addPortToOrigin ? (':' + this._anchorElement.port) : '');
+	          return this._anchorElement.protocol + '//' + this._anchorElement.hostname + (addPortToOrigin ? ':' + this._anchorElement.port : '');
 	        },
 	        enumerable: true
 	      },
 
 	      'password': { // TODO
-	        get: function() {
+	        get: function get() {
 	          return '';
 	        },
-	        set: function(value) {
-	        },
+	        set: function set(value) {},
 	        enumerable: true
 	      },
 
 	      'username': { // TODO
-	        get: function() {
+	        get: function get() {
 	          return '';
 	        },
-	        set: function(value) {
-	        },
+	        set: function set(value) {},
 	        enumerable: true
 	      },
 
 	      'searchParams': {
-	        get: function() {
+	        get: function get() {
 	          var searchParams = new URLSearchParams(this.search);
 	          var _this = this;
-	          ['append', 'delete', 'set'].forEach(function(methodName) {
+	          ['append', 'delete', 'set'].forEach(function (methodName) {
 	            var method = searchParams[methodName];
-	            searchParams[methodName] = function() {
+	            searchParams[methodName] = function () {
 	              method.apply(searchParams, arguments);
 	              _this.search = searchParams.toString();
 	            };
@@ -328,25 +317,24 @@
 	      }
 	    });
 
-	    URL.createObjectURL = function(blob) {
+	    URL.createObjectURL = function (blob) {
 	      return _URL.createObjectURL.apply(_URL, arguments);
 	    };
 
-	    URL.revokeObjectURL = function(url) {
+	    URL.revokeObjectURL = function (url) {
 	      return _URL.revokeObjectURL.apply(_URL, arguments);
 	    };
 
 	    global.URL = URL;
-
 	  };
 
-	  if(!checkIfURLIsSupported()) {
+	  if (!checkIfURLIsSupported()) {
 	    polyfillURL();
 	  }
 
-	  if((global.location !== void 0) && !('origin' in global.location)) {
-	    var getOrigin = function() {
-	      return global.location.protocol + '//' + global.location.hostname + (global.location.port ? (':' + global.location.port) : '');
+	  if (global.location !== void 0 && !('origin' in global.location)) {
+	    var getOrigin = function getOrigin() {
+	      return global.location.protocol + '//' + global.location.hostname + (global.location.port ? ':' + global.location.port : '');
 	    };
 
 	    try {
@@ -354,18 +342,13 @@
 	        get: getOrigin,
 	        enumerable: true
 	      });
-	    } catch(e) {
-	      setInterval(function() {
+	    } catch (e) {
+	      setInterval(function () {
 	        global.location.origin = getOrigin();
 	      }, 100);
 	    }
 	  }
-
-	})(
-	  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
-	    : ((typeof window !== 'undefined') ? window
-	    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
-	);
+	})(typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : commonjsGlobal);
 
 	/*
 	 * classList.js: Cross-browser full element.classList implementation.
@@ -382,227 +365,202 @@
 
 	if ("document" in window.self) {
 
-	// Full polyfill for browsers with no classList support
-	// Including IE < Edge missing SVGElement.classList
-	if (!("classList" in document.createElement("_")) 
-		|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
+		// Full polyfill for browsers with no classList support
+		// Including IE < Edge missing SVGElement.classList
+		if (!("classList" in document.createElement("_")) || document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg", "g"))) {
 
-	(function (view) {
+			(function (view) {
 
-	if (!('Element' in view)) return;
+				if (!('Element' in view)) return;
 
-	var
-		  classListProp = "classList"
-		, protoProp = "prototype"
-		, elemCtrProto = view.Element[protoProp]
-		, objCtr = Object
-		, strTrim = String[protoProp].trim || function () {
-			return this.replace(/^\s+|\s+$/g, "");
-		}
-		, arrIndexOf = Array[protoProp].indexOf || function (item) {
-			var
-				  i = 0
-				, len = this.length
-			;
-			for (; i < len; i++) {
-				if (i in this && this[i] === item) {
-					return i;
+				var classListProp = "classList",
+				    protoProp = "prototype",
+				    elemCtrProto = view.Element[protoProp],
+				    objCtr = Object,
+				    strTrim = String[protoProp].trim || function () {
+					return this.replace(/^\s+|\s+$/g, "");
+				},
+				    arrIndexOf = Array[protoProp].indexOf || function (item) {
+					var i = 0,
+					    len = this.length;
+					for (; i < len; i++) {
+						if (i in this && this[i] === item) {
+							return i;
+						}
+					}
+					return -1;
 				}
-			}
-			return -1;
-		}
-		// Vendors: please allow content code to instantiate DOMExceptions
-		, DOMEx = function (type, message) {
-			this.name = type;
-			this.code = DOMException[type];
-			this.message = message;
-		}
-		, checkTokenAndGetIndex = function (classList, token) {
-			if (token === "") {
-				throw new DOMEx(
-					  "SYNTAX_ERR"
-					, "An invalid or illegal string was specified"
-				);
-			}
-			if (/\s/.test(token)) {
-				throw new DOMEx(
-					  "INVALID_CHARACTER_ERR"
-					, "String contains an invalid character"
-				);
-			}
-			return arrIndexOf.call(classList, token);
-		}
-		, ClassList = function (elem) {
-			var
-				  trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
-				, classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
-				, i = 0
-				, len = classes.length
-			;
-			for (; i < len; i++) {
-				this.push(classes[i]);
-			}
-			this._updateClassName = function () {
-				elem.setAttribute("class", this.toString());
-			};
-		}
-		, classListProto = ClassList[protoProp] = []
-		, classListGetter = function () {
-			return new ClassList(this);
-		}
-	;
-	// Most DOMException implementations don't allow calling DOMException's toString()
-	// on non-DOMExceptions. Error's toString() is sufficient here.
-	DOMEx[protoProp] = Error[protoProp];
-	classListProto.item = function (i) {
-		return this[i] || null;
-	};
-	classListProto.contains = function (token) {
-		token += "";
-		return checkTokenAndGetIndex(this, token) !== -1;
-	};
-	classListProto.add = function () {
-		var
-			  tokens = arguments
-			, i = 0
-			, l = tokens.length
-			, token
-			, updated = false
-		;
-		do {
-			token = tokens[i] + "";
-			if (checkTokenAndGetIndex(this, token) === -1) {
-				this.push(token);
-				updated = true;
-			}
-		}
-		while (++i < l);
+				// Vendors: please allow content code to instantiate DOMExceptions
+				,
+				    DOMEx = function DOMEx(type, message) {
+					this.name = type;
+					this.code = DOMException[type];
+					this.message = message;
+				},
+				    checkTokenAndGetIndex = function checkTokenAndGetIndex(classList, token) {
+					if (token === "") {
+						throw new DOMEx("SYNTAX_ERR", "An invalid or illegal string was specified");
+					}
+					if (/\s/.test(token)) {
+						throw new DOMEx("INVALID_CHARACTER_ERR", "String contains an invalid character");
+					}
+					return arrIndexOf.call(classList, token);
+				},
+				    ClassList = function ClassList(elem) {
+					var trimmedClasses = strTrim.call(elem.getAttribute("class") || ""),
+					    classes = trimmedClasses ? trimmedClasses.split(/\s+/) : [],
+					    i = 0,
+					    len = classes.length;
+					for (; i < len; i++) {
+						this.push(classes[i]);
+					}
+					this._updateClassName = function () {
+						elem.setAttribute("class", this.toString());
+					};
+				},
+				    classListProto = ClassList[protoProp] = [],
+				    classListGetter = function classListGetter() {
+					return new ClassList(this);
+				};
+				// Most DOMException implementations don't allow calling DOMException's toString()
+				// on non-DOMExceptions. Error's toString() is sufficient here.
+				DOMEx[protoProp] = Error[protoProp];
+				classListProto.item = function (i) {
+					return this[i] || null;
+				};
+				classListProto.contains = function (token) {
+					token += "";
+					return checkTokenAndGetIndex(this, token) !== -1;
+				};
+				classListProto.add = function () {
+					var tokens = arguments,
+					    i = 0,
+					    l = tokens.length,
+					    token,
+					    updated = false;
+					do {
+						token = tokens[i] + "";
+						if (checkTokenAndGetIndex(this, token) === -1) {
+							this.push(token);
+							updated = true;
+						}
+					} while (++i < l);
 
-		if (updated) {
-			this._updateClassName();
-		}
-	};
-	classListProto.remove = function () {
-		var
-			  tokens = arguments
-			, i = 0
-			, l = tokens.length
-			, token
-			, updated = false
-			, index
-		;
-		do {
-			token = tokens[i] + "";
-			index = checkTokenAndGetIndex(this, token);
-			while (index !== -1) {
-				this.splice(index, 1);
-				updated = true;
-				index = checkTokenAndGetIndex(this, token);
-			}
-		}
-		while (++i < l);
-
-		if (updated) {
-			this._updateClassName();
-		}
-	};
-	classListProto.toggle = function (token, force) {
-		token += "";
-
-		var
-			  result = this.contains(token)
-			, method = result ?
-				force !== true && "remove"
-			:
-				force !== false && "add"
-		;
-
-		if (method) {
-			this[method](token);
-		}
-
-		if (force === true || force === false) {
-			return force;
-		} else {
-			return !result;
-		}
-	};
-	classListProto.toString = function () {
-		return this.join(" ");
-	};
-
-	if (objCtr.defineProperty) {
-		var classListPropDesc = {
-			  get: classListGetter
-			, enumerable: true
-			, configurable: true
-		};
-		try {
-			objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-		} catch (ex) { // IE 8 doesn't support enumerable:true
-			// adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
-			// modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
-			if (ex.number === undefined || ex.number === -0x7FF5EC54) {
-				classListPropDesc.enumerable = false;
-				objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-			}
-		}
-	} else if (objCtr[protoProp].__defineGetter__) {
-		elemCtrProto.__defineGetter__(classListProp, classListGetter);
-	}
-
-	}(window.self));
-
-	}
-
-	// There is full or partial native classList support, so just check if we need
-	// to normalize the add/remove and toggle APIs.
-
-	(function () {
-
-		var testElement = document.createElement("_");
-
-		testElement.classList.add("c1", "c2");
-
-		// Polyfill for IE 10/11 and Firefox <26, where classList.add and
-		// classList.remove exist but support only one argument at a time.
-		if (!testElement.classList.contains("c2")) {
-			var createMethod = function(method) {
-				var original = DOMTokenList.prototype[method];
-
-				DOMTokenList.prototype[method] = function(token) {
-					var i, len = arguments.length;
-
-					for (i = 0; i < len; i++) {
-						token = arguments[i];
-						original.call(this, token);
+					if (updated) {
+						this._updateClassName();
 					}
 				};
-			};
-			createMethod('add');
-			createMethod('remove');
-		}
+				classListProto.remove = function () {
+					var tokens = arguments,
+					    i = 0,
+					    l = tokens.length,
+					    token,
+					    updated = false,
+					    index;
+					do {
+						token = tokens[i] + "";
+						index = checkTokenAndGetIndex(this, token);
+						while (index !== -1) {
+							this.splice(index, 1);
+							updated = true;
+							index = checkTokenAndGetIndex(this, token);
+						}
+					} while (++i < l);
 
-		testElement.classList.toggle("c3", false);
+					if (updated) {
+						this._updateClassName();
+					}
+				};
+				classListProto.toggle = function (token, force) {
+					token += "";
 
-		// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
-		// support the second argument.
-		if (testElement.classList.contains("c3")) {
-			var _toggle = DOMTokenList.prototype.toggle;
+					var result = this.contains(token),
+					    method = result ? force !== true && "remove" : force !== false && "add";
 
-			DOMTokenList.prototype.toggle = function(token, force) {
-				if (1 in arguments && !this.contains(token) === !force) {
-					return force;
-				} else {
-					return _toggle.call(this, token);
+					if (method) {
+						this[method](token);
+					}
+
+					if (force === true || force === false) {
+						return force;
+					} else {
+						return !result;
+					}
+				};
+				classListProto.toString = function () {
+					return this.join(" ");
+				};
+
+				if (objCtr.defineProperty) {
+					var classListPropDesc = {
+						get: classListGetter,
+						enumerable: true,
+						configurable: true
+					};
+					try {
+						objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+					} catch (ex) {
+						// IE 8 doesn't support enumerable:true
+						// adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
+						// modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
+						if (ex.number === undefined || ex.number === -0x7FF5EC54) {
+							classListPropDesc.enumerable = false;
+							objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+						}
+					}
+				} else if (objCtr[protoProp].__defineGetter__) {
+					elemCtrProto.__defineGetter__(classListProp, classListGetter);
 				}
-			};
-
+			})(window.self);
 		}
 
-		testElement = null;
-	}());
+		// There is full or partial native classList support, so just check if we need
+		// to normalize the add/remove and toggle APIs.
 
+		(function () {
+
+			var testElement = document.createElement("_");
+
+			testElement.classList.add("c1", "c2");
+
+			// Polyfill for IE 10/11 and Firefox <26, where classList.add and
+			// classList.remove exist but support only one argument at a time.
+			if (!testElement.classList.contains("c2")) {
+				var createMethod = function createMethod(method) {
+					var original = DOMTokenList.prototype[method];
+
+					DOMTokenList.prototype[method] = function (token) {
+						var i,
+						    len = arguments.length;
+
+						for (i = 0; i < len; i++) {
+							token = arguments[i];
+							original.call(this, token);
+						}
+					};
+				};
+				createMethod('add');
+				createMethod('remove');
+			}
+
+			testElement.classList.toggle("c3", false);
+
+			// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
+			// support the second argument.
+			if (testElement.classList.contains("c3")) {
+				var _toggle = DOMTokenList.prototype.toggle;
+
+				DOMTokenList.prototype.toggle = function (token, force) {
+					if (1 in arguments && !this.contains(token) === !force) {
+						return force;
+					} else {
+						return _toggle.call(this, token);
+					}
+				};
+			}
+
+			testElement = null;
+		})();
 	}
 
 	var version = "1.0.0";
@@ -677,7 +635,7 @@
 	function throttle(fn, time, context) {
 	    var lock, args, wrapperFn, later;
 
-	    later = function () {
+	    later = function later() {
 	        // reset lock and call if queued
 	        lock = false;
 	        if (args) {
@@ -686,7 +644,7 @@
 	        }
 	    };
 
-	    wrapperFn = function () {
+	    wrapperFn = function wrapperFn() {
 	        if (lock) {
 	            // called too soon, queue to call later
 	            args = arguments;
@@ -856,7 +814,7 @@
 	}
 
 	var loader = {
-	    js: function (url) {
+	    js: function js(url) {
 	        var handler = { _resolved: false };
 	        handler.callbacks = [];
 	        handler.error = [];
@@ -967,7 +925,7 @@
 		// @function extend(props: Object): Function
 		// [Extends the current class](#class-inheritance) given the properties to be included.
 		// Returns a Javascript function that is a class constructor (to be called with `new`).
-		var NewClass = function () {
+		var NewClass = function NewClass() {
 
 			// call the constructor
 			if (this.initialize) {
@@ -1081,6 +1039,8 @@
 		// }
 	}
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/*
 	 * @class Evented
 	 * @aka L.Evented
@@ -1115,10 +1075,10 @@
 	  * @method on(eventMap: Object): this
 	  * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 	  */
-		on: function (types, fn, context) {
+		on: function on(types, fn, context) {
 
 			// types can be a map of types/handlers
-			if (typeof types === 'object') {
+			if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					// we don't process space-separated events here for performance;
 					// it's a hot path since Layer uses the on(obj) syntax
@@ -1147,12 +1107,12 @@
 	  * @method off: this
 	  * Removes all listeners to all events on the object.
 	  */
-		off: function (types, fn, context) {
+		off: function off(types, fn, context) {
 
 			if (!types) {
 				// clear all listeners if called without arguments
 				delete this._events;
-			} else if (typeof types === 'object') {
+			} else if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					this._off(type, types[type], fn);
 				}
@@ -1168,7 +1128,7 @@
 		},
 
 		// attach listener (without syntactic sugar now)
-		_on: function (type, fn, context) {
+		_on: function _on(type, fn, context) {
 			this._events = this._events || {};
 
 			/* get/init listeners for type */
@@ -1195,7 +1155,7 @@
 			listeners.push(newListener);
 		},
 
-		_off: function (type, fn, context) {
+		_off: function _off(type, fn, context) {
 			var listeners, i, len;
 
 			if (!this._events) {
@@ -1251,7 +1211,7 @@
 		// Fires an event of the specified type. You can optionally provide an data
 		// object — the first argument of the listener function will contain its
 		// properties. The event can optionally be propagated to event parents.
-		fire: function (type, data, propagate) {
+		fire: function fire(type, data, propagate) {
 			if (!this.listens(type, propagate)) {
 				return this;
 			}
@@ -1282,7 +1242,7 @@
 
 		// @method listens(type: String): Boolean
 		// Returns `true` if a particular event type has any listeners attached to it.
-		listens: function (type, propagate) {
+		listens: function listens(type, propagate) {
 			var listeners = this._events && this._events[type];
 			if (listeners && listeners.length) {
 				return true;
@@ -1301,9 +1261,9 @@
 
 		// @method once(…): this
 		// Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
-		once: function (types, fn, context) {
+		once: function once(types, fn, context) {
 
-			if (typeof types === 'object') {
+			if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					this.once(type, types[type], fn);
 				}
@@ -1320,7 +1280,7 @@
 
 		// @method addEventParent(obj: Evented): this
 		// Adds an event parent - an `Evented` that will receive propagated events
-		addEventParent: function (obj) {
+		addEventParent: function addEventParent(obj) {
 			this._eventParents = this._eventParents || {};
 			this._eventParents[stamp(obj)] = obj;
 			return this;
@@ -1328,14 +1288,14 @@
 
 		// @method removeEventParent(obj: Evented): this
 		// Removes an event parent, so it will stop receiving propagated events
-		removeEventParent: function (obj) {
+		removeEventParent: function removeEventParent(obj) {
 			if (this._eventParents) {
 				delete this._eventParents[stamp(obj)];
 			}
 			return this;
 		},
 
-		_propagateEvent: function (e) {
+		_propagateEvent: function _propagateEvent(e) {
 			for (var id in this._eventParents) {
 				this._eventParents[id].fire(e.type, extend({ layer: e.target }, e), true);
 			}
@@ -1368,6 +1328,8 @@
 	// @method hasEventListeners(…): Boolean
 	// Alias to [`listens(…)`](#evented-listens)
 	proto.hasEventListeners = proto.listens;
+
+	var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/*
 	 * @namespace Browser
@@ -1497,7 +1459,7 @@
 	        var shape = div.firstChild;
 	        shape.style.behavior = 'url(#default#VML)';
 
-	        return shape && typeof shape.adj === 'object';
+	        return shape && _typeof$1(shape.adj) === 'object';
 	    } catch (e) {
 	        return false;
 	    }
@@ -1544,6 +1506,8 @@
 		classList: classList
 	});
 
+	var _typeof$2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/*
 	 * @class Point
 	 * @aka L.Point
@@ -1575,18 +1539,18 @@
 
 		// @method clone(): Point
 		// Returns a copy of the current point.
-		clone: function () {
+		clone: function clone() {
 			return new Point(this.x, this.y);
 		},
 
 		// @method add(otherPoint: Point): Point
 		// Returns the result of addition of the current and the given points.
-		add: function (point) {
+		add: function add(point) {
 			// non-destructive, returns a new point
 			return this.clone()._add(toPoint(point));
 		},
 
-		_add: function (point) {
+		_add: function _add(point) {
 			// destructive, used directly for performance in situations where it's safe to modify existing point
 			this.x += point.x;
 			this.y += point.y;
@@ -1595,11 +1559,11 @@
 
 		// @method subtract(otherPoint: Point): Point
 		// Returns the result of subtraction of the given point from the current.
-		subtract: function (point) {
+		subtract: function subtract(point) {
 			return this.clone()._subtract(toPoint(point));
 		},
 
-		_subtract: function (point) {
+		_subtract: function _subtract(point) {
 			this.x -= point.x;
 			this.y -= point.y;
 			return this;
@@ -1607,11 +1571,11 @@
 
 		// @method divideBy(num: Number): Point
 		// Returns the result of division of the current point by the given number.
-		divideBy: function (num) {
+		divideBy: function divideBy(num) {
 			return this.clone()._divideBy(num);
 		},
 
-		_divideBy: function (num) {
+		_divideBy: function _divideBy(num) {
 			this.x /= num;
 			this.y /= num;
 			return this;
@@ -1619,11 +1583,11 @@
 
 		// @method multiplyBy(num: Number): Point
 		// Returns the result of multiplication of the current point by the given number.
-		multiplyBy: function (num) {
+		multiplyBy: function multiplyBy(num) {
 			return this.clone()._multiplyBy(num);
 		},
 
-		_multiplyBy: function (num) {
+		_multiplyBy: function _multiplyBy(num) {
 			this.x *= num;
 			this.y *= num;
 			return this;
@@ -1634,24 +1598,24 @@
 		// `scale`. In linear algebra terms, multiply the point by the
 		// [scaling matrix](https://en.wikipedia.org/wiki/Scaling_%28geometry%29#Matrix_representation)
 		// defined by `scale`.
-		scaleBy: function (point) {
+		scaleBy: function scaleBy(point) {
 			return new Point(this.x * point.x, this.y * point.y);
 		},
 
 		// @method unscaleBy(scale: Point): Point
 		// Inverse of `scaleBy`. Divide each coordinate of the current point by
 		// each coordinate of `scale`.
-		unscaleBy: function (point) {
+		unscaleBy: function unscaleBy(point) {
 			return new Point(this.x / point.x, this.y / point.y);
 		},
 
 		// @method round(): Point
 		// Returns a copy of the current point with rounded coordinates.
-		round: function () {
+		round: function round() {
 			return this.clone()._round();
 		},
 
-		_round: function () {
+		_round: function _round() {
 			this.x = Math.round(this.x);
 			this.y = Math.round(this.y);
 			return this;
@@ -1659,11 +1623,11 @@
 
 		// @method floor(): Point
 		// Returns a copy of the current point with floored coordinates (rounded down).
-		floor: function () {
+		floor: function floor() {
 			return this.clone()._floor();
 		},
 
-		_floor: function () {
+		_floor: function _floor() {
 			this.x = Math.floor(this.x);
 			this.y = Math.floor(this.y);
 			return this;
@@ -1671,11 +1635,11 @@
 
 		// @method ceil(): Point
 		// Returns a copy of the current point with ceiled coordinates (rounded up).
-		ceil: function () {
+		ceil: function ceil() {
 			return this.clone()._ceil();
 		},
 
-		_ceil: function () {
+		_ceil: function _ceil() {
 			this.x = Math.ceil(this.x);
 			this.y = Math.ceil(this.y);
 			return this;
@@ -1683,7 +1647,7 @@
 
 		// @method distanceTo(otherPoint: Point): Number
 		// Returns the cartesian distance between the current and the given points.
-		distanceTo: function (point) {
+		distanceTo: function distanceTo(point) {
 			point = toPoint(point);
 
 			var x = point.x - this.x,
@@ -1694,7 +1658,7 @@
 
 		// @method equals(otherPoint: Point): Boolean
 		// Returns `true` if the given point has the same coordinates.
-		equals: function (point) {
+		equals: function equals(point) {
 			point = toPoint(point);
 
 			return point.x === this.x && point.y === this.y;
@@ -1702,7 +1666,7 @@
 
 		// @method contains(otherPoint: Point): Boolean
 		// Returns `true` if both coordinates of the given point are less than the corresponding current point coordinates (in absolute values).
-		contains: function (point) {
+		contains: function contains(point) {
 			point = toPoint(point);
 
 			return Math.abs(point.x) <= Math.abs(this.x) && Math.abs(point.y) <= Math.abs(this.y);
@@ -1710,7 +1674,7 @@
 
 		// @method toString(): String
 		// Returns a string representation of the point for debugging purposes.
-		toString: function () {
+		toString: function toString() {
 			return 'Point(' + formatNum(this.x) + ', ' + formatNum(this.y) + ')';
 		}
 	};
@@ -1735,7 +1699,7 @@
 		if (x === undefined || x === null) {
 			return x;
 		}
-		if (typeof x === 'object' && 'x' in x && 'y' in x) {
+		if ((typeof x === 'undefined' ? 'undefined' : _typeof$2(x)) === 'object' && 'x' in x && 'y' in x) {
 			return new Point(x.x, x.y);
 		}
 		return new Point(x, y, round);
@@ -1844,7 +1808,7 @@
 	}
 
 	function _addPointerMove(obj, handler, id) {
-		var onMove = function (e) {
+		var onMove = function onMove(e) {
 			// don't fire touch moves when mouse isn't down
 			if ((e.pointerType === e.MSPOINTER_TYPE_MOUSE || e.pointerType === 'mouse') && e.buttons === 0) {
 				return;
@@ -1858,7 +1822,7 @@
 	}
 
 	function _addPointerEnd(obj, handler, id) {
-		var onUp = function (e) {
+		var onUp = function onUp(e) {
 			_handlePointer(e, handler);
 		};
 
@@ -1959,6 +1923,8 @@
 		return this;
 	}
 
+	var _typeof$3 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/*
 	 * @namespace DomEvent
 	 * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
@@ -1977,7 +1943,7 @@
 	// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 	function on(obj, types, fn, context) {
 
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof$3(types)) === 'object') {
 			for (var type in types) {
 				addOne(obj, type, types[type], fn);
 			}
@@ -2009,7 +1975,7 @@
 	// Removes all known event listeners
 	function off(obj, types, fn, context) {
 
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof$3(types)) === 'object') {
 			for (var type in types) {
 				removeOne(obj, type, types[type], fn);
 			}
@@ -2034,7 +2000,7 @@
 			return this;
 		}
 
-		var handler = function (e) {
+		var handler = function handler(e) {
 			return fn.call(context || obj, e || window.event);
 		};
 
@@ -2052,7 +2018,7 @@
 			if (type === 'mousewheel') {
 				obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', handler, false);
 			} else if (type === 'mouseenter' || type === 'mouseleave') {
-				handler = function (e) {
+				handler = function handler(e) {
 					e = e || window.event;
 					if (isExternalTarget(obj, e)) {
 						originalHandler(e);
@@ -2061,7 +2027,7 @@
 				obj.addEventListener(type === 'mouseenter' ? 'mouseover' : 'mouseout', handler, false);
 			} else {
 				if (type === 'click' && android) {
-					handler = function (e) {
+					handler = function handler(e) {
 						filterClick(e, originalHandler);
 					};
 				}
@@ -2521,23 +2487,23 @@
 	var enableTextSelection;
 	var _userSelect;
 	if ('onselectstart' in document) {
-	    disableTextSelection = function () {
+	    disableTextSelection = function disableTextSelection() {
 	        on(window, 'selectstart', preventDefault);
 	    };
-	    enableTextSelection = function () {
+	    enableTextSelection = function enableTextSelection() {
 	        off(window, 'selectstart', preventDefault);
 	    };
 	} else {
 	    var userSelectProperty = testProp(['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-	    disableTextSelection = function () {
+	    disableTextSelection = function disableTextSelection() {
 	        if (userSelectProperty) {
 	            var style = document.documentElement.style;
 	            _userSelect = style[userSelectProperty];
 	            style[userSelectProperty] = 'none';
 	        }
 	    };
-	    enableTextSelection = function () {
+	    enableTextSelection = function enableTextSelection() {
 	        if (userSelectProperty) {
 	            document.documentElement.style[userSelectProperty] = _userSelect;
 	            _userSelect = undefined;
@@ -2620,6 +2586,8 @@
 		restoreOutline: restoreOutline
 	});
 
+	var _typeof$4 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/**
 	 * Checks if `value` is the
 	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -2646,19 +2614,25 @@
 	 * // => false
 	 */
 	function isObject(value) {
-	  var type = typeof value;
+	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$4(value);
 	  return value != null && (type == 'object' || type == 'function');
 	}
 
 	var isObject_1 = isObject;
 
+	var _typeof$5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/** Detect free variable `global` from Node.js. */
-	var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+	var freeGlobal = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$5(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 	var _freeGlobal = freeGlobal;
 
+	var _typeof$6 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
 	/** Detect free variable `self`. */
-	var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+	var freeSelf = (typeof self === 'undefined' ? 'undefined' : _typeof$6(self)) == 'object' && self && self.Object === Object && self;
 
 	/** Used as a reference to the global object. */
 	var root = _freeGlobal || freeSelf || Function('return this')();
@@ -2681,16 +2655,16 @@
 	 * }, _.now());
 	 * // => Logs the number of milliseconds it took for the deferred invocation.
 	 */
-	var now = function() {
+	var now = function now() {
 	  return _root.Date.now();
 	};
 
 	var now_1 = now;
 
 	/** Built-in value references. */
-	var Symbol$1 = _root.Symbol;
+	var _Symbol = _root.Symbol;
 
-	var _Symbol = Symbol$1;
+	var _Symbol_1 = _Symbol;
 
 	/** Used for built-in method references. */
 	var objectProto = Object.prototype;
@@ -2706,7 +2680,7 @@
 	var nativeObjectToString = objectProto.toString;
 
 	/** Built-in value references. */
-	var symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
+	var symToStringTag = _Symbol_1 ? _Symbol_1.toStringTag : undefined;
 
 	/**
 	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
@@ -2764,7 +2738,7 @@
 	    undefinedTag = '[object Undefined]';
 
 	/** Built-in value references. */
-	var symToStringTag$1 = _Symbol ? _Symbol.toStringTag : undefined;
+	var symToStringTag$1 = _Symbol_1 ? _Symbol_1.toStringTag : undefined;
 
 	/**
 	 * The base implementation of `getTag` without fallbacks for buggy environments.
@@ -2774,15 +2748,15 @@
 	 * @returns {string} Returns the `toStringTag`.
 	 */
 	function baseGetTag(value) {
-	  if (value == null) {
-	    return value === undefined ? undefinedTag : nullTag;
-	  }
-	  return (symToStringTag$1 && symToStringTag$1 in Object(value))
-	    ? _getRawTag(value)
-	    : _objectToString(value);
+	    if (value == null) {
+	        return value === undefined ? undefinedTag : nullTag;
+	    }
+	    return symToStringTag$1 && symToStringTag$1 in Object(value) ? _getRawTag(value) : _objectToString(value);
 	}
 
 	var _baseGetTag = baseGetTag;
+
+	var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -2809,10 +2783,14 @@
 	 * // => false
 	 */
 	function isObjectLike(value) {
-	  return value != null && typeof value == 'object';
+	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$7(value)) == 'object';
 	}
 
 	var isObjectLike_1 = isObjectLike;
+
+	var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
 
 	/** `Object#toString` result references. */
 	var symbolTag = '[object Symbol]';
@@ -2835,8 +2813,7 @@
 	 * // => false
 	 */
 	function isSymbol(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike_1(value) && _baseGetTag(value) == symbolTag);
+	    return (typeof value === 'undefined' ? 'undefined' : _typeof$8(value)) == 'symbol' || isObjectLike_1(value) && _baseGetTag(value) == symbolTag;
 	}
 
 	var isSymbol_1 = isSymbol;
@@ -2891,16 +2868,14 @@
 	  }
 	  if (isObject_1(value)) {
 	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-	    value = isObject_1(other) ? (other + '') : other;
+	    value = isObject_1(other) ? other + '' : other;
 	  }
 	  if (typeof value != 'string') {
 	    return value === 0 ? value : +value;
 	  }
 	  value = value.replace(reTrim, '');
 	  var isBinary = reIsBinary.test(value);
-	  return (isBinary || reIsOctal.test(value))
-	    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
-	    : (reIsBadHex.test(value) ? NAN : +value);
+	  return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
 	}
 
 	var toNumber_1 = toNumber;
@@ -3023,8 +2998,7 @@
 	    // Either this is the first call, activity has stopped and we're at the
 	    // trailing edge, the system time has gone backwards and we're treating
 	    // it as the trailing edge, or we've hit the `maxWait` limit.
-	    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
-	      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+	    return lastCallTime === undefined || timeSinceLastCall >= wait || timeSinceLastCall < 0 || maxing && timeSinceLastInvoke >= maxWait;
 	  }
 
 	  function timerExpired() {
@@ -3114,13 +3088,13 @@
 	 * // => false
 	 */
 	function isFunction(value) {
-	  if (!isObject_1(value)) {
-	    return false;
-	  }
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 9 which returns 'object' for typed arrays and other constructors.
-	  var tag = _baseGetTag(value);
-	  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+	    if (!isObject_1(value)) {
+	        return false;
+	    }
+	    // The use of `Object#toString` avoids issues with the `typeof` operator
+	    // in Safari 9 which returns 'object' for typed arrays and other constructors.
+	    var tag = _baseGetTag(value);
+	    return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
 	}
 
 	var isFunction_1 = isFunction;
@@ -3131,10 +3105,10 @@
 	var _coreJsData = coreJsData;
 
 	/** Used to detect methods masquerading as native. */
-	var maskSrcKey = (function() {
+	var maskSrcKey = function () {
 	  var uid = /[^.]+$/.exec(_coreJsData && _coreJsData.keys && _coreJsData.keys.IE_PROTO || '');
-	  return uid ? ('Symbol(src)_1.' + uid) : '';
-	}());
+	  return uid ? 'Symbol(src)_1.' + uid : '';
+	}();
 
 	/**
 	 * Checks if `func` has its source masked.
@@ -3144,7 +3118,7 @@
 	 * @returns {boolean} Returns `true` if `func` is masked, else `false`.
 	 */
 	function isMasked(func) {
-	  return !!maskSrcKey && (maskSrcKey in func);
+	  return !!maskSrcKey && maskSrcKey in func;
 	}
 
 	var _isMasked = isMasked;
@@ -3168,7 +3142,7 @@
 	      return funcToString.call(func);
 	    } catch (e) {}
 	    try {
-	      return (func + '');
+	      return func + '';
 	    } catch (e) {}
 	  }
 	  return '';
@@ -3196,10 +3170,7 @@
 	var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
 
 	/** Used to detect if a method is native. */
-	var reIsNative = RegExp('^' +
-	  funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&')
-	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-	);
+	var reIsNative = RegExp('^' + funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$');
 
 	/**
 	 * The base implementation of `_.isNative` without bad shim checks.
@@ -3248,13 +3219,13 @@
 
 	var _getNative = getNative;
 
-	var defineProperty = (function() {
+	var defineProperty = function () {
 	  try {
 	    var func = _getNative(Object, 'defineProperty');
 	    func({}, '', {});
 	    return func;
 	  } catch (e) {}
-	}());
+	}();
 
 	var _defineProperty = defineProperty;
 
@@ -3315,7 +3286,7 @@
 	 * // => true
 	 */
 	function eq(value, other) {
-	  return value === other || (value !== value && other !== other);
+	  return value === other || value !== value && other !== other;
 	}
 
 	var eq_1 = eq;
@@ -3338,8 +3309,7 @@
 	 */
 	function assignValue(object, key, value) {
 	  var objValue = object[key];
-	  if (!(hasOwnProperty$2.call(object, key) && eq_1(objValue, value)) ||
-	      (value === undefined && !(key in object))) {
+	  if (!(hasOwnProperty$2.call(object, key) && eq_1(objValue, value)) || value === undefined && !(key in object)) {
 	    _baseAssignValue(object, key, value);
 	  }
 	}
@@ -3366,9 +3336,7 @@
 	  while (++index < length) {
 	    var key = props[index];
 
-	    var newValue = customizer
-	      ? customizer(object[key], source[key], key, object, source)
-	      : undefined;
+	    var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined;
 
 	    if (newValue === undefined) {
 	      newValue = source[key];
@@ -3418,10 +3386,14 @@
 	 */
 	function apply(func, thisArg, args) {
 	  switch (args.length) {
-	    case 0: return func.call(thisArg);
-	    case 1: return func.call(thisArg, args[0]);
-	    case 2: return func.call(thisArg, args[0], args[1]);
-	    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+	    case 0:
+	      return func.call(thisArg);
+	    case 1:
+	      return func.call(thisArg, args[0]);
+	    case 2:
+	      return func.call(thisArg, args[0], args[1]);
+	    case 3:
+	      return func.call(thisArg, args[0], args[1], args[2]);
 	  }
 	  return func.apply(thisArg, args);
 	}
@@ -3441,8 +3413,8 @@
 	 * @returns {Function} Returns the new function.
 	 */
 	function overRest(func, start, transform) {
-	  start = nativeMax$1(start === undefined ? (func.length - 1) : start, 0);
-	  return function() {
+	  start = nativeMax$1(start === undefined ? func.length - 1 : start, 0);
+	  return function () {
 	    var args = arguments,
 	        index = -1,
 	        length = nativeMax$1(args.length - start, 0),
@@ -3483,7 +3455,7 @@
 	 * // => true
 	 */
 	function constant(value) {
-	  return function() {
+	  return function () {
 	    return value;
 	  };
 	}
@@ -3498,7 +3470,7 @@
 	 * @param {Function} string The `toString` result.
 	 * @returns {Function} Returns `func`.
 	 */
-	var baseSetToString = !_defineProperty ? identity_1 : function(func, string) {
+	var baseSetToString = !_defineProperty ? identity_1 : function (func, string) {
 	  return _defineProperty(func, 'toString', {
 	    'configurable': true,
 	    'enumerable': false,
@@ -3529,7 +3501,7 @@
 	  var count = 0,
 	      lastCalled = 0;
 
-	  return function() {
+	  return function () {
 	    var stamp = nativeNow(),
 	        remaining = HOT_SPAN - (stamp - lastCalled);
 
@@ -3603,8 +3575,7 @@
 	 * // => false
 	 */
 	function isLength(value) {
-	  return typeof value == 'number' &&
-	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+	  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
 	}
 
 	var isLength_1 = isLength;
@@ -3656,12 +3627,14 @@
 	 */
 	function isIndex(value, length) {
 	  length = length == null ? MAX_SAFE_INTEGER$1 : length;
-	  return !!length &&
-	    (typeof value == 'number' || reIsUint.test(value)) &&
-	    (value > -1 && value % 1 == 0 && value < length);
+	  return !!length && (typeof value == 'number' || reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
 	}
 
 	var _isIndex = isIndex;
+
+	var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
 
 	/**
 	 * Checks if the given arguments are from an iteratee call.
@@ -3677,11 +3650,8 @@
 	  if (!isObject_1(object)) {
 	    return false;
 	  }
-	  var type = typeof index;
-	  if (type == 'number'
-	        ? (isArrayLike_1(object) && _isIndex(index, object.length))
-	        : (type == 'string' && index in object)
-	      ) {
+	  var type = typeof index === 'undefined' ? 'undefined' : _typeof$9(index);
+	  if (type == 'number' ? isArrayLike_1(object) && _isIndex(index, object.length) : type == 'string' && index in object) {
 	    return eq_1(object[index], value);
 	  }
 	  return false;
@@ -3697,15 +3667,13 @@
 	 * @returns {Function} Returns the new assigner function.
 	 */
 	function createAssigner(assigner) {
-	  return _baseRest(function(object, sources) {
+	  return _baseRest(function (object, sources) {
 	    var index = -1,
 	        length = sources.length,
 	        customizer = length > 1 ? sources[length - 1] : undefined,
 	        guard = length > 2 ? sources[2] : undefined;
 
-	    customizer = (assigner.length > 3 && typeof customizer == 'function')
-	      ? (length--, customizer)
-	      : undefined;
+	    customizer = assigner.length > 3 && typeof customizer == 'function' ? (length--, customizer) : undefined;
 
 	    if (guard && _isIterateeCall(sources[0], sources[1], guard)) {
 	      customizer = length < 3 ? undefined : customizer;
@@ -3736,7 +3704,7 @@
 	 */
 	function isPrototype(value) {
 	  var Ctor = value && value.constructor,
-	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$4;
+	      proto = typeof Ctor == 'function' && Ctor.prototype || objectProto$4;
 
 	  return value === proto;
 	}
@@ -3807,9 +3775,10 @@
 	 * _.isArguments([1, 2, 3]);
 	 * // => false
 	 */
-	var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
-	  return isObjectLike_1(value) && hasOwnProperty$3.call(value, 'callee') &&
-	    !propertyIsEnumerable.call(value, 'callee');
+	var isArguments = _baseIsArguments(function () {
+	    return arguments;
+	}()) ? _baseIsArguments : function (value) {
+	    return isObjectLike_1(value) && hasOwnProperty$3.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
 	};
 
 	var isArguments_1 = isArguments;
@@ -3861,11 +3830,15 @@
 	var stubFalse_1 = stubFalse;
 
 	var isBuffer_1 = createCommonjsModule(function (module, exports) {
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
 	/** Detect free variable `exports`. */
-	var freeExports = exports && !exports.nodeType && exports;
+	var freeExports = (_typeof(exports)) == 'object' && exports && !exports.nodeType && exports;
 
 	/** Detect free variable `module`. */
-	var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+	var freeModule = freeExports && (_typeof(module)) == 'object' && module && !module.nodeType && module;
 
 	/** Detect the popular CommonJS extension `module.exports`. */
 	var moduleExports = freeModule && freeModule.exports === freeExports;
@@ -3927,19 +3900,8 @@
 
 	/** Used to identify `toStringTag` values of typed arrays. */
 	var typedArrayTags = {};
-	typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
-	typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
-	typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
-	typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
-	typedArrayTags[uint32Tag] = true;
-	typedArrayTags[argsTag$1] = typedArrayTags[arrayTag] =
-	typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-	typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-	typedArrayTags[errorTag] = typedArrayTags[funcTag$1] =
-	typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-	typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-	typedArrayTags[setTag] = typedArrayTags[stringTag] =
-	typedArrayTags[weakMapTag] = false;
+	typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+	typedArrayTags[argsTag$1] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag$1] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
 
 	/**
 	 * The base implementation of `_.isTypedArray` without Node.js optimizations.
@@ -3949,8 +3911,7 @@
 	 * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
 	 */
 	function baseIsTypedArray(value) {
-	  return isObjectLike_1(value) &&
-	    isLength_1(value.length) && !!typedArrayTags[_baseGetTag(value)];
+	    return isObjectLike_1(value) && isLength_1(value.length) && !!typedArrayTags[_baseGetTag(value)];
 	}
 
 	var _baseIsTypedArray = baseIsTypedArray;
@@ -3963,7 +3924,7 @@
 	 * @returns {Function} Returns the new capped function.
 	 */
 	function baseUnary(func) {
-	  return function(value) {
+	  return function (value) {
 	    return func(value);
 	  };
 	}
@@ -3971,11 +3932,15 @@
 	var _baseUnary = baseUnary;
 
 	var _nodeUtil = createCommonjsModule(function (module, exports) {
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
 	/** Detect free variable `exports`. */
-	var freeExports = exports && !exports.nodeType && exports;
+	var freeExports = (_typeof(exports)) == 'object' && exports && !exports.nodeType && exports;
 
 	/** Detect free variable `module`. */
-	var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+	var freeModule = freeExports && (_typeof(module)) == 'object' && module && !module.nodeType && module;
 
 	/** Detect the popular CommonJS extension `module.exports`. */
 	var moduleExports = freeModule && freeModule.exports === freeExports;
@@ -3984,11 +3949,11 @@
 	var freeProcess = moduleExports && _freeGlobal.process;
 
 	/** Used to access faster Node.js helpers. */
-	var nodeUtil = (function() {
+	var nodeUtil = function () {
 	  try {
 	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
-	}());
+	}();
 
 	module.exports = nodeUtil;
 	});
@@ -4041,17 +4006,15 @@
 	      length = result.length;
 
 	  for (var key in value) {
-	    if ((inherited || hasOwnProperty$4.call(value, key)) &&
-	        !(skipIndexes && (
-	           // Safari 9 has enumerable `arguments.length` in strict mode.
-	           key == 'length' ||
-	           // Node.js 0.10 has enumerable non-index properties on buffers.
-	           (isBuff && (key == 'offset' || key == 'parent')) ||
-	           // PhantomJS 2 has enumerable non-index properties on typed arrays.
-	           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
-	           // Skip index properties.
-	           _isIndex(key, length)
-	        ))) {
+	    if ((inherited || hasOwnProperty$4.call(value, key)) && !(skipIndexes && (
+	    // Safari 9 has enumerable `arguments.length` in strict mode.
+	    key == 'length' ||
+	    // Node.js 0.10 has enumerable non-index properties on buffers.
+	    isBuff && (key == 'offset' || key == 'parent') ||
+	    // PhantomJS 2 has enumerable non-index properties on typed arrays.
+	    isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset') ||
+	    // Skip index properties.
+	    _isIndex(key, length)))) {
 	      result.push(key);
 	    }
 	  }
@@ -4069,7 +4032,7 @@
 	 * @returns {Function} Returns the new function.
 	 */
 	function overArg(func, transform) {
-	  return function(arg) {
+	  return function (arg) {
 	    return func(transform(arg));
 	  };
 	}
@@ -4181,7 +4144,7 @@
 	 * _.assign({ 'a': 0 }, new Foo, new Bar);
 	 * // => { 'a': 1, 'c': 3 }
 	 */
-	var assign = _createAssigner(function(object, source) {
+	var assign = _createAssigner(function (object, source) {
 	  if (_isPrototype(source) || isArrayLike_1(source)) {
 	    _copyObject(source, keys_1(source), object);
 	    return;
@@ -4230,7 +4193,7 @@
 	};
 
 	var screenfull = {
-	  request: function (elem) {
+	  request: function request(elem) {
 	    var request = fn.requestFullscreen;
 
 	    elem = elem || document$1.documentElement;
@@ -4245,29 +4208,29 @@
 	      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
 	    }
 	  },
-	  exit: function () {
+	  exit: function exit() {
 	    document$1[fn.exitFullscreen]();
 	  },
-	  toggle: function (elem) {
+	  toggle: function toggle(elem) {
 	    if (this.isFullscreen) {
 	      this.exit();
 	    } else {
 	      this.request(elem);
 	    }
 	  },
-	  onchange: function (callback) {
+	  onchange: function onchange(callback) {
 	    this.on('change', callback);
 	  },
-	  onerror: function (callback) {
+	  onerror: function onerror(callback) {
 	    this.on('error', callback);
 	  },
-	  on: function (event, callback) {
+	  on: function on(event, callback) {
 	    var eventName = eventNameMap[event];
 	    if (eventName) {
 	      document$1.addEventListener(eventName, callback, false);
 	    }
 	  },
-	  off: function (event, callback) {
+	  off: function off(event, callback) {
 	    var eventName = eventNameMap[event];
 	    if (eventName) {
 	      document$1.removeEventListener(eventName, callback, false);
@@ -4278,19 +4241,19 @@
 
 	Object.defineProperties(screenfull, {
 	  isFullscreen: {
-	    get: function () {
+	    get: function get() {
 	      return Boolean(document$1[fn.fullscreenElement]);
 	    }
 	  },
 	  element: {
 	    enumerable: true,
-	    get: function () {
+	    get: function get() {
 	      return document$1[fn.fullscreenElement];
 	    }
 	  },
 	  enabled: {
 	    enumerable: true,
-	    get: function () {
+	    get: function get() {
 	      // Coerce to boolean in case of old WebKit
 	      return Boolean(document$1[fn.fullscreenEnabled]);
 	    }
@@ -4315,7 +4278,7 @@
 	    themes: []
 	  },
 
-	  initialize: function (id, options) {
+	  initialize: function initialize(id, options) {
 	    var self = this;
 
 	    self._original_document_title = document.title;
@@ -4364,7 +4327,7 @@
 	    this._mode = this.options.mode;
 	  },
 
-	  start: function (target, cb) {
+	  start: function start(target, cb) {
 	    var self = this;
 
 	    if (typeof target == 'function' && cb === undefined) {
@@ -4380,7 +4343,7 @@
 	    // })
 	  },
 
-	  _start: function (target, cb) {
+	  _start: function _start(target, cb) {
 	    var self = this;
 	    target = target || 0;
 
@@ -4391,11 +4354,11 @@
 	    self.open(target, cb);
 	  },
 
-	  reopen: function (options, target) {
+	  reopen: function reopen(options, target) {
 	    /* NOP */
 	  },
 
-	  saveOptions: function (options) {
+	  saveOptions: function saveOptions(options) {
 	    var saved_options = {};
 	    assign_1(saved_options, options);
 	    if (saved_options.flow == 'auto') {
@@ -4405,50 +4368,50 @@
 	    localStorage.setItem('cozy.options', JSON.stringify(saved_options));
 	  },
 
-	  _updateTheme: function () {
+	  _updateTheme: function _updateTheme() {
 	    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'default'));
 	    addClass(this._container, 'cozy-theme-' + this.options.theme);
 	    this._container.dataset.theme = this.options.theme;
 	  },
 
-	  draw: function (target) {
+	  draw: function draw(target) {
 	    // NOOP
 	  },
 
-	  next: function () {
+	  next: function next() {
 	    // NOOP
 	  },
 
-	  prev: function () {
+	  prev: function prev() {
 	    // NOOP
 	  },
 
-	  display: function (index) {
+	  display: function display(index) {
 	    // NOOP
 	  },
 
-	  gotoPage: function (target) {
+	  gotoPage: function gotoPage(target) {
 	    // NOOP
 	  },
 
-	  goBack: function () {
+	  goBack: function goBack() {
 	    history.back();
 	  },
 
-	  goForward: function () {
+	  goForward: function goForward() {
 	    history.forward();
 	  },
 
-	  requestFullscreen: function () {
+	  requestFullscreen: function requestFullscreen() {
 	    if (screenfull.enabled) {
 	      // this._preResize();
 	      screenfull.toggle(this._container);
 	    }
 	  },
 
-	  _preResize: function () {},
+	  _preResize: function _preResize() {},
 
-	  _initContainer: function (id) {
+	  _initContainer: function _initContainer(id) {
 	    var container = this._container = get(id);
 
 	    if (!container) {
@@ -4461,7 +4424,7 @@
 	    this._containerId = stamp(container);
 	  },
 
-	  _initLayout: function () {
+	  _initLayout: function _initLayout() {
 	    var container = this._container;
 
 	    this._fadeAnimated = this.options.fadeAnimation && any3d;
@@ -4477,7 +4440,7 @@
 	    }
 	  },
 
-	  _initPanes: function () {
+	  _initPanes: function _initPanes() {
 
 	    var panes = this._panes = {};
 	    var container = this._container;
@@ -4498,7 +4461,7 @@
 	    this._initBookLoader();
 	  },
 
-	  _checkIfLoaded: function () {
+	  _checkIfLoaded: function _checkIfLoaded() {
 	    if (!this._loaded) {
 	      throw new Error('Set map center and zoom first.');
 	    }
@@ -4507,7 +4470,7 @@
 	  // DOM event handling
 
 	  // @section Interaction events
-	  _initEvents: function (remove$$1) {
+	  _initEvents: function _initEvents(remove$$1) {
 	    this._targets = {};
 	    this._targets[stamp(this._container)] = this;
 
@@ -4516,7 +4479,7 @@
 	      var _last_location_start;
 	      var _reader = reader;
 	      return {
-	        action: function (v) {
+	        action: function action(v) {
 	          if (v) {
 	            _action = [v];
 	            this.event(v);
@@ -4526,7 +4489,7 @@
 	          }
 	        },
 
-	        event: function (action, data) {
+	        event: function event(action, data) {
 	          if (data == null) {
 	            data = {};
 	          }
@@ -4534,7 +4497,7 @@
 	          _reader.fire("trackAction", data);
 	        },
 
-	        pageview: function (location) {
+	        pageview: function pageview(location) {
 	          if (location.start != _last_location_start) {
 	            _last_location_start = location.start;
 	            // console.log("AHOY RELOCATED", location, location.start, location.href, location.location, this.action());
@@ -4605,7 +4568,7 @@
 
 	        if (location.percentage) {
 	          var p = Math.ceil(location.percentage * 100);
-	          document.title = `${self._original_document_title} - ${p}%`;
+	          document.title = self._original_document_title + ' - ' + p + '%';
 	        }
 	      }
 	    });
@@ -4666,12 +4629,12 @@
 	  //   }
 	  // },
 
-	  _onScroll: function () {
+	  _onScroll: function _onScroll() {
 	    this._container.scrollTop = 0;
 	    this._container.scrollLeft = 0;
 	  },
 
-	  _handleDOMEvent: function (e) {
+	  _handleDOMEvent: function _handleDOMEvent(e) {
 	    if (!this._loaded || skipped(e)) {
 	      return;
 	    }
@@ -4686,7 +4649,7 @@
 	    this._fireDOMEvent(e, type);
 	  },
 
-	  _fireDOMEvent: function (e, type, targets) {
+	  _fireDOMEvent: function _fireDOMEvent(e, type, targets) {
 
 	    if (e.type === 'click') {
 	      // Fire a synthetic 'preclick' event which propagates up (mainly for closing popups).
@@ -4734,7 +4697,7 @@
 	    }
 	  },
 
-	  getFixedBookPanelSize: function () {
+	  getFixedBookPanelSize: function getFixedBookPanelSize() {
 	    // have to make the book
 	    var style = window.getComputedStyle(this._panes['book']);
 	    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
@@ -4742,7 +4705,7 @@
 	    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
 	  },
 
-	  invalidateSize: function (options) {
+	  invalidateSize: function invalidateSize(options) {
 	    // TODO: IS THIS EVER USED?
 	    var self = this;
 
@@ -4759,11 +4722,11 @@
 	    this.fire('resized');
 	  },
 
-	  _resizeBookPane: function () {},
+	  _resizeBookPane: function _resizeBookPane() {},
 
-	  _setupHooks: function () {},
+	  _setupHooks: function _setupHooks() {},
 
-	  _checkFeatureCompatibility: function () {
+	  _checkFeatureCompatibility: function _checkFeatureCompatibility() {
 	    if (!isPropertySupported('columnCount') || this._checkMobileDevice()) {
 	      // force
 	      this.options.flow = 'scrolled-doc';
@@ -4776,7 +4739,7 @@
 	    }
 	  },
 
-	  _checkMobileDevice: function () {
+	  _checkMobileDevice: function _checkMobileDevice() {
 	    if (this._isMobile === undefined) {
 	      this._isMobile = false;
 	      if (this.options.mobileMediaQuery) {
@@ -4786,7 +4749,9 @@
 	    return this._isMobile;
 	  },
 
-	  _enableBookLoader: function (delay = 0) {
+	  _enableBookLoader: function _enableBookLoader() {
+	    var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
 	    var self = this;
 	    self._clearBookLoaderTimeout();
 	    if (delay < 0) {
@@ -4798,7 +4763,9 @@
 	    }, delay);
 	  },
 
-	  _disableBookLoader: function (force = false) {
+	  _disableBookLoader: function _disableBookLoader() {
+	    var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
 	    var self = this;
 	    self._clearBookLoaderTimeout();
 	    if (!self._force_progress || force) {
@@ -4808,7 +4775,7 @@
 	    }
 	  },
 
-	  _clearBookLoaderTimeout: function () {
+	  _clearBookLoaderTimeout: function _clearBookLoaderTimeout() {
 	    var self = this;
 	    if (self._loader_timeout) {
 	      clearTimeout(self._loader_timeout);
@@ -4816,7 +4783,7 @@
 	    }
 	  },
 
-	  _initBookLoader: function () {
+	  _initBookLoader: function _initBookLoader() {
 	    // is this not awesome?
 	    var template$$1 = this.options.loader_template || this.loaderTemplate();
 
@@ -4827,17 +4794,8 @@
 	    this._panes['loader-status'] = create$1('div', 'cozy-module-book-loading-status', this._panes['loader']);
 	  },
 
-	  loaderTemplate: function () {
-	    return `<div class="cozy-loader-spinner">
-    <div class="spinner-backdrop spinner-backdrop--1"></div>
-    <div class="spinner-backdrop spinner-backdrop--2"></div>
-    <div class="spinner-backdrop spinner-backdrop--3"></div>
-    <div class="spinner-backdrop spinner-backdrop--4"></div>
-    <div class="spinner-quarter spinner-quarter--1"></div>
-    <div class="spinner-quarter spinner-quarter--2"></div>
-    <div class="spinner-quarter spinner-quarter--3"></div>
-    <div class="spinner-quarter spinner-quarter--4"></div>
-  </div>`;
+	  loaderTemplate: function loaderTemplate() {
+	    return '<div class="cozy-loader-spinner">\n    <div class="spinner-backdrop spinner-backdrop--1"></div>\n    <div class="spinner-backdrop spinner-backdrop--2"></div>\n    <div class="spinner-backdrop spinner-backdrop--3"></div>\n    <div class="spinner-backdrop spinner-backdrop--4"></div>\n    <div class="spinner-quarter spinner-quarter--1"></div>\n    <div class="spinner-quarter spinner-quarter--2"></div>\n    <div class="spinner-quarter spinner-quarter--3"></div>\n    <div class="spinner-quarter spinner-quarter--4"></div>\n  </div>';
 	  },
 
 	  EOT: true
@@ -4861,7 +4819,7 @@
 	        // `'topright'`, `'bottomleft'` or `'bottomright'`
 	    },
 
-	    initialize: function (options) {
+	    initialize: function initialize(options) {
 	        setOptions(this, options);
 	        if (options.container) {
 	            this._container = options.container;
@@ -4876,13 +4834,13 @@
 	     * @method getRegion: string
 	     * Returns the region of the control.
 	     */
-	    getRegion: function () {
+	    getRegion: function getRegion() {
 	        return this.options.region;
 	    },
 
 	    // @method setRegion(region: string): this
 	    // Sets the region of the control.
-	    setRegion: function (region) {
+	    setRegion: function setRegion(region) {
 	        var reader = this._reader;
 
 	        if (reader) {
@@ -4900,13 +4858,13 @@
 
 	    // @method getContainer: HTMLElement
 	    // Returns the HTMLElement that contains the control.
-	    getContainer: function () {
+	    getContainer: function getContainer() {
 	        return this._container;
 	    },
 
 	    // @method addTo(reader: Map): this
 	    // Adds the control to the given reader.
-	    addTo: function (reader) {
+	    addTo: function addTo(reader) {
 	        this.remove();
 	        this._reader = reader;
 
@@ -4925,7 +4883,7 @@
 
 	    // @method remove: this
 	    // Removes the control from the reader it is currently active on.
-	    remove: function () {
+	    remove: function remove$$1() {
 	        if (!this._reader) {
 	            return this;
 	        }
@@ -4947,14 +4905,14 @@
 	        return this;
 	    },
 
-	    _refocusOnMap: function (e) {
+	    _refocusOnMap: function _refocusOnMap(e) {
 	        // if reader exists and event is not a keyboard event
 	        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
 	            this._reader.getContainer().focus();
 	        }
 	    },
 
-	    _className: function (widget) {
+	    _className: function _className(widget) {
 	        var className = ['cozy-control'];
 	        if (this.options.direction) {
 	            className.push('cozy-control-' + this.options.direction);
@@ -4966,7 +4924,7 @@
 	    }
 	});
 
-	var control = function (options) {
+	var control = function control(options) {
 	    return new Control(options);
 	};
 
@@ -4988,19 +4946,19 @@
 	Reader.include({
 	    // @method addControl(control: Control): this
 	    // Adds the given control to the reader
-	    addControl: function (control) {
+	    addControl: function addControl(control) {
 	        control.addTo(this);
 	        return this;
 	    },
 
 	    // @method removeControl(control: Control): this
 	    // Removes the given control from the reader
-	    removeControl: function (control) {
+	    removeControl: function removeControl(control) {
 	        control.remove();
 	        return this;
 	    },
 
-	    getControlContainer: function () {
+	    getControlContainer: function getControlContainer() {
 	        var l = 'cozy-';
 	        if (!this._controlContainer) {
 	            this._controlContainer = create$1('div', l + 'control-container', this._container);
@@ -5008,7 +4966,7 @@
 	        return this._controlContainer;
 	    },
 
-	    getControlRegion: function (target) {
+	    getControlRegion: function getControlRegion(target) {
 
 	        if (!this._panes[target]) {
 	            // target is dot-delimited string
@@ -5035,7 +4993,7 @@
 	        return this._panes[target];
 	    },
 
-	    getControlRegion_1: function (target) {
+	    getControlRegion_1: function getControlRegion_1(target) {
 
 	        var tmp = target.split('.');
 	        var region = tmp.shift();
@@ -5061,7 +5019,7 @@
 	        return this._panes[target];
 	    },
 
-	    _classify: function (tmp) {
+	    _classify: function _classify(tmp) {
 	        var l = 'cozy-';
 	        var className = [];
 	        for (var i in tmp) {
@@ -5071,7 +5029,7 @@
 	        return className;
 	    },
 
-	    _clearControlRegion: function () {
+	    _clearControlRegion: function _clearControlRegion() {
 	        for (var i in this._controlRegions) {
 	            remove(this._controlRegions[i]);
 	        }
@@ -5082,7 +5040,7 @@
 	});
 
 	var PageControl = Control.extend({
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
 	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
@@ -5097,7 +5055,7 @@
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container) {
+	  _createButton: function _createButton(html, title, className, container) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -5112,7 +5070,7 @@
 	    return link;
 	  },
 
-	  _bindEvents: function () {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
 	    disableClickPropagation(this._control);
 	    on(this._control, 'click', stop);
@@ -5127,16 +5085,16 @@
 	    });
 	  },
 
-	  _unit: function () {
+	  _unit: function _unit() {
 	    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
 	  },
 
-	  _fill: function (s) {
+	  _fill: function _fill(s) {
 	    var unit = this._unit();
 	    return s.replace(/\$\{unit\}/g, unit);
 	  },
 
-	  _label: function () {
+	  _label: function _label() {
 	    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
 	  },
 
@@ -5151,7 +5109,7 @@
 	    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
 	  },
 
-	  _action: function (e) {
+	  _action: function _action(e) {
 	    this._reader.prev();
 	  }
 	});
@@ -5164,7 +5122,7 @@
 	    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
 	  },
 
-	  _action: function (e) {
+	  _action: function _action(e) {
 	    this._reader.next();
 	  }
 	});
@@ -5174,7 +5132,7 @@
 	    direction: 'first',
 	    label: 'First ${unit}'
 	  },
-	  _action: function (e) {
+	  _action: function _action(e) {
 	    this._reader.first();
 	  }
 	});
@@ -5184,33 +5142,33 @@
 	    direction: 'last',
 	    label: 'Last ${unit}'
 	  },
-	  _action: function (e) {
+	  _action: function _action(e) {
 	    this._reader.last();
 	  }
 	});
 
-	var pageNext = function (options) {
+	var pageNext = function pageNext(options) {
 	  return new PageNext(options);
 	};
 
-	var pagePrevious = function (options) {
+	var pagePrevious = function pagePrevious(options) {
 	  return new PagePrevious(options);
 	};
 
-	var pageFirst = function (options) {
+	var pageFirst = function pageFirst(options) {
 	  return new PageFirst(options);
 	};
 
-	var pageLast = function (options) {
+	var pageLast = function pageLast(options) {
 	  return new PageLast(options);
 	};
 
 	var activeModal;
 
 	// from https://github.com/ghosh/micromodal/blob/master/src/index.js
-	const FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
+	var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
-	const ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
+	var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
 
 	var Modal = Class.extend({
 	  options: {
@@ -5221,11 +5179,11 @@
 	    width: null,
 	    className: {},
 	    actions: null,
-	    callbacks: { onShow: function () {}, onClose: function () {} },
+	    callbacks: { onShow: function onShow() {}, onClose: function onClose() {} },
 	    handlers: {}
 	  },
 
-	  initialize: function (options) {
+	  initialize: function initialize(options) {
 	    options = setOptions(this, options);
 	    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
 	    this._initializedEvents = false;
@@ -5237,28 +5195,18 @@
 	    }
 	  },
 
-	  addTo: function (reader) {
+	  addTo: function addTo(reader) {
 	    this._reader = reader;
 	    var template$$1 = this.options.template;
 
-	    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id}" aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
-      <div class="modal__overlay" tabindex="-1" data-modal-close>
-        <div class="modal__container ${this.options.className.container ? this.options.className.container : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-${this._id}-title" aria-describedby="modal-${this._id}-content" id="modal-${this._id}-container">
-          <div role="document">
-            <header class="modal__header">
-              <h3 class="modal__title" id="modal-${this._id}-title">${this.options.title}</h3>
-              <button class="modal__close" aria-label="Close modal" aria-controls="modal-${this._id}-container" data-modal-close></button>
-            </header>
-            <main class="modal__content ${this.options.className.main ? this.options.className.main : ''}" id="modal-${this._id}-content">
-              ${template$$1}
-            </main>`;
+	    var panelHTML = '<div class="cozy-modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + '" aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container ' + (this.options.className.container ? this.options.className.container : '') + '" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-' + this._id + '-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.main ? this.options.className.main : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
 
 	    if (this.options.actions) {
 	      panelHTML += '<footer class="modal__footer">';
 	      for (var i in this.options.actions) {
 	        var action = this.options.actions[i];
 	        var button_cls = action.className || 'button--default';
-	        panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
+	        panelHTML += '<button id="action-' + this._id + '-' + i + '" class="button button--lg ' + button_cls + '">' + action.label + '</button>';
 	      }
 	      panelHTML += '</footer>';
 	    }
@@ -5275,7 +5223,9 @@
 	    return this;
 	  },
 
-	  _bindEvents: function () {
+	  _bindEvents: function _bindEvents() {
+	    var _this = this;
+
 	    var self = this;
 	    this.onClick = this.onClick.bind(this);
 	    this.onKeydown = this.onKeydown.bind(this);
@@ -5285,10 +5235,10 @@
 
 	    // bind any actions
 	    if (this.actions) {
-	      for (var i in this.actions) {
-	        let action = this.actions[i];
-	        let button_id = '#action-' + this._id + '-' + i;
-	        let button = this.modal.querySelector(button_id);
+	      var _loop = function _loop() {
+	        var action = _this.actions[i];
+	        var button_id = '#action-' + _this._id + '-' + i;
+	        var button = _this.modal.querySelector(button_id);
 	        if (button) {
 	          on(button, 'click', function (event) {
 	            event.preventDefault();
@@ -5298,15 +5248,19 @@
 	            }
 	          });
 	        }
+	      };
+
+	      for (var i in this.actions) {
+	        _loop();
 	      }
 	    }
 	  },
 
-	  deactivate: function () {
+	  deactivate: function deactivate() {
 	    this.closeModal();
 	  },
 
-	  closeModal: function () {
+	  closeModal: function closeModal() {
 	    this.modal.setAttribute('aria-hidden', 'true');
 	    this.removeEventListeners();
 	    if (this.activeElement) {
@@ -5315,7 +5269,7 @@
 	    this.callbacks.onClose(this.modal);
 	  },
 
-	  showModal: function () {
+	  showModal: function showModal() {
 	    this.activeElement = document.activeElement;
 	    this._resize();
 	    this.modal.setAttribute('aria-hidden', 'false');
@@ -5324,7 +5278,7 @@
 	    this.callbacks.onShow(this.modal);
 	  },
 
-	  activate: function () {
+	  activate: function activate() {
 	    return this.showModal();
 	    var self = this;
 	    activeModal = this;
@@ -5339,7 +5293,7 @@
 	    }, 25);
 	  },
 
-	  addEventListeners: function () {
+	  addEventListeners: function addEventListeners() {
 	    // --- do we need touch listeners?
 	    // this.modal.addEventListener('touchstart', this.onClick)
 	    // this.modal.addEventListener('touchend', this.onClick)
@@ -5350,7 +5304,7 @@
 	    }.bind(this));
 	  },
 
-	  removeEventListeners: function () {
+	  removeEventListeners: function removeEventListeners() {
 	    this.modal.removeEventListener('touchstart', this.onClick);
 	    this.modal.removeEventListener('click', this.onClick);
 	    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
@@ -5359,7 +5313,7 @@
 	    document.removeEventListener('keydown', this.onKeydown);
 	  },
 
-	  _resize: function () {
+	  _resize: function _resize() {
 	    var container = this._reader._container;
 	    this.container.style.height = container.offsetHeight + 'px';
 	    // console.log("AHOY MODAL", this.container.style.height);
@@ -5377,12 +5331,14 @@
 	    main.style.height = height + 'px';
 	  },
 
-	  getFocusableNodes: function () {
-	    const nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
-	    return Object.keys(nodes).map(key => nodes[key]);
+	  getFocusableNodes: function getFocusableNodes() {
+	    var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
+	    return Object.keys(nodes).map(function (key) {
+	      return nodes[key];
+	    });
 	  },
 
-	  setFocusToFirstNode: function () {
+	  setFocusToFirstNode: function setFocusToFirstNode() {
 	    var focusableNodes = this.getFocusableNodes();
 	    if (focusableNodes.length) {
 	      focusableNodes[0].focus();
@@ -5391,12 +5347,14 @@
 	    }
 	  },
 
-	  getActionableNodes: function () {
-	    const nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
-	    return Object.keys(nodes).map(key => nodes[key]);
+	  getActionableNodes: function getActionableNodes() {
+	    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
+	    return Object.keys(nodes).map(function (key) {
+	      return nodes[key];
+	    });
 	  },
 
-	  onKeydown: function (event) {
+	  onKeydown: function onKeydown(event) {
 	    if (event.keyCode == 27) {
 	      this.closeModal();
 	    }
@@ -5405,7 +5363,7 @@
 	    }
 	  },
 
-	  onClick: function (event) {
+	  onClick: function onClick(event) {
 
 	    var closeAfterAction = false;
 	    var target = event.target;
@@ -5449,7 +5407,7 @@
 	    event.preventDefault();
 	  },
 
-	  onModalTransition: function (event) {
+	  onModalTransition: function onModalTransition(event) {
 	    if (this.modal.getAttribute('aria-hidden') == 'true') {
 	      this._reader.fire('modal-closed');
 	    } else {
@@ -5457,7 +5415,7 @@
 	    }
 	  },
 
-	  on: function (event, selector, handler) {
+	  on: function on$$1(event, selector, handler) {
 	    if (!this.handlers[event]) {
 	      this.handlers[event] = {};
 	    }
@@ -5468,13 +5426,13 @@
 	    this.handlers[event][selector] = handler;
 	  },
 
-	  fire: function (event) {
+	  fire: function fire(event) {
 	    if (this.handlers[event] && this.handlers[event]['*']) {
 	      this.handlers[event]['*'](this);
 	    }
 	  },
 
-	  maintainFocus: function (event) {
+	  maintainFocus: function maintainFocus(event) {
 	    var focusableNodes = this.getFocusableNodes();
 	    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
 	    if (event.shiftKey && focusedItemIndex === 0) {
@@ -5492,7 +5450,7 @@
 	});
 
 	Reader.include({
-	  modal: function (options) {
+	  modal: function modal(options) {
 	    var modal = new Modal(options);
 	    return modal.addTo(this);
 	    // return this;
@@ -5503,9 +5461,9 @@
 
 	var Contents = Control.extend({
 
-	  defaultTemplate: `<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>`,
+	  defaultTemplate: '<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>',
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
 	    if (container) {
@@ -5570,7 +5528,7 @@
 	      //     s.unshift([chapter_, tabindex + 1, option]);
 	      //   });
 	      // }
-	      var _process = function (items, tabindex, parent) {
+	      var _process = function _process(items, tabindex, parent) {
 	        items.forEach(function (item) {
 	          var option = self._createOption(item, tabindex, parent);
 	          if (item.subitems && item.subitems.length) {
@@ -5584,11 +5542,15 @@
 	    return container;
 	  },
 
-	  _createOption(chapter, tabindex, parent) {
+	  _createOption: function _createOption(chapter, tabindex, parent) {
 	    var option = create$1('li');
 	    if (chapter.href) {
 	      var anchor = create$1('a', null, option);
-	      anchor.textContent = chapter.label;
+	      if (chapter.html) {
+	        anchor.innerHTML = chapter.html;
+	      } else {
+	        anchor.textContent = chapter.label;
+	      }
 	      // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
 	      // option.textContent = tab + chapter.label;
 	      anchor.setAttribute('href', chapter.href);
@@ -5611,7 +5573,8 @@
 	    return option;
 	  },
 
-	  _setupSkipLink: function () {
+
+	  _setupSkipLink: function _setupSkipLink() {
 	    if (!this.options.skipLink) {
 	      return;
 	    }
@@ -5642,14 +5605,14 @@
 	  EOT: true
 	});
 
-	var contents = function (options) {
+	var contents = function contents(options) {
 	  return new Contents(options);
 	};
 
 	// Title + Chapter
 
 	var Title = Control.extend({
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className(),
 	        container = create$1('div', className),
@@ -5690,7 +5653,7 @@
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -5713,14 +5676,14 @@
 	  EOT: true
 	});
 
-	var title = function (options) {
+	var title = function title(options) {
 	  return new Title(options);
 	};
 
 	// Title + Chapter
 
 	var PublicationMetadata = Control.extend({
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className(),
 	        container = create$1('div', className),
@@ -5742,7 +5705,7 @@
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -5765,7 +5728,7 @@
 	  EOT: true
 	});
 
-	var publicationMetadata = function (options) {
+	var publicationMetadata = function publicationMetadata(options) {
 	  return new PublicationMetadata(options);
 	};
 
@@ -5776,7 +5739,7 @@
 	    html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
 	  },
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className('preferences'),
 	        container = create$1('div', className),
@@ -5792,7 +5755,7 @@
 	      className: 'cozy-modal-preferences',
 	      actions: [{
 	        label: 'Save Changes',
-	        callback: function (event) {
+	        callback: function callback(event) {
 	          self.updatePreferences(event);
 	        }
 	      }],
@@ -5802,13 +5765,13 @@
 	    return container;
 	  },
 
-	  _action: function () {
+	  _action: function _action() {
 	    var self = this;
 	    self.initializeForm();
 	    self._modal.activate();
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('button', className, container);
 	    link.innerHTML = html;
 	    link.title = title;
@@ -5826,7 +5789,7 @@
 	    return link;
 	  },
 
-	  _createPanel: function () {
+	  _createPanel: function _createPanel() {
 	    if (this._modal._container.querySelector('form')) {
 	      return;
 	    }
@@ -5863,16 +5826,14 @@
 	      this.options.hasFields = true;
 	      for (var i in this.options.fields) {
 	        var field = this.options.fields[i];
-	        template$$1 += `<fieldset class="custom-field">
-          <legend>${field.label}</legend>
-        `;
+	        template$$1 += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
 	        for (var j in field.inputs) {
 	          var input = field.inputs[j];
 	          var checked = input.value == field.value ? ' checked="checked"' : '';
-	          template$$1 += `<label><input id="preferences-custom-${i}-${j}" type="radio" name="x${field.name}" value="${input.value}" ${checked}/>${input.label}</label>`;
+	          template$$1 += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="x' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
 	        }
 	        if (field.hint) {
-	          template$$1 += `<p class="hint" style="font-size: 90%">${field.hint}</p>`;
+	          template$$1 += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
 	        }
 	      }
 	    }
@@ -5898,14 +5859,14 @@
 	    this._form = this._modal._container.querySelector('form');
 	  },
 
-	  initializeForm: function () {
+	  initializeForm: function initializeForm() {
 	    this._createPanel();
 	    this._fieldsets.forEach(function (fieldset) {
 	      fieldset.initializeForm(this._form);
 	    }.bind(this));
 	  },
 
-	  updatePreferences: function (event) {
+	  updatePreferences: function updatePreferences(event) {
 	    event.preventDefault();
 	    var new_options = {};
 	    var saveable_options = {};
@@ -5918,7 +5879,7 @@
 	    if (this.options.hasFields) {
 	      for (var i in this.options.fields) {
 	        var field = this.options.fields[i];
-	        var input = this._form.querySelector(`input[name="x${field.name}"]:checked`);
+	        var input = this._form.querySelector('input[name="x' + field.name + '"]:checked');
 	        if (input.value != field.value) {
 	          field.value = input.value;
 	          field.callback(field.value);
@@ -5943,14 +5904,14 @@
 
 	  options: {},
 
-	  initialize: function (control$$1, options) {
+	  initialize: function initialize(control$$1, options) {
 	    setOptions(this, options);
 	    this._control = control$$1;
 	    this._current = {};
 	    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
 	  },
 
-	  template: function () {},
+	  template: function template$$1() {},
 
 	  EOT: true
 
@@ -5958,12 +5919,12 @@
 
 	Preferences.fieldset.TextSize = Fieldset.extend({
 
-	  initializeForm: function (form) {
+	  initializeForm: function initializeForm(form) {
 	    if (!this._input) {
-	      this._input = form.querySelector(`#x${this._id}-input`);
-	      this._output = form.querySelector(`#x${this._id}-output`);
-	      this._preview = form.querySelector(`#x${this._id}-preview`);
-	      this._actionReset = form.querySelector(`#x${this._id}-reset`);
+	      this._input = form.querySelector('#x' + this._id + '-input');
+	      this._output = form.querySelector('#x' + this._id + '-output');
+	      this._preview = form.querySelector('#x' + this._id + '-preview');
+	      this._actionReset = form.querySelector('#x' + this._id + '-reset');
 
 	      this._input.addEventListener('input', this._updatePreview.bind(this));
 	      this._input.addEventListener('change', this._updatePreview.bind(this));
@@ -5984,35 +5945,20 @@
 	    this._updatePreview();
 	  },
 
-	  updateForm: function (form, options, saveable) {
+	  updateForm: function updateForm(form, options, saveable) {
 	    // return { text_size: this._input.value };
 	    options.text_size = saveable.text_size = this._input.value;
 	    // options.text_size = this._input.value;
 	    // return ( this._input.value != this._current.text_size );
 	  },
 
-	  template: function () {
-	    return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Text Size</legend>
-        <div class="preview--text_size" id="x${this._id}-preview">
-          ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-        </div>
-        <p style="white-space: no-wrap">
-          <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
-          <span>T+</span>
-        </p>
-        <p>
-          <span>Text Size: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
-        </p>
-      </fieldset>`;
+	  template: function template$$1() {
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
-	  _updatePreview: function () {
-	    this._preview.style.fontSize = `${parseInt(this._input.value, 10) / 100}em`;
-	    this._output.innerHTML = `${this._input.value}%`;
+	  _updatePreview: function _updatePreview() {
+	    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
+	    this._output.innerHTML = this._input.value + '%';
 	  },
 
 	  EOT: true
@@ -6021,17 +5967,17 @@
 
 	Preferences.fieldset.Display = Fieldset.extend({
 
-	  initializeForm: function (form) {
+	  initializeForm: function initializeForm(form) {
 	    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
 	    // if ( flow == 'auto' ) { flow = 'paginated'; }
 
-	    var input = form.querySelector(`#x${this._id}-input-${flow}`);
+	    var input = form.querySelector('#x' + this._id + '-input-' + flow);
 	    input.checked = true;
 	    this._current.flow = flow;
 	  },
 
-	  updateForm: function (form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
 	    options.flow = input.value;
 	    if (options.flow != 'auto') {
 	      saveable.flow = options.flow;
@@ -6043,17 +5989,12 @@
 	    // return { flow: input.value };
 	  },
 
-	  template: function () {
+	  template: function template$$1() {
 	    var scrolled_help = '';
 	    if (this._control._reader.metadata.layout != 'pre-paginated') {
 	      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
 	    }
-	    return `<fieldset>
-            <legend>Display</legend>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll${scrolled_help}</label>
-          </fieldset>`;
+	    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you\'re reading</small></label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" /> Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" /> Scroll' + scrolled_help + '</label>\n          </fieldset>';
 	  },
 
 	  EOT: true
@@ -6062,27 +6003,25 @@
 
 	Preferences.fieldset.Theme = Fieldset.extend({
 
-	  initializeForm: function (form) {
+	  initializeForm: function initializeForm(form) {
 	    var theme = this._control._reader.options.theme || 'default';
 
-	    var input = form.querySelector(`#x${this._id}-input-theme-${theme}`);
+	    var input = form.querySelector('#x' + this._id + '-input-theme-' + theme);
 	    input.checked = true;
 	    this._current.theme = theme;
 	  },
 
-	  updateForm: function (form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-theme"]:checked`);
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
 	    options.theme = saveable.theme = input.value;
 	    // return { theme: input.value };
 	  },
 
-	  template: function () {
-	    var template$$1 = `<fieldset>
-            <legend>Theme</legend>
-            <label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-default" value="default" />Default</label>`;
+	  template: function template$$1() {
+	    var template$$1 = '<fieldset>\n            <legend>Theme</legend>\n            <label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-default" value="default" />Default</label>';
 
 	    this._control._reader.options.themes.forEach(function (theme) {
-	      template$$1 += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`;
+	      template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
 	    }.bind(this));
 
 	    template$$1 += '</fieldset>';
@@ -6096,30 +6035,28 @@
 
 	Preferences.fieldset.Rendition = Fieldset.extend({
 
-	  initializeForm: function (form) {
+	  initializeForm: function initializeForm(form) {
 	    var rootfiles = this._control._reader.rootfiles;
 	    var rootfilePath = this._control._reader.options.rootfilePath;
-	    var expr = rootfilePath ? `[value="${rootfilePath}"]` : ":first-child";
-	    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]${expr}`);
+	    var expr = rootfilePath ? '[value="' + rootfilePath + '"]' : ":first-child";
+	    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]' + expr);
 	    input.checked = true;
 	    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
 	  },
 
-	  updateForm: function (form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]:checked`);
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]:checked');
 	    if (input.value != this._current.rootfilePath) {
 	      options.rootfilePath = input.value;
 	      this._current.rootfilePath = input.value;
 	    }
 	  },
 
-	  template: function () {
-	    var template$$1 = `<fieldset>
-            <legend>Rendition</legend>
-    `;
+	  template: function template$$1() {
+	    var template$$1 = '<fieldset>\n            <legend>Rendition</legend>\n    ';
 
 	    this._control._reader.rootfiles.forEach(function (rootfile, i) {
-	      template$$1 += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
+	      template$$1 += '<label><input name="x' + this._id + '-rootfilePath" type="radio" id="x' + this._id + '-input-rootfilePath-' + i + '" value="' + rootfile.rootfilePath + '" />' + (rootfile.label || rootfile.accessMode || rootfile.rootfilePath) + '</label>';
 	    }.bind(this));
 
 	    template$$1 += '</fieldset>';
@@ -6133,12 +6070,12 @@
 
 	Preferences.fieldset.Scale = Fieldset.extend({
 
-	  initializeForm: function (form) {
+	  initializeForm: function initializeForm(form) {
 	    if (!this._input) {
-	      this._input = form.querySelector(`#x${this._id}-input`);
-	      this._output = form.querySelector(`#x${this._id}-output`);
-	      this._preview = form.querySelector(`#x${this._id}-preview > div`);
-	      this._actionReset = form.querySelector(`#x${this._id}-reset`);
+	      this._input = form.querySelector('#x' + this._id + '-input');
+	      this._output = form.querySelector('#x' + this._id + '-output');
+	      this._preview = form.querySelector('#x' + this._id + '-preview > div');
+	      this._actionReset = form.querySelector('#x' + this._id + '-reset');
 
 	      this._input.addEventListener('input', this._updatePreview.bind(this));
 	      this._input.addEventListener('change', this._updatePreview.bind(this));
@@ -6159,44 +6096,27 @@
 	    this._updatePreview();
 	  },
 
-	  updateForm: function (form, options, saveable) {
+	  updateForm: function updateForm(form, options, saveable) {
 	    // return { text_size: this._input.value };
 	    options.scale = saveable.scale = this._input.value;
 	    // options.text_size = this._input.value;
 	    // return ( this._input.value != this._current.text_size );
 	  },
 
-	  template: function () {
-	    return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Zoom In/Out</legend>
-        <div class="preview--scale" id="x${this._id}-preview" style="overflow: hidden; height: 5rem">
-          <div>
-            ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-          </div>
-        </div>
-        <p style="white-space: no-wrap">
-          <span style="font-size: 150%">⊖<span class="u-screenreader"> Zoom Out</span></span>
-          <input name="scale" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
-          <span style="font-size: 150%">⊕<span class="u-screenreader">Zoom In </span></span>
-        </p>
-        <p>
-          <span>Scale: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
-        </p>
-      </fieldset>`;
+	  template: function template$$1() {
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Zoom In/Out</legend>\n        <div class="preview--scale" id="x' + this._id + '-preview" style="overflow: hidden; height: 5rem">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style="white-space: no-wrap">\n          <span style="font-size: 150%">\u2296<span class="u-screenreader"> Zoom Out</span></span>\n          <input name="scale" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span style="font-size: 150%">\u2295<span class="u-screenreader">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
-	  _updatePreview: function () {
-	    this._preview.style.transform = `scale(${parseInt(this._input.value, 10) / 100}) translate(0,0)`;
-	    this._output.innerHTML = `${this._input.value}%`;
+	  _updatePreview: function _updatePreview() {
+	    this._preview.style.transform = 'scale(' + parseInt(this._input.value, 10) / 100 + ') translate(0,0)';
+	    this._output.innerHTML = this._input.value + '%';
 	  },
 
 	  EOT: true
 
 	});
 
-	var preferences = function (options) {
+	var preferences = function preferences(options) {
 	  return new Preferences(options);
 	};
 
@@ -6208,7 +6128,7 @@
 	    // `'topright'`, `'bottomleft'` or `'bottomright'`
 	  },
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
 	    if (container) ; else {
 
@@ -6232,7 +6152,7 @@
 	    return container;
 	  },
 
-	  _updateTemplate: function (container) {
+	  _updateTemplate: function _updateTemplate(container) {
 	    var data = this.data();
 	    for (var slot in data) {
 	      if (data.hasOwnProperty(slot)) {
@@ -6240,7 +6160,7 @@
 	        if (typeof value == "function") {
 	          value = value();
 	        }
-	        var node = container.querySelector(`[data-slot=${slot}]`);
+	        var node = container.querySelector('[data-slot=' + slot + ']');
 	        if (node) {
 	          if (node.hasAttribute('value')) {
 	            node.setAttribute('value', value);
@@ -6252,15 +6172,15 @@
 	    }
 	  },
 
-	  _updateClass: function (container) {
+	  _updateClass: function _updateClass(container) {
 	    if (this.options.className) {
 	      addClass(container, this.options.className);
 	    }
 	  },
 
-	  _onAddExtra: function () {},
+	  _onAddExtra: function _onAddExtra() {},
 
-	  _bindEvents: function (container) {
+	  _bindEvents: function _bindEvents(container) {
 	    var control$$1 = container.querySelector("[data-toggle=button]");
 	    if (!control$$1) {
 	      return;
@@ -6270,9 +6190,9 @@
 	    on(control$$1, 'click', this._action, this);
 	  },
 
-	  _action: function () {},
+	  _action: function _action() {},
 
-	  data: function () {
+	  data: function data() {
 	    return this.options.data || {};
 	  },
 
@@ -6280,9 +6200,9 @@
 	});
 
 	Widget.Button = Widget.extend({
-	  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+	  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-	  _action: function () {
+	  _action: function _action() {
 	    this.options.onClick(this, this._reader);
 	  },
 
@@ -6290,21 +6210,21 @@
 	});
 
 	Widget.Panel = Widget.extend({
-	  defaultTemplate: `<div><span data-slot="text"></span></div>`,
+	  defaultTemplate: '<div><span data-slot="text"></span></div>',
 
 	  EOT: true
 	});
 
 	Widget.Toggle = Widget.extend({
-	  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+	  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-	  _onAddExtra: function (container) {
+	  _onAddExtra: function _onAddExtra(container) {
 	    this.state(this.options.states[0].stateName, container);
 
 	    return container;
 	  },
 
-	  state: function (stateName, container) {
+	  state: function state(stateName, container) {
 	    container = container || this._container;
 	    this._resetState(container);
 	    this._state = this.options.states.filter(function (s) {
@@ -6314,7 +6234,7 @@
 	    this._updateTemplate(container);
 	  },
 
-	  _resetState: function (container) {
+	  _resetState: function _resetState(container) {
 	    if (!this._state) {
 	      return;
 	    }
@@ -6323,17 +6243,17 @@
 	    }
 	  },
 
-	  _updateClass: function (container) {
+	  _updateClass: function _updateClass(container) {
 	    if (this._state.className) {
 	      addClass(container, this._state.className);
 	    }
 	  },
 
-	  _action: function () {
+	  _action: function _action() {
 	    this._state.onClick(this, this._reader);
 	  },
 
-	  data: function () {
+	  data: function data() {
 	    return this._state.data || {};
 	  },
 
@@ -6345,13 +6265,13 @@
 	// }
 
 	var widget = {
-	  button: function (options) {
+	  button: function button(options) {
 	    return new Widget.Button(options);
 	  },
-	  panel: function (options) {
+	  panel: function panel(options) {
 	    return new Widget.Panel(options);
 	  },
-	  toggle: function (options) {
+	  toggle: function toggle(options) {
 	    return new Widget.Toggle(options);
 	  }
 	};
@@ -6364,7 +6284,7 @@
 
 	  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
 	    if (container) {
@@ -6397,12 +6317,12 @@
 	    return container;
 	  },
 
-	  _action: function () {
+	  _action: function _action() {
 	    var self = this;
 	    self._modal.activate();
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('button', className, container);
 	    link.innerHTML = html;
 	    link.title = title;
@@ -6417,16 +6337,10 @@
 	    return link;
 	  },
 
-	  _createPanel: function () {
+	  _createPanel: function _createPanel() {
 	    var self = this;
 
-	    var template = `<form>
-      <fieldset>
-        <legend>Select Citation Format</legend>
-      </fieldset>
-    </form>
-    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>
-    <div class="alert alert-info" id="message" style="display: none"></div>`;
+	    var template = '<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n      </fieldset>\n    </form>\n    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>\n    <div class="alert alert-info" id="message" style="display: none"></div>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
@@ -6434,7 +6348,7 @@
 	      className: 'cozy-modal-citatation',
 	      actions: [{
 	        label: 'Copy Citation',
-	        callback: function (event) {
+	        callback: function callback(event) {
 	          document.designMode = "on";
 	          var formatted = self._modal._container.querySelector("#formatted");
 
@@ -6494,14 +6408,14 @@
 	    this._initializeForm();
 	  },
 
-	  _initializeForm: function () {
+	  _initializeForm: function _initializeForm() {
 	    var formatted = this._formatCitation();
 	    this._formatted.innerHTML = formatted;
 	    this._message.style.display = 'none';
 	    this._message.innerHTML = '';
 	  },
 
-	  _formatCitation: function (format) {
+	  _formatCitation: function _formatCitation(format) {
 	    if (format == null) {
 	      var selected = this._form.querySelector("input:checked");
 	      format = selected.value;
@@ -6514,7 +6428,7 @@
 	  EOT: true
 	});
 
-	var citation = function (options) {
+	var citation = function citation(options) {
 	  return new Citation(options);
 	};
 
@@ -6524,13 +6438,9 @@
 	    html: '<span>Search</span>'
 	  },
 
-	  defaultTemplate: `<form class="search">
-    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>
-    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>
-    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
-  </form>`,
+	  defaultTemplate: '<form class="search">\n    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>\n    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
 	    if (container) {
@@ -6610,7 +6520,7 @@
 	    return container;
 	  },
 
-	  openModalWaiting: function () {
+	  openModalWaiting: function openModalWaiting() {
 	    this._processing = true;
 	    this._emptyArticle();
 	    var value = this.searchString;
@@ -6618,7 +6528,7 @@
 	    this._modal.activate();
 	  },
 
-	  openModalResults: function () {
+	  openModalResults: function openModalResults() {
 	    if (this._canceled) {
 	      this._canceled = false;
 	      return;
@@ -6628,7 +6538,7 @@
 	    this._reader.tracking.action("search/open");
 	  },
 
-	  submitQuery: function () {
+	  submitQuery: function submitQuery() {
 	    var self = this;
 
 	    var url = this.options.searchUrl + this.searchString;
@@ -6663,13 +6573,13 @@
 	    request.send();
 	  },
 
-	  _emptyArticle: function () {
+	  _emptyArticle: function _emptyArticle() {
 	    while (this._article && this._article.hasChildNodes()) {
 	      this._article.removeChild(this._article.lastChild);
 	    }
 	  },
 
-	  _buildResults: function () {
+	  _buildResults: function _buildResults() {
 	    var self = this;
 	    var content;
 
@@ -6723,7 +6633,7 @@
 	  EOT: true
 	});
 
-	var search = function (options) {
+	var search = function search(options) {
 	  return new Search(options);
 	};
 
@@ -6736,9 +6646,9 @@
 	    html: '<span class="oi" data-glyph="info">Info</span>'
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open" aria-label="Bibliographic Information"> Info</button>`,
+	  defaultTemplate: '<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open" aria-label="Bibliographic Information"> Info</button>',
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
 	    if (container) {
@@ -6771,10 +6681,9 @@
 	    return container;
 	  },
 
-	  _createPanel: function () {
+	  _createPanel: function _createPanel() {
 
-	    var template = `<dl>
-    </dl>`;
+	    var template = '<dl>\n    </dl>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
@@ -6809,7 +6718,7 @@
 	    }
 	  },
 
-	  _formatDate: function (value) {
+	  _formatDate: function _formatDate(value) {
 	    var match = value.match(/\d{4}/);
 	    if (match) {
 	      return match[0];
@@ -6820,7 +6729,7 @@
 	  EOT: true
 	});
 
-	var bibliographicInformation = function (options) {
+	var bibliographicInformation = function bibliographicInformation(options) {
 	  return new BibliographicInformation(options);
 	};
 
@@ -6830,9 +6739,9 @@
 	    html: '<span>Download Book</span>'
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>`,
+	  defaultTemplate: '<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>',
 
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
 	    if (container) {
@@ -6865,14 +6774,10 @@
 	    return container;
 	  },
 
-	  _createPanel: function () {
+	  _createPanel: function _createPanel() {
 	    var self = this;
 
-	    var template = `<form>
-      <fieldset>
-        <legend>Choose File Format</legend>
-      </fieldset>
-    </form>`;
+	    var template = '<form>\n      <fieldset>\n        <legend>Choose File Format</legend>\n      </fieldset>\n    </form>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
@@ -6880,7 +6785,7 @@
 	      className: 'cozy-modal-download',
 	      actions: [{
 	        label: 'Download',
-	        callback: function (event) {
+	        callback: function callback(event) {
 	          var selected = self._form.querySelector("input:checked");
 	          var href = selected.getAttribute('data-href');
 	          self._configureDownloadForm(href);
@@ -6912,7 +6817,7 @@
 	    });
 	  },
 
-	  _configureDownloadForm: function (href) {
+	  _configureDownloadForm: function _configureDownloadForm(href) {
 	    var self = this;
 	    self._form.setAttribute('method', 'GET');
 	    self._form.setAttribute('action', href);
@@ -6922,12 +6827,12 @@
 	  EOT: true
 	});
 
-	var download = function (options) {
+	var download = function download(options) {
 	  return new Download(options);
 	};
 
 	var Navigator = Control.extend({
-	  onAdd: function (reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
 	    if (container) ; else {
 
@@ -6952,7 +6857,7 @@
 	    return container;
 	  },
 
-	  _setup: function (container) {
+	  _setup: function _setup(container) {
 	    this._control = container.querySelector("input[type=range]");
 	    if (!this._control) {
 	      this._createControl(container);
@@ -6966,14 +6871,8 @@
 	    this._bindEvents();
 	  },
 
-	  _createControl: function (container) {
-	    var template = `<div class="cozy-navigator-range">
-        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>
-        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
-        <div class="cozy-navigator-range__background"></div>
-      </div>
-      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>
-    `;
+	  _createControl: function _createControl(container) {
+	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>\n    ';
 
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while (body.children.length) {
@@ -6983,7 +6882,7 @@
 	    this._control = container.querySelector("input[type=range]");
 	  },
 
-	  _bindEvents: function () {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
 
 	    this._control.addEventListener("input", function () {
@@ -7016,7 +6915,7 @@
 	    });
 	  },
 
-	  _action: function () {
+	  _action: function _action() {
 	    var value = this._control.value;
 	    var locations = this._reader.locations;
 	    var cfi = locations.cfiFromPercentage(value / 100);
@@ -7024,7 +6923,7 @@
 	    this._reader.gotoPage(cfi);
 	  },
 
-	  _update: function () {
+	  _update: function _update() {
 	    var self = this;
 
 	    var current = this._reader.currentLocation();
@@ -7051,7 +6950,7 @@
 	    self._last_delta = self._last_value > value;self._last_value = value;
 	  },
 
-	  _initializeNavigator: function (locations) {
+	  _initializeNavigator: function _initializeNavigator(locations) {
 	    console.log("AHOY updateLocations PROCESSING LOCATION");
 	    this._initiated = true;
 	    this._total = this._reader.locations.total;
@@ -7073,7 +6972,7 @@
 	  EOT: true
 	});
 
-	var navigator$1 = function (options) {
+	var navigator$1 = function navigator(options) {
 	  return new Navigator(options);
 	};
 
@@ -7122,7 +7021,7 @@
 	var Bus = Evented.extend({});
 
 	var instance;
-	var bus = function () {
+	var bus = function bus() {
 	  return instance || (instance = new Bus());
 	};
 
@@ -7176,7 +7075,7 @@
 		    length = max(arguments.length, 2),
 		    assign;
 		dest = Object(validValue(dest));
-		assign = function (key) {
+		assign = function assign(key) {
 			try {
 				dest[key] = src[key];
 			} catch (e) {
@@ -7196,9 +7095,11 @@
 	var forEach = Array.prototype.forEach,
 	    create$2 = Object.create;
 
-	var process = function (src, obj) {
+	var process = function process(src, obj) {
 		var key;
-		for (key in src) obj[key] = src[key];
+		for (key in src) {
+			obj[key] = src[key];
+		}
 	};
 
 	// eslint-disable-next-line no-unused-vars
@@ -7299,6 +7200,8 @@
 
 	var eventEmitter = createCommonjsModule(function (module, exports) {
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var apply = Function.prototype.apply,
 	    call = Function.prototype.call,
 	    create = Object.create,
@@ -7307,14 +7210,14 @@
 	    hasOwnProperty = Object.prototype.hasOwnProperty,
 	    descriptor = { configurable: true, enumerable: false, writable: true },
 	    on,
-	    once,
+	    _once2,
 	    off,
 	    emit,
 	    methods,
 	    descriptors,
 	    base;
 
-	on = function (type, listener) {
+	on = function on(type, listener) {
 		var data;
 
 		validCallable(listener);
@@ -7326,26 +7229,26 @@
 		} else {
 			data = this.__ee__;
 		}
-		if (!data[type]) data[type] = listener;else if (typeof data[type] === 'object') data[type].push(listener);else data[type] = [data[type], listener];
+		if (!data[type]) data[type] = listener;else if (_typeof(data[type]) === 'object') data[type].push(listener);else data[type] = [data[type], listener];
 
 		return this;
 	};
 
-	once = function (type, listener) {
-		var once, self;
+	_once2 = function once(type, listener) {
+		var _once, self;
 
 		validCallable(listener);
 		self = this;
-		on.call(this, type, once = function () {
-			off.call(self, type, once);
+		on.call(this, type, _once = function once() {
+			off.call(self, type, _once);
 			apply.call(listener, this, arguments);
 		});
 
-		once.__eeOnceListener__ = listener;
+		_once.__eeOnceListener__ = listener;
 		return this;
 	};
 
-	off = function (type, listener) {
+	off = function off(type, listener) {
 		var data, listeners, candidate, i;
 
 		validCallable(listener);
@@ -7355,7 +7258,7 @@
 		if (!data[type]) return this;
 		listeners = data[type];
 
-		if (typeof listeners === 'object') {
+		if ((typeof listeners === 'undefined' ? 'undefined' : _typeof(listeners)) === 'object') {
 			for (i = 0; candidate = listeners[i]; ++i) {
 				if (candidate === listener || candidate.__eeOnceListener__ === listener) {
 					if (listeners.length === 2) data[type] = listeners[i ? 0 : 1];else listeners.splice(i, 1);
@@ -7370,19 +7273,19 @@
 		return this;
 	};
 
-	emit = function (type) {
+	emit = function emit(type) {
 		var i, l, listener, listeners, args;
 
 		if (!hasOwnProperty.call(this, '__ee__')) return;
 		listeners = this.__ee__[type];
 		if (!listeners) return;
 
-		if (typeof listeners === 'object') {
+		if ((typeof listeners === 'undefined' ? 'undefined' : _typeof(listeners)) === 'object') {
 			l = arguments.length;
 			args = new Array(l - 1);
-			for (i = 1; i < l; ++i) args[i - 1] = arguments[i];
-
-			listeners = listeners.slice();
+			for (i = 1; i < l; ++i) {
+				args[i - 1] = arguments[i];
+			}listeners = listeners.slice();
 			for (i = 0; listener = listeners[i]; ++i) {
 				apply.call(listener, this, args);
 			}
@@ -7410,26 +7313,30 @@
 
 	methods = {
 		on: on,
-		once: once,
+		once: _once2,
 		off: off,
 		emit: emit
 	};
 
 	descriptors = {
 		on: d_1(on),
-		once: d_1(once),
+		once: d_1(_once2),
 		off: d_1(off),
 		emit: d_1(emit)
 	};
 
 	base = defineProperties({}, descriptors);
 
-	module.exports = exports = function (o) {
+	module.exports = exports = function exports(o) {
 		return o == null ? create(base) : defineProperties(Object(o), descriptors);
 	};
 	exports.methods = methods;
 	});
 	var eventEmitter_1 = eventEmitter.methods;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Core Utilities and Helpers
@@ -7441,10 +7348,10 @@
 	 * @returns {function} requestAnimationFrame
 	 * @memberof Core
 	 */
-	const requestAnimationFrame$1 = typeof window != "undefined" ? window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame : false;
-	const ELEMENT_NODE = 1;
-	const TEXT_NODE = 3;
-	const _URL = typeof URL != "undefined" ? URL : typeof window != "undefined" ? window.URL || window.webkitURL || window.mozURL : undefined;
+	var requestAnimationFrame$1 = typeof window != "undefined" ? window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame : false;
+	var ELEMENT_NODE = 1;
+	var TEXT_NODE = 3;
+	var _URL = typeof URL != "undefined" ? URL : typeof window != "undefined" ? window.URL || window.webkitURL || window.mozURL : undefined;
 
 	/**
 	 * Generates a UUID
@@ -7496,7 +7403,7 @@
 	 * @memberof Core
 	 */
 	function isFloat(n) {
-		let f = parseFloat(n);
+		var f = parseFloat(n);
 
 		if (isNumber(n) === false) {
 			return false;
@@ -7599,7 +7506,7 @@
 		var pivot = parseInt(start + (end - start) / 2);
 		var compared;
 		if (!compareFunction) {
-			compareFunction = function (a, b) {
+			compareFunction = function compareFunction(a, b) {
 				if (a > b) return 1;
 				if (a < b) return -1;
 				if (a == b) return 0;
@@ -7640,7 +7547,7 @@
 		var pivot = parseInt(start + (end - start) / 2);
 		var compared;
 		if (!compareFunction) {
-			compareFunction = function (a, b) {
+			compareFunction = function compareFunction(a, b) {
 				if (a > b) return 1;
 				if (a < b) return -1;
 				if (a == b) return 0;
@@ -7731,10 +7638,10 @@
 	 * @memberof Core
 	 */
 	function nodeBounds(node) {
-		let elPos;
-		let doc = node.ownerDocument;
+		var elPos = void 0;
+		var doc = node.ownerDocument;
 		if (node.nodeType == Node.TEXT_NODE) {
-			let elRange = doc.createRange();
+			var elRange = doc.createRange();
 			elRange.selectNodeContents(node);
 			elPos = elRange.getBoundingClientRect();
 		} else {
@@ -8016,7 +7923,7 @@
 	 */
 	function treeWalker(root, func, filter) {
 		var treeWalker = document.createTreeWalker(root, filter, null, false);
-		let node;
+		var node = void 0;
 		while (node = treeWalker.nextNode()) {
 			func(node);
 		}
@@ -8034,7 +7941,7 @@
 		node = node.firstChild;
 		if (node) {
 			do {
-				let walked = walk(node, callback);
+				var walked = walk(node, callback);
 				if (walked) {
 					return true;
 				}
@@ -8065,6 +7972,8 @@
 	 * @memberof Core
 	 */
 	function defer() {
+		var _this = this;
+
 		/* A method to resolve the associated Promise with the value passed.
 	  * If the promise is already settled it does nothing.
 	  *
@@ -8088,9 +7997,9 @@
 		/* A newly created Pomise object.
 	  * Initially in pending state.
 	  */
-		this.promise = new Promise((resolve, reject) => {
-			this.resolve = resolve;
-			this.reject = reject;
+		this.promise = new Promise(function (resolve, reject) {
+			_this.resolve = resolve;
+			_this.reject = reject;
 		});
 		Object.freeze(this);
 	}
@@ -8106,7 +8015,7 @@
 	function querySelectorByType(html, element, type) {
 		var query;
 		if (typeof html.querySelector != "undefined") {
-			query = html.querySelector(`${element}[*|type="${type}"]`);
+			query = html.querySelector(element + "[*|type=\"" + type + "\"]");
 		}
 		// Handle IE not supporting namespaced epub:type in querySelector
 		if (!query || query.length === 0) {
@@ -8131,7 +8040,7 @@
 		var result = [];
 		var childNodes = el.childNodes;
 		for (var i = 0; i < childNodes.length; i++) {
-			let node = childNodes[i];
+			var node = childNodes[i];
 			if (node.nodeType === 1) {
 				result.push(node);
 			}
@@ -8165,7 +8074,7 @@
 		var result = [];
 		var childNodes = el.childNodes;
 		for (var i = 0; i < childNodes.length; i++) {
-			let node = childNodes[i];
+			var node = childNodes[i];
 			if (node.nodeType === 1 && node.nodeName.toLowerCase() === nodeName) {
 				if (single) {
 					return node;
@@ -8187,7 +8096,7 @@
 	 * @memberof Core
 	 */
 	function getParentByTagName(node, tagname) {
-		let parent;
+		var parent = void 0;
 		if (node === null || tagname === '') return;
 		parent = node.parentNode;
 		while (parent.nodeType === 1) {
@@ -8203,8 +8112,10 @@
 	 * @class
 	 * @memberof Core
 	 */
-	class RangeObject {
-		constructor() {
+	var RangeObject = function () {
+		function RangeObject() {
+			_classCallCheck(this, RangeObject);
+
 			this.collapsed = false;
 			this.commonAncestorContainer = undefined;
 			this.endContainer = undefined;
@@ -8213,85 +8124,97 @@
 			this.startOffset = undefined;
 		}
 
-		setStart(startNode, startOffset) {
-			this.startContainer = startNode;
-			this.startOffset = startOffset;
+		_createClass(RangeObject, [{
+			key: "setStart",
+			value: function setStart(startNode, startOffset) {
+				this.startContainer = startNode;
+				this.startOffset = startOffset;
 
-			if (!this.endContainer) {
-				this.collapse(true);
-			} else {
-				this.commonAncestorContainer = this._commonAncestorContainer();
+				if (!this.endContainer) {
+					this.collapse(true);
+				} else {
+					this.commonAncestorContainer = this._commonAncestorContainer();
+				}
+
+				this._checkCollapsed();
 			}
+		}, {
+			key: "setEnd",
+			value: function setEnd(endNode, endOffset) {
+				this.endContainer = endNode;
+				this.endOffset = endOffset;
 
-			this._checkCollapsed();
-		}
+				if (!this.startContainer) {
+					this.collapse(false);
+				} else {
+					this.collapsed = false;
+					this.commonAncestorContainer = this._commonAncestorContainer();
+				}
 
-		setEnd(endNode, endOffset) {
-			this.endContainer = endNode;
-			this.endOffset = endOffset;
-
-			if (!this.startContainer) {
-				this.collapse(false);
-			} else {
-				this.collapsed = false;
-				this.commonAncestorContainer = this._commonAncestorContainer();
+				this._checkCollapsed();
 			}
-
-			this._checkCollapsed();
-		}
-
-		collapse(toStart) {
-			this.collapsed = true;
-			if (toStart) {
-				this.endContainer = this.startContainer;
-				this.endOffset = this.startOffset;
-				this.commonAncestorContainer = this.startContainer.parentNode;
-			} else {
-				this.startContainer = this.endContainer;
-				this.startOffset = this.endOffset;
-				this.commonAncestorContainer = this.endOffset.parentNode;
-			}
-		}
-
-		selectNode(referenceNode) {
-			let parent = referenceNode.parentNode;
-			let index = Array.prototype.indexOf.call(parent.childNodes, referenceNode);
-			this.setStart(parent, index);
-			this.setEnd(parent, index + 1);
-		}
-
-		selectNodeContents(referenceNode) {
-			let end = referenceNode.childNodes[referenceNode.childNodes - 1];
-			let endIndex = referenceNode.nodeType === 3 ? referenceNode.textContent.length : parent.childNodes.length;
-			this.setStart(referenceNode, 0);
-			this.setEnd(referenceNode, endIndex);
-		}
-
-		_commonAncestorContainer(startContainer, endContainer) {
-			var startParents = parents(startContainer || this.startContainer);
-			var endParents = parents(endContainer || this.endContainer);
-
-			if (startParents[0] != endParents[0]) return undefined;
-
-			for (var i = 0; i < startParents.length; i++) {
-				if (startParents[i] != endParents[i]) {
-					return startParents[i - 1];
+		}, {
+			key: "collapse",
+			value: function collapse(toStart) {
+				this.collapsed = true;
+				if (toStart) {
+					this.endContainer = this.startContainer;
+					this.endOffset = this.startOffset;
+					this.commonAncestorContainer = this.startContainer.parentNode;
+				} else {
+					this.startContainer = this.endContainer;
+					this.startOffset = this.endOffset;
+					this.commonAncestorContainer = this.endOffset.parentNode;
 				}
 			}
-		}
-
-		_checkCollapsed() {
-			if (this.startContainer === this.endContainer && this.startOffset === this.endOffset) {
-				this.collapsed = true;
-			} else {
-				this.collapsed = false;
+		}, {
+			key: "selectNode",
+			value: function selectNode(referenceNode) {
+				var parent = referenceNode.parentNode;
+				var index = Array.prototype.indexOf.call(parent.childNodes, referenceNode);
+				this.setStart(parent, index);
+				this.setEnd(parent, index + 1);
 			}
-		}
+		}, {
+			key: "selectNodeContents",
+			value: function selectNodeContents(referenceNode) {
+				var end = referenceNode.childNodes[referenceNode.childNodes - 1];
+				var endIndex = referenceNode.nodeType === 3 ? referenceNode.textContent.length : parent.childNodes.length;
+				this.setStart(referenceNode, 0);
+				this.setEnd(referenceNode, endIndex);
+			}
+		}, {
+			key: "_commonAncestorContainer",
+			value: function _commonAncestorContainer(startContainer, endContainer) {
+				var startParents = parents(startContainer || this.startContainer);
+				var endParents = parents(endContainer || this.endContainer);
 
-		toString() {
-			// TODO: implement walking between start and end to find text
-		}
-	}
+				if (startParents[0] != endParents[0]) return undefined;
+
+				for (var i = 0; i < startParents.length; i++) {
+					if (startParents[i] != endParents[i]) {
+						return startParents[i - 1];
+					}
+				}
+			}
+		}, {
+			key: "_checkCollapsed",
+			value: function _checkCollapsed() {
+				if (this.startContainer === this.endContainer && this.startOffset === this.endOffset) {
+					this.collapsed = true;
+				} else {
+					this.collapsed = false;
+				}
+			}
+		}, {
+			key: "toString",
+			value: function toString() {
+				// TODO: implement walking between start and end to find text
+			}
+		}]);
+
+		return RangeObject;
+	}();
 
 	var utils = /*#__PURE__*/Object.freeze({
 		requestAnimationFrame: requestAnimationFrame$1,
@@ -8336,9 +8259,11 @@
 		RangeObject: RangeObject
 	});
 
+	var _typeof$a = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	if (!process$1) {
 	  var process$1 = {
-	    "cwd": function () {
+	    "cwd": function cwd() {
 	      return '/';
 	    }
 	  };
@@ -8712,8 +8637,8 @@
 	  },
 
 	  format: function format(pathObject) {
-	    if (pathObject === null || typeof pathObject !== 'object') {
-	      throw new TypeError('Parameter "pathObject" must be an object, not ' + typeof pathObject);
+	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$a(pathObject)) !== 'object') {
+	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$a(pathObject)));
 	    }
 	    return _format('/', pathObject);
 	  },
@@ -8801,6 +8726,10 @@
 
 	var path = posix;
 
+	var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	/**
 	 * Creates a Path object for parsing and manipulation of a path strings
 	 *
@@ -8808,8 +8737,11 @@
 	 * @param	{string} pathString	a url string (relative or absolute)
 	 * @class
 	 */
-	class Path {
-		constructor(pathString) {
+
+	var Path = function () {
+		function Path(pathString) {
+			_classCallCheck$1(this, Path);
+
 			var protocol;
 			var parsed;
 
@@ -8837,67 +8769,94 @@
 	  * @param	{string} what
 	  * @returns {object}
 	  */
-		parse(what) {
-			return path.parse(what);
-		}
 
-		/**
-	  * @param	{string} what
-	  * @returns {boolean}
-	  */
-		isAbsolute(what) {
-			return path.isAbsolute(what || this.path);
-		}
 
-		/**
-	  * Check if path ends with a directory
-	  * @param	{string} what
-	  * @returns {boolean}
-	  */
-		isDirectory(what) {
-			return what.charAt(what.length - 1) === "/";
-		}
-
-		/**
-	  * Resolve a path against the directory of the Path
-	  *
-	  * https://nodejs.org/api/path.html#path_path_resolve_paths
-	  * @param	{string} what
-	  * @returns {string} resolved
-	  */
-		resolve(what) {
-			return path.resolve(this.directory, what);
-		}
-
-		/**
-	  * Resolve a path relative to the directory of the Path
-	  *
-	  * https://nodejs.org/api/path.html#path_path_relative_from_to
-	  * @param	{string} what
-	  * @returns {string} relative
-	  */
-		relative(what) {
-			var isAbsolute = what && what.indexOf("://") > -1;
-
-			if (isAbsolute) {
-				return what;
+		_createClass$1(Path, [{
+			key: "parse",
+			value: function parse(what) {
+				return path.parse(what);
 			}
 
-			return path.relative(this.directory, what);
-		}
+			/**
+	   * @param	{string} what
+	   * @returns {boolean}
+	   */
 
-		splitPath(filename) {
-			return this.splitPathRe.exec(filename).slice(1);
-		}
+		}, {
+			key: "isAbsolute",
+			value: function isAbsolute(what) {
+				return path.isAbsolute(what || this.path);
+			}
 
-		/**
-	  * Return the path string
-	  * @returns {string} path
-	  */
-		toString() {
-			return this.path;
-		}
-	}
+			/**
+	   * Check if path ends with a directory
+	   * @param	{string} what
+	   * @returns {boolean}
+	   */
+
+		}, {
+			key: "isDirectory",
+			value: function isDirectory(what) {
+				return what.charAt(what.length - 1) === "/";
+			}
+
+			/**
+	   * Resolve a path against the directory of the Path
+	   *
+	   * https://nodejs.org/api/path.html#path_path_resolve_paths
+	   * @param	{string} what
+	   * @returns {string} resolved
+	   */
+
+		}, {
+			key: "resolve",
+			value: function resolve(what) {
+				return path.resolve(this.directory, what);
+			}
+
+			/**
+	   * Resolve a path relative to the directory of the Path
+	   *
+	   * https://nodejs.org/api/path.html#path_path_relative_from_to
+	   * @param	{string} what
+	   * @returns {string} relative
+	   */
+
+		}, {
+			key: "relative",
+			value: function relative(what) {
+				var isAbsolute = what && what.indexOf("://") > -1;
+
+				if (isAbsolute) {
+					return what;
+				}
+
+				return path.relative(this.directory, what);
+			}
+		}, {
+			key: "splitPath",
+			value: function splitPath(filename) {
+				return this.splitPathRe.exec(filename).slice(1);
+			}
+
+			/**
+	   * Return the path string
+	   * @returns {string} path
+	   */
+
+		}, {
+			key: "toString",
+			value: function toString() {
+				return this.path;
+			}
+		}]);
+
+		return Path;
+	}();
+
+	var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * creates a Url object for parsing and manipulation of a url string
@@ -8905,8 +8864,11 @@
 	 * @param	{string} [baseString] optional base for the url,
 	 * default to window.location.href
 	 */
-	class Url {
-		constructor(urlString, baseString) {
+
+	var Url = function () {
+		function Url(urlString, baseString) {
+			_classCallCheck$2(this, Url);
+
 			var absolute = urlString.indexOf("://") > -1;
 			var pathname = urlString;
 			var basePath;
@@ -8962,47 +8924,69 @@
 		/**
 	  * @returns {Path}
 	  */
-		path() {
-			return this.Path;
-		}
 
-		/**
-	  * Resolves a relative path to a absolute url
-	  * @param {string} what
-	  * @returns {string} url
-	  */
-		resolve(what) {
-			var isAbsolute = what.indexOf("://") > -1;
-			var fullpath;
 
-			if (isAbsolute) {
-				return what;
+		_createClass$2(Url, [{
+			key: "path",
+			value: function path$$1() {
+				return this.Path;
 			}
 
-			fullpath = path.resolve(this.directory, what);
-			return this.origin + fullpath;
-		}
+			/**
+	   * Resolves a relative path to a absolute url
+	   * @param {string} what
+	   * @returns {string} url
+	   */
 
-		/**
-	  * Resolve a path relative to the url
-	  * @param {string} what
-	  * @returns {string} path
-	  */
-		relative(what) {
-			return path.relative(what, this.directory);
-		}
+		}, {
+			key: "resolve",
+			value: function resolve(what) {
+				var isAbsolute = what.indexOf("://") > -1;
+				var fullpath;
 
-		/**
-	  * @returns {string}
-	  */
-		toString() {
-			return this.href;
-		}
-	}
+				if (isAbsolute) {
+					return what;
+				}
 
-	const ELEMENT_NODE$1 = 1;
-	const TEXT_NODE$1 = 3;
-	const DOCUMENT_NODE$1 = 9;
+				fullpath = path.resolve(this.directory, what);
+				return this.origin + fullpath;
+			}
+
+			/**
+	   * Resolve a path relative to the url
+	   * @param {string} what
+	   * @returns {string} path
+	   */
+
+		}, {
+			key: "relative",
+			value: function relative(what) {
+				return path.relative(what, this.directory);
+			}
+
+			/**
+	   * @returns {string}
+	   */
+
+		}, {
+			key: "toString",
+			value: function toString() {
+				return this.href;
+			}
+		}]);
+
+		return Url;
+	}();
+
+	var _typeof$b = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ELEMENT_NODE$1 = 1;
+	var TEXT_NODE$1 = 3;
+	var DOCUMENT_NODE$1 = 9;
 
 	/**
 		* Parsing and creation of EpubCFIs: http://www.idpf.org/epub/linking/cfi/epub-cfi.html
@@ -9021,8 +9005,11 @@
 		@param {string | object} [base]
 		@param {string} [ignoreClass] class to ignore when parsing DOM
 	*/
-	class EpubCFI {
-		constructor(cfiFrom, base, ignoreClass) {
+
+	var EpubCFI = function () {
+		function EpubCFI(cfiFrom, base, ignoreClass) {
+			_classCallCheck$3(this, EpubCFI);
+
 			var type$$1;
 
 			this.str = "";
@@ -9043,7 +9030,7 @@
 
 			if (typeof base === "string") {
 				this.base = this.parseComponent(base);
-			} else if (typeof base === "object" && base.steps) {
+			} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object" && base.steps) {
 				this.base = base;
 			}
 
@@ -9069,935 +9056,997 @@
 	  * Check the type of constructor input
 	  * @private
 	  */
-		checkType(cfi) {
 
-			if (this.isCfiString(cfi)) {
-				return "string";
-				// Is a range object
-			} else if (cfi && typeof cfi === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
-				return "range";
-			} else if (cfi && typeof cfi === "object" && typeof cfi.nodeType != "undefined") {
-				// || typeof cfi === "function"
-				return "node";
-			} else if (cfi && typeof cfi === "object" && cfi instanceof EpubCFI) {
-				return "EpubCFI";
-			} else {
+
+		_createClass$3(EpubCFI, [{
+			key: "checkType",
+			value: function checkType(cfi) {
+
+				if (this.isCfiString(cfi)) {
+					return "string";
+					// Is a range object
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
+					return "range";
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && typeof cfi.nodeType != "undefined") {
+					// || typeof cfi === "function"
+					return "node";
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && cfi instanceof EpubCFI) {
+					return "EpubCFI";
+				} else {
+					return false;
+				}
+			}
+
+			/**
+	   * Parse a cfi string to a CFI object representation
+	   * @param {string} cfiStr
+	   * @returns {object} cfi
+	   */
+
+		}, {
+			key: "parse",
+			value: function parse$$1(cfiStr) {
+				var cfi = {
+					spinePos: -1,
+					range: false,
+					base: {},
+					path: {},
+					start: null,
+					end: null
+				};
+				var baseComponent, pathComponent, range;
+
+				if (typeof cfiStr !== "string") {
+					return { spinePos: -1 };
+				}
+
+				if (cfiStr.indexOf("epubcfi(") === 0 && cfiStr[cfiStr.length - 1] === ")") {
+					// Remove intial epubcfi( and ending )
+					cfiStr = cfiStr.slice(8, cfiStr.length - 1);
+				}
+
+				baseComponent = this.getChapterComponent(cfiStr);
+
+				// Make sure this is a valid cfi or return
+				if (!baseComponent) {
+					return { spinePos: -1 };
+				}
+
+				cfi.base = this.parseComponent(baseComponent);
+
+				pathComponent = this.getPathComponent(cfiStr);
+				cfi.path = this.parseComponent(pathComponent);
+
+				range = this.getRange(cfiStr);
+
+				if (range) {
+					cfi.range = true;
+					cfi.start = this.parseComponent(range[0]);
+					cfi.end = this.parseComponent(range[1]);
+				}
+
+				// Get spine node position
+				// cfi.spineSegment = cfi.base.steps[1];
+
+				// Chapter segment is always the second step
+				cfi.spinePos = cfi.base.steps[1].index;
+
+				return cfi;
+			}
+		}, {
+			key: "parseComponent",
+			value: function parseComponent(componentStr) {
+				var component = {
+					steps: [],
+					terminal: {
+						offset: null,
+						assertion: null
+					}
+				};
+				var parts = componentStr.split(":");
+				var steps = parts[0].split("/");
+				var terminal;
+
+				if (parts.length > 1) {
+					terminal = parts[1];
+					component.terminal = this.parseTerminal(terminal);
+				}
+
+				if (steps[0] === "") {
+					steps.shift(); // Ignore the first slash
+				}
+
+				component.steps = steps.map(function (step) {
+					return this.parseStep(step);
+				}.bind(this));
+
+				return component;
+			}
+		}, {
+			key: "parseStep",
+			value: function parseStep(stepStr) {
+				var type$$1, num, index, has_brackets, id;
+
+				has_brackets = stepStr.match(/\[(.*)\]/);
+				if (has_brackets && has_brackets[1]) {
+					id = has_brackets[1];
+				}
+
+				//-- Check if step is a text node or element
+				num = parseInt(stepStr);
+
+				if (isNaN(num)) {
+					return;
+				}
+
+				if (num % 2 === 0) {
+					// Even = is an element
+					type$$1 = "element";
+					index = num / 2 - 1;
+				} else {
+					type$$1 = "text";
+					index = (num - 1) / 2;
+				}
+
+				return {
+					"type": type$$1,
+					"index": index,
+					"id": id || null
+				};
+			}
+		}, {
+			key: "parseTerminal",
+			value: function parseTerminal(termialStr) {
+				var characterOffset, textLocationAssertion;
+				var assertion = termialStr.match(/\[(.*)\]/);
+
+				if (assertion && assertion[1]) {
+					characterOffset = parseInt(termialStr.split("[")[0]);
+					textLocationAssertion = assertion[1];
+				} else {
+					characterOffset = parseInt(termialStr);
+				}
+
+				if (!isNumber(characterOffset)) {
+					characterOffset = null;
+				}
+
+				return {
+					"offset": characterOffset,
+					"assertion": textLocationAssertion
+				};
+			}
+		}, {
+			key: "getChapterComponent",
+			value: function getChapterComponent(cfiStr) {
+
+				var indirection = cfiStr.split("!");
+
+				return indirection[0];
+			}
+		}, {
+			key: "getPathComponent",
+			value: function getPathComponent(cfiStr) {
+
+				var indirection = cfiStr.split("!");
+
+				if (indirection[1]) {
+					var ranges = indirection[1].split(",");
+					return ranges[0];
+				}
+			}
+		}, {
+			key: "getRange",
+			value: function getRange(cfiStr) {
+
+				var ranges = cfiStr.split(",");
+
+				if (ranges.length === 3) {
+					return [ranges[1], ranges[2]];
+				}
+
 				return false;
 			}
-		}
-
-		/**
-	  * Parse a cfi string to a CFI object representation
-	  * @param {string} cfiStr
-	  * @returns {object} cfi
-	  */
-		parse(cfiStr) {
-			var cfi = {
-				spinePos: -1,
-				range: false,
-				base: {},
-				path: {},
-				start: null,
-				end: null
-			};
-			var baseComponent, pathComponent, range;
-
-			if (typeof cfiStr !== "string") {
-				return { spinePos: -1 };
+		}, {
+			key: "getCharecterOffsetComponent",
+			value: function getCharecterOffsetComponent(cfiStr) {
+				var splitStr = cfiStr.split(":");
+				return splitStr[1] || "";
 			}
-
-			if (cfiStr.indexOf("epubcfi(") === 0 && cfiStr[cfiStr.length - 1] === ")") {
-				// Remove intial epubcfi( and ending )
-				cfiStr = cfiStr.slice(8, cfiStr.length - 1);
-			}
-
-			baseComponent = this.getChapterComponent(cfiStr);
-
-			// Make sure this is a valid cfi or return
-			if (!baseComponent) {
-				return { spinePos: -1 };
-			}
-
-			cfi.base = this.parseComponent(baseComponent);
-
-			pathComponent = this.getPathComponent(cfiStr);
-			cfi.path = this.parseComponent(pathComponent);
-
-			range = this.getRange(cfiStr);
-
-			if (range) {
-				cfi.range = true;
-				cfi.start = this.parseComponent(range[0]);
-				cfi.end = this.parseComponent(range[1]);
-			}
-
-			// Get spine node position
-			// cfi.spineSegment = cfi.base.steps[1];
-
-			// Chapter segment is always the second step
-			cfi.spinePos = cfi.base.steps[1].index;
-
-			return cfi;
-		}
-
-		parseComponent(componentStr) {
-			var component = {
-				steps: [],
-				terminal: {
-					offset: null,
-					assertion: null
-				}
-			};
-			var parts = componentStr.split(":");
-			var steps = parts[0].split("/");
-			var terminal;
-
-			if (parts.length > 1) {
-				terminal = parts[1];
-				component.terminal = this.parseTerminal(terminal);
-			}
-
-			if (steps[0] === "") {
-				steps.shift(); // Ignore the first slash
-			}
-
-			component.steps = steps.map(function (step) {
-				return this.parseStep(step);
-			}.bind(this));
-
-			return component;
-		}
-
-		parseStep(stepStr) {
-			var type$$1, num, index, has_brackets, id;
-
-			has_brackets = stepStr.match(/\[(.*)\]/);
-			if (has_brackets && has_brackets[1]) {
-				id = has_brackets[1];
-			}
-
-			//-- Check if step is a text node or element
-			num = parseInt(stepStr);
-
-			if (isNaN(num)) {
-				return;
-			}
-
-			if (num % 2 === 0) {
-				// Even = is an element
-				type$$1 = "element";
-				index = num / 2 - 1;
-			} else {
-				type$$1 = "text";
-				index = (num - 1) / 2;
-			}
-
-			return {
-				"type": type$$1,
-				"index": index,
-				"id": id || null
-			};
-		}
-
-		parseTerminal(termialStr) {
-			var characterOffset, textLocationAssertion;
-			var assertion = termialStr.match(/\[(.*)\]/);
-
-			if (assertion && assertion[1]) {
-				characterOffset = parseInt(termialStr.split("[")[0]);
-				textLocationAssertion = assertion[1];
-			} else {
-				characterOffset = parseInt(termialStr);
-			}
-
-			if (!isNumber(characterOffset)) {
-				characterOffset = null;
-			}
-
-			return {
-				"offset": characterOffset,
-				"assertion": textLocationAssertion
-			};
-		}
-
-		getChapterComponent(cfiStr) {
-
-			var indirection = cfiStr.split("!");
-
-			return indirection[0];
-		}
-
-		getPathComponent(cfiStr) {
-
-			var indirection = cfiStr.split("!");
-
-			if (indirection[1]) {
-				let ranges = indirection[1].split(",");
-				return ranges[0];
-			}
-		}
-
-		getRange(cfiStr) {
-
-			var ranges = cfiStr.split(",");
-
-			if (ranges.length === 3) {
-				return [ranges[1], ranges[2]];
-			}
-
-			return false;
-		}
-
-		getCharecterOffsetComponent(cfiStr) {
-			var splitStr = cfiStr.split(":");
-			return splitStr[1] || "";
-		}
-
-		joinSteps(steps) {
-			if (!steps) {
-				return "";
-			}
-
-			return steps.map(function (part) {
-				var segment = "";
-
-				if (part.type === "element") {
-					segment += (part.index + 1) * 2;
+		}, {
+			key: "joinSteps",
+			value: function joinSteps(steps) {
+				if (!steps) {
+					return "";
 				}
 
-				if (part.type === "text") {
-					segment += 1 + 2 * part.index; // TODO: double check that this is odd
+				return steps.map(function (part) {
+					var segment = "";
+
+					if (part.type === "element") {
+						segment += (part.index + 1) * 2;
+					}
+
+					if (part.type === "text") {
+						segment += 1 + 2 * part.index; // TODO: double check that this is odd
+					}
+
+					if (part.id) {
+						segment += "[" + part.id + "]";
+					}
+
+					return segment;
+				}).join("/");
+			}
+		}, {
+			key: "segmentString",
+			value: function segmentString(segment) {
+				var segmentString = "/";
+
+				segmentString += this.joinSteps(segment.steps);
+
+				if (segment.terminal && segment.terminal.offset != null) {
+					segmentString += ":" + segment.terminal.offset;
 				}
 
-				if (part.id) {
-					segment += "[" + part.id + "]";
+				if (segment.terminal && segment.terminal.assertion != null) {
+					segmentString += "[" + segment.terminal.assertion + "]";
+				}
+
+				return segmentString;
+			}
+
+			/**
+	   * Convert CFI to a epubcfi(...) string
+	   * @returns {string} epubcfi
+	   */
+
+		}, {
+			key: "toString",
+			value: function toString() {
+				var cfiString = "epubcfi(";
+
+				cfiString += this.segmentString(this.base);
+
+				cfiString += "!";
+				cfiString += this.segmentString(this.path);
+
+				// Add Range, if present
+				if (this.range && this.start) {
+					cfiString += ",";
+					cfiString += this.segmentString(this.start);
+				}
+
+				if (this.range && this.end) {
+					cfiString += ",";
+					cfiString += this.segmentString(this.end);
+				}
+
+				cfiString += ")";
+
+				return cfiString;
+			}
+
+			/**
+	   * Compare which of two CFIs is earlier in the text
+	   * @returns {number} First is earlier = -1, Second is earlier = 1, They are equal = 0
+	   */
+
+		}, {
+			key: "compare",
+			value: function compare(cfiOne, cfiTwo) {
+				var stepsA, stepsB;
+				var terminalA, terminalB;
+
+				if (typeof cfiOne === "string") {
+					cfiOne = new EpubCFI(cfiOne);
+				}
+				if (typeof cfiTwo === "string") {
+					cfiTwo = new EpubCFI(cfiTwo);
+				}
+				// Compare Spine Positions
+				if (cfiOne.spinePos > cfiTwo.spinePos) {
+					return 1;
+				}
+				if (cfiOne.spinePos < cfiTwo.spinePos) {
+					return -1;
+				}
+
+				if (cfiOne.range) {
+					stepsA = cfiOne.path.steps.concat(cfiOne.start.steps);
+					terminalA = cfiOne.start.terminal;
+				} else {
+					stepsA = cfiOne.path.steps;
+					terminalA = cfiOne.path.terminal;
+				}
+
+				if (cfiTwo.range) {
+					stepsB = cfiTwo.path.steps.concat(cfiTwo.start.steps);
+					terminalB = cfiTwo.start.terminal;
+				} else {
+					stepsB = cfiTwo.path.steps;
+					terminalB = cfiTwo.path.terminal;
+				}
+
+				// Compare Each Step in the First item
+				for (var i = 0; i < stepsA.length; i++) {
+					if (!stepsA[i]) {
+						return -1;
+					}
+					if (!stepsB[i]) {
+						return 1;
+					}
+					if (stepsA[i].index > stepsB[i].index) {
+						return 1;
+					}
+					if (stepsA[i].index < stepsB[i].index) {
+						return -1;
+					}
+					// Otherwise continue checking
+				}
+
+				// All steps in First equal to Second and First is Less Specific
+				if (stepsA.length < stepsB.length) {
+					return 1;
+				}
+
+				// Compare the charecter offset of the text node
+				if (terminalA.offset > terminalB.offset) {
+					return 1;
+				}
+				if (terminalA.offset < terminalB.offset) {
+					return -1;
+				}
+
+				// CFI's are equal
+				return 0;
+			}
+		}, {
+			key: "step",
+			value: function step(node) {
+				var nodeType = node.nodeType === TEXT_NODE$1 ? "text" : "element";
+
+				return {
+					"id": node.id,
+					"tagName": node.tagName,
+					"type": nodeType,
+					"index": this.position(node)
+				};
+			}
+		}, {
+			key: "filteredStep",
+			value: function filteredStep(node, ignoreClass) {
+				var filteredNode = this.filter(node, ignoreClass);
+				var nodeType;
+
+				// Node filtered, so ignore
+				if (!filteredNode) {
+					return;
+				}
+
+				// Otherwise add the filter node in
+				nodeType = filteredNode.nodeType === TEXT_NODE$1 ? "text" : "element";
+
+				return {
+					"id": filteredNode.id,
+					"tagName": filteredNode.tagName,
+					"type": nodeType,
+					"index": this.filteredPosition(filteredNode, ignoreClass)
+				};
+			}
+		}, {
+			key: "pathTo",
+			value: function pathTo(node, offset, ignoreClass) {
+				var segment = {
+					steps: [],
+					terminal: {
+						offset: null,
+						assertion: null
+					}
+				};
+				var currentNode = node;
+				var step;
+
+				while (currentNode && currentNode.parentNode && currentNode.parentNode.nodeType != DOCUMENT_NODE$1) {
+
+					if (ignoreClass) {
+						step = this.filteredStep(currentNode, ignoreClass);
+					} else {
+						step = this.step(currentNode);
+					}
+
+					if (step) {
+						segment.steps.unshift(step);
+					}
+
+					currentNode = currentNode.parentNode;
+				}
+
+				if (offset != null && offset >= 0) {
+
+					segment.terminal.offset = offset;
+
+					// Make sure we are getting to a textNode if there is an offset
+					if (segment.steps[segment.steps.length - 1].type != "text") {
+						segment.steps.push({
+							"type": "text",
+							"index": 0
+						});
+					}
 				}
 
 				return segment;
-			}).join("/");
-		}
-
-		segmentString(segment) {
-			var segmentString = "/";
-
-			segmentString += this.joinSteps(segment.steps);
-
-			if (segment.terminal && segment.terminal.offset != null) {
-				segmentString += ":" + segment.terminal.offset;
 			}
-
-			if (segment.terminal && segment.terminal.assertion != null) {
-				segmentString += "[" + segment.terminal.assertion + "]";
-			}
-
-			return segmentString;
-		}
-
-		/**
-	  * Convert CFI to a epubcfi(...) string
-	  * @returns {string} epubcfi
-	  */
-		toString() {
-			var cfiString = "epubcfi(";
-
-			cfiString += this.segmentString(this.base);
-
-			cfiString += "!";
-			cfiString += this.segmentString(this.path);
-
-			// Add Range, if present
-			if (this.range && this.start) {
-				cfiString += ",";
-				cfiString += this.segmentString(this.start);
-			}
-
-			if (this.range && this.end) {
-				cfiString += ",";
-				cfiString += this.segmentString(this.end);
-			}
-
-			cfiString += ")";
-
-			return cfiString;
-		}
-
-		/**
-	  * Compare which of two CFIs is earlier in the text
-	  * @returns {number} First is earlier = -1, Second is earlier = 1, They are equal = 0
-	  */
-		compare(cfiOne, cfiTwo) {
-			var stepsA, stepsB;
-			var terminalA, terminalB;
-
-			if (typeof cfiOne === "string") {
-				cfiOne = new EpubCFI(cfiOne);
-			}
-			if (typeof cfiTwo === "string") {
-				cfiTwo = new EpubCFI(cfiTwo);
-			}
-			// Compare Spine Positions
-			if (cfiOne.spinePos > cfiTwo.spinePos) {
-				return 1;
-			}
-			if (cfiOne.spinePos < cfiTwo.spinePos) {
-				return -1;
-			}
-
-			if (cfiOne.range) {
-				stepsA = cfiOne.path.steps.concat(cfiOne.start.steps);
-				terminalA = cfiOne.start.terminal;
-			} else {
-				stepsA = cfiOne.path.steps;
-				terminalA = cfiOne.path.terminal;
-			}
-
-			if (cfiTwo.range) {
-				stepsB = cfiTwo.path.steps.concat(cfiTwo.start.steps);
-				terminalB = cfiTwo.start.terminal;
-			} else {
-				stepsB = cfiTwo.path.steps;
-				terminalB = cfiTwo.path.terminal;
-			}
-
-			// Compare Each Step in the First item
-			for (var i = 0; i < stepsA.length; i++) {
-				if (!stepsA[i]) {
-					return -1;
-				}
-				if (!stepsB[i]) {
-					return 1;
-				}
-				if (stepsA[i].index > stepsB[i].index) {
-					return 1;
-				}
-				if (stepsA[i].index < stepsB[i].index) {
-					return -1;
-				}
-				// Otherwise continue checking
-			}
-
-			// All steps in First equal to Second and First is Less Specific
-			if (stepsA.length < stepsB.length) {
-				return 1;
-			}
-
-			// Compare the charecter offset of the text node
-			if (terminalA.offset > terminalB.offset) {
-				return 1;
-			}
-			if (terminalA.offset < terminalB.offset) {
-				return -1;
-			}
-
-			// CFI's are equal
-			return 0;
-		}
-
-		step(node) {
-			var nodeType = node.nodeType === TEXT_NODE$1 ? "text" : "element";
-
-			return {
-				"id": node.id,
-				"tagName": node.tagName,
-				"type": nodeType,
-				"index": this.position(node)
-			};
-		}
-
-		filteredStep(node, ignoreClass) {
-			var filteredNode = this.filter(node, ignoreClass);
-			var nodeType;
-
-			// Node filtered, so ignore
-			if (!filteredNode) {
-				return;
-			}
-
-			// Otherwise add the filter node in
-			nodeType = filteredNode.nodeType === TEXT_NODE$1 ? "text" : "element";
-
-			return {
-				"id": filteredNode.id,
-				"tagName": filteredNode.tagName,
-				"type": nodeType,
-				"index": this.filteredPosition(filteredNode, ignoreClass)
-			};
-		}
-
-		pathTo(node, offset, ignoreClass) {
-			var segment = {
-				steps: [],
-				terminal: {
-					offset: null,
-					assertion: null
-				}
-			};
-			var currentNode = node;
-			var step;
-
-			while (currentNode && currentNode.parentNode && currentNode.parentNode.nodeType != DOCUMENT_NODE$1) {
-
-				if (ignoreClass) {
-					step = this.filteredStep(currentNode, ignoreClass);
-				} else {
-					step = this.step(currentNode);
+		}, {
+			key: "equalStep",
+			value: function equalStep(stepA, stepB) {
+				if (!stepA || !stepB) {
+					return false;
 				}
 
-				if (step) {
-					segment.steps.unshift(step);
+				if (stepA.index === stepB.index && stepA.id === stepB.id && stepA.type === stepB.type) {
+					return true;
 				}
 
-				currentNode = currentNode.parentNode;
-			}
-
-			if (offset != null && offset >= 0) {
-
-				segment.terminal.offset = offset;
-
-				// Make sure we are getting to a textNode if there is an offset
-				if (segment.steps[segment.steps.length - 1].type != "text") {
-					segment.steps.push({
-						"type": "text",
-						"index": 0
-					});
-				}
-			}
-
-			return segment;
-		}
-
-		equalStep(stepA, stepB) {
-			if (!stepA || !stepB) {
 				return false;
 			}
 
-			if (stepA.index === stepB.index && stepA.id === stepB.id && stepA.type === stepB.type) {
-				return true;
-			}
+			/**
+	   * Create a CFI object from a Range
+	   * @param {Range} range
+	   * @param {string | object} base
+	   * @param {string} [ignoreClass]
+	   * @returns {object} cfi
+	   */
 
-			return false;
-		}
-
-		/**
-	  * Create a CFI object from a Range
-	  * @param {Range} range
-	  * @param {string | object} base
-	  * @param {string} [ignoreClass]
-	  * @returns {object} cfi
-	  */
-		fromRange(range, base, ignoreClass) {
-			var cfi = {
-				range: false,
-				base: {},
-				path: {},
-				start: null,
-				end: null
-			};
-
-			var start = range.startContainer;
-			var end = range.endContainer;
-
-			var startOffset = range.startOffset;
-			var endOffset = range.endOffset;
-
-			var needsIgnoring = false;
-
-			if (ignoreClass) {
-				// Tell pathTo if / what to ignore
-				needsIgnoring = start.ownerDocument.querySelector("." + ignoreClass) != null;
-			}
-
-			if (typeof base === "string") {
-				cfi.base = this.parseComponent(base);
-				cfi.spinePos = cfi.base.steps[1].index;
-			} else if (typeof base === "object") {
-				cfi.base = base;
-			}
-
-			if (range.collapsed) {
-				if (needsIgnoring) {
-					startOffset = this.patchOffset(start, startOffset, ignoreClass);
-				}
-				cfi.path = this.pathTo(start, startOffset, ignoreClass);
-			} else {
-				cfi.range = true;
-
-				if (needsIgnoring) {
-					startOffset = this.patchOffset(start, startOffset, ignoreClass);
-				}
-
-				cfi.start = this.pathTo(start, startOffset, ignoreClass);
-				if (needsIgnoring) {
-					endOffset = this.patchOffset(end, endOffset, ignoreClass);
-				}
-
-				cfi.end = this.pathTo(end, endOffset, ignoreClass);
-
-				// Create a new empty path
-				cfi.path = {
-					steps: [],
-					terminal: null
+		}, {
+			key: "fromRange",
+			value: function fromRange(range, base, ignoreClass) {
+				var cfi = {
+					range: false,
+					base: {},
+					path: {},
+					start: null,
+					end: null
 				};
 
-				// Push steps that are shared between start and end to the common path
-				var len = cfi.start.steps.length;
+				var start = range.startContainer;
+				var end = range.endContainer;
+
+				var startOffset = range.startOffset;
+				var endOffset = range.endOffset;
+
+				var needsIgnoring = false;
+
+				if (ignoreClass) {
+					// Tell pathTo if / what to ignore
+					needsIgnoring = start.ownerDocument.querySelector("." + ignoreClass) != null;
+				}
+
+				if (typeof base === "string") {
+					cfi.base = this.parseComponent(base);
+					cfi.spinePos = cfi.base.steps[1].index;
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object") {
+					cfi.base = base;
+				}
+
+				if (range.collapsed) {
+					if (needsIgnoring) {
+						startOffset = this.patchOffset(start, startOffset, ignoreClass);
+					}
+					cfi.path = this.pathTo(start, startOffset, ignoreClass);
+				} else {
+					cfi.range = true;
+
+					if (needsIgnoring) {
+						startOffset = this.patchOffset(start, startOffset, ignoreClass);
+					}
+
+					cfi.start = this.pathTo(start, startOffset, ignoreClass);
+					if (needsIgnoring) {
+						endOffset = this.patchOffset(end, endOffset, ignoreClass);
+					}
+
+					cfi.end = this.pathTo(end, endOffset, ignoreClass);
+
+					// Create a new empty path
+					cfi.path = {
+						steps: [],
+						terminal: null
+					};
+
+					// Push steps that are shared between start and end to the common path
+					var len = cfi.start.steps.length;
+					var i;
+
+					for (i = 0; i < len; i++) {
+						if (this.equalStep(cfi.start.steps[i], cfi.end.steps[i])) {
+							if (i === len - 1) {
+								// Last step is equal, check terminals
+								if (cfi.start.terminal === cfi.end.terminal) {
+									// CFI's are equal
+									cfi.path.steps.push(cfi.start.steps[i]);
+									// Not a range
+									cfi.range = false;
+								}
+							} else {
+								cfi.path.steps.push(cfi.start.steps[i]);
+							}
+						} else {
+							break;
+						}
+					}
+
+					cfi.start.steps = cfi.start.steps.slice(cfi.path.steps.length);
+					cfi.end.steps = cfi.end.steps.slice(cfi.path.steps.length);
+
+					// TODO: Add Sanity check to make sure that the end if greater than the start
+				}
+
+				return cfi;
+			}
+
+			/**
+	   * Create a CFI object from a Node
+	   * @param {Node} anchor
+	   * @param {string | object} base
+	   * @param {string} [ignoreClass]
+	   * @returns {object} cfi
+	   */
+
+		}, {
+			key: "fromNode",
+			value: function fromNode(anchor, base, ignoreClass) {
+				var cfi = {
+					range: false,
+					base: {},
+					path: {},
+					start: null,
+					end: null
+				};
+
+				if (typeof base === "string") {
+					cfi.base = this.parseComponent(base);
+					cfi.spinePos = cfi.base.steps[1].index;
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object") {
+					cfi.base = base;
+				}
+
+				cfi.path = this.pathTo(anchor, null, ignoreClass);
+
+				return cfi;
+			}
+		}, {
+			key: "filter",
+			value: function filter(anchor, ignoreClass) {
+				var needsIgnoring;
+				var sibling; // to join with
+				var parent, previousSibling, nextSibling;
+				var isText = false;
+
+				if (anchor.nodeType === TEXT_NODE$1) {
+					isText = true;
+					parent = anchor.parentNode;
+					needsIgnoring = anchor.parentNode.classList.contains(ignoreClass);
+				} else {
+					isText = false;
+					needsIgnoring = anchor.classList.contains(ignoreClass);
+				}
+
+				if (needsIgnoring && isText) {
+					previousSibling = parent.previousSibling;
+					nextSibling = parent.nextSibling;
+
+					// If the sibling is a text node, join the nodes
+					if (previousSibling && previousSibling.nodeType === TEXT_NODE$1) {
+						sibling = previousSibling;
+					} else if (nextSibling && nextSibling.nodeType === TEXT_NODE$1) {
+						sibling = nextSibling;
+					}
+
+					if (sibling) {
+						return sibling;
+					} else {
+						// Parent will be ignored on next step
+						return anchor;
+					}
+				} else if (needsIgnoring && !isText) {
+					// Otherwise just skip the element node
+					return false;
+				} else {
+					// No need to filter
+					return anchor;
+				}
+			}
+		}, {
+			key: "patchOffset",
+			value: function patchOffset(anchor, offset, ignoreClass) {
+				if (anchor.nodeType != TEXT_NODE$1) {
+					throw new Error("Anchor must be a text node");
+				}
+
+				var curr = anchor;
+				var totalOffset = offset;
+
+				// If the parent is a ignored node, get offset from it's start
+				if (anchor.parentNode.classList.contains(ignoreClass)) {
+					curr = anchor.parentNode;
+				}
+
+				while (curr.previousSibling) {
+					if (curr.previousSibling.nodeType === ELEMENT_NODE$1) {
+						// Originally a text node, so join
+						if (curr.previousSibling.classList.contains(ignoreClass)) {
+							totalOffset += curr.previousSibling.textContent.length;
+						} else {
+							break; // Normal node, dont join
+						}
+					} else {
+						// If the previous sibling is a text node, join the nodes
+						totalOffset += curr.previousSibling.textContent.length;
+					}
+
+					curr = curr.previousSibling;
+				}
+
+				return totalOffset;
+			}
+		}, {
+			key: "normalizedMap",
+			value: function normalizedMap(children, nodeType, ignoreClass) {
+				var output = {};
+				var prevIndex = -1;
+				var i,
+				    len = children.length;
+				var currNodeType;
+				var prevNodeType;
+
+				for (i = 0; i < len; i++) {
+
+					currNodeType = children[i].nodeType;
+
+					// Check if needs ignoring
+					if (currNodeType === ELEMENT_NODE$1 && children[i].classList.contains(ignoreClass)) {
+						currNodeType = TEXT_NODE$1;
+					}
+
+					if (i > 0 && currNodeType === TEXT_NODE$1 && prevNodeType === TEXT_NODE$1) {
+						// join text nodes
+						output[i] = prevIndex;
+					} else if (nodeType === currNodeType) {
+						prevIndex = prevIndex + 1;
+						output[i] = prevIndex;
+					}
+
+					prevNodeType = currNodeType;
+				}
+
+				return output;
+			}
+		}, {
+			key: "position",
+			value: function position(anchor) {
+				var children, index;
+				if (anchor.nodeType === ELEMENT_NODE$1) {
+					children = anchor.parentNode.children;
+					if (!children) {
+						children = findChildren(anchor.parentNode);
+					}
+					index = Array.prototype.indexOf.call(children, anchor);
+				} else {
+					children = this.textNodes(anchor.parentNode);
+					index = children.indexOf(anchor);
+				}
+
+				return index;
+			}
+		}, {
+			key: "filteredPosition",
+			value: function filteredPosition(anchor, ignoreClass) {
+				var children, index, map;
+
+				if (anchor.nodeType === ELEMENT_NODE$1) {
+					children = anchor.parentNode.children;
+					map = this.normalizedMap(children, ELEMENT_NODE$1, ignoreClass);
+				} else {
+					children = anchor.parentNode.childNodes;
+					// Inside an ignored node
+					if (anchor.parentNode.classList.contains(ignoreClass)) {
+						anchor = anchor.parentNode;
+						children = anchor.parentNode.childNodes;
+					}
+					map = this.normalizedMap(children, TEXT_NODE$1, ignoreClass);
+				}
+
+				index = Array.prototype.indexOf.call(children, anchor);
+
+				return map[index];
+			}
+		}, {
+			key: "stepsToXpath",
+			value: function stepsToXpath(steps) {
+				var xpath = [".", "*"];
+
+				steps.forEach(function (step) {
+					var position = step.index + 1;
+
+					if (step.id) {
+						xpath.push("*[position()=" + position + " and @id='" + step.id + "']");
+					} else if (step.type === "text") {
+						xpath.push("text()[" + position + "]");
+					} else {
+						xpath.push("*[" + position + "]");
+					}
+				});
+
+				return xpath.join("/");
+			}
+
+			/*
+	  	To get the last step if needed:
+	  	// Get the terminal step
+	  lastStep = steps[steps.length-1];
+	  // Get the query string
+	  query = this.stepsToQuery(steps);
+	  // Find the containing element
+	  startContainerParent = doc.querySelector(query);
+	  // Find the text node within that element
+	  if(startContainerParent && lastStep.type == "text") {
+	  	container = startContainerParent.childNodes[lastStep.index];
+	  }
+	  */
+
+		}, {
+			key: "stepsToQuerySelector",
+			value: function stepsToQuerySelector(steps) {
+				var query = ["html"];
+
+				steps.forEach(function (step) {
+					var position = step.index + 1;
+
+					if (step.id) {
+						query.push("#" + step.id);
+					} else if (step.type === "text") ; else {
+						query.push("*:nth-child(" + position + ")");
+					}
+				});
+
+				return query.join(">");
+			}
+		}, {
+			key: "textNodes",
+			value: function textNodes(container, ignoreClass) {
+				return Array.prototype.slice.call(container.childNodes).filter(function (node) {
+					if (node.nodeType === TEXT_NODE$1) {
+						return true;
+					} else if (ignoreClass && node.classList.contains(ignoreClass)) {
+						return true;
+					}
+					return false;
+				});
+			}
+		}, {
+			key: "walkToNode",
+			value: function walkToNode(steps, _doc, ignoreClass) {
+				var doc = _doc || document;
+				var container = doc.documentElement;
+				var children;
+				var step;
+				var len = steps.length;
 				var i;
 
 				for (i = 0; i < len; i++) {
-					if (this.equalStep(cfi.start.steps[i], cfi.end.steps[i])) {
-						if (i === len - 1) {
-							// Last step is equal, check terminals
-							if (cfi.start.terminal === cfi.end.terminal) {
-								// CFI's are equal
-								cfi.path.steps.push(cfi.start.steps[i]);
-								// Not a range
-								cfi.range = false;
+					step = steps[i];
+
+					if (step.type === "element") {
+						//better to get a container using id as some times step.index may not be correct
+						//For ex.https://github.com/futurepress/epub.js/issues/561
+						if (step.id) {
+							container = doc.getElementById(step.id);
+						} else {
+							children = container.children || findChildren(container);
+							container = children[step.index];
+						}
+					} else if (step.type === "text") {
+						container = this.textNodes(container, ignoreClass)[step.index];
+					}
+					if (!container) {
+						//Break the for loop as due to incorrect index we can get error if
+						//container is undefined so that other functionailties works fine
+						//like navigation
+						break;
+					}
+				}
+
+				return container;
+			}
+		}, {
+			key: "findNode",
+			value: function findNode(steps, _doc, ignoreClass) {
+				var doc = _doc || document;
+				var container;
+				var xpath;
+
+				if (!ignoreClass && typeof doc.evaluate != "undefined") {
+					xpath = this.stepsToXpath(steps);
+					container = doc.evaluate(xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+				} else if (ignoreClass) {
+					container = this.walkToNode(steps, doc, ignoreClass);
+				} else {
+					container = this.walkToNode(steps, doc);
+				}
+
+				return container;
+			}
+		}, {
+			key: "fixMiss",
+			value: function fixMiss(steps, offset, _doc, ignoreClass) {
+				var container = this.findNode(steps.slice(0, -1), _doc, ignoreClass);
+				var children = container.childNodes;
+				var map = this.normalizedMap(children, TEXT_NODE$1, ignoreClass);
+				var child;
+				var len;
+				var lastStepIndex = steps[steps.length - 1].index;
+
+				for (var childIndex in map) {
+					if (!map.hasOwnProperty(childIndex)) return;
+
+					if (map[childIndex] === lastStepIndex) {
+						child = children[childIndex];
+						len = child.textContent.length;
+						if (offset > len) {
+							offset = offset - len;
+						} else {
+							if (child.nodeType === ELEMENT_NODE$1) {
+								container = child.childNodes[0];
+							} else {
+								container = child;
 							}
-						} else {
-							cfi.path.steps.push(cfi.start.steps[i]);
+							break;
 						}
-					} else {
-						break;
 					}
 				}
 
-				cfi.start.steps = cfi.start.steps.slice(cfi.path.steps.length);
-				cfi.end.steps = cfi.end.steps.slice(cfi.path.steps.length);
-
-				// TODO: Add Sanity check to make sure that the end if greater than the start
+				return {
+					container: container,
+					offset: offset
+				};
 			}
 
-			return cfi;
-		}
+			/**
+	   * Creates a DOM range representing a CFI
+	   * @param {document} _doc document referenced in the base
+	   * @param {string} [ignoreClass]
+	   * @return {Range}
+	   */
 
-		/**
-	  * Create a CFI object from a Node
-	  * @param {Node} anchor
-	  * @param {string | object} base
-	  * @param {string} [ignoreClass]
-	  * @returns {object} cfi
-	  */
-		fromNode(anchor, base, ignoreClass) {
-			var cfi = {
-				range: false,
-				base: {},
-				path: {},
-				start: null,
-				end: null
-			};
+		}, {
+			key: "toRange",
+			value: function toRange(_doc, ignoreClass) {
+				var doc = _doc || document;
+				var range;
+				var start, end, startContainer, endContainer;
+				var cfi = this;
+				var startSteps, endSteps;
+				var needsIgnoring = ignoreClass ? doc.querySelector("." + ignoreClass) != null : false;
+				var missed;
 
-			if (typeof base === "string") {
-				cfi.base = this.parseComponent(base);
-				cfi.spinePos = cfi.base.steps[1].index;
-			} else if (typeof base === "object") {
-				cfi.base = base;
-			}
-
-			cfi.path = this.pathTo(anchor, null, ignoreClass);
-
-			return cfi;
-		}
-
-		filter(anchor, ignoreClass) {
-			var needsIgnoring;
-			var sibling; // to join with
-			var parent, previousSibling, nextSibling;
-			var isText = false;
-
-			if (anchor.nodeType === TEXT_NODE$1) {
-				isText = true;
-				parent = anchor.parentNode;
-				needsIgnoring = anchor.parentNode.classList.contains(ignoreClass);
-			} else {
-				isText = false;
-				needsIgnoring = anchor.classList.contains(ignoreClass);
-			}
-
-			if (needsIgnoring && isText) {
-				previousSibling = parent.previousSibling;
-				nextSibling = parent.nextSibling;
-
-				// If the sibling is a text node, join the nodes
-				if (previousSibling && previousSibling.nodeType === TEXT_NODE$1) {
-					sibling = previousSibling;
-				} else if (nextSibling && nextSibling.nodeType === TEXT_NODE$1) {
-					sibling = nextSibling;
-				}
-
-				if (sibling) {
-					return sibling;
+				if (typeof doc.createRange !== "undefined") {
+					range = doc.createRange();
 				} else {
-					// Parent will be ignored on next step
-					return anchor;
+					range = new RangeObject();
 				}
-			} else if (needsIgnoring && !isText) {
-				// Otherwise just skip the element node
-				return false;
-			} else {
-				// No need to filter
-				return anchor;
-			}
-		}
 
-		patchOffset(anchor, offset, ignoreClass) {
-			if (anchor.nodeType != TEXT_NODE$1) {
-				throw new Error("Anchor must be a text node");
-			}
+				if (cfi.range) {
+					start = cfi.start;
+					startSteps = cfi.path.steps.concat(start.steps);
+					startContainer = this.findNode(startSteps, doc, needsIgnoring ? ignoreClass : null);
+					end = cfi.end;
+					endSteps = cfi.path.steps.concat(end.steps);
+					endContainer = this.findNode(endSteps, doc, needsIgnoring ? ignoreClass : null);
+				} else {
+					start = cfi.path;
+					startSteps = cfi.path.steps;
+					startContainer = this.findNode(cfi.path.steps, doc, needsIgnoring ? ignoreClass : null);
+				}
 
-			var curr = anchor;
-			var totalOffset = offset;
+				if (startContainer) {
+					try {
 
-			// If the parent is a ignored node, get offset from it's start
-			if (anchor.parentNode.classList.contains(ignoreClass)) {
-				curr = anchor.parentNode;
-			}
-
-			while (curr.previousSibling) {
-				if (curr.previousSibling.nodeType === ELEMENT_NODE$1) {
-					// Originally a text node, so join
-					if (curr.previousSibling.classList.contains(ignoreClass)) {
-						totalOffset += curr.previousSibling.textContent.length;
-					} else {
-						break; // Normal node, dont join
+						if (start.terminal.offset != null) {
+							range.setStart(startContainer, start.terminal.offset);
+						} else {
+							range.setStart(startContainer, 0);
+						}
+					} catch (e) {
+						missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
+						range.setStart(missed.container, missed.offset);
 					}
 				} else {
-					// If the previous sibling is a text node, join the nodes
-					totalOffset += curr.previousSibling.textContent.length;
+					console.log("No startContainer found for", this.toString());
+					// No start found
+					return null;
 				}
 
-				curr = curr.previousSibling;
+				if (endContainer) {
+					try {
+
+						if (end.terminal.offset != null) {
+							range.setEnd(endContainer, end.terminal.offset);
+						} else {
+							range.setEnd(endContainer, 0);
+						}
+					} catch (e) {
+						missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
+						range.setEnd(missed.container, missed.offset);
+					}
+				}
+
+				// doc.defaultView.getSelection().addRange(range);
+				return range;
 			}
 
-			return totalOffset;
-		}
+			/**
+	   * Check if a string is wrapped with "epubcfi()"
+	   * @param {string} str
+	   * @returns {boolean}
+	   */
 
-		normalizedMap(children, nodeType, ignoreClass) {
-			var output = {};
-			var prevIndex = -1;
-			var i,
-			    len = children.length;
-			var currNodeType;
-			var prevNodeType;
-
-			for (i = 0; i < len; i++) {
-
-				currNodeType = children[i].nodeType;
-
-				// Check if needs ignoring
-				if (currNodeType === ELEMENT_NODE$1 && children[i].classList.contains(ignoreClass)) {
-					currNodeType = TEXT_NODE$1;
-				}
-
-				if (i > 0 && currNodeType === TEXT_NODE$1 && prevNodeType === TEXT_NODE$1) {
-					// join text nodes
-					output[i] = prevIndex;
-				} else if (nodeType === currNodeType) {
-					prevIndex = prevIndex + 1;
-					output[i] = prevIndex;
-				}
-
-				prevNodeType = currNodeType;
-			}
-
-			return output;
-		}
-
-		position(anchor) {
-			var children, index;
-			if (anchor.nodeType === ELEMENT_NODE$1) {
-				children = anchor.parentNode.children;
-				if (!children) {
-					children = findChildren(anchor.parentNode);
-				}
-				index = Array.prototype.indexOf.call(children, anchor);
-			} else {
-				children = this.textNodes(anchor.parentNode);
-				index = children.indexOf(anchor);
-			}
-
-			return index;
-		}
-
-		filteredPosition(anchor, ignoreClass) {
-			var children, index, map;
-
-			if (anchor.nodeType === ELEMENT_NODE$1) {
-				children = anchor.parentNode.children;
-				map = this.normalizedMap(children, ELEMENT_NODE$1, ignoreClass);
-			} else {
-				children = anchor.parentNode.childNodes;
-				// Inside an ignored node
-				if (anchor.parentNode.classList.contains(ignoreClass)) {
-					anchor = anchor.parentNode;
-					children = anchor.parentNode.childNodes;
-				}
-				map = this.normalizedMap(children, TEXT_NODE$1, ignoreClass);
-			}
-
-			index = Array.prototype.indexOf.call(children, anchor);
-
-			return map[index];
-		}
-
-		stepsToXpath(steps) {
-			var xpath = [".", "*"];
-
-			steps.forEach(function (step) {
-				var position = step.index + 1;
-
-				if (step.id) {
-					xpath.push("*[position()=" + position + " and @id='" + step.id + "']");
-				} else if (step.type === "text") {
-					xpath.push("text()[" + position + "]");
-				} else {
-					xpath.push("*[" + position + "]");
-				}
-			});
-
-			return xpath.join("/");
-		}
-
-		/*
-	 	To get the last step if needed:
-	 	// Get the terminal step
-	 lastStep = steps[steps.length-1];
-	 // Get the query string
-	 query = this.stepsToQuery(steps);
-	 // Find the containing element
-	 startContainerParent = doc.querySelector(query);
-	 // Find the text node within that element
-	 if(startContainerParent && lastStep.type == "text") {
-	 	container = startContainerParent.childNodes[lastStep.index];
-	 }
-	 */
-		stepsToQuerySelector(steps) {
-			var query = ["html"];
-
-			steps.forEach(function (step) {
-				var position = step.index + 1;
-
-				if (step.id) {
-					query.push("#" + step.id);
-				} else if (step.type === "text") ; else {
-					query.push("*:nth-child(" + position + ")");
-				}
-			});
-
-			return query.join(">");
-		}
-
-		textNodes(container, ignoreClass) {
-			return Array.prototype.slice.call(container.childNodes).filter(function (node) {
-				if (node.nodeType === TEXT_NODE$1) {
-					return true;
-				} else if (ignoreClass && node.classList.contains(ignoreClass)) {
+		}, {
+			key: "isCfiString",
+			value: function isCfiString(str) {
+				if (typeof str === "string" && str.indexOf("epubcfi(") === 0 && str[str.length - 1] === ")") {
 					return true;
 				}
+
 				return false;
-			});
-		}
+			}
+		}, {
+			key: "generateChapterComponent",
+			value: function generateChapterComponent(_spineNodeIndex, _pos, id) {
+				var pos = parseInt(_pos),
+				    spineNodeIndex = (_spineNodeIndex + 1) * 2,
+				    cfi = "/" + spineNodeIndex + "/";
 
-		walkToNode(steps, _doc, ignoreClass) {
-			var doc = _doc || document;
-			var container = doc.documentElement;
-			var children;
-			var step;
-			var len = steps.length;
-			var i;
+				cfi += (pos + 1) * 2;
 
-			for (i = 0; i < len; i++) {
-				step = steps[i];
-
-				if (step.type === "element") {
-					//better to get a container using id as some times step.index may not be correct
-					//For ex.https://github.com/futurepress/epub.js/issues/561
-					if (step.id) {
-						container = doc.getElementById(step.id);
-					} else {
-						children = container.children || findChildren(container);
-						container = children[step.index];
-					}
-				} else if (step.type === "text") {
-					container = this.textNodes(container, ignoreClass)[step.index];
+				if (id) {
+					cfi += "[" + id + "]";
 				}
-				if (!container) {
-					//Break the for loop as due to incorrect index we can get error if
-					//container is undefined so that other functionailties works fine
-					//like navigation
-					break;
-				}
+
+				return cfi;
 			}
 
-			return container;
-		}
+			/**
+	   * Collapse a CFI Range to a single CFI Position
+	   * @param {boolean} [toStart=false]
+	   */
 
-		findNode(steps, _doc, ignoreClass) {
-			var doc = _doc || document;
-			var container;
-			var xpath;
+		}, {
+			key: "collapse",
+			value: function collapse(toStart) {
+				if (!this.range) {
+					return;
+				}
 
-			if (!ignoreClass && typeof doc.evaluate != "undefined") {
-				xpath = this.stepsToXpath(steps);
-				container = doc.evaluate(xpath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-			} else if (ignoreClass) {
-				container = this.walkToNode(steps, doc, ignoreClass);
-			} else {
-				container = this.walkToNode(steps, doc);
-			}
+				this.range = false;
 
-			return container;
-		}
-
-		fixMiss(steps, offset, _doc, ignoreClass) {
-			var container = this.findNode(steps.slice(0, -1), _doc, ignoreClass);
-			var children = container.childNodes;
-			var map = this.normalizedMap(children, TEXT_NODE$1, ignoreClass);
-			var child;
-			var len;
-			var lastStepIndex = steps[steps.length - 1].index;
-
-			for (let childIndex in map) {
-				if (!map.hasOwnProperty(childIndex)) return;
-
-				if (map[childIndex] === lastStepIndex) {
-					child = children[childIndex];
-					len = child.textContent.length;
-					if (offset > len) {
-						offset = offset - len;
-					} else {
-						if (child.nodeType === ELEMENT_NODE$1) {
-							container = child.childNodes[0];
-						} else {
-							container = child;
-						}
-						break;
-					}
+				if (toStart) {
+					this.path.steps = this.path.steps.concat(this.start.steps);
+					this.path.terminal = this.start.terminal;
+				} else {
+					this.path.steps = this.path.steps.concat(this.end.steps);
+					this.path.terminal = this.end.terminal;
 				}
 			}
+		}]);
 
-			return {
-				container: container,
-				offset: offset
-			};
-		}
+		return EpubCFI;
+	}();
 
-		/**
-	  * Creates a DOM range representing a CFI
-	  * @param {document} _doc document referenced in the base
-	  * @param {string} [ignoreClass]
-	  * @return {Range}
-	  */
-		toRange(_doc, ignoreClass) {
-			var doc = _doc || document;
-			var range;
-			var start, end, startContainer, endContainer;
-			var cfi = this;
-			var startSteps, endSteps;
-			var needsIgnoring = ignoreClass ? doc.querySelector("." + ignoreClass) != null : false;
-			var missed;
+	var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-			if (typeof doc.createRange !== "undefined") {
-				range = doc.createRange();
-			} else {
-				range = new RangeObject();
-			}
-
-			if (cfi.range) {
-				start = cfi.start;
-				startSteps = cfi.path.steps.concat(start.steps);
-				startContainer = this.findNode(startSteps, doc, needsIgnoring ? ignoreClass : null);
-				end = cfi.end;
-				endSteps = cfi.path.steps.concat(end.steps);
-				endContainer = this.findNode(endSteps, doc, needsIgnoring ? ignoreClass : null);
-			} else {
-				start = cfi.path;
-				startSteps = cfi.path.steps;
-				startContainer = this.findNode(cfi.path.steps, doc, needsIgnoring ? ignoreClass : null);
-			}
-
-			if (startContainer) {
-				try {
-
-					if (start.terminal.offset != null) {
-						range.setStart(startContainer, start.terminal.offset);
-					} else {
-						range.setStart(startContainer, 0);
-					}
-				} catch (e) {
-					missed = this.fixMiss(startSteps, start.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
-					range.setStart(missed.container, missed.offset);
-				}
-			} else {
-				console.log("No startContainer found for", this.toString());
-				// No start found
-				return null;
-			}
-
-			if (endContainer) {
-				try {
-
-					if (end.terminal.offset != null) {
-						range.setEnd(endContainer, end.terminal.offset);
-					} else {
-						range.setEnd(endContainer, 0);
-					}
-				} catch (e) {
-					missed = this.fixMiss(endSteps, cfi.end.terminal.offset, doc, needsIgnoring ? ignoreClass : null);
-					range.setEnd(missed.container, missed.offset);
-				}
-			}
-
-			// doc.defaultView.getSelection().addRange(range);
-			return range;
-		}
-
-		/**
-	  * Check if a string is wrapped with "epubcfi()"
-	  * @param {string} str
-	  * @returns {boolean}
-	  */
-		isCfiString(str) {
-			if (typeof str === "string" && str.indexOf("epubcfi(") === 0 && str[str.length - 1] === ")") {
-				return true;
-			}
-
-			return false;
-		}
-
-		generateChapterComponent(_spineNodeIndex, _pos, id) {
-			var pos = parseInt(_pos),
-			    spineNodeIndex = (_spineNodeIndex + 1) * 2,
-			    cfi = "/" + spineNodeIndex + "/";
-
-			cfi += (pos + 1) * 2;
-
-			if (id) {
-				cfi += "[" + id + "]";
-			}
-
-			return cfi;
-		}
-
-		/**
-	  * Collapse a CFI Range to a single CFI Position
-	  * @param {boolean} [toStart=false]
-	  */
-		collapse(toStart) {
-			if (!this.range) {
-				return;
-			}
-
-			this.range = false;
-
-			if (toStart) {
-				this.path.steps = this.path.steps.concat(this.start.steps);
-				this.path.terminal = this.start.terminal;
-			} else {
-				this.path.steps = this.path.steps.concat(this.end.steps);
-				this.path.terminal = this.end.terminal;
-			}
-		}
-	}
+	function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Hooks allow for injecting functions that must all complete in order before finishing
@@ -10006,8 +10055,10 @@
 	 * @param {any} context scope of this
 	 * @example this.content = new EPUBJS.Hook(this);
 	 */
-	class Hook {
-		constructor(context) {
+	var Hook = function () {
+		function Hook(context) {
+			_classCallCheck$4(this, Hook);
+
 			this.context = context || this;
 			this.hooks = [];
 		}
@@ -10016,65 +10067,82 @@
 	  * Adds a function to be run before a hook completes
 	  * @example this.content.register(function(){...});
 	  */
-		register() {
-			for (var i = 0; i < arguments.length; ++i) {
-				if (typeof arguments[i] === "function") {
-					this.hooks.push(arguments[i]);
-				} else {
-					// unpack array
-					for (var j = 0; j < arguments[i].length; ++j) {
-						this.hooks.push(arguments[i][j]);
+
+
+		_createClass$4(Hook, [{
+			key: "register",
+			value: function register() {
+				for (var i = 0; i < arguments.length; ++i) {
+					if (typeof arguments[i] === "function") {
+						this.hooks.push(arguments[i]);
+					} else {
+						// unpack array
+						for (var j = 0; j < arguments[i].length; ++j) {
+							this.hooks.push(arguments[i][j]);
+						}
 					}
 				}
 			}
-		}
 
-		/**
-	  * Removes a function
-	  * @example this.content.deregister(function(){...});
-	  */
-		deregister(func) {
-			let hook;
-			for (let i = 0; i < this.hooks.length; i++) {
-				hook = this.hooks[i];
-				if (hook === func) {
-					this.hooks.splice(i, 1);
-					break;
+			/**
+	   * Removes a function
+	   * @example this.content.deregister(function(){...});
+	   */
+
+		}, {
+			key: "deregister",
+			value: function deregister(func) {
+				var hook = void 0;
+				for (var i = 0; i < this.hooks.length; i++) {
+					hook = this.hooks[i];
+					if (hook === func) {
+						this.hooks.splice(i, 1);
+						break;
+					}
 				}
 			}
-		}
 
-		/**
-	  * Triggers a hook to run all functions
-	  * @example this.content.trigger(args).then(function(){...});
-	  */
-		trigger() {
-			var args = arguments;
-			var context = this.context;
-			var promises = [];
+			/**
+	   * Triggers a hook to run all functions
+	   * @example this.content.trigger(args).then(function(){...});
+	   */
 
-			this.hooks.forEach(function (task) {
-				var executing = task.apply(context, args);
+		}, {
+			key: "trigger",
+			value: function trigger() {
+				var args = arguments;
+				var context = this.context;
+				var promises = [];
 
-				if (executing && typeof executing["then"] === "function") {
-					// Task is a function that returns a promise
-					promises.push(executing);
-				}
-				// Otherwise Task resolves immediately, continue
-			});
+				this.hooks.forEach(function (task) {
+					var executing = task.apply(context, args);
 
-			return Promise.all(promises);
-		}
+					if (executing && typeof executing["then"] === "function") {
+						// Task is a function that returns a promise
+						promises.push(executing);
+					}
+					// Otherwise Task resolves immediately, continue
+				});
 
-		// Adds a function to be run before a hook completes
-		list() {
-			return this.hooks;
-		}
+				return Promise.all(promises);
+			}
 
-		clear() {
-			return this.hooks = [];
-		}
-	}
+			// Adds a function to be run before a hook completes
+
+		}, {
+			key: "list",
+			value: function list() {
+				return this.hooks;
+			}
+		}, {
+			key: "clear",
+			value: function clear() {
+				return this.hooks = [];
+			}
+		}]);
+
+		return Hook;
+	}();
 
 	function replaceBase(doc, section) {
 		var base;
@@ -10205,6 +10273,10 @@
 		return content;
 	}
 
+	var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$5(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	/**
 	 * Represents a Section of the Book
 	 *
@@ -10212,8 +10284,11 @@
 	 * @param {object} item  The spine item representing the section
 	 * @param {object} hooks hooks for serialize and content
 	 */
-	class Section {
-		constructor(item, hooks) {
+
+	var Section = function () {
+		function Section(item, hooks) {
+			_classCallCheck$5(this, Section);
+
 			this.idref = item.idref;
 			this.linear = item.linear === "yes";
 			this.properties = item.properties;
@@ -10244,209 +10319,243 @@
 	  * @param  {method} [_request] a request method to use for loading
 	  * @return {document} a promise with the xml document
 	  */
-		load(_request) {
-			var request = _request || this.request || require("./utils/request");
-			var loading = new defer();
-			var loaded = loading.promise;
 
-			if (this.contents) {
-				loading.resolve(this.contents);
-			} else {
-				request(this.url).then(function (xml) {
-					// var directory = new Url(this.url).directory;
 
-					this.document = xml;
-					this.contents = xml.documentElement;
+		_createClass$5(Section, [{
+			key: "load",
+			value: function load(_request) {
+				var request = _request || this.request || require("./utils/request");
+				var loading = new defer();
+				var loaded = loading.promise;
 
-					return this.hooks.content.trigger(this.document, this);
-				}.bind(this)).then(function () {
+				if (this.contents) {
 					loading.resolve(this.contents);
-				}.bind(this)).catch(function (error) {
-					loading.reject(error);
-				});
+				} else {
+					request(this.url).then(function (xml) {
+						// var directory = new Url(this.url).directory;
+
+						this.document = xml;
+						this.contents = xml.documentElement;
+
+						return this.hooks.content.trigger(this.document, this);
+					}.bind(this)).then(function () {
+						loading.resolve(this.contents);
+					}.bind(this)).catch(function (error) {
+						loading.reject(error);
+					});
+				}
+
+				return loaded;
 			}
 
-			return loaded;
-		}
+			/**
+	   * Adds a base tag for resolving urls in the section
+	   * @private
+	   */
 
-		/**
-	  * Adds a base tag for resolving urls in the section
-	  * @private
-	  */
-		base() {
-			return replaceBase(this.document, this);
-		}
+		}, {
+			key: "base",
+			value: function base() {
+				return replaceBase(this.document, this);
+			}
 
-		/**
-	  * Render the contents of a section
-	  * @param  {method} [_request] a request method to use for loading
-	  * @return {string} output a serialized XML Document
-	  */
-		render(_request) {
-			var rendering = new defer();
-			var rendered = rendering.promise;
-			this.output; // TODO: better way to return this from hooks?
+			/**
+	   * Render the contents of a section
+	   * @param  {method} [_request] a request method to use for loading
+	   * @return {string} output a serialized XML Document
+	   */
 
-			this.load(_request).then(function (contents) {
-				var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
-				var isIE = userAgent.indexOf('Trident') >= 0;
-				var Serializer;
-				if (typeof XMLSerializer === "undefined" || isIE) {
-					Serializer = require("xmldom/dom-parser").XMLSerializer;
-				} else {
-					Serializer = XMLSerializer;
-				}
-				var serializer = new Serializer();
-				this.output = serializer.serializeToString(contents);
-				return this.output;
-			}.bind(this)).then(function () {
-				return this.hooks.serialize.trigger(this.output, this);
-			}.bind(this)).then(function () {
-				rendering.resolve(this.output);
-			}.bind(this)).catch(function (error) {
-				rendering.reject(error);
-			});
+		}, {
+			key: "render",
+			value: function render(_request) {
+				var rendering = new defer();
+				var rendered = rendering.promise;
+				this.output; // TODO: better way to return this from hooks?
 
-			return rendered;
-		}
+				this.load(_request).then(function (contents) {
+					var userAgent = typeof navigator !== 'undefined' && navigator.userAgent || '';
+					var isIE = userAgent.indexOf('Trident') >= 0;
+					var Serializer;
+					{
+						Serializer = XMLSerializer;
+					}
+					var serializer = new Serializer();
+					this.output = serializer.serializeToString(contents);
+					return this.output;
+				}.bind(this)).then(function () {
+					return this.hooks.serialize.trigger(this.output, this);
+				}.bind(this)).then(function () {
+					rendering.resolve(this.output);
+				}.bind(this)).catch(function (error) {
+					rendering.reject(error);
+				});
 
-		/**
-	  * Find a string in a section
-	  * @param  {string} _query The query string to find
-	  * @return {object[]} A list of matches, with form {cfi, excerpt}
-	  */
-		find(_query) {
-			var section = this;
-			var matches = [];
-			var query = _query.toLowerCase();
-			var find = function (node) {
-				var text = node.textContent.toLowerCase();
-				var range = section.document.createRange();
-				var cfi;
-				var pos;
-				var last = -1;
-				var excerpt;
-				var limit = 150;
+				return rendered;
+			}
 
-				while (pos != -1) {
-					// Search for the query
-					pos = text.indexOf(query, last + 1);
+			/**
+	   * Find a string in a section
+	   * @param  {string} _query The query string to find
+	   * @return {object[]} A list of matches, with form {cfi, excerpt}
+	   */
 
-					if (pos != -1) {
-						// We found it! Generate a CFI
-						range = section.document.createRange();
-						range.setStart(node, pos);
-						range.setEnd(node, pos + query.length);
+		}, {
+			key: "find",
+			value: function find(_query) {
+				var section = this;
+				var matches = [];
+				var query = _query.toLowerCase();
+				var find = function find(node) {
+					var text = node.textContent.toLowerCase();
+					var range = section.document.createRange();
+					var cfi;
+					var pos;
+					var last = -1;
+					var excerpt;
+					var limit = 150;
 
-						cfi = section.cfiFromRange(range);
+					while (pos != -1) {
+						// Search for the query
+						pos = text.indexOf(query, last + 1);
 
-						// Generate the excerpt
-						if (node.textContent.length < limit) {
-							excerpt = node.textContent;
-						} else {
-							excerpt = node.textContent.substring(pos - limit / 2, pos + limit / 2);
-							excerpt = "..." + excerpt + "...";
+						if (pos != -1) {
+							// We found it! Generate a CFI
+							range = section.document.createRange();
+							range.setStart(node, pos);
+							range.setEnd(node, pos + query.length);
+
+							cfi = section.cfiFromRange(range);
+
+							// Generate the excerpt
+							if (node.textContent.length < limit) {
+								excerpt = node.textContent;
+							} else {
+								excerpt = node.textContent.substring(pos - limit / 2, pos + limit / 2);
+								excerpt = "..." + excerpt + "...";
+							}
+
+							// Add the CFI to the matches list
+							matches.push({
+								cfi: cfi,
+								excerpt: excerpt
+							});
 						}
 
-						// Add the CFI to the matches list
-						matches.push({
-							cfi: cfi,
-							excerpt: excerpt
-						});
+						last = pos;
 					}
+				};
 
-					last = pos;
-				}
-			};
+				sprint(section.document, function (node) {
+					find(node);
+				});
 
-			sprint(section.document, function (node) {
-				find(node);
-			});
+				return matches;
+			}
+		}, {
+			key: "reconcileLayoutSettings",
 
-			return matches;
-		}
 
-		/**
-	 * Reconciles the current chapters layout properies with
-	 * the global layout properities.
-	 * @param {object} globalLayout  The global layout settings object, chapter properties string
-	 * @return {object} layoutProperties Object with layout properties
-	 */
-		reconcileLayoutSettings(globalLayout) {
-			//-- Get the global defaults
-			var settings = {
-				layout: globalLayout.layout,
-				spread: globalLayout.spread,
-				orientation: globalLayout.orientation
-			};
-
-			//-- Get the chapter's display type
-			this.properties.forEach(function (prop) {
-				var rendition = prop.replace("rendition:", "");
-				var split = rendition.indexOf("-");
-				var property, value;
-
-				if (split != -1) {
-					property = rendition.slice(0, split);
-					value = rendition.slice(split + 1);
-
-					settings[property] = value;
-				}
-			});
-			return settings;
-		}
-
-		/**
-	  * Get a CFI from a Range in the Section
-	  * @param  {range} _range
-	  * @return {string} cfi an EpubCFI string
+			/**
+	  * Reconciles the current chapters layout properies with
+	  * the global layout properities.
+	  * @param {object} globalLayout  The global layout settings object, chapter properties string
+	  * @return {object} layoutProperties Object with layout properties
 	  */
-		cfiFromRange(_range) {
-			return new EpubCFI(_range, this.cfiBase).toString();
-		}
+			value: function reconcileLayoutSettings(globalLayout) {
+				//-- Get the global defaults
+				var settings = {
+					layout: globalLayout.layout,
+					spread: globalLayout.spread,
+					orientation: globalLayout.orientation
+				};
 
-		/**
-	  * Get a CFI from an Element in the Section
-	  * @param  {element} el
-	  * @return {string} cfi an EpubCFI string
-	  */
-		cfiFromElement(el) {
-			return new EpubCFI(el, this.cfiBase).toString();
-		}
+				//-- Get the chapter's display type
+				this.properties.forEach(function (prop) {
+					var rendition = prop.replace("rendition:", "");
+					var split = rendition.indexOf("-");
+					var property, value;
 
-		/**
-	  * Unload the section document
-	  */
-		unload() {
-			this.document = undefined;
-			this.contents = undefined;
-			this.output = undefined;
-		}
+					if (split != -1) {
+						property = rendition.slice(0, split);
+						value = rendition.slice(split + 1);
 
-		destroy() {
-			this.unload();
-			this.hooks.serialize.clear();
-			this.hooks.content.clear();
+						settings[property] = value;
+					}
+				});
+				return settings;
+			}
 
-			this.hooks = undefined;
-			this.idref = undefined;
-			this.linear = undefined;
-			this.properties = undefined;
-			this.index = undefined;
-			this.href = undefined;
-			this.url = undefined;
-			this.next = undefined;
-			this.prev = undefined;
+			/**
+	   * Get a CFI from a Range in the Section
+	   * @param  {range} _range
+	   * @return {string} cfi an EpubCFI string
+	   */
 
-			this.cfiBase = undefined;
-		}
-	}
+		}, {
+			key: "cfiFromRange",
+			value: function cfiFromRange(_range) {
+				return new EpubCFI(_range, this.cfiBase).toString();
+			}
+
+			/**
+	   * Get a CFI from an Element in the Section
+	   * @param  {element} el
+	   * @return {string} cfi an EpubCFI string
+	   */
+
+		}, {
+			key: "cfiFromElement",
+			value: function cfiFromElement(el) {
+				return new EpubCFI(el, this.cfiBase).toString();
+			}
+
+			/**
+	   * Unload the section document
+	   */
+
+		}, {
+			key: "unload",
+			value: function unload() {
+				this.document = undefined;
+				this.contents = undefined;
+				this.output = undefined;
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.unload();
+				this.hooks.serialize.clear();
+				this.hooks.content.clear();
+
+				this.hooks = undefined;
+				this.idref = undefined;
+				this.linear = undefined;
+				this.properties = undefined;
+				this.index = undefined;
+				this.href = undefined;
+				this.url = undefined;
+				this.next = undefined;
+				this.prev = undefined;
+
+				this.cfiBase = undefined;
+			}
+		}]);
+
+		return Section;
+	}();
+
+	var _createClass$6 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$6(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * A collection of Spine Items
 	 */
-	class Spine {
-		constructor() {
+
+	var Spine = function () {
+		function Spine() {
+			_classCallCheck$6(this, Spine);
+
 			this.spineItems = [];
 			this.spineByHref = {};
 			this.spineById = {};
@@ -10477,243 +10586,282 @@
 	  * @param  {method} resolver URL resolver
 	  * @param  {method} canonical Resolve canonical url
 	  */
-		unpack(_package, resolver, canonical) {
 
-			this.items = _package.spine;
-			this.manifest = _package.manifest;
-			this.spineNodeIndex = _package.spineNodeIndex;
-			this.baseUrl = _package.baseUrl || _package.basePath || "";
-			this.length = this.items.length;
 
-			this.items.forEach((item, index) => {
-				var manifestItem = this.manifest[item.idref];
-				var spineItem;
+		_createClass$6(Spine, [{
+			key: "unpack",
+			value: function unpack(_package, resolver, canonical) {
+				var _this = this;
 
-				item.index = index;
-				item.cfiBase = this.epubcfi.generateChapterComponent(this.spineNodeIndex, item.index, item.idref);
+				this.items = _package.spine;
+				this.manifest = _package.manifest;
+				this.spineNodeIndex = _package.spineNodeIndex;
+				this.baseUrl = _package.baseUrl || _package.basePath || "";
+				this.length = this.items.length;
 
-				if (item.href) {
-					item.url = resolver(item.href, true);
-					item.canonical = canonical(item.href);
-				}
+				this.items.forEach(function (item, index) {
+					var manifestItem = _this.manifest[item.idref];
+					var spineItem;
 
-				if (manifestItem) {
-					item.href = manifestItem.href;
-					item.url = resolver(item.href, true);
-					item.canonical = canonical(item.href);
+					item.index = index;
+					item.cfiBase = _this.epubcfi.generateChapterComponent(_this.spineNodeIndex, item.index, item.idref);
 
-					if (manifestItem.properties.length) {
-						item.properties.push.apply(item.properties, manifestItem.properties);
+					if (item.href) {
+						item.url = resolver(item.href, true);
+						item.canonical = canonical(item.href);
 					}
+
+					if (manifestItem) {
+						item.href = manifestItem.href;
+						item.url = resolver(item.href, true);
+						item.canonical = canonical(item.href);
+
+						if (manifestItem.properties.length) {
+							item.properties.push.apply(item.properties, manifestItem.properties);
+						}
+					}
+
+					if (item.linear === "yes") {
+						item.prev = function () {
+							var prevIndex = item.index;
+							while (prevIndex > 0) {
+								var prev = this.get(prevIndex - 1);
+								if (prev && prev.linear) {
+									return prev;
+								}
+								prevIndex -= 1;
+							}
+							return;
+						}.bind(_this);
+						item.next = function () {
+							var nextIndex = item.index;
+							while (nextIndex < this.spineItems.length - 1) {
+								var next = this.get(nextIndex + 1);
+								if (next && next.linear) {
+									return next;
+								}
+								nextIndex += 1;
+							}
+							return;
+						}.bind(_this);
+					} else {
+						item.prev = function () {
+							return;
+						};
+						item.next = function () {
+							return;
+						};
+					}
+
+					spineItem = new Section(item, _this.hooks);
+
+					_this.append(spineItem);
+				});
+
+				this.loaded = true;
+			}
+
+			/**
+	   * Get an item from the spine
+	   * @param  {string|number} [target]
+	   * @return {Section} section
+	   * @example spine.get();
+	   * @example spine.get(1);
+	   * @example spine.get("chap1.html");
+	   * @example spine.get("#id1234");
+	   */
+
+		}, {
+			key: "get",
+			value: function get(target) {
+				var index = 0;
+
+				if (typeof target === "undefined") {
+					while (index < this.spineItems.length) {
+						var next = this.spineItems[index];
+						if (next && next.linear) {
+							break;
+						}
+						index += 1;
+					}
+				} else if (this.epubcfi.isCfiString(target)) {
+					var cfi = new EpubCFI(target);
+					index = cfi.spinePos;
+				} else if (typeof target === "number" || isNaN(target) === false) {
+					index = target;
+				} else if (typeof target === "string" && target.indexOf("#") === 0) {
+					index = this.spineById[target.substring(1)];
+				} else if (typeof target === "string") {
+					// Remove fragments
+					target = target.split("#")[0];
+					index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
 				}
 
-				if (item.linear === "yes") {
-					item.prev = function () {
-						let prevIndex = item.index;
-						while (prevIndex > 0) {
-							let prev = this.get(prevIndex - 1);
-							if (prev && prev.linear) {
-								return prev;
-							}
-							prevIndex -= 1;
-						}
-						return;
-					}.bind(this);
-					item.next = function () {
-						let nextIndex = item.index;
-						while (nextIndex < this.spineItems.length - 1) {
-							let next = this.get(nextIndex + 1);
-							if (next && next.linear) {
-								return next;
-							}
-							nextIndex += 1;
-						}
-						return;
-					}.bind(this);
-				} else {
-					item.prev = function () {
-						return;
-					};
-					item.next = function () {
-						return;
-					};
+				return this.spineItems[index] || null;
+			}
+
+			/**
+	   * Append a Section to the Spine
+	   * @private
+	   * @param  {Section} section
+	   */
+
+		}, {
+			key: "append",
+			value: function append(section) {
+				var index = this.spineItems.length;
+				section.index = index;
+
+				this.spineItems.push(section);
+
+				// Encode and Decode href lookups
+				// see pr for details: https://github.com/futurepress/epub.js/pull/358
+				this.spineByHref[decodeURI(section.href)] = index;
+				this.spineByHref[encodeURI(section.href)] = index;
+				this.spineByHref[section.href] = index;
+
+				this.spineById[section.idref] = index;
+
+				return index;
+			}
+
+			/**
+	   * Prepend a Section to the Spine
+	   * @private
+	   * @param  {Section} section
+	   */
+
+		}, {
+			key: "prepend",
+			value: function prepend(section) {
+				// var index = this.spineItems.unshift(section);
+				this.spineByHref[section.href] = 0;
+				this.spineById[section.idref] = 0;
+
+				// Re-index
+				this.spineItems.forEach(function (item, index) {
+					item.index = index;
+				});
+
+				return 0;
+			}
+
+			// insert(section, index) {
+			//
+			// };
+
+			/**
+	   * Remove a Section from the Spine
+	   * @private
+	   * @param  {Section} section
+	   */
+
+		}, {
+			key: "remove",
+			value: function remove(section) {
+				var index = this.spineItems.indexOf(section);
+
+				if (index > -1) {
+					delete this.spineByHref[section.href];
+					delete this.spineById[section.idref];
+
+					return this.spineItems.splice(index, 1);
 				}
+			}
 
-				spineItem = new Section(item, this.hooks);
+			/**
+	   * Loop over the Sections in the Spine
+	   * @return {method} forEach
+	   */
 
-				this.append(spineItem);
-			});
+		}, {
+			key: "each",
+			value: function each() {
+				return this.spineItems.forEach.apply(this.spineItems, arguments);
+			}
 
-			this.loaded = true;
-		}
+			/**
+	   * Find the first Section in the Spine
+	   * @return {Section} first section
+	   */
 
-		/**
-	  * Get an item from the spine
-	  * @param  {string|number} [target]
-	  * @return {Section} section
-	  * @example spine.get();
-	  * @example spine.get(1);
-	  * @example spine.get("chap1.html");
-	  * @example spine.get("#id1234");
-	  */
-		get(target) {
-			var index = 0;
+		}, {
+			key: "first",
+			value: function first() {
+				var index = 0;
 
-			if (typeof target === "undefined") {
-				while (index < this.spineItems.length) {
-					let next = this.spineItems[index];
+				do {
+					var next = this.get(index);
+
 					if (next && next.linear) {
-						break;
+						return next;
 					}
 					index += 1;
-				}
-			} else if (this.epubcfi.isCfiString(target)) {
-				let cfi = new EpubCFI(target);
-				index = cfi.spinePos;
-			} else if (typeof target === "number" || isNaN(target) === false) {
-				index = target;
-			} else if (typeof target === "string" && target.indexOf("#") === 0) {
-				index = this.spineById[target.substring(1)];
-			} else if (typeof target === "string") {
-				// Remove fragments
-				target = target.split("#")[0];
-				index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+				} while (index < this.spineItems.length);
 			}
 
-			return this.spineItems[index] || null;
-		}
+			/**
+	   * Find the last Section in the Spine
+	   * @return {Section} last section
+	   */
 
-		/**
-	  * Append a Section to the Spine
-	  * @private
-	  * @param  {Section} section
-	  */
-		append(section) {
-			var index = this.spineItems.length;
-			section.index = index;
+		}, {
+			key: "last",
+			value: function last() {
+				var index = this.spineItems.length - 1;
 
-			this.spineItems.push(section);
-
-			// Encode and Decode href lookups
-			// see pr for details: https://github.com/futurepress/epub.js/pull/358
-			this.spineByHref[decodeURI(section.href)] = index;
-			this.spineByHref[encodeURI(section.href)] = index;
-			this.spineByHref[section.href] = index;
-
-			this.spineById[section.idref] = index;
-
-			return index;
-		}
-
-		/**
-	  * Prepend a Section to the Spine
-	  * @private
-	  * @param  {Section} section
-	  */
-		prepend(section) {
-			// var index = this.spineItems.unshift(section);
-			this.spineByHref[section.href] = 0;
-			this.spineById[section.idref] = 0;
-
-			// Re-index
-			this.spineItems.forEach(function (item, index) {
-				item.index = index;
-			});
-
-			return 0;
-		}
-
-		// insert(section, index) {
-		//
-		// };
-
-		/**
-	  * Remove a Section from the Spine
-	  * @private
-	  * @param  {Section} section
-	  */
-		remove(section) {
-			var index = this.spineItems.indexOf(section);
-
-			if (index > -1) {
-				delete this.spineByHref[section.href];
-				delete this.spineById[section.idref];
-
-				return this.spineItems.splice(index, 1);
+				do {
+					var prev = this.get(index);
+					if (prev && prev.linear) {
+						return prev;
+					}
+					index -= 1;
+				} while (index >= 0);
 			}
-		}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.each(function (section) {
+					return section.destroy();
+				});
 
-		/**
-	  * Loop over the Sections in the Spine
-	  * @return {method} forEach
-	  */
-		each() {
-			return this.spineItems.forEach.apply(this.spineItems, arguments);
-		}
+				this.spineItems = undefined;
+				this.spineByHref = undefined;
+				this.spineById = undefined;
 
-		/**
-	  * Find the first Section in the Spine
-	  * @return {Section} first section
-	  */
-		first() {
-			let index = 0;
+				this.hooks.serialize.clear();
+				this.hooks.content.clear();
+				this.hooks = undefined;
 
-			do {
-				let next = this.get(index);
+				this.epubcfi = undefined;
 
-				if (next && next.linear) {
-					return next;
-				}
-				index += 1;
-			} while (index < this.spineItems.length);
-		}
+				this.loaded = false;
 
-		/**
-	  * Find the last Section in the Spine
-	  * @return {Section} last section
-	  */
-		last() {
-			let index = this.spineItems.length - 1;
+				this.items = undefined;
+				this.manifest = undefined;
+				this.spineNodeIndex = undefined;
+				this.baseUrl = undefined;
+				this.length = undefined;
+			}
+		}]);
 
-			do {
-				let prev = this.get(index);
-				if (prev && prev.linear) {
-					return prev;
-				}
-				index -= 1;
-			} while (index >= 0);
-		}
+		return Spine;
+	}();
 
-		destroy() {
-			this.each(section => section.destroy());
+	var _createClass$7 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-			this.spineItems = undefined;
-			this.spineByHref = undefined;
-			this.spineById = undefined;
-
-			this.hooks.serialize.clear();
-			this.hooks.content.clear();
-			this.hooks = undefined;
-
-			this.epubcfi = undefined;
-
-			this.loaded = false;
-
-			this.items = undefined;
-			this.manifest = undefined;
-			this.spineNodeIndex = undefined;
-			this.baseUrl = undefined;
-			this.length = undefined;
-		}
-	}
+	function _classCallCheck$7(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Queue for handling tasks one at a time
 	 * @class
 	 * @param {scope} context what this will resolve to in the tasks
 	 */
-	class Queue {
-		constructor(context) {
+
+	var Queue = function () {
+		function Queue(context) {
+			_classCallCheck$7(this, Queue);
+
 			this._q = [];
 			this.context = context;
 			this.tick = requestAnimationFrame$1;
@@ -10725,186 +10873,218 @@
 	  * Add an item to the queue
 	  * @return {Promise}
 	  */
-		enqueue() {
-			var deferred, promise;
-			var queued;
-			var task = [].shift.call(arguments);
-			var args = arguments;
 
-			// Handle single args without context
-			// if(args && !Array.isArray(args)) {
-			//   args = [args];
-			// }
-			if (!task) {
-				throw new Error("No Task Provided");
+
+		_createClass$7(Queue, [{
+			key: "enqueue",
+			value: function enqueue() {
+				var deferred, promise;
+				var queued;
+				var task = [].shift.call(arguments);
+				var args = arguments;
+
+				// Handle single args without context
+				// if(args && !Array.isArray(args)) {
+				//   args = [args];
+				// }
+				if (!task) {
+					throw new Error("No Task Provided");
+				}
+
+				if (typeof task === "function") {
+
+					deferred = new defer();
+					promise = deferred.promise;
+
+					queued = {
+						"task": task,
+						"args": args,
+						//"context"  : context,
+						"deferred": deferred,
+						"promise": promise
+					};
+				} else {
+					// Task is a promise
+					queued = {
+						"promise": task
+					};
+				}
+
+				this._q.push(queued);
+
+				// Wait to start queue flush
+				if (this.paused == false && !this.running) {
+					// setTimeout(this.flush.bind(this), 0);
+					// this.tick.call(window, this.run.bind(this));
+					this.run();
+				}
+
+				return queued.promise;
 			}
 
-			if (typeof task === "function") {
+			/**
+	   * Run one item
+	   * @return {Promise}
+	   */
 
-				deferred = new defer();
-				promise = deferred.promise;
+		}, {
+			key: "dequeue",
+			value: function dequeue() {
+				var inwait, task, result;
 
-				queued = {
-					"task": task,
-					"args": args,
-					//"context"  : context,
-					"deferred": deferred,
-					"promise": promise
-				};
-			} else {
-				// Task is a promise
-				queued = {
-					"promise": task
-				};
-			}
+				if (this._q.length && !this.paused) {
+					inwait = this._q.shift();
+					task = inwait.task;
+					if (task) {
+						// console.log(task)
 
-			this._q.push(queued);
+						result = task.apply(this.context, inwait.args);
 
-			// Wait to start queue flush
-			if (this.paused == false && !this.running) {
-				// setTimeout(this.flush.bind(this), 0);
-				// this.tick.call(window, this.run.bind(this));
-				this.run();
-			}
-
-			return queued.promise;
-		}
-
-		/**
-	  * Run one item
-	  * @return {Promise}
-	  */
-		dequeue() {
-			var inwait, task, result;
-
-			if (this._q.length && !this.paused) {
-				inwait = this._q.shift();
-				task = inwait.task;
-				if (task) {
-					// console.log(task)
-
-					result = task.apply(this.context, inwait.args);
-
-					if (result && typeof result["then"] === "function") {
-						// Task is a function that returns a promise
-						return result.then(function () {
-							inwait.deferred.resolve.apply(this.context, arguments);
-						}.bind(this), function () {
-							inwait.deferred.reject.apply(this.context, arguments);
-						}.bind(this));
-					} else {
-						// Task resolves immediately
-						inwait.deferred.resolve.apply(this.context, result);
+						if (result && typeof result["then"] === "function") {
+							// Task is a function that returns a promise
+							return result.then(function () {
+								inwait.deferred.resolve.apply(this.context, arguments);
+							}.bind(this), function () {
+								inwait.deferred.reject.apply(this.context, arguments);
+							}.bind(this));
+						} else {
+							// Task resolves immediately
+							inwait.deferred.resolve.apply(this.context, result);
+							return inwait.promise;
+						}
+					} else if (inwait.promise) {
+						// Task is a promise
 						return inwait.promise;
 					}
-				} else if (inwait.promise) {
-					// Task is a promise
+				} else {
+					inwait = new defer();
+					inwait.deferred.resolve();
 					return inwait.promise;
 				}
-			} else {
-				inwait = new defer();
-				inwait.deferred.resolve();
-				return inwait.promise;
-			}
-		}
-
-		// Run All Immediately
-		dump() {
-			while (this._q.length) {
-				this.dequeue();
-			}
-		}
-
-		/**
-	  * Run all tasks sequentially, at convince
-	  * @return {Promise}
-	  */
-		run() {
-
-			if (!this.running) {
-				this.running = true;
-				this.defered = new defer();
 			}
 
-			this.tick.call(window, () => {
+			// Run All Immediately
+
+		}, {
+			key: "dump",
+			value: function dump() {
+				while (this._q.length) {
+					this.dequeue();
+				}
+			}
+
+			/**
+	   * Run all tasks sequentially, at convince
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "run",
+			value: function run() {
+				var _this = this;
+
+				if (!this.running) {
+					this.running = true;
+					this.defered = new defer();
+				}
+
+				this.tick.call(window, function () {
+
+					if (_this._q.length) {
+
+						_this.dequeue().then(function () {
+							this.run();
+						}.bind(_this));
+					} else {
+						_this.defered.resolve();
+						_this.running = undefined;
+					}
+				});
+
+				// Unpause
+				if (this.paused == true) {
+					this.paused = false;
+				}
+
+				return this.defered.promise;
+			}
+
+			/**
+	   * Flush all, as quickly as possible
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "flush",
+			value: function flush() {
+
+				if (this.running) {
+					return this.running;
+				}
 
 				if (this._q.length) {
-
-					this.dequeue().then(function () {
-						this.run();
+					this.running = this.dequeue().then(function () {
+						this.running = undefined;
+						return this.flush();
 					}.bind(this));
-				} else {
-					this.defered.resolve();
-					this.running = undefined;
+
+					return this.running;
 				}
-			});
-
-			// Unpause
-			if (this.paused == true) {
-				this.paused = false;
 			}
 
-			return this.defered.promise;
-		}
+			/**
+	   * Clear all items in wait
+	   */
 
-		/**
-	  * Flush all, as quickly as possible
-	  * @return {Promise}
-	  */
-		flush() {
-
-			if (this.running) {
-				return this.running;
+		}, {
+			key: "clear",
+			value: function clear() {
+				this._q = [];
 			}
 
-			if (this._q.length) {
-				this.running = this.dequeue().then(function () {
-					this.running = undefined;
-					return this.flush();
-				}.bind(this));
+			/**
+	   * Get the number of tasks in the queue
+	   * @return {number} tasks
+	   */
 
-				return this.running;
+		}, {
+			key: "length",
+			value: function length() {
+				return this._q.length;
 			}
-		}
 
-		/**
-	  * Clear all items in wait
-	  */
-		clear() {
-			this._q = [];
-		}
+			/**
+	   * Pause a running queue
+	   */
 
-		/**
-	  * Get the number of tasks in the queue
-	  * @return {number} tasks
-	  */
-		length() {
-			return this._q.length;
-		}
+		}, {
+			key: "pause",
+			value: function pause() {
+				this.paused = true;
+			}
 
-		/**
-	  * Pause a running queue
-	  */
-		pause() {
-			this.paused = true;
-		}
+			/**
+	   * End the queue
+	   */
 
-		/**
-	  * End the queue
-	  */
-		stop() {
-			this._q = [];
-			this.running = false;
-			this.paused = true;
-		}
-	}
+		}, {
+			key: "stop",
+			value: function stop() {
+				this._q = [];
+				this.running = false;
+				this.paused = true;
+			}
+		}]);
 
-	const EPUBJS_VERSION = "0.3";
+		return Queue;
+	}();
+
+	var EPUBJS_VERSION = "0.3";
 
 	// Dom events to listen for
-	const DOM_EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart", "touchmove"];
+	var DOM_EVENTS = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart", "touchmove"];
 
-	const EVENTS = {
+	var EVENTS = {
 	  BOOK: {
 	    OPEN_FAILED: "openFailed"
 	  },
@@ -10957,14 +11137,21 @@
 	  }
 	};
 
+	var _createClass$8 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$8(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	/**
 	 * Find Locations for a Book
 	 * @param {Spine} spine
 	 * @param {request} request
 	 * @param {number} [pause=100]
 	 */
-	class Locations {
-		constructor(spine, request, pause) {
+
+	var Locations = function () {
+		function Locations(spine, request, pause) {
+			_classCallCheck$8(this, Locations);
+
 			this.spine = spine;
 			this.request = request;
 			this.pause = pause || 100;
@@ -10989,335 +11176,385 @@
 	  * @param  {int} chars how many chars to split on
 	  * @return {object} locations
 	  */
-		generate(chars) {
 
-			if (chars) {
-				this.break = chars;
+
+		_createClass$8(Locations, [{
+			key: "generate",
+			value: function generate(chars) {
+
+				if (chars) {
+					this.break = chars;
+				}
+
+				this.q.pause();
+
+				this.spine.each(function (section) {
+					if (section.linear) {
+						this.q.enqueue(this.process.bind(this), section);
+					}
+				}.bind(this));
+
+				return this.q.run().then(function () {
+					this.total = this._locations.length - 1;
+
+					if (this._currentCfi) {
+						this.currentLocation = this._currentCfi;
+					}
+
+					return this._locations;
+					// console.log(this.percentage(this.book.rendition.location.start), this.percentage(this.book.rendition.location.end));
+				}.bind(this));
 			}
+		}, {
+			key: "createRange",
+			value: function createRange() {
+				return {
+					startContainer: undefined,
+					startOffset: undefined,
+					endContainer: undefined,
+					endOffset: undefined
+				};
+			}
+		}, {
+			key: "process",
+			value: function process(section) {
 
-			this.q.pause();
+				return section.load(this.request).then(function (contents) {
+					var completed = new defer();
+					var locations = this.parse(contents, section.cfiBase);
+					this._locations = this._locations.concat(locations);
 
-			this.spine.each(function (section) {
-				if (section.linear) {
-					this.q.enqueue(this.process.bind(this), section);
-				}
-			}.bind(this));
+					section.unload();
 
-			return this.q.run().then(function () {
-				this.total = this._locations.length - 1;
+					this.processingTimeout = setTimeout(function () {
+						return completed.resolve(locations);
+					}, this.pause);
+					return completed.promise;
+				}.bind(this));
+			}
+		}, {
+			key: "parse",
+			value: function parse$$1(contents, cfiBase, chars) {
+				var locations = [];
+				var range;
+				var doc = contents.ownerDocument;
+				var body = qs(doc, "body");
+				var counter = 0;
+				var prev;
+				var _break = chars || this.break;
+				var parser = function parser(node) {
+					var len = node.length;
+					var dist;
+					var pos = 0;
 
-				if (this._currentCfi) {
-					this.currentLocation = this._currentCfi;
-				}
+					if (node.textContent.trim().length === 0) {
+						return false; // continue
+					}
 
-				return this._locations;
-				// console.log(this.percentage(this.book.rendition.location.start), this.percentage(this.book.rendition.location.end));
-			}.bind(this));
-		}
-
-		createRange() {
-			return {
-				startContainer: undefined,
-				startOffset: undefined,
-				endContainer: undefined,
-				endOffset: undefined
-			};
-		}
-
-		process(section) {
-
-			return section.load(this.request).then(function (contents) {
-				var completed = new defer();
-				var locations = this.parse(contents, section.cfiBase);
-				this._locations = this._locations.concat(locations);
-
-				section.unload();
-
-				this.processingTimeout = setTimeout(() => completed.resolve(locations), this.pause);
-				return completed.promise;
-			}.bind(this));
-		}
-
-		parse(contents, cfiBase, chars) {
-			var locations = [];
-			var range;
-			var doc = contents.ownerDocument;
-			var body = qs(doc, "body");
-			var counter = 0;
-			var prev;
-			var _break = chars || this.break;
-			var parser = function (node) {
-				var len = node.length;
-				var dist;
-				var pos = 0;
-
-				if (node.textContent.trim().length === 0) {
-					return false; // continue
-				}
-
-				// Start range
-				if (counter == 0) {
-					range = this.createRange();
-					range.startContainer = node;
-					range.startOffset = 0;
-				}
-
-				dist = _break - counter;
-
-				// Node is smaller than a break,
-				// skip over it
-				if (dist > len) {
-					counter += len;
-					pos = len;
-				}
-
-				while (pos < len) {
-					dist = _break - counter;
-
-					if (counter === 0) {
-						// Start new range
-						pos += 1;
+					// Start range
+					if (counter == 0) {
 						range = this.createRange();
 						range.startContainer = node;
-						range.startOffset = pos;
+						range.startOffset = 0;
 					}
 
-					// pos += dist;
+					dist = _break - counter;
 
-					// Gone over
-					if (pos + dist >= len) {
-						// Continue counter for next node
-						counter += len - pos;
-						// break
+					// Node is smaller than a break,
+					// skip over it
+					if (dist > len) {
+						counter += len;
 						pos = len;
-						// At End
-					} else {
-						// Advance pos
-						pos += dist;
-
-						// End the previous range
-						range.endContainer = node;
-						range.endOffset = pos;
-						// cfi = section.cfiFromRange(range);
-						let cfi = new EpubCFI(range, cfiBase).toString();
-						locations.push(cfi);
-						counter = 0;
 					}
+
+					while (pos < len) {
+						dist = _break - counter;
+
+						if (counter === 0) {
+							// Start new range
+							pos += 1;
+							range = this.createRange();
+							range.startContainer = node;
+							range.startOffset = pos;
+						}
+
+						// pos += dist;
+
+						// Gone over
+						if (pos + dist >= len) {
+							// Continue counter for next node
+							counter += len - pos;
+							// break
+							pos = len;
+							// At End
+						} else {
+							// Advance pos
+							pos += dist;
+
+							// End the previous range
+							range.endContainer = node;
+							range.endOffset = pos;
+							// cfi = section.cfiFromRange(range);
+							var cfi = new EpubCFI(range, cfiBase).toString();
+							locations.push(cfi);
+							counter = 0;
+						}
+					}
+					prev = node;
+				};
+
+				sprint(body, parser.bind(this));
+
+				// Close remaining
+				if (range && range.startContainer && prev) {
+					range.endContainer = prev;
+					range.endOffset = prev.length;
+					var cfi = new EpubCFI(range, cfiBase).toString();
+					locations.push(cfi);
+					counter = 0;
 				}
-				prev = node;
-			};
 
-			sprint(body, parser.bind(this));
-
-			// Close remaining
-			if (range && range.startContainer && prev) {
-				range.endContainer = prev;
-				range.endOffset = prev.length;
-				let cfi = new EpubCFI(range, cfiBase).toString();
-				locations.push(cfi);
-				counter = 0;
+				return locations;
 			}
 
-			return locations;
-		}
+			/**
+	   * Get a location from an EpubCFI
+	   * @param {EpubCFI} cfi
+	   * @return {number}
+	   */
 
-		/**
-	  * Get a location from an EpubCFI
-	  * @param {EpubCFI} cfi
-	  * @return {number}
-	  */
-		locationFromCfi(cfi) {
-			let loc;
-			if (EpubCFI.prototype.isCfiString(cfi)) {
-				cfi = new EpubCFI(cfi);
-			}
-			// Check if the location has not been set yet
-			if (this._locations.length === 0) {
-				return -1;
-			}
+		}, {
+			key: "locationFromCfi",
+			value: function locationFromCfi(cfi) {
+				var loc = void 0;
+				if (EpubCFI.prototype.isCfiString(cfi)) {
+					cfi = new EpubCFI(cfi);
+				}
+				// Check if the location has not been set yet
+				if (this._locations.length === 0) {
+					return -1;
+				}
 
-			loc = locationOf(cfi, this._locations, this.epubcfi.compare);
+				loc = locationOf(cfi, this._locations, this.epubcfi.compare);
 
-			if (loc > this.total) {
-				return this.total;
-			}
+				if (loc > this.total) {
+					return this.total;
+				}
 
-			return loc;
-		}
-
-		/**
-	  * Get a percentage position in locations from an EpubCFI
-	  * @param {EpubCFI} cfi
-	  * @return {number}
-	  */
-		percentageFromCfi(cfi) {
-			if (this._locations.length === 0) {
-				return null;
-			}
-			// Find closest cfi
-			var loc = this.locationFromCfi(cfi);
-			// Get percentage in total
-			return this.percentageFromLocation(loc);
-		}
-
-		/**
-	  * Get a percentage position from a location index
-	  * @param {number} location
-	  * @return {number}
-	  */
-		percentageFromLocation(loc) {
-			if (!loc || !this.total) {
-				return 0;
+				return loc;
 			}
 
-			return loc / this.total;
-		}
+			/**
+	   * Get a percentage position in locations from an EpubCFI
+	   * @param {EpubCFI} cfi
+	   * @return {number}
+	   */
 
-		/**
-	  * Get an EpubCFI from location index
-	  * @param {number} loc
-	  * @return {EpubCFI} cfi
-	  */
-		cfiFromLocation(loc) {
-			var cfi = -1;
-			// check that pg is an int
-			if (typeof loc != "number") {
-				loc = parseInt(loc);
+		}, {
+			key: "percentageFromCfi",
+			value: function percentageFromCfi(cfi) {
+				if (this._locations.length === 0) {
+					return null;
+				}
+				// Find closest cfi
+				var loc = this.locationFromCfi(cfi);
+				// Get percentage in total
+				return this.percentageFromLocation(loc);
 			}
 
-			if (loc >= 0 && loc < this._locations.length) {
-				cfi = this._locations[loc];
+			/**
+	   * Get a percentage position from a location index
+	   * @param {number} location
+	   * @return {number}
+	   */
+
+		}, {
+			key: "percentageFromLocation",
+			value: function percentageFromLocation(loc) {
+				if (!loc || !this.total) {
+					return 0;
+				}
+
+				return loc / this.total;
 			}
 
-			return cfi;
-		}
+			/**
+	   * Get an EpubCFI from location index
+	   * @param {number} loc
+	   * @return {EpubCFI} cfi
+	   */
 
-		/**
-	  * Get an EpubCFI from location percentage
-	  * @param {number} percentage
-	  * @return {EpubCFI} cfi
-	  */
-		cfiFromPercentage(percentage) {
-			let loc;
-			if (percentage > 1) {
-				console.warn("Normalize cfiFromPercentage value to between 0 - 1");
+		}, {
+			key: "cfiFromLocation",
+			value: function cfiFromLocation(loc) {
+				var cfi = -1;
+				// check that pg is an int
+				if (typeof loc != "number") {
+					loc = parseInt(loc);
+				}
+
+				if (loc >= 0 && loc < this._locations.length) {
+					cfi = this._locations[loc];
+				}
+
+				return cfi;
 			}
 
-			// Make sure 1 goes to very end
-			if (percentage >= 1) {
-				let cfi = new EpubCFI(this._locations[this.total]);
-				cfi.collapse();
-				return cfi.toString();
+			/**
+	   * Get an EpubCFI from location percentage
+	   * @param {number} percentage
+	   * @return {EpubCFI} cfi
+	   */
+
+		}, {
+			key: "cfiFromPercentage",
+			value: function cfiFromPercentage(percentage) {
+				var loc = void 0;
+				if (percentage > 1) {
+					console.warn("Normalize cfiFromPercentage value to between 0 - 1");
+				}
+
+				// Make sure 1 goes to very end
+				if (percentage >= 1) {
+					var cfi = new EpubCFI(this._locations[this.total]);
+					cfi.collapse();
+					return cfi.toString();
+				}
+
+				loc = Math.ceil(this.total * percentage);
+				return this.cfiFromLocation(loc);
 			}
 
-			loc = Math.ceil(this.total * percentage);
-			return this.cfiFromLocation(loc);
-		}
+			/**
+	   * Load locations from JSON
+	   * @param {json} locations
+	   */
 
-		/**
-	  * Load locations from JSON
-	  * @param {json} locations
-	  */
-		load(locations) {
-			if (typeof locations === "string") {
-				this._locations = JSON.parse(locations);
-			} else {
-				this._locations = locations;
-			}
-			this.total = this._locations.length - 1;
-			return this._locations;
-		}
-
-		/**
-	  * Save locations to JSON
-	  * @return {json}
-	  */
-		save() {
-			return JSON.stringify(this._locations);
-		}
-
-		getCurrent() {
-			return this._current;
-		}
-
-		setCurrent(curr) {
-			var loc;
-
-			if (typeof curr == "string") {
-				this._currentCfi = curr;
-			} else if (typeof curr == "number") {
-				this._current = curr;
-			} else {
-				return;
+		}, {
+			key: "load",
+			value: function load(locations) {
+				if (typeof locations === "string") {
+					this._locations = JSON.parse(locations);
+				} else {
+					this._locations = locations;
+				}
+				this.total = this._locations.length - 1;
+				return this._locations;
 			}
 
-			if (this._locations.length === 0) {
-				return;
+			/**
+	   * Save locations to JSON
+	   * @return {json}
+	   */
+
+		}, {
+			key: "save",
+			value: function save() {
+				return JSON.stringify(this._locations);
+			}
+		}, {
+			key: "getCurrent",
+			value: function getCurrent() {
+				return this._current;
+			}
+		}, {
+			key: "setCurrent",
+			value: function setCurrent(curr) {
+				var loc;
+
+				if (typeof curr == "string") {
+					this._currentCfi = curr;
+				} else if (typeof curr == "number") {
+					this._current = curr;
+				} else {
+					return;
+				}
+
+				if (this._locations.length === 0) {
+					return;
+				}
+
+				if (typeof curr == "string") {
+					loc = this.locationFromCfi(curr);
+					this._current = loc;
+				} else {
+					loc = curr;
+				}
+
+				this.emit(EVENTS.LOCATIONS.CHANGED, {
+					percentage: this.percentageFromLocation(loc)
+				});
 			}
 
-			if (typeof curr == "string") {
-				loc = this.locationFromCfi(curr);
-				this._current = loc;
-			} else {
-				loc = curr;
+			/**
+	   * Get the current location
+	   */
+
+		}, {
+			key: "length",
+
+
+			/**
+	   * Locations length
+	   */
+			value: function length() {
+				return this._locations.length;
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.spine = undefined;
+				this.request = undefined;
+				this.pause = undefined;
+
+				this.q.stop();
+				this.q = undefined;
+				this.epubcfi = undefined;
+
+				this._locations = undefined;
+				this.total = undefined;
+
+				this.break = undefined;
+				this._current = undefined;
+
+				this.currentLocation = undefined;
+				this._currentCfi = undefined;
+				clearTimeout(this.processingTimeout);
+			}
+		}, {
+			key: "currentLocation",
+			get: function get() {
+				return this._current;
 			}
 
-			this.emit(EVENTS.LOCATIONS.CHANGED, {
-				percentage: this.percentageFromLocation(loc)
-			});
-		}
+			/**
+	   * Set the current location
+	   */
+			,
+			set: function set(curr) {
+				this.setCurrent(curr);
+			}
+		}]);
 
-		/**
-	  * Get the current location
-	  */
-		get currentLocation() {
-			return this._current;
-		}
-
-		/**
-	  * Set the current location
-	  */
-		set currentLocation(curr) {
-			this.setCurrent(curr);
-		}
-
-		/**
-	  * Locations length
-	  */
-		length() {
-			return this._locations.length;
-		}
-
-		destroy() {
-			this.spine = undefined;
-			this.request = undefined;
-			this.pause = undefined;
-
-			this.q.stop();
-			this.q = undefined;
-			this.epubcfi = undefined;
-
-			this._locations = undefined;
-			this.total = undefined;
-
-			this.break = undefined;
-			this._current = undefined;
-
-			this.currentLocation = undefined;
-			this._currentCfi = undefined;
-			clearTimeout(this.processingTimeout);
-		}
-	}
+		return Locations;
+	}();
 
 	eventEmitter(Locations.prototype);
+
+	var _createClass$9 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$9(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Handles Parsing and Accessing an Epub Container
 	 * @class
 	 * @param {document} [containerDocument] xml document
 	 */
-	class Container {
-		constructor(containerDocument) {
+
+	var Container = function () {
+		function Container(containerDocument) {
+			_classCallCheck$9(this, Container);
+
 			this.packagePath = '';
 			this.directory = '';
 			this.encoding = '';
@@ -11331,39 +11568,54 @@
 	  * Parse the Container XML
 	  * @param  {document} containerDocument
 	  */
-		parse(containerDocument) {
-			//-- <rootfile full-path="OPS/package.opf" media-type="application/oebps-package+xml"/>
-			var rootfile;
 
-			if (!containerDocument) {
-				throw new Error("Container File Not Found");
+
+		_createClass$9(Container, [{
+			key: "parse",
+			value: function parse$$1(containerDocument) {
+				//-- <rootfile full-path="OPS/package.opf" media-type="application/oebps-package+xml"/>
+				var rootfile;
+
+				if (!containerDocument) {
+					throw new Error("Container File Not Found");
+				}
+
+				rootfile = qs(containerDocument, "rootfile");
+
+				if (!rootfile) {
+					throw new Error("No RootFile Found");
+				}
+
+				this.packagePath = rootfile.getAttribute("full-path");
+				this.directory = path.dirname(this.packagePath);
+				this.encoding = containerDocument.xmlEncoding;
 			}
-
-			rootfile = qs(containerDocument, "rootfile");
-
-			if (!rootfile) {
-				throw new Error("No RootFile Found");
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.packagePath = undefined;
+				this.directory = undefined;
+				this.encoding = undefined;
 			}
+		}]);
 
-			this.packagePath = rootfile.getAttribute("full-path");
-			this.directory = path.dirname(this.packagePath);
-			this.encoding = containerDocument.xmlEncoding;
-		}
+		return Container;
+	}();
 
-		destroy() {
-			this.packagePath = undefined;
-			this.directory = undefined;
-			this.encoding = undefined;
-		}
-	}
+	var _createClass$a = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$a(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Open Packaging Format Parser
 	 * @class
 	 * @param {document} packageDocument OPF XML
 	 */
-	class Packaging {
-		constructor(packageDocument) {
+
+	var Packaging = function () {
+		function Packaging(packageDocument) {
+			_classCallCheck$a(this, Packaging);
+
 			this.manifest = {};
 			this.navPath = '';
 			this.ncxPath = '';
@@ -11382,349 +11634,396 @@
 	  * @param  {document} packageDocument OPF XML
 	  * @return {object} parsed package parts
 	  */
-		parse(packageDocument) {
-			var metadataNode, manifestNode, spineNode;
 
-			if (!packageDocument) {
-				throw new Error("Package File Not Found");
-			}
 
-			metadataNode = qs(packageDocument, "metadata");
-			if (!metadataNode) {
-				throw new Error("No Metadata Found");
-			}
+		_createClass$a(Packaging, [{
+			key: 'parse',
+			value: function parse$$1(packageDocument) {
+				var metadataNode, manifestNode, spineNode;
 
-			manifestNode = qs(packageDocument, "manifest");
-			if (!manifestNode) {
-				throw new Error("No Manifest Found");
-			}
-
-			spineNode = qs(packageDocument, "spine");
-			if (!spineNode) {
-				throw new Error("No Spine Found");
-			}
-
-			this.manifest = this.parseManifest(manifestNode);
-			this.navPath = this.findNavPath(manifestNode);
-			this.ncxPath = this.findNcxPath(manifestNode, spineNode);
-			this.coverPath = this.findCoverPath(packageDocument);
-
-			this.spineNodeIndex = indexOfElementNode(spineNode);
-
-			this.spine = this.parseSpine(spineNode, this.manifest);
-
-			this.uniqueIdentifier = this.findUniqueIdentifier(packageDocument);
-			this.metadata = this.parseMetadata(metadataNode);
-
-			this.metadata.direction = spineNode.getAttribute("page-progression-direction");
-
-			return {
-				"metadata": this.metadata,
-				"spine": this.spine,
-				"manifest": this.manifest,
-				"navPath": this.navPath,
-				"ncxPath": this.ncxPath,
-				"coverPath": this.coverPath,
-				"spineNodeIndex": this.spineNodeIndex
-			};
-		}
-
-		/**
-	  * Parse Metadata
-	  * @private
-	  * @param  {node} xml
-	  * @return {object} metadata
-	  */
-		parseMetadata(xml) {
-			var metadata = {};
-
-			metadata.title = this.getElementText(xml, "title");
-			metadata.creator = this.getElementText(xml, "creator");
-			metadata.description = this.getElementText(xml, "description");
-
-			metadata.pubdate = this.getElementText(xml, "date");
-
-			metadata.publisher = this.getElementText(xml, "publisher");
-
-			metadata.identifier = this.getElementText(xml, "identifier");
-			metadata.language = this.getElementText(xml, "language");
-			metadata.rights = this.getElementText(xml, "rights");
-
-			metadata.modified_date = this.getPropertyText(xml, "dcterms:modified");
-
-			metadata.layout = this.getPropertyText(xml, "rendition:layout");
-			metadata.orientation = this.getPropertyText(xml, "rendition:orientation");
-			metadata.flow = this.getPropertyText(xml, "rendition:flow");
-			metadata.viewport = this.getPropertyText(xml, "rendition:viewport");
-			metadata.media_active_class = this.getPropertyText(xml, "media:active-class");
-			// metadata.page_prog_dir = packageXml.querySelector("spine").getAttribute("page-progression-direction");
-
-			return metadata;
-		}
-
-		/**
-	  * Parse Manifest
-	  * @private
-	  * @param  {node} manifestXml
-	  * @return {object} manifest
-	  */
-		parseManifest(manifestXml) {
-			var manifest = {};
-
-			//-- Turn items into an array
-			// var selected = manifestXml.querySelectorAll("item");
-			var selected = qsa(manifestXml, "item");
-			var items = Array.prototype.slice.call(selected);
-
-			//-- Create an object with the id as key
-			items.forEach(function (item) {
-				var id = item.getAttribute("id"),
-				    href = item.getAttribute("href") || "",
-				    type$$1 = item.getAttribute("media-type") || "",
-				    overlay = item.getAttribute("media-overlay") || "",
-				    properties = item.getAttribute("properties") || "";
-
-				manifest[id] = {
-					"href": href,
-					// "url" : href,
-					"type": type$$1,
-					"overlay": overlay,
-					"properties": properties.length ? properties.split(" ") : []
-				};
-			});
-
-			return manifest;
-		}
-
-		/**
-	  * Parse Spine
-	  * @private
-	  * @param  {node} spineXml
-	  * @param  {Packaging.manifest} manifest
-	  * @return {object} spine
-	  */
-		parseSpine(spineXml, manifest) {
-			var spine = [];
-
-			var selected = qsa(spineXml, "itemref");
-			var items = Array.prototype.slice.call(selected);
-
-			// var epubcfi = new EpubCFI();
-
-			//-- Add to array to mantain ordering and cross reference with manifest
-			items.forEach(function (item, index) {
-				var idref = item.getAttribute("idref");
-				// var cfiBase = epubcfi.generateChapterComponent(spineNodeIndex, index, Id);
-				var props = item.getAttribute("properties") || "";
-				var propArray = props.length ? props.split(" ") : [];
-				// var manifestProps = manifest[Id].properties;
-				// var manifestPropArray = manifestProps.length ? manifestProps.split(" ") : [];
-
-				var itemref = {
-					"idref": idref,
-					"linear": item.getAttribute("linear") || "yes",
-					"properties": propArray,
-					// "href" : manifest[Id].href,
-					// "url" :  manifest[Id].url,
-					"index": index
-					// "cfiBase" : cfiBase
-				};
-				spine.push(itemref);
-			});
-
-			return spine;
-		}
-
-		/**
-	  * Find Unique Identifier
-	  * @private
-	  * @param  {node} packageXml
-	  * @return {string} Unique Identifier text
-	  */
-		findUniqueIdentifier(packageXml) {
-			var uniqueIdentifierId = packageXml.documentElement.getAttribute("unique-identifier");
-			if (!uniqueIdentifierId) {
-				return "";
-			}
-			var identifier = packageXml.getElementById(uniqueIdentifierId);
-			if (!identifier) {
-				return "";
-			}
-
-			if (identifier.localName === "identifier" && identifier.namespaceURI === "http://purl.org/dc/elements/1.1/") {
-				return identifier.childNodes[0].nodeValue.trim();
-			}
-
-			return "";
-		}
-
-		/**
-	  * Find TOC NAV
-	  * @private
-	  * @param {element} manifestNode
-	  * @return {string}
-	  */
-		findNavPath(manifestNode) {
-			// Find item with property "nav"
-			// Should catch nav irregardless of order
-			// var node = manifestNode.querySelector("item[properties$='nav'], item[properties^='nav '], item[properties*=' nav ']");
-			var node = qsp(manifestNode, "item", { "properties": "nav" });
-			return node ? node.getAttribute("href") : false;
-		}
-
-		/**
-	  * Find TOC NCX
-	  * media-type="application/x-dtbncx+xml" href="toc.ncx"
-	  * @private
-	  * @param {element} manifestNode
-	  * @param {element} spineNode
-	  * @return {string}
-	  */
-		findNcxPath(manifestNode, spineNode) {
-			// var node = manifestNode.querySelector("item[media-type='application/x-dtbncx+xml']");
-			var node = qsp(manifestNode, "item", { "media-type": "application/x-dtbncx+xml" });
-			var tocId;
-
-			// If we can't find the toc by media-type then try to look for id of the item in the spine attributes as
-			// according to http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1.2,
-			// "The item that describes the NCX must be referenced by the spine toc attribute."
-			if (!node) {
-				tocId = spineNode.getAttribute("toc");
-				if (tocId) {
-					// node = manifestNode.querySelector("item[id='" + tocId + "']");
-					node = manifestNode.querySelector(`#${tocId}`);
+				if (!packageDocument) {
+					throw new Error("Package File Not Found");
 				}
+
+				metadataNode = qs(packageDocument, "metadata");
+				if (!metadataNode) {
+					throw new Error("No Metadata Found");
+				}
+
+				manifestNode = qs(packageDocument, "manifest");
+				if (!manifestNode) {
+					throw new Error("No Manifest Found");
+				}
+
+				spineNode = qs(packageDocument, "spine");
+				if (!spineNode) {
+					throw new Error("No Spine Found");
+				}
+
+				this.manifest = this.parseManifest(manifestNode);
+				this.navPath = this.findNavPath(manifestNode);
+				this.ncxPath = this.findNcxPath(manifestNode, spineNode);
+				this.coverPath = this.findCoverPath(packageDocument);
+
+				this.spineNodeIndex = indexOfElementNode(spineNode);
+
+				this.spine = this.parseSpine(spineNode, this.manifest);
+
+				this.uniqueIdentifier = this.findUniqueIdentifier(packageDocument);
+				this.metadata = this.parseMetadata(metadataNode);
+
+				this.metadata.direction = spineNode.getAttribute("page-progression-direction");
+
+				return {
+					"metadata": this.metadata,
+					"spine": this.spine,
+					"manifest": this.manifest,
+					"navPath": this.navPath,
+					"ncxPath": this.ncxPath,
+					"coverPath": this.coverPath,
+					"spineNodeIndex": this.spineNodeIndex
+				};
 			}
 
-			return node ? node.getAttribute("href") : false;
-		}
+			/**
+	   * Parse Metadata
+	   * @private
+	   * @param  {node} xml
+	   * @return {object} metadata
+	   */
 
-		/**
-	  * Find the Cover Path
-	  * <item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />
-	  * Fallback for Epub 2.0
-	  * @private
-	  * @param  {node} packageXml
-	  * @return {string} href
-	  */
-		findCoverPath(packageXml) {
-			var pkg = qs(packageXml, "package");
-			var epubVersion = pkg.getAttribute("version");
+		}, {
+			key: 'parseMetadata',
+			value: function parseMetadata(xml) {
+				var metadata = {};
 
-			if (epubVersion === "2.0") {
-				var metaCover = qsp(packageXml, "meta", { "name": "cover" });
-				if (metaCover) {
-					var coverId = metaCover.getAttribute("content");
-					// var cover = packageXml.querySelector("item[id='" + coverId + "']");
-					var cover = packageXml.getElementById(coverId);
-					return cover ? cover.getAttribute("href") : "";
+				metadata.title = this.getElementText(xml, "title");
+				metadata.creator = this.getElementText(xml, "creator");
+				metadata.description = this.getElementText(xml, "description");
+
+				metadata.pubdate = this.getElementText(xml, "date");
+
+				metadata.publisher = this.getElementText(xml, "publisher");
+
+				metadata.identifier = this.getElementText(xml, "identifier");
+				metadata.language = this.getElementText(xml, "language");
+				metadata.rights = this.getElementText(xml, "rights");
+
+				metadata.modified_date = this.getPropertyText(xml, "dcterms:modified");
+
+				metadata.layout = this.getPropertyText(xml, "rendition:layout");
+				metadata.orientation = this.getPropertyText(xml, "rendition:orientation");
+				metadata.flow = this.getPropertyText(xml, "rendition:flow");
+				metadata.viewport = this.getPropertyText(xml, "rendition:viewport");
+				metadata.media_active_class = this.getPropertyText(xml, "media:active-class");
+				// metadata.page_prog_dir = packageXml.querySelector("spine").getAttribute("page-progression-direction");
+
+				return metadata;
+			}
+
+			/**
+	   * Parse Manifest
+	   * @private
+	   * @param  {node} manifestXml
+	   * @return {object} manifest
+	   */
+
+		}, {
+			key: 'parseManifest',
+			value: function parseManifest(manifestXml) {
+				var manifest = {};
+
+				//-- Turn items into an array
+				// var selected = manifestXml.querySelectorAll("item");
+				var selected = qsa(manifestXml, "item");
+				var items = Array.prototype.slice.call(selected);
+
+				//-- Create an object with the id as key
+				items.forEach(function (item) {
+					var id = item.getAttribute("id"),
+					    href = item.getAttribute("href") || "",
+					    type$$1 = item.getAttribute("media-type") || "",
+					    overlay = item.getAttribute("media-overlay") || "",
+					    properties = item.getAttribute("properties") || "";
+
+					manifest[id] = {
+						"href": href,
+						// "url" : href,
+						"type": type$$1,
+						"overlay": overlay,
+						"properties": properties.length ? properties.split(" ") : []
+					};
+				});
+
+				return manifest;
+			}
+
+			/**
+	   * Parse Spine
+	   * @private
+	   * @param  {node} spineXml
+	   * @param  {Packaging.manifest} manifest
+	   * @return {object} spine
+	   */
+
+		}, {
+			key: 'parseSpine',
+			value: function parseSpine(spineXml, manifest) {
+				var spine = [];
+
+				var selected = qsa(spineXml, "itemref");
+				var items = Array.prototype.slice.call(selected);
+
+				// var epubcfi = new EpubCFI();
+
+				//-- Add to array to mantain ordering and cross reference with manifest
+				items.forEach(function (item, index) {
+					var idref = item.getAttribute("idref");
+					// var cfiBase = epubcfi.generateChapterComponent(spineNodeIndex, index, Id);
+					var props = item.getAttribute("properties") || "";
+					var propArray = props.length ? props.split(" ") : [];
+					// var manifestProps = manifest[Id].properties;
+					// var manifestPropArray = manifestProps.length ? manifestProps.split(" ") : [];
+
+					var itemref = {
+						"idref": idref,
+						"linear": item.getAttribute("linear") || "yes",
+						"properties": propArray,
+						// "href" : manifest[Id].href,
+						// "url" :  manifest[Id].url,
+						"index": index
+						// "cfiBase" : cfiBase
+					};
+					spine.push(itemref);
+				});
+
+				return spine;
+			}
+
+			/**
+	   * Find Unique Identifier
+	   * @private
+	   * @param  {node} packageXml
+	   * @return {string} Unique Identifier text
+	   */
+
+		}, {
+			key: 'findUniqueIdentifier',
+			value: function findUniqueIdentifier(packageXml) {
+				var uniqueIdentifierId = packageXml.documentElement.getAttribute("unique-identifier");
+				if (!uniqueIdentifierId) {
+					return "";
+				}
+				var identifier = packageXml.getElementById(uniqueIdentifierId);
+				if (!identifier) {
+					return "";
+				}
+
+				if (identifier.localName === "identifier" && identifier.namespaceURI === "http://purl.org/dc/elements/1.1/") {
+					return identifier.childNodes[0].nodeValue.trim();
+				}
+
+				return "";
+			}
+
+			/**
+	   * Find TOC NAV
+	   * @private
+	   * @param {element} manifestNode
+	   * @return {string}
+	   */
+
+		}, {
+			key: 'findNavPath',
+			value: function findNavPath(manifestNode) {
+				// Find item with property "nav"
+				// Should catch nav irregardless of order
+				// var node = manifestNode.querySelector("item[properties$='nav'], item[properties^='nav '], item[properties*=' nav ']");
+				var node = qsp(manifestNode, "item", { "properties": "nav" });
+				return node ? node.getAttribute("href") : false;
+			}
+
+			/**
+	   * Find TOC NCX
+	   * media-type="application/x-dtbncx+xml" href="toc.ncx"
+	   * @private
+	   * @param {element} manifestNode
+	   * @param {element} spineNode
+	   * @return {string}
+	   */
+
+		}, {
+			key: 'findNcxPath',
+			value: function findNcxPath(manifestNode, spineNode) {
+				// var node = manifestNode.querySelector("item[media-type='application/x-dtbncx+xml']");
+				var node = qsp(manifestNode, "item", { "media-type": "application/x-dtbncx+xml" });
+				var tocId;
+
+				// If we can't find the toc by media-type then try to look for id of the item in the spine attributes as
+				// according to http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4.1.2,
+				// "The item that describes the NCX must be referenced by the spine toc attribute."
+				if (!node) {
+					tocId = spineNode.getAttribute("toc");
+					if (tocId) {
+						// node = manifestNode.querySelector("item[id='" + tocId + "']");
+						node = manifestNode.querySelector('#' + tocId);
+					}
+				}
+
+				return node ? node.getAttribute("href") : false;
+			}
+
+			/**
+	   * Find the Cover Path
+	   * <item properties="cover-image" id="ci" href="cover.svg" media-type="image/svg+xml" />
+	   * Fallback for Epub 2.0
+	   * @private
+	   * @param  {node} packageXml
+	   * @return {string} href
+	   */
+
+		}, {
+			key: 'findCoverPath',
+			value: function findCoverPath(packageXml) {
+				var pkg = qs(packageXml, "package");
+				var epubVersion = pkg.getAttribute("version");
+
+				if (epubVersion === "2.0") {
+					var metaCover = qsp(packageXml, "meta", { "name": "cover" });
+					if (metaCover) {
+						var coverId = metaCover.getAttribute("content");
+						// var cover = packageXml.querySelector("item[id='" + coverId + "']");
+						var cover = packageXml.getElementById(coverId);
+						return cover ? cover.getAttribute("href") : "";
+					} else {
+						return false;
+					}
 				} else {
-					return false;
+					// var node = packageXml.querySelector("item[properties='cover-image']");
+					var node = qsp(packageXml, "item", { "properties": "cover-image" });
+					return node ? node.getAttribute("href") : "";
 				}
-			} else {
-				// var node = packageXml.querySelector("item[properties='cover-image']");
-				var node = qsp(packageXml, "item", { "properties": "cover-image" });
-				return node ? node.getAttribute("href") : "";
-			}
-		}
-
-		/**
-	  * Get text of a namespaced element
-	  * @private
-	  * @param  {node} xml
-	  * @param  {string} tag
-	  * @return {string} text
-	  */
-		getElementText(xml, tag) {
-			var found = xml.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag);
-			var el;
-
-			if (!found || found.length === 0) return "";
-
-			el = found[0];
-
-			if (el.childNodes.length) {
-				return el.childNodes[0].nodeValue;
 			}
 
-			return "";
-		}
+			/**
+	   * Get text of a namespaced element
+	   * @private
+	   * @param  {node} xml
+	   * @param  {string} tag
+	   * @return {string} text
+	   */
 
-		/**
-	  * Get text by property
-	  * @private
-	  * @param  {node} xml
-	  * @param  {string} property
-	  * @return {string} text
-	  */
-		getPropertyText(xml, property) {
-			var el = qsp(xml, "meta", { "property": property });
+		}, {
+			key: 'getElementText',
+			value: function getElementText(xml, tag) {
+				var found = xml.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", tag);
+				var el;
 
-			if (el && el.childNodes.length) {
-				return el.childNodes[0].nodeValue;
-			}
+				if (!found || found.length === 0) return "";
 
-			return "";
-		}
+				el = found[0];
 
-		/**
-	  * Load JSON Manifest
-	  * @param  {document} packageDocument OPF XML
-	  * @return {object} parsed package parts
-	  */
-		load(json) {
-			this.metadata = json.metadata;
-
-			let spine = json.readingOrder || json.spine;
-			this.spine = spine.map((item, index) => {
-				item.index = index;
-				return item;
-			});
-
-			json.resources.forEach((item, index) => {
-				this.manifest[index] = item;
-
-				if (item.rel && item.rel[0] === "cover") {
-					this.coverPath = item.href;
+				if (el.childNodes.length) {
+					return el.childNodes[0].nodeValue;
 				}
-			});
 
-			this.spineNodeIndex = 0;
+				return "";
+			}
 
-			this.toc = json.toc.map((item, index) => {
-				item.label = item.title;
-				return item;
-			});
+			/**
+	   * Get text by property
+	   * @private
+	   * @param  {node} xml
+	   * @param  {string} property
+	   * @return {string} text
+	   */
 
-			return {
-				"metadata": this.metadata,
-				"spine": this.spine,
-				"manifest": this.manifest,
-				"navPath": this.navPath,
-				"ncxPath": this.ncxPath,
-				"coverPath": this.coverPath,
-				"spineNodeIndex": this.spineNodeIndex,
-				"toc": this.toc
-			};
-		}
+		}, {
+			key: 'getPropertyText',
+			value: function getPropertyText(xml, property) {
+				var el = qsp(xml, "meta", { "property": property });
 
-		destroy() {
-			this.manifest = undefined;
-			this.navPath = undefined;
-			this.ncxPath = undefined;
-			this.coverPath = undefined;
-			this.spineNodeIndex = undefined;
-			this.spine = undefined;
-			this.metadata = undefined;
-		}
-	}
+				if (el && el.childNodes.length) {
+					return el.childNodes[0].nodeValue;
+				}
+
+				return "";
+			}
+
+			/**
+	   * Load JSON Manifest
+	   * @param  {document} packageDocument OPF XML
+	   * @return {object} parsed package parts
+	   */
+
+		}, {
+			key: 'load',
+			value: function load(json) {
+				var _this = this;
+
+				this.metadata = json.metadata;
+
+				var spine = json.readingOrder || json.spine;
+				this.spine = spine.map(function (item, index) {
+					item.index = index;
+					return item;
+				});
+
+				json.resources.forEach(function (item, index) {
+					_this.manifest[index] = item;
+
+					if (item.rel && item.rel[0] === "cover") {
+						_this.coverPath = item.href;
+					}
+				});
+
+				this.spineNodeIndex = 0;
+
+				this.toc = json.toc.map(function (item, index) {
+					item.label = item.title;
+					return item;
+				});
+
+				return {
+					"metadata": this.metadata,
+					"spine": this.spine,
+					"manifest": this.manifest,
+					"navPath": this.navPath,
+					"ncxPath": this.ncxPath,
+					"coverPath": this.coverPath,
+					"spineNodeIndex": this.spineNodeIndex,
+					"toc": this.toc
+				};
+			}
+		}, {
+			key: 'destroy',
+			value: function destroy() {
+				this.manifest = undefined;
+				this.navPath = undefined;
+				this.ncxPath = undefined;
+				this.coverPath = undefined;
+				this.spineNodeIndex = undefined;
+				this.spine = undefined;
+				this.metadata = undefined;
+			}
+		}]);
+
+		return Packaging;
+	}();
+
+	var _createClass$b = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$b(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Navigation Parser
 	 * @param {document} xml navigation html / xhtml / ncx
 	 */
-	class Navigation {
-		constructor(xml) {
+
+	var Navigation = function () {
+		function Navigation(xml) {
+			_classCallCheck$b(this, Navigation);
+
 			this.toc = [];
 			this.tocByHref = {};
 			this.tocById = {};
@@ -11742,116 +12041,280 @@
 	  * Parse out the navigation items
 	  * @param {document} xml navigation html / xhtml / ncx
 	  */
-		parse(xml) {
-			let isXml$$1 = xml.nodeType;
-			let html;
-			let ncx;
 
-			if (isXml$$1) {
-				html = qs(xml, "html");
-				ncx = qs(xml, "ncx");
-			}
 
-			if (!isXml$$1) {
-				this.toc = this.load(xml);
-			} else if (html) {
-				this.toc = this.parseNav(xml);
-				this.landmarks = this.parseLandmarks(xml);
-			} else if (ncx) {
-				this.toc = this.parseNcx(xml);
-			}
+		_createClass$b(Navigation, [{
+			key: "parse",
+			value: function parse$$1(xml) {
+				var isXml$$1 = xml.nodeType;
+				var html = void 0;
+				var ncx = void 0;
 
-			this.length = 0;
-
-			this.unpack(this.toc);
-		}
-
-		/**
-	  * Unpack navigation items
-	  * @private
-	  * @param  {array} toc
-	  */
-		unpack(toc) {
-			var item;
-
-			for (var i = 0; i < toc.length; i++) {
-				item = toc[i];
-
-				if (item.href) {
-					this.tocByHref[item.href] = i;
+				if (isXml$$1) {
+					html = qs(xml, "html");
+					ncx = qs(xml, "ncx");
 				}
 
-				if (item.id) {
-					this.tocById[item.id] = i;
+				if (!isXml$$1) {
+					this.toc = this.load(xml);
+				} else if (html) {
+					this.toc = this.parseNav(xml);
+					this.landmarks = this.parseLandmarks(xml);
+				} else if (ncx) {
+					this.toc = this.parseNcx(xml);
 				}
 
-				this.length++;
+				this.length = 0;
 
-				if (item.subitems.length) {
-					this.unpack(item.subitems);
+				this.unpack(this.toc);
+			}
+
+			/**
+	   * Unpack navigation items
+	   * @private
+	   * @param  {array} toc
+	   */
+
+		}, {
+			key: "unpack",
+			value: function unpack(toc) {
+				var item;
+
+				for (var i = 0; i < toc.length; i++) {
+					item = toc[i];
+
+					if (item.href) {
+						this.tocByHref[item.href] = i;
+					}
+
+					if (item.id) {
+						this.tocById[item.id] = i;
+					}
+
+					this.length++;
+
+					if (item.subitems.length) {
+						this.unpack(item.subitems);
+					}
 				}
 			}
-		}
 
-		/**
-	  * Get an item from the navigation
-	  * @param  {string} target
-	  * @return {object} navItem
-	  */
-		get(target) {
-			var index;
+			/**
+	   * Get an item from the navigation
+	   * @param  {string} target
+	   * @return {object} navItem
+	   */
 
-			if (!target) {
-				return this.toc;
+		}, {
+			key: "get",
+			value: function get(target) {
+				var index;
+
+				if (!target) {
+					return this.toc;
+				}
+
+				if (target.indexOf("#") === 0) {
+					index = this.tocById[target.substring(1)];
+				} else if (target in this.tocByHref) {
+					index = this.tocByHref[target];
+				}
+
+				return this.toc[index];
 			}
 
-			if (target.indexOf("#") === 0) {
-				index = this.tocById[target.substring(1)];
-			} else if (target in this.tocByHref) {
-				index = this.tocByHref[target];
+			/**
+	   * Get a landmark by type
+	   * List of types: https://idpf.github.io/epub-vocabs/structure/
+	   * @param  {string} type
+	   * @return {object} landmarkItem
+	   */
+
+		}, {
+			key: "landmark",
+			value: function landmark(type$$1) {
+				var index;
+
+				if (!type$$1) {
+					return this.landmarks;
+				}
+
+				index = this.landmarksByType[type$$1];
+
+				return this.landmarks[index];
 			}
 
-			return this.toc[index];
-		}
+			/**
+	   * Parse toc from a Epub > 3.0 Nav
+	   * @private
+	   * @param  {document} navHtml
+	   * @return {array} navigation list
+	   */
 
-		/**
-	  * Get a landmark by type
-	  * List of types: https://idpf.github.io/epub-vocabs/structure/
-	  * @param  {string} type
-	  * @return {object} landmarkItem
-	  */
-		landmark(type$$1) {
-			var index;
+		}, {
+			key: "parseNav",
+			value: function parseNav(navHtml) {
+				var navElement = querySelectorByType(navHtml, "nav", "toc");
+				var navItems = navElement ? qsa(navElement, "li") : [];
+				var length = navItems.length;
+				var i;
+				var toc = {};
+				var list = [];
+				var item, parent;
 
-			if (!type$$1) {
-				return this.landmarks;
+				if (!navItems || length === 0) return list;
+
+				for (i = 0; i < length; ++i) {
+					item = this.navItem(navItems[i]);
+					if (item) {
+						toc[item.id] = item;
+						if (!item.parent) {
+							list.push(item);
+						} else {
+							parent = toc[item.parent];
+							parent.subitems.push(item);
+						}
+					}
+				}
+
+				return list;
 			}
 
-			index = this.landmarksByType[type$$1];
+			/**
+	   * Create a navItem
+	   * @private
+	   * @param  {element} item
+	   * @return {object} navItem
+	   */
 
-			return this.landmarks[index];
-		}
+		}, {
+			key: "navItem",
+			value: function navItem(item) {
+				var id = item.getAttribute("id") || undefined;
+				var content = filterChildren(item, "a", true);
 
-		/**
-	  * Parse toc from a Epub > 3.0 Nav
-	  * @private
-	  * @param  {document} navHtml
-	  * @return {array} navigation list
-	  */
-		parseNav(navHtml) {
-			var navElement = querySelectorByType(navHtml, "nav", "toc");
-			var navItems = navElement ? qsa(navElement, "li") : [];
-			var length = navItems.length;
-			var i;
-			var toc = {};
-			var list = [];
-			var item, parent;
+				if (!content) {
+					return;
+				}
 
-			if (!navItems || length === 0) return list;
+				var src = content.getAttribute("href") || "";
 
-			for (i = 0; i < length; ++i) {
-				item = this.navItem(navItems[i]);
-				if (item) {
+				if (!id) {
+					id = src;
+				}
+				var text = content.textContent || "";
+				var html = content.innerHTML;
+				var subitems = [];
+				var parentItem = getParentByTagName(item, "li");
+				var parent = void 0;
+
+				if (parentItem) {
+					parent = parentItem.getAttribute("id");
+					if (!parent) {
+						var parentContent = filterChildren(parentItem, "a", true);
+						parent = parentContent && parentContent.getAttribute("href");
+					}
+				}
+
+				while (!parent && parentItem) {
+					parentItem = getParentByTagName(parentItem, "li");
+					if (parentItem) {
+						parent = parentItem.getAttribute("id");
+						if (!parent) {
+							var _parentContent = filterChildren(parentItem, "a", true);
+							parent = _parentContent && _parentContent.getAttribute("href");
+						}
+					}
+				}
+
+				return {
+					"id": id,
+					"href": src,
+					"label": text,
+					"html": html,
+					"subitems": subitems,
+					"parent": parent
+				};
+			}
+
+			/**
+	   * Parse landmarks from a Epub > 3.0 Nav
+	   * @private
+	   * @param  {document} navHtml
+	   * @return {array} landmarks list
+	   */
+
+		}, {
+			key: "parseLandmarks",
+			value: function parseLandmarks(navHtml) {
+				var navElement = querySelectorByType(navHtml, "nav", "landmarks");
+				var navItems = navElement ? qsa(navElement, "li") : [];
+				var length = navItems.length;
+				var i;
+				var list = [];
+				var item;
+
+				if (!navItems || length === 0) return list;
+
+				for (i = 0; i < length; ++i) {
+					item = this.landmarkItem(navItems[i]);
+					if (item) {
+						list.push(item);
+						this.landmarksByType[item.type] = i;
+					}
+				}
+
+				return list;
+			}
+
+			/**
+	   * Create a landmarkItem
+	   * @private
+	   * @param  {element} item
+	   * @return {object} landmarkItem
+	   */
+
+		}, {
+			key: "landmarkItem",
+			value: function landmarkItem(item) {
+				var content = filterChildren(item, "a", true);
+
+				if (!content) {
+					return;
+				}
+
+				var type$$1 = content.getAttributeNS("http://www.idpf.org/2007/ops", "type") || undefined;
+				var href = content.getAttribute("href") || "";
+				var text = content.textContent || "";
+
+				return {
+					"href": href,
+					"label": text,
+					"type": type$$1
+				};
+			}
+
+			/**
+	   * Parse from a Epub > 3.0 NC
+	   * @private
+	   * @param  {document} navHtml
+	   * @return {array} navigation list
+	   */
+
+		}, {
+			key: "parseNcx",
+			value: function parseNcx(tocXml) {
+				var navPoints = qsa(tocXml, "navPoint");
+				var length = navPoints.length;
+				var i;
+				var toc = {};
+				var list = [];
+				var item, parent;
+
+				if (!navPoints || length === 0) return list;
+
+				for (i = 0; i < length; ++i) {
+					item = this.ncxItem(navPoints[i]);
 					toc[item.id] = item;
 					if (!item.parent) {
 						list.push(item);
@@ -11860,195 +12323,75 @@
 						parent.subitems.push(item);
 					}
 				}
+
+				return list;
 			}
 
-			return list;
-		}
+			/**
+	   * Create a ncxItem
+	   * @private
+	   * @param  {element} item
+	   * @return {object} ncxItem
+	   */
 
-		/**
-	  * Create a navItem
-	  * @private
-	  * @param  {element} item
-	  * @return {object} navItem
-	  */
-		navItem(item) {
-			let id = item.getAttribute("id") || undefined;
-			let content = filterChildren(item, "a", true);
+		}, {
+			key: "ncxItem",
+			value: function ncxItem(item) {
+				var id = item.getAttribute("id") || false,
+				    content = qs(item, "content"),
+				    src = content.getAttribute("src"),
+				    navLabel = qs(item, "navLabel"),
+				    text = navLabel.textContent ? navLabel.textContent : "",
+				    subitems = [],
+				    parentNode = item.parentNode,
+				    parent;
 
-			if (!content) {
-				return;
-			}
-
-			let src = content.getAttribute("href") || "";
-
-			if (!id) {
-				id = src;
-			}
-			let text = content.textContent || "";
-			let subitems = [];
-			let parentItem = getParentByTagName(item, "li");
-			let parent;
-
-			if (parentItem) {
-				parent = parentItem.getAttribute("id");
-				if (!parent) {
-					const parentContent = filterChildren(parentItem, "a", true);
-					parent = parentContent && parentContent.getAttribute("href");
+				if (parentNode && (parentNode.nodeName === "navPoint" || parentNode.nodeName.split(':').slice(-1)[0] === "navPoint")) {
+					parent = parentNode.getAttribute("id");
 				}
+
+				return {
+					"id": id,
+					"href": src,
+					"label": text,
+					"subitems": subitems,
+					"parent": parent
+				};
 			}
 
-			while (!parent && parentItem) {
-				parentItem = getParentByTagName(parentItem, "li");
-				if (parentItem) {
-					parent = parentItem.getAttribute("id");
-					if (!parent) {
-						const parentContent = filterChildren(parentItem, "a", true);
-						parent = parentContent && parentContent.getAttribute("href");
-					}
-				}
+			/**
+	   * Load Spine Items
+	   * @param  {object} json the items to be loaded
+	   * @return {Array} navItems
+	   */
+
+		}, {
+			key: "load",
+			value: function load(json) {
+				var _this = this;
+
+				return json.map(function (item) {
+					item.label = item.title;
+					item.subitems = item.children ? _this.load(item.children) : [];
+					return item;
+				});
 			}
 
-			return {
-				"id": id,
-				"href": src,
-				"label": text,
-				"subitems": subitems,
-				"parent": parent
-			};
-		}
+			/**
+	   * forEach pass through
+	   * @param  {Function} fn function to run on each item
+	   * @return {method} forEach loop
+	   */
 
-		/**
-	  * Parse landmarks from a Epub > 3.0 Nav
-	  * @private
-	  * @param  {document} navHtml
-	  * @return {array} landmarks list
-	  */
-		parseLandmarks(navHtml) {
-			var navElement = querySelectorByType(navHtml, "nav", "landmarks");
-			var navItems = navElement ? qsa(navElement, "li") : [];
-			var length = navItems.length;
-			var i;
-			var list = [];
-			var item;
-
-			if (!navItems || length === 0) return list;
-
-			for (i = 0; i < length; ++i) {
-				item = this.landmarkItem(navItems[i]);
-				if (item) {
-					list.push(item);
-					this.landmarksByType[item.type] = i;
-				}
+		}, {
+			key: "forEach",
+			value: function forEach(fn) {
+				return this.toc.forEach(fn);
 			}
+		}]);
 
-			return list;
-		}
-
-		/**
-	  * Create a landmarkItem
-	  * @private
-	  * @param  {element} item
-	  * @return {object} landmarkItem
-	  */
-		landmarkItem(item) {
-			let content = filterChildren(item, "a", true);
-
-			if (!content) {
-				return;
-			}
-
-			let type$$1 = content.getAttributeNS("http://www.idpf.org/2007/ops", "type") || undefined;
-			let href = content.getAttribute("href") || "";
-			let text = content.textContent || "";
-
-			return {
-				"href": href,
-				"label": text,
-				"type": type$$1
-			};
-		}
-
-		/**
-	  * Parse from a Epub > 3.0 NC
-	  * @private
-	  * @param  {document} navHtml
-	  * @return {array} navigation list
-	  */
-		parseNcx(tocXml) {
-			var navPoints = qsa(tocXml, "navPoint");
-			var length = navPoints.length;
-			var i;
-			var toc = {};
-			var list = [];
-			var item, parent;
-
-			if (!navPoints || length === 0) return list;
-
-			for (i = 0; i < length; ++i) {
-				item = this.ncxItem(navPoints[i]);
-				toc[item.id] = item;
-				if (!item.parent) {
-					list.push(item);
-				} else {
-					parent = toc[item.parent];
-					parent.subitems.push(item);
-				}
-			}
-
-			return list;
-		}
-
-		/**
-	  * Create a ncxItem
-	  * @private
-	  * @param  {element} item
-	  * @return {object} ncxItem
-	  */
-		ncxItem(item) {
-			var id = item.getAttribute("id") || false,
-			    content = qs(item, "content"),
-			    src = content.getAttribute("src"),
-			    navLabel = qs(item, "navLabel"),
-			    text = navLabel.textContent ? navLabel.textContent : "",
-			    subitems = [],
-			    parentNode = item.parentNode,
-			    parent;
-
-			if (parentNode && (parentNode.nodeName === "navPoint" || parentNode.nodeName.split(':').slice(-1)[0] === "navPoint")) {
-				parent = parentNode.getAttribute("id");
-			}
-
-			return {
-				"id": id,
-				"href": src,
-				"label": text,
-				"subitems": subitems,
-				"parent": parent
-			};
-		}
-
-		/**
-	  * Load Spine Items
-	  * @param  {object} json the items to be loaded
-	  * @return {Array} navItems
-	  */
-		load(json) {
-			return json.map(item => {
-				item.label = item.title;
-				item.subitems = item.children ? this.load(item.children) : [];
-				return item;
-			});
-		}
-
-		/**
-	  * forEach pass through
-	  * @param  {Function} fn function to run on each item
-	  * @return {method} forEach loop
-	  */
-		forEach(fn) {
-			return this.toc.forEach(fn);
-		}
-	}
+		return Navigation;
+	}();
 
 	/*
 	 From Zip.js, by Gildas Lormeau
@@ -12225,6 +12568,10 @@
 		'lookup': lookup
 	};
 
+	var _createClass$c = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$c(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	/**
 	 * Handle Package Resources
 	 * @class
@@ -12234,8 +12581,11 @@
 	 * @param {Archive} [options.archive]
 	 * @param {method} [options.resolver]
 	 */
-	class Resources {
-		constructor(manifest, options) {
+
+	var Resources = function () {
+		function Resources(manifest, options) {
+			_classCallCheck$c(this, Resources);
+
 			this.settings = {
 				replacements: options && options.replacements || "base64",
 				archive: options && options.archive,
@@ -12250,283 +12600,329 @@
 	  * Process resources
 	  * @param {Manifest} manifest
 	  */
-		process(manifest) {
-			this.manifest = manifest;
-			this.resources = Object.keys(manifest).map(function (key) {
-				return manifest[key];
-			});
 
-			this.replacementUrls = [];
 
-			this.html = [];
-			this.assets = [];
-			this.css = [];
+		_createClass$c(Resources, [{
+			key: "process",
+			value: function process(manifest) {
+				this.manifest = manifest;
+				this.resources = Object.keys(manifest).map(function (key) {
+					return manifest[key];
+				});
 
-			this.urls = [];
-			this.cssUrls = [];
+				this.replacementUrls = [];
 
-			this.split();
-			this.splitUrls();
-		}
+				this.html = [];
+				this.assets = [];
+				this.css = [];
 
-		/**
-	  * Split resources by type
-	  * @private
-	  */
-		split() {
+				this.urls = [];
+				this.cssUrls = [];
 
-			// HTML
-			this.html = this.resources.filter(function (item) {
-				if (item.type === "application/xhtml+xml" || item.type === "text/html") {
-					return true;
-				}
-			});
-
-			// Exclude HTML
-			this.assets = this.resources.filter(function (item) {
-				if (item.type !== "application/xhtml+xml" && item.type !== "text/html") {
-					return true;
-				}
-			});
-
-			// Only CSS
-			this.css = this.resources.filter(function (item) {
-				if (item.type === "text/css") {
-					return true;
-				}
-			});
-		}
-
-		/**
-	  * Convert split resources into Urls
-	  * @private
-	  */
-		splitUrls() {
-
-			// All Assets Urls
-			this.urls = this.assets.map(function (item) {
-				return item.href;
-			}.bind(this));
-
-			// Css Urls
-			this.cssUrls = this.css.map(function (item) {
-				return item.href;
-			});
-		}
-
-		/**
-	  * Create a url to a resource
-	  * @param {string} url
-	  * @return {Promise<string>} Promise resolves with url string
-	  */
-		createUrl(url) {
-			var parsedUrl = new Url(url);
-			var mimeType = mime.lookup(parsedUrl.filename);
-
-			if (this.settings.archive) {
-				return this.settings.archive.createUrl(url, { "base64": this.settings.replacements === "base64" });
-			} else {
-				if (this.settings.replacements === "base64") {
-					return this.settings.request(url, 'blob').then(blob => {
-						return blob2base64(blob);
-					}).then(blob => {
-						return createBase64Url(blob, mimeType);
-					});
-				} else {
-					return this.settings.request(url, 'blob').then(blob => {
-						return createBlobUrl(blob, mimeType);
-					});
-				}
-			}
-		}
-
-		/**
-	  * Create blob urls for all the assets
-	  * @return {Promise}         returns replacement urls
-	  */
-		replacements() {
-			if (this.settings.replacements === "none") {
-				return new Promise(function (resolve) {
-					resolve(this.urls);
-				}.bind(this));
+				this.split();
+				this.splitUrls();
 			}
 
-			var replacements = this.urls.map(url => {
-				var absolute = this.settings.resolver(url);
+			/**
+	   * Split resources by type
+	   * @private
+	   */
 
-				return this.createUrl(absolute).catch(err => {
-					console.error(err);
-					return null;
-				});
-			});
+		}, {
+			key: "split",
+			value: function split() {
 
-			return Promise.all(replacements).then(replacementUrls => {
-				this.replacementUrls = replacementUrls.filter(url => {
-					return typeof url === "string";
-				});
-				return replacementUrls;
-			});
-		}
-
-		/**
-	  * Replace URLs in CSS resources
-	  * @private
-	  * @param  {Archive} [archive]
-	  * @param  {method} [resolver]
-	  * @return {Promise}
-	  */
-		replaceCss(archive, resolver) {
-			var replaced = [];
-			archive = archive || this.settings.archive;
-			resolver = resolver || this.settings.resolver;
-			this.cssUrls.forEach(function (href) {
-				var replacement = this.createCssFile(href, archive, resolver).then(function (replacementUrl) {
-					// switch the url in the replacementUrls
-					var indexInUrls = this.urls.indexOf(href);
-					if (indexInUrls > -1) {
-						this.replacementUrls[indexInUrls] = replacementUrl;
+				// HTML
+				this.html = this.resources.filter(function (item) {
+					if (item.type === "application/xhtml+xml" || item.type === "text/html") {
+						return true;
 					}
+				});
+
+				// Exclude HTML
+				this.assets = this.resources.filter(function (item) {
+					if (item.type !== "application/xhtml+xml" && item.type !== "text/html") {
+						return true;
+					}
+				});
+
+				// Only CSS
+				this.css = this.resources.filter(function (item) {
+					if (item.type === "text/css") {
+						return true;
+					}
+				});
+			}
+
+			/**
+	   * Convert split resources into Urls
+	   * @private
+	   */
+
+		}, {
+			key: "splitUrls",
+			value: function splitUrls() {
+
+				// All Assets Urls
+				this.urls = this.assets.map(function (item) {
+					return item.href;
 				}.bind(this));
 
-				replaced.push(replacement);
-			}.bind(this));
-			return Promise.all(replaced);
-		}
-
-		/**
-	  * Create a new CSS file with the replaced URLs
-	  * @private
-	  * @param  {string} href the original css file
-	  * @return {Promise}  returns a BlobUrl to the new CSS file or a data url
-	  */
-		createCssFile(href) {
-			var newUrl;
-
-			if (path.isAbsolute(href)) {
-				return new Promise(function (resolve) {
-					resolve();
+				// Css Urls
+				this.cssUrls = this.css.map(function (item) {
+					return item.href;
 				});
 			}
 
-			var absolute = this.settings.resolver(href);
+			/**
+	   * Create a url to a resource
+	   * @param {string} url
+	   * @return {Promise<string>} Promise resolves with url string
+	   */
 
-			// Get the text of the css file from the archive
-			var textResponse;
+		}, {
+			key: "createUrl",
+			value: function createUrl(url) {
+				var parsedUrl = new Url(url);
+				var mimeType = mime.lookup(parsedUrl.filename);
 
-			if (this.settings.archive) {
-				textResponse = this.settings.archive.getText(absolute);
-			} else {
-				textResponse = this.settings.request(absolute, "text");
-			}
-
-			// Get asset links relative to css file
-			var relUrls = this.urls.map(assetHref => {
-				var resolved = this.settings.resolver(assetHref);
-				var relative = new Path(absolute).relative(resolved);
-
-				return relative;
-			});
-
-			if (!textResponse) {
-				// file not found, don't replace
-				return new Promise(function (resolve) {
-					resolve();
-				});
-			}
-
-			return textResponse.then(text => {
-				// Replacements in the css text
-				text = substitute(text, relUrls, this.replacementUrls);
-
-				// Get the new url
-				if (this.settings.replacements === "base64") {
-					newUrl = createBase64Url(text, "text/css");
+				if (this.settings.archive) {
+					return this.settings.archive.createUrl(url, { "base64": this.settings.replacements === "base64" });
 				} else {
-					newUrl = createBlobUrl(text, "text/css");
+					if (this.settings.replacements === "base64") {
+						return this.settings.request(url, 'blob').then(function (blob) {
+							return blob2base64(blob);
+						}).then(function (blob) {
+							return createBase64Url(blob, mimeType);
+						});
+					} else {
+						return this.settings.request(url, 'blob').then(function (blob) {
+							return createBlobUrl(blob, mimeType);
+						});
+					}
+				}
+			}
+
+			/**
+	   * Create blob urls for all the assets
+	   * @return {Promise}         returns replacement urls
+	   */
+
+		}, {
+			key: "replacements",
+			value: function replacements() {
+				var _this = this;
+
+				if (this.settings.replacements === "none") {
+					return new Promise(function (resolve) {
+						resolve(this.urls);
+					}.bind(this));
 				}
 
-				return newUrl;
-			}, err => {
-				// handle response errors
-				return new Promise(function (resolve) {
-					resolve();
+				var replacements = this.urls.map(function (url) {
+					var absolute = _this.settings.resolver(url);
+
+					return _this.createUrl(absolute).catch(function (err) {
+						console.error(err);
+						return null;
+					});
 				});
-			});
-		}
 
-		/**
-	  * Resolve all resources URLs relative to an absolute URL
-	  * @param  {string} absolute to be resolved to
-	  * @param  {resolver} [resolver]
-	  * @return {string[]} array with relative Urls
-	  */
-		relativeTo(absolute, resolver) {
-			resolver = resolver || this.settings.resolver;
-
-			// Get Urls relative to current sections
-			return this.urls.map(function (href) {
-				var resolved = resolver(href);
-				var relative = new Path(absolute).relative(resolved);
-				return relative;
-			}.bind(this));
-		}
-
-		/**
-	  * Get a URL for a resource
-	  * @param  {string} path
-	  * @return {string} url
-	  */
-		get(path$$1) {
-			var indexInUrls = this.urls.indexOf(path$$1);
-			if (indexInUrls === -1) {
-				return;
+				return Promise.all(replacements).then(function (replacementUrls) {
+					_this.replacementUrls = replacementUrls.filter(function (url) {
+						return typeof url === "string";
+					});
+					return replacementUrls;
+				});
 			}
-			if (this.replacementUrls.length) {
-				return new Promise(function (resolve, reject) {
-					resolve(this.replacementUrls[indexInUrls]);
+
+			/**
+	   * Replace URLs in CSS resources
+	   * @private
+	   * @param  {Archive} [archive]
+	   * @param  {method} [resolver]
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "replaceCss",
+			value: function replaceCss(archive, resolver) {
+				var replaced = [];
+				archive = archive || this.settings.archive;
+				resolver = resolver || this.settings.resolver;
+				this.cssUrls.forEach(function (href) {
+					var replacement = this.createCssFile(href, archive, resolver).then(function (replacementUrl) {
+						// switch the url in the replacementUrls
+						var indexInUrls = this.urls.indexOf(href);
+						if (indexInUrls > -1) {
+							this.replacementUrls[indexInUrls] = replacementUrl;
+						}
+					}.bind(this));
+
+					replaced.push(replacement);
 				}.bind(this));
-			} else {
-				return this.createUrl(path$$1);
+				return Promise.all(replaced);
 			}
-		}
 
-		/**
-	  * Substitute urls in content, with replacements,
-	  * relative to a url if provided
-	  * @param  {string} content
-	  * @param  {string} [url]   url to resolve to
-	  * @return {string}         content with urls substituted
-	  */
-		substitute(content, url) {
-			var relUrls;
-			if (url) {
-				relUrls = this.relativeTo(url);
-			} else {
-				relUrls = this.urls;
+			/**
+	   * Create a new CSS file with the replaced URLs
+	   * @private
+	   * @param  {string} href the original css file
+	   * @return {Promise}  returns a BlobUrl to the new CSS file or a data url
+	   */
+
+		}, {
+			key: "createCssFile",
+			value: function createCssFile(href) {
+				var _this2 = this;
+
+				var newUrl;
+
+				if (path.isAbsolute(href)) {
+					return new Promise(function (resolve) {
+						resolve();
+					});
+				}
+
+				var absolute = this.settings.resolver(href);
+
+				// Get the text of the css file from the archive
+				var textResponse;
+
+				if (this.settings.archive) {
+					textResponse = this.settings.archive.getText(absolute);
+				} else {
+					textResponse = this.settings.request(absolute, "text");
+				}
+
+				// Get asset links relative to css file
+				var relUrls = this.urls.map(function (assetHref) {
+					var resolved = _this2.settings.resolver(assetHref);
+					var relative = new Path(absolute).relative(resolved);
+
+					return relative;
+				});
+
+				if (!textResponse) {
+					// file not found, don't replace
+					return new Promise(function (resolve) {
+						resolve();
+					});
+				}
+
+				return textResponse.then(function (text) {
+					// Replacements in the css text
+					text = substitute(text, relUrls, _this2.replacementUrls);
+
+					// Get the new url
+					if (_this2.settings.replacements === "base64") {
+						newUrl = createBase64Url(text, "text/css");
+					} else {
+						newUrl = createBlobUrl(text, "text/css");
+					}
+
+					return newUrl;
+				}, function (err) {
+					// handle response errors
+					return new Promise(function (resolve) {
+						resolve();
+					});
+				});
 			}
-			return substitute(content, relUrls, this.replacementUrls);
-		}
 
-		destroy() {
-			this.settings = undefined;
-			this.manifest = undefined;
-			this.resources = undefined;
-			this.replacementUrls = undefined;
-			this.html = undefined;
-			this.assets = undefined;
-			this.css = undefined;
+			/**
+	   * Resolve all resources URLs relative to an absolute URL
+	   * @param  {string} absolute to be resolved to
+	   * @param  {resolver} [resolver]
+	   * @return {string[]} array with relative Urls
+	   */
 
-			this.urls = undefined;
-			this.cssUrls = undefined;
-		}
-	}
+		}, {
+			key: "relativeTo",
+			value: function relativeTo(absolute, resolver) {
+				resolver = resolver || this.settings.resolver;
+
+				// Get Urls relative to current sections
+				return this.urls.map(function (href) {
+					var resolved = resolver(href);
+					var relative = new Path(absolute).relative(resolved);
+					return relative;
+				}.bind(this));
+			}
+
+			/**
+	   * Get a URL for a resource
+	   * @param  {string} path
+	   * @return {string} url
+	   */
+
+		}, {
+			key: "get",
+			value: function get(path$$1) {
+				var indexInUrls = this.urls.indexOf(path$$1);
+				if (indexInUrls === -1) {
+					return;
+				}
+				if (this.replacementUrls.length) {
+					return new Promise(function (resolve, reject) {
+						resolve(this.replacementUrls[indexInUrls]);
+					}.bind(this));
+				} else {
+					return this.createUrl(path$$1);
+				}
+			}
+
+			/**
+	   * Substitute urls in content, with replacements,
+	   * relative to a url if provided
+	   * @param  {string} content
+	   * @param  {string} [url]   url to resolve to
+	   * @return {string}         content with urls substituted
+	   */
+
+		}, {
+			key: "substitute",
+			value: function substitute$$1(content, url) {
+				var relUrls;
+				if (url) {
+					relUrls = this.relativeTo(url);
+				} else {
+					relUrls = this.urls;
+				}
+				return substitute(content, relUrls, this.replacementUrls);
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.settings = undefined;
+				this.manifest = undefined;
+				this.resources = undefined;
+				this.replacementUrls = undefined;
+				this.html = undefined;
+				this.assets = undefined;
+				this.css = undefined;
+
+				this.urls = undefined;
+				this.cssUrls = undefined;
+			}
+		}]);
+
+		return Resources;
+	}();
+
+	var _createClass$d = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$d(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Page List Parser
 	 * @param {document} [xml]
 	 */
-	class PageList {
-		constructor(xml) {
+
+	var PageList = function () {
+		function PageList(xml) {
+			_classCallCheck$d(this, PageList);
+
 			this.pages = [];
 			this.locations = [];
 			this.epubcfi = new EpubCFI();
@@ -12551,195 +12947,233 @@
 	  * Parse PageList Xml
 	  * @param  {document} xml
 	  */
-		parse(xml) {
-			var html = qs(xml, "html");
-			var ncx = qs(xml, "ncx");
 
-			if (html) {
-				return this.parseNav(xml);
-			} else if (ncx) {
-				// Not supported
-				// return this.parseNcx(xml);
-				return;
-			}
-		}
 
-		/**
-	  * Parse a Nav PageList
-	  * @private
-	  * @param  {node} navHtml
-	  * @return {PageList.item[]} list
-	  */
-		parseNav(navHtml) {
-			var navElement = querySelectorByType(navHtml, "nav", "page-list");
-			var navItems = navElement ? qsa(navElement, "li") : [];
-			var length = navItems.length;
-			var i;
-			var list = [];
-			var item;
+		_createClass$d(PageList, [{
+			key: "parse",
+			value: function parse$$1(xml) {
+				var html = qs(xml, "html");
+				var ncx = qs(xml, "ncx");
 
-			if (!navItems || length === 0) return list;
-
-			for (i = 0; i < length; ++i) {
-				item = this.item(navItems[i]);
-				list.push(item);
-			}
-
-			return list;
-		}
-
-		/**
-	  * Page List Item
-	  * @private
-	  * @param  {node} item
-	  * @return {object} pageListItem
-	  */
-		item(item) {
-			var content = qs(item, "a"),
-			    href = content.getAttribute("href") || "",
-			    text = content.textContent || "",
-			    page = parseInt(text),
-			    isCfi = href.indexOf("epubcfi"),
-			    split,
-			    packageUrl,
-			    cfi;
-
-			if (isCfi != -1) {
-				split = href.split("#");
-				packageUrl = split[0];
-				cfi = split.length > 1 ? split[1] : false;
-				return {
-					"cfi": cfi,
-					"href": href,
-					"packageUrl": packageUrl,
-					"page": page
-				};
-			} else {
-				return {
-					"href": href,
-					"page": page
-				};
-			}
-		}
-
-		/**
-	  * Process pageList items
-	  * @private
-	  * @param  {array} pageList
-	  */
-		process(pageList) {
-			pageList.forEach(function (item) {
-				this.pages.push(item.page);
-				if (item.cfi) {
-					this.locations.push(item.cfi);
-				}
-			}, this);
-			this.firstPage = parseInt(this.pages[0]);
-			this.lastPage = parseInt(this.pages[this.pages.length - 1]);
-			this.totalPages = this.lastPage - this.firstPage;
-		}
-
-		/**
-	  * Get a PageList result from a EpubCFI
-	  * @param  {string} cfi EpubCFI String
-	  * @return {number} page
-	  */
-		pageFromCfi(cfi) {
-			var pg = -1;
-
-			// Check if the pageList has not been set yet
-			if (this.locations.length === 0) {
-				return -1;
-			}
-
-			// TODO: check if CFI is valid?
-
-			// check if the cfi is in the location list
-			// var index = this.locations.indexOf(cfi);
-			var index = indexOfSorted(cfi, this.locations, this.epubcfi.compare);
-			if (index != -1) {
-				pg = this.pages[index];
-			} else {
-				// Otherwise add it to the list of locations
-				// Insert it in the correct position in the locations page
-				//index = EPUBJS.core.insert(cfi, this.locations, this.epubcfi.compare);
-				index = locationOf(cfi, this.locations, this.epubcfi.compare);
-				// Get the page at the location just before the new one, or return the first
-				pg = index - 1 >= 0 ? this.pages[index - 1] : this.pages[0];
-				if (pg !== undefined) ; else {
-					pg = -1;
+				if (html) {
+					return this.parseNav(xml);
+				} else if (ncx) {
+					// Not supported
+					// return this.parseNcx(xml);
+					return;
 				}
 			}
-			return pg;
-		}
 
-		/**
-	  * Get an EpubCFI from a Page List Item
-	  * @param  {string | number} pg
-	  * @return {string} cfi
-	  */
-		cfiFromPage(pg) {
-			var cfi = -1;
-			// check that pg is an int
-			if (typeof pg != "number") {
-				pg = parseInt(pg);
+			/**
+	   * Parse a Nav PageList
+	   * @private
+	   * @param  {node} navHtml
+	   * @return {PageList.item[]} list
+	   */
+
+		}, {
+			key: "parseNav",
+			value: function parseNav(navHtml) {
+				var navElement = querySelectorByType(navHtml, "nav", "page-list");
+				var navItems = navElement ? qsa(navElement, "li") : [];
+				var length = navItems.length;
+				var i;
+				var list = [];
+				var item;
+
+				if (!navItems || length === 0) return list;
+
+				for (i = 0; i < length; ++i) {
+					item = this.item(navItems[i]);
+					list.push(item);
+				}
+
+				return list;
 			}
 
-			// check if the cfi is in the page list
-			// Pages could be unsorted.
-			var index = this.pages.indexOf(pg);
-			if (index != -1) {
-				cfi = this.locations[index];
+			/**
+	   * Page List Item
+	   * @private
+	   * @param  {node} item
+	   * @return {object} pageListItem
+	   */
+
+		}, {
+			key: "item",
+			value: function item(_item) {
+				var content = qs(_item, "a"),
+				    href = content.getAttribute("href") || "",
+				    text = content.textContent || "",
+				    page = parseInt(text),
+				    isCfi = href.indexOf("epubcfi"),
+				    split,
+				    packageUrl,
+				    cfi;
+
+				if (isCfi != -1) {
+					split = href.split("#");
+					packageUrl = split[0];
+					cfi = split.length > 1 ? split[1] : false;
+					return {
+						"cfi": cfi,
+						"href": href,
+						"packageUrl": packageUrl,
+						"page": page
+					};
+				} else {
+					return {
+						"href": href,
+						"page": page
+					};
+				}
 			}
-			// TODO: handle pages not in the list
-			return cfi;
-		}
 
-		/**
-	  * Get a Page from Book percentage
-	  * @param  {number} percent
-	  * @return {number} page
-	  */
-		pageFromPercentage(percent) {
-			var pg = Math.round(this.totalPages * percent);
-			return pg;
-		}
+			/**
+	   * Process pageList items
+	   * @private
+	   * @param  {array} pageList
+	   */
 
-		/**
-	  * Returns a value between 0 - 1 corresponding to the location of a page
-	  * @param  {number} pg the page
-	  * @return {number} percentage
-	  */
-		percentageFromPage(pg) {
-			var percentage = (pg - this.firstPage) / this.totalPages;
-			return Math.round(percentage * 1000) / 1000;
-		}
+		}, {
+			key: "process",
+			value: function process(pageList) {
+				pageList.forEach(function (item) {
+					this.pages.push(item.page);
+					if (item.cfi) {
+						this.locations.push(item.cfi);
+					}
+				}, this);
+				this.firstPage = parseInt(this.pages[0]);
+				this.lastPage = parseInt(this.pages[this.pages.length - 1]);
+				this.totalPages = this.lastPage - this.firstPage;
+			}
 
-		/**
-	  * Returns a value between 0 - 1 corresponding to the location of a cfi
-	  * @param  {string} cfi EpubCFI String
-	  * @return {number} percentage
-	  */
-		percentageFromCfi(cfi) {
-			var pg = this.pageFromCfi(cfi);
-			var percentage = this.percentageFromPage(pg);
-			return percentage;
-		}
+			/**
+	   * Get a PageList result from a EpubCFI
+	   * @param  {string} cfi EpubCFI String
+	   * @return {number} page
+	   */
 
-		/**
-	  * Destroy
-	  */
-		destroy() {
-			this.pages = undefined;
-			this.locations = undefined;
-			this.epubcfi = undefined;
+		}, {
+			key: "pageFromCfi",
+			value: function pageFromCfi(cfi) {
+				var pg = -1;
 
-			this.pageList = undefined;
+				// Check if the pageList has not been set yet
+				if (this.locations.length === 0) {
+					return -1;
+				}
 
-			this.toc = undefined;
-			this.ncx = undefined;
-		}
-	}
+				// TODO: check if CFI is valid?
+
+				// check if the cfi is in the location list
+				// var index = this.locations.indexOf(cfi);
+				var index = indexOfSorted(cfi, this.locations, this.epubcfi.compare);
+				if (index != -1) {
+					pg = this.pages[index];
+				} else {
+					// Otherwise add it to the list of locations
+					// Insert it in the correct position in the locations page
+					//index = EPUBJS.core.insert(cfi, this.locations, this.epubcfi.compare);
+					index = locationOf(cfi, this.locations, this.epubcfi.compare);
+					// Get the page at the location just before the new one, or return the first
+					pg = index - 1 >= 0 ? this.pages[index - 1] : this.pages[0];
+					if (pg !== undefined) ; else {
+						pg = -1;
+					}
+				}
+				return pg;
+			}
+
+			/**
+	   * Get an EpubCFI from a Page List Item
+	   * @param  {string | number} pg
+	   * @return {string} cfi
+	   */
+
+		}, {
+			key: "cfiFromPage",
+			value: function cfiFromPage(pg) {
+				var cfi = -1;
+				// check that pg is an int
+				if (typeof pg != "number") {
+					pg = parseInt(pg);
+				}
+
+				// check if the cfi is in the page list
+				// Pages could be unsorted.
+				var index = this.pages.indexOf(pg);
+				if (index != -1) {
+					cfi = this.locations[index];
+				}
+				// TODO: handle pages not in the list
+				return cfi;
+			}
+
+			/**
+	   * Get a Page from Book percentage
+	   * @param  {number} percent
+	   * @return {number} page
+	   */
+
+		}, {
+			key: "pageFromPercentage",
+			value: function pageFromPercentage(percent) {
+				var pg = Math.round(this.totalPages * percent);
+				return pg;
+			}
+
+			/**
+	   * Returns a value between 0 - 1 corresponding to the location of a page
+	   * @param  {number} pg the page
+	   * @return {number} percentage
+	   */
+
+		}, {
+			key: "percentageFromPage",
+			value: function percentageFromPage(pg) {
+				var percentage = (pg - this.firstPage) / this.totalPages;
+				return Math.round(percentage * 1000) / 1000;
+			}
+
+			/**
+	   * Returns a value between 0 - 1 corresponding to the location of a cfi
+	   * @param  {string} cfi EpubCFI String
+	   * @return {number} percentage
+	   */
+
+		}, {
+			key: "percentageFromCfi",
+			value: function percentageFromCfi(cfi) {
+				var pg = this.pageFromCfi(cfi);
+				var percentage = this.percentageFromPage(pg);
+				return percentage;
+			}
+
+			/**
+	   * Destroy
+	   */
+
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.pages = undefined;
+				this.locations = undefined;
+				this.epubcfi = undefined;
+
+				this.pageList = undefined;
+
+				this.toc = undefined;
+				this.ncx = undefined;
+			}
+		}]);
+
+		return PageList;
+	}();
+
+	var _createClass$e = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$e(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Figures out the CSS values to apply for a layout
@@ -12750,8 +13184,11 @@
 	 * @param {number} [settings.minSpreadWidth=800]
 	 * @param {boolean} [settings.evenSpreads=false]
 	 */
-	class Layout {
-		constructor(settings) {
+
+	var Layout = function () {
+		function Layout(settings) {
+			_classCallCheck$e(this, Layout);
+
 			this.settings = settings;
 			this.name = settings.layout || "reflowable";
 			this._spread = settings.spread === "none" ? false : true;
@@ -12792,209 +13229,243 @@
 	  * @param  {string} flow paginated | scrolled
 	  * @return {string} simplified flow
 	  */
-		flow(flow) {
-			if (typeof flow != "undefined") {
-				if (flow === "scrolled" || flow === "scrolled-continuous" || flow === "scrolled-doc") {
-					this._flow = "scrolled";
+
+
+		_createClass$e(Layout, [{
+			key: "flow",
+			value: function flow(_flow) {
+				if (typeof _flow != "undefined") {
+					if (_flow === "scrolled" || _flow === "scrolled-continuous" || _flow === "scrolled-doc") {
+						this._flow = "scrolled";
+					} else {
+						this._flow = "paginated";
+					}
+					// this.props.flow = this._flow;
+					this.update({ flow: this._flow });
+				}
+				return this._flow;
+			}
+
+			/**
+	   * Switch between using spreads or not, and set the
+	   * width at which they switch to single.
+	   * @param  {string} spread "none" | "always" | "auto"
+	   * @param  {number} min integer in pixels
+	   * @return {boolean} spread true | false
+	   */
+
+		}, {
+			key: "spread",
+			value: function spread(_spread, min) {
+
+				if (_spread) {
+					this._spread = _spread === "none" ? false : true;
+					// this.props.spread = this._spread;
+					this.update({ spread: this._spread });
+				}
+
+				if (min >= 0) {
+					this._minSpreadWidth = min;
+				}
+
+				return this._spread;
+			}
+
+			/**
+	   * Calculate the dimensions of the pagination
+	   * @param  {number} _width  width of the rendering
+	   * @param  {number} _height height of the rendering
+	   * @param  {number} _gap    width of the gap between columns
+	   */
+
+		}, {
+			key: "calculate",
+			value: function calculate(_width, _height, _gap) {
+
+				var divisor = 1;
+				var gap = _gap || 0;
+
+				//-- Check the width and create even width columns
+				// var fullWidth = Math.floor(_width);
+				var width = _width;
+				var height = _height;
+
+				var section = Math.floor(width / 12);
+
+				var columnWidth;
+				var spreadWidth;
+				var pageWidth;
+				var delta;
+
+				if (this._spread && width >= this._minSpreadWidth) {
+					divisor = 2;
 				} else {
-					this._flow = "paginated";
+					divisor = 1;
 				}
-				// this.props.flow = this._flow;
-				this.update({ flow: this._flow });
-			}
-			return this._flow;
-		}
 
-		/**
-	  * Switch between using spreads or not, and set the
-	  * width at which they switch to single.
-	  * @param  {string} spread "none" | "always" | "auto"
-	  * @param  {number} min integer in pixels
-	  * @return {boolean} spread true | false
-	  */
-		spread(spread, min) {
-
-			if (spread) {
-				this._spread = spread === "none" ? false : true;
-				// this.props.spread = this._spread;
-				this.update({ spread: this._spread });
-			}
-
-			if (min >= 0) {
-				this._minSpreadWidth = min;
-			}
-
-			return this._spread;
-		}
-
-		/**
-	  * Calculate the dimensions of the pagination
-	  * @param  {number} _width  width of the rendering
-	  * @param  {number} _height height of the rendering
-	  * @param  {number} _gap    width of the gap between columns
-	  */
-		calculate(_width, _height, _gap) {
-
-			var divisor = 1;
-			var gap = _gap || 0;
-
-			//-- Check the width and create even width columns
-			// var fullWidth = Math.floor(_width);
-			var width = _width;
-			var height = _height;
-
-			var section = Math.floor(width / 12);
-
-			var columnWidth;
-			var spreadWidth;
-			var pageWidth;
-			var delta;
-
-			if (this._spread && width >= this._minSpreadWidth) {
-				divisor = 2;
-			} else {
-				divisor = 1;
-			}
-
-			if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
-				gap = section % 2 === 0 ? section : section - 1;
-			}
-
-			if (this.name === "pre-paginated") {
-				gap = 0;
-			}
-
-			//-- Double Page
-			if (divisor > 1) {
-				// width = width - gap;
-				// columnWidth = (width - gap) / divisor;
-				// gap = gap / divisor;
-				columnWidth = width / divisor - gap;
-				pageWidth = columnWidth + gap;
-			} else {
-				columnWidth = width;
-				pageWidth = width;
-			}
-
-			if (this.name === "pre-paginated" && divisor > 1) {
-				width = columnWidth;
-			}
-
-			spreadWidth = columnWidth * divisor + gap;
-
-			delta = Math.ceil(width);
-
-			this.width = width;
-			this.height = height;
-			this.spreadWidth = spreadWidth;
-			this.pageWidth = pageWidth;
-			this.delta = delta;
-
-			this.columnWidth = columnWidth;
-			this.gap = gap;
-			this.divisor = divisor;
-
-			// this.props.width = width;
-			// this.props.height = _height;
-			// this.props.spreadWidth = spreadWidth;
-			// this.props.pageWidth = pageWidth;
-			// this.props.delta = delta;
-			//
-			// this.props.columnWidth = colWidth;
-			// this.props.gap = gap;
-			// this.props.divisor = divisor;
-
-			this.update({
-				width,
-				height,
-				spreadWidth,
-				pageWidth,
-				delta,
-				columnWidth,
-				gap,
-				divisor
-			});
-		}
-
-		/**
-	  * Apply Css to a Document
-	  * @param  {Contents} contents
-	  * @return {Promise}
-	  */
-		format(contents) {
-			var formating;
-
-			if (this.name === "pre-paginated") {
-				formating = contents.fit(this.columnWidth, this.height);
-			} else if (this._flow === "paginated") {
-				formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
-			} else {
-				// scrolled
-				formating = contents.size(this.width, null);
-			}
-
-			return formating; // might be a promise in some View Managers
-		}
-
-		/**
-	  * Count number of pages
-	  * @param  {number} totalLength
-	  * @param  {number} pageLength
-	  * @return {{spreads: Number, pages: Number}}
-	  */
-		count(totalLength, pageLength) {
-
-			let spreads, pages;
-
-			if (this.name === "pre-paginated") {
-				spreads = 1;
-				pages = 1;
-			} else if (this._flow === "paginated") {
-				pageLength = pageLength || this.delta;
-				spreads = Math.ceil(totalLength / pageLength);
-				pages = spreads * this.divisor;
-			} else {
-				// scrolled
-				pageLength = pageLength || this.height;
-				spreads = Math.ceil(totalLength / pageLength);
-				pages = spreads;
-			}
-
-			return {
-				spreads,
-				pages
-			};
-		}
-
-		/**
-	  * Update props that have changed
-	  * @private
-	  * @param  {object} props
-	  */
-		update(props) {
-			// Remove props that haven't changed
-			Object.keys(props).forEach(propName => {
-				if (this.props[propName] === props[propName]) {
-					delete props[propName];
+				if (this.name === "reflowable" && this._flow === "paginated" && !(_gap >= 0)) {
+					gap = section % 2 === 0 ? section : section - 1;
 				}
-			});
 
-			if (Object.keys(props).length > 0) {
-				let newProps = extend$1(this.props, props);
-				this.emit(EVENTS.LAYOUT.UPDATED, newProps, props);
+				if (this.name === "pre-paginated") {
+					gap = 0;
+				}
+
+				//-- Double Page
+				if (divisor > 1) {
+					// width = width - gap;
+					// columnWidth = (width - gap) / divisor;
+					// gap = gap / divisor;
+					columnWidth = width / divisor - gap;
+					pageWidth = columnWidth + gap;
+				} else {
+					columnWidth = width;
+					pageWidth = width;
+				}
+
+				if (this.name === "pre-paginated" && divisor > 1) {
+					width = columnWidth;
+				}
+
+				spreadWidth = columnWidth * divisor + gap;
+
+				delta = Math.ceil(width);
+
+				this.width = width;
+				this.height = height;
+				this.spreadWidth = spreadWidth;
+				this.pageWidth = pageWidth;
+				this.delta = delta;
+
+				this.columnWidth = columnWidth;
+				this.gap = gap;
+				this.divisor = divisor;
+
+				// this.props.width = width;
+				// this.props.height = _height;
+				// this.props.spreadWidth = spreadWidth;
+				// this.props.pageWidth = pageWidth;
+				// this.props.delta = delta;
+				//
+				// this.props.columnWidth = colWidth;
+				// this.props.gap = gap;
+				// this.props.divisor = divisor;
+
+				this.update({
+					width: width,
+					height: height,
+					spreadWidth: spreadWidth,
+					pageWidth: pageWidth,
+					delta: delta,
+					columnWidth: columnWidth,
+					gap: gap,
+					divisor: divisor
+				});
 			}
-		}
-	}
+
+			/**
+	   * Apply Css to a Document
+	   * @param  {Contents} contents
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "format",
+			value: function format(contents) {
+				var formating;
+
+				if (this.name === "pre-paginated") {
+					formating = contents.fit(this.columnWidth, this.height);
+				} else if (this._flow === "paginated") {
+					formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
+				} else {
+					// scrolled
+					formating = contents.size(this.width, null);
+				}
+
+				return formating; // might be a promise in some View Managers
+			}
+
+			/**
+	   * Count number of pages
+	   * @param  {number} totalLength
+	   * @param  {number} pageLength
+	   * @return {{spreads: Number, pages: Number}}
+	   */
+
+		}, {
+			key: "count",
+			value: function count(totalLength, pageLength) {
+
+				var spreads = void 0,
+				    pages = void 0;
+
+				if (this.name === "pre-paginated") {
+					spreads = 1;
+					pages = 1;
+				} else if (this._flow === "paginated") {
+					pageLength = pageLength || this.delta;
+					spreads = Math.ceil(totalLength / pageLength);
+					pages = spreads * this.divisor;
+				} else {
+					// scrolled
+					pageLength = pageLength || this.height;
+					spreads = Math.ceil(totalLength / pageLength);
+					pages = spreads;
+				}
+
+				return {
+					spreads: spreads,
+					pages: pages
+				};
+			}
+
+			/**
+	   * Update props that have changed
+	   * @private
+	   * @param  {object} props
+	   */
+
+		}, {
+			key: "update",
+			value: function update(props) {
+				var _this = this;
+
+				// Remove props that haven't changed
+				Object.keys(props).forEach(function (propName) {
+					if (_this.props[propName] === props[propName]) {
+						delete props[propName];
+					}
+				});
+
+				if (Object.keys(props).length > 0) {
+					var newProps = extend$1(this.props, props);
+					this.emit(EVENTS.LAYOUT.UPDATED, newProps, props);
+				}
+			}
+		}]);
+
+		return Layout;
+	}();
 
 	eventEmitter(Layout.prototype);
+
+	var _typeof$c = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var _createClass$f = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$f(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Themes to apply to displayed content
 	 * @class
 	 * @param {Rendition} rendition
 	 */
-	class Themes {
-		constructor(rendition) {
+
+	var Themes = function () {
+		function Themes(rendition) {
+			_classCallCheck$f(this, Themes);
+
 			this.rendition = rendition;
 			this._themes = {
 				"default": {
@@ -13017,215 +13488,266 @@
 	  * @example themes.register("light", { "body": { "color": "purple"}})
 	  * @example themes.register({ "light" : {...}, "dark" : {...}})
 	  */
-		register() {
-			if (arguments.length === 0) {
-				return;
-			}
-			if (arguments.length === 1 && typeof arguments[0] === "object") {
-				return this.registerThemes(arguments[0]);
-			}
-			if (arguments.length === 1 && typeof arguments[0] === "string") {
-				return this.default(arguments[0]);
-			}
-			if (arguments.length === 2 && typeof arguments[1] === "string") {
-				return this.registerUrl(arguments[0], arguments[1]);
-			}
-			if (arguments.length === 2 && typeof arguments[1] === "object") {
-				return this.registerRules(arguments[0], arguments[1]);
-			}
-		}
 
-		/**
-	  * Add a default theme to be used by a rendition
-	  * @param {object | string} theme
-	  * @example themes.register("http://example.com/default.css")
-	  * @example themes.register({ "body": { "color": "purple"}})
-	  */
-		default(theme) {
-			if (!theme) {
-				return;
-			}
-			if (typeof theme === "string") {
-				return this.registerUrl("default", theme);
-			}
-			if (typeof theme === "object") {
-				return this.registerRules("default", theme);
-			}
-		}
 
-		/**
-	  * Register themes object
-	  * @param {object} themes
-	  */
-		registerThemes(themes) {
-			for (var theme in themes) {
-				if (themes.hasOwnProperty(theme)) {
-					if (typeof themes[theme] === "string") {
-						this.registerUrl(theme, themes[theme]);
-					} else {
-						this.registerRules(theme, themes[theme]);
+		_createClass$f(Themes, [{
+			key: "register",
+			value: function register() {
+				if (arguments.length === 0) {
+					return;
+				}
+				if (arguments.length === 1 && _typeof$c(arguments[0]) === "object") {
+					return this.registerThemes(arguments[0]);
+				}
+				if (arguments.length === 1 && typeof arguments[0] === "string") {
+					return this.default(arguments[0]);
+				}
+				if (arguments.length === 2 && typeof arguments[1] === "string") {
+					return this.registerUrl(arguments[0], arguments[1]);
+				}
+				if (arguments.length === 2 && _typeof$c(arguments[1]) === "object") {
+					return this.registerRules(arguments[0], arguments[1]);
+				}
+			}
+
+			/**
+	   * Add a default theme to be used by a rendition
+	   * @param {object | string} theme
+	   * @example themes.register("http://example.com/default.css")
+	   * @example themes.register({ "body": { "color": "purple"}})
+	   */
+
+		}, {
+			key: "default",
+			value: function _default(theme) {
+				if (!theme) {
+					return;
+				}
+				if (typeof theme === "string") {
+					return this.registerUrl("default", theme);
+				}
+				if ((typeof theme === "undefined" ? "undefined" : _typeof$c(theme)) === "object") {
+					return this.registerRules("default", theme);
+				}
+			}
+
+			/**
+	   * Register themes object
+	   * @param {object} themes
+	   */
+
+		}, {
+			key: "registerThemes",
+			value: function registerThemes(themes) {
+				for (var theme in themes) {
+					if (themes.hasOwnProperty(theme)) {
+						if (typeof themes[theme] === "string") {
+							this.registerUrl(theme, themes[theme]);
+						} else {
+							this.registerRules(theme, themes[theme]);
+						}
 					}
 				}
 			}
-		}
 
-		/**
-	  * Register a url
-	  * @param {string} name
-	  * @param {string} input
-	  */
-		registerUrl(name, input) {
-			var url = new Url(input);
-			this._themes[name] = { "url": url.toString() };
-			if (this._injected[name]) {
-				this.update(name);
+			/**
+	   * Register a url
+	   * @param {string} name
+	   * @param {string} input
+	   */
+
+		}, {
+			key: "registerUrl",
+			value: function registerUrl(name, input) {
+				var url = new Url(input);
+				this._themes[name] = { "url": url.toString() };
+				if (this._injected[name]) {
+					this.update(name);
+				}
 			}
-		}
 
-		/**
-	  * Register rule
-	  * @param {string} name
-	  * @param {object} rules
-	  */
-		registerRules(name, rules) {
-			this._themes[name] = { "rules": rules };
-			// TODO: serialize css rules
-			if (this._injected[name]) {
-				this.update(name);
+			/**
+	   * Register rule
+	   * @param {string} name
+	   * @param {object} rules
+	   */
+
+		}, {
+			key: "registerRules",
+			value: function registerRules(name, rules) {
+				this._themes[name] = { "rules": rules };
+				// TODO: serialize css rules
+				if (this._injected[name]) {
+					this.update(name);
+				}
 			}
-		}
 
-		/**
-	  * Select a theme
-	  * @param {string} name
-	  */
-		select(name) {
-			var prev = this._current;
-			var contents;
+			/**
+	   * Select a theme
+	   * @param {string} name
+	   */
 
-			this._current = name;
-			this.update(name);
+		}, {
+			key: "select",
+			value: function select(name) {
+				var prev = this._current;
+				var contents;
 
-			contents = this.rendition.getContents();
-			contents.forEach(content => {
-				content.removeClass(prev);
-				content.addClass(name);
-			});
-		}
+				this._current = name;
+				this.update(name);
 
-		/**
-	  * Update a theme
-	  * @param {string} name
-	  */
-		update(name) {
-			var contents = this.rendition.getContents();
-			contents.forEach(content => {
-				this.add(name, content);
-			});
-		}
+				contents = this.rendition.getContents();
+				contents.forEach(function (content) {
+					content.removeClass(prev);
+					content.addClass(name);
+				});
+			}
 
-		/**
-	  * Inject all themes into contents
-	  * @param {Contents} contents
-	  */
-		inject(contents) {
-			var links = [];
-			var themes = this._themes;
-			var theme;
+			/**
+	   * Update a theme
+	   * @param {string} name
+	   */
 
-			for (var name in themes) {
-				if (themes.hasOwnProperty(name) && (name === this._current || name === "default")) {
-					theme = themes[name];
-					if (theme.rules && Object.keys(theme.rules).length > 0 || theme.url && links.indexOf(theme.url) === -1) {
-						this.add(name, contents);
+		}, {
+			key: "update",
+			value: function update(name) {
+				var _this = this;
+
+				var contents = this.rendition.getContents();
+				contents.forEach(function (content) {
+					_this.add(name, content);
+				});
+			}
+
+			/**
+	   * Inject all themes into contents
+	   * @param {Contents} contents
+	   */
+
+		}, {
+			key: "inject",
+			value: function inject(contents) {
+				var links = [];
+				var themes = this._themes;
+				var theme;
+
+				for (var name in themes) {
+					if (themes.hasOwnProperty(name) && (name === this._current || name === "default")) {
+						theme = themes[name];
+						if (theme.rules && Object.keys(theme.rules).length > 0 || theme.url && links.indexOf(theme.url) === -1) {
+							this.add(name, contents);
+						}
+						this._injected.push(name);
 					}
-					this._injected.push(name);
+				}
+
+				if (this._current != "default") {
+					contents.addClass(this._current);
 				}
 			}
 
-			if (this._current != "default") {
-				contents.addClass(this._current);
-			}
-		}
+			/**
+	   * Add Theme to contents
+	   * @param {string} name
+	   * @param {Contents} contents
+	   */
 
-		/**
-	  * Add Theme to contents
-	  * @param {string} name
-	  * @param {Contents} contents
-	  */
-		add(name, contents) {
-			var theme = this._themes[name];
+		}, {
+			key: "add",
+			value: function add(name, contents) {
+				var theme = this._themes[name];
 
-			if (!theme || !contents) {
-				return;
-			}
+				if (!theme || !contents) {
+					return;
+				}
 
-			if (theme.url) {
-				contents.addStylesheet(theme.url);
-			} else if (theme.serialized) ; else if (theme.rules) {
-				contents.addStylesheetRules(theme.rules);
-				theme.injected = true;
-			}
-		}
-
-		/**
-	  * Add override
-	  * @param {string} name
-	  * @param {string} value
-	  * @param {boolean} priority
-	  */
-		override(name, value, priority) {
-			var contents = this.rendition.getContents();
-
-			this._overrides[name] = {
-				value: value,
-				priority: priority === true
-			};
-
-			contents.forEach(content => {
-				content.css(name, this._overrides[name].value, this._overrides[name].priority);
-			});
-		}
-
-		/**
-	  * Add all overrides
-	  * @param {Content} content
-	  */
-		overrides(contents) {
-			var overrides = this._overrides;
-
-			for (var rule in overrides) {
-				if (overrides.hasOwnProperty(rule)) {
-					contents.css(rule, overrides[rule].value, overrides[rule].priority);
+				if (theme.url) {
+					contents.addStylesheet(theme.url);
+				} else if (theme.serialized) ; else if (theme.rules) {
+					contents.addStylesheetRules(theme.rules);
+					theme.injected = true;
 				}
 			}
-		}
 
-		/**
-	  * Adjust the font size of a rendition
-	  * @param {number} size
-	  */
-		fontSize(size) {
-			this.override("font-size", size);
-		}
+			/**
+	   * Add override
+	   * @param {string} name
+	   * @param {string} value
+	   * @param {boolean} priority
+	   */
 
-		/**
-	  * Adjust the font-family of a rendition
-	  * @param {string} f
-	  */
-		font(f) {
-			this.override("font-family", f, true);
-		}
+		}, {
+			key: "override",
+			value: function override(name, value, priority) {
+				var _this2 = this;
 
-		destroy() {
-			this.rendition = undefined;
-			this._themes = undefined;
-			this._overrides = undefined;
-			this._current = undefined;
-			this._injected = undefined;
-		}
+				var contents = this.rendition.getContents();
 
-	}
+				this._overrides[name] = {
+					value: value,
+					priority: priority === true
+				};
+
+				contents.forEach(function (content) {
+					content.css(name, _this2._overrides[name].value, _this2._overrides[name].priority);
+				});
+			}
+
+			/**
+	   * Add all overrides
+	   * @param {Content} content
+	   */
+
+		}, {
+			key: "overrides",
+			value: function overrides(contents) {
+				var overrides = this._overrides;
+
+				for (var rule in overrides) {
+					if (overrides.hasOwnProperty(rule)) {
+						contents.css(rule, overrides[rule].value, overrides[rule].priority);
+					}
+				}
+			}
+
+			/**
+	   * Adjust the font size of a rendition
+	   * @param {number} size
+	   */
+
+		}, {
+			key: "fontSize",
+			value: function fontSize(size) {
+				this.override("font-size", size);
+			}
+
+			/**
+	   * Adjust the font-family of a rendition
+	   * @param {string} f
+	   */
+
+		}, {
+			key: "font",
+			value: function font(f) {
+				this.override("font-family", f, true);
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.rendition = undefined;
+				this._themes = undefined;
+				this._overrides = undefined;
+				this._current = undefined;
+				this._injected = undefined;
+			}
+		}]);
+
+		return Themes;
+	}();
+
+	var _createClass$g = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$g(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Map text locations to CFI ranges
@@ -13235,8 +13757,11 @@
 	 * @param {string} [axis="horizontal"] vertical or horizontal axis
 	 * @param {boolean} [dev] toggle developer highlighting
 	 */
-	class Mapping {
-		constructor(layout, direction, axis, dev) {
+
+	var Mapping = function () {
+		function Mapping(layout, direction, axis, dev) {
+			_classCallCheck$g(this, Mapping);
+
 			this.layout = layout;
 			this.horizontal = axis === "horizontal" ? true : false;
 			this.direction = direction || "ltr";
@@ -13246,472 +13771,516 @@
 		/**
 	  * Find CFI pairs for entire section at once
 	  */
-		section(view) {
-			var ranges = this.findRanges(view);
-			var map = this.rangeListToCfiList(view.section.cfiBase, ranges);
 
-			return map;
-		}
 
-		/**
-	  * Find CFI pairs for a page
-	  * @param {Contents} contents Contents from view
-	  * @param {string} cfiBase string of the base for a cfi
-	  * @param {number} start position to start at
-	  * @param {number} end position to end at
-	  */
-		page(contents, cfiBase, start, end) {
-			var root = contents && contents.document ? contents.document.body : false;
-			var result;
+		_createClass$g(Mapping, [{
+			key: "section",
+			value: function section(view) {
+				var ranges = this.findRanges(view);
+				var map = this.rangeListToCfiList(view.section.cfiBase, ranges);
 
-			if (!root) {
-				return;
+				return map;
 			}
 
-			result = this.rangePairToCfiPair(cfiBase, {
-				start: this.findStart(root, start, end),
-				end: this.findEnd(root, start, end)
-			});
+			/**
+	   * Find CFI pairs for a page
+	   * @param {Contents} contents Contents from view
+	   * @param {string} cfiBase string of the base for a cfi
+	   * @param {number} start position to start at
+	   * @param {number} end position to end at
+	   */
 
-			if (this._dev === true) {
-				let doc = contents.document;
-				let startRange = new EpubCFI(result.start).toRange(doc);
-				let endRange = new EpubCFI(result.end).toRange(doc);
+		}, {
+			key: "page",
+			value: function page(contents, cfiBase, start, end) {
+				var root = contents && contents.document ? contents.document.body : false;
+				var result;
 
-				let selection = doc.defaultView.getSelection();
-				let r = doc.createRange();
-				selection.removeAllRanges();
-				r.setStart(startRange.startContainer, startRange.startOffset);
-				r.setEnd(endRange.endContainer, endRange.endOffset);
-				selection.addRange(r);
+				if (!root) {
+					return;
+				}
+
+				result = this.rangePairToCfiPair(cfiBase, {
+					start: this.findStart(root, start, end),
+					end: this.findEnd(root, start, end)
+				});
+
+				if (this._dev === true) {
+					var doc = contents.document;
+					var startRange = new EpubCFI(result.start).toRange(doc);
+					var endRange = new EpubCFI(result.end).toRange(doc);
+
+					var selection = doc.defaultView.getSelection();
+					var r = doc.createRange();
+					selection.removeAllRanges();
+					r.setStart(startRange.startContainer, startRange.startOffset);
+					r.setEnd(endRange.endContainer, endRange.endOffset);
+					selection.addRange(r);
+				}
+
+				return result;
 			}
 
-			return result;
-		}
+			/**
+	   * Walk a node, preforming a function on each node it finds
+	   * @private
+	   * @param {Node} root Node to walkToNode
+	   * @param {function} func walk function
+	   * @return {*} returns the result of the walk function
+	   */
 
-		/**
-	  * Walk a node, preforming a function on each node it finds
-	  * @private
-	  * @param {Node} root Node to walkToNode
-	  * @param {function} func walk function
-	  * @return {*} returns the result of the walk function
-	  */
-		walk(root, func) {
-			// IE11 has strange issue, if root is text node IE throws exception on
-			// calling treeWalker.nextNode(), saying
-			// Unexpected call to method or property access instead of returing null value
-			if (root && root.nodeType === Node.TEXT_NODE) {
-				return;
+		}, {
+			key: "walk",
+			value: function walk$$1(root, func) {
+				// IE11 has strange issue, if root is text node IE throws exception on
+				// calling treeWalker.nextNode(), saying
+				// Unexpected call to method or property access instead of returing null value
+				if (root && root.nodeType === Node.TEXT_NODE) {
+					return;
+				}
+				// safeFilter is required so that it can work in IE as filter is a function for IE
+				// and for other browser filter is an object.
+				var filter = {
+					acceptNode: function acceptNode(node) {
+						if (node.data.trim().length > 0) {
+							return NodeFilter.FILTER_ACCEPT;
+						} else {
+							return NodeFilter.FILTER_REJECT;
+						}
+					}
+				};
+				var safeFilter = filter.acceptNode;
+				safeFilter.acceptNode = filter.acceptNode;
+
+				var treeWalker$$1 = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, safeFilter, false);
+				var node;
+				var result;
+				while (node = treeWalker$$1.nextNode()) {
+					result = func(node);
+					if (result) break;
+				}
+
+				return result;
 			}
-			// safeFilter is required so that it can work in IE as filter is a function for IE
-			// and for other browser filter is an object.
-			var filter = {
-				acceptNode: function (node) {
-					if (node.data.trim().length > 0) {
-						return NodeFilter.FILTER_ACCEPT;
-					} else {
-						return NodeFilter.FILTER_REJECT;
+		}, {
+			key: "findRanges",
+			value: function findRanges(view) {
+				var columns = [];
+				var scrollWidth = view.contents.scrollWidth();
+				var spreads = Math.ceil(scrollWidth / this.layout.spreadWidth);
+				var count = spreads * this.layout.divisor;
+				var columnWidth = this.layout.columnWidth;
+				var gap = this.layout.gap;
+				var start, end;
+
+				for (var i = 0; i < count.pages; i++) {
+					start = (columnWidth + gap) * i;
+					end = columnWidth * (i + 1) + gap * i;
+					columns.push({
+						start: this.findStart(view.document.body, start, end),
+						end: this.findEnd(view.document.body, start, end)
+					});
+				}
+
+				return columns;
+			}
+
+			/**
+	   * Find Start Range
+	   * @private
+	   * @param {Node} root root node
+	   * @param {number} start position to start at
+	   * @param {number} end position to end at
+	   * @return {Range}
+	   */
+
+		}, {
+			key: "findStart",
+			value: function findStart(root, start, end) {
+				var _this = this;
+
+				var stack = [root];
+				var $el;
+				var found;
+				var $prev = root;
+
+				while (stack.length) {
+
+					$el = stack.shift();
+
+					found = this.walk($el, function (node) {
+						var left, right, top, bottom;
+						var elPos;
+
+						elPos = nodeBounds(node);
+
+						if (_this.horizontal && _this.direction === "ltr") {
+
+							left = _this.horizontal ? elPos.left : elPos.top;
+							right = _this.horizontal ? elPos.right : elPos.bottom;
+
+							if (left >= start && left <= end) {
+								return node;
+							} else if (right > start) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						} else if (_this.horizontal && _this.direction === "rtl") {
+
+							left = elPos.left;
+							right = elPos.right;
+
+							if (right <= end && right >= start) {
+								return node;
+							} else if (left < end) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						} else {
+
+							top = elPos.top;
+							bottom = elPos.bottom;
+
+							if (top >= start && top <= end) {
+								return node;
+							} else if (bottom > start) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						}
+					});
+
+					if (found) {
+						return this.findTextStartRange(found, start, end);
 					}
 				}
-			};
-			var safeFilter = filter.acceptNode;
-			safeFilter.acceptNode = filter.acceptNode;
 
-			var treeWalker$$1 = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, safeFilter, false);
-			var node;
-			var result;
-			while (node = treeWalker$$1.nextNode()) {
-				result = func(node);
-				if (result) break;
+				// Return last element
+				return this.findTextStartRange($prev, start, end);
 			}
 
-			return result;
-		}
+			/**
+	   * Find End Range
+	   * @private
+	   * @param {Node} root root node
+	   * @param {number} start position to start at
+	   * @param {number} end position to end at
+	   * @return {Range}
+	   */
 
-		findRanges(view) {
-			var columns = [];
-			var scrollWidth = view.contents.scrollWidth();
-			var spreads = Math.ceil(scrollWidth / this.layout.spreadWidth);
-			var count = spreads * this.layout.divisor;
-			var columnWidth = this.layout.columnWidth;
-			var gap = this.layout.gap;
-			var start, end;
+		}, {
+			key: "findEnd",
+			value: function findEnd(root, start, end) {
+				var _this2 = this;
 
-			for (var i = 0; i < count.pages; i++) {
-				start = (columnWidth + gap) * i;
-				end = columnWidth * (i + 1) + gap * i;
-				columns.push({
-					start: this.findStart(view.document.body, start, end),
-					end: this.findEnd(view.document.body, start, end)
-				});
+				var stack = [root];
+				var $el;
+				var $prev = root;
+				var found;
+
+				while (stack.length) {
+
+					$el = stack.shift();
+
+					found = this.walk($el, function (node) {
+
+						var left, right, top, bottom;
+						var elPos;
+
+						elPos = nodeBounds(node);
+
+						if (_this2.horizontal && _this2.direction === "ltr") {
+
+							left = Math.round(elPos.left);
+							right = Math.round(elPos.right);
+
+							if (left > end && $prev) {
+								return $prev;
+							} else if (right > end) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						} else if (_this2.horizontal && _this2.direction === "rtl") {
+
+							left = Math.round(_this2.horizontal ? elPos.left : elPos.top);
+							right = Math.round(_this2.horizontal ? elPos.right : elPos.bottom);
+
+							if (right < start && $prev) {
+								return $prev;
+							} else if (left < start) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						} else {
+
+							top = Math.round(elPos.top);
+							bottom = Math.round(elPos.bottom);
+
+							if (top > end && $prev) {
+								return $prev;
+							} else if (bottom > end) {
+								return node;
+							} else {
+								$prev = node;
+								stack.push(node);
+							}
+						}
+					});
+
+					if (found) {
+						return this.findTextEndRange(found, start, end);
+					}
+				}
+
+				// end of chapter
+				return this.findTextEndRange($prev, start, end);
 			}
 
-			return columns;
-		}
+			/**
+	   * Find Text Start Range
+	   * @private
+	   * @param {Node} root root node
+	   * @param {number} start position to start at
+	   * @param {number} end position to end at
+	   * @return {Range}
+	   */
 
-		/**
-	  * Find Start Range
-	  * @private
-	  * @param {Node} root root node
-	  * @param {number} start position to start at
-	  * @param {number} end position to end at
-	  * @return {Range}
-	  */
-		findStart(root, start, end) {
-			var stack = [root];
-			var $el;
-			var found;
-			var $prev = root;
+		}, {
+			key: "findTextStartRange",
+			value: function findTextStartRange(node, start, end) {
+				var ranges = this.splitTextNodeIntoRanges(node);
+				var range;
+				var pos;
+				var left, top, right;
 
-			while (stack.length) {
+				for (var i = 0; i < ranges.length; i++) {
+					range = ranges[i];
 
-				$el = stack.shift();
-
-				found = this.walk($el, node => {
-					var left, right, top, bottom;
-					var elPos;
-
-					elPos = nodeBounds(node);
+					pos = range.getBoundingClientRect();
 
 					if (this.horizontal && this.direction === "ltr") {
 
-						left = this.horizontal ? elPos.left : elPos.top;
-						right = this.horizontal ? elPos.right : elPos.bottom;
-
-						if (left >= start && left <= end) {
-							return node;
-						} else if (right > start) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+						left = pos.left;
+						if (left >= start) {
+							return range;
 						}
 					} else if (this.horizontal && this.direction === "rtl") {
 
-						left = elPos.left;
-						right = elPos.right;
-
-						if (right <= end && right >= start) {
-							return node;
-						} else if (left < end) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+						right = pos.right;
+						if (right <= end) {
+							return range;
 						}
 					} else {
 
-						top = elPos.top;
-						bottom = elPos.bottom;
-
-						if (top >= start && top <= end) {
-							return node;
-						} else if (bottom > start) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+						top = pos.top;
+						if (top >= start) {
+							return range;
 						}
 					}
-				});
 
-				if (found) {
-					return this.findTextStartRange(found, start, end);
+					// prev = range;
 				}
+
+				return ranges[0];
 			}
 
-			// Return last element
-			return this.findTextStartRange($prev, start, end);
-		}
+			/**
+	   * Find Text End Range
+	   * @private
+	   * @param {Node} root root node
+	   * @param {number} start position to start at
+	   * @param {number} end position to end at
+	   * @return {Range}
+	   */
 
-		/**
-	  * Find End Range
-	  * @private
-	  * @param {Node} root root node
-	  * @param {number} start position to start at
-	  * @param {number} end position to end at
-	  * @return {Range}
-	  */
-		findEnd(root, start, end) {
-			var stack = [root];
-			var $el;
-			var $prev = root;
-			var found;
+		}, {
+			key: "findTextEndRange",
+			value: function findTextEndRange(node, start, end) {
+				var ranges = this.splitTextNodeIntoRanges(node);
+				var prev;
+				var range;
+				var pos;
+				var left, right, top, bottom;
 
-			while (stack.length) {
+				for (var i = 0; i < ranges.length; i++) {
+					range = ranges[i];
 
-				$el = stack.shift();
-
-				found = this.walk($el, node => {
-
-					var left, right, top, bottom;
-					var elPos;
-
-					elPos = nodeBounds(node);
+					pos = range.getBoundingClientRect();
 
 					if (this.horizontal && this.direction === "ltr") {
 
-						left = Math.round(elPos.left);
-						right = Math.round(elPos.right);
+						left = pos.left;
+						right = pos.right;
 
-						if (left > end && $prev) {
-							return $prev;
+						if (left > end && prev) {
+							return prev;
 						} else if (right > end) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+							return range;
 						}
 					} else if (this.horizontal && this.direction === "rtl") {
 
-						left = Math.round(this.horizontal ? elPos.left : elPos.top);
-						right = Math.round(this.horizontal ? elPos.right : elPos.bottom);
+						left = pos.left;
+						right = pos.right;
 
-						if (right < start && $prev) {
-							return $prev;
+						if (right < start && prev) {
+							return prev;
 						} else if (left < start) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+							return range;
 						}
 					} else {
 
-						top = Math.round(elPos.top);
-						bottom = Math.round(elPos.bottom);
+						top = pos.top;
+						bottom = pos.bottom;
 
-						if (top > end && $prev) {
-							return $prev;
+						if (top > end && prev) {
+							return prev;
 						} else if (bottom > end) {
-							return node;
-						} else {
-							$prev = node;
-							stack.push(node);
+							return range;
 						}
 					}
-				});
 
-				if (found) {
-					return this.findTextEndRange(found, start, end);
-				}
-			}
-
-			// end of chapter
-			return this.findTextEndRange($prev, start, end);
-		}
-
-		/**
-	  * Find Text Start Range
-	  * @private
-	  * @param {Node} root root node
-	  * @param {number} start position to start at
-	  * @param {number} end position to end at
-	  * @return {Range}
-	  */
-		findTextStartRange(node, start, end) {
-			var ranges = this.splitTextNodeIntoRanges(node);
-			var range;
-			var pos;
-			var left, top, right;
-
-			for (var i = 0; i < ranges.length; i++) {
-				range = ranges[i];
-
-				pos = range.getBoundingClientRect();
-
-				if (this.horizontal && this.direction === "ltr") {
-
-					left = pos.left;
-					if (left >= start) {
-						return range;
-					}
-				} else if (this.horizontal && this.direction === "rtl") {
-
-					right = pos.right;
-					if (right <= end) {
-						return range;
-					}
-				} else {
-
-					top = pos.top;
-					if (top >= start) {
-						return range;
-					}
+					prev = range;
 				}
 
-				// prev = range;
+				// Ends before limit
+				return ranges[ranges.length - 1];
 			}
 
-			return ranges[0];
-		}
+			/**
+	   * Split up a text node into ranges for each word
+	   * @private
+	   * @param {Node} root root node
+	   * @param {string} [_splitter] what to split on
+	   * @return {Range[]}
+	   */
 
-		/**
-	  * Find Text End Range
-	  * @private
-	  * @param {Node} root root node
-	  * @param {number} start position to start at
-	  * @param {number} end position to end at
-	  * @return {Range}
-	  */
-		findTextEndRange(node, start, end) {
-			var ranges = this.splitTextNodeIntoRanges(node);
-			var prev;
-			var range;
-			var pos;
-			var left, right, top, bottom;
+		}, {
+			key: "splitTextNodeIntoRanges",
+			value: function splitTextNodeIntoRanges(node, _splitter) {
+				var ranges = [];
+				var textContent = node.textContent || "";
+				var text = textContent.trim();
+				var range;
+				var doc = node.ownerDocument;
+				var splitter = _splitter || " ";
 
-			for (var i = 0; i < ranges.length; i++) {
-				range = ranges[i];
+				var pos = text.indexOf(splitter);
 
-				pos = range.getBoundingClientRect();
-
-				if (this.horizontal && this.direction === "ltr") {
-
-					left = pos.left;
-					right = pos.right;
-
-					if (left > end && prev) {
-						return prev;
-					} else if (right > end) {
-						return range;
-					}
-				} else if (this.horizontal && this.direction === "rtl") {
-
-					left = pos.left;
-					right = pos.right;
-
-					if (right < start && prev) {
-						return prev;
-					} else if (left < start) {
-						return range;
-					}
-				} else {
-
-					top = pos.top;
-					bottom = pos.bottom;
-
-					if (top > end && prev) {
-						return prev;
-					} else if (bottom > end) {
-						return range;
-					}
-				}
-
-				prev = range;
-			}
-
-			// Ends before limit
-			return ranges[ranges.length - 1];
-		}
-
-		/**
-	  * Split up a text node into ranges for each word
-	  * @private
-	  * @param {Node} root root node
-	  * @param {string} [_splitter] what to split on
-	  * @return {Range[]}
-	  */
-		splitTextNodeIntoRanges(node, _splitter) {
-			var ranges = [];
-			var textContent = node.textContent || "";
-			var text = textContent.trim();
-			var range;
-			var doc = node.ownerDocument;
-			var splitter = _splitter || " ";
-
-			var pos = text.indexOf(splitter);
-
-			if (pos === -1 || node.nodeType != Node.TEXT_NODE) {
-				range = doc.createRange();
-				range.selectNodeContents(node);
-				return [range];
-			}
-
-			range = doc.createRange();
-			range.setStart(node, 0);
-			range.setEnd(node, pos);
-			ranges.push(range);
-			range = false;
-
-			while (pos != -1) {
-
-				pos = text.indexOf(splitter, pos + 1);
-				if (pos > 0) {
-
-					if (range) {
-						range.setEnd(node, pos);
-						ranges.push(range);
-					}
-
+				if (pos === -1 || node.nodeType != Node.TEXT_NODE) {
 					range = doc.createRange();
-					range.setStart(node, pos + 1);
+					range.selectNodeContents(node);
+					return [range];
 				}
-			}
 
-			if (range) {
-				range.setEnd(node, text.length);
+				range = doc.createRange();
+				range.setStart(node, 0);
+				range.setEnd(node, pos);
 				ranges.push(range);
+				range = false;
+
+				while (pos != -1) {
+
+					pos = text.indexOf(splitter, pos + 1);
+					if (pos > 0) {
+
+						if (range) {
+							range.setEnd(node, pos);
+							ranges.push(range);
+						}
+
+						range = doc.createRange();
+						range.setStart(node, pos + 1);
+					}
+				}
+
+				if (range) {
+					range.setEnd(node, text.length);
+					ranges.push(range);
+				}
+
+				return ranges;
 			}
 
-			return ranges;
-		}
+			/**
+	   * Turn a pair of ranges into a pair of CFIs
+	   * @private
+	   * @param {string} cfiBase base string for an EpubCFI
+	   * @param {object} rangePair { start: Range, end: Range }
+	   * @return {object} { start: "epubcfi(...)", end: "epubcfi(...)" }
+	   */
 
-		/**
-	  * Turn a pair of ranges into a pair of CFIs
-	  * @private
-	  * @param {string} cfiBase base string for an EpubCFI
-	  * @param {object} rangePair { start: Range, end: Range }
-	  * @return {object} { start: "epubcfi(...)", end: "epubcfi(...)" }
-	  */
-		rangePairToCfiPair(cfiBase, rangePair) {
+		}, {
+			key: "rangePairToCfiPair",
+			value: function rangePairToCfiPair(cfiBase, rangePair) {
 
-			var startRange = rangePair.start;
-			var endRange = rangePair.end;
+				var startRange = rangePair.start;
+				var endRange = rangePair.end;
 
-			startRange.collapse(true);
-			endRange.collapse(false);
+				startRange.collapse(true);
+				endRange.collapse(false);
 
-			let startCfi = new EpubCFI(startRange, cfiBase).toString();
-			let endCfi = new EpubCFI(endRange, cfiBase).toString();
+				var startCfi = new EpubCFI(startRange, cfiBase).toString();
+				var endCfi = new EpubCFI(endRange, cfiBase).toString();
 
-			return {
-				start: startCfi,
-				end: endCfi
-			};
-		}
+				return {
+					start: startCfi,
+					end: endCfi
+				};
+			}
+		}, {
+			key: "rangeListToCfiList",
+			value: function rangeListToCfiList(cfiBase, columns) {
+				var map = [];
+				var cifPair;
 
-		rangeListToCfiList(cfiBase, columns) {
-			var map = [];
-			var cifPair;
+				for (var i = 0; i < columns.length; i++) {
+					cifPair = this.rangePairToCfiPair(cfiBase, columns[i]);
 
-			for (var i = 0; i < columns.length; i++) {
-				cifPair = this.rangePairToCfiPair(cfiBase, columns[i]);
+					map.push(cifPair);
+				}
 
-				map.push(cifPair);
+				return map;
 			}
 
-			return map;
-		}
+			/**
+	   * Set the axis for mapping
+	   * @param {string} axis horizontal | vertical
+	   * @return {boolean} is it horizontal?
+	   */
 
-		/**
-	  * Set the axis for mapping
-	  * @param {string} axis horizontal | vertical
-	  * @return {boolean} is it horizontal?
-	  */
-		axis(axis) {
-			if (axis) {
-				this.horizontal = axis === "horizontal" ? true : false;
+		}, {
+			key: "axis",
+			value: function axis(_axis) {
+				if (_axis) {
+					this.horizontal = _axis === "horizontal" ? true : false;
+				}
+				return this.horizontal;
 			}
-			return this.horizontal;
-		}
-	}
+		}]);
 
-	const hasNavigator = typeof navigator !== "undefined";
+		return Mapping;
+	}();
 
-	const isChrome = hasNavigator && /Chrome/.test(navigator.userAgent);
-	const isWebkit = hasNavigator && !isChrome && /AppleWebKit/.test(navigator.userAgent);
+	var _createClass$h = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	const ELEMENT_NODE$2 = 1;
+	function _classCallCheck$h(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var hasNavigator = typeof navigator !== "undefined";
+
+	var isChrome = hasNavigator && /Chrome/.test(navigator.userAgent);
+	var isWebkit = hasNavigator && !isChrome && /AppleWebKit/.test(navigator.userAgent);
+
+	var ELEMENT_NODE$2 = 1;
 
 	/**
 		* Handles DOM manipulation, queries and events for View contents
@@ -13721,8 +14290,11 @@
 		* @param {string} cfiBase Section component of CFIs
 		* @param {number} sectionIndex Index in Spine of Conntent's Section
 		*/
-	class Contents$1 {
-		constructor(doc, content, cfiBase, sectionIndex) {
+
+	var Contents$1 = function () {
+		function Contents(doc, content, cfiBase, sectionIndex) {
+			_classCallCheck$h(this, Contents);
+
 			// Blank Cfi for Parsing
 			this.epubcfi = new EpubCFI();
 
@@ -13747,1144 +14319,1313 @@
 		/**
 	 	* Get DOM events that are listened for and passed along
 	 	*/
-		static get listenedEvents() {
-			return DOM_EVENTS;
-		}
 
-		/**
-	 	* Get or Set width
-	 	* @param {number} [w]
-	 	* @returns {number} width
-	 	*/
-		width(w) {
-			// var frame = this.documentElement;
-			var frame = this.content;
 
-			if (w && isNumber(w)) {
-				w = w + "px";
-			}
+		_createClass$h(Contents, [{
+			key: "width",
 
-			if (w) {
-				frame.style.width = w;
-				// this.content.style.width = w;
-			}
 
-			return this.window.getComputedStyle(frame)["width"];
-		}
+			/**
+	  	* Get or Set width
+	  	* @param {number} [w]
+	  	* @returns {number} width
+	  	*/
+			value: function width(w) {
+				// var frame = this.documentElement;
+				var frame = this.content;
 
-		/**
-	 	* Get or Set height
-	 	* @param {number} [h]
-	 	* @returns {number} height
-	 	*/
-		height(h) {
-			// var frame = this.documentElement;
-			var frame = this.content;
-
-			if (h && isNumber(h)) {
-				h = h + "px";
-			}
-
-			if (h) {
-				frame.style.height = h;
-				// this.content.style.height = h;
-			}
-
-			return this.window.getComputedStyle(frame)["height"];
-		}
-
-		/**
-	 	* Get or Set width of the contents
-	 	* @param {number} [w]
-	 	* @returns {number} width
-	 	*/
-		contentWidth(w) {
-
-			var content = this.content || this.document.body;
-
-			if (w && isNumber(w)) {
-				w = w + "px";
-			}
-
-			if (w) {
-				content.style.width = w;
-			}
-
-			return this.window.getComputedStyle(content)["width"];
-		}
-
-		/**
-	 	* Get or Set height of the contents
-	 	* @param {number} [h]
-	 	* @returns {number} height
-	 	*/
-		contentHeight(h) {
-
-			var content = this.content || this.document.body;
-
-			if (h && isNumber(h)) {
-				h = h + "px";
-			}
-
-			if (h) {
-				content.style.height = h;
-			}
-
-			return this.window.getComputedStyle(content)["height"];
-		}
-
-		/**
-	 	* Get the width of the text using Range
-	 	* @returns {number} width
-	 	*/
-		textWidth() {
-			let rect;
-			let width;
-			let range = this.document.createRange();
-			let content = this.content || this.document.body;
-			let border = borders(content);
-
-			// Select the contents of frame
-			range.selectNodeContents(content);
-
-			// get the width of the text content
-			rect = range.getBoundingClientRect();
-			width = rect.width;
-
-			if (border && border.width) {
-				width += border.width;
-			}
-
-			return Math.round(width);
-		}
-
-		/**
-	 	* Get the height of the text using Range
-	 	* @returns {number} height
-	 	*/
-		textHeight() {
-			let rect;
-			let height;
-			let range = this.document.createRange();
-			let content = this.content || this.document.body;
-			let border = borders(content);
-
-			range.selectNodeContents(content);
-
-			rect = range.getBoundingClientRect();
-			height = rect.height;
-
-			if (height && border.height) {
-				height += border.height;
-			}
-
-			if (height && rect.top) {
-				height += rect.top;
-			}
-
-			return Math.round(height);
-		}
-
-		/**
-	 	* Get documentElement scrollWidth
-	 	* @returns {number} width
-	 	*/
-		scrollWidth() {
-			var width = this.documentElement.scrollWidth;
-
-			return width;
-		}
-
-		/**
-	 	* Get documentElement scrollHeight
-	 	* @returns {number} height
-	 	*/
-		scrollHeight() {
-			var height = this.documentElement.scrollHeight;
-
-			return height;
-		}
-
-		/**
-	 	* Set overflow css style of the contents
-	 	* @param {string} [overflow]
-	 	*/
-		overflow(overflow) {
-
-			if (overflow) {
-				this.documentElement.style.overflow = overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflow"];
-		}
-
-		/**
-	 	* Set overflowX css style of the documentElement
-	 	* @param {string} [overflow]
-	 	*/
-		overflowX(overflow) {
-
-			if (overflow) {
-				this.documentElement.style.overflowX = overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflowX"];
-		}
-
-		/**
-	 	* Set overflowY css style of the documentElement
-	 	* @param {string} [overflow]
-	 	*/
-		overflowY(overflow) {
-
-			if (overflow) {
-				this.documentElement.style.overflowY = overflow;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)["overflowY"];
-		}
-
-		/**
-	 	* Set Css styles on the contents element (typically Body)
-	 	* @param {string} property
-	 	* @param {string} value
-	 	* @param {boolean} [priority] set as "important"
-	 	*/
-		css(property, value, priority) {
-			var content = this.content || this.document.body;
-
-			if (value) {
-				content.style.setProperty(property, value, priority ? "important" : "");
-			}
-
-			return this.window.getComputedStyle(content)[property];
-		}
-
-		/**
-	 	* Get or Set the viewport element
-	 	* @param {object} [options]
-	 	* @param {string} [options.width]
-	 	* @param {string} [options.height]
-	 	* @param {string} [options.scale]
-	 	* @param {string} [options.minimum]
-	 	* @param {string} [options.maximum]
-	 	* @param {string} [options.scalable]
-	 	*/
-		viewport(options) {
-			// var width, height, scale, minimum, maximum, scalable;
-			var $viewport = this.document.querySelector("meta[name='viewport']");
-			var parsed = {
-				"width": undefined,
-				"height": undefined,
-				"scale": undefined,
-				"minimum": undefined,
-				"maximum": undefined,
-				"scalable": undefined
-			};
-			var newContent = [];
-			var settings = {};
-
-			/*
-	  * check for the viewport size
-	  * <meta name="viewport" content="width=1024,height=697" />
-	  */
-			if ($viewport && $viewport.hasAttribute("content")) {
-				let content = $viewport.getAttribute("content");
-				let _width = content.match(/width\s*=\s*([^,]*)/);
-				let _height = content.match(/height\s*=\s*([^,]*)/);
-				let _scale = content.match(/initial-scale\s*=\s*([^,]*)/);
-				let _minimum = content.match(/minimum-scale\s*=\s*([^,]*)/);
-				let _maximum = content.match(/maximum-scale\s*=\s*([^,]*)/);
-				let _scalable = content.match(/user-scalable\s*=\s*([^,]*)/);
-
-				if (_width && _width.length && typeof _width[1] !== "undefined") {
-					parsed.width = _width[1];
-				}
-				if (_height && _height.length && typeof _height[1] !== "undefined") {
-					parsed.height = _height[1];
-				}
-				if (_scale && _scale.length && typeof _scale[1] !== "undefined") {
-					parsed.scale = _scale[1];
-				}
-				if (_minimum && _minimum.length && typeof _minimum[1] !== "undefined") {
-					parsed.minimum = _minimum[1];
-				}
-				if (_maximum && _maximum.length && typeof _maximum[1] !== "undefined") {
-					parsed.maximum = _maximum[1];
-				}
-				if (_scalable && _scalable.length && typeof _scalable[1] !== "undefined") {
-					parsed.scalable = _scalable[1];
-				}
-			}
-
-			settings = defaults(options || {}, parsed);
-
-			if (options) {
-				if (settings.width) {
-					newContent.push("width=" + settings.width);
+				if (w && isNumber(w)) {
+					w = w + "px";
 				}
 
-				if (settings.height) {
-					newContent.push("height=" + settings.height);
+				if (w) {
+					frame.style.width = w;
+					// this.content.style.width = w;
 				}
 
-				if (settings.scale) {
-					newContent.push("initial-scale=" + settings.scale);
-				}
-
-				if (settings.scalable === "no") {
-					newContent.push("minimum-scale=" + settings.scale);
-					newContent.push("maximum-scale=" + settings.scale);
-					newContent.push("user-scalable=" + settings.scalable);
-				} else {
-
-					if (settings.scalable) {
-						newContent.push("user-scalable=" + settings.scalable);
-					}
-
-					if (settings.minimum) {
-						newContent.push("minimum-scale=" + settings.minimum);
-					}
-
-					if (settings.maximum) {
-						newContent.push("minimum-scale=" + settings.maximum);
-					}
-				}
-
-				if (!$viewport) {
-					$viewport = this.document.createElement("meta");
-					$viewport.setAttribute("name", "viewport");
-					this.document.querySelector("head").appendChild($viewport);
-				}
-
-				$viewport.setAttribute("content", newContent.join(", "));
-
-				this.window.scrollTo(0, 0);
+				return this.window.getComputedStyle(frame)["width"];
 			}
 
-			return settings;
-		}
+			/**
+	  	* Get or Set height
+	  	* @param {number} [h]
+	  	* @returns {number} height
+	  	*/
 
-		/**
-	  * Event emitter for when the contents has expanded
-	  * @private
-	  */
-		expand() {
-			this.emit(EVENTS.CONTENTS.EXPAND);
-		}
+		}, {
+			key: "height",
+			value: function height(h) {
+				// var frame = this.documentElement;
+				var frame = this.content;
 
-		/**
-	  * Add DOM listeners
-	  * @private
-	  */
-		listeners() {
+				if (h && isNumber(h)) {
+					h = h + "px";
+				}
 
-			this.imageLoadListeners();
+				if (h) {
+					frame.style.height = h;
+					// this.content.style.height = h;
+				}
 
-			this.mediaQueryListeners();
+				return this.window.getComputedStyle(frame)["height"];
+			}
 
-			// this.fontLoadListeners();
+			/**
+	  	* Get or Set width of the contents
+	  	* @param {number} [w]
+	  	* @returns {number} width
+	  	*/
 
-			this.addEventListeners();
+		}, {
+			key: "contentWidth",
+			value: function contentWidth(w) {
 
-			this.addSelectionListeners();
+				var content = this.content || this.document.body;
 
-			// this.transitionListeners();
+				if (w && isNumber(w)) {
+					w = w + "px";
+				}
 
-			this.resizeListeners();
+				if (w) {
+					content.style.width = w;
+				}
 
-			// this.resizeObservers();
+				return this.window.getComputedStyle(content)["width"];
+			}
 
-			this.linksHandler();
-		}
+			/**
+	  	* Get or Set height of the contents
+	  	* @param {number} [h]
+	  	* @returns {number} height
+	  	*/
 
-		/**
-	  * Remove DOM listeners
-	  * @private
-	  */
-		removeListeners() {
+		}, {
+			key: "contentHeight",
+			value: function contentHeight(h) {
 
-			this.removeEventListeners();
+				var content = this.content || this.document.body;
 
-			this.removeSelectionListeners();
+				if (h && isNumber(h)) {
+					h = h + "px";
+				}
 
-			clearTimeout(this.expanding);
-		}
+				if (h) {
+					content.style.height = h;
+				}
 
-		/**
-	  * Check if size of contents has changed and
-	  * emit 'resize' event if it has.
-	  * @private
-	  */
-		resizeCheck() {
-			let width = this.textWidth();
-			let height = this.textHeight();
+				return this.window.getComputedStyle(content)["height"];
+			}
 
-			if (width != this._size.width || height != this._size.height) {
+			/**
+	  	* Get the width of the text using Range
+	  	* @returns {number} width
+	  	*/
 
-				this._size = {
-					width: width,
-					height: height
+		}, {
+			key: "textWidth",
+			value: function textWidth() {
+				var rect = void 0;
+				var width = void 0;
+				var range = this.document.createRange();
+				var content = this.content || this.document.body;
+				var border = borders(content);
+
+				// Select the contents of frame
+				range.selectNodeContents(content);
+
+				// get the width of the text content
+				rect = range.getBoundingClientRect();
+				width = rect.width;
+
+				if (border && border.width) {
+					width += border.width;
+				}
+
+				return Math.round(width);
+			}
+
+			/**
+	  	* Get the height of the text using Range
+	  	* @returns {number} height
+	  	*/
+
+		}, {
+			key: "textHeight",
+			value: function textHeight() {
+				var rect = void 0;
+				var height = void 0;
+				var range = this.document.createRange();
+				var content = this.content || this.document.body;
+				var border = borders(content);
+
+				range.selectNodeContents(content);
+
+				rect = range.getBoundingClientRect();
+				height = rect.height;
+
+				if (height && border.height) {
+					height += border.height;
+				}
+
+				if (height && rect.top) {
+					height += rect.top;
+				}
+
+				return Math.round(height);
+			}
+
+			/**
+	  	* Get documentElement scrollWidth
+	  	* @returns {number} width
+	  	*/
+
+		}, {
+			key: "scrollWidth",
+			value: function scrollWidth() {
+				var width = this.documentElement.scrollWidth;
+
+				return width;
+			}
+
+			/**
+	  	* Get documentElement scrollHeight
+	  	* @returns {number} height
+	  	*/
+
+		}, {
+			key: "scrollHeight",
+			value: function scrollHeight() {
+				var height = this.documentElement.scrollHeight;
+
+				return height;
+			}
+
+			/**
+	  	* Set overflow css style of the contents
+	  	* @param {string} [overflow]
+	  	*/
+
+		}, {
+			key: "overflow",
+			value: function overflow(_overflow) {
+
+				if (_overflow) {
+					this.documentElement.style.overflow = _overflow;
+				}
+
+				return this.window.getComputedStyle(this.documentElement)["overflow"];
+			}
+
+			/**
+	  	* Set overflowX css style of the documentElement
+	  	* @param {string} [overflow]
+	  	*/
+
+		}, {
+			key: "overflowX",
+			value: function overflowX(overflow) {
+
+				if (overflow) {
+					this.documentElement.style.overflowX = overflow;
+				}
+
+				return this.window.getComputedStyle(this.documentElement)["overflowX"];
+			}
+
+			/**
+	  	* Set overflowY css style of the documentElement
+	  	* @param {string} [overflow]
+	  	*/
+
+		}, {
+			key: "overflowY",
+			value: function overflowY(overflow) {
+
+				if (overflow) {
+					this.documentElement.style.overflowY = overflow;
+				}
+
+				return this.window.getComputedStyle(this.documentElement)["overflowY"];
+			}
+
+			/**
+	  	* Set Css styles on the contents element (typically Body)
+	  	* @param {string} property
+	  	* @param {string} value
+	  	* @param {boolean} [priority] set as "important"
+	  	*/
+
+		}, {
+			key: "css",
+			value: function css(property, value, priority) {
+				var content = this.content || this.document.body;
+
+				if (value) {
+					content.style.setProperty(property, value, priority ? "important" : "");
+				}
+
+				return this.window.getComputedStyle(content)[property];
+			}
+
+			/**
+	  	* Get or Set the viewport element
+	  	* @param {object} [options]
+	  	* @param {string} [options.width]
+	  	* @param {string} [options.height]
+	  	* @param {string} [options.scale]
+	  	* @param {string} [options.minimum]
+	  	* @param {string} [options.maximum]
+	  	* @param {string} [options.scalable]
+	  	*/
+
+		}, {
+			key: "viewport",
+			value: function viewport(options) {
+				// var width, height, scale, minimum, maximum, scalable;
+				var $viewport = this.document.querySelector("meta[name='viewport']");
+				var parsed = {
+					"width": undefined,
+					"height": undefined,
+					"scale": undefined,
+					"minimum": undefined,
+					"maximum": undefined,
+					"scalable": undefined
 				};
+				var newContent = [];
+				var settings = {};
 
-				this.onResize && this.onResize(this._size);
-				this.emit(EVENTS.CONTENTS.RESIZE, this._size);
-			}
-		}
+				/*
+	   * check for the viewport size
+	   * <meta name="viewport" content="width=1024,height=697" />
+	   */
+				if ($viewport && $viewport.hasAttribute("content")) {
+					var content = $viewport.getAttribute("content");
+					var _width2 = content.match(/width\s*=\s*([^,]*)/);
+					var _height2 = content.match(/height\s*=\s*([^,]*)/);
+					var _scale2 = content.match(/initial-scale\s*=\s*([^,]*)/);
+					var _minimum2 = content.match(/minimum-scale\s*=\s*([^,]*)/);
+					var _maximum2 = content.match(/maximum-scale\s*=\s*([^,]*)/);
+					var _scalable2 = content.match(/user-scalable\s*=\s*([^,]*)/);
 
-		/**
-	  * Poll for resize detection
-	  * @private
-	  */
-		resizeListeners() {
-			// Test size again
-			clearTimeout(this.expanding);
-
-			requestAnimationFrame(this.resizeCheck.bind(this));
-
-			this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
-		}
-
-		/**
-	  * Use css transitions to detect resize
-	  * @private
-	  */
-		transitionListeners() {
-			let body = this.content;
-
-			body.style['transitionProperty'] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
-			body.style['transitionDuration'] = "0.001ms";
-			body.style['transitionTimingFunction'] = "linear";
-			body.style['transitionDelay'] = "0";
-
-			this._resizeCheck = this.resizeCheck.bind(this);
-			this.document.addEventListener('transitionend', this._resizeCheck);
-		}
-
-		/**
-	  * Listen for media query changes and emit 'expand' event
-	  * Adapted from: https://github.com/tylergaw/media-query-events/blob/master/js/mq-events.js
-	  * @private
-	  */
-		mediaQueryListeners() {
-			var sheets = this.document.styleSheets;
-			var mediaChangeHandler = function (m) {
-				if (m.matches && !this._expanding) {
-					setTimeout(this.expand.bind(this), 1);
-				}
-			}.bind(this);
-
-			for (var i = 0; i < sheets.length; i += 1) {
-				var rules;
-				// Firefox errors if we access cssRules cross-domain
-				try {
-					rules = sheets[i].cssRules;
-				} catch (e) {
-					return;
-				}
-				if (!rules) return; // Stylesheets changed
-				for (var j = 0; j < rules.length; j += 1) {
-					//if (rules[j].constructor === CSSMediaRule) {
-					if (rules[j].media) {
-						var mql = this.window.matchMedia(rules[j].media.mediaText);
-						mql.addListener(mediaChangeHandler);
-						//mql.onchange = mediaChangeHandler;
+					if (_width2 && _width2.length && typeof _width2[1] !== "undefined") {
+						parsed.width = _width2[1];
+					}
+					if (_height2 && _height2.length && typeof _height2[1] !== "undefined") {
+						parsed.height = _height2[1];
+					}
+					if (_scale2 && _scale2.length && typeof _scale2[1] !== "undefined") {
+						parsed.scale = _scale2[1];
+					}
+					if (_minimum2 && _minimum2.length && typeof _minimum2[1] !== "undefined") {
+						parsed.minimum = _minimum2[1];
+					}
+					if (_maximum2 && _maximum2.length && typeof _maximum2[1] !== "undefined") {
+						parsed.maximum = _maximum2[1];
+					}
+					if (_scalable2 && _scalable2.length && typeof _scalable2[1] !== "undefined") {
+						parsed.scalable = _scalable2[1];
 					}
 				}
+
+				settings = defaults(options || {}, parsed);
+
+				if (options) {
+					if (settings.width) {
+						newContent.push("width=" + settings.width);
+					}
+
+					if (settings.height) {
+						newContent.push("height=" + settings.height);
+					}
+
+					if (settings.scale) {
+						newContent.push("initial-scale=" + settings.scale);
+					}
+
+					if (settings.scalable === "no") {
+						newContent.push("minimum-scale=" + settings.scale);
+						newContent.push("maximum-scale=" + settings.scale);
+						newContent.push("user-scalable=" + settings.scalable);
+					} else {
+
+						if (settings.scalable) {
+							newContent.push("user-scalable=" + settings.scalable);
+						}
+
+						if (settings.minimum) {
+							newContent.push("minimum-scale=" + settings.minimum);
+						}
+
+						if (settings.maximum) {
+							newContent.push("minimum-scale=" + settings.maximum);
+						}
+					}
+
+					if (!$viewport) {
+						$viewport = this.document.createElement("meta");
+						$viewport.setAttribute("name", "viewport");
+						this.document.querySelector("head").appendChild($viewport);
+					}
+
+					$viewport.setAttribute("content", newContent.join(", "));
+
+					this.window.scrollTo(0, 0);
+				}
+
+				return settings;
 			}
-		}
 
-		/**
-	  * Use MutationObserver to listen for changes in the DOM and check for resize
-	  * @private
-	  */
-		resizeObservers() {
-			// create an observer instance
-			this.observer = new MutationObserver(mutations => {
-				this.resizeCheck();
-			});
+			/**
+	   * Event emitter for when the contents has expanded
+	   * @private
+	   */
 
-			// configuration of the observer:
-			let config = { attributes: true, childList: true, characterData: true, subtree: true };
+		}, {
+			key: "expand",
+			value: function expand() {
+				this.emit(EVENTS.CONTENTS.EXPAND);
+			}
 
-			// pass in the target node, as well as the observer options
-			this.observer.observe(this.document, config);
-		}
+			/**
+	   * Add DOM listeners
+	   * @private
+	   */
 
-		/**
-	  * Test if images are loaded or add listener for when they load
-	  * @private
-	  */
-		imageLoadListeners() {
-			var images = this.document.querySelectorAll("img");
-			var img;
-			for (var i = 0; i < images.length; i++) {
-				img = images[i];
+		}, {
+			key: "listeners",
+			value: function listeners() {
 
-				if (typeof img.naturalWidth !== "undefined" && img.naturalWidth === 0) {
-					img.onload = this.expand.bind(this);
+				this.imageLoadListeners();
+
+				this.mediaQueryListeners();
+
+				// this.fontLoadListeners();
+
+				this.addEventListeners();
+
+				this.addSelectionListeners();
+
+				// this.transitionListeners();
+
+				this.resizeListeners();
+
+				// this.resizeObservers();
+
+				this.linksHandler();
+			}
+
+			/**
+	   * Remove DOM listeners
+	   * @private
+	   */
+
+		}, {
+			key: "removeListeners",
+			value: function removeListeners() {
+
+				this.removeEventListeners();
+
+				this.removeSelectionListeners();
+
+				clearTimeout(this.expanding);
+			}
+
+			/**
+	   * Check if size of contents has changed and
+	   * emit 'resize' event if it has.
+	   * @private
+	   */
+
+		}, {
+			key: "resizeCheck",
+			value: function resizeCheck() {
+				var width = this.textWidth();
+				var height = this.textHeight();
+
+				if (width != this._size.width || height != this._size.height) {
+
+					this._size = {
+						width: width,
+						height: height
+					};
+
+					this.onResize && this.onResize(this._size);
+					this.emit(EVENTS.CONTENTS.RESIZE, this._size);
 				}
 			}
-		}
 
-		/**
-	  * Listen for font load and check for resize when loaded
-	  * @private
-	  */
-		fontLoadListeners() {
-			if (!this.document || !this.document.fonts) {
-				return;
+			/**
+	   * Poll for resize detection
+	   * @private
+	   */
+
+		}, {
+			key: "resizeListeners",
+			value: function resizeListeners() {
+				// Test size again
+				clearTimeout(this.expanding);
+
+				requestAnimationFrame(this.resizeCheck.bind(this));
+
+				this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
 			}
 
-			this.document.fonts.ready.then(function () {
-				this.resizeCheck();
-			}.bind(this));
-		}
+			/**
+	   * Use css transitions to detect resize
+	   * @private
+	   */
 
-		/**
-	  * Get the documentElement
-	  * @returns {element} documentElement
-	  */
-		root() {
-			if (!this.document) return null;
-			return this.document.documentElement;
-		}
+		}, {
+			key: "transitionListeners",
+			value: function transitionListeners() {
+				var body = this.content;
 
-		/**
-	  * Get the location offset of a EpubCFI or an #id
-	  * @param {string | EpubCFI} target
-	  * @param {string} [ignoreClass] for the cfi
-	  * @returns { {left: Number, top: Number }
-	  */
-		locationOf(target, ignoreClass) {
-			var position;
-			var targetPos = { "left": 0, "top": 0 };
+				body.style['transitionProperty'] = "font, font-size, font-size-adjust, font-stretch, font-variation-settings, font-weight, width, height";
+				body.style['transitionDuration'] = "0.001ms";
+				body.style['transitionTimingFunction'] = "linear";
+				body.style['transitionDelay'] = "0";
 
-			if (!this.document) return targetPos;
+				this._resizeCheck = this.resizeCheck.bind(this);
+				this.document.addEventListener('transitionend', this._resizeCheck);
+			}
 
-			if (this.epubcfi.isCfiString(target)) {
-				let range = new EpubCFI(target).toRange(this.document, ignoreClass);
+			/**
+	   * Listen for media query changes and emit 'expand' event
+	   * Adapted from: https://github.com/tylergaw/media-query-events/blob/master/js/mq-events.js
+	   * @private
+	   */
 
-				if (range) {
-					if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
-						position = range.startContainer.getBoundingClientRect();
-						targetPos.left = position.left;
-						targetPos.top = position.top;
-					} else {
-						// Webkit does not handle collapsed range bounds correctly
-						// https://bugs.webkit.org/show_bug.cgi?id=138949
+		}, {
+			key: "mediaQueryListeners",
+			value: function mediaQueryListeners() {
+				var sheets = this.document.styleSheets;
+				var mediaChangeHandler = function (m) {
+					if (m.matches && !this._expanding) {
+						setTimeout(this.expand.bind(this), 1);
+					}
+				}.bind(this);
 
-						// Construct a new non-collapsed range
-						if (isWebkit) {
-							let container = range.startContainer;
-							let newRange = new Range();
-							try {
-								if (container.nodeType === ELEMENT_NODE$2) {
-									position = container.getBoundingClientRect();
-								} else if (range.startOffset + 2 < container.length) {
-									newRange.setStart(container, range.startOffset);
-									newRange.setEnd(container, range.startOffset + 2);
-									position = newRange.getBoundingClientRect();
-								} else if (range.startOffset - 2 > 0) {
-									newRange.setStart(container, range.startOffset - 2);
-									newRange.setEnd(container, range.startOffset);
-									position = newRange.getBoundingClientRect();
-								} else {
-									// empty, return the parent element
-									position = container.parentNode.getBoundingClientRect();
-								}
-							} catch (e) {
-								console.error(e, e.stack);
-							}
-						} else {
-							position = range.getBoundingClientRect();
+				for (var i = 0; i < sheets.length; i += 1) {
+					var rules;
+					// Firefox errors if we access cssRules cross-domain
+					try {
+						rules = sheets[i].cssRules;
+					} catch (e) {
+						return;
+					}
+					if (!rules) return; // Stylesheets changed
+					for (var j = 0; j < rules.length; j += 1) {
+						//if (rules[j].constructor === CSSMediaRule) {
+						if (rules[j].media) {
+							var mql = this.window.matchMedia(rules[j].media.mediaText);
+							mql.addListener(mediaChangeHandler);
+							//mql.onchange = mediaChangeHandler;
 						}
 					}
 				}
-			} else if (typeof target === "string" && target.indexOf("#") > -1) {
+			}
 
-				let id = target.substring(target.indexOf("#") + 1);
-				let el = this.document.getElementById(id);
+			/**
+	   * Use MutationObserver to listen for changes in the DOM and check for resize
+	   * @private
+	   */
 
-				if (el) {
-					position = el.getBoundingClientRect();
+		}, {
+			key: "resizeObservers",
+			value: function resizeObservers() {
+				var _this = this;
+
+				// create an observer instance
+				this.observer = new MutationObserver(function (mutations) {
+					_this.resizeCheck();
+				});
+
+				// configuration of the observer:
+				var config = { attributes: true, childList: true, characterData: true, subtree: true };
+
+				// pass in the target node, as well as the observer options
+				this.observer.observe(this.document, config);
+			}
+
+			/**
+	   * Test if images are loaded or add listener for when they load
+	   * @private
+	   */
+
+		}, {
+			key: "imageLoadListeners",
+			value: function imageLoadListeners() {
+				var images = this.document.querySelectorAll("img");
+				var img;
+				for (var i = 0; i < images.length; i++) {
+					img = images[i];
+
+					if (typeof img.naturalWidth !== "undefined" && img.naturalWidth === 0) {
+						img.onload = this.expand.bind(this);
+					}
 				}
 			}
 
-			if (position) {
-				targetPos.left = position.left;
-				targetPos.top = position.top;
-			}
+			/**
+	   * Listen for font load and check for resize when loaded
+	   * @private
+	   */
 
-			return targetPos;
-		}
-
-		/**
-	  * Append a stylesheet link to the document head
-	  * @param {string} src url
-	  */
-		addStylesheet(src) {
-			return new Promise(function (resolve, reject) {
-				var $stylesheet;
-				var ready = false;
-
-				if (!this.document) {
-					resolve(false);
+		}, {
+			key: "fontLoadListeners",
+			value: function fontLoadListeners() {
+				if (!this.document || !this.document.fonts) {
 					return;
 				}
+
+				this.document.fonts.ready.then(function () {
+					this.resizeCheck();
+				}.bind(this));
+			}
+
+			/**
+	   * Get the documentElement
+	   * @returns {element} documentElement
+	   */
+
+		}, {
+			key: "root",
+			value: function root() {
+				if (!this.document) return null;
+				return this.document.documentElement;
+			}
+
+			/**
+	   * Get the location offset of a EpubCFI or an #id
+	   * @param {string | EpubCFI} target
+	   * @param {string} [ignoreClass] for the cfi
+	   * @returns { {left: Number, top: Number }
+	   */
+
+		}, {
+			key: "locationOf",
+			value: function locationOf$$1(target, ignoreClass) {
+				var position;
+				var targetPos = { "left": 0, "top": 0 };
+
+				if (!this.document) return targetPos;
+
+				if (this.epubcfi.isCfiString(target)) {
+					var range = new EpubCFI(target).toRange(this.document, ignoreClass);
+
+					if (range) {
+						if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
+							position = range.startContainer.getBoundingClientRect();
+							targetPos.left = position.left;
+							targetPos.top = position.top;
+						} else {
+							// Webkit does not handle collapsed range bounds correctly
+							// https://bugs.webkit.org/show_bug.cgi?id=138949
+
+							// Construct a new non-collapsed range
+							if (isWebkit) {
+								var container = range.startContainer;
+								var newRange = new Range();
+								try {
+									if (container.nodeType === ELEMENT_NODE$2) {
+										position = container.getBoundingClientRect();
+									} else if (range.startOffset + 2 < container.length) {
+										newRange.setStart(container, range.startOffset);
+										newRange.setEnd(container, range.startOffset + 2);
+										position = newRange.getBoundingClientRect();
+									} else if (range.startOffset - 2 > 0) {
+										newRange.setStart(container, range.startOffset - 2);
+										newRange.setEnd(container, range.startOffset);
+										position = newRange.getBoundingClientRect();
+									} else {
+										// empty, return the parent element
+										position = container.parentNode.getBoundingClientRect();
+									}
+								} catch (e) {
+									console.error(e, e.stack);
+								}
+							} else {
+								position = range.getBoundingClientRect();
+							}
+						}
+					}
+				} else if (typeof target === "string" && target.indexOf("#") > -1) {
+
+					var id = target.substring(target.indexOf("#") + 1);
+					var el = this.document.getElementById(id);
+
+					if (el) {
+						position = el.getBoundingClientRect();
+					}
+				}
+
+				if (position) {
+					targetPos.left = position.left;
+					targetPos.top = position.top;
+				}
+
+				return targetPos;
+			}
+
+			/**
+	   * Append a stylesheet link to the document head
+	   * @param {string} src url
+	   */
+
+		}, {
+			key: "addStylesheet",
+			value: function addStylesheet(src) {
+				return new Promise(function (resolve, reject) {
+					var $stylesheet;
+					var ready = false;
+
+					if (!this.document) {
+						resolve(false);
+						return;
+					}
+
+					// Check if link already exists
+					$stylesheet = this.document.querySelector("link[href='" + src + "']");
+					if ($stylesheet) {
+						resolve(true);
+						return; // already present
+					}
+
+					$stylesheet = this.document.createElement("link");
+					$stylesheet.type = "text/css";
+					$stylesheet.rel = "stylesheet";
+					$stylesheet.href = src;
+					$stylesheet.onload = $stylesheet.onreadystatechange = function () {
+						if (!ready && (!this.readyState || this.readyState == "complete")) {
+							ready = true;
+							// Let apply
+							setTimeout(function () {
+								resolve(true);
+							}, 1);
+						}
+					};
+
+					this.document.head.appendChild($stylesheet);
+				}.bind(this));
+			}
+
+			/**
+	   * Append stylesheet rules to a generate stylesheet
+	   * Array: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
+	   * Object: https://github.com/desirable-objects/json-to-css
+	   * @param {array | object} rules
+	   */
+
+		}, {
+			key: "addStylesheetRules",
+			value: function addStylesheetRules(rules) {
+				var styleEl;
+				var styleSheet;
+				var key = "epubjs-inserted-css";
+
+				if (!this.document || !rules || rules.length === 0) return;
 
 				// Check if link already exists
-				$stylesheet = this.document.querySelector("link[href='" + src + "']");
-				if ($stylesheet) {
-					resolve(true);
-					return; // already present
+				styleEl = this.document.getElementById(key);
+				if (!styleEl) {
+					styleEl = this.document.createElement("style");
+					styleEl.id = key;
 				}
 
-				$stylesheet = this.document.createElement("link");
-				$stylesheet.type = "text/css";
-				$stylesheet.rel = "stylesheet";
-				$stylesheet.href = src;
-				$stylesheet.onload = $stylesheet.onreadystatechange = function () {
-					if (!ready && (!this.readyState || this.readyState == "complete")) {
-						ready = true;
-						// Let apply
-						setTimeout(() => {
-							resolve(true);
-						}, 1);
+				// Append style element to head
+				this.document.head.appendChild(styleEl);
+
+				// Grab style sheet
+				styleSheet = styleEl.sheet;
+
+				if (Object.prototype.toString.call(rules) === "[object Array]") {
+					for (var i = 0, rl = rules.length; i < rl; i++) {
+						var j = 1,
+						    rule = rules[i],
+						    selector = rules[i][0],
+						    propStr = "";
+						// If the second argument of a rule is an array of arrays, correct our variables.
+						if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
+							rule = rule[1];
+							j = 0;
+						}
+
+						for (var pl = rule.length; j < pl; j++) {
+							var prop = rule[j];
+							propStr += prop[0] + ":" + prop[1] + (prop[2] ? " !important" : "") + ";\n";
+						}
+
+						// Insert CSS Rule
+						styleSheet.insertRule(selector + "{" + propStr + "}", styleSheet.cssRules.length);
 					}
-				};
-
-				this.document.head.appendChild($stylesheet);
-			}.bind(this));
-		}
-
-		/**
-	  * Append stylesheet rules to a generate stylesheet
-	  * Array: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
-	  * Object: https://github.com/desirable-objects/json-to-css
-	  * @param {array | object} rules
-	  */
-		addStylesheetRules(rules) {
-			var styleEl;
-			var styleSheet;
-			var key = "epubjs-inserted-css";
-
-			if (!this.document || !rules || rules.length === 0) return;
-
-			// Check if link already exists
-			styleEl = this.document.getElementById(key);
-			if (!styleEl) {
-				styleEl = this.document.createElement("style");
-				styleEl.id = key;
-			}
-
-			// Append style element to head
-			this.document.head.appendChild(styleEl);
-
-			// Grab style sheet
-			styleSheet = styleEl.sheet;
-
-			if (Object.prototype.toString.call(rules) === "[object Array]") {
-				for (var i = 0, rl = rules.length; i < rl; i++) {
-					var j = 1,
-					    rule = rules[i],
-					    selector = rules[i][0],
-					    propStr = "";
-					// If the second argument of a rule is an array of arrays, correct our variables.
-					if (Object.prototype.toString.call(rule[1][0]) === "[object Array]") {
-						rule = rule[1];
-						j = 0;
-					}
-
-					for (var pl = rule.length; j < pl; j++) {
-						var prop = rule[j];
-						propStr += prop[0] + ":" + prop[1] + (prop[2] ? " !important" : "") + ";\n";
-					}
-
-					// Insert CSS Rule
-					styleSheet.insertRule(selector + "{" + propStr + "}", styleSheet.cssRules.length);
-				}
-			} else {
-				const selectors = Object.keys(rules);
-				selectors.forEach(selector => {
-					const definition = rules[selector];
-					if (Array.isArray(definition)) {
-						definition.forEach(item => {
-							const _rules = Object.keys(item);
-							const result = _rules.map(rule => {
-								return `${rule}:${item[rule]}`;
+				} else {
+					var selectors = Object.keys(rules);
+					selectors.forEach(function (selector) {
+						var definition = rules[selector];
+						if (Array.isArray(definition)) {
+							definition.forEach(function (item) {
+								var _rules = Object.keys(item);
+								var result = _rules.map(function (rule) {
+									return rule + ":" + item[rule];
+								}).join(';');
+								styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
+							});
+						} else {
+							var _rules = Object.keys(definition);
+							var result = _rules.map(function (rule) {
+								return rule + ":" + definition[rule];
 							}).join(';');
-							styleSheet.insertRule(`${selector}{${result}}`, styleSheet.cssRules.length);
-						});
-					} else {
-						const _rules = Object.keys(definition);
-						const result = _rules.map(rule => {
-							return `${rule}:${definition[rule]}`;
-						}).join(';');
-						styleSheet.insertRule(`${selector}{${result}}`, styleSheet.cssRules.length);
-					}
-				});
+							styleSheet.insertRule(selector + "{" + result + "}", styleSheet.cssRules.length);
+						}
+					});
+				}
 			}
-		}
 
-		/**
-	  * Append a script tag to the document head
-	  * @param {string} src url
-	  * @returns {Promise} loaded
-	  */
-		addScript(src) {
+			/**
+	   * Append a script tag to the document head
+	   * @param {string} src url
+	   * @returns {Promise} loaded
+	   */
 
-			return new Promise(function (resolve, reject) {
-				var $script;
-				var ready = false;
+		}, {
+			key: "addScript",
+			value: function addScript(src) {
 
+				return new Promise(function (resolve, reject) {
+					var $script;
+					var ready = false;
+
+					if (!this.document) {
+						resolve(false);
+						return;
+					}
+
+					$script = this.document.createElement("script");
+					$script.type = "text/javascript";
+					$script.async = true;
+					$script.src = src;
+					$script.onload = $script.onreadystatechange = function () {
+						if (!ready && (!this.readyState || this.readyState == "complete")) {
+							ready = true;
+							setTimeout(function () {
+								resolve(true);
+							}, 1);
+						}
+					};
+
+					this.document.head.appendChild($script);
+				}.bind(this));
+			}
+
+			/**
+	   * Add a class to the contents container
+	   * @param {string} className
+	   */
+
+		}, {
+			key: "addClass",
+			value: function addClass(className) {
+				var content;
+
+				if (!this.document) return;
+
+				content = this.content || this.document.body;
+
+				if (content) {
+					content.classList.add(className);
+				}
+			}
+
+			/**
+	   * Remove a class from the contents container
+	   * @param {string} removeClass
+	   */
+
+		}, {
+			key: "removeClass",
+			value: function removeClass(className) {
+				var content;
+
+				if (!this.document) return;
+
+				content = this.content || this.document.body;
+
+				if (content) {
+					content.classList.remove(className);
+				}
+			}
+
+			/**
+	   * Add DOM event listeners
+	   * @private
+	   */
+
+		}, {
+			key: "addEventListeners",
+			value: function addEventListeners() {
 				if (!this.document) {
-					resolve(false);
 					return;
 				}
 
-				$script = this.document.createElement("script");
-				$script.type = "text/javascript";
-				$script.async = true;
-				$script.src = src;
-				$script.onload = $script.onreadystatechange = function () {
-					if (!ready && (!this.readyState || this.readyState == "complete")) {
-						ready = true;
-						setTimeout(function () {
-							resolve(true);
-						}, 1);
+				this._triggerEvent = this.triggerEvent.bind(this);
+
+				DOM_EVENTS.forEach(function (eventName) {
+					this.document.addEventListener(eventName, this._triggerEvent, { passive: true });
+				}, this);
+			}
+
+			/**
+	   * Remove DOM event listeners
+	   * @private
+	   */
+
+		}, {
+			key: "removeEventListeners",
+			value: function removeEventListeners() {
+				if (!this.document) {
+					return;
+				}
+				DOM_EVENTS.forEach(function (eventName) {
+					this.document.removeEventListener(eventName, this._triggerEvent, { passive: true });
+				}, this);
+				this._triggerEvent = undefined;
+			}
+
+			/**
+	   * Emit passed browser events
+	   * @private
+	   */
+
+		}, {
+			key: "triggerEvent",
+			value: function triggerEvent(e) {
+				this.emit(e.type, e);
+			}
+
+			/**
+	   * Add listener for text selection
+	   * @private
+	   */
+
+		}, {
+			key: "addSelectionListeners",
+			value: function addSelectionListeners() {
+				if (!this.document) {
+					return;
+				}
+				this._onSelectionChange = this.onSelectionChange.bind(this);
+				this.document.addEventListener("selectionchange", this._onSelectionChange, { passive: true });
+			}
+
+			/**
+	   * Remove listener for text selection
+	   * @private
+	   */
+
+		}, {
+			key: "removeSelectionListeners",
+			value: function removeSelectionListeners() {
+				if (!this.document) {
+					return;
+				}
+				this.document.removeEventListener("selectionchange", this._onSelectionChange, { passive: true });
+				this._onSelectionChange = undefined;
+			}
+
+			/**
+	   * Handle getting text on selection
+	   * @private
+	   */
+
+		}, {
+			key: "onSelectionChange",
+			value: function onSelectionChange(e) {
+				if (this.selectionEndTimeout) {
+					clearTimeout(this.selectionEndTimeout);
+				}
+				this.selectionEndTimeout = setTimeout(function () {
+					var selection = this.window.getSelection();
+					this.triggerSelectedEvent(selection);
+				}.bind(this), 250);
+			}
+
+			/**
+	   * Emit event on text selection
+	   * @private
+	   */
+
+		}, {
+			key: "triggerSelectedEvent",
+			value: function triggerSelectedEvent(selection) {
+				var range, cfirange;
+
+				if (selection && selection.rangeCount > 0) {
+					range = selection.getRangeAt(0);
+					if (!range.collapsed) {
+						// cfirange = this.section.cfiFromRange(range);
+						cfirange = new EpubCFI(range, this.cfiBase).toString();
+						this.emit(EVENTS.CONTENTS.SELECTED, cfirange);
+						this.emit(EVENTS.CONTENTS.SELECTED_RANGE, range);
 					}
-				};
-
-				this.document.head.appendChild($script);
-			}.bind(this));
-		}
-
-		/**
-	  * Add a class to the contents container
-	  * @param {string} className
-	  */
-		addClass(className) {
-			var content;
-
-			if (!this.document) return;
-
-			content = this.content || this.document.body;
-
-			if (content) {
-				content.classList.add(className);
-			}
-		}
-
-		/**
-	  * Remove a class from the contents container
-	  * @param {string} removeClass
-	  */
-		removeClass(className) {
-			var content;
-
-			if (!this.document) return;
-
-			content = this.content || this.document.body;
-
-			if (content) {
-				content.classList.remove(className);
-			}
-		}
-
-		/**
-	  * Add DOM event listeners
-	  * @private
-	  */
-		addEventListeners() {
-			if (!this.document) {
-				return;
-			}
-
-			this._triggerEvent = this.triggerEvent.bind(this);
-
-			DOM_EVENTS.forEach(function (eventName) {
-				this.document.addEventListener(eventName, this._triggerEvent, { passive: true });
-			}, this);
-		}
-
-		/**
-	  * Remove DOM event listeners
-	  * @private
-	  */
-		removeEventListeners() {
-			if (!this.document) {
-				return;
-			}
-			DOM_EVENTS.forEach(function (eventName) {
-				this.document.removeEventListener(eventName, this._triggerEvent, { passive: true });
-			}, this);
-			this._triggerEvent = undefined;
-		}
-
-		/**
-	  * Emit passed browser events
-	  * @private
-	  */
-		triggerEvent(e) {
-			this.emit(e.type, e);
-		}
-
-		/**
-	  * Add listener for text selection
-	  * @private
-	  */
-		addSelectionListeners() {
-			if (!this.document) {
-				return;
-			}
-			this._onSelectionChange = this.onSelectionChange.bind(this);
-			this.document.addEventListener("selectionchange", this._onSelectionChange, { passive: true });
-		}
-
-		/**
-	  * Remove listener for text selection
-	  * @private
-	  */
-		removeSelectionListeners() {
-			if (!this.document) {
-				return;
-			}
-			this.document.removeEventListener("selectionchange", this._onSelectionChange, { passive: true });
-			this._onSelectionChange = undefined;
-		}
-
-		/**
-	  * Handle getting text on selection
-	  * @private
-	  */
-		onSelectionChange(e) {
-			if (this.selectionEndTimeout) {
-				clearTimeout(this.selectionEndTimeout);
-			}
-			this.selectionEndTimeout = setTimeout(function () {
-				var selection = this.window.getSelection();
-				this.triggerSelectedEvent(selection);
-			}.bind(this), 250);
-		}
-
-		/**
-	  * Emit event on text selection
-	  * @private
-	  */
-		triggerSelectedEvent(selection) {
-			var range, cfirange;
-
-			if (selection && selection.rangeCount > 0) {
-				range = selection.getRangeAt(0);
-				if (!range.collapsed) {
-					// cfirange = this.section.cfiFromRange(range);
-					cfirange = new EpubCFI(range, this.cfiBase).toString();
-					this.emit(EVENTS.CONTENTS.SELECTED, cfirange);
-					this.emit(EVENTS.CONTENTS.SELECTED_RANGE, range);
 				}
 			}
-		}
 
-		/**
-	  * Get a Dom Range from EpubCFI
-	  * @param {EpubCFI} _cfi
-	  * @param {string} [ignoreClass]
-	  * @returns {Range} range
-	  */
-		range(_cfi, ignoreClass) {
-			var cfi = new EpubCFI(_cfi);
-			return cfi.toRange(this.document, ignoreClass);
-		}
+			/**
+	   * Get a Dom Range from EpubCFI
+	   * @param {EpubCFI} _cfi
+	   * @param {string} [ignoreClass]
+	   * @returns {Range} range
+	   */
 
-		/**
-	  * Get an EpubCFI from a Dom Range
-	  * @param {Range} range
-	  * @param {string} [ignoreClass]
-	  * @returns {EpubCFI} cfi
-	  */
-		cfiFromRange(range, ignoreClass) {
-			return new EpubCFI(range, this.cfiBase, ignoreClass).toString();
-		}
+		}, {
+			key: "range",
+			value: function range(_cfi, ignoreClass) {
+				var cfi = new EpubCFI(_cfi);
+				return cfi.toRange(this.document, ignoreClass);
+			}
 
-		/**
-	  * Get an EpubCFI from a Dom node
-	  * @param {node} node
-	  * @param {string} [ignoreClass]
-	  * @returns {EpubCFI} cfi
-	  */
-		cfiFromNode(node, ignoreClass) {
-			return new EpubCFI(node, this.cfiBase, ignoreClass).toString();
-		}
+			/**
+	   * Get an EpubCFI from a Dom Range
+	   * @param {Range} range
+	   * @param {string} [ignoreClass]
+	   * @returns {EpubCFI} cfi
+	   */
 
-		// TODO: find where this is used - remove?
-		map(layout) {
-			var map = new Mapping(layout);
-			return map.section();
-		}
+		}, {
+			key: "cfiFromRange",
+			value: function cfiFromRange(range, ignoreClass) {
+				return new EpubCFI(range, this.cfiBase, ignoreClass).toString();
+			}
 
-		/**
-	  * Size the contents to a given width and height
-	  * @param {number} [width]
-	  * @param {number} [height]
-	  */
-		size(width, height) {
-			var viewport = { scale: 1.0, scalable: "no" };
+			/**
+	   * Get an EpubCFI from a Dom node
+	   * @param {node} node
+	   * @param {string} [ignoreClass]
+	   * @returns {EpubCFI} cfi
+	   */
 
-			this.layoutStyle("scrolling");
+		}, {
+			key: "cfiFromNode",
+			value: function cfiFromNode(node, ignoreClass) {
+				return new EpubCFI(node, this.cfiBase, ignoreClass).toString();
+			}
 
-			if (width >= 0) {
+			// TODO: find where this is used - remove?
+
+		}, {
+			key: "map",
+			value: function map(layout) {
+				var map = new Mapping(layout);
+				return map.section();
+			}
+
+			/**
+	   * Size the contents to a given width and height
+	   * @param {number} [width]
+	   * @param {number} [height]
+	   */
+
+		}, {
+			key: "size",
+			value: function size(width, height) {
+				var viewport = { scale: 1.0, scalable: "no" };
+
+				this.layoutStyle("scrolling");
+
+				if (width >= 0) {
+					this.width(width);
+					viewport.width = width;
+					this.css("padding", "0 " + width / 12 + "px");
+				}
+
+				if (height >= 0) {
+					this.height(height);
+					viewport.height = height;
+				}
+
+				this.css("margin", "0");
+				this.css("box-sizing", "border-box");
+
+				this.viewport(viewport);
+			}
+
+			/**
+	   * Apply columns to the contents for pagination
+	   * @param {number} width
+	   * @param {number} height
+	   * @param {number} columnWidth
+	   * @param {number} gap
+	   */
+
+		}, {
+			key: "columns",
+			value: function columns(width, height, columnWidth, gap) {
+				var COLUMN_AXIS = prefixed("column-axis");
+				var COLUMN_GAP = prefixed("column-gap");
+				var COLUMN_WIDTH = prefixed("column-width");
+				var COLUMN_FILL = prefixed("column-fill");
+
+				var writingMode = this.writingMode();
+				var axis = writingMode.indexOf("vertical") === 0 ? "vertical" : "horizontal";
+
+				this.layoutStyle("paginated");
+
+				// Fix body width issues if rtl is only set on body element
+				if (this.content.dir === "rtl") {
+					this.direction("rtl");
+				}
+
 				this.width(width);
-				viewport.width = width;
-				this.css("padding", "0 " + width / 12 + "px");
-			}
-
-			if (height >= 0) {
 				this.height(height);
-				viewport.height = height;
+
+				// Deal with Mobile trying to scale to viewport
+				this.viewport({ width: width, height: height, scale: 1.0, scalable: "no" });
+
+				// TODO: inline-block needs more testing
+				// Fixes Safari column cut offs, but causes RTL issues
+				// this.css("display", "inline-block");
+
+				this.css("overflow-y", "hidden");
+				this.css("margin", "0", true);
+
+				if (axis === "vertical") {
+					this.css("padding-top", gap / 2 + "px", true);
+					this.css("padding-bottom", gap / 2 + "px", true);
+					this.css("padding-left", "20px");
+					this.css("padding-right", "20px");
+				} else {
+					this.css("padding-top", "20px");
+					this.css("padding-bottom", "20px");
+					this.css("padding-left", gap / 2 + "px", true);
+					this.css("padding-right", gap / 2 + "px", true);
+				}
+
+				this.css("box-sizing", "border-box");
+				this.css("max-width", "inherit");
+
+				this.css(COLUMN_AXIS, "horizontal");
+				this.css(COLUMN_FILL, "auto");
+
+				this.css(COLUMN_GAP, gap + "px");
+				this.css(COLUMN_WIDTH, columnWidth + "px");
 			}
 
-			this.css("margin", "0");
-			this.css("box-sizing", "border-box");
+			/**
+	   * Scale contents from center
+	   * @param {number} scale
+	   * @param {number} offsetX
+	   * @param {number} offsetY
+	   */
 
-			this.viewport(viewport);
-		}
+		}, {
+			key: "scaler",
+			value: function scaler(scale, offsetX, offsetY) {
+				var scaleStr = "scale(" + scale + ")";
+				var translateStr = "";
+				// this.css("position", "absolute"));
+				this.css("transform-origin", "top left");
 
-		/**
-	  * Apply columns to the contents for pagination
-	  * @param {number} width
-	  * @param {number} height
-	  * @param {number} columnWidth
-	  * @param {number} gap
-	  */
-		columns(width, height, columnWidth, gap) {
-			let COLUMN_AXIS = prefixed("column-axis");
-			let COLUMN_GAP = prefixed("column-gap");
-			let COLUMN_WIDTH = prefixed("column-width");
-			let COLUMN_FILL = prefixed("column-fill");
+				if (offsetX >= 0 || offsetY >= 0) {
+					translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+				}
 
-			let writingMode = this.writingMode();
-			let axis = writingMode.indexOf("vertical") === 0 ? "vertical" : "horizontal";
-
-			this.layoutStyle("paginated");
-
-			// Fix body width issues if rtl is only set on body element
-			if (this.content.dir === "rtl") {
-				this.direction("rtl");
+				this.css("transform", scaleStr + translateStr);
 			}
 
-			this.width(width);
-			this.height(height);
+			/**
+	   * Fit contents into a fixed width and height
+	   * @param {number} width
+	   * @param {number} height
+	   */
 
-			// Deal with Mobile trying to scale to viewport
-			this.viewport({ width: width, height: height, scale: 1.0, scalable: "no" });
+		}, {
+			key: "fit",
+			value: function fit(width, height) {
+				var viewport = this.viewport();
+				var viewportWidth = parseInt(viewport.width);
+				var viewportHeight = parseInt(viewport.height);
+				var widthScale = width / viewportWidth;
+				var heightScale = height / viewportHeight;
+				var scale = widthScale < heightScale ? widthScale : heightScale;
 
-			// TODO: inline-block needs more testing
-			// Fixes Safari column cut offs, but causes RTL issues
-			// this.css("display", "inline-block");
+				// the translate does not work as intended, elements can end up unaligned
+				// var offsetY = (height - (viewportHeight * scale)) / 2;
+				// var offsetX = 0;
+				// if (this.sectionIndex % 2 === 1) {
+				// 	offsetX = width - (viewportWidth * scale);
+				// }
 
-			this.css("overflow-y", "hidden");
-			this.css("margin", "0", true);
+				this.layoutStyle("paginated");
 
-			if (axis === "vertical") {
-				this.css("padding-top", gap / 2 + "px", true);
-				this.css("padding-bottom", gap / 2 + "px", true);
-				this.css("padding-left", "20px");
-				this.css("padding-right", "20px");
-			} else {
-				this.css("padding-top", "20px");
-				this.css("padding-bottom", "20px");
-				this.css("padding-left", gap / 2 + "px", true);
-				this.css("padding-right", gap / 2 + "px", true);
+				// scale needs width and height to be set
+				this.width(viewportWidth);
+				this.height(viewportHeight);
+				this.overflow("hidden");
+
+				if (viewport.width == 'auto' || viewport.height == 'auto') {
+					this.content.style.overflow = 'auto';
+					this.addStylesheetRules({
+						"body": {
+							"margin": 0,
+							"padding": "1em",
+							"box-sizing": "border-box"
+						}
+					});
+				}
+
+				// Scale to the correct size
+				this.scaler(scale, 0, 0);
+				// this.scaler(scale, offsetX > 0 ? offsetX : 0, offsetY);
+
+				// background images are not scaled by transform
+				this.css("background-size", viewportWidth * scale + "px " + viewportHeight * scale + "px");
+
+				this.css("background-color", "transparent");
 			}
 
-			this.css("box-sizing", "border-box");
-			this.css("max-width", "inherit");
+			/**
+	   * Set the direction of the text
+	   * @param {string} [dir="ltr"] "rtl" | "ltr"
+	   */
 
-			this.css(COLUMN_AXIS, "horizontal");
-			this.css(COLUMN_FILL, "auto");
+		}, {
+			key: "direction",
+			value: function direction(dir) {
+				if (this.documentElement) {
+					this.documentElement.style["direction"] = dir;
+				}
+			}
+		}, {
+			key: "mapPage",
+			value: function mapPage(cfiBase, layout, start, end, dev) {
+				var mapping = new Mapping(layout, dev);
 
-			this.css(COLUMN_GAP, gap + "px");
-			this.css(COLUMN_WIDTH, columnWidth + "px");
-		}
-
-		/**
-	  * Scale contents from center
-	  * @param {number} scale
-	  * @param {number} offsetX
-	  * @param {number} offsetY
-	  */
-		scaler(scale, offsetX, offsetY) {
-			var scaleStr = "scale(" + scale + ")";
-			var translateStr = "";
-			// this.css("position", "absolute"));
-			this.css("transform-origin", "top left");
-
-			if (offsetX >= 0 || offsetY >= 0) {
-				translateStr = " translate(" + (offsetX || 0) + "px, " + (offsetY || 0) + "px )";
+				return mapping.page(this, cfiBase, start, end);
 			}
 
-			this.css("transform", scaleStr + translateStr);
-		}
+			/**
+	   * Emit event when link in content is clicked
+	   * @private
+	   */
 
-		/**
-	  * Fit contents into a fixed width and height
-	  * @param {number} width
-	  * @param {number} height
-	  */
-		fit(width, height) {
-			var viewport = this.viewport();
-			var viewportWidth = parseInt(viewport.width);
-			var viewportHeight = parseInt(viewport.height);
-			var widthScale = width / viewportWidth;
-			var heightScale = height / viewportHeight;
-			var scale = widthScale < heightScale ? widthScale : heightScale;
+		}, {
+			key: "linksHandler",
+			value: function linksHandler() {
+				var _this2 = this;
 
-			// the translate does not work as intended, elements can end up unaligned
-			// var offsetY = (height - (viewportHeight * scale)) / 2;
-			// var offsetX = 0;
-			// if (this.sectionIndex % 2 === 1) {
-			// 	offsetX = width - (viewportWidth * scale);
-			// }
-
-			this.layoutStyle("paginated");
-
-			// scale needs width and height to be set
-			this.width(viewportWidth);
-			this.height(viewportHeight);
-			this.overflow("hidden");
-
-			if (viewport.width == 'auto' || viewport.height == 'auto') {
-				this.content.style.overflow = 'auto';
-				this.addStylesheetRules({
-					"body": {
-						"margin": 0,
-						"padding": "1em",
-						"box-sizing": "border-box"
-					}
+				replaceLinks(this.content, function (href) {
+					_this2.emit(EVENTS.CONTENTS.LINK_CLICKED, href);
 				});
 			}
 
-			// Scale to the correct size
-			this.scaler(scale, 0, 0);
-			// this.scaler(scale, offsetX > 0 ? offsetX : 0, offsetY);
+			/**
+	   * Set the writingMode of the text
+	   * @param {string} [mode="horizontal-tb"] "horizontal-tb" | "vertical-rl" | "vertical-lr"
+	   */
 
-			// background images are not scaled by transform
-			this.css("background-size", viewportWidth * scale + "px " + viewportHeight * scale + "px");
+		}, {
+			key: "writingMode",
+			value: function writingMode(mode) {
+				var WRITING_MODE = prefixed("writing-mode");
 
-			this.css("background-color", "transparent");
-		}
-
-		/**
-	  * Set the direction of the text
-	  * @param {string} [dir="ltr"] "rtl" | "ltr"
-	  */
-		direction(dir) {
-			if (this.documentElement) {
-				this.documentElement.style["direction"] = dir;
-			}
-		}
-
-		mapPage(cfiBase, layout, start, end, dev) {
-			var mapping = new Mapping(layout, dev);
-
-			return mapping.page(this, cfiBase, start, end);
-		}
-
-		/**
-	  * Emit event when link in content is clicked
-	  * @private
-	  */
-		linksHandler() {
-			replaceLinks(this.content, href => {
-				this.emit(EVENTS.CONTENTS.LINK_CLICKED, href);
-			});
-		}
-
-		/**
-	  * Set the writingMode of the text
-	  * @param {string} [mode="horizontal-tb"] "horizontal-tb" | "vertical-rl" | "vertical-lr"
-	  */
-		writingMode(mode) {
-			let WRITING_MODE = prefixed("writing-mode");
-
-			if (mode && this.documentElement) {
-				this.documentElement.style[WRITING_MODE] = mode;
-			}
-
-			return this.window.getComputedStyle(this.documentElement)[WRITING_MODE] || '';
-		}
-
-		/**
-	  * Set the layoutStyle of the content
-	  * @param {string} [style="paginated"] "scrolling" | "paginated"
-	  * @private
-	  */
-		layoutStyle(style) {
-
-			if (style) {
-				this._layoutStyle = style;
-				navigator.epubReadingSystem.layoutStyle = this._layoutStyle;
-			}
-
-			return this._layoutStyle || "paginated";
-		}
-
-		/**
-	  * Add the epubReadingSystem object to the navigator
-	  * @param {string} name
-	  * @param {string} version
-	  * @private
-	  */
-		epubReadingSystem(name, version) {
-			navigator.epubReadingSystem = {
-				name: name,
-				version: version,
-				layoutStyle: this.layoutStyle(),
-				hasFeature: function (feature) {
-					switch (feature) {
-						case "dom-manipulation":
-							return true;
-						case "layout-changes":
-							return true;
-						case "touch-events":
-							return true;
-						case "mouse-events":
-							return true;
-						case "keyboard-events":
-							return true;
-						case "spine-scripting":
-							return false;
-						default:
-							return false;
-					}
+				if (mode && this.documentElement) {
+					this.documentElement.style[WRITING_MODE] = mode;
 				}
-			};
-			return navigator.epubReadingSystem;
-		}
 
-		destroy() {
-			// Stop observing
-			if (this.observer) {
-				this.observer.disconnect();
+				return this.window.getComputedStyle(this.documentElement)[WRITING_MODE] || '';
 			}
 
-			this.document.removeEventListener('transitionend', this._resizeCheck);
+			/**
+	   * Set the layoutStyle of the content
+	   * @param {string} [style="paginated"] "scrolling" | "paginated"
+	   * @private
+	   */
 
-			this.removeListeners();
-		}
-	}
+		}, {
+			key: "layoutStyle",
+			value: function layoutStyle(style) {
+
+				if (style) {
+					this._layoutStyle = style;
+					navigator.epubReadingSystem.layoutStyle = this._layoutStyle;
+				}
+
+				return this._layoutStyle || "paginated";
+			}
+
+			/**
+	   * Add the epubReadingSystem object to the navigator
+	   * @param {string} name
+	   * @param {string} version
+	   * @private
+	   */
+
+		}, {
+			key: "epubReadingSystem",
+			value: function epubReadingSystem(name, version) {
+				navigator.epubReadingSystem = {
+					name: name,
+					version: version,
+					layoutStyle: this.layoutStyle(),
+					hasFeature: function hasFeature(feature) {
+						switch (feature) {
+							case "dom-manipulation":
+								return true;
+							case "layout-changes":
+								return true;
+							case "touch-events":
+								return true;
+							case "mouse-events":
+								return true;
+							case "keyboard-events":
+								return true;
+							case "spine-scripting":
+								return false;
+							default:
+								return false;
+						}
+					}
+				};
+				return navigator.epubReadingSystem;
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				// Stop observing
+				if (this.observer) {
+					this.observer.disconnect();
+				}
+
+				this.document.removeEventListener('transitionend', this._resizeCheck);
+
+				this.removeListeners();
+			}
+		}], [{
+			key: "listenedEvents",
+			get: function get() {
+				return DOM_EVENTS;
+			}
+		}]);
+
+		return Contents;
+	}();
 
 	eventEmitter(Contents$1.prototype);
+
+	var _createClass$i = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$i(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 		* Handles managing adding & removing Annotations
 		* @param {Rendition} rendition
 		* @class
 		*/
-	class Annotations {
 
-		constructor(rendition) {
+	var Annotations = function () {
+		function Annotations(rendition) {
+			_classCallCheck$i(this, Annotations);
+
 			this.rendition = rendition;
 			this.highlights = [];
 			this.underlines = [];
@@ -14906,168 +15647,215 @@
 	  * @param {object} styles CSS styles to assign to annotation
 	  * @returns {Annotation} annotation
 	  */
-		add(type, cfiRange, data, cb, className, styles) {
-			let hash = encodeURI(cfiRange);
-			let cfi = new EpubCFI(cfiRange);
-			let sectionIndex = cfi.spinePos;
-			let annotation = new Annotation({
-				type,
-				cfiRange,
-				data,
-				sectionIndex,
-				cb,
-				className,
-				styles
-			});
 
-			this._annotations[hash] = annotation;
 
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				this._annotationsBySectionIndex[sectionIndex].push(hash);
-			} else {
-				this._annotationsBySectionIndex[sectionIndex] = [hash];
-			}
+		_createClass$i(Annotations, [{
+			key: "add",
+			value: function add(type, cfiRange, data, cb, className, styles) {
+				var hash = encodeURI(cfiRange);
+				var cfi = new EpubCFI(cfiRange);
+				var sectionIndex = cfi.spinePos;
+				var annotation = new Annotation({
+					type: type,
+					cfiRange: cfiRange,
+					data: data,
+					sectionIndex: sectionIndex,
+					cb: cb,
+					className: className,
+					styles: styles
+				});
 
-			let views = this.rendition.views();
+				this._annotations[hash] = annotation;
 
-			views.forEach(view => {
-				if (annotation.sectionIndex === view.index) {
-					annotation.attach(view);
-				}
-			});
-
-			return annotation;
-		}
-
-		/**
-	  * Remove an annotation from store
-	  * @param {EpubCFI} cfiRange EpubCFI range the annotation is attached to
-	  * @param {string} type Type of annotation to add: "highlight", "underline", "mark"
-	  */
-		remove(cfiRange, type) {
-			let hash = encodeURI(cfiRange);
-
-			if (hash in this._annotations) {
-				let annotation = this._annotations[hash];
-
-				if (type && annotation.type !== type) {
-					return;
+				if (sectionIndex in this._annotationsBySectionIndex) {
+					this._annotationsBySectionIndex[sectionIndex].push(hash);
+				} else {
+					this._annotationsBySectionIndex[sectionIndex] = [hash];
 				}
 
-				let views = this.rendition.views();
-				views.forEach(view => {
-					this._removeFromAnnotationBySectionIndex(annotation.sectionIndex, hash);
+				var views = this.rendition.views();
+
+				views.forEach(function (view) {
 					if (annotation.sectionIndex === view.index) {
-						annotation.detach(view);
+						annotation.attach(view);
 					}
 				});
 
-				delete this._annotations[hash];
+				return annotation;
 			}
-		}
 
-		/**
-	  * Remove an annotations by Section Index
-	  * @private
-	  */
-		_removeFromAnnotationBySectionIndex(sectionIndex, hash) {
-			this._annotationsBySectionIndex[sectionIndex] = this._annotationsAt(sectionIndex).filter(h => h !== hash);
-		}
+			/**
+	   * Remove an annotation from store
+	   * @param {EpubCFI} cfiRange EpubCFI range the annotation is attached to
+	   * @param {string} type Type of annotation to add: "highlight", "underline", "mark"
+	   */
 
-		/**
-	  * Get annotations by Section Index
-	  * @private
-	  */
-		_annotationsAt(index) {
-			return this._annotationsBySectionIndex[index];
-		}
+		}, {
+			key: "remove",
+			value: function remove(cfiRange, type) {
+				var _this = this;
 
-		/**
-	  * Add a highlight to the store
-	  * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
-	  * @param {object} data Data to assign to annotation
-	  * @param {function} cb Callback after annotation is added
-	  * @param {string} className CSS class to assign to annotation
-	  * @param {object} styles CSS styles to assign to annotation
-	  */
-		highlight(cfiRange, data, cb, className, styles) {
-			this.add("highlight", cfiRange, data, cb, className, styles);
-		}
+				var hash = encodeURI(cfiRange);
 
-		/**
-	  * Add a underline to the store
-	  * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
-	  * @param {object} data Data to assign to annotation
-	  * @param {function} cb Callback after annotation is added
-	  * @param {string} className CSS class to assign to annotation
-	  * @param {object} styles CSS styles to assign to annotation
-	  */
-		underline(cfiRange, data, cb, className, styles) {
-			this.add("underline", cfiRange, data, cb, className, styles);
-		}
+				if (hash in this._annotations) {
+					var annotation = this._annotations[hash];
 
-		/**
-	  * Add a mark to the store
-	  * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
-	  * @param {object} data Data to assign to annotation
-	  * @param {function} cb Callback after annotation is added
-	  */
-		mark(cfiRange, data, cb) {
-			this.add("mark", cfiRange, data, cb);
-		}
+					if (type && annotation.type !== type) {
+						return;
+					}
 
-		/**
-	  * iterate over annotations in the store
-	  */
-		each() {
-			return this._annotations.forEach.apply(this._annotations, arguments);
-		}
+					var views = this.rendition.views();
+					views.forEach(function (view) {
+						_this._removeFromAnnotationBySectionIndex(annotation.sectionIndex, hash);
+						if (annotation.sectionIndex === view.index) {
+							annotation.detach(view);
+						}
+					});
 
-		/**
-	  * Hook for injecting annotation into a view
-	  * @param {View} view
-	  * @private
-	  */
-		inject(view) {
-			let sectionIndex = view.index;
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				let annotations = this._annotationsBySectionIndex[sectionIndex];
-				annotations.forEach(hash => {
-					let annotation = this._annotations[hash];
-					annotation.attach(view);
+					delete this._annotations[hash];
+				}
+			}
+
+			/**
+	   * Remove an annotations by Section Index
+	   * @private
+	   */
+
+		}, {
+			key: "_removeFromAnnotationBySectionIndex",
+			value: function _removeFromAnnotationBySectionIndex(sectionIndex, hash) {
+				this._annotationsBySectionIndex[sectionIndex] = this._annotationsAt(sectionIndex).filter(function (h) {
+					return h !== hash;
 				});
 			}
-		}
 
-		/**
-	  * Hook for removing annotation from a view
-	  * @param {View} view
-	  * @private
-	  */
-		clear(view) {
-			let sectionIndex = view.index;
-			if (sectionIndex in this._annotationsBySectionIndex) {
-				let annotations = this._annotationsBySectionIndex[sectionIndex];
-				annotations.forEach(hash => {
-					let annotation = this._annotations[hash];
-					annotation.detach(view);
-				});
+			/**
+	   * Get annotations by Section Index
+	   * @private
+	   */
+
+		}, {
+			key: "_annotationsAt",
+			value: function _annotationsAt(index) {
+				return this._annotationsBySectionIndex[index];
 			}
-		}
 
-		/**
-	  * [Not Implemented] Show annotations
-	  * @TODO: needs implementation in View
-	  */
-		show() {}
+			/**
+	   * Add a highlight to the store
+	   * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
+	   * @param {object} data Data to assign to annotation
+	   * @param {function} cb Callback after annotation is added
+	   * @param {string} className CSS class to assign to annotation
+	   * @param {object} styles CSS styles to assign to annotation
+	   */
 
-		/**
-	  * [Not Implemented] Hide annotations
-	  * @TODO: needs implementation in View
-	  */
-		hide() {}
+		}, {
+			key: "highlight",
+			value: function highlight(cfiRange, data, cb, className, styles) {
+				this.add("highlight", cfiRange, data, cb, className, styles);
+			}
 
-	}
+			/**
+	   * Add a underline to the store
+	   * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
+	   * @param {object} data Data to assign to annotation
+	   * @param {function} cb Callback after annotation is added
+	   * @param {string} className CSS class to assign to annotation
+	   * @param {object} styles CSS styles to assign to annotation
+	   */
+
+		}, {
+			key: "underline",
+			value: function underline(cfiRange, data, cb, className, styles) {
+				this.add("underline", cfiRange, data, cb, className, styles);
+			}
+
+			/**
+	   * Add a mark to the store
+	   * @param {EpubCFI} cfiRange EpubCFI range to attach annotation to
+	   * @param {object} data Data to assign to annotation
+	   * @param {function} cb Callback after annotation is added
+	   */
+
+		}, {
+			key: "mark",
+			value: function mark(cfiRange, data, cb) {
+				this.add("mark", cfiRange, data, cb);
+			}
+
+			/**
+	   * iterate over annotations in the store
+	   */
+
+		}, {
+			key: "each",
+			value: function each() {
+				return this._annotations.forEach.apply(this._annotations, arguments);
+			}
+
+			/**
+	   * Hook for injecting annotation into a view
+	   * @param {View} view
+	   * @private
+	   */
+
+		}, {
+			key: "inject",
+			value: function inject(view) {
+				var _this2 = this;
+
+				var sectionIndex = view.index;
+				if (sectionIndex in this._annotationsBySectionIndex) {
+					var annotations = this._annotationsBySectionIndex[sectionIndex];
+					annotations.forEach(function (hash) {
+						var annotation = _this2._annotations[hash];
+						annotation.attach(view);
+					});
+				}
+			}
+
+			/**
+	   * Hook for removing annotation from a view
+	   * @param {View} view
+	   * @private
+	   */
+
+		}, {
+			key: "clear",
+			value: function clear(view) {
+				var _this3 = this;
+
+				var sectionIndex = view.index;
+				if (sectionIndex in this._annotationsBySectionIndex) {
+					var annotations = this._annotationsBySectionIndex[sectionIndex];
+					annotations.forEach(function (hash) {
+						var annotation = _this3._annotations[hash];
+						annotation.detach(view);
+					});
+				}
+			}
+
+			/**
+	   * [Not Implemented] Show annotations
+	   * @TODO: needs implementation in View
+	   */
+
+		}, {
+			key: "show",
+			value: function show() {}
+
+			/**
+	   * [Not Implemented] Hide annotations
+	   * @TODO: needs implementation in View
+	   */
+
+		}, {
+			key: "hide",
+			value: function hide() {}
+		}]);
+
+		return Annotations;
+	}();
 
 	/**
 	 * Annotation object
@@ -15082,17 +15870,20 @@
 	 * @param {object} styles CSS styles to assign to annotation
 	 * @returns {Annotation} annotation
 	 */
-	class Annotation {
 
-		constructor({
-			type,
-			cfiRange,
-			data,
-			sectionIndex,
-			cb,
-			className,
-			styles
-		}) {
+
+	var Annotation = function () {
+		function Annotation(_ref) {
+			var type = _ref.type,
+			    cfiRange = _ref.cfiRange,
+			    data = _ref.data,
+			    sectionIndex = _ref.sectionIndex,
+			    cb = _ref.cb,
+			    className = _ref.className,
+			    styles = _ref.styles;
+
+			_classCallCheck$i(this, Annotation);
+
 			this.type = type;
 			this.cfiRange = cfiRange;
 			this.data = data;
@@ -15107,61 +15898,85 @@
 	  * Update stored data
 	  * @param {object} data
 	  */
-		update(data) {
-			this.data = data;
-		}
 
-		/**
-	  * Add to a view
-	  * @param {View} view
-	  */
-		attach(view) {
-			let { cfiRange, data, type, mark, cb, className, styles } = this;
-			let result;
 
-			if (type === "highlight") {
-				result = view.highlight(cfiRange, data, cb, className, styles);
-			} else if (type === "underline") {
-				result = view.underline(cfiRange, data, cb, className, styles);
-			} else if (type === "mark") {
-				result = view.mark(cfiRange, data, cb);
+		_createClass$i(Annotation, [{
+			key: "update",
+			value: function update(data) {
+				this.data = data;
 			}
 
-			this.mark = result;
+			/**
+	   * Add to a view
+	   * @param {View} view
+	   */
 
-			return result;
-		}
+		}, {
+			key: "attach",
+			value: function attach(view) {
+				var cfiRange = this.cfiRange,
+				    data = this.data,
+				    type = this.type,
+				    mark = this.mark,
+				    cb = this.cb,
+				    className = this.className,
+				    styles = this.styles;
 
-		/**
-	  * Remove from a view
-	  * @param {View} view
-	  */
-		detach(view) {
-			let { cfiRange, type } = this;
-			let result;
+				var result = void 0;
 
-			if (view) {
 				if (type === "highlight") {
-					result = view.unhighlight(cfiRange);
+					result = view.highlight(cfiRange, data, cb, className, styles);
 				} else if (type === "underline") {
-					result = view.ununderline(cfiRange);
+					result = view.underline(cfiRange, data, cb, className, styles);
 				} else if (type === "mark") {
-					result = view.unmark(cfiRange);
+					result = view.mark(cfiRange, data, cb);
 				}
+
+				this.mark = result;
+
+				return result;
 			}
 
-			this.mark = undefined;
+			/**
+	   * Remove from a view
+	   * @param {View} view
+	   */
 
-			return result;
-		}
+		}, {
+			key: "detach",
+			value: function detach(view) {
+				var cfiRange = this.cfiRange,
+				    type = this.type;
 
-		/**
-	  * [Not Implemented] Get text of an annotation
-	  * @TODO: needs implementation in contents
-	  */
-		text() {}
+				var result = void 0;
 
-	}
+				if (view) {
+					if (type === "highlight") {
+						result = view.unhighlight(cfiRange);
+					} else if (type === "underline") {
+						result = view.ununderline(cfiRange);
+					} else if (type === "mark") {
+						result = view.unmark(cfiRange);
+					}
+				}
+
+				this.mark = undefined;
+
+				return result;
+			}
+
+			/**
+	   * [Not Implemented] Get text of an annotation
+	   * @TODO: needs implementation in contents
+	   */
+
+		}, {
+			key: "text",
+			value: function text() {}
+		}]);
+
+		return Annotation;
+	}();
 
 	eventEmitter(Annotation.prototype);
 
@@ -15319,6 +16134,8 @@
 
 	var marks = createCommonjsModule(function (module, exports) {
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
@@ -15365,12 +16182,12 @@
 	function _possibleConstructorReturn(self, call) {
 	    if (!self) {
 	        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-	    }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+	    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
 	    if (typeof superClass !== "function" && superClass !== null) {
-	        throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
 	    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
@@ -15578,6 +16395,10 @@
 	            var filtered = this.filteredRanges();
 	            var offset = this.element.getBoundingClientRect();
 	            var container = this.container.getBoundingClientRect();
+	            container = { top: container.top, left: container.left };
+	            var styles = window.getComputedStyle(this.container);
+	            container.left += parseInt(styles.paddingLeft);
+	            container.top += parseInt(styles.paddingTop);
 
 	            for (var i = 0, len = filtered.length; i < len; i++) {
 	                var r = filtered[i];
@@ -15680,8 +16501,14 @@
 	var marks_3 = marks.Mark;
 	var marks_4 = marks.Pane;
 
-	class IframeView {
-		constructor(section, options) {
+	var _createClass$j = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$j(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var IframeView = function () {
+		function IframeView(section, options) {
+			_classCallCheck$j(this, IframeView);
+
 			this.settings = extend$1({
 				ignoreClass: "",
 				axis: options.layout && options.layout.props.flow === "scrolled" ? "vertical" : "horizontal",
@@ -15722,729 +16549,801 @@
 			this.marks = {};
 		}
 
-		container(axis) {
-			var element = document.createElement("div");
+		_createClass$j(IframeView, [{
+			key: "container",
+			value: function container(axis) {
+				var element = document.createElement("div");
 
-			element.classList.add("epub-view");
+				element.classList.add("epub-view");
 
-			// this.element.style.minHeight = "100px";
-			element.style.height = "0px";
-			element.style.width = "0px";
-			element.style.overflow = "hidden";
-			element.style.position = "relative";
-			element.style.display = "block";
+				// this.element.style.minHeight = "100px";
+				element.style.height = "0px";
+				element.style.width = "0px";
+				element.style.overflow = "hidden";
+				element.style.position = "relative";
+				element.style.display = "block";
 
-			if (axis && axis == "horizontal") {
-				element.style.flex = "none";
-			} else {
-				element.style.flex = "initial";
+				if (axis && axis == "horizontal") {
+					element.style.flex = "none";
+				} else {
+					element.style.flex = "initial";
+				}
+
+				return element;
 			}
+		}, {
+			key: "create",
+			value: function create() {
 
-			return element;
-		}
+				if (this.iframe) {
+					return this.iframe;
+				}
 
-		create() {
+				if (!this.element) {
+					this.element = this.createContainer();
+				}
 
-			if (this.iframe) {
-				return this.iframe;
-			}
+				this.iframe = document.createElement("iframe");
+				this.iframe.id = this.id;
+				this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
+				this.iframe.style.overflow = "hidden";
+				this.iframe.seamless = "seamless";
+				// Back up if seamless isn't supported
+				this.iframe.style.border = "none";
 
-			if (!this.element) {
-				this.element = this.createContainer();
-			}
+				this.iframe.setAttribute("enable-annotation", "true");
 
-			this.iframe = document.createElement("iframe");
-			this.iframe.id = this.id;
-			this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
-			this.iframe.style.overflow = "hidden";
-			this.iframe.seamless = "seamless";
-			// Back up if seamless isn't supported
-			this.iframe.style.border = "none";
+				this.resizing = true;
 
-			this.iframe.setAttribute("enable-annotation", "true");
+				// this.iframe.style.display = "none";
+				this.element.style.visibility = "hidden";
+				this.iframe.style.visibility = "hidden";
 
-			this.resizing = true;
-
-			// this.iframe.style.display = "none";
-			this.element.style.visibility = "hidden";
-			this.iframe.style.visibility = "hidden";
-
-			this.iframe.style.width = "0";
-			this.iframe.style.height = "0";
-			this._width = 0;
-			this._height = 0;
-
-			this.element.setAttribute("ref", this.index);
-
-			this.added = true;
-
-			this.elementBounds = bounds$1(this.element);
-
-			// if(width || height){
-			//   this.resize(width, height);
-			// } else if(this.width && this.height){
-			//   this.resize(this.width, this.height);
-			// } else {
-			//   this.iframeBounds = bounds(this.iframe);
-			// }
-
-
-			if ("srcdoc" in this.iframe) {
-				this.supportsSrcdoc = true;
-			} else {
-				this.supportsSrcdoc = false;
-			}
-
-			if (!this.settings.method) {
-				this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
-			}
-
-			return this.iframe;
-		}
-
-		render(request, show) {
-
-			// view.onLayout = this.layout.format.bind(this.layout);
-			this.create();
-
-			// Fit to size of the container, apply padding
-			this.size();
-
-			if (!this.sectionRender) {
-				this.sectionRender = this.section.render(request);
-			}
-
-			// Render Chain
-			return this.sectionRender.then(function (contents) {
-				return this.load(contents);
-			}.bind(this)).then(function () {
-
-				// apply the layout function to the contents
-				this.layout.format(this.contents);
-
-				// find and report the writingMode axis
-				let writingMode = this.contents.writingMode();
-				let axis = writingMode.indexOf("vertical") === 0 ? "vertical" : "horizontal";
-
-				this.setAxis(axis);
-				this.emit(EVENTS.VIEWS.AXIS, axis);
-
-				// Listen for events that require an expansion of the iframe
-				this.addListeners();
-
-				return new Promise((resolve, reject) => {
-					// Expand the iframe to the full size of the content
-					this.expand();
-					resolve();
-				});
-			}.bind(this), function (e) {
-				this.emit(EVENTS.VIEWS.LOAD_ERROR, e);
-				return new Promise((resolve, reject) => {
-					reject(e);
-				});
-			}.bind(this)).then(function () {
-				this.emit(EVENTS.VIEWS.RENDERED, this.section);
-			}.bind(this));
-		}
-
-		reset() {
-			if (this.iframe) {
 				this.iframe.style.width = "0";
 				this.iframe.style.height = "0";
 				this._width = 0;
 				this._height = 0;
-				this._textWidth = undefined;
-				this._contentWidth = undefined;
-				this._textHeight = undefined;
-				this._contentHeight = undefined;
+
+				this.element.setAttribute("ref", this.index);
+
+				this.added = true;
+
+				this.elementBounds = bounds$1(this.element);
+
+				// if(width || height){
+				//   this.resize(width, height);
+				// } else if(this.width && this.height){
+				//   this.resize(this.width, this.height);
+				// } else {
+				//   this.iframeBounds = bounds(this.iframe);
+				// }
+
+
+				if ("srcdoc" in this.iframe) {
+					this.supportsSrcdoc = true;
+				} else {
+					this.supportsSrcdoc = false;
+				}
+
+				if (!this.settings.method) {
+					this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+				}
+
+				return this.iframe;
 			}
-			this._needsReframe = true;
-		}
+		}, {
+			key: "render",
+			value: function render(request, show) {
 
-		// Determine locks base on settings
-		size(_width, _height) {
-			var width = _width || this.settings.width;
-			var height = _height || this.settings.height;
+				// view.onLayout = this.layout.format.bind(this.layout);
+				this.create();
 
-			if (this.layout.name === "pre-paginated") {
-				this.lock("both", width, height);
-			} else if (this.settings.axis === "horizontal") {
-				this.lock("height", width, height);
-			} else {
-				this.lock("width", width, height);
+				// Fit to size of the container, apply padding
+				this.size();
+
+				if (!this.sectionRender) {
+					this.sectionRender = this.section.render(request);
+				}
+
+				// Render Chain
+				return this.sectionRender.then(function (contents) {
+					return this.load(contents);
+				}.bind(this)).then(function () {
+					var _this = this;
+
+					// apply the layout function to the contents
+					this.layout.format(this.contents);
+
+					// find and report the writingMode axis
+					var writingMode = this.contents.writingMode();
+					var axis = writingMode.indexOf("vertical") === 0 ? "vertical" : "horizontal";
+
+					this.setAxis(axis);
+					this.emit(EVENTS.VIEWS.AXIS, axis);
+
+					// Listen for events that require an expansion of the iframe
+					this.addListeners();
+
+					return new Promise(function (resolve, reject) {
+						// Expand the iframe to the full size of the content
+						_this.expand();
+						resolve();
+					});
+				}.bind(this), function (e) {
+					this.emit(EVENTS.VIEWS.LOAD_ERROR, e);
+					return new Promise(function (resolve, reject) {
+						reject(e);
+					});
+				}.bind(this)).then(function () {
+					this.emit(EVENTS.VIEWS.RENDERED, this.section);
+				}.bind(this));
+			}
+		}, {
+			key: "reset",
+			value: function reset() {
+				if (this.iframe) {
+					this.iframe.style.width = "0";
+					this.iframe.style.height = "0";
+					this._width = 0;
+					this._height = 0;
+					this._textWidth = undefined;
+					this._contentWidth = undefined;
+					this._textHeight = undefined;
+					this._contentHeight = undefined;
+				}
+				this._needsReframe = true;
 			}
 
-			this.settings.width = width;
-			this.settings.height = height;
-		}
+			// Determine locks base on settings
 
-		// Lock an axis to element dimensions, taking borders into account
-		lock(what, width, height) {
-			var elBorders = borders(this.element);
-			var iframeBorders;
+		}, {
+			key: "size",
+			value: function size(_width, _height) {
+				var width = _width || this.settings.width;
+				var height = _height || this.settings.height;
 
-			if (this.iframe) {
-				iframeBorders = borders(this.iframe);
-			} else {
-				iframeBorders = { width: 0, height: 0 };
+				if (this.layout.name === "pre-paginated") {
+					this.lock("both", width, height);
+				} else if (this.settings.axis === "horizontal") {
+					this.lock("height", width, height);
+				} else {
+					this.lock("width", width, height);
+				}
+
+				this.settings.width = width;
+				this.settings.height = height;
 			}
 
-			if (what == "width" && isNumber(width)) {
-				this.lockedWidth = width - elBorders.width - iframeBorders.width;
-				// this.resize(this.lockedWidth, width); //  width keeps ratio correct
+			// Lock an axis to element dimensions, taking borders into account
+
+		}, {
+			key: "lock",
+			value: function lock(what, width, height) {
+				var elBorders = borders(this.element);
+				var iframeBorders;
+
+				if (this.iframe) {
+					iframeBorders = borders(this.iframe);
+				} else {
+					iframeBorders = { width: 0, height: 0 };
+				}
+
+				if (what == "width" && isNumber(width)) {
+					this.lockedWidth = width - elBorders.width - iframeBorders.width;
+					// this.resize(this.lockedWidth, width); //  width keeps ratio correct
+				}
+
+				if (what == "height" && isNumber(height)) {
+					this.lockedHeight = height - elBorders.height - iframeBorders.height;
+					// this.resize(width, this.lockedHeight);
+				}
+
+				if (what === "both" && isNumber(width) && isNumber(height)) {
+
+					this.lockedWidth = width - elBorders.width - iframeBorders.width;
+					this.lockedHeight = height - elBorders.height - iframeBorders.height;
+					// this.resize(this.lockedWidth, this.lockedHeight);
+				}
+
+				if (this.displayed && this.iframe) {
+
+					// this.contents.layout();
+					this.expand();
+				}
 			}
 
-			if (what == "height" && isNumber(height)) {
-				this.lockedHeight = height - elBorders.height - iframeBorders.height;
-				// this.resize(width, this.lockedHeight);
+			// Resize a single axis based on content dimensions
+
+		}, {
+			key: "expand",
+			value: function expand(force) {
+				var width = this.lockedWidth;
+				var height = this.lockedHeight;
+				var columns;
+
+				if (!this.iframe || this._expanding) return;
+
+				this._expanding = true;
+
+				if (this.layout.name === "pre-paginated") {
+					width = this.layout.columnWidth;
+					height = this.layout.height;
+				}
+				// Expand Horizontally
+				else if (this.settings.axis === "horizontal") {
+						// Get the width of the text
+						width = this.contents.textWidth();
+
+						if (width % this.layout.pageWidth > 0) {
+							width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
+						}
+
+						if (this.settings.forceEvenPages) {
+							columns = width / this.layout.pageWidth;
+							if (this.layout.divisor > 1 && this.layout.name === "reflowable" && columns % 2 > 0) {
+								// add a blank page
+								width += this.layout.pageWidth;
+							}
+						}
+					} // Expand Vertically
+					else if (this.settings.axis === "vertical") {
+							height = this.contents.textHeight();
+						}
+
+				// Only Resize if dimensions have changed or
+				// if Frame is still hidden, so needs reframing
+				if (this._needsReframe || width != this._width || height != this._height) {
+					this.reframe(width, height);
+				}
+
+				this._expanding = false;
 			}
+		}, {
+			key: "reframe",
+			value: function reframe(width, height) {
+				var _this2 = this;
 
-			if (what === "both" && isNumber(width) && isNumber(height)) {
+				var size;
 
-				this.lockedWidth = width - elBorders.width - iframeBorders.width;
-				this.lockedHeight = height - elBorders.height - iframeBorders.height;
-				// this.resize(this.lockedWidth, this.lockedHeight);
-			}
+				if (isNumber(width)) {
+					this.element.style.width = width + "px";
+					this.iframe.style.width = width + "px";
+					this._width = width;
+				}
 
-			if (this.displayed && this.iframe) {
+				if (isNumber(height)) {
+					this.element.style.height = height + "px";
+					this.iframe.style.height = height + "px";
+					this._height = height;
+				}
 
-				// this.contents.layout();
-				this.expand();
-			}
-		}
+				var widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
+				var heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
 
-		// Resize a single axis based on content dimensions
-		expand(force) {
-			var width = this.lockedWidth;
-			var height = this.lockedHeight;
-			var columns;
+				size = {
+					width: width,
+					height: height,
+					widthDelta: widthDelta,
+					heightDelta: heightDelta
+				};
 
-			if (!this.iframe || this._expanding) return;
+				this.pane && this.pane.render();
 
-			this._expanding = true;
-
-			if (this.layout.name === "pre-paginated") {
-				width = this.layout.columnWidth;
-				height = this.layout.height;
-			}
-			// Expand Horizontally
-			else if (this.settings.axis === "horizontal") {
-					// Get the width of the text
-					width = this.contents.textWidth();
-
-					if (width % this.layout.pageWidth > 0) {
-						width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
-					}
-
-					if (this.settings.forceEvenPages) {
-						columns = width / this.layout.pageWidth;
-						if (this.layout.divisor > 1 && this.layout.name === "reflowable" && columns % 2 > 0) {
-							// add a blank page
-							width += this.layout.pageWidth;
+				requestAnimationFrame(function () {
+					var mark = void 0;
+					for (var m in _this2.marks) {
+						if (_this2.marks.hasOwnProperty(m)) {
+							mark = _this2.marks[m];
+							_this2.placeMark(mark.element, mark.range);
 						}
 					}
-				} // Expand Vertically
-				else if (this.settings.axis === "vertical") {
-						height = this.contents.textHeight();
-					}
+				});
 
-			// Only Resize if dimensions have changed or
-			// if Frame is still hidden, so needs reframing
-			if (this._needsReframe || width != this._width || height != this._height) {
-				this.reframe(width, height);
+				this.onResize(this, size);
+
+				this.emit(EVENTS.VIEWS.RESIZED, size);
+
+				this.prevBounds = size;
+
+				this.elementBounds = bounds$1(this.element);
 			}
+		}, {
+			key: "load",
+			value: function load(contents) {
+				var loading = new defer();
+				var loaded = loading.promise;
 
-			this._expanding = false;
-		}
-
-		reframe(width, height) {
-			var size;
-
-			if (isNumber(width)) {
-				this.element.style.width = width + "px";
-				this.iframe.style.width = width + "px";
-				this._width = width;
-			}
-
-			if (isNumber(height)) {
-				this.element.style.height = height + "px";
-				this.iframe.style.height = height + "px";
-				this._height = height;
-			}
-
-			let widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
-			let heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
-
-			size = {
-				width: width,
-				height: height,
-				widthDelta: widthDelta,
-				heightDelta: heightDelta
-			};
-
-			this.pane && this.pane.render();
-
-			requestAnimationFrame(() => {
-				let mark;
-				for (let m in this.marks) {
-					if (this.marks.hasOwnProperty(m)) {
-						mark = this.marks[m];
-						this.placeMark(mark.element, mark.range);
-					}
-				}
-			});
-
-			this.onResize(this, size);
-
-			this.emit(EVENTS.VIEWS.RESIZED, size);
-
-			this.prevBounds = size;
-
-			this.elementBounds = bounds$1(this.element);
-		}
-
-		load(contents) {
-			var loading = new defer();
-			var loaded = loading.promise;
-
-			if (!this.iframe) {
-				loading.reject(new Error("No Iframe Available"));
-				return loaded;
-			}
-
-			this.iframe.onload = function (event) {
-
-				this.onLoad(event, loading);
-			}.bind(this);
-
-			if (this.settings.method === "blobUrl") {
-				this.blobUrl = createBlobUrl(contents, "application/xhtml+xml");
-				this.iframe.src = this.blobUrl;
-				this.element.appendChild(this.iframe);
-			} else if (this.settings.method === "srcdoc") {
-				this.iframe.srcdoc = contents;
-				this.element.appendChild(this.iframe);
-			} else {
-
-				this.element.appendChild(this.iframe);
-
-				this.document = this.iframe.contentDocument;
-
-				if (!this.document) {
-					loading.reject(new Error("No Document Available"));
+				if (!this.iframe) {
+					loading.reject(new Error("No Iframe Available"));
 					return loaded;
 				}
 
-				this.iframe.contentDocument.open();
-				this.iframe.contentDocument.write(contents);
-				this.iframe.contentDocument.close();
-			}
+				this.iframe.onload = function (event) {
 
-			return loaded;
-		}
+					this.onLoad(event, loading);
+				}.bind(this);
 
-		onLoad(event, promise) {
+				if (this.settings.method === "blobUrl") {
+					this.blobUrl = createBlobUrl(contents, "application/xhtml+xml");
+					this.iframe.src = this.blobUrl;
+					this.element.appendChild(this.iframe);
+				} else if (this.settings.method === "srcdoc") {
+					this.iframe.srcdoc = contents;
+					this.element.appendChild(this.iframe);
+				} else {
 
-			this.window = this.iframe.contentWindow;
-			this.document = this.iframe.contentDocument;
+					this.element.appendChild(this.iframe);
 
-			this.contents = new Contents$1(this.document, this.document.body, this.section.cfiBase, this.section.index);
+					this.document = this.iframe.contentDocument;
 
-			this.rendering = false;
-
-			var link = this.document.querySelector("link[rel='canonical']");
-			if (link) {
-				link.setAttribute("href", this.section.canonical);
-			} else {
-				link = this.document.createElement("link");
-				link.setAttribute("rel", "canonical");
-				link.setAttribute("href", this.section.canonical);
-				this.document.querySelector("head").appendChild(link);
-			}
-
-			this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
-				if (this.displayed && this.iframe) {
-					this.expand();
-					if (this.contents) {
-						this.layout.format(this.contents);
+					if (!this.document) {
+						loading.reject(new Error("No Document Available"));
+						return loaded;
 					}
-				}
-			});
 
-			this.contents.on(EVENTS.CONTENTS.RESIZE, e => {
-				if (this.displayed && this.iframe) {
-					this.expand();
-					if (this.contents) {
-						this.layout.format(this.contents);
+					this.iframe.contentDocument.open();
+					this.iframe.contentDocument.write(contents);
+					this.iframe.contentDocument.close();
+				}
+
+				return loaded;
+			}
+		}, {
+			key: "onLoad",
+			value: function onLoad(event, promise) {
+				var _this3 = this;
+
+				this.window = this.iframe.contentWindow;
+				this.document = this.iframe.contentDocument;
+
+				this.contents = new Contents$1(this.document, this.document.body, this.section.cfiBase, this.section.index);
+
+				this.rendering = false;
+
+				var link = this.document.querySelector("link[rel='canonical']");
+				if (link) {
+					link.setAttribute("href", this.section.canonical);
+				} else {
+					link = this.document.createElement("link");
+					link.setAttribute("rel", "canonical");
+					link.setAttribute("href", this.section.canonical);
+					this.document.querySelector("head").appendChild(link);
+				}
+
+				this.contents.on(EVENTS.CONTENTS.EXPAND, function () {
+					if (_this3.displayed && _this3.iframe) {
+						_this3.expand();
+						if (_this3.contents) {
+							_this3.layout.format(_this3.contents);
+						}
 					}
+				});
+
+				this.contents.on(EVENTS.CONTENTS.RESIZE, function (e) {
+					if (_this3.displayed && _this3.iframe) {
+						_this3.expand();
+						if (_this3.contents) {
+							_this3.layout.format(_this3.contents);
+						}
+					}
+				});
+
+				promise.resolve(this.contents);
+			}
+		}, {
+			key: "setLayout",
+			value: function setLayout(layout) {
+				this.layout = layout;
+
+				if (this.contents) {
+					this.layout.format(this.contents);
+					this.expand();
 				}
-			});
-
-			promise.resolve(this.contents);
-		}
-
-		setLayout(layout) {
-			this.layout = layout;
-
-			if (this.contents) {
-				this.layout.format(this.contents);
-				this.expand();
 			}
-		}
+		}, {
+			key: "setAxis",
+			value: function setAxis(axis) {
 
-		setAxis(axis) {
+				// Force vertical for scrolled
+				if (this.layout.props.flow === "scrolled") {
+					axis = "vertical";
+				}
 
-			// Force vertical for scrolled
-			if (this.layout.props.flow === "scrolled") {
-				axis = "vertical";
+				this.settings.axis = axis;
+
+				if (axis == "horizontal") {
+					this.element.style.flex = "none";
+				} else {
+					this.element.style.flex = "initial";
+				}
+
+				this.size();
 			}
-
-			this.settings.axis = axis;
-
-			if (axis == "horizontal") {
-				this.element.style.flex = "none";
-			} else {
-				this.element.style.flex = "initial";
+		}, {
+			key: "addListeners",
+			value: function addListeners() {
+				//TODO: Add content listeners for expanding
 			}
+		}, {
+			key: "removeListeners",
+			value: function removeListeners(layoutFunc) {
+				//TODO: remove content listeners for expanding
+			}
+		}, {
+			key: "display",
+			value: function display(request) {
+				var displayed = new defer();
 
-			this.size();
-		}
+				if (!this.displayed) {
 
-		addListeners() {
-			//TODO: Add content listeners for expanding
-		}
+					this.render(request).then(function () {
 
-		removeListeners(layoutFunc) {
-			//TODO: remove content listeners for expanding
-		}
+						this.emit(EVENTS.VIEWS.DISPLAYED, this);
+						this.onDisplayed(this);
 
-		display(request) {
-			var displayed = new defer();
-
-			if (!this.displayed) {
-
-				this.render(request).then(function () {
-
-					this.emit(EVENTS.VIEWS.DISPLAYED, this);
-					this.onDisplayed(this);
-
-					this.displayed = true;
+						this.displayed = true;
+						displayed.resolve(this);
+					}.bind(this), function (err) {
+						displayed.reject(err, this);
+					});
+				} else {
 					displayed.resolve(this);
-				}.bind(this), function (err) {
-					displayed.reject(err, this);
-				});
-			} else {
-				displayed.resolve(this);
-			}
-
-			return displayed.promise;
-		}
-
-		show() {
-
-			this.element.style.visibility = "visible";
-
-			if (this.iframe) {
-				this.iframe.style.visibility = "visible";
-
-				// Remind Safari to redraw the iframe
-				this.iframe.style.transform = "translateZ(0)";
-				this.iframe.offsetWidth;
-				this.iframe.style.transform = null;
-			}
-
-			this.emit(EVENTS.VIEWS.SHOWN, this);
-		}
-
-		hide() {
-			// this.iframe.style.display = "none";
-			this.element.style.visibility = "hidden";
-			this.iframe.style.visibility = "hidden";
-
-			this.stopExpanding = true;
-			this.emit(EVENTS.VIEWS.HIDDEN, this);
-		}
-
-		offset() {
-			return {
-				top: this.element.offsetTop,
-				left: this.element.offsetLeft
-			};
-		}
-
-		width() {
-			return this._width;
-		}
-
-		height() {
-			return this._height;
-		}
-
-		position() {
-			return this.element.getBoundingClientRect();
-		}
-
-		locationOf(target) {
-			var parentPos = this.iframe.getBoundingClientRect();
-			var targetPos = this.contents.locationOf(target, this.settings.ignoreClass);
-
-			return {
-				"left": targetPos.left,
-				"top": targetPos.top
-			};
-		}
-
-		onDisplayed(view) {
-			// Stub, override with a custom functions
-		}
-
-		onResize(view, e) {
-			// Stub, override with a custom functions
-		}
-
-		bounds(force) {
-			if (force || !this.elementBounds) {
-				this.elementBounds = bounds$1(this.element);
-			}
-
-			return this.elementBounds;
-		}
-
-		highlight(cfiRange, data = {}, cb, className = "epubjs-hl", styles = {}) {
-			if (!this.contents) {
-				return;
-			}
-			const attributes = Object.assign({ "fill": "yellow", "fill-opacity": "0.3", "mix-blend-mode": "multiply" }, styles);
-			let range = this.contents.range(cfiRange);
-
-			let emitter = () => {
-				this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
-			};
-
-			data["epubcfi"] = cfiRange;
-
-			if (!this.pane) {
-				this.pane = new marks_4(this.iframe, this.element);
-			}
-
-			let m = new marks_2(range, className, data, attributes);
-			let h = this.pane.addMark(m);
-
-			this.highlights[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
-
-			h.element.setAttribute("ref", className);
-			h.element.addEventListener("click", emitter);
-			h.element.addEventListener("touchstart", emitter);
-
-			if (cb) {
-				h.element.addEventListener("click", cb);
-				h.element.addEventListener("touchstart", cb);
-			}
-			return h;
-		}
-
-		underline(cfiRange, data = {}, cb, className = "epubjs-ul", styles = {}) {
-			if (!this.contents) {
-				return;
-			}
-			const attributes = Object.assign({ "stroke": "black", "stroke-opacity": "0.3", "mix-blend-mode": "multiply" }, styles);
-			let range = this.contents.range(cfiRange);
-			let emitter = () => {
-				this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
-			};
-
-			data["epubcfi"] = cfiRange;
-
-			if (!this.pane) {
-				this.pane = new marks_4(this.iframe, this.element);
-			}
-
-			let m = new marks_1(range, className, data, attributes);
-			let h = this.pane.addMark(m);
-
-			this.underlines[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
-
-			h.element.setAttribute("ref", className);
-			h.element.addEventListener("click", emitter);
-			h.element.addEventListener("touchstart", emitter);
-
-			if (cb) {
-				h.element.addEventListener("click", cb);
-				h.element.addEventListener("touchstart", cb);
-			}
-			return h;
-		}
-
-		mark(cfiRange, data = {}, cb) {
-			if (!this.contents) {
-				return;
-			}
-
-			if (cfiRange in this.marks) {
-				let item = this.marks[cfiRange];
-				return item;
-			}
-
-			let range = this.contents.range(cfiRange);
-			if (!range) {
-				return;
-			}
-			let container = range.commonAncestorContainer;
-			let parent = container.nodeType === 1 ? container : container.parentNode;
-
-			let emitter = e => {
-				this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
-			};
-
-			if (range.collapsed && container.nodeType === 1) {
-				range = new Range();
-				range.selectNodeContents(container);
-			} else if (range.collapsed) {
-				// Webkit doesn't like collapsed ranges
-				range = new Range();
-				range.selectNodeContents(parent);
-			}
-
-			let mark = this.document.createElement("a");
-			mark.setAttribute("ref", "epubjs-mk");
-			mark.style.position = "absolute";
-
-			mark.dataset["epubcfi"] = cfiRange;
-
-			if (data) {
-				Object.keys(data).forEach(key => {
-					mark.dataset[key] = data[key];
-				});
-			}
-
-			if (cb) {
-				mark.addEventListener("click", cb);
-				mark.addEventListener("touchstart", cb);
-			}
-
-			mark.addEventListener("click", emitter);
-			mark.addEventListener("touchstart", emitter);
-
-			this.placeMark(mark, range);
-
-			this.element.appendChild(mark);
-
-			this.marks[cfiRange] = { "element": mark, "range": range, "listeners": [emitter, cb] };
-
-			return parent;
-		}
-
-		placeMark(element, range) {
-			let top, right, left;
-
-			if (this.layout.name === "pre-paginated" || this.settings.axis !== "horizontal") {
-				let pos = range.getBoundingClientRect();
-				top = pos.top;
-				right = pos.right;
-			} else {
-				// Element might break columns, so find the left most element
-				let rects = range.getClientRects();
-
-				let rect;
-				for (var i = 0; i != rects.length; i++) {
-					rect = rects[i];
-					if (!left || rect.left < left) {
-						left = rect.left;
-						// right = rect.right;
-						right = Math.ceil(left / this.layout.props.pageWidth) * this.layout.props.pageWidth - this.layout.gap / 2;
-						top = rect.top;
-					}
 				}
+
+				return displayed.promise;
 			}
+		}, {
+			key: "show",
+			value: function show() {
 
-			element.style.top = `${top}px`;
-			element.style.left = `${right}px`;
-		}
+				this.element.style.visibility = "visible";
 
-		unhighlight(cfiRange) {
-			let item;
-			if (cfiRange in this.highlights) {
-				item = this.highlights[cfiRange];
+				if (this.iframe) {
+					this.iframe.style.visibility = "visible";
 
-				this.pane.removeMark(item.mark);
-				item.listeners.forEach(l => {
-					if (l) {
-						item.element.removeEventListener("click", l);
-						item.element.removeEventListener("touchstart", l);
-					}			});
-				delete this.highlights[cfiRange];
+					// Remind Safari to redraw the iframe
+					this.iframe.style.transform = "translateZ(0)";
+					this.iframe.offsetWidth;
+					this.iframe.style.transform = null;
+				}
+
+				this.emit(EVENTS.VIEWS.SHOWN, this);
 			}
-		}
-
-		ununderline(cfiRange) {
-			let item;
-			if (cfiRange in this.underlines) {
-				item = this.underlines[cfiRange];
-				this.pane.removeMark(item.mark);
-				item.listeners.forEach(l => {
-					if (l) {
-						item.element.removeEventListener("click", l);
-						item.element.removeEventListener("touchstart", l);
-					}			});
-				delete this.underlines[cfiRange];
-			}
-		}
-
-		unmark(cfiRange) {
-			let item;
-			if (cfiRange in this.marks) {
-				item = this.marks[cfiRange];
-				this.element.removeChild(item.element);
-				item.listeners.forEach(l => {
-					if (l) {
-						item.element.removeEventListener("click", l);
-						item.element.removeEventListener("touchstart", l);
-					}			});
-				delete this.marks[cfiRange];
-			}
-		}
-
-		destroy() {
-
-			for (let cfiRange in this.highlights) {
-				this.unhighlight(cfiRange);
-			}
-
-			for (let cfiRange in this.underlines) {
-				this.ununderline(cfiRange);
-			}
-
-			for (let cfiRange in this.marks) {
-				this.unmark(cfiRange);
-			}
-
-			if (this.blobUrl) {
-				revokeBlobUrl(this.blobUrl);
-			}
-
-			if (this.displayed) {
-				this.displayed = false;
-
-				this.removeListeners();
+		}, {
+			key: "hide",
+			value: function hide() {
+				// this.iframe.style.display = "none";
+				this.element.style.visibility = "hidden";
+				this.iframe.style.visibility = "hidden";
 
 				this.stopExpanding = true;
-				this.element.removeChild(this.iframe);
-
-				this.iframe = undefined;
-				this.contents = undefined;
-
-				this._textWidth = null;
-				this._textHeight = null;
-				this._width = null;
-				this._height = null;
+				this.emit(EVENTS.VIEWS.HIDDEN, this);
 			}
+		}, {
+			key: "offset",
+			value: function offset() {
+				return {
+					top: this.element.offsetTop,
+					left: this.element.offsetLeft
+				};
+			}
+		}, {
+			key: "width",
+			value: function width() {
+				return this._width;
+			}
+		}, {
+			key: "height",
+			value: function height() {
+				return this._height;
+			}
+		}, {
+			key: "position",
+			value: function position() {
+				return this.element.getBoundingClientRect();
+			}
+		}, {
+			key: "locationOf",
+			value: function locationOf$$1(target) {
+				var parentPos = this.iframe.getBoundingClientRect();
+				var targetPos = this.contents.locationOf(target, this.settings.ignoreClass);
 
-			// this.element.style.height = "0px";
-			// this.element.style.width = "0px";
-		}
-	}
+				return {
+					"left": targetPos.left,
+					"top": targetPos.top
+				};
+			}
+		}, {
+			key: "onDisplayed",
+			value: function onDisplayed(view) {
+				// Stub, override with a custom functions
+			}
+		}, {
+			key: "onResize",
+			value: function onResize(view, e) {
+				// Stub, override with a custom functions
+			}
+		}, {
+			key: "bounds",
+			value: function bounds$$1(force) {
+				if (force || !this.elementBounds) {
+					this.elementBounds = bounds$1(this.element);
+				}
+
+				return this.elementBounds;
+			}
+		}, {
+			key: "highlight",
+			value: function highlight(cfiRange) {
+				var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+				var cb = arguments[2];
+
+				var _this4 = this;
+
+				var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "epubjs-hl";
+				var styles = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+
+				if (!this.contents) {
+					return;
+				}
+				var attributes = Object.assign({ "fill": "yellow", "fill-opacity": "0.3", "mix-blend-mode": "multiply" }, styles);
+				var range = this.contents.range(cfiRange);
+
+				var emitter = function emitter() {
+					_this4.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
+				};
+
+				data["epubcfi"] = cfiRange;
+
+				if (!this.pane) {
+					this.pane = new marks_4(this.iframe, this.element);
+				}
+
+				var m = new marks_2(range, className, data, attributes);
+				var h = this.pane.addMark(m);
+
+				this.highlights[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
+
+				h.element.setAttribute("ref", className);
+				h.element.addEventListener("click", emitter);
+				h.element.addEventListener("touchstart", emitter);
+
+				if (cb) {
+					h.element.addEventListener("click", cb);
+					h.element.addEventListener("touchstart", cb);
+				}
+				return h;
+			}
+		}, {
+			key: "underline",
+			value: function underline(cfiRange) {
+				var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+				var cb = arguments[2];
+
+				var _this5 = this;
+
+				var className = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "epubjs-ul";
+				var styles = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+
+				if (!this.contents) {
+					return;
+				}
+				var attributes = Object.assign({ "stroke": "black", "stroke-opacity": "0.3", "mix-blend-mode": "multiply" }, styles);
+				var range = this.contents.range(cfiRange);
+				var emitter = function emitter() {
+					_this5.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
+				};
+
+				data["epubcfi"] = cfiRange;
+
+				if (!this.pane) {
+					this.pane = new marks_4(this.iframe, this.element);
+				}
+
+				var m = new marks_1(range, className, data, attributes);
+				var h = this.pane.addMark(m);
+
+				this.underlines[cfiRange] = { "mark": h, "element": h.element, "listeners": [emitter, cb] };
+
+				h.element.setAttribute("ref", className);
+				h.element.addEventListener("click", emitter);
+				h.element.addEventListener("touchstart", emitter);
+
+				if (cb) {
+					h.element.addEventListener("click", cb);
+					h.element.addEventListener("touchstart", cb);
+				}
+				return h;
+			}
+		}, {
+			key: "mark",
+			value: function mark(cfiRange) {
+				var _this6 = this;
+
+				var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+				var cb = arguments[2];
+
+				if (!this.contents) {
+					return;
+				}
+
+				if (cfiRange in this.marks) {
+					var item = this.marks[cfiRange];
+					return item;
+				}
+
+				var range = this.contents.range(cfiRange);
+				if (!range) {
+					return;
+				}
+				var container = range.commonAncestorContainer;
+				var parent = container.nodeType === 1 ? container : container.parentNode;
+
+				var emitter = function emitter(e) {
+					_this6.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
+				};
+
+				if (range.collapsed && container.nodeType === 1) {
+					range = new Range();
+					range.selectNodeContents(container);
+				} else if (range.collapsed) {
+					// Webkit doesn't like collapsed ranges
+					range = new Range();
+					range.selectNodeContents(parent);
+				}
+
+				var mark = this.document.createElement("a");
+				mark.setAttribute("ref", "epubjs-mk");
+				mark.style.position = "absolute";
+
+				mark.dataset["epubcfi"] = cfiRange;
+
+				if (data) {
+					Object.keys(data).forEach(function (key) {
+						mark.dataset[key] = data[key];
+					});
+				}
+
+				if (cb) {
+					mark.addEventListener("click", cb);
+					mark.addEventListener("touchstart", cb);
+				}
+
+				mark.addEventListener("click", emitter);
+				mark.addEventListener("touchstart", emitter);
+
+				this.placeMark(mark, range);
+
+				this.element.appendChild(mark);
+
+				this.marks[cfiRange] = { "element": mark, "range": range, "listeners": [emitter, cb] };
+
+				return parent;
+			}
+		}, {
+			key: "placeMark",
+			value: function placeMark(element, range) {
+				var top = void 0,
+				    right = void 0,
+				    left = void 0;
+
+				if (this.layout.name === "pre-paginated" || this.settings.axis !== "horizontal") {
+					var pos = range.getBoundingClientRect();
+					top = pos.top;
+					right = pos.right;
+				} else {
+					// Element might break columns, so find the left most element
+					var rects = range.getClientRects();
+
+					var rect = void 0;
+					for (var i = 0; i != rects.length; i++) {
+						rect = rects[i];
+						if (!left || rect.left < left) {
+							left = rect.left;
+							// right = rect.right;
+							right = Math.ceil(left / this.layout.props.pageWidth) * this.layout.props.pageWidth - this.layout.gap / 2;
+							top = rect.top;
+						}
+					}
+				}
+
+				element.style.top = top + "px";
+				element.style.left = right + "px";
+			}
+		}, {
+			key: "unhighlight",
+			value: function unhighlight(cfiRange) {
+				var item = void 0;
+				if (cfiRange in this.highlights) {
+					item = this.highlights[cfiRange];
+
+					this.pane.removeMark(item.mark);
+					item.listeners.forEach(function (l) {
+						if (l) {
+							item.element.removeEventListener("click", l);
+							item.element.removeEventListener("touchstart", l);
+						}				});
+					delete this.highlights[cfiRange];
+				}
+			}
+		}, {
+			key: "ununderline",
+			value: function ununderline(cfiRange) {
+				var item = void 0;
+				if (cfiRange in this.underlines) {
+					item = this.underlines[cfiRange];
+					this.pane.removeMark(item.mark);
+					item.listeners.forEach(function (l) {
+						if (l) {
+							item.element.removeEventListener("click", l);
+							item.element.removeEventListener("touchstart", l);
+						}				});
+					delete this.underlines[cfiRange];
+				}
+			}
+		}, {
+			key: "unmark",
+			value: function unmark(cfiRange) {
+				var item = void 0;
+				if (cfiRange in this.marks) {
+					item = this.marks[cfiRange];
+					this.element.removeChild(item.element);
+					item.listeners.forEach(function (l) {
+						if (l) {
+							item.element.removeEventListener("click", l);
+							item.element.removeEventListener("touchstart", l);
+						}				});
+					delete this.marks[cfiRange];
+				}
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+
+				for (var cfiRange in this.highlights) {
+					this.unhighlight(cfiRange);
+				}
+
+				for (var _cfiRange in this.underlines) {
+					this.ununderline(_cfiRange);
+				}
+
+				for (var _cfiRange2 in this.marks) {
+					this.unmark(_cfiRange2);
+				}
+
+				if (this.blobUrl) {
+					revokeBlobUrl(this.blobUrl);
+				}
+
+				if (this.displayed) {
+					this.displayed = false;
+
+					this.removeListeners();
+
+					this.stopExpanding = true;
+					this.element.removeChild(this.iframe);
+
+					this.iframe = undefined;
+					this.contents = undefined;
+
+					this._textWidth = null;
+					this._textHeight = null;
+					this._width = null;
+					this._height = null;
+				}
+
+				// this.element.style.height = "0px";
+				// this.element.style.width = "0px";
+			}
+		}]);
+
+		return IframeView;
+	}();
 
 	eventEmitter(IframeView.prototype);
+
+	var _typeof$d = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is the
@@ -16472,19 +17371,25 @@
 	 * // => false
 	 */
 	function isObject$1(value) {
-	  var type = typeof value;
+	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$d(value);
 	  return value != null && (type == 'object' || type == 'function');
 	}
 
 	var isObject_1$1 = isObject$1;
 
+	var _typeof$e = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/** Detect free variable `global` from Node.js. */
-	var freeGlobal$1 = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+	var freeGlobal$1 = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$e(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 	var _freeGlobal$1 = freeGlobal$1;
 
+	var _typeof$f = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
 	/** Detect free variable `self`. */
-	var freeSelf$1 = typeof self == 'object' && self && self.Object === Object && self;
+	var freeSelf$1 = (typeof self === 'undefined' ? 'undefined' : _typeof$f(self)) == 'object' && self && self.Object === Object && self;
 
 	/** Used as a reference to the global object. */
 	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
@@ -16507,16 +17412,16 @@
 	 * }, _.now());
 	 * // => Logs the number of milliseconds it took for the deferred invocation.
 	 */
-	var now$1 = function () {
+	var now$1 = function now() {
 	  return _root$1.Date.now();
 	};
 
 	var now_1$1 = now$1;
 
 	/** Built-in value references. */
-	var Symbol$2 = _root$1.Symbol;
+	var _Symbol$1 = _root$1.Symbol;
 
-	var _Symbol$1 = Symbol$2;
+	var _Symbol_1$1 = _Symbol$1;
 
 	/** Used for built-in method references. */
 	var objectProto$9 = Object.prototype;
@@ -16532,7 +17437,7 @@
 	var nativeObjectToString$2 = objectProto$9.toString;
 
 	/** Built-in value references. */
-	var symToStringTag$2 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
+	var symToStringTag$2 = _Symbol_1$1 ? _Symbol_1$1.toStringTag : undefined;
 
 	/**
 	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
@@ -16590,7 +17495,7 @@
 	    undefinedTag$1 = '[object Undefined]';
 
 	/** Built-in value references. */
-	var symToStringTag$3 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
+	var symToStringTag$3 = _Symbol_1$1 ? _Symbol_1$1.toStringTag : undefined;
 
 	/**
 	 * The base implementation of `getTag` without fallbacks for buggy environments.
@@ -16607,6 +17512,8 @@
 	}
 
 	var _baseGetTag$1 = baseGetTag$1;
+
+	var _typeof$g = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -16633,10 +17540,14 @@
 	 * // => false
 	 */
 	function isObjectLike$1(value) {
-	  return value != null && typeof value == 'object';
+	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$g(value)) == 'object';
 	}
 
 	var isObjectLike_1$1 = isObjectLike$1;
+
+	var _typeof$h = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
 
 	/** `Object#toString` result references. */
 	var symbolTag$1 = '[object Symbol]';
@@ -16659,7 +17570,7 @@
 	 * // => false
 	 */
 	function isSymbol$1(value) {
-	    return typeof value == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
+	    return (typeof value === 'undefined' ? 'undefined' : _typeof$h(value)) == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
 	}
 
 	var isSymbol_1$1 = isSymbol$1;
@@ -16977,8 +17888,14 @@
 
 	var throttle_1 = throttle$1;
 
-	class Stage {
-		constructor(_options) {
+	var _createClass$k = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$k(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Stage = function () {
+		function Stage(_options) {
+			_classCallCheck$k(this, Stage);
+
 			this.settings = _options || {};
 			this.id = "epubjs-container-" + uuid();
 
@@ -16993,323 +17910,118 @@
 	 * Creates an element to render to.
 	 * Resizes to passed width and height or to the elements size
 	 */
-		create(options) {
-			let height = options.height; // !== false ? options.height : "100%";
-			let width = options.width; // !== false ? options.width : "100%";
-			let overflow = options.overflow || false;
-			let axis = options.axis || "vertical";
-			let direction = options.direction;
-			let scale = options.scale || 1.0;
 
-			if (options.height && isNumber(options.height)) {
-				height = options.height + "px";
-			}
 
-			if (options.width && isNumber(options.width)) {
-				width = options.width + "px";
-			}
+		_createClass$k(Stage, [{
+			key: "create",
+			value: function create(options) {
+				var height = options.height; // !== false ? options.height : "100%";
+				var width = options.width; // !== false ? options.width : "100%";
+				var overflow = options.overflow || false;
+				var axis = options.axis || "vertical";
+				var direction = options.direction;
+				var scale = options.scale || 1.0;
 
-			// Create new container element
-			let container = document.createElement("div");
-
-			container.id = this.id;
-			container.classList.add("epub-container");
-
-			// Style Element
-			// container.style.fontSize = "0";
-			container.style.wordSpacing = "0";
-			container.style.lineHeight = "0";
-			container.style.verticalAlign = "top";
-			container.style.position = "relative";
-
-			if (axis === "horizontal") {
-				// container.style.whiteSpace = "nowrap";
-				container.style.display = "flex";
-				container.style.flexDirection = "row";
-				container.style.flexWrap = "nowrap";
-			}
-
-			if (width) {
-				container.style.width = width;
-			}
-
-			if (height) {
-				container.style.height = height;
-			}
-
-			if (overflow) {
-				container.style.overflow = overflow;
-			}
-
-			if (direction) {
-				container.dir = direction;
-				container.style["direction"] = direction;
-			}
-
-			if (direction && this.settings.fullsize) {
-				document.body.style["direction"] = direction;
-			}
-
-			if (scale && scale > 1.0) {
-				container.style["transform-origin"] = "top left";
-				container.style["transform"] = "scale(" + scale + ")";
-				container.style.overflow = "visible";
-			} else {
-				container.style["transform-origin"] = null;
-				container.style["transform"] = null;
-			}
-
-			return container;
-		}
-
-		wrap(container) {
-			var wrapper = document.createElement("div");
-
-			wrapper.style.visibility = "hidden";
-			wrapper.style.overflow = "hidden";
-			wrapper.style.width = "0";
-			wrapper.style.height = "0";
-
-			wrapper.appendChild(container);
-			return wrapper;
-		}
-
-		getElement(_element) {
-			var element;
-
-			if (isElement(_element)) {
-				element = _element;
-			} else if (typeof _element === "string") {
-				element = document.getElementById(_element);
-			}
-
-			if (!element) {
-				throw new Error("Not an Element");
-			}
-
-			return element;
-		}
-
-		attachTo(what) {
-
-			var element = this.getElement(what);
-			var base;
-
-			if (!element) {
-				return;
-			}
-
-			if (this.settings.hidden) {
-				base = this.wrapper;
-			} else {
-				base = this.container;
-			}
-
-			element.appendChild(base);
-
-			this.element = element;
-
-			return element;
-		}
-
-		getContainer() {
-			return this.container;
-		}
-
-		onResize(func) {
-			// Only listen to window for resize event if width and height are not fixed.
-			// This applies if it is set to a percent or auto.
-			if (!isNumber(this.settings.width) || !isNumber(this.settings.height)) {
-				this.resizeFunc = throttle_1(func, 50);
-				window.addEventListener("resize", this.resizeFunc, false);
-			}
-		}
-
-		onOrientationChange(func) {
-			this.orientationChangeFunc = func;
-			window.addEventListener("orientationchange", this.orientationChangeFunc, false);
-		}
-
-		size(width, height) {
-			var bounds;
-			let _width = width || this.settings.width;
-			let _height = height || this.settings.height;
-
-			// If width or height are set to false, inherit them from containing element
-			if (width === null) {
-				bounds = this.element.getBoundingClientRect();
-
-				if (bounds.width) {
-					width = Math.floor(bounds.width);
-					this.container.style.width = width + "px";
+				if (options.height && isNumber(options.height)) {
+					height = options.height + "px";
 				}
-			} else {
-				if (isNumber(width)) {
-					this.container.style.width = width + "px";
+
+				if (options.width && isNumber(options.width)) {
+					width = options.width + "px";
+				}
+
+				// Create new container element
+				var container = document.createElement("div");
+
+				container.id = this.id;
+				container.classList.add("epub-container");
+
+				// Style Element
+				// container.style.fontSize = "0";
+				container.style.wordSpacing = "0";
+				container.style.lineHeight = "0";
+				container.style.verticalAlign = "top";
+				container.style.position = "relative";
+
+				if (axis === "horizontal") {
+					// container.style.whiteSpace = "nowrap";
+					container.style.display = "flex";
+					container.style.flexDirection = "row";
+					container.style.flexWrap = "nowrap";
+				}
+
+				if (width) {
+					container.style.width = width;
+				}
+
+				if (height) {
+					container.style.height = height;
+				}
+
+				if (overflow) {
+					container.style.overflow = overflow;
+				}
+
+				if (direction) {
+					container.dir = direction;
+					container.style["direction"] = direction;
+				}
+
+				if (direction && this.settings.fullsize) {
+					document.body.style["direction"] = direction;
+				}
+
+				if (scale && scale > 1.0) {
+					container.style["transform-origin"] = "top left";
+					container.style["transform"] = "scale(" + scale + ")";
+					container.style.overflow = "visible";
 				} else {
-					this.container.style.width = width;
+					container.style["transform-origin"] = null;
+					container.style["transform"] = null;
 				}
+
+				return container;
 			}
+		}, {
+			key: "wrap",
+			value: function wrap(container) {
+				var wrapper = document.createElement("div");
 
-			if (height === null) {
-				bounds = bounds || this.element.getBoundingClientRect();
+				wrapper.style.visibility = "hidden";
+				wrapper.style.overflow = "hidden";
+				wrapper.style.width = "0";
+				wrapper.style.height = "0";
 
-				if (bounds.height) {
-					height = bounds.height;
-					this.container.style.height = height + "px";
+				wrapper.appendChild(container);
+				return wrapper;
+			}
+		}, {
+			key: "getElement",
+			value: function getElement(_element) {
+				var element;
+
+				if (isElement(_element)) {
+					element = _element;
+				} else if (typeof _element === "string") {
+					element = document.getElementById(_element);
 				}
-			} else {
-				if (isNumber(height)) {
-					this.container.style.height = height + "px";
-				} else {
-					this.container.style.height = height;
+
+				if (!element) {
+					throw new Error("Not an Element");
 				}
+
+				return element;
 			}
+		}, {
+			key: "attachTo",
+			value: function attachTo(what) {
 
-			if (!isNumber(width)) {
-				bounds = this.container.getBoundingClientRect();
-				width = Math.floor(bounds.width);
-				//height = bounds.height;
-			}
+				var element = this.getElement(what);
+				var base;
 
-			if (!isNumber(height)) {
-				bounds = bounds || this.container.getBoundingClientRect();
-				//width = bounds.width;
-				height = bounds.height;
-			}
-
-			this.containerStyles = window.getComputedStyle(this.container);
-
-			this.containerPadding = {
-				left: parseFloat(this.containerStyles["padding-left"]) || 0,
-				right: parseFloat(this.containerStyles["padding-right"]) || 0,
-				top: parseFloat(this.containerStyles["padding-top"]) || 0,
-				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
-			};
-
-			// Bounds not set, get them from window
-			let _windowBounds = windowBounds();
-			let bodyStyles = window.getComputedStyle(document.body);
-			let bodyPadding = {
-				left: parseFloat(bodyStyles["padding-left"]) || 0,
-				right: parseFloat(bodyStyles["padding-right"]) || 0,
-				top: parseFloat(bodyStyles["padding-top"]) || 0,
-				bottom: parseFloat(bodyStyles["padding-bottom"]) || 0
-			};
-
-			if (!_width) {
-				width = _windowBounds.width - bodyPadding.left - bodyPadding.right;
-			}
-
-			if (this.settings.fullsize && !_height || !_height) {
-				height = _windowBounds.height - bodyPadding.top - bodyPadding.bottom;
-			}
-
-			return {
-				width: width - this.containerPadding.left - this.containerPadding.right,
-				height: height - this.containerPadding.top - this.containerPadding.bottom
-			};
-		}
-
-		bounds() {
-			let box;
-			if (this.container.style.overflow !== "visible") {
-				box = this.container && this.container.getBoundingClientRect();
-			}
-
-			if (!box || !box.width || !box.height) {
-				return windowBounds();
-			} else {
-				return box;
-			}
-		}
-
-		getSheet() {
-			var style = document.createElement("style");
-
-			// WebKit hack --> https://davidwalsh.name/add-rules-stylesheets
-			style.appendChild(document.createTextNode(""));
-
-			document.head.appendChild(style);
-
-			return style.sheet;
-		}
-
-		addStyleRules(selector, rulesArray) {
-			var scope = "#" + this.id + " ";
-			var rules = "";
-
-			if (!this.sheet) {
-				this.sheet = this.getSheet();
-			}
-
-			rulesArray.forEach(function (set) {
-				for (var prop in set) {
-					if (set.hasOwnProperty(prop)) {
-						rules += prop + ":" + set[prop] + ";";
-					}
+				if (!element) {
+					return;
 				}
-			});
-
-			this.sheet.insertRule(scope + selector + " {" + rules + "}", 0);
-		}
-
-		axis(axis) {
-			if (axis === "horizontal") {
-				this.container.style.display = "flex";
-				this.container.style.flexDirection = "row";
-				this.container.style.flexWrap = "nowrap";
-			} else {
-				this.container.style.display = "block";
-			}
-		}
-
-		// orientation(orientation) {
-		// 	if (orientation === "landscape") {
-		//
-		// 	} else {
-		//
-		// 	}
-		//
-		// 	this.orientation = orientation;
-		// }
-
-		direction(dir) {
-			if (this.container) {
-				this.container.dir = dir;
-				this.container.style["direction"] = dir;
-			}
-
-			if (this.settings.fullsize) {
-				document.body.style["direction"] = dir;
-			}
-		}
-
-		overflow(overflow) {
-			if (this.container) {
-				this.container.style["overflow"] = overflow;
-			}
-		}
-
-		scale(s) {
-			if (this.container) {
-				if (s > 1.0) {
-					this.container.style["transform-origin"] = "top left";
-					this.container.style["transform"] = "scale(" + s + ")";
-					this.container.style.overflow = "visible";
-				} else {
-					this.container.style.overflow = null;
-					this.container.style["transform-origin"] = null;
-					this.container.style["transform"] = null;
-				}
-				this.settings.scale = s;
-			}
-		}
-
-		destroy() {
-			var base;
-
-			if (this.element) {
 
 				if (this.settings.hidden) {
 					base = this.wrapper;
@@ -17317,182 +18029,443 @@
 					base = this.container;
 				}
 
-				if (this.element.contains(this.container)) {
-					this.element.removeChild(this.container);
+				element.appendChild(base);
+
+				this.element = element;
+
+				return element;
+			}
+		}, {
+			key: "getContainer",
+			value: function getContainer() {
+				return this.container;
+			}
+		}, {
+			key: "onResize",
+			value: function onResize(func) {
+				// Only listen to window for resize event if width and height are not fixed.
+				// This applies if it is set to a percent or auto.
+				if (!isNumber(this.settings.width) || !isNumber(this.settings.height)) {
+					this.resizeFunc = throttle_1(func, 50);
+					window.addEventListener("resize", this.resizeFunc, false);
+				}
+			}
+		}, {
+			key: "onOrientationChange",
+			value: function onOrientationChange(func) {
+				this.orientationChangeFunc = func;
+				window.addEventListener("orientationchange", this.orientationChangeFunc, false);
+			}
+		}, {
+			key: "size",
+			value: function size(width, height) {
+				var bounds;
+				var _width = width || this.settings.width;
+				var _height = height || this.settings.height;
+
+				// If width or height are set to false, inherit them from containing element
+				if (width === null) {
+					bounds = this.element.getBoundingClientRect();
+
+					if (bounds.width) {
+						width = Math.floor(bounds.width);
+						this.container.style.width = width + "px";
+					}
+				} else {
+					if (isNumber(width)) {
+						this.container.style.width = width + "px";
+					} else {
+						this.container.style.width = width;
+					}
 				}
 
-				window.removeEventListener("resize", this.resizeFunc);
-				window.removeEventListener("orientationChange", this.orientationChangeFunc);
-			}
-		}
-	}
+				if (height === null) {
+					bounds = bounds || this.element.getBoundingClientRect();
 
-	class Views {
-		constructor(container) {
+					if (bounds.height) {
+						height = bounds.height;
+						this.container.style.height = height + "px";
+					}
+				} else {
+					if (isNumber(height)) {
+						this.container.style.height = height + "px";
+					} else {
+						this.container.style.height = height;
+					}
+				}
+
+				if (!isNumber(width)) {
+					bounds = this.container.getBoundingClientRect();
+					width = Math.floor(bounds.width);
+					//height = bounds.height;
+				}
+
+				if (!isNumber(height)) {
+					bounds = bounds || this.container.getBoundingClientRect();
+					//width = bounds.width;
+					height = bounds.height;
+				}
+
+				this.containerStyles = window.getComputedStyle(this.container);
+
+				this.containerPadding = {
+					left: parseFloat(this.containerStyles["padding-left"]) || 0,
+					right: parseFloat(this.containerStyles["padding-right"]) || 0,
+					top: parseFloat(this.containerStyles["padding-top"]) || 0,
+					bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
+				};
+
+				// Bounds not set, get them from window
+				var _windowBounds = windowBounds();
+				var bodyStyles = window.getComputedStyle(document.body);
+				var bodyPadding = {
+					left: parseFloat(bodyStyles["padding-left"]) || 0,
+					right: parseFloat(bodyStyles["padding-right"]) || 0,
+					top: parseFloat(bodyStyles["padding-top"]) || 0,
+					bottom: parseFloat(bodyStyles["padding-bottom"]) || 0
+				};
+
+				if (!_width) {
+					width = _windowBounds.width - bodyPadding.left - bodyPadding.right;
+				}
+
+				if (this.settings.fullsize && !_height || !_height) {
+					height = _windowBounds.height - bodyPadding.top - bodyPadding.bottom;
+				}
+
+				return {
+					width: width - this.containerPadding.left - this.containerPadding.right,
+					height: height - this.containerPadding.top - this.containerPadding.bottom
+				};
+			}
+		}, {
+			key: "bounds",
+			value: function bounds() {
+				var box = void 0;
+				if (this.container.style.overflow !== "visible") {
+					box = this.container && this.container.getBoundingClientRect();
+				}
+
+				if (!box || !box.width || !box.height) {
+					return windowBounds();
+				} else {
+					return box;
+				}
+			}
+		}, {
+			key: "getSheet",
+			value: function getSheet() {
+				var style = document.createElement("style");
+
+				// WebKit hack --> https://davidwalsh.name/add-rules-stylesheets
+				style.appendChild(document.createTextNode(""));
+
+				document.head.appendChild(style);
+
+				return style.sheet;
+			}
+		}, {
+			key: "addStyleRules",
+			value: function addStyleRules(selector, rulesArray) {
+				var scope = "#" + this.id + " ";
+				var rules = "";
+
+				if (!this.sheet) {
+					this.sheet = this.getSheet();
+				}
+
+				rulesArray.forEach(function (set) {
+					for (var prop in set) {
+						if (set.hasOwnProperty(prop)) {
+							rules += prop + ":" + set[prop] + ";";
+						}
+					}
+				});
+
+				this.sheet.insertRule(scope + selector + " {" + rules + "}", 0);
+			}
+		}, {
+			key: "axis",
+			value: function axis(_axis) {
+				if (_axis === "horizontal") {
+					this.container.style.display = "flex";
+					this.container.style.flexDirection = "row";
+					this.container.style.flexWrap = "nowrap";
+				} else {
+					this.container.style.display = "block";
+				}
+			}
+
+			// orientation(orientation) {
+			// 	if (orientation === "landscape") {
+			//
+			// 	} else {
+			//
+			// 	}
+			//
+			// 	this.orientation = orientation;
+			// }
+
+		}, {
+			key: "direction",
+			value: function direction(dir) {
+				if (this.container) {
+					this.container.dir = dir;
+					this.container.style["direction"] = dir;
+				}
+
+				if (this.settings.fullsize) {
+					document.body.style["direction"] = dir;
+				}
+			}
+		}, {
+			key: "overflow",
+			value: function overflow(_overflow) {
+				if (this.container) {
+					this.container.style["overflow"] = _overflow;
+				}
+			}
+		}, {
+			key: "scale",
+			value: function scale(s) {
+				if (this.container) {
+					if (s > 1.0) {
+						this.container.style["transform-origin"] = "top left";
+						this.container.style["transform"] = "scale(" + s + ")";
+						this.container.style.overflow = "visible";
+					} else {
+						this.container.style.overflow = null;
+						this.container.style["transform-origin"] = null;
+						this.container.style["transform"] = null;
+					}
+					this.settings.scale = s;
+				}
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				var base;
+
+				if (this.element) {
+
+					if (this.settings.hidden) {
+						base = this.wrapper;
+					} else {
+						base = this.container;
+					}
+
+					if (this.element.contains(this.container)) {
+						this.element.removeChild(this.container);
+					}
+
+					window.removeEventListener("resize", this.resizeFunc);
+					window.removeEventListener("orientationChange", this.orientationChangeFunc);
+				}
+			}
+		}]);
+
+		return Stage;
+	}();
+
+	var _createClass$l = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$l(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Views = function () {
+		function Views(container) {
+			_classCallCheck$l(this, Views);
+
 			this.container = container;
 			this._views = [];
 			this.length = 0;
 			this.hidden = false;
 		}
 
-		all() {
-			return this._views;
-		}
-
-		first() {
-			return this._views[0];
-		}
-
-		last() {
-			return this._views[this._views.length - 1];
-		}
-
-		indexOf(view) {
-			return this._views.indexOf(view);
-		}
-
-		slice() {
-			return this._views.slice.apply(this._views, arguments);
-		}
-
-		get(i) {
-			return this._views[i];
-		}
-
-		append(view) {
-			this._views.push(view);
-			if (this.container) {
-				this.container.appendChild(view.element);
+		_createClass$l(Views, [{
+			key: "all",
+			value: function all() {
+				return this._views;
 			}
-			this.length++;
-			return view;
-		}
-
-		prepend(view) {
-			this._views.unshift(view);
-			if (this.container) {
-				this.container.insertBefore(view.element, this.container.firstChild);
+		}, {
+			key: "first",
+			value: function first() {
+				return this._views[0];
 			}
-			this.length++;
-			return view;
-		}
-
-		insert(view, index) {
-			this._views.splice(index, 0, view);
-
-			if (this.container) {
-				if (index < this.container.children.length) {
-					this.container.insertBefore(view.element, this.container.children[index]);
-				} else {
+		}, {
+			key: "last",
+			value: function last() {
+				return this._views[this._views.length - 1];
+			}
+		}, {
+			key: "indexOf",
+			value: function indexOf(view) {
+				return this._views.indexOf(view);
+			}
+		}, {
+			key: "slice",
+			value: function slice() {
+				return this._views.slice.apply(this._views, arguments);
+			}
+		}, {
+			key: "get",
+			value: function get(i) {
+				return this._views[i];
+			}
+		}, {
+			key: "append",
+			value: function append(view) {
+				this._views.push(view);
+				if (this.container) {
 					this.container.appendChild(view.element);
 				}
+				this.length++;
+				return view;
 			}
-
-			this.length++;
-			return view;
-		}
-
-		remove(view) {
-			var index = this._views.indexOf(view);
-
-			if (index > -1) {
-				this._views.splice(index, 1);
+		}, {
+			key: "prepend",
+			value: function prepend(view) {
+				this._views.unshift(view);
+				if (this.container) {
+					this.container.insertBefore(view.element, this.container.firstChild);
+				}
+				this.length++;
+				return view;
 			}
+		}, {
+			key: "insert",
+			value: function insert(view, index) {
+				this._views.splice(index, 0, view);
 
-			this.destroy(view);
+				if (this.container) {
+					if (index < this.container.children.length) {
+						this.container.insertBefore(view.element, this.container.children[index]);
+					} else {
+						this.container.appendChild(view.element);
+					}
+				}
 
-			this.length--;
-		}
-
-		destroy(view) {
-			if (view.displayed) {
-				view.destroy();
+				this.length++;
+				return view;
 			}
+		}, {
+			key: "remove",
+			value: function remove(view) {
+				var index = this._views.indexOf(view);
 
-			if (this.container) {
-				this.container.removeChild(view.element);
-			}
-			view = null;
-		}
+				if (index > -1) {
+					this._views.splice(index, 1);
+				}
 
-		// Iterators
-
-		forEach() {
-			return this._views.forEach.apply(this._views, arguments);
-		}
-
-		clear() {
-			// Remove all views
-			var view;
-			var len = this.length;
-
-			if (!this.length) return;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
 				this.destroy(view);
+
+				this.length--;
 			}
-
-			this._views = [];
-			this.length = 0;
-		}
-
-		find(section) {
-
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed && view.section.index == section.index) {
-					return view;
-				}
-			}
-		}
-
-		displayed() {
-			var displayed = [];
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
+		}, {
+			key: "destroy",
+			value: function destroy(view) {
 				if (view.displayed) {
-					displayed.push(view);
+					view.destroy();
+				}
+
+				if (this.container) {
+					this.container.removeChild(view.element);
+				}
+				view = null;
+			}
+
+			// Iterators
+
+		}, {
+			key: "forEach",
+			value: function forEach() {
+				return this._views.forEach.apply(this._views, arguments);
+			}
+		}, {
+			key: "clear",
+			value: function clear() {
+				// Remove all views
+				var view;
+				var len = this.length;
+
+				if (!this.length) return;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					this.destroy(view);
+				}
+
+				this._views = [];
+				this.length = 0;
+			}
+		}, {
+			key: "find",
+			value: function find(section) {
+
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed && view.section.index == section.index) {
+						return view;
+					}
 				}
 			}
-			return displayed;
-		}
+		}, {
+			key: "displayed",
+			value: function displayed() {
+				var displayed = [];
+				var view;
+				var len = this.length;
 
-		show() {
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed) {
-					view.show();
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						displayed.push(view);
+					}
 				}
+				return displayed;
 			}
-			this.hidden = false;
-		}
+		}, {
+			key: "show",
+			value: function show() {
+				var view;
+				var len = this.length;
 
-		hide() {
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed) {
-					view.hide();
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.show();
+					}
 				}
+				this.hidden = false;
 			}
-			this.hidden = true;
-		}
-	}
+		}, {
+			key: "hide",
+			value: function hide() {
+				var view;
+				var len = this.length;
 
-	class DefaultViewManager {
-		constructor(options) {
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.hide();
+					}
+				}
+				this.hidden = true;
+			}
+		}]);
+
+		return Views;
+	}();
+
+	var _createClass$m = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$m(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var DefaultViewManager = function () {
+		function DefaultViewManager(options) {
+			_classCallCheck$m(this, DefaultViewManager);
 
 			this.name = "default";
 			this.optsSettings = options.settings;
@@ -17528,900 +18501,970 @@
 			this.rendered = false;
 		}
 
-		render(element, size) {
-			let tag = element.tagName;
+		_createClass$m(DefaultViewManager, [{
+			key: "render",
+			value: function render(element, size) {
+				var tag = element.tagName;
 
-			if (typeof this.settings.fullsize === "undefined" && tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
-				this.settings.fullsize = true;
+				if (typeof this.settings.fullsize === "undefined" && tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
+					this.settings.fullsize = true;
+				}
+
+				if (this.settings.fullsize) {
+					this.settings.overflow = "visible";
+					this.overflow = this.settings.overflow;
+				}
+
+				this.settings.size = size;
+
+				// Save the stage
+				this.stage = new Stage({
+					width: size.width,
+					height: size.height,
+					overflow: this.overflow,
+					hidden: this.settings.hidden,
+					axis: this.settings.axis,
+					fullsize: this.settings.fullsize,
+					direction: this.settings.direction,
+					scale: this.settings.scale
+				});
+
+				this.stage.attachTo(element);
+
+				// Get this stage container div
+				this.container = this.stage.getContainer();
+
+				// Views array methods
+				this.views = new Views(this.container);
+
+				// Calculate Stage Size
+				this._bounds = this.bounds();
+				this._stageSize = this.stage.size();
+
+				// Set the dimensions for views
+				this.viewSettings.width = this._stageSize.width;
+				this.viewSettings.height = this._stageSize.height;
+
+				// Function to handle a resize event.
+				// Will only attach if width and height are both fixed.
+				this.stage.onResize(this.onResized.bind(this));
+
+				this.stage.onOrientationChange(this.onOrientationChange.bind(this));
+
+				// Add Event Listeners
+				this.addEventListeners();
+
+				// Add Layout method
+				// this.applyLayoutMethod();
+				if (this.layout) {
+					this.updateLayout();
+				}
+
+				this.rendered = true;
 			}
+		}, {
+			key: "addEventListeners",
+			value: function addEventListeners() {
+				var scroller;
 
-			if (this.settings.fullsize) {
-				this.settings.overflow = "visible";
-				this.overflow = this.settings.overflow;
+				window.addEventListener("unload", function (e) {
+					this.destroy();
+				}.bind(this));
+
+				if (!this.settings.fullsize) {
+					scroller = this.container;
+				} else {
+					scroller = window;
+				}
+
+				this._onScroll = this.onScroll.bind(this);
+				scroller.addEventListener("scroll", this._onScroll);
 			}
+		}, {
+			key: "removeEventListeners",
+			value: function removeEventListeners() {
+				var scroller;
 
-			this.settings.size = size;
+				if (!this.settings.fullsize) {
+					scroller = this.container;
+				} else {
+					scroller = window;
+				}
 
-			// Save the stage
-			this.stage = new Stage({
-				width: size.width,
-				height: size.height,
-				overflow: this.overflow,
-				hidden: this.settings.hidden,
-				axis: this.settings.axis,
-				fullsize: this.settings.fullsize,
-				direction: this.settings.direction,
-				scale: this.settings.scale
-			});
-
-			this.stage.attachTo(element);
-
-			// Get this stage container div
-			this.container = this.stage.getContainer();
-
-			// Views array methods
-			this.views = new Views(this.container);
-
-			// Calculate Stage Size
-			this._bounds = this.bounds();
-			this._stageSize = this.stage.size();
-
-			// Set the dimensions for views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			// Function to handle a resize event.
-			// Will only attach if width and height are both fixed.
-			this.stage.onResize(this.onResized.bind(this));
-
-			this.stage.onOrientationChange(this.onOrientationChange.bind(this));
-
-			// Add Event Listeners
-			this.addEventListeners();
-
-			// Add Layout method
-			// this.applyLayoutMethod();
-			if (this.layout) {
-				this.updateLayout();
+				scroller.removeEventListener("scroll", this._onScroll);
+				this._onScroll = undefined;
 			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				clearTimeout(this.orientationTimeout);
+				clearTimeout(this.resizeTimeout);
+				clearTimeout(this.afterScrolled);
 
-			this.rendered = true;
-		}
+				this.clear();
 
-		addEventListeners() {
-			var scroller;
+				this.removeEventListeners();
 
-			window.addEventListener("unload", function (e) {
-				this.destroy();
-			}.bind(this));
+				this.stage.destroy();
 
-			if (!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
+				this.rendered = false;
+
+				/*
+	   		clearTimeout(this.trimTimeout);
+	   	if(this.settings.hidden) {
+	   		this.element.removeChild(this.wrapper);
+	   	} else {
+	   		this.element.removeChild(this.container);
+	   	}
+	   */
 			}
+		}, {
+			key: "onOrientationChange",
+			value: function onOrientationChange(e) {
+				var _window = window,
+				    orientation = _window.orientation;
 
-			this._onScroll = this.onScroll.bind(this);
-			scroller.addEventListener("scroll", this._onScroll);
-		}
-
-		removeEventListeners() {
-			var scroller;
-
-			if (!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this._onScroll);
-			this._onScroll = undefined;
-		}
-
-		destroy() {
-			clearTimeout(this.orientationTimeout);
-			clearTimeout(this.resizeTimeout);
-			clearTimeout(this.afterScrolled);
-
-			this.clear();
-
-			this.removeEventListeners();
-
-			this.stage.destroy();
-
-			this.rendered = false;
-
-			/*
-	  		clearTimeout(this.trimTimeout);
-	  	if(this.settings.hidden) {
-	  		this.element.removeChild(this.wrapper);
-	  	} else {
-	  		this.element.removeChild(this.container);
-	  	}
-	  */
-		}
-
-		onOrientationChange(e) {
-			let { orientation } = window;
-
-			if (this.optsSettings.resizeOnOrientationChange) {
-				this.resize();
-			}
-
-			// Per ampproject:
-			// In IOS 10.3, the measured size of an element is incorrect if the
-			// element size depends on window size directly and the measurement
-			// happens in window.resize event. Adding a timeout for correct
-			// measurement. See https://github.com/ampproject/amphtml/issues/8479
-			clearTimeout(this.orientationTimeout);
-			this.orientationTimeout = setTimeout(function () {
-				this.orientationTimeout = undefined;
 
 				if (this.optsSettings.resizeOnOrientationChange) {
 					this.resize();
 				}
 
-				this.emit(EVENTS.MANAGERS.ORIENTATION_CHANGE, orientation);
-			}.bind(this), 500);
-		}
+				// Per ampproject:
+				// In IOS 10.3, the measured size of an element is incorrect if the
+				// element size depends on window size directly and the measurement
+				// happens in window.resize event. Adding a timeout for correct
+				// measurement. See https://github.com/ampproject/amphtml/issues/8479
+				clearTimeout(this.orientationTimeout);
+				this.orientationTimeout = setTimeout(function () {
+					this.orientationTimeout = undefined;
 
-		onResized(e) {
-			this.resize();
-		}
+					if (this.optsSettings.resizeOnOrientationChange) {
+						this.resize();
+					}
 
-		resize(width, height) {
-			let stageSize = this.stage.size(width, height);
-
-			// For Safari, wait for orientation to catch up
-			// if the window is a square
-			this.winBounds = windowBounds();
-			if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
-				// reset the stage size for next resize
-				this._stageSize = undefined;
-				return;
+					this.emit(EVENTS.MANAGERS.ORIENTATION_CHANGE, orientation);
+				}.bind(this), 500);
 			}
-
-			if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
-				// Size is the same, no need to resize
-				return;
+		}, {
+			key: "onResized",
+			value: function onResized(e) {
+				this.resize();
 			}
+		}, {
+			key: "resize",
+			value: function resize(width, height) {
+				var stageSize = this.stage.size(width, height);
 
-			this._stageSize = stageSize;
-
-			this._bounds = this.bounds();
-
-			// Clear current views
-			this.clear();
-
-			// Update for new views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			this.updateLayout();
-
-			this.emit(EVENTS.MANAGERS.RESIZED, {
-				width: this._stageSize.width,
-				height: this._stageSize.height
-			});
-		}
-
-		createView(section) {
-			return new this.View(section, this.viewSettings);
-		}
-
-		display(section, target) {
-
-			var displaying = new defer();
-			var displayed = displaying.promise;
-
-			// Check if moving to target is needed
-			if (target === section.href || isNumber(target)) {
-				target = undefined;
-			}
-
-			// Check to make sure the section we want isn't already shown
-			var visible = this.views.find(section);
-
-			// View is already shown, just move to correct location in view
-			if (visible && section) {
-				let offset = visible.offset();
-
-				if (this.settings.direction === "ltr") {
-					this.scrollTo(offset.left, offset.top, true);
-				} else {
-					let width = visible.width();
-					this.scrollTo(offset.left + width, offset.top, true);
+				// For Safari, wait for orientation to catch up
+				// if the window is a square
+				this.winBounds = windowBounds();
+				if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
+					// reset the stage size for next resize
+					this._stageSize = undefined;
+					return;
 				}
 
-				if (target) {
-					let offset = visible.locationOf(target);
-					this.moveTo(offset);
+				if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
+					// Size is the same, no need to resize
+					return;
 				}
 
-				displaying.resolve();
+				this._stageSize = stageSize;
+
+				this._bounds = this.bounds();
+
+				// Clear current views
+				this.clear();
+
+				// Update for new views
+				this.viewSettings.width = this._stageSize.width;
+				this.viewSettings.height = this._stageSize.height;
+
+				this.updateLayout();
+
+				this.emit(EVENTS.MANAGERS.RESIZED, {
+					width: this._stageSize.width,
+					height: this._stageSize.height
+				});
+			}
+		}, {
+			key: "createView",
+			value: function createView(section) {
+				return new this.View(section, this.viewSettings);
+			}
+		}, {
+			key: "display",
+			value: function display(section, target) {
+
+				var displaying = new defer();
+				var displayed = displaying.promise;
+
+				// Check if moving to target is needed
+				if (target === section.href || isNumber(target)) {
+					target = undefined;
+				}
+
+				// Check to make sure the section we want isn't already shown
+				var visible = this.views.find(section);
+
+				// View is already shown, just move to correct location in view
+				if (visible && section) {
+					var offset = visible.offset();
+
+					if (this.settings.direction === "ltr") {
+						this.scrollTo(offset.left, offset.top, true);
+					} else {
+						var width = visible.width();
+						this.scrollTo(offset.left + width, offset.top, true);
+					}
+
+					if (target) {
+						var _offset = visible.locationOf(target);
+						this.moveTo(_offset);
+					}
+
+					displaying.resolve();
+					return displayed;
+				}
+
+				// Hide all current views
+				this.clear();
+
+				this.add(section).then(function (view) {
+
+					// Move to correct place within the section, if needed
+					if (target) {
+						var _offset2 = view.locationOf(target);
+						this.moveTo(_offset2);
+					}
+				}.bind(this), function (err) {
+					displaying.reject(err);
+				}).then(function () {
+					var next;
+					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1 && section.index > 0) {
+						// First page (cover) should stand alone for pre-paginated books
+						next = section.next();
+						if (next) {
+							return this.add(next);
+						}
+					}
+				}.bind(this)).then(function () {
+
+					this.views.show();
+
+					displaying.resolve();
+				}.bind(this));
+				// .then(function(){
+				// 	return this.hooks.display.trigger(view);
+				// }.bind(this))
+				// .then(function(){
+				// 	this.views.show();
+				// }.bind(this));
 				return displayed;
 			}
+		}, {
+			key: "afterDisplayed",
+			value: function afterDisplayed(view) {
+				this.emit(EVENTS.MANAGERS.ADDED, view);
+			}
+		}, {
+			key: "afterResized",
+			value: function afterResized(view) {
+				this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+			}
+		}, {
+			key: "moveTo",
+			value: function moveTo(offset) {
+				var distX = 0,
+				    distY = 0;
 
-			// Hide all current views
-			this.clear();
+				if (!this.isPaginated) {
+					distY = offset.top;
+				} else {
+					distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
 
-			this.add(section).then(function (view) {
-
-				// Move to correct place within the section, if needed
-				if (target) {
-					let offset = view.locationOf(target);
-					this.moveTo(offset);
+					if (distX + this.layout.delta > this.container.scrollWidth) {
+						distX = this.container.scrollWidth - this.layout.delta;
+					}
 				}
-			}.bind(this), err => {
-				displaying.reject(err);
-			}).then(function () {
+				this.scrollTo(distX, distY, true);
+			}
+		}, {
+			key: "add",
+			value: function add(section) {
+				var _this = this;
+
+				var view = this.createView(section);
+
+				this.views.append(view);
+
+				// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+				view.onDisplayed = this.afterDisplayed.bind(this);
+				view.onResize = this.afterResized.bind(this);
+
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this.updateAxis(axis);
+				});
+
+				return view.display(this.request);
+			}
+		}, {
+			key: "append",
+			value: function append(section) {
+				var _this2 = this;
+
+				var view = this.createView(section);
+				this.views.append(view);
+
+				view.onDisplayed = this.afterDisplayed.bind(this);
+				view.onResize = this.afterResized.bind(this);
+
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this2.updateAxis(axis);
+				});
+
+				return view.display(this.request);
+			}
+		}, {
+			key: "prepend",
+			value: function prepend(section) {
+				var _this3 = this;
+
+				var view = this.createView(section);
+
+				view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+					_this3.counter(bounds);
+				});
+
+				this.views.prepend(view);
+
+				view.onDisplayed = this.afterDisplayed.bind(this);
+				view.onResize = this.afterResized.bind(this);
+
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this3.updateAxis(axis);
+				});
+
+				return view.display(this.request);
+			}
+		}, {
+			key: "counter",
+			value: function counter(bounds) {
+				if (this.settings.axis === "vertical") {
+					this.scrollBy(0, bounds.heightDelta, true);
+				} else {
+					this.scrollBy(bounds.widthDelta, 0, true);
+				}
+			}
+
+			// resizeView(view) {
+			//
+			// 	if(this.settings.globalLayoutProperties.layout === "pre-paginated") {
+			// 		view.lock("both", this.bounds.width, this.bounds.height);
+			// 	} else {
+			// 		view.lock("width", this.bounds.width, this.bounds.height);
+			// 	}
+			//
+			// };
+
+		}, {
+			key: "next",
+			value: function next() {
 				var next;
-				if (this.layout.name === "pre-paginated" && this.layout.divisor > 1 && section.index > 0) {
-					// First page (cover) should stand alone for pre-paginated books
-					next = section.next();
-					if (next) {
-						return this.add(next);
+				var left;
+
+				var dir = this.settings.direction;
+
+				if (!this.views.length) return;
+
+				if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
+
+					this.scrollLeft = this.container.scrollLeft;
+
+					left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
+
+					if (left <= this.container.scrollWidth) {
+						this.scrollBy(this.layout.delta, 0, true);
+					} else {
+						next = this.views.last().section.next();
 					}
-				}
-			}.bind(this)).then(function () {
+				} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
 
-				this.views.show();
+					this.scrollLeft = this.container.scrollLeft;
 
-				displaying.resolve();
-			}.bind(this));
-			// .then(function(){
-			// 	return this.hooks.display.trigger(view);
-			// }.bind(this))
-			// .then(function(){
-			// 	this.views.show();
-			// }.bind(this));
-			return displayed;
-		}
+					left = this.container.scrollLeft;
 
-		afterDisplayed(view) {
-			this.emit(EVENTS.MANAGERS.ADDED, view);
-		}
+					if (left > 0) {
+						this.scrollBy(this.layout.delta, 0, true);
+					} else {
+						next = this.views.last().section.next();
+					}
+				} else if (this.isPaginated && this.settings.axis === "vertical") {
 
-		afterResized(view) {
-			this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-		}
+					this.scrollTop = this.container.scrollTop;
 
-		moveTo(offset) {
-			var distX = 0,
-			    distY = 0;
+					var top = this.container.scrollTop + this.container.offsetHeight;
 
-			if (!this.isPaginated) {
-				distY = offset.top;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-
-				if (distX + this.layout.delta > this.container.scrollWidth) {
-					distX = this.container.scrollWidth - this.layout.delta;
-				}
-			}
-			this.scrollTo(distX, distY, true);
-		}
-
-		add(section) {
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-
-		append(section) {
-			var view = this.createView(section);
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-
-		prepend(section) {
-			var view = this.createView(section);
-
-			view.on(EVENTS.VIEWS.RESIZED, bounds => {
-				this.counter(bounds);
-			});
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-
-		counter(bounds) {
-			if (this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-
-		// resizeView(view) {
-		//
-		// 	if(this.settings.globalLayoutProperties.layout === "pre-paginated") {
-		// 		view.lock("both", this.bounds.width, this.bounds.height);
-		// 	} else {
-		// 		view.lock("width", this.bounds.width, this.bounds.height);
-		// 	}
-		//
-		// };
-
-		next() {
-			var next;
-			var left;
-
-			let dir = this.settings.direction;
-
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if (left <= this.container.scrollWidth) {
-					this.scrollBy(this.layout.delta, 0, true);
+					if (top < this.container.scrollHeight) {
+						this.scrollBy(0, this.layout.height, true);
+					} else {
+						next = this.views.last().section.next();
+					}
 				} else {
 					next = this.views.last().section.next();
 				}
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
 
-				this.scrollLeft = this.container.scrollLeft;
+				if (next) {
+					this.clear();
 
-				left = this.container.scrollLeft;
-
-				if (left > 0) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				let top = this.container.scrollTop + this.container.offsetHeight;
-
-				if (top < this.container.scrollHeight) {
-					this.scrollBy(0, this.layout.height, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else {
-				next = this.views.last().section.next();
-			}
-
-			if (next) {
-				this.clear();
-
-				return this.append(next).then(function () {
-					var right;
-					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-						right = next.next();
-						if (right) {
-							return this.append(right);
+					return this.append(next).then(function () {
+						var right;
+						if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+							right = next.next();
+							if (right) {
+								return this.append(right);
+							}
 						}
-					}
-				}.bind(this), err => {
-					return err;
-				}).then(function () {
-					this.views.show();
-				}.bind(this));
+					}.bind(this), function (err) {
+						return err;
+					}).then(function () {
+						this.views.show();
+					}.bind(this));
+				}
 			}
-		}
+		}, {
+			key: "prev",
+			value: function prev() {
+				var prev;
+				var left;
+				var dir = this.settings.direction;
 
-		prev() {
-			var prev;
-			var left;
-			let dir = this.settings.direction;
+				if (!this.views.length) return;
 
-			if (!this.views.length) return;
+				if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
 
-			if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
+					this.scrollLeft = this.container.scrollLeft;
 
-				this.scrollLeft = this.container.scrollLeft;
+					left = this.container.scrollLeft;
 
-				left = this.container.scrollLeft;
+					if (left > 0) {
+						this.scrollBy(-this.layout.delta, 0, true);
+					} else {
+						prev = this.views.first().section.prev();
+					}
+				} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
 
-				if (left > 0) {
-					this.scrollBy(-this.layout.delta, 0, true);
+					this.scrollLeft = this.container.scrollLeft;
+
+					left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
+
+					if (left <= this.container.scrollWidth) {
+						this.scrollBy(-this.layout.delta, 0, true);
+					} else {
+						prev = this.views.first().section.prev();
+					}
+				} else if (this.isPaginated && this.settings.axis === "vertical") {
+
+					this.scrollTop = this.container.scrollTop;
+
+					var top = this.container.scrollTop;
+
+					if (top > 0) {
+						this.scrollBy(0, -this.layout.height, true);
+					} else {
+						prev = this.views.first().section.prev();
+					}
 				} else {
+
 					prev = this.views.first().section.prev();
 				}
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
 
-				this.scrollLeft = this.container.scrollLeft;
+				if (prev) {
+					this.clear();
 
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if (left <= this.container.scrollWidth) {
-					this.scrollBy(-this.layout.delta, 0, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				let top = this.container.scrollTop;
-
-				if (top > 0) {
-					this.scrollBy(0, -this.layout.height, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-			} else {
-
-				prev = this.views.first().section.prev();
-			}
-
-			if (prev) {
-				this.clear();
-
-				return this.prepend(prev).then(function () {
-					var left;
-					if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-						left = prev.prev();
-						if (left) {
-							return this.prepend(left);
+					return this.prepend(prev).then(function () {
+						var left;
+						if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
+							left = prev.prev();
+							if (left) {
+								return this.prepend(left);
+							}
 						}
-					}
-				}.bind(this), err => {
-					return err;
-				}).then(function () {
-					if (this.isPaginated && this.settings.axis === "horizontal") {
-						if (this.settings.direction === "rtl") {
-							this.scrollTo(0, 0, true);
-						} else {
-							this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+					}.bind(this), function (err) {
+						return err;
+					}).then(function () {
+						if (this.isPaginated && this.settings.axis === "horizontal") {
+							if (this.settings.direction === "rtl") {
+								this.scrollTo(0, 0, true);
+							} else {
+								this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
+							}
 						}
+						this.views.show();
+					}.bind(this));
+				}
+			}
+		}, {
+			key: "current",
+			value: function current() {
+				var visible = this.visible();
+				if (visible.length) {
+					// Current is the last visible view
+					return visible[visible.length - 1];
+				}
+				return null;
+			}
+		}, {
+			key: "clear",
+			value: function clear() {
+
+				// this.q.clear();
+
+				if (this.views) {
+					this.views.hide();
+					this.scrollTo(0, 0, true);
+					this.views.clear();
+				}
+			}
+		}, {
+			key: "currentLocation",
+			value: function currentLocation() {
+
+				if (this.settings.axis === "vertical") {
+					this.location = this.scrolledLocation();
+				} else {
+					this.location = this.paginatedLocation();
+				}
+				return this.location;
+			}
+		}, {
+			key: "scrolledLocation",
+			value: function scrolledLocation() {
+				var _this4 = this;
+
+				var visible = this.visible();
+				var container = this.container.getBoundingClientRect();
+				var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
+
+				var offset = 0;
+				var used = 0;
+
+				if (this.settings.fullsize) {
+					offset = window.scrollY;
+				}
+
+				var sections = visible.map(function (view) {
+					var _view$section = view.section,
+					    index = _view$section.index,
+					    href = _view$section.href;
+
+					var position = view.position();
+					var height = view.height();
+
+					var startPos = offset + container.top - position.top + used;
+					var endPos = startPos + pageHeight - used;
+					if (endPos > height) {
+						endPos = height;
+						used = endPos - startPos;
 					}
-					this.views.show();
-				}.bind(this));
-			}
-		}
 
-		current() {
-			var visible = this.visible();
-			if (visible.length) {
-				// Current is the last visible view
-				return visible[visible.length - 1];
-			}
-			return null;
-		}
+					var totalPages = _this4.layout.count(height, pageHeight).pages;
 
-		clear() {
+					var currPage = Math.ceil(startPos / pageHeight);
+					var pages = [];
+					var endPage = Math.ceil(endPos / pageHeight);
 
-			// this.q.clear();
+					pages = [];
+					for (var i = currPage; i <= endPage; i++) {
+						var pg = i + 1;
+						pages.push(pg);
+					}
 
-			if (this.views) {
-				this.views.hide();
-				this.scrollTo(0, 0, true);
-				this.views.clear();
-			}
-		}
+					var mapping = _this4.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
 
-		currentLocation() {
-
-			if (this.settings.axis === "vertical") {
-				this.location = this.scrolledLocation();
-			} else {
-				this.location = this.paginatedLocation();
-			}
-			return this.location;
-		}
-
-		scrolledLocation() {
-			let visible = this.visible();
-			let container = this.container.getBoundingClientRect();
-			let pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
-
-			let offset = 0;
-			let used = 0;
-
-			if (this.settings.fullsize) {
-				offset = window.scrollY;
-			}
-
-			let sections = visible.map(view => {
-				let { index, href } = view.section;
-				let position = view.position();
-				let height = view.height();
-
-				let startPos = offset + container.top - position.top + used;
-				let endPos = startPos + pageHeight - used;
-				if (endPos > height) {
-					endPos = height;
-					used = endPos - startPos;
-				}
-
-				let totalPages = this.layout.count(height, pageHeight).pages;
-
-				let currPage = Math.ceil(startPos / pageHeight);
-				let pages = [];
-				let endPage = Math.ceil(endPos / pageHeight);
-
-				pages = [];
-				for (var i = currPage; i <= endPage; i++) {
-					let pg = i + 1;
-					pages.push(pg);
-				}
-
-				let mapping = this.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
-
-				return {
-					index,
-					href,
-					pages,
-					totalPages,
-					mapping
-				};
-			});
-
-			return sections;
-		}
-
-		paginatedLocation() {
-			let visible = this.visible();
-			let container = this.container.getBoundingClientRect();
-
-			let left = 0;
-			let used = 0;
-
-			if (this.settings.fullsize) {
-				left = window.scrollX;
-			}
-
-			let sections = visible.map(view => {
-				let { index, href } = view.section;
-				let offset = view.offset().left;
-				let position = view.position().left;
-				let width = view.width();
-
-				// Find mapping
-				let start = left + container.left - position + used;
-				let end = start + this.layout.width - used;
-
-				let mapping = this.mapping.page(view.contents, view.section.cfiBase, start, end);
-
-				// Find displayed pages
-				//console.log("pre", end, offset + width);
-				// if (end > offset + width) {
-				// 	end = offset + width;
-				// 	used = this.layout.pageWidth;
-				// }
-				// console.log("post", end);
-
-				let totalPages = this.layout.count(width).pages;
-				let startPage = Math.floor(start / this.layout.pageWidth);
-				let pages = [];
-				let endPage = Math.floor(end / this.layout.pageWidth);
-
-				// start page should not be negative
-				if (startPage < 0) {
-					startPage = 0;
-					endPage = endPage + 1;
-				}
-
-				// Reverse page counts for rtl
-				if (this.settings.direction === "rtl") {
-					let tempStartPage = startPage;
-					startPage = totalPages - endPage;
-					endPage = totalPages - tempStartPage;
-				}
-
-				for (var i = startPage + 1; i <= endPage; i++) {
-					let pg = i;
-					pages.push(pg);
-				}
-
-				return {
-					index,
-					href,
-					pages,
-					totalPages,
-					mapping
-				};
-			});
-
-			return sections;
-		}
-
-		isVisible(view, offsetPrev, offsetNext, _container) {
-			var position = view.position();
-			var container = _container || this.bounds();
-
-			if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
-
-				return true;
-			} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev && position.top < container.bottom + offsetNext) {
-
-				return true;
-			}
-
-			return false;
-		}
-
-		visible() {
-			var container = this.bounds();
-			var views = this.views.displayed();
-			var viewsLength = views.length;
-			var visible = [];
-			var isVisible;
-			var view;
-
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-				isVisible = this.isVisible(view, 0, 0, container);
-
-				if (isVisible === true) {
-					visible.push(view);
-				}
-			}
-			return visible;
-		}
-
-		scrollBy(x, y, silent) {
-			let dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if (silent) {
-				this.ignore = true;
-			}
-
-			if (!this.settings.fullsize) {
-				if (x) this.container.scrollLeft += x * dir;
-				if (y) this.container.scrollTop += y;
-			} else {
-				window.scrollBy(x * dir, y * dir);
-			}
-			this.scrolled = true;
-		}
-
-		scrollTo(x, y, silent) {
-			if (silent) {
-				this.ignore = true;
-			}
-
-			if (!this.settings.fullsize) {
-				this.container.scrollLeft = x;
-				this.container.scrollTop = y;
-			} else {
-				window.scrollTo(x, y);
-			}
-			this.scrolled = true;
-		}
-
-		onScroll() {
-			let scrollTop;
-			let scrollLeft;
-
-			if (!this.settings.fullsize) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY;
-				scrollLeft = window.scrollX;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if (!this.ignore) {
-				this.emit(EVENTS.MANAGERS.SCROLL, {
-					top: scrollTop,
-					left: scrollLeft
+					return {
+						index: index,
+						href: href,
+						pages: pages,
+						totalPages: totalPages,
+						mapping: mapping
+					};
 				});
 
-				clearTimeout(this.afterScrolled);
-				this.afterScrolled = setTimeout(function () {
-					this.emit(EVENTS.MANAGERS.SCROLLED, {
-						top: this.scrollTop,
-						left: this.scrollLeft
+				return sections;
+			}
+		}, {
+			key: "paginatedLocation",
+			value: function paginatedLocation() {
+				var _this5 = this;
+
+				var visible = this.visible();
+				var container = this.container.getBoundingClientRect();
+
+				var left = 0;
+				var used = 0;
+
+				if (this.settings.fullsize) {
+					left = window.scrollX;
+				}
+
+				var sections = visible.map(function (view) {
+					var _view$section2 = view.section,
+					    index = _view$section2.index,
+					    href = _view$section2.href;
+
+					var offset = view.offset().left;
+					var position = view.position().left;
+					var width = view.width();
+
+					// Find mapping
+					var start = left + container.left - position + used;
+					var end = start + _this5.layout.width - used;
+
+					var mapping = _this5.mapping.page(view.contents, view.section.cfiBase, start, end);
+
+					// Find displayed pages
+					//console.log("pre", end, offset + width);
+					// if (end > offset + width) {
+					// 	end = offset + width;
+					// 	used = this.layout.pageWidth;
+					// }
+					// console.log("post", end);
+
+					var totalPages = _this5.layout.count(width).pages;
+					var startPage = Math.floor(start / _this5.layout.pageWidth);
+					var pages = [];
+					var endPage = Math.floor(end / _this5.layout.pageWidth);
+
+					// start page should not be negative
+					if (startPage < 0) {
+						startPage = 0;
+						endPage = endPage + 1;
+					}
+
+					// Reverse page counts for rtl
+					if (_this5.settings.direction === "rtl") {
+						var tempStartPage = startPage;
+						startPage = totalPages - endPage;
+						endPage = totalPages - tempStartPage;
+					}
+
+					for (var i = startPage + 1; i <= endPage; i++) {
+						var pg = i;
+						pages.push(pg);
+					}
+
+					return {
+						index: index,
+						href: href,
+						pages: pages,
+						totalPages: totalPages,
+						mapping: mapping
+					};
+				});
+
+				return sections;
+			}
+		}, {
+			key: "isVisible",
+			value: function isVisible(view, offsetPrev, offsetNext, _container) {
+				var position = view.position();
+				var container = _container || this.bounds();
+
+				if (this.settings.axis === "horizontal" && position.right > container.left - offsetPrev && position.left < container.right + offsetNext) {
+
+					return true;
+				} else if (this.settings.axis === "vertical" && position.bottom > container.top - offsetPrev && position.top < container.bottom + offsetNext) {
+
+					return true;
+				}
+
+				return false;
+			}
+		}, {
+			key: "visible",
+			value: function visible() {
+				var container = this.bounds();
+				var views = this.views.displayed();
+				var viewsLength = views.length;
+				var visible = [];
+				var isVisible;
+				var view;
+
+				for (var i = 0; i < viewsLength; i++) {
+					view = views[i];
+					isVisible = this.isVisible(view, 0, 0, container);
+
+					if (isVisible === true) {
+						visible.push(view);
+					}
+				}
+				return visible;
+			}
+		}, {
+			key: "scrollBy",
+			value: function scrollBy(x, y, silent) {
+				var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+				if (silent) {
+					this.ignore = true;
+				}
+
+				if (!this.settings.fullsize) {
+					if (x) this.container.scrollLeft += x * dir;
+					if (y) this.container.scrollTop += y;
+				} else {
+					window.scrollBy(x * dir, y * dir);
+				}
+				this.scrolled = true;
+			}
+		}, {
+			key: "scrollTo",
+			value: function scrollTo(x, y, silent) {
+				if (silent) {
+					this.ignore = true;
+				}
+
+				if (!this.settings.fullsize) {
+					this.container.scrollLeft = x;
+					this.container.scrollTop = y;
+				} else {
+					window.scrollTo(x, y);
+				}
+				this.scrolled = true;
+			}
+		}, {
+			key: "onScroll",
+			value: function onScroll() {
+				var scrollTop = void 0;
+				var scrollLeft = void 0;
+
+				if (!this.settings.fullsize) {
+					scrollTop = this.container.scrollTop;
+					scrollLeft = this.container.scrollLeft;
+				} else {
+					scrollTop = window.scrollY;
+					scrollLeft = window.scrollX;
+				}
+
+				this.scrollTop = scrollTop;
+				this.scrollLeft = scrollLeft;
+
+				if (!this.ignore) {
+					this.emit(EVENTS.MANAGERS.SCROLL, {
+						top: scrollTop,
+						left: scrollLeft
 					});
-				}.bind(this), 20);
-			} else {
-				this.ignore = false;
-			}
-		}
 
-		bounds() {
-			var bounds;
-
-			bounds = this.stage.bounds();
-
-			return bounds;
-		}
-
-		applyLayout(layout) {
-
-			this.layout = layout;
-			this.updateLayout();
-			// this.manager.layout(this.layout.format);
-		}
-
-		updateLayout() {
-
-			if (!this.stage) {
-				return;
-			}
-
-			this._stageSize = this.stage.size();
-
-			if (!this.isPaginated) {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height);
-			} else {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height, this.settings.gap);
-
-				// Set the look ahead offset for what is visible
-				this.settings.offset = this.layout.delta;
-
-				// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
-			}
-
-			// Set the dimensions for views
-			this.viewSettings.width = this.layout.width;
-			this.viewSettings.height = this.layout.height;
-
-			this.setLayout(this.layout);
-		}
-
-		setLayout(layout) {
-
-			this.viewSettings.layout = layout;
-
-			this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
-
-			if (this.views) {
-
-				this.views.forEach(function (view) {
-					if (view) {
-						view.setLayout(layout);
-					}
-				});
-			}
-		}
-
-		updateAxis(axis, forceUpdate) {
-
-			if (!this.isPaginated) {
-				axis = "vertical";
-			}
-
-			if (!forceUpdate && axis === this.settings.axis) {
-				return;
-			}
-
-			this.settings.axis = axis;
-
-			this.stage && this.stage.axis(axis);
-
-			this.viewSettings.axis = axis;
-
-			if (this.mapping) {
-				this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
-			}
-
-			if (this.layout) {
-				if (axis === "vertical") {
-					this.layout.spread("none");
+					clearTimeout(this.afterScrolled);
+					this.afterScrolled = setTimeout(function () {
+						this.emit(EVENTS.MANAGERS.SCROLLED, {
+							top: this.scrollTop,
+							left: this.scrollLeft
+						});
+					}.bind(this), 20);
 				} else {
-					this.layout.spread(this.layout.settings.spread);
+					this.ignore = false;
 				}
 			}
-		}
+		}, {
+			key: "bounds",
+			value: function bounds() {
+				var bounds;
 
-		updateFlow(flow) {
-			let isPaginated = flow === "paginated" || flow === "auto";
+				bounds = this.stage.bounds();
 
-			this.isPaginated = isPaginated;
-
-			if (flow === "scrolled-doc" || flow === "scrolled-continuous" || flow === "scrolled") {
-				this.updateAxis("vertical");
-			} else {
-				this.updateAxis("horizontal");
+				return bounds;
 			}
+		}, {
+			key: "applyLayout",
+			value: function applyLayout(layout) {
 
-			this.viewSettings.flow = flow;
-
-			if (!this.settings.overflow) {
-				this.overflow = isPaginated ? "hidden" : "auto";
-			} else {
-				this.overflow = this.settings.overflow;
+				this.layout = layout;
+				this.updateLayout();
+				// this.manager.layout(this.layout.format);
 			}
+		}, {
+			key: "updateLayout",
+			value: function updateLayout() {
 
-			this.stage && this.stage.overflow(this.overflow);
+				if (!this.stage) {
+					return;
+				}
 
-			this.updateLayout();
-		}
+				this._stageSize = this.stage.size();
 
-		getContents() {
-			var contents = [];
-			if (!this.views) {
+				if (!this.isPaginated) {
+					this.layout.calculate(this._stageSize.width, this._stageSize.height);
+				} else {
+					this.layout.calculate(this._stageSize.width, this._stageSize.height, this.settings.gap);
+
+					// Set the look ahead offset for what is visible
+					this.settings.offset = this.layout.delta;
+
+					// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
+				}
+
+				// Set the dimensions for views
+				this.viewSettings.width = this.layout.width;
+				this.viewSettings.height = this.layout.height;
+
+				this.setLayout(this.layout);
+			}
+		}, {
+			key: "setLayout",
+			value: function setLayout(layout) {
+
+				this.viewSettings.layout = layout;
+
+				this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
+
+				if (this.views) {
+
+					this.views.forEach(function (view) {
+						if (view) {
+							view.setLayout(layout);
+						}
+					});
+				}
+			}
+		}, {
+			key: "updateAxis",
+			value: function updateAxis(axis, forceUpdate) {
+
+				if (!this.isPaginated) {
+					axis = "vertical";
+				}
+
+				if (!forceUpdate && axis === this.settings.axis) {
+					return;
+				}
+
+				this.settings.axis = axis;
+
+				this.stage && this.stage.axis(axis);
+
+				this.viewSettings.axis = axis;
+
+				if (this.mapping) {
+					this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
+				}
+
+				if (this.layout) {
+					if (axis === "vertical") {
+						this.layout.spread("none");
+					} else {
+						this.layout.spread(this.layout.settings.spread);
+					}
+				}
+			}
+		}, {
+			key: "updateFlow",
+			value: function updateFlow(flow) {
+				var isPaginated = flow === "paginated" || flow === "auto";
+
+				this.isPaginated = isPaginated;
+
+				if (flow === "scrolled-doc" || flow === "scrolled-continuous" || flow === "scrolled") {
+					this.updateAxis("vertical");
+				} else {
+					this.updateAxis("horizontal");
+				}
+
+				this.viewSettings.flow = flow;
+
+				if (!this.settings.overflow) {
+					this.overflow = isPaginated ? "hidden" : "auto";
+				} else {
+					this.overflow = this.settings.overflow;
+				}
+
+				this.stage && this.stage.overflow(this.overflow);
+
+				this.updateLayout();
+			}
+		}, {
+			key: "getContents",
+			value: function getContents() {
+				var contents = [];
+				if (!this.views) {
+					return contents;
+				}
+				this.views.forEach(function (view) {
+					var viewContents = view && view.contents;
+					if (viewContents) {
+						contents.push(viewContents);
+					}
+				});
 				return contents;
 			}
-			this.views.forEach(function (view) {
-				const viewContents = view && view.contents;
-				if (viewContents) {
-					contents.push(viewContents);
+		}, {
+			key: "direction",
+			value: function direction() {
+				var dir = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ltr";
+
+				this.settings.direction = dir;
+
+				this.stage && this.stage.direction(dir);
+
+				this.viewSettings.direction = dir;
+
+				this.updateLayout();
+			}
+		}, {
+			key: "isRendered",
+			value: function isRendered() {
+				return this.rendered;
+			}
+		}, {
+			key: "scale",
+			value: function scale(s) {
+				if (s == null) {
+					s = 1.0;
 				}
-			});
-			return contents;
-		}
+				this.settings.scale = s;
 
-		direction(dir = "ltr") {
-			this.settings.direction = dir;
-
-			this.stage && this.stage.direction(dir);
-
-			this.viewSettings.direction = dir;
-
-			this.updateLayout();
-		}
-
-		isRendered() {
-			return this.rendered;
-		}
-
-		scale(s) {
-			if (s == null) {
-				s = 1.0;
+				if (this.stage) {
+					this.stage.scale(s);
+				}
 			}
-			this.settings.scale = s;
+		}]);
 
-			if (this.stage) {
-				this.stage.scale(s);
-			}
-		}
-	}
+		return DefaultViewManager;
+	}();
 
 	//-- Enable binding events to Manager
+
+
 	eventEmitter(DefaultViewManager.prototype);
 
+	var _createClass$n = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$n(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	// easing equations from https://github.com/danro/easing-js/blob/master/easing.js
-	const PI_D2 = Math.PI / 2;
-	const EASING_EQUATIONS = {
-		easeOutSine: function (pos) {
+	var PI_D2 = Math.PI / 2;
+	var EASING_EQUATIONS = {
+		easeOutSine: function easeOutSine(pos) {
 			return Math.sin(pos * PI_D2);
 		},
-		easeInOutSine: function (pos) {
+		easeInOutSine: function easeInOutSine(pos) {
 			return -0.5 * (Math.cos(Math.PI * pos) - 1);
 		},
-		easeInOutQuint: function (pos) {
+		easeInOutQuint: function easeInOutQuint(pos) {
 			if ((pos /= 0.5) < 1) {
 				return 0.5 * Math.pow(pos, 5);
 			}
 			return 0.5 * (Math.pow(pos - 2, 5) + 2);
 		},
-		easeInCubic: function (pos) {
+		easeInCubic: function easeInCubic(pos) {
 			return Math.pow(pos, 3);
 		}
 	};
 
-	class Snap {
-		constructor(manager, options) {
+	var Snap = function () {
+		function Snap(manager, options) {
+			_classCallCheck$n(this, Snap);
 
 			this.settings = extend$1({
 				duration: 80,
@@ -18437,306 +19480,361 @@
 			}
 		}
 
-		setup(manager) {
-			this.manager = manager;
+		_createClass$n(Snap, [{
+			key: "setup",
+			value: function setup(manager) {
+				this.manager = manager;
 
-			this.layout = this.manager.layout;
+				this.layout = this.manager.layout;
 
-			this.fullsize = this.manager.settings.fullsize;
-			if (this.fullsize) {
-				this.element = this.manager.stage.element;
-				this.scroller = window;
-				this.disableScroll();
-			} else {
-				this.element = this.manager.stage.container;
-				this.scroller = this.element;
-				this.element.style["WebkitOverflowScrolling"] = "touch";
-			}
+				this.fullsize = this.manager.settings.fullsize;
+				if (this.fullsize) {
+					this.element = this.manager.stage.element;
+					this.scroller = window;
+					this.disableScroll();
+				} else {
+					this.element = this.manager.stage.container;
+					this.scroller = this.element;
+					this.element.style["WebkitOverflowScrolling"] = "touch";
+				}
 
-			// this.overflow = this.manager.overflow;
+				// this.overflow = this.manager.overflow;
 
-			// set lookahead offset to page width
-			this.manager.settings.offset = this.layout.width;
-			this.manager.settings.afterScrolledTimeout = this.settings.duration * 2;
+				// set lookahead offset to page width
+				this.manager.settings.offset = this.layout.width;
+				this.manager.settings.afterScrolledTimeout = this.settings.duration * 2;
 
-			this.isVertical = this.manager.settings.axis === "vertical";
+				this.isVertical = this.manager.settings.axis === "vertical";
 
-			// disable snapping if not paginated or axis in not horizontal
-			if (!this.manager.isPaginated || this.isVertical) {
-				return;
-			}
-
-			this.touchCanceler = false;
-			this.resizeCanceler = false;
-			this.snapping = false;
-
-			this.scrollLeft;
-			this.scrollTop;
-
-			this.startTouchX = undefined;
-			this.startTouchY = undefined;
-			this.startTime = undefined;
-			this.endTouchX = undefined;
-			this.endTouchY = undefined;
-			this.endTime = undefined;
-
-			this.addListeners();
-		}
-
-		supportsTouch() {
-			if ('ontouchstart' in window || window.DocumentTouch && document instanceof DocumentTouch) {
-				return true;
-			}
-
-			return false;
-		}
-
-		disableScroll() {
-			this.element.style.overflow = "hidden";
-		}
-
-		enableScroll() {
-			this.element.style.overflow = "";
-		}
-
-		addListeners() {
-			this._onResize = this.onResize.bind(this);
-			window.addEventListener('resize', this._onResize);
-
-			this._onScroll = this.onScroll.bind(this);
-			this.scroller.addEventListener('scroll', this._onScroll);
-
-			this._onTouchStart = this.onTouchStart.bind(this);
-			this.scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });
-			this.on('touchstart', this._onTouchStart);
-
-			this._onTouchMove = this.onTouchMove.bind(this);
-			this.scroller.addEventListener('touchmove', this._onTouchMove, { passive: true });
-			this.on('touchmove', this._onTouchMove);
-
-			this._onTouchEnd = this.onTouchEnd.bind(this);
-			this.scroller.addEventListener('touchend', this._onTouchEnd, { passive: true });
-			this.on('touchend', this._onTouchEnd);
-
-			this._afterDisplayed = this.afterDisplayed.bind(this);
-			this.manager.on(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
-		}
-
-		removeListeners() {
-			window.removeEventListener('resize', this._onResize);
-			this._onResize = undefined;
-
-			this.scroller.removeEventListener('scroll', this._onScroll);
-			this._onScroll = undefined;
-
-			this.scroller.removeEventListener('touchstart', this._onTouchStart, { passive: true });
-			this.off('touchstart', this._onTouchStart);
-			this._onTouchStart = undefined;
-
-			this.scroller.removeEventListener('touchmove', this._onTouchMove, { passive: true });
-			this.off('touchmove', this._onTouchMove);
-			this._onTouchMove = undefined;
-
-			this.scroller.removeEventListener('touchend', this._onTouchEnd, { passive: true });
-			this.off('touchend', this._onTouchEnd);
-			this._onTouchEnd = undefined;
-
-			this.manager.off(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
-			this._afterDisplayed = undefined;
-		}
-
-		afterDisplayed(view) {
-			let contents = view.contents;
-			["touchstart", "touchmove", "touchend"].forEach(e => {
-				contents.on(e, ev => this.triggerViewEvent(ev, contents));
-			});
-		}
-
-		triggerViewEvent(e, contents) {
-			this.emit(e.type, e, contents);
-		}
-
-		onScroll(e) {
-			this.scrollLeft = this.fullsize ? window.scrollX : this.scroller.scrollLeft;
-			this.scrollTop = this.fullsize ? window.scrollY : this.scroller.scrollTop;
-		}
-
-		onResize(e) {
-			this.resizeCanceler = true;
-		}
-
-		onTouchStart(e) {
-			let { screenX, screenY } = e.touches[0];
-
-			if (this.fullsize) {
-				this.enableScroll();
-			}
-
-			this.touchCanceler = true;
-
-			if (!this.startTouchX) {
-				this.startTouchX = screenX;
-				this.startTouchY = screenY;
-				this.startTime = this.now();
-			}
-
-			this.endTouchX = screenX;
-			this.endTouchY = screenY;
-			this.endTime = this.now();
-		}
-
-		onTouchMove(e) {
-			let { screenX, screenY } = e.touches[0];
-			let deltaY = Math.abs(screenY - this.endTouchY);
-
-			this.touchCanceler = true;
-
-			if (!this.fullsize && deltaY < 10) {
-				this.element.scrollLeft -= screenX - this.endTouchX;
-			}
-
-			this.endTouchX = screenX;
-			this.endTouchY = screenY;
-			this.endTime = this.now();
-		}
-
-		onTouchEnd(e) {
-			if (this.fullsize) {
-				this.disableScroll();
-			}
-
-			this.touchCanceler = false;
-
-			let swipped = this.wasSwiped();
-
-			if (swipped !== 0) {
-				this.snap(swipped);
-			} else {
-				this.snap();
-			}
-
-			this.startTouchX = undefined;
-			this.startTouchY = undefined;
-			this.startTime = undefined;
-			this.endTouchX = undefined;
-			this.endTouchY = undefined;
-			this.endTime = undefined;
-		}
-
-		wasSwiped() {
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			let distance = this.endTouchX - this.startTouchX;
-			let absolute = Math.abs(distance);
-			let time = this.endTime - this.startTime;
-			let velocity = distance / time;
-			let minVelocity = this.settings.minVelocity;
-
-			if (absolute <= this.settings.minDistance || absolute >= snapWidth) {
-				return 0;
-			}
-
-			if (velocity > minVelocity) {
-				// previous
-				return -1;
-			} else if (velocity < -minVelocity) {
-				// next
-				return 1;
-			}
-		}
-
-		needsSnap() {
-			let left = this.scrollLeft;
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			return left % snapWidth !== 0;
-		}
-
-		snap(howMany = 0) {
-			let left = this.scrollLeft;
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			let snapTo = Math.round(left / snapWidth) * snapWidth;
-
-			if (howMany) {
-				snapTo += howMany * snapWidth;
-			}
-
-			return this.smoothScrollTo(snapTo);
-		}
-
-		smoothScrollTo(destination) {
-			const deferred = new defer();
-			const start = this.scrollLeft;
-			const startTime = this.now();
-
-			const duration = this.settings.duration;
-			const easing = this.settings.easing;
-
-			this.snapping = true;
-
-			// add animation loop
-			function tick() {
-				const now = this.now();
-				const time = Math.min(1, (now - startTime) / duration);
-				const timeFunction = easing(time);
-
-				if (this.touchCanceler || this.resizeCanceler) {
-					this.resizeCanceler = false;
-					this.snapping = false;
-					deferred.resolve();
+				// disable snapping if not paginated or axis in not horizontal
+				if (!this.manager.isPaginated || this.isVertical) {
 					return;
 				}
 
-				if (time < 1) {
-					window.requestAnimationFrame(tick.bind(this));
-					this.scrollTo(start + (destination - start) * time, 0);
+				this.touchCanceler = false;
+				this.resizeCanceler = false;
+				this.snapping = false;
+
+				this.scrollLeft;
+				this.scrollTop;
+
+				this.startTouchX = undefined;
+				this.startTouchY = undefined;
+				this.startTime = undefined;
+				this.endTouchX = undefined;
+				this.endTouchY = undefined;
+				this.endTime = undefined;
+
+				this.addListeners();
+			}
+		}, {
+			key: "supportsTouch",
+			value: function supportsTouch() {
+				if ('ontouchstart' in window || window.DocumentTouch && document instanceof DocumentTouch) {
+					return true;
+				}
+
+				return false;
+			}
+		}, {
+			key: "disableScroll",
+			value: function disableScroll() {
+				this.element.style.overflow = "hidden";
+			}
+		}, {
+			key: "enableScroll",
+			value: function enableScroll() {
+				this.element.style.overflow = "";
+			}
+		}, {
+			key: "addListeners",
+			value: function addListeners() {
+				this._onResize = this.onResize.bind(this);
+				window.addEventListener('resize', this._onResize);
+
+				this._onScroll = this.onScroll.bind(this);
+				this.scroller.addEventListener('scroll', this._onScroll);
+
+				this._onTouchStart = this.onTouchStart.bind(this);
+				this.scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });
+				this.on('touchstart', this._onTouchStart);
+
+				this._onTouchMove = this.onTouchMove.bind(this);
+				this.scroller.addEventListener('touchmove', this._onTouchMove, { passive: true });
+				this.on('touchmove', this._onTouchMove);
+
+				this._onTouchEnd = this.onTouchEnd.bind(this);
+				this.scroller.addEventListener('touchend', this._onTouchEnd, { passive: true });
+				this.on('touchend', this._onTouchEnd);
+
+				this._afterDisplayed = this.afterDisplayed.bind(this);
+				this.manager.on(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
+			}
+		}, {
+			key: "removeListeners",
+			value: function removeListeners() {
+				window.removeEventListener('resize', this._onResize);
+				this._onResize = undefined;
+
+				this.scroller.removeEventListener('scroll', this._onScroll);
+				this._onScroll = undefined;
+
+				this.scroller.removeEventListener('touchstart', this._onTouchStart, { passive: true });
+				this.off('touchstart', this._onTouchStart);
+				this._onTouchStart = undefined;
+
+				this.scroller.removeEventListener('touchmove', this._onTouchMove, { passive: true });
+				this.off('touchmove', this._onTouchMove);
+				this._onTouchMove = undefined;
+
+				this.scroller.removeEventListener('touchend', this._onTouchEnd, { passive: true });
+				this.off('touchend', this._onTouchEnd);
+				this._onTouchEnd = undefined;
+
+				this.manager.off(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
+				this._afterDisplayed = undefined;
+			}
+		}, {
+			key: "afterDisplayed",
+			value: function afterDisplayed(view) {
+				var _this = this;
+
+				var contents = view.contents;
+				["touchstart", "touchmove", "touchend"].forEach(function (e) {
+					contents.on(e, function (ev) {
+						return _this.triggerViewEvent(ev, contents);
+					});
+				});
+			}
+		}, {
+			key: "triggerViewEvent",
+			value: function triggerViewEvent(e, contents) {
+				this.emit(e.type, e, contents);
+			}
+		}, {
+			key: "onScroll",
+			value: function onScroll(e) {
+				this.scrollLeft = this.fullsize ? window.scrollX : this.scroller.scrollLeft;
+				this.scrollTop = this.fullsize ? window.scrollY : this.scroller.scrollTop;
+			}
+		}, {
+			key: "onResize",
+			value: function onResize(e) {
+				this.resizeCanceler = true;
+			}
+		}, {
+			key: "onTouchStart",
+			value: function onTouchStart(e) {
+				var _e$touches$ = e.touches[0],
+				    screenX = _e$touches$.screenX,
+				    screenY = _e$touches$.screenY;
+
+
+				if (this.fullsize) {
+					this.enableScroll();
+				}
+
+				this.touchCanceler = true;
+
+				if (!this.startTouchX) {
+					this.startTouchX = screenX;
+					this.startTouchY = screenY;
+					this.startTime = this.now();
+				}
+
+				this.endTouchX = screenX;
+				this.endTouchY = screenY;
+				this.endTime = this.now();
+			}
+		}, {
+			key: "onTouchMove",
+			value: function onTouchMove(e) {
+				var _e$touches$2 = e.touches[0],
+				    screenX = _e$touches$2.screenX,
+				    screenY = _e$touches$2.screenY;
+
+				var deltaY = Math.abs(screenY - this.endTouchY);
+
+				this.touchCanceler = true;
+
+				if (!this.fullsize && deltaY < 10) {
+					this.element.scrollLeft -= screenX - this.endTouchX;
+				}
+
+				this.endTouchX = screenX;
+				this.endTouchY = screenY;
+				this.endTime = this.now();
+			}
+		}, {
+			key: "onTouchEnd",
+			value: function onTouchEnd(e) {
+				if (this.fullsize) {
+					this.disableScroll();
+				}
+
+				this.touchCanceler = false;
+
+				var swipped = this.wasSwiped();
+
+				if (swipped !== 0) {
+					this.snap(swipped);
 				} else {
-					this.scrollTo(destination, 0);
-					this.snapping = false;
-					deferred.resolve();
+					this.snap();
+				}
+
+				this.startTouchX = undefined;
+				this.startTouchY = undefined;
+				this.startTime = undefined;
+				this.endTouchX = undefined;
+				this.endTouchY = undefined;
+				this.endTime = undefined;
+			}
+		}, {
+			key: "wasSwiped",
+			value: function wasSwiped() {
+				var snapWidth = this.layout.pageWidth * this.layout.divisor;
+				var distance = this.endTouchX - this.startTouchX;
+				var absolute = Math.abs(distance);
+				var time = this.endTime - this.startTime;
+				var velocity = distance / time;
+				var minVelocity = this.settings.minVelocity;
+
+				if (absolute <= this.settings.minDistance || absolute >= snapWidth) {
+					return 0;
+				}
+
+				if (velocity > minVelocity) {
+					// previous
+					return -1;
+				} else if (velocity < -minVelocity) {
+					// next
+					return 1;
 				}
 			}
-
-			tick.call(this);
-
-			return deferred.promise;
-		}
-
-		scrollTo(left = 0, top = 0) {
-			if (this.fullsize) {
-				window.scroll(left, top);
-			} else {
-				this.scroller.scrollLeft = left;
-				this.scroller.scrollTop = top;
+		}, {
+			key: "needsSnap",
+			value: function needsSnap() {
+				var left = this.scrollLeft;
+				var snapWidth = this.layout.pageWidth * this.layout.divisor;
+				return left % snapWidth !== 0;
 			}
-		}
+		}, {
+			key: "snap",
+			value: function snap() {
+				var howMany = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-		now() {
-			return 'now' in window.performance ? performance.now() : new Date().getTime();
-		}
+				var left = this.scrollLeft;
+				var snapWidth = this.layout.pageWidth * this.layout.divisor;
+				var snapTo = Math.round(left / snapWidth) * snapWidth;
 
-		destroy() {
-			if (!this.scroller) {
-				return;
+				if (howMany) {
+					snapTo += howMany * snapWidth;
+				}
+
+				return this.smoothScrollTo(snapTo);
 			}
+		}, {
+			key: "smoothScrollTo",
+			value: function smoothScrollTo(destination) {
+				var deferred = new defer();
+				var start = this.scrollLeft;
+				var startTime = this.now();
 
-			if (this.fullsize) {
-				this.enableScroll();
+				var duration = this.settings.duration;
+				var easing = this.settings.easing;
+
+				this.snapping = true;
+
+				// add animation loop
+				function tick() {
+					var now = this.now();
+					var time = Math.min(1, (now - startTime) / duration);
+					var timeFunction = easing(time);
+
+					if (this.touchCanceler || this.resizeCanceler) {
+						this.resizeCanceler = false;
+						this.snapping = false;
+						deferred.resolve();
+						return;
+					}
+
+					if (time < 1) {
+						window.requestAnimationFrame(tick.bind(this));
+						this.scrollTo(start + (destination - start) * time, 0);
+					} else {
+						this.scrollTo(destination, 0);
+						this.snapping = false;
+						deferred.resolve();
+					}
+				}
+
+				tick.call(this);
+
+				return deferred.promise;
 			}
+		}, {
+			key: "scrollTo",
+			value: function scrollTo() {
+				var left = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+				var top = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-			this.removeListeners();
+				if (this.fullsize) {
+					window.scroll(left, top);
+				} else {
+					this.scroller.scrollLeft = left;
+					this.scroller.scrollTop = top;
+				}
+			}
+		}, {
+			key: "now",
+			value: function now() {
+				return 'now' in window.performance ? performance.now() : new Date().getTime();
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				if (!this.scroller) {
+					return;
+				}
 
-			this.scroller = undefined;
-		}
-	}
+				if (this.fullsize) {
+					this.enableScroll();
+				}
+
+				this.removeListeners();
+
+				this.scroller = undefined;
+			}
+		}]);
+
+		return Snap;
+	}();
 
 	eventEmitter(Snap.prototype);
 
-	class ContinuousViewManager extends DefaultViewManager {
-		constructor(options) {
-			super(options);
+	var _typeof$i = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-			this.name = "continuous";
+	var _createClass$o = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-			this.settings = extend$1(this.settings || {}, {
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+	function _classCallCheck$o(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContinuousViewManager = function (_DefaultViewManager) {
+		_inherits(ContinuousViewManager, _DefaultViewManager);
+
+		function ContinuousViewManager(options) {
+			_classCallCheck$o(this, ContinuousViewManager);
+
+			var _this = _possibleConstructorReturn(this, (ContinuousViewManager.__proto__ || Object.getPrototypeOf(ContinuousViewManager)).call(this, options));
+
+			_this.name = "continuous";
+
+			_this.settings = extend$1(_this.settings || {}, {
 				infinite: true,
 				overflow: undefined,
 				axis: undefined,
@@ -18749,531 +19847,576 @@
 				afterScrolledTimeout: 10
 			});
 
-			extend$1(this.settings, options.settings || {});
+			extend$1(_this.settings, options.settings || {});
 
 			// Gap can be 0, but defaults doesn't handle that
 			if (options.settings.gap != "undefined" && options.settings.gap === 0) {
-				this.settings.gap = options.settings.gap;
+				_this.settings.gap = options.settings.gap;
 			}
 
-			this.viewSettings = {
-				ignoreClass: this.settings.ignoreClass,
-				axis: this.settings.axis,
-				flow: this.settings.flow,
-				layout: this.layout,
+			_this.viewSettings = {
+				ignoreClass: _this.settings.ignoreClass,
+				axis: _this.settings.axis,
+				flow: _this.settings.flow,
+				layout: _this.layout,
 				width: 0,
 				height: 0,
 				forceEvenPages: false
 			};
 
-			this.scrollTop = 0;
-			this.scrollLeft = 0;
+			_this.scrollTop = 0;
+			_this.scrollLeft = 0;
+			return _this;
 		}
 
-		display(section, target) {
-			return DefaultViewManager.prototype.display.call(this, section, target).then(function () {
-				return this.fill();
-			}.bind(this));
-		}
-
-		fill(_full) {
-			var full = _full || new defer();
-
-			this.q.enqueue(() => {
-				return this.check();
-			}).then(result => {
-				if (result) {
-					this.fill(full);
-				} else {
-					full.resolve();
-				}
-			});
-
-			return full.promise;
-		}
-
-		moveTo(offset) {
-			// var bounds = this.stage.bounds();
-			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-			var distX = 0,
-			    distY = 0;
-
-			var offsetX = 0,
-			    offsetY = 0;
-
-			if (!this.isPaginated) {
-				distY = offset.top;
-				offsetY = offset.top + this.settings.offsetDelta;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-				offsetX = distX + this.settings.offsetDelta;
-			}
-
-			if (distX > 0 || distY > 0) {
-				this.scrollBy(distX, distY, true);
-			}
-		}
-
-		afterResized(view) {
-			this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-		}
-
-		// Remove Previous Listeners if present
-		removeShownListeners(view) {
-
-			// view.off("shown", this.afterDisplayed);
-			// view.off("shown", this.afterDisplayedAbove);
-			view.onDisplayed = function () {};
-		}
-
-		add(section) {
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			view.on(EVENTS.VIEWS.RESIZED, bounds => {
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			return view.display(this.request);
-		}
-
-		append(section) {
-			var view = this.createView(section);
-
-			view.on(EVENTS.VIEWS.RESIZED, bounds => {
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-
-		prepend(section) {
-			var view = this.createView(section);
-
-			view.on(EVENTS.VIEWS.RESIZED, bounds => {
-				this.counter(bounds);
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, axis => {
-				this.updateAxis(axis);
-			});
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-
-		counter(bounds) {
-			if (this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-		}
-
-		update(_offset) {
-			var container = this.bounds();
-			var views = this.views.all();
-			var viewsLength = views.length;
-			var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-			var isVisible;
-			var view;
-
-			var updating = new defer();
-			var promises = [];
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-
-				isVisible = this.isVisible(view, offset, offset, container);
-
-				if (isVisible === true) {
-					// console.log("visible " + view.index);
-
-					if (!view.displayed) {
-						let displayed = view.display(this.request).then(function (view) {
-							view.show();
-						}, err => {
-							view.hide();
-						});
-						promises.push(displayed);
-					} else {
-						view.show();
-					}
-				} else {
-					this.q.enqueue(view.destroy.bind(view));
-					// console.log("hidden " + view.index);
-
-					clearTimeout(this.trimTimeout);
-					this.trimTimeout = setTimeout(function () {
-						this.q.enqueue(this.trim.bind(this));
-					}.bind(this), 250);
-				}
-			}
-
-			if (promises.length) {
-				return Promise.all(promises).catch(err => {
-					updating.reject(err);
-				});
-			} else {
-				updating.resolve();
-				return updating.promise;
-			}
-		}
-
-		check(_offsetLeft, _offsetTop) {
-			var checking = new defer();
-			var newViews = [];
-
-			var horizontal = this.settings.axis === "horizontal";
-			var delta = this.settings.offset || 0;
-
-			if (_offsetLeft && horizontal) {
-				delta = _offsetLeft;
-			}
-
-			if (_offsetTop && !horizontal) {
-				delta = _offsetTop;
-			}
-
-			var bounds = this._bounds; // bounds saved this until resize
-
-			let rtl = this.settings.direction === "rtl";
-			let dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-			var visibleLength = horizontal ? Math.floor(bounds.width) : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			let prepend = () => {
-				let first = this.views.first();
-				let prev = first && first.section.prev();
-
-				if (prev) {
-					newViews.push(this.prepend(prev));
-				}
-			};
-
-			let append = () => {
-				let last = this.views.last();
-				let next = last && last.section.next();
-
-				if (next) {
-					newViews.push(this.append(next));
-				}
-			};
-
-			if (offset + visibleLength + delta >= contentLength) {
-				if (horizontal && rtl) {
-					prepend();
-				} else {
-					append();
-				}
-			}
-
-			if (offset - delta < 0) {
-				if (horizontal && rtl) {
-					append();
-				} else {
-					prepend();
-				}
-			}
-
-			let promises = newViews.map(view => {
-				return view.displayed;
-			});
-
-			if (newViews.length) {
-				return Promise.all(promises).then(() => {
-					if (this.layout.name === "pre-paginated" && this.layout.props.spread) {
-						return this.check();
-					}
-				}).then(() => {
-					// Check to see if anything new is on screen after rendering
-					return this.update(delta);
-				}, err => {
-					return err;
-				});
-			} else {
-				this.q.enqueue(function () {
-					this.update();
+		_createClass$o(ContinuousViewManager, [{
+			key: "display",
+			value: function display(section, target) {
+				return DefaultViewManager.prototype.display.call(this, section, target).then(function () {
+					return this.fill();
 				}.bind(this));
-				checking.resolve(false);
-				return checking.promise;
 			}
-		}
+		}, {
+			key: "fill",
+			value: function fill(_full) {
+				var _this2 = this;
 
-		trim() {
-			var task = new defer();
-			var displayed = this.views.displayed();
-			var first = displayed[0];
-			var last = displayed[displayed.length - 1];
-			var firstIndex = this.views.indexOf(first);
-			var lastIndex = this.views.indexOf(last);
-			var above = this.views.slice(0, firstIndex);
-			var below = this.views.slice(lastIndex + 1);
+				var full = _full || new defer();
 
-			// Erase all but last above
-			for (var i = 0; i < above.length - 1; i++) {
-				this.erase(above[i], above);
+				this.q.enqueue(function () {
+					return _this2.check();
+				}).then(function (result) {
+					if (result) {
+						_this2.fill(full);
+					} else {
+						full.resolve();
+					}
+				});
+
+				return full.promise;
 			}
+		}, {
+			key: "moveTo",
+			value: function moveTo(offset) {
+				// var bounds = this.stage.bounds();
+				// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+				var distX = 0,
+				    distY = 0;
 
-			// Erase all except first below
-			for (var j = 1; j < below.length; j++) {
-				this.erase(below[j]);
-			}
+				var offsetX = 0,
+				    offsetY = 0;
 
-			task.resolve();
-			return task.promise;
-		}
-
-		erase(view, above) {
-			//Trim
-
-			var prevTop;
-			var prevLeft;
-
-			if (!this.settings.fullsize) {
-				prevTop = this.container.scrollTop;
-				prevLeft = this.container.scrollLeft;
-			} else {
-				prevTop = window.scrollY;
-				prevLeft = window.scrollX;
-			}
-
-			var bounds = view.bounds();
-
-			this.views.remove(view);
-
-			if (above) {
-				if (this.settings.axis === "vertical") {
-					this.scrollTo(0, prevTop - bounds.height, true);
+				if (!this.isPaginated) {
+					distY = offset.top;
+					offsetY = offset.top + this.settings.offsetDelta;
 				} else {
-					this.scrollTo(prevLeft - Math.floor(bounds.width), 0, true);
+					distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+					offsetX = distX + this.settings.offsetDelta;
+				}
+
+				if (distX > 0 || distY > 0) {
+					this.scrollBy(distX, distY, true);
 				}
 			}
-		}
-
-		addEventListeners(stage) {
-
-			window.addEventListener("unload", function (e) {
-				this.ignore = true;
-				// this.scrollTo(0,0);
-				this.destroy();
-			}.bind(this));
-
-			this.addScrollListeners();
-
-			if (this.isPaginated && this.settings.snap) {
-				this.snapper = new Snap(this, this.settings.snap && typeof this.settings.snap === "object" && this.settings.snap);
-			}
-		}
-
-		addScrollListeners() {
-			var scroller;
-
-			this.tick = requestAnimationFrame$1;
-
-			if (!this.settings.fullsize) {
-				this.prevScrollTop = this.container.scrollTop;
-				this.prevScrollLeft = this.container.scrollLeft;
-			} else {
-				this.prevScrollTop = window.scrollY;
-				this.prevScrollLeft = window.scrollX;
+		}, {
+			key: "afterResized",
+			value: function afterResized(view) {
+				this.emit(EVENTS.MANAGERS.RESIZE, view.section);
 			}
 
-			this.scrollDeltaVert = 0;
-			this.scrollDeltaHorz = 0;
+			// Remove Previous Listeners if present
 
-			if (!this.settings.fullsize) {
-				scroller = this.container;
-				this.scrollTop = this.container.scrollTop;
-				this.scrollLeft = this.container.scrollLeft;
-			} else {
-				scroller = window;
-				this.scrollTop = window.scrollY;
-				this.scrollLeft = window.scrollX;
+		}, {
+			key: "removeShownListeners",
+			value: function removeShownListeners(view) {
+
+				// view.off("shown", this.afterDisplayed);
+				// view.off("shown", this.afterDisplayedAbove);
+				view.onDisplayed = function () {};
 			}
+		}, {
+			key: "add",
+			value: function add(section) {
+				var _this3 = this;
 
-			this._onScroll = this.onScroll.bind(this);
-			scroller.addEventListener("scroll", this._onScroll);
-			this._scrolled = debounce_1$1(this.scrolled.bind(this), 30);
-			// this.tick.call(window, this.onScroll.bind(this));
+				var view = this.createView(section);
 
-			this.didScroll = false;
-		}
+				this.views.append(view);
 
-		removeEventListeners() {
-			var scroller;
+				view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+					view.expanded = true;
+				});
 
-			if (!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this3.updateAxis(axis);
+				});
+
+				// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+				view.onDisplayed = this.afterDisplayed.bind(this);
+				view.onResize = this.afterResized.bind(this);
+
+				return view.display(this.request);
 			}
+		}, {
+			key: "append",
+			value: function append(section) {
+				var _this4 = this;
 
-			scroller.removeEventListener("scroll", this._onScroll);
-			this._onScroll = undefined;
-		}
+				var view = this.createView(section);
 
-		onScroll() {
-			let scrollTop;
-			let scrollLeft;
-			let dir = this.settings.direction === "rtl" ? -1 : 1;
+				view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+					view.expanded = true;
+				});
 
-			if (!this.settings.fullsize) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY * dir;
-				scrollLeft = window.scrollX * dir;
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this4.updateAxis(axis);
+				});
+
+				this.views.append(view);
+
+				view.onDisplayed = this.afterDisplayed.bind(this);
+
+				return view;
 			}
+		}, {
+			key: "prepend",
+			value: function prepend(section) {
+				var _this5 = this;
 
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
+				var view = this.createView(section);
 
-			if (!this.ignore) {
+				view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+					_this5.counter(bounds);
+					view.expanded = true;
+				});
 
-				this._scrolled();
-			} else {
-				this.ignore = false;
+				view.on(EVENTS.VIEWS.AXIS, function (axis) {
+					_this5.updateAxis(axis);
+				});
+
+				this.views.prepend(view);
+
+				view.onDisplayed = this.afterDisplayed.bind(this);
+
+				return view;
 			}
+		}, {
+			key: "counter",
+			value: function counter(bounds) {
+				if (this.settings.axis === "vertical") {
+					this.scrollBy(0, bounds.heightDelta, true);
+				} else {
+					this.scrollBy(bounds.widthDelta, 0, true);
+				}
+			}
+		}, {
+			key: "update",
+			value: function update(_offset) {
+				var container = this.bounds();
+				var views = this.views.all();
+				var viewsLength = views.length;
+				var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+				var isVisible;
+				var view;
 
-			this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-			this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+				var updating = new defer();
+				var promises = [];
+				for (var i = 0; i < viewsLength; i++) {
+					view = views[i];
 
-			this.prevScrollTop = scrollTop;
-			this.prevScrollLeft = scrollLeft;
+					isVisible = this.isVisible(view, offset, offset, container);
 
-			clearTimeout(this.scrollTimeout);
-			this.scrollTimeout = setTimeout(function () {
+					if (isVisible === true) {
+						// console.log("visible " + view.index);
+
+						if (!view.displayed) {
+							var displayed = view.display(this.request).then(function (view) {
+								view.show();
+							}, function (err) {
+								view.hide();
+							});
+							promises.push(displayed);
+						} else {
+							view.show();
+						}
+					} else {
+						this.q.enqueue(view.destroy.bind(view));
+						// console.log("hidden " + view.index);
+
+						clearTimeout(this.trimTimeout);
+						this.trimTimeout = setTimeout(function () {
+							this.q.enqueue(this.trim.bind(this));
+						}.bind(this), 250);
+					}
+				}
+
+				if (promises.length) {
+					return Promise.all(promises).catch(function (err) {
+						updating.reject(err);
+					});
+				} else {
+					updating.resolve();
+					return updating.promise;
+				}
+			}
+		}, {
+			key: "check",
+			value: function check(_offsetLeft, _offsetTop) {
+				var _this6 = this;
+
+				var checking = new defer();
+				var newViews = [];
+
+				var horizontal = this.settings.axis === "horizontal";
+				var delta = this.settings.offset || 0;
+
+				if (_offsetLeft && horizontal) {
+					delta = _offsetLeft;
+				}
+
+				if (_offsetTop && !horizontal) {
+					delta = _offsetTop;
+				}
+
+				var bounds = this._bounds; // bounds saved this until resize
+
+				var rtl = this.settings.direction === "rtl";
+				var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+				var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+				var visibleLength = horizontal ? Math.floor(bounds.width) : bounds.height;
+				var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+				var prepend = function prepend() {
+					var first = _this6.views.first();
+					var prev = first && first.section.prev();
+
+					if (prev) {
+						newViews.push(_this6.prepend(prev));
+					}
+				};
+
+				var append = function append() {
+					var last = _this6.views.last();
+					var next = last && last.section.next();
+
+					if (next) {
+						newViews.push(_this6.append(next));
+					}
+				};
+
+				if (offset + visibleLength + delta >= contentLength) {
+					if (horizontal && rtl) {
+						prepend();
+					} else {
+						append();
+					}
+				}
+
+				if (offset - delta < 0) {
+					if (horizontal && rtl) {
+						append();
+					} else {
+						prepend();
+					}
+				}
+
+				var promises = newViews.map(function (view) {
+					return view.displayed;
+				});
+
+				if (newViews.length) {
+					return Promise.all(promises).then(function () {
+						if (_this6.layout.name === "pre-paginated" && _this6.layout.props.spread) {
+							return _this6.check();
+						}
+					}).then(function () {
+						// Check to see if anything new is on screen after rendering
+						return _this6.update(delta);
+					}, function (err) {
+						return err;
+					});
+				} else {
+					this.q.enqueue(function () {
+						this.update();
+					}.bind(this));
+					checking.resolve(false);
+					return checking.promise;
+				}
+			}
+		}, {
+			key: "trim",
+			value: function trim() {
+				var task = new defer();
+				var displayed = this.views.displayed();
+				var first = displayed[0];
+				var last = displayed[displayed.length - 1];
+				var firstIndex = this.views.indexOf(first);
+				var lastIndex = this.views.indexOf(last);
+				var above = this.views.slice(0, firstIndex);
+				var below = this.views.slice(lastIndex + 1);
+
+				// Erase all but last above
+				for (var i = 0; i < above.length - 1; i++) {
+					this.erase(above[i], above);
+				}
+
+				// Erase all except first below
+				for (var j = 1; j < below.length; j++) {
+					this.erase(below[j]);
+				}
+
+				task.resolve();
+				return task.promise;
+			}
+		}, {
+			key: "erase",
+			value: function erase(view, above) {
+				//Trim
+
+				var prevTop;
+				var prevLeft;
+
+				if (!this.settings.fullsize) {
+					prevTop = this.container.scrollTop;
+					prevLeft = this.container.scrollLeft;
+				} else {
+					prevTop = window.scrollY;
+					prevLeft = window.scrollX;
+				}
+
+				var bounds = view.bounds();
+
+				this.views.remove(view);
+
+				if (above) {
+					if (this.settings.axis === "vertical") {
+						this.scrollTo(0, prevTop - bounds.height, true);
+					} else {
+						this.scrollTo(prevLeft - Math.floor(bounds.width), 0, true);
+					}
+				}
+			}
+		}, {
+			key: "addEventListeners",
+			value: function addEventListeners(stage) {
+
+				window.addEventListener("unload", function (e) {
+					this.ignore = true;
+					// this.scrollTo(0,0);
+					this.destroy();
+				}.bind(this));
+
+				this.addScrollListeners();
+
+				if (this.isPaginated && this.settings.snap) {
+					this.snapper = new Snap(this, this.settings.snap && _typeof$i(this.settings.snap) === "object" && this.settings.snap);
+				}
+			}
+		}, {
+			key: "addScrollListeners",
+			value: function addScrollListeners() {
+				var scroller;
+
+				this.tick = requestAnimationFrame$1;
+
+				if (!this.settings.fullsize) {
+					this.prevScrollTop = this.container.scrollTop;
+					this.prevScrollLeft = this.container.scrollLeft;
+				} else {
+					this.prevScrollTop = window.scrollY;
+					this.prevScrollLeft = window.scrollX;
+				}
+
 				this.scrollDeltaVert = 0;
 				this.scrollDeltaHorz = 0;
-			}.bind(this), 150);
 
-			clearTimeout(this.afterScrolled);
-
-			this.didScroll = false;
-		}
-
-		scrolled() {
-
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-
-			this.emit(EVENTS.MANAGERS.SCROLL, {
-				top: this.scrollTop,
-				left: this.scrollLeft
-			});
-
-			clearTimeout(this.afterScrolled);
-			this.afterScrolled = setTimeout(function () {
-
-				// Don't report scroll if we are about the snap
-				if (this.snapper && this.snapper.supportsTouch && this.snapper.needsSnap()) {
-					return;
+				if (!this.settings.fullsize) {
+					scroller = this.container;
+					this.scrollTop = this.container.scrollTop;
+					this.scrollLeft = this.container.scrollLeft;
+				} else {
+					scroller = window;
+					this.scrollTop = window.scrollY;
+					this.scrollLeft = window.scrollX;
 				}
 
-				this.emit(EVENTS.MANAGERS.SCROLLED, {
+				this._onScroll = this.onScroll.bind(this);
+				scroller.addEventListener("scroll", this._onScroll);
+				this._scrolled = debounce_1$1(this.scrolled.bind(this), 30);
+				// this.tick.call(window, this.onScroll.bind(this));
+
+				this.didScroll = false;
+			}
+		}, {
+			key: "removeEventListeners",
+			value: function removeEventListeners() {
+				var scroller;
+
+				if (!this.settings.fullsize) {
+					scroller = this.container;
+				} else {
+					scroller = window;
+				}
+
+				scroller.removeEventListener("scroll", this._onScroll);
+				this._onScroll = undefined;
+			}
+		}, {
+			key: "onScroll",
+			value: function onScroll() {
+				var scrollTop = void 0;
+				var scrollLeft = void 0;
+				var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+				if (!this.settings.fullsize) {
+					scrollTop = this.container.scrollTop;
+					scrollLeft = this.container.scrollLeft;
+				} else {
+					scrollTop = window.scrollY * dir;
+					scrollLeft = window.scrollX * dir;
+				}
+
+				this.scrollTop = scrollTop;
+				this.scrollLeft = scrollLeft;
+
+				if (!this.ignore) {
+
+					this._scrolled();
+				} else {
+					this.ignore = false;
+				}
+
+				this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+				this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+				this.prevScrollTop = scrollTop;
+				this.prevScrollLeft = scrollLeft;
+
+				clearTimeout(this.scrollTimeout);
+				this.scrollTimeout = setTimeout(function () {
+					this.scrollDeltaVert = 0;
+					this.scrollDeltaHorz = 0;
+				}.bind(this), 150);
+
+				clearTimeout(this.afterScrolled);
+
+				this.didScroll = false;
+			}
+		}, {
+			key: "scrolled",
+			value: function scrolled() {
+
+				this.q.enqueue(function () {
+					this.check();
+				}.bind(this));
+
+				this.emit(EVENTS.MANAGERS.SCROLL, {
 					top: this.scrollTop,
 					left: this.scrollLeft
 				});
-			}.bind(this), this.settings.afterScrolledTimeout);
-		}
 
-		next() {
+				clearTimeout(this.afterScrolled);
+				this.afterScrolled = setTimeout(function () {
 
-			let dir = this.settings.direction;
-			let delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+					// Don't report scroll if we are about the snap
+					if (this.snapper && this.snapper.supportsTouch && this.snapper.needsSnap()) {
+						return;
+					}
 
-			if (!this.views.length) return;
+					this.emit(EVENTS.MANAGERS.SCROLLED, {
+						top: this.scrollTop,
+						left: this.scrollLeft
+					});
+				}.bind(this), this.settings.afterScrolledTimeout);
+			}
+		}, {
+			key: "next",
+			value: function next() {
 
-			if (this.isPaginated && this.settings.axis === "horizontal") {
+				var dir = this.settings.direction;
+				var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
 
-				this.scrollBy(delta, 0, true);
-			} else {
+				if (!this.views.length) return;
 
-				this.scrollBy(0, this.layout.height, true);
+				if (this.isPaginated && this.settings.axis === "horizontal") {
+
+					this.scrollBy(delta, 0, true);
+				} else {
+
+					this.scrollBy(0, this.layout.height, true);
+				}
+
+				this.q.enqueue(function () {
+					this.check();
+				}.bind(this));
+			}
+		}, {
+			key: "prev",
+			value: function prev() {
+
+				var dir = this.settings.direction;
+				var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+				if (!this.views.length) return;
+
+				if (this.isPaginated && this.settings.axis === "horizontal") {
+
+					this.scrollBy(-delta, 0, true);
+				} else {
+
+					this.scrollBy(0, -this.layout.height, true);
+				}
+
+				this.q.enqueue(function () {
+					this.check();
+				}.bind(this));
 			}
 
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
+			// updateAxis(axis, forceUpdate){
+			//
+			// 	super.updateAxis(axis, forceUpdate);
+			//
+			// 	if (axis === "vertical") {
+			// 		this.settings.infinite = true;
+			// 	} else {
+			// 		this.settings.infinite = false;
+			// 	}
+			// }
 
-		prev() {
+		}, {
+			key: "updateFlow",
+			value: function updateFlow(flow) {
+				if (this.rendered && this.snapper) {
+					this.snapper.destroy();
+					this.snapper = undefined;
+				}
 
-			let dir = this.settings.direction;
-			let delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+				_get(ContinuousViewManager.prototype.__proto__ || Object.getPrototypeOf(ContinuousViewManager.prototype), "updateFlow", this).call(this, flow);
 
-			if (!this.views.length) return;
-
-			if (this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(-delta, 0, true);
-			} else {
-
-				this.scrollBy(0, -this.layout.height, true);
+				if (this.rendered && this.isPaginated && this.settings.snap) {
+					this.snapper = new Snap(this, this.settings.snap && _typeof$i(this.settings.snap) === "object" && this.settings.snap);
+				}
 			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				_get(ContinuousViewManager.prototype.__proto__ || Object.getPrototypeOf(ContinuousViewManager.prototype), "destroy", this).call(this);
 
-			this.q.enqueue(function () {
-				this.check();
-			}.bind(this));
-		}
-
-		// updateAxis(axis, forceUpdate){
-		//
-		// 	super.updateAxis(axis, forceUpdate);
-		//
-		// 	if (axis === "vertical") {
-		// 		this.settings.infinite = true;
-		// 	} else {
-		// 		this.settings.infinite = false;
-		// 	}
-		// }
-
-		updateFlow(flow) {
-			if (this.rendered && this.snapper) {
-				this.snapper.destroy();
-				this.snapper = undefined;
+				if (this.snapper) {
+					this.snapper.destroy();
+				}
 			}
+		}]);
 
-			super.updateFlow(flow);
+		return ContinuousViewManager;
+	}(DefaultViewManager);
 
-			if (this.rendered && this.isPaginated && this.settings.snap) {
-				this.snapper = new Snap(this, this.settings.snap && typeof this.settings.snap === "object" && this.settings.snap);
-			}
-		}
+	var _typeof$j = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-		destroy() {
-			super.destroy();
+	var _createClass$p = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-			if (this.snapper) {
-				this.snapper.destroy();
-			}
-		}
-
-	}
+	function _classCallCheck$p(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Displays an Epub as a series of Views for each Section.
@@ -19295,8 +20438,10 @@
 	 * @param {string} [options.script] url of script to be injected
 	 * @param {boolean | object} [options.snap=false] use snap scrolling
 	 */
-	class Rendition {
-		constructor(book, options) {
+
+	var Rendition = function () {
+		function Rendition(book, options) {
+			_classCallCheck$p(this, Rendition);
 
 			this.settings = extend$1(this.settings || {}, {
 				width: null,
@@ -19316,7 +20461,7 @@
 
 			extend$1(this.settings, options);
 
-			if (typeof this.settings.manager === "object") {
+			if (_typeof$j(this.settings.manager) === "object") {
 				this.manager = this.settings.manager;
 			}
 
@@ -19416,506 +20561,601 @@
 	  * Set the manager function
 	  * @param {function} manager
 	  */
-		setManager(manager) {
-			this.manager = manager;
-		}
 
-		/**
-	  * Require the manager from passed string, or as a class function
-	  * @param  {string|object} manager [description]
-	  * @return {method}
-	  */
-		requireManager(manager) {
-			var viewManager;
 
-			// If manager is a string, try to load from imported managers
-			if (typeof manager === "string" && manager === "default") {
-				viewManager = DefaultViewManager;
-			} else if (typeof manager === "string" && manager === "continuous") {
-				viewManager = ContinuousViewManager;
-			} else {
-				// otherwise, assume we were passed a class function
-				viewManager = manager;
+		_createClass$p(Rendition, [{
+			key: "setManager",
+			value: function setManager(manager) {
+				this.manager = manager;
 			}
-
-			return viewManager;
-		}
-
-		/**
-	  * Require the view from passed string, or as a class function
-	  * @param  {string|object} view
-	  * @return {view}
-	  */
-		requireView(view) {
-			var View;
-
-			// If view is a string, try to load from imported views,
-			if (typeof view == "string" && view === "iframe") {
-				View = IframeView;
-			} else {
-				// otherwise, assume we were passed a class function
-				View = view;
-			}
-
-			return View;
-		}
-
-		/**
-	  * Start the rendering
-	  * @return {Promise} rendering has started
-	  */
-		start() {
-
-			if (!this.manager) {
-				this.ViewManager = this.requireManager(this.settings.manager);
-				this.View = this.requireView(this.settings.view);
-
-				this.manager = new this.ViewManager({
-					view: this.View,
-					queue: this.q,
-					request: this.book.load.bind(this.book),
-					settings: this.settings
-				});
-			}
-
-			this.direction(this.book.package.metadata.direction);
-
-			// Parse metadata to get layout props
-			this.settings.globalLayoutProperties = this.determineLayoutProperties(this.book.package.metadata);
-
-			this.flow(this.settings.globalLayoutProperties.flow);
-
-			this.layout(this.settings.globalLayoutProperties);
-
-			// Listen for displayed views
-			this.manager.on(EVENTS.MANAGERS.ADDED, this.afterDisplayed.bind(this));
-			this.manager.on(EVENTS.MANAGERS.REMOVED, this.afterRemoved.bind(this));
-
-			// Listen for resizing
-			this.manager.on(EVENTS.MANAGERS.RESIZED, this.onResized.bind(this));
-
-			// Listen for rotation
-			this.manager.on(EVENTS.MANAGERS.ORIENTATION_CHANGE, this.onOrientationChange.bind(this));
-
-			// Listen for scroll changes
-			this.manager.on(EVENTS.MANAGERS.SCROLLED, this.reportLocation.bind(this));
 
 			/**
-	   * Emit that rendering has started
-	   * @event started
-	   * @memberof Rendition
+	   * Require the manager from passed string, or as a class function
+	   * @param  {string|object} manager [description]
+	   * @return {method}
 	   */
-			this.emit(EVENTS.RENDITION.STARTED);
 
-			// Start processing queue
-			this.starting.resolve();
-		}
+		}, {
+			key: "requireManager",
+			value: function requireManager(manager) {
+				var viewManager;
 
-		/**
-	  * Call to attach the container to an element in the dom
-	  * Container must be attached before rendering can begin
-	  * @param  {element} element to attach to
-	  * @return {Promise}
-	  */
-		attachTo(element) {
+				// If manager is a string, try to load from imported managers
+				if (typeof manager === "string" && manager === "default") {
+					viewManager = DefaultViewManager;
+				} else if (typeof manager === "string" && manager === "continuous") {
+					viewManager = ContinuousViewManager;
+				} else {
+					// otherwise, assume we were passed a class function
+					viewManager = manager;
+				}
 
-			return this.q.enqueue(function () {
+				return viewManager;
+			}
 
-				// Start rendering
-				this.manager.render(element, {
-					"width": this.settings.width,
-					"height": this.settings.height
-				});
+			/**
+	   * Require the view from passed string, or as a class function
+	   * @param  {string|object} view
+	   * @return {view}
+	   */
+
+		}, {
+			key: "requireView",
+			value: function requireView(view) {
+				var View;
+
+				// If view is a string, try to load from imported views,
+				if (typeof view == "string" && view === "iframe") {
+					View = IframeView;
+				} else {
+					// otherwise, assume we were passed a class function
+					View = view;
+				}
+
+				return View;
+			}
+
+			/**
+	   * Start the rendering
+	   * @return {Promise} rendering has started
+	   */
+
+		}, {
+			key: "start",
+			value: function start() {
+
+				if (!this.manager) {
+					this.ViewManager = this.requireManager(this.settings.manager);
+					this.View = this.requireView(this.settings.view);
+
+					this.manager = new this.ViewManager({
+						view: this.View,
+						queue: this.q,
+						request: this.book.load.bind(this.book),
+						settings: this.settings
+					});
+				}
+
+				this.direction(this.book.package.metadata.direction);
+
+				// Parse metadata to get layout props
+				this.settings.globalLayoutProperties = this.determineLayoutProperties(this.book.package.metadata);
+
+				this.flow(this.settings.globalLayoutProperties.flow);
+
+				this.layout(this.settings.globalLayoutProperties);
+
+				// Listen for displayed views
+				this.manager.on(EVENTS.MANAGERS.ADDED, this.afterDisplayed.bind(this));
+				this.manager.on(EVENTS.MANAGERS.REMOVED, this.afterRemoved.bind(this));
+
+				// Listen for resizing
+				this.manager.on(EVENTS.MANAGERS.RESIZED, this.onResized.bind(this));
+
+				// Listen for rotation
+				this.manager.on(EVENTS.MANAGERS.ORIENTATION_CHANGE, this.onOrientationChange.bind(this));
+
+				// Listen for scroll changes
+				this.manager.on(EVENTS.MANAGERS.SCROLLED, this.reportLocation.bind(this));
 
 				/**
-	    * Emit that rendering has attached to an element
-	    * @event attached
+	    * Emit that rendering has started
+	    * @event started
 	    * @memberof Rendition
 	    */
-				this.emit(EVENTS.RENDITION.ATTACHED);
-			}.bind(this));
-		}
+				this.emit(EVENTS.RENDITION.STARTED);
 
-		/**
-	  * Display a point in the book
-	  * The request will be added to the rendering Queue,
-	  * so it will wait until book is opened, rendering started
-	  * and all other rendering tasks have finished to be called.
-	  * @param  {string} target Url or EpubCFI
-	  * @return {Promise}
-	  */
-		display(target) {
-			if (this.displaying) {
-				this.displaying.resolve();
-			}
-			return this.q.enqueue(this._display, target);
-		}
-
-		/**
-	  * Tells the manager what to display immediately
-	  * @private
-	  * @param  {string} target Url or EpubCFI
-	  * @return {Promise}
-	  */
-		_display(target) {
-			if (!this.book) {
-				return;
-			}
-			var isCfiString = this.epubcfi.isCfiString(target);
-			var displaying = new defer();
-			var displayed = displaying.promise;
-			var section;
-
-			this.displaying = displaying;
-
-			// Check if this is a book percentage
-			if (this.book.locations.length() && isFloat(target)) {
-				target = this.book.locations.cfiFromPercentage(parseFloat(target));
+				// Start processing queue
+				this.starting.resolve();
 			}
 
-			section = this.book.spine.get(target);
+			/**
+	   * Call to attach the container to an element in the dom
+	   * Container must be attached before rendering can begin
+	   * @param  {element} element to attach to
+	   * @return {Promise}
+	   */
 
-			if (!section) {
-				displaying.reject(new Error("No Section Found"));
+		}, {
+			key: "attachTo",
+			value: function attachTo(element) {
+
+				return this.q.enqueue(function () {
+
+					// Start rendering
+					this.manager.render(element, {
+						"width": this.settings.width,
+						"height": this.settings.height
+					});
+
+					/**
+	     * Emit that rendering has attached to an element
+	     * @event attached
+	     * @memberof Rendition
+	     */
+					this.emit(EVENTS.RENDITION.ATTACHED);
+				}.bind(this));
+			}
+
+			/**
+	   * Display a point in the book
+	   * The request will be added to the rendering Queue,
+	   * so it will wait until book is opened, rendering started
+	   * and all other rendering tasks have finished to be called.
+	   * @param  {string} target Url or EpubCFI
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "display",
+			value: function display(target) {
+				if (this.displaying) {
+					this.displaying.resolve();
+				}
+				return this.q.enqueue(this._display, target);
+			}
+
+			/**
+	   * Tells the manager what to display immediately
+	   * @private
+	   * @param  {string} target Url or EpubCFI
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "_display",
+			value: function _display(target) {
+				var _this = this;
+
+				if (!this.book) {
+					return;
+				}
+				var isCfiString = this.epubcfi.isCfiString(target);
+				var displaying = new defer();
+				var displayed = displaying.promise;
+				var section;
+
+				this.displaying = displaying;
+
+				// Check if this is a book percentage
+				if (this.book.locations.length() && isFloat(target)) {
+					target = this.book.locations.cfiFromPercentage(parseFloat(target));
+				}
+
+				section = this.book.spine.get(target);
+
+				if (!section) {
+					displaying.reject(new Error("No Section Found"));
+					return displayed;
+				}
+
+				this.manager.display(section, target).then(function () {
+					displaying.resolve(section);
+					_this.displaying = undefined;
+
+					/**
+	     * Emit that a section has been displayed
+	     * @event displayed
+	     * @param {Section} section
+	     * @memberof Rendition
+	     */
+					_this.emit(EVENTS.RENDITION.DISPLAYED, section);
+					_this.reportLocation();
+				}, function (err) {
+					/**
+	     * Emit that has been an error displaying
+	     * @event displayError
+	     * @param {Section} section
+	     * @memberof Rendition
+	     */
+					_this.emit(EVENTS.RENDITION.DISPLAY_ERROR, err);
+				});
+
 				return displayed;
 			}
 
-			this.manager.display(section, target).then(() => {
-				displaying.resolve(section);
-				this.displaying = undefined;
-
-				/**
-	    * Emit that a section has been displayed
-	    * @event displayed
-	    * @param {Section} section
-	    * @memberof Rendition
-	    */
-				this.emit(EVENTS.RENDITION.DISPLAYED, section);
-				this.reportLocation();
-			}, err => {
-				/**
-	    * Emit that has been an error displaying
-	    * @event displayError
-	    * @param {Section} section
-	    * @memberof Rendition
-	    */
-				this.emit(EVENTS.RENDITION.DISPLAY_ERROR, err);
-			});
-
-			return displayed;
-		}
-
-		/*
-	 render(view, show) {
-	 		// view.onLayout = this.layout.format.bind(this.layout);
-	 	view.create();
-	 		// Fit to size of the container, apply padding
-	 	this.manager.resizeView(view);
-	 		// Render Chain
-	 	return view.section.render(this.book.request)
-	 		.then(function(contents){
-	 			return view.load(contents);
-	 		}.bind(this))
-	 		.then(function(doc){
-	 			return this.hooks.content.trigger(view, this);
-	 		}.bind(this))
-	 		.then(function(){
-	 			this.layout.format(view.contents);
-	 			return this.hooks.layout.trigger(view, this);
-	 		}.bind(this))
-	 		.then(function(){
-	 			return view.display();
-	 		}.bind(this))
-	 		.then(function(){
-	 			return this.hooks.render.trigger(view, this);
-	 		}.bind(this))
-	 		.then(function(){
-	 			if(show !== false) {
-	 				this.q.enqueue(function(view){
-	 					view.show();
-	 				}, view);
-	 			}
-	 			// this.map = new Map(view, this.layout);
-	 			this.hooks.show.trigger(view, this);
-	 			this.trigger("rendered", view.section);
-	 			}.bind(this))
-	 		.catch(function(e){
-	 			this.trigger("loaderror", e);
-	 		}.bind(this));
-	 	}
-	 */
-
-		/**
-	  * Report what section has been displayed
-	  * @private
-	  * @param  {*} view
+			/*
+	  render(view, show) {
+	  		// view.onLayout = this.layout.format.bind(this.layout);
+	  	view.create();
+	  		// Fit to size of the container, apply padding
+	  	this.manager.resizeView(view);
+	  		// Render Chain
+	  	return view.section.render(this.book.request)
+	  		.then(function(contents){
+	  			return view.load(contents);
+	  		}.bind(this))
+	  		.then(function(doc){
+	  			return this.hooks.content.trigger(view, this);
+	  		}.bind(this))
+	  		.then(function(){
+	  			this.layout.format(view.contents);
+	  			return this.hooks.layout.trigger(view, this);
+	  		}.bind(this))
+	  		.then(function(){
+	  			return view.display();
+	  		}.bind(this))
+	  		.then(function(){
+	  			return this.hooks.render.trigger(view, this);
+	  		}.bind(this))
+	  		.then(function(){
+	  			if(show !== false) {
+	  				this.q.enqueue(function(view){
+	  					view.show();
+	  				}, view);
+	  			}
+	  			// this.map = new Map(view, this.layout);
+	  			this.hooks.show.trigger(view, this);
+	  			this.trigger("rendered", view.section);
+	  			}.bind(this))
+	  		.catch(function(e){
+	  			this.trigger("loaderror", e);
+	  		}.bind(this));
+	  	}
 	  */
-		afterDisplayed(view) {
-
-			view.on(EVENTS.VIEWS.MARK_CLICKED, (cfiRange, data) => this.triggerMarkEvent(cfiRange, data, view));
-
-			this.hooks.render.trigger(view, this).then(() => {
-				if (view.contents) {
-					this.hooks.content.trigger(view.contents, this).then(() => {
-						/**
-	      * Emit that a section has been rendered
-	      * @event rendered
-	      * @param {Section} section
-	      * @param {View} view
-	      * @memberof Rendition
-	      */
-						this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
-					});
-				} else {
-					this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
-				}
-			});
-		}
-
-		/**
-	  * Report what has been removed
-	  * @private
-	  * @param  {*} view
-	  */
-		afterRemoved(view) {
-			this.hooks.unloaded.trigger(view, this).then(() => {
-				/**
-	    * Emit that a section has been removed
-	    * @event removed
-	    * @param {Section} section
-	    * @param {View} view
-	    * @memberof Rendition
-	    */
-				this.emit(EVENTS.RENDITION.REMOVED, view.section, view);
-			});
-		}
-
-		/**
-	  * Report resize events and display the last seen location
-	  * @private
-	  */
-		onResized(size) {
 
 			/**
-	   * Emit that the rendition has been resized
-	   * @event resized
-	   * @param {number} width
-	   * @param {height} height
-	   * @memberof Rendition
+	   * Report what section has been displayed
+	   * @private
+	   * @param  {*} view
 	   */
-			this.emit(EVENTS.RENDITION.RESIZED, {
-				width: size.width,
-				height: size.height
-			});
 
-			if (this.location && this.location.start) {
-				this.display(this.location.start.cfi);
-			}
-		}
+		}, {
+			key: "afterDisplayed",
+			value: function afterDisplayed(view) {
+				var _this2 = this;
 
-		/**
-	  * Report orientation events and display the last seen location
-	  * @private
-	  */
-		onOrientationChange(orientation) {
-			/**
-	   * Emit that the rendition has been rotated
-	   * @event orientationchange
-	   * @param {string} orientation
-	   * @memberof Rendition
-	   */
-			this.emit(EVENTS.RENDITION.ORIENTATION_CHANGE, orientation);
-		}
+				view.on(EVENTS.VIEWS.MARK_CLICKED, function (cfiRange, data) {
+					return _this2.triggerMarkEvent(cfiRange, data, view);
+				});
 
-		/**
-	  * Move the Rendition to a specific offset
-	  * Usually you would be better off calling display()
-	  * @param {object} offset
-	  */
-		moveTo(offset) {
-			this.manager.moveTo(offset);
-		}
-
-		/**
-	  * Trigger a resize of the views
-	  * @param {number} [width]
-	  * @param {number} [height]
-	  */
-		resize(width, height) {
-			if (width) {
-				this.settings.width = width;
-			}
-			if (height) {
-				this.settings.height = height;
-			}
-			this.manager.resize(width, height);
-		}
-
-		/**
-	  * Clear all rendered views
-	  */
-		clear() {
-			this.manager.clear();
-		}
-
-		/**
-	  * Go to the next "page" in the rendition
-	  * @return {Promise}
-	  */
-		next() {
-			return this.q.enqueue(this.manager.next.bind(this.manager)).then(this.reportLocation.bind(this));
-		}
-
-		/**
-	  * Go to the previous "page" in the rendition
-	  * @return {Promise}
-	  */
-		prev() {
-			return this.q.enqueue(this.manager.prev.bind(this.manager)).then(this.reportLocation.bind(this));
-		}
-
-		//-- http://www.idpf.org/epub/301/spec/epub-publications.html#meta-properties-rendering
-		/**
-	  * Determine the Layout properties from metadata and settings
-	  * @private
-	  * @param  {object} metadata
-	  * @return {object} properties
-	  */
-		determineLayoutProperties(metadata) {
-			var properties;
-			var layout = this.settings.layout || metadata.layout || "reflowable";
-			var spread = this.settings.spread || metadata.spread || "auto";
-			var orientation = this.settings.orientation || metadata.orientation || "auto";
-			var flow = this.settings.flow || metadata.flow || "auto";
-			var viewport = metadata.viewport || "";
-			var minSpreadWidth = this.settings.minSpreadWidth || metadata.minSpreadWidth || 800;
-			var direction = this.settings.direction || metadata.direction || "ltr";
-
-			if ((this.settings.width === 0 || this.settings.width > 0) && (this.settings.height === 0 || this.settings.height > 0)) ;
-
-			properties = {
-				layout: layout,
-				spread: spread,
-				orientation: orientation,
-				flow: flow,
-				viewport: viewport,
-				minSpreadWidth: minSpreadWidth,
-				direction: direction
-			};
-
-			return properties;
-		}
-
-		/**
-	  * Adjust the flow of the rendition to paginated or scrolled
-	  * (scrolled-continuous vs scrolled-doc are handled by different view managers)
-	  * @param  {string} flow
-	  */
-		flow(flow) {
-			var _flow = flow;
-			if (flow === "scrolled" || flow === "scrolled-doc" || flow === "scrolled-continuous") {
-				_flow = "scrolled";
-			}
-
-			if (flow === "auto" || flow === "paginated") {
-				_flow = "paginated";
-			}
-
-			this.settings.flow = flow;
-
-			if (this._layout) {
-				this._layout.flow(_flow);
-			}
-
-			if (this.manager && this._layout) {
-				this.manager.applyLayout(this._layout);
-			}
-
-			if (this.manager) {
-				this.manager.updateFlow(_flow);
-			}
-
-			if (this.manager && this.manager.isRendered() && this.location) {
-				this.manager.clear();
-				this.display(this.location.start.cfi);
-			}
-		}
-
-		/**
-	  * Adjust the layout of the rendition to reflowable or pre-paginated
-	  * @param  {object} settings
-	  */
-		layout(settings) {
-			if (settings) {
-				this._layout = new Layout(settings);
-				this._layout.spread(settings.spread, this.settings.minSpreadWidth);
-
-				// this.mapping = new Mapping(this._layout.props);
-
-				this._layout.on(EVENTS.LAYOUT.UPDATED, (props, changed) => {
-					this.emit(EVENTS.RENDITION.LAYOUT, props, changed);
+				this.hooks.render.trigger(view, this).then(function () {
+					if (view.contents) {
+						_this2.hooks.content.trigger(view.contents, _this2).then(function () {
+							/**
+	       * Emit that a section has been rendered
+	       * @event rendered
+	       * @param {Section} section
+	       * @param {View} view
+	       * @memberof Rendition
+	       */
+							_this2.emit(EVENTS.RENDITION.RENDERED, view.section, view);
+						});
+					} else {
+						_this2.emit(EVENTS.RENDITION.RENDERED, view.section, view);
+					}
 				});
 			}
 
-			if (this.manager && this._layout) {
-				this.manager.applyLayout(this._layout);
+			/**
+	   * Report what has been removed
+	   * @private
+	   * @param  {*} view
+	   */
+
+		}, {
+			key: "afterRemoved",
+			value: function afterRemoved(view) {
+				var _this3 = this;
+
+				this.hooks.unloaded.trigger(view, this).then(function () {
+					/**
+	     * Emit that a section has been removed
+	     * @event removed
+	     * @param {Section} section
+	     * @param {View} view
+	     * @memberof Rendition
+	     */
+					_this3.emit(EVENTS.RENDITION.REMOVED, view.section, view);
+				});
 			}
 
-			return this._layout;
-		}
+			/**
+	   * Report resize events and display the last seen location
+	   * @private
+	   */
 
-		/**
-	  * Adjust if the rendition uses spreads
-	  * @param  {string} spread none | auto (TODO: implement landscape, portrait, both)
-	  * @param  {int} [min] min width to use spreads at
-	  */
-		spread(spread, min) {
+		}, {
+			key: "onResized",
+			value: function onResized(size) {
 
-			this.settings.spread = spread;
+				/**
+	    * Emit that the rendition has been resized
+	    * @event resized
+	    * @param {number} width
+	    * @param {height} height
+	    * @memberof Rendition
+	    */
+				this.emit(EVENTS.RENDITION.RESIZED, {
+					width: size.width,
+					height: size.height
+				});
 
-			if (min) {
-				this.settings.minSpreadWidth = min;
+				if (this.location && this.location.start) {
+					this.display(this.location.start.cfi);
+				}
 			}
 
-			if (this._layout) {
-				this._layout.spread(spread, min);
+			/**
+	   * Report orientation events and display the last seen location
+	   * @private
+	   */
+
+		}, {
+			key: "onOrientationChange",
+			value: function onOrientationChange(orientation) {
+				/**
+	    * Emit that the rendition has been rotated
+	    * @event orientationchange
+	    * @param {string} orientation
+	    * @memberof Rendition
+	    */
+				this.emit(EVENTS.RENDITION.ORIENTATION_CHANGE, orientation);
 			}
 
-			if (this.manager && this.manager.isRendered()) {
-				this.manager.updateLayout();
-			}
-		}
+			/**
+	   * Move the Rendition to a specific offset
+	   * Usually you would be better off calling display()
+	   * @param {object} offset
+	   */
 
-		/**
-	  * Adjust the direction of the rendition
-	  * @param  {string} dir
-	  */
-		direction(dir) {
-
-			this.settings.direction = dir || "ltr";
-
-			if (this.manager) {
-				this.manager.direction(this.settings.direction);
+		}, {
+			key: "moveTo",
+			value: function moveTo(offset) {
+				this.manager.moveTo(offset);
 			}
 
-			if (this.manager && this.manager.isRendered() && this.location) {
+			/**
+	   * Trigger a resize of the views
+	   * @param {number} [width]
+	   * @param {number} [height]
+	   */
+
+		}, {
+			key: "resize",
+			value: function resize(width, height) {
+				if (width) {
+					this.settings.width = width;
+				}
+				if (height) {
+					this.settings.height = height;
+				}
+				this.manager.resize(width, height);
+			}
+
+			/**
+	   * Clear all rendered views
+	   */
+
+		}, {
+			key: "clear",
+			value: function clear() {
 				this.manager.clear();
-				this.display(this.location.start.cfi);
 			}
-		}
 
-		/**
-	  * Report the current location
-	  * @fires relocated
-	  * @fires locationChanged
-	  */
-		reportLocation() {
-			return this.q.enqueue(function reportedLocation() {
-				requestAnimationFrame(function reportedLocationAfterRAF() {
-					var location = this.manager.currentLocation();
-					if (location && location.then && typeof location.then === "function") {
-						location.then(function (result) {
-							let located = this.located(result);
+			/**
+	   * Go to the next "page" in the rendition
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "next",
+			value: function next() {
+				return this.q.enqueue(this.manager.next.bind(this.manager)).then(this.reportLocation.bind(this));
+			}
+
+			/**
+	   * Go to the previous "page" in the rendition
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "prev",
+			value: function prev() {
+				return this.q.enqueue(this.manager.prev.bind(this.manager)).then(this.reportLocation.bind(this));
+			}
+
+			//-- http://www.idpf.org/epub/301/spec/epub-publications.html#meta-properties-rendering
+			/**
+	   * Determine the Layout properties from metadata and settings
+	   * @private
+	   * @param  {object} metadata
+	   * @return {object} properties
+	   */
+
+		}, {
+			key: "determineLayoutProperties",
+			value: function determineLayoutProperties(metadata) {
+				var properties;
+				var layout = this.settings.layout || metadata.layout || "reflowable";
+				var spread = this.settings.spread || metadata.spread || "auto";
+				var orientation = this.settings.orientation || metadata.orientation || "auto";
+				var flow = this.settings.flow || metadata.flow || "auto";
+				var viewport = metadata.viewport || "";
+				var minSpreadWidth = this.settings.minSpreadWidth || metadata.minSpreadWidth || 800;
+				var direction = this.settings.direction || metadata.direction || "ltr";
+
+				if ((this.settings.width === 0 || this.settings.width > 0) && (this.settings.height === 0 || this.settings.height > 0)) ;
+
+				properties = {
+					layout: layout,
+					spread: spread,
+					orientation: orientation,
+					flow: flow,
+					viewport: viewport,
+					minSpreadWidth: minSpreadWidth,
+					direction: direction
+				};
+
+				return properties;
+			}
+
+			/**
+	   * Adjust the flow of the rendition to paginated or scrolled
+	   * (scrolled-continuous vs scrolled-doc are handled by different view managers)
+	   * @param  {string} flow
+	   */
+
+		}, {
+			key: "flow",
+			value: function flow(_flow2) {
+				var _flow = _flow2;
+				if (_flow2 === "scrolled" || _flow2 === "scrolled-doc" || _flow2 === "scrolled-continuous") {
+					_flow = "scrolled";
+				}
+
+				if (_flow2 === "auto" || _flow2 === "paginated") {
+					_flow = "paginated";
+				}
+
+				this.settings.flow = _flow2;
+
+				if (this._layout) {
+					this._layout.flow(_flow);
+				}
+
+				if (this.manager && this._layout) {
+					this.manager.applyLayout(this._layout);
+				}
+
+				if (this.manager) {
+					this.manager.updateFlow(_flow);
+				}
+
+				if (this.manager && this.manager.isRendered() && this.location) {
+					this.manager.clear();
+					this.display(this.location.start.cfi);
+				}
+			}
+
+			/**
+	   * Adjust the layout of the rendition to reflowable or pre-paginated
+	   * @param  {object} settings
+	   */
+
+		}, {
+			key: "layout",
+			value: function layout(settings) {
+				var _this4 = this;
+
+				if (settings) {
+					this._layout = new Layout(settings);
+					this._layout.spread(settings.spread, this.settings.minSpreadWidth);
+
+					// this.mapping = new Mapping(this._layout.props);
+
+					this._layout.on(EVENTS.LAYOUT.UPDATED, function (props, changed) {
+						_this4.emit(EVENTS.RENDITION.LAYOUT, props, changed);
+					});
+				}
+
+				if (this.manager && this._layout) {
+					this.manager.applyLayout(this._layout);
+				}
+
+				return this._layout;
+			}
+
+			/**
+	   * Adjust if the rendition uses spreads
+	   * @param  {string} spread none | auto (TODO: implement landscape, portrait, both)
+	   * @param  {int} [min] min width to use spreads at
+	   */
+
+		}, {
+			key: "spread",
+			value: function spread(_spread, min) {
+
+				this.settings.spread = _spread;
+
+				if (min) {
+					this.settings.minSpreadWidth = min;
+				}
+
+				if (this._layout) {
+					this._layout.spread(_spread, min);
+				}
+
+				if (this.manager && this.manager.isRendered()) {
+					this.manager.updateLayout();
+				}
+			}
+
+			/**
+	   * Adjust the direction of the rendition
+	   * @param  {string} dir
+	   */
+
+		}, {
+			key: "direction",
+			value: function direction(dir) {
+
+				this.settings.direction = dir || "ltr";
+
+				if (this.manager) {
+					this.manager.direction(this.settings.direction);
+				}
+
+				if (this.manager && this.manager.isRendered() && this.location) {
+					this.manager.clear();
+					this.display(this.location.start.cfi);
+				}
+			}
+
+			/**
+	   * Report the current location
+	   * @fires relocated
+	   * @fires locationChanged
+	   */
+
+		}, {
+			key: "reportLocation",
+			value: function reportLocation() {
+				return this.q.enqueue(function reportedLocation() {
+					requestAnimationFrame(function reportedLocationAfterRAF() {
+						var location = this.manager.currentLocation();
+						if (location && location.then && typeof location.then === "function") {
+							location.then(function (result) {
+								var located = this.located(result);
+
+								if (!located || !located.start || !located.end) {
+									return;
+								}
+
+								this.location = located;
+
+								this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
+									index: this.location.start.index,
+									href: this.location.start.href,
+									start: this.location.start.cfi,
+									end: this.location.end.cfi,
+									percentage: this.location.start.percentage
+								});
+
+								this.emit(EVENTS.RENDITION.RELOCATED, this.location);
+							}.bind(this));
+						} else if (location) {
+							var located = this.located(location);
 
 							if (!located || !located.start || !located.end) {
 								return;
@@ -19923,6 +21163,17 @@
 
 							this.location = located;
 
+							/**
+	       * @event locationChanged
+	       * @deprecated
+	       * @type {object}
+	       * @property {number} index
+	       * @property {string} href
+	       * @property {EpubCFI} start
+	       * @property {EpubCFI} end
+	       * @property {number} percentage
+	       * @memberof Rendition
+	       */
 							this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
 								index: this.location.start.index,
 								href: this.location.start.href,
@@ -19931,365 +21182,394 @@
 								percentage: this.location.start.percentage
 							});
 
+							/**
+	       * @event relocated
+	       * @type {displayedLocation}
+	       * @memberof Rendition
+	       */
 							this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-						}.bind(this));
-					} else if (location) {
-						let located = this.located(location);
-
-						if (!located || !located.start || !located.end) {
-							return;
 						}
-
-						this.location = located;
-
-						/**
-	      * @event locationChanged
-	      * @deprecated
-	      * @type {object}
-	      * @property {number} index
-	      * @property {string} href
-	      * @property {EpubCFI} start
-	      * @property {EpubCFI} end
-	      * @property {number} percentage
-	      * @memberof Rendition
-	      */
-						this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
-							index: this.location.start.index,
-							href: this.location.start.href,
-							start: this.location.start.cfi,
-							end: this.location.end.cfi,
-							percentage: this.location.start.percentage
-						});
-
-						/**
-	      * @event relocated
-	      * @type {displayedLocation}
-	      * @memberof Rendition
-	      */
-						this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-					}
+					}.bind(this));
 				}.bind(this));
-			}.bind(this));
-		}
+			}
 
-		/**
-	  * Get the Current Location object
-	  * @return {displayedLocation | promise} location (may be a promise)
-	  */
-		currentLocation() {
-			var location = this.manager.currentLocation();
-			if (location && location.then && typeof location.then === "function") {
-				location.then(function (result) {
-					let located = this.located(result);
+			/**
+	   * Get the Current Location object
+	   * @return {displayedLocation | promise} location (may be a promise)
+	   */
+
+		}, {
+			key: "currentLocation",
+			value: function currentLocation() {
+				var location = this.manager.currentLocation();
+				if (location && location.then && typeof location.then === "function") {
+					location.then(function (result) {
+						var located = this.located(result);
+						return located;
+					}.bind(this));
+				} else if (location) {
+					var located = this.located(location);
 					return located;
-				}.bind(this));
-			} else if (location) {
-				let located = this.located(location);
+				}
+			}
+
+			/**
+	   * Creates a Rendition#locationRange from location
+	   * passed by the Manager
+	   * @returns {displayedLocation}
+	   * @private
+	   */
+
+		}, {
+			key: "located",
+			value: function located(location) {
+				if (!location.length) {
+					return {};
+				}
+				var start = location[0];
+				var end = location[location.length - 1];
+
+				var located = {
+					start: {
+						index: start.index,
+						href: start.href,
+						cfi: start.mapping.start,
+						displayed: {
+							page: start.pages[0] || 1,
+							total: start.totalPages
+						}
+					},
+					end: {
+						index: end.index,
+						href: end.href,
+						cfi: end.mapping.end,
+						displayed: {
+							page: end.pages[end.pages.length - 1] || 1,
+							total: end.totalPages
+						}
+					}
+				};
+
+				var locationStart = this.book.locations.locationFromCfi(start.mapping.start);
+				var locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
+
+				if (locationStart != null) {
+					located.start.location = locationStart;
+					located.start.percentage = this.book.locations.percentageFromLocation(locationStart);
+				}
+				if (locationEnd != null) {
+					located.end.location = locationEnd;
+					located.end.percentage = this.book.locations.percentageFromLocation(locationEnd);
+				}
+
+				var pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
+				var pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
+
+				if (pageStart != -1) {
+					located.start.page = pageStart;
+				}
+				if (pageEnd != -1) {
+					located.end.page = pageEnd;
+				}
+
+				if (end.index === this.book.spine.last().index && located.end.displayed.page >= located.end.displayed.total) {
+					located.atEnd = true;
+				}
+
+				if (start.index === this.book.spine.first().index && located.start.displayed.page === 1) {
+					located.atStart = true;
+				}
+
 				return located;
 			}
-		}
 
-		/**
-	  * Creates a Rendition#locationRange from location
-	  * passed by the Manager
-	  * @returns {displayedLocation}
-	  * @private
-	  */
-		located(location) {
-			if (!location.length) {
-				return {};
-			}
-			let start = location[0];
-			let end = location[location.length - 1];
-
-			let located = {
-				start: {
-					index: start.index,
-					href: start.href,
-					cfi: start.mapping.start,
-					displayed: {
-						page: start.pages[0] || 1,
-						total: start.totalPages
-					}
-				},
-				end: {
-					index: end.index,
-					href: end.href,
-					cfi: end.mapping.end,
-					displayed: {
-						page: end.pages[end.pages.length - 1] || 1,
-						total: end.totalPages
-					}
-				}
-			};
-
-			let locationStart = this.book.locations.locationFromCfi(start.mapping.start);
-			let locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
-
-			if (locationStart != null) {
-				located.start.location = locationStart;
-				located.start.percentage = this.book.locations.percentageFromLocation(locationStart);
-			}
-			if (locationEnd != null) {
-				located.end.location = locationEnd;
-				located.end.percentage = this.book.locations.percentageFromLocation(locationEnd);
-			}
-
-			let pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
-			let pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
-
-			if (pageStart != -1) {
-				located.start.page = pageStart;
-			}
-			if (pageEnd != -1) {
-				located.end.page = pageEnd;
-			}
-
-			if (end.index === this.book.spine.last().index && located.end.displayed.page >= located.end.displayed.total) {
-				located.atEnd = true;
-			}
-
-			if (start.index === this.book.spine.first().index && located.start.displayed.page === 1) {
-				located.atStart = true;
-			}
-
-			return located;
-		}
-
-		/**
-	  * Remove and Clean Up the Rendition
-	  */
-		destroy() {
-			// Clear the queue
-			// this.q.clear();
-			// this.q = undefined;
-
-			this.manager && this.manager.destroy();
-			this.book.spine.hooks.content.deregister(this.injected['identifier']);
-			this.book.spine.hooks.content.deregister(this.injected['script']);
-			this.book.spine.hooks.content.deregister(this.injected['stylesheet']);
-
-			this.book = undefined;
-
-			// this.views = null;
-
-			// this.hooks.display.clear();
-			// this.hooks.serialize.clear();
-			// this.hooks.content.clear();
-			// this.hooks.layout.clear();
-			// this.hooks.render.clear();
-			// this.hooks.show.clear();
-			// this.hooks = {};
-
-			// this.themes.destroy();
-			// this.themes = undefined;
-
-			// this.epubcfi = undefined;
-
-			// this.starting = undefined;
-			// this.started = undefined;
-
-		}
-
-		/**
-	  * Pass the events from a view's Contents
-	  * @private
-	  * @param  {Contents} view contents
-	  */
-		passEvents(contents) {
-			DOM_EVENTS.forEach(e => {
-				contents.on(e, ev => this.triggerViewEvent(ev, contents));
-			});
-
-			contents.on(EVENTS.CONTENTS.SELECTED, e => this.triggerSelectedEvent(e, contents));
-		}
-
-		/**
-	  * Emit events passed by a view
-	  * @private
-	  * @param  {event} e
-	  */
-		triggerViewEvent(e, contents) {
-			this.emit(e.type, e, contents);
-		}
-
-		/**
-	  * Emit a selection event's CFI Range passed from a a view
-	  * @private
-	  * @param  {EpubCFI} cfirange
-	  */
-		triggerSelectedEvent(cfirange, contents) {
 			/**
-	   * Emit that a text selection has occured
-	   * @event selected
-	   * @param {EpubCFI} cfirange
-	   * @param {Contents} contents
-	   * @memberof Rendition
+	   * Remove and Clean Up the Rendition
 	   */
-			this.emit(EVENTS.RENDITION.SELECTED, cfirange, contents);
-		}
 
-		/**
-	  * Emit a markClicked event with the cfiRange and data from a mark
-	  * @private
-	  * @param  {EpubCFI} cfirange
-	  */
-		triggerMarkEvent(cfiRange, data, contents) {
-			/**
-	   * Emit that a mark was clicked
-	   * @event markClicked
-	   * @param {EpubCFI} cfirange
-	   * @param {object} data
-	   * @param {Contents} contents
-	   * @memberof Rendition
-	   */
-			this.emit(EVENTS.RENDITION.MARK_CLICKED, cfiRange, data, contents);
-		}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				// Clear the queue
+				// this.q.clear();
+				// this.q = undefined;
 
-		/**
-	  * Get a Range from a Visible CFI
-	  * @param  {string} cfi EpubCfi String
-	  * @param  {string} ignoreClass
-	  * @return {range}
-	  */
-		getRange(cfi, ignoreClass) {
-			var _cfi = new EpubCFI(cfi);
-			var found = this.manager.visible().filter(function (view) {
-				if (_cfi.spinePos === view.index) return true;
-			});
+				this.manager && this.manager.destroy();
+				this.book.spine.hooks.content.deregister(this.injected['identifier']);
+				this.book.spine.hooks.content.deregister(this.injected['script']);
+				this.book.spine.hooks.content.deregister(this.injected['stylesheet']);
 
-			// Should only every return 1 item
-			if (found.length) {
-				return found[0].contents.range(_cfi, ignoreClass);
+				this.book = undefined;
+
+				// this.views = null;
+
+				// this.hooks.display.clear();
+				// this.hooks.serialize.clear();
+				// this.hooks.content.clear();
+				// this.hooks.layout.clear();
+				// this.hooks.render.clear();
+				// this.hooks.show.clear();
+				// this.hooks = {};
+
+				// this.themes.destroy();
+				// this.themes = undefined;
+
+				// this.epubcfi = undefined;
+
+				// this.starting = undefined;
+				// this.started = undefined;
+
 			}
-		}
 
-		/**
-	  * Hook to adjust images to fit in columns
-	  * @param  {Contents} contents
-	  * @private
-	  */
-		adjustImages(contents) {
+			/**
+	   * Pass the events from a view's Contents
+	   * @private
+	   * @param  {Contents} view contents
+	   */
 
-			if (this._layout.name === "pre-paginated") {
-				return new Promise(function (resolve) {
-					resolve();
+		}, {
+			key: "passEvents",
+			value: function passEvents(contents) {
+				var _this5 = this;
+
+				DOM_EVENTS.forEach(function (e) {
+					contents.on(e, function (ev) {
+						return _this5.triggerViewEvent(ev, contents);
+					});
+				});
+
+				contents.on(EVENTS.CONTENTS.SELECTED, function (e) {
+					return _this5.triggerSelectedEvent(e, contents);
 				});
 			}
 
-			let computed = contents.window.getComputedStyle(contents.content, null);
-			let height = (contents.content.offsetHeight - (parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom))) * .95;
-			let verticalPadding = parseFloat(computed.verticalPadding);
+			/**
+	   * Emit events passed by a view
+	   * @private
+	   * @param  {event} e
+	   */
 
-			contents.addStylesheetRules({
-				"img": {
-					"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"object-fit": "contain",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid",
-					"box-sizing": "border-box"
-				},
-				"svg": {
-					"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid"
+		}, {
+			key: "triggerViewEvent",
+			value: function triggerViewEvent(e, contents) {
+				this.emit(e.type, e, contents);
+			}
+
+			/**
+	   * Emit a selection event's CFI Range passed from a a view
+	   * @private
+	   * @param  {EpubCFI} cfirange
+	   */
+
+		}, {
+			key: "triggerSelectedEvent",
+			value: function triggerSelectedEvent(cfirange, contents) {
+				/**
+	    * Emit that a text selection has occured
+	    * @event selected
+	    * @param {EpubCFI} cfirange
+	    * @param {Contents} contents
+	    * @memberof Rendition
+	    */
+				this.emit(EVENTS.RENDITION.SELECTED, cfirange, contents);
+			}
+
+			/**
+	   * Emit a markClicked event with the cfiRange and data from a mark
+	   * @private
+	   * @param  {EpubCFI} cfirange
+	   */
+
+		}, {
+			key: "triggerMarkEvent",
+			value: function triggerMarkEvent(cfiRange, data, contents) {
+				/**
+	    * Emit that a mark was clicked
+	    * @event markClicked
+	    * @param {EpubCFI} cfirange
+	    * @param {object} data
+	    * @param {Contents} contents
+	    * @memberof Rendition
+	    */
+				this.emit(EVENTS.RENDITION.MARK_CLICKED, cfiRange, data, contents);
+			}
+
+			/**
+	   * Get a Range from a Visible CFI
+	   * @param  {string} cfi EpubCfi String
+	   * @param  {string} ignoreClass
+	   * @return {range}
+	   */
+
+		}, {
+			key: "getRange",
+			value: function getRange(cfi, ignoreClass) {
+				var _cfi = new EpubCFI(cfi);
+				var found = this.manager.visible().filter(function (view) {
+					if (_cfi.spinePos === view.index) return true;
+				});
+
+				// Should only every return 1 item
+				if (found.length) {
+					return found[0].contents.range(_cfi, ignoreClass);
 				}
-			});
+			}
 
-			return new Promise(function (resolve, reject) {
-				// Wait to apply
-				setTimeout(function () {
-					resolve();
-				}, 1);
-			});
-		}
+			/**
+	   * Hook to adjust images to fit in columns
+	   * @param  {Contents} contents
+	   * @private
+	   */
 
-		/**
-	  * Get the Contents object of each rendered view
-	  * @returns {Contents[]}
-	  */
-		getContents() {
-			return this.manager ? this.manager.getContents() : [];
-		}
+		}, {
+			key: "adjustImages",
+			value: function adjustImages(contents) {
 
-		/**
-	  * Get the views member from the manager
-	  * @returns {Views}
-	  */
-		views() {
-			let views = this.manager ? this.manager.views : undefined;
-			return views || [];
-		}
+				if (this._layout.name === "pre-paginated") {
+					return new Promise(function (resolve) {
+						resolve();
+					});
+				}
 
-		/**
-	  * Hook to handle link clicks in rendered content
-	  * @param  {Contents} contents
-	  * @private
-	  */
-		handleLinks(contents) {
-			if (contents) {
-				contents.on(EVENTS.CONTENTS.LINK_CLICKED, href => {
-					let relative = this.book.path.relative(href);
-					this.display(relative);
+				var computed = contents.window.getComputedStyle(contents.content, null);
+				var height = (contents.content.offsetHeight - (parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom))) * .95;
+				var verticalPadding = parseFloat(computed.verticalPadding);
+
+				contents.addStylesheetRules({
+					"img": {
+						"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
+						"max-height": height + "px" + "!important",
+						"object-fit": "contain",
+						"page-break-inside": "avoid",
+						"break-inside": "avoid",
+						"box-sizing": "border-box"
+					},
+					"svg": {
+						"max-width": (this._layout.columnWidth ? this._layout.columnWidth - verticalPadding + "px" : "100%") + "!important",
+						"max-height": height + "px" + "!important",
+						"page-break-inside": "avoid",
+						"break-inside": "avoid"
+					}
+				});
+
+				return new Promise(function (resolve, reject) {
+					// Wait to apply
+					setTimeout(function () {
+						resolve();
+					}, 1);
 				});
 			}
-		}
 
-		/**
-	  * Hook to handle injecting stylesheet before
-	  * a Section is serialized
-	  * @param  {document} doc
-	  * @param  {Section} section
-	  * @private
-	  */
-		injectStylesheet(doc, section) {
-			let style = doc.createElement("link");
-			style.setAttribute("type", "text/css");
-			style.setAttribute("rel", "stylesheet");
-			style.setAttribute("href", this.settings.stylesheet);
-			doc.getElementsByTagName("head")[0].appendChild(style);
-		}
+			/**
+	   * Get the Contents object of each rendered view
+	   * @returns {Contents[]}
+	   */
 
-		/**
-	  * Hook to handle injecting scripts before
-	  * a Section is serialized
-	  * @param  {document} doc
-	  * @param  {Section} section
-	  * @private
-	  */
-		injectScript(doc, section) {
-			let script = doc.createElement("script");
-			script.setAttribute("type", "text/javascript");
-			script.setAttribute("src", this.settings.script);
-			script.textContent = " "; // Needed to prevent self closing tag
-			doc.getElementsByTagName("head")[0].appendChild(script);
-		}
-
-		/**
-	  * Hook to handle the document identifier before
-	  * a Section is serialized
-	  * @param  {document} doc
-	  * @param  {Section} section
-	  * @private
-	  */
-		injectIdentifier(doc, section) {
-			let ident = this.book.packaging.metadata.identifier;
-			let meta = doc.createElement("meta");
-			meta.setAttribute("name", "dc.relation.ispartof");
-			if (ident) {
-				meta.setAttribute("content", ident);
+		}, {
+			key: "getContents",
+			value: function getContents() {
+				return this.manager ? this.manager.getContents() : [];
 			}
-			doc.getElementsByTagName("head")[0].appendChild(meta);
-		}
 
-		scale(s) {
-			return this.manager && this.manager.scale(s);
-		}
-	}
+			/**
+	   * Get the views member from the manager
+	   * @returns {Views}
+	   */
+
+		}, {
+			key: "views",
+			value: function views() {
+				var views = this.manager ? this.manager.views : undefined;
+				return views || [];
+			}
+
+			/**
+	   * Hook to handle link clicks in rendered content
+	   * @param  {Contents} contents
+	   * @private
+	   */
+
+		}, {
+			key: "handleLinks",
+			value: function handleLinks(contents) {
+				var _this6 = this;
+
+				if (contents) {
+					contents.on(EVENTS.CONTENTS.LINK_CLICKED, function (href) {
+						var relative = _this6.book.path.relative(href);
+						_this6.display(relative);
+					});
+				}
+			}
+
+			/**
+	   * Hook to handle injecting stylesheet before
+	   * a Section is serialized
+	   * @param  {document} doc
+	   * @param  {Section} section
+	   * @private
+	   */
+
+		}, {
+			key: "injectStylesheet",
+			value: function injectStylesheet(doc, section) {
+				var style = doc.createElement("link");
+				style.setAttribute("type", "text/css");
+				style.setAttribute("rel", "stylesheet");
+				style.setAttribute("href", this.settings.stylesheet);
+				doc.getElementsByTagName("head")[0].appendChild(style);
+			}
+
+			/**
+	   * Hook to handle injecting scripts before
+	   * a Section is serialized
+	   * @param  {document} doc
+	   * @param  {Section} section
+	   * @private
+	   */
+
+		}, {
+			key: "injectScript",
+			value: function injectScript(doc, section) {
+				var script = doc.createElement("script");
+				script.setAttribute("type", "text/javascript");
+				script.setAttribute("src", this.settings.script);
+				script.textContent = " "; // Needed to prevent self closing tag
+				doc.getElementsByTagName("head")[0].appendChild(script);
+			}
+
+			/**
+	   * Hook to handle the document identifier before
+	   * a Section is serialized
+	   * @param  {document} doc
+	   * @param  {Section} section
+	   * @private
+	   */
+
+		}, {
+			key: "injectIdentifier",
+			value: function injectIdentifier(doc, section) {
+				var ident = this.book.packaging.metadata.identifier;
+				var meta = doc.createElement("meta");
+				meta.setAttribute("name", "dc.relation.ispartof");
+				if (ident) {
+					meta.setAttribute("content", ident);
+				}
+				doc.getElementsByTagName("head")[0].appendChild(meta);
+			}
+		}, {
+			key: "scale",
+			value: function scale(s) {
+				return this.manager && this.manager.scale(s);
+			}
+		}]);
+
+		return Rendition;
+	}();
 
 	//-- Enable binding events to Renderer
+
+
 	eventEmitter(Rendition.prototype);
 
 	function request(url, type$$1, withCredentials, headers) {
@@ -20423,13 +21703,19 @@
 		return deferred.promise;
 	}
 
+	var _createClass$q = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$q(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	/**
 	 * Handles Unzipping a requesting files from an Epub Archive
 	 * @class
 	 */
-	class Archive {
 
-		constructor() {
+	var Archive = function () {
+		function Archive() {
+			_classCallCheck$q(this, Archive);
+
 			this.zip = undefined;
 			this.urlCache = {};
 
@@ -20441,226 +21727,265 @@
 	  * Requires JSZip if it isn't there
 	  * @private
 	  */
-		checkRequirements() {
-			try {
-				if (typeof JSZip === "undefined") {
-					let JSZip = require("jszip");
-					this.zip = new JSZip();
-				} else {
-					this.zip = new JSZip();
+
+
+		_createClass$q(Archive, [{
+			key: "checkRequirements",
+			value: function checkRequirements() {
+				try {
+					if (typeof JSZip === "undefined") {
+						var _JSZip = require("jszip");
+						this.zip = new _JSZip();
+					} else {
+						this.zip = new JSZip();
+					}
+				} catch (e) {
+					throw new Error("JSZip lib not loaded");
 				}
-			} catch (e) {
-				throw new Error("JSZip lib not loaded");
-			}
-		}
-
-		/**
-	  * Open an archive
-	  * @param  {binary} input
-	  * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
-	  * @return {Promise} zipfile
-	  */
-		open(input, isBase64) {
-			return this.zip.loadAsync(input, { "base64": isBase64 });
-		}
-
-		/**
-	  * Load and Open an archive
-	  * @param  {string} zipUrl
-	  * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
-	  * @return {Promise} zipfile
-	  */
-		openUrl(zipUrl, isBase64) {
-			return request(zipUrl, "binary").then(function (data) {
-				return this.zip.loadAsync(data, { "base64": isBase64 });
-			}.bind(this));
-		}
-
-		/**
-	  * Request a url from the archive
-	  * @param  {string} url  a url to request from the archive
-	  * @param  {string} [type] specify the type of the returned result
-	  * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-	  */
-		request(url, type$$1) {
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if (!type$$1) {
-				type$$1 = path.extension;
 			}
 
-			if (type$$1 == "blob") {
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
+			/**
+	   * Open an archive
+	   * @param  {binary} input
+	   * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
+	   * @return {Promise} zipfile
+	   */
+
+		}, {
+			key: "open",
+			value: function open(input, isBase64) {
+				return this.zip.loadAsync(input, { "base64": isBase64 });
 			}
 
-			if (response) {
-				response.then(function (r) {
-					let result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
+			/**
+	   * Load and Open an archive
+	   * @param  {string} zipUrl
+	   * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
+	   * @return {Promise} zipfile
+	   */
+
+		}, {
+			key: "openUrl",
+			value: function openUrl(zipUrl, isBase64) {
+				return request(zipUrl, "binary").then(function (data) {
+					return this.zip.loadAsync(data, { "base64": isBase64 });
 				}.bind(this));
-			} else {
-				deferred.reject({
-					message: "File not found in the epub: " + url,
-					stack: new Error().stack
-				});
-			}
-			return deferred.promise;
-		}
-
-		/**
-	  * Handle the response from request
-	  * @private
-	  * @param  {any} response
-	  * @param  {string} [type]
-	  * @return {any} the parsed result
-	  */
-		handleResponse(response, type$$1) {
-			var r;
-
-			if (type$$1 == "json") {
-				r = JSON.parse(response);
-			} else if (isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			} else if (type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
-			} else if (type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			} else {
-				r = response;
 			}
 
-			return r;
-		}
+			/**
+	   * Request a url from the archive
+	   * @param  {string} url  a url to request from the archive
+	   * @param  {string} [type] specify the type of the returned result
+	   * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
+	   */
 
-		/**
-	  * Get a Blob from Archive by Url
-	  * @param  {string} url
-	  * @param  {string} [mimeType]
-	  * @return {Blob}
-	  */
-		getBlob(url, mimeType) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
+		}, {
+			key: "request",
+			value: function request$$1(url, type$$1) {
+				var deferred = new defer();
+				var response;
+				var path = new Path(url);
 
-			if (entry) {
-				mimeType = mimeType || mime.lookup(entry.name);
-				return entry.async("uint8array").then(function (uint8array) {
-					return new Blob([uint8array], { type: mimeType });
-				});
-			}
-		}
+				// If type isn't set, determine it from the file extension
+				if (!type$$1) {
+					type$$1 = path.extension;
+				}
 
-		/**
-	  * Get Text from Archive by Url
-	  * @param  {string} url
-	  * @param  {string} [encoding]
-	  * @return {string}
-	  */
-		getText(url, encoding) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
+				if (type$$1 == "blob") {
+					response = this.getBlob(url);
+				} else {
+					response = this.getText(url);
+				}
 
-			if (entry) {
-				return entry.async("string").then(function (text) {
-					return text;
-				});
-			}
-		}
-
-		/**
-	  * Get a base64 encoded result from Archive by Url
-	  * @param  {string} url
-	  * @param  {string} [mimeType]
-	  * @return {string} base64 encoded
-	  */
-		getBase64(url, mimeType) {
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if (entry) {
-				mimeType = mimeType || mime.lookup(entry.name);
-				return entry.async("base64").then(function (data) {
-					return "data:" + mimeType + ";base64," + data;
-				});
-			}
-		}
-
-		/**
-	  * Create a Url from an unarchived item
-	  * @param  {string} url
-	  * @param  {object} [options.base64] use base64 encoding or blob url
-	  * @return {Promise} url promise with Url string
-	  */
-		createUrl(url, options) {
-			var deferred = new defer();
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var tempUrl;
-			var response;
-			var useBase64 = options && options.base64;
-
-			if (url in this.urlCache) {
-				deferred.resolve(this.urlCache[url]);
+				if (response) {
+					response.then(function (r) {
+						var result = this.handleResponse(r, type$$1);
+						deferred.resolve(result);
+					}.bind(this));
+				} else {
+					deferred.reject({
+						message: "File not found in the epub: " + url,
+						stack: new Error().stack
+					});
+				}
 				return deferred.promise;
 			}
 
-			if (useBase64) {
-				response = this.getBase64(url);
+			/**
+	   * Handle the response from request
+	   * @private
+	   * @param  {any} response
+	   * @param  {string} [type]
+	   * @return {any} the parsed result
+	   */
 
-				if (response) {
-					response.then(function (tempUrl) {
+		}, {
+			key: "handleResponse",
+			value: function handleResponse(response, type$$1) {
+				var r;
 
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
+				if (type$$1 == "json") {
+					r = JSON.parse(response);
+				} else if (isXml(type$$1)) {
+					r = parse(response, "text/xml");
+				} else if (type$$1 == "xhtml") {
+					r = parse(response, "application/xhtml+xml");
+				} else if (type$$1 == "html" || type$$1 == "htm") {
+					r = parse(response, "text/html");
+				} else {
+					r = response;
 				}
-			} else {
 
-				response = this.getBlob(url);
+				return r;
+			}
 
-				if (response) {
-					response.then(function (blob) {
+			/**
+	   * Get a Blob from Archive by Url
+	   * @param  {string} url
+	   * @param  {string} [mimeType]
+	   * @return {Blob}
+	   */
 
-						tempUrl = _URL.createObjectURL(blob);
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
+		}, {
+			key: "getBlob",
+			value: function getBlob(url, mimeType) {
+				var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+				var entry = this.zip.file(decodededUrl);
+
+				if (entry) {
+					mimeType = mimeType || mime.lookup(entry.name);
+					return entry.async("uint8array").then(function (uint8array) {
+						return new Blob([uint8array], { type: mimeType });
+					});
 				}
 			}
 
-			if (!response) {
-				deferred.reject({
-					message: "File not found in the epub: " + url,
-					stack: new Error().stack
-				});
+			/**
+	   * Get Text from Archive by Url
+	   * @param  {string} url
+	   * @param  {string} [encoding]
+	   * @return {string}
+	   */
+
+		}, {
+			key: "getText",
+			value: function getText(url, encoding) {
+				var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+				var entry = this.zip.file(decodededUrl);
+
+				if (entry) {
+					return entry.async("string").then(function (text) {
+						return text;
+					});
+				}
 			}
 
-			return deferred.promise;
-		}
+			/**
+	   * Get a base64 encoded result from Archive by Url
+	   * @param  {string} url
+	   * @param  {string} [mimeType]
+	   * @return {string} base64 encoded
+	   */
 
-		/**
-	  * Revoke Temp Url for a achive item
-	  * @param  {string} url url of the item in the archive
-	  */
-		revokeUrl(url) {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var fromCache = this.urlCache[url];
-			if (fromCache) _URL.revokeObjectURL(fromCache);
-		}
+		}, {
+			key: "getBase64",
+			value: function getBase64(url, mimeType) {
+				var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
+				var entry = this.zip.file(decodededUrl);
 
-		destroy() {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			for (let fromCache in this.urlCache) {
-				_URL.revokeObjectURL(fromCache);
+				if (entry) {
+					mimeType = mimeType || mime.lookup(entry.name);
+					return entry.async("base64").then(function (data) {
+						return "data:" + mimeType + ";base64," + data;
+					});
+				}
 			}
-			this.zip = undefined;
-			this.urlCache = {};
-		}
-	}
+
+			/**
+	   * Create a Url from an unarchived item
+	   * @param  {string} url
+	   * @param  {object} [options.base64] use base64 encoding or blob url
+	   * @return {Promise} url promise with Url string
+	   */
+
+		}, {
+			key: "createUrl",
+			value: function createUrl(url, options) {
+				var deferred = new defer();
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				var tempUrl;
+				var response;
+				var useBase64 = options && options.base64;
+
+				if (url in this.urlCache) {
+					deferred.resolve(this.urlCache[url]);
+					return deferred.promise;
+				}
+
+				if (useBase64) {
+					response = this.getBase64(url);
+
+					if (response) {
+						response.then(function (tempUrl) {
+
+							this.urlCache[url] = tempUrl;
+							deferred.resolve(tempUrl);
+						}.bind(this));
+					}
+				} else {
+
+					response = this.getBlob(url);
+
+					if (response) {
+						response.then(function (blob) {
+
+							tempUrl = _URL.createObjectURL(blob);
+							this.urlCache[url] = tempUrl;
+							deferred.resolve(tempUrl);
+						}.bind(this));
+					}
+				}
+
+				if (!response) {
+					deferred.reject({
+						message: "File not found in the epub: " + url,
+						stack: new Error().stack
+					});
+				}
+
+				return deferred.promise;
+			}
+
+			/**
+	   * Revoke Temp Url for a achive item
+	   * @param  {string} url url of the item in the archive
+	   */
+
+		}, {
+			key: "revokeUrl",
+			value: function revokeUrl(url) {
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				var fromCache = this.urlCache[url];
+				if (fromCache) _URL.revokeObjectURL(fromCache);
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				for (var fromCache in this.urlCache) {
+					_URL.revokeObjectURL(fromCache);
+				}
+				this.zip = undefined;
+				this.urlCache = {};
+			}
+		}]);
+
+		return Archive;
+	}();
+
+	var _createClass$r = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$r(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	/**
 	 * Handles saving and requesting files from local storage
@@ -20669,9 +21994,11 @@
 	 * @param {function} [requester]
 	 * @param {function} [resolver]
 	 */
-	class Store {
 
-		constructor(name, requester, resolver) {
+	var Store = function () {
+		function Store(name, requester, resolver) {
+			_classCallCheck$r(this, Store);
+
 			this.urlCache = {};
 
 			this.storage = undefined;
@@ -20692,340 +22019,400 @@
 	  * Requires localForage if it isn't there
 	  * @private
 	  */
-		checkRequirements() {
-			try {
-				let store;
-				if (typeof localforage === "undefined") {
-					store = require("localforage");
-				} else {
-					store = localforage;
-				}
-				this.storage = store.createInstance({
-					name: this.name
-				});
-			} catch (e) {
-				throw new Error("localForage lib not loaded");
-			}
-		}
 
-		/**
-	  * Add online and offline event listeners
-	  * @private
-	  */
-		addListeners() {
-			this._status = this.status.bind(this);
-			window.addEventListener('online', this._status);
-			window.addEventListener('offline', this._status);
-		}
 
-		/**
-	  * Remove online and offline event listeners
-	  * @private
-	  */
-		removeListeners() {
-			window.removeEventListener('online', this._status);
-			window.removeEventListener('offline', this._status);
-			this._status = undefined;
-		}
-
-		/**
-	  * Update the online / offline status
-	  * @private
-	  */
-		status(event) {
-			let online = navigator.onLine;
-			this.online = online;
-			if (online) {
-				this.emit("online", this);
-			} else {
-				this.emit("offline", this);
-			}
-		}
-
-		/**
-	  * Add all of a book resources to the store
-	  * @param  {Resources} resources  book resources
-	  * @param  {boolean} [force] force resaving resources
-	  * @return {Promise<object>} store objects
-	  */
-		add(resources, force) {
-			let mapped = resources.resources.map(item => {
-				let { href } = item;
-				let url = this.resolver(href);
-				let encodedUrl = window.encodeURIComponent(url);
-
-				return this.storage.getItem(encodedUrl).then(item => {
-					if (!item || force) {
-						return this.requester(url, "binary").then(data => {
-							return this.storage.setItem(encodedUrl, data);
-						});
+		_createClass$r(Store, [{
+			key: "checkRequirements",
+			value: function checkRequirements() {
+				try {
+					var store = void 0;
+					if (typeof localforage === "undefined") {
+						store = require("localforage");
 					} else {
-						return item;
+						store = localforage;
 					}
-				});
-			});
-			return Promise.all(mapped);
-		}
-
-		/**
-	  * Put binary data from a url to storage
-	  * @param  {string} url  a url to request from storage
-	  * @param  {boolean} [withCredentials]
-	  * @param  {object} [headers]
-	  * @return {Promise<Blob>}
-	  */
-		put(url, withCredentials, headers) {
-			let encodedUrl = window.encodeURIComponent(url);
-
-			return this.storage.getItem(encodedUrl).then(result => {
-				if (!result) {
-					return this.requester(url, "binary", withCredentials, headers).then(data => {
-						return this.storage.setItem(encodedUrl, data);
+					this.storage = store.createInstance({
+						name: this.name
 					});
+				} catch (e) {
+					throw new Error("localForage lib not loaded");
 				}
-				return result;
-			});
-		}
-
-		/**
-	  * Request a url
-	  * @param  {string} url  a url to request from storage
-	  * @param  {string} [type] specify the type of the returned result
-	  * @param  {boolean} [withCredentials]
-	  * @param  {object} [headers]
-	  * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-	  */
-		request(url, type$$1, withCredentials, headers) {
-			if (this.online) {
-				// From network
-				return this.requester(url, type$$1, withCredentials, headers).then(data => {
-					// save to store if not present
-					this.put(url);
-					return data;
-				});
-			} else {
-				// From store
-				return this.retrieve(url, type$$1);
-			}
-		}
-
-		/**
-	  * Request a url from storage
-	  * @param  {string} url  a url to request from storage
-	  * @param  {string} [type] specify the type of the returned result
-	  * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-	  */
-		retrieve(url, type$$1) {
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if (!type$$1) {
-				type$$1 = path.extension;
 			}
 
-			if (type$$1 == "blob") {
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
+			/**
+	   * Add online and offline event listeners
+	   * @private
+	   */
+
+		}, {
+			key: "addListeners",
+			value: function addListeners() {
+				this._status = this.status.bind(this);
+				window.addEventListener('online', this._status);
+				window.addEventListener('offline', this._status);
 			}
 
-			return response.then(r => {
-				var deferred = new defer();
-				var result;
-				if (r) {
-					result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
+			/**
+	   * Remove online and offline event listeners
+	   * @private
+	   */
+
+		}, {
+			key: "removeListeners",
+			value: function removeListeners() {
+				window.removeEventListener('online', this._status);
+				window.removeEventListener('offline', this._status);
+				this._status = undefined;
+			}
+
+			/**
+	   * Update the online / offline status
+	   * @private
+	   */
+
+		}, {
+			key: "status",
+			value: function status(event) {
+				var online = navigator.onLine;
+				this.online = online;
+				if (online) {
+					this.emit("online", this);
 				} else {
+					this.emit("offline", this);
+				}
+			}
+
+			/**
+	   * Add all of a book resources to the store
+	   * @param  {Resources} resources  book resources
+	   * @param  {boolean} [force] force resaving resources
+	   * @return {Promise<object>} store objects
+	   */
+
+		}, {
+			key: "add",
+			value: function add(resources, force) {
+				var _this = this;
+
+				var mapped = resources.resources.map(function (item) {
+					var href = item.href;
+
+					var url = _this.resolver(href);
+					var encodedUrl = window.encodeURIComponent(url);
+
+					return _this.storage.getItem(encodedUrl).then(function (item) {
+						if (!item || force) {
+							return _this.requester(url, "binary").then(function (data) {
+								return _this.storage.setItem(encodedUrl, data);
+							});
+						} else {
+							return item;
+						}
+					});
+				});
+				return Promise.all(mapped);
+			}
+
+			/**
+	   * Put binary data from a url to storage
+	   * @param  {string} url  a url to request from storage
+	   * @param  {boolean} [withCredentials]
+	   * @param  {object} [headers]
+	   * @return {Promise<Blob>}
+	   */
+
+		}, {
+			key: "put",
+			value: function put(url, withCredentials, headers) {
+				var _this2 = this;
+
+				var encodedUrl = window.encodeURIComponent(url);
+
+				return this.storage.getItem(encodedUrl).then(function (result) {
+					if (!result) {
+						return _this2.requester(url, "binary", withCredentials, headers).then(function (data) {
+							return _this2.storage.setItem(encodedUrl, data);
+						});
+					}
+					return result;
+				});
+			}
+
+			/**
+	   * Request a url
+	   * @param  {string} url  a url to request from storage
+	   * @param  {string} [type] specify the type of the returned result
+	   * @param  {boolean} [withCredentials]
+	   * @param  {object} [headers]
+	   * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
+	   */
+
+		}, {
+			key: "request",
+			value: function request$$1(url, type$$1, withCredentials, headers) {
+				var _this3 = this;
+
+				if (this.online) {
+					// From network
+					return this.requester(url, type$$1, withCredentials, headers).then(function (data) {
+						// save to store if not present
+						_this3.put(url);
+						return data;
+					});
+				} else {
+					// From store
+					return this.retrieve(url, type$$1);
+				}
+			}
+
+			/**
+	   * Request a url from storage
+	   * @param  {string} url  a url to request from storage
+	   * @param  {string} [type] specify the type of the returned result
+	   * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
+	   */
+
+		}, {
+			key: "retrieve",
+			value: function retrieve(url, type$$1) {
+				var _this4 = this;
+
+				var deferred = new defer();
+				var response;
+				var path = new Path(url);
+
+				// If type isn't set, determine it from the file extension
+				if (!type$$1) {
+					type$$1 = path.extension;
+				}
+
+				if (type$$1 == "blob") {
+					response = this.getBlob(url);
+				} else {
+					response = this.getText(url);
+				}
+
+				return response.then(function (r) {
+					var deferred = new defer();
+					var result;
+					if (r) {
+						result = _this4.handleResponse(r, type$$1);
+						deferred.resolve(result);
+					} else {
+						deferred.reject({
+							message: "File not found in storage: " + url,
+							stack: new Error().stack
+						});
+					}
+					return deferred.promise;
+				});
+			}
+
+			/**
+	   * Handle the response from request
+	   * @private
+	   * @param  {any} response
+	   * @param  {string} [type]
+	   * @return {any} the parsed result
+	   */
+
+		}, {
+			key: "handleResponse",
+			value: function handleResponse(response, type$$1) {
+				var r;
+
+				if (type$$1 == "json") {
+					r = JSON.parse(response);
+				} else if (isXml(type$$1)) {
+					r = parse(response, "text/xml");
+				} else if (type$$1 == "xhtml") {
+					r = parse(response, "application/xhtml+xml");
+				} else if (type$$1 == "html" || type$$1 == "htm") {
+					r = parse(response, "text/html");
+				} else {
+					r = response;
+				}
+
+				return r;
+			}
+
+			/**
+	   * Get a Blob from Storage by Url
+	   * @param  {string} url
+	   * @param  {string} [mimeType]
+	   * @return {Blob}
+	   */
+
+		}, {
+			key: "getBlob",
+			value: function getBlob(url, mimeType) {
+				var encodedUrl = window.encodeURIComponent(url);
+
+				return this.storage.getItem(encodedUrl).then(function (uint8array) {
+					if (!uint8array) return;
+
+					mimeType = mimeType || mime.lookup(url);
+
+					return new Blob([uint8array], { type: mimeType });
+				});
+			}
+
+			/**
+	   * Get Text from Storage by Url
+	   * @param  {string} url
+	   * @param  {string} [mimeType]
+	   * @return {string}
+	   */
+
+		}, {
+			key: "getText",
+			value: function getText(url, mimeType) {
+				var encodedUrl = window.encodeURIComponent(url);
+
+				mimeType = mimeType || mime.lookup(url);
+
+				return this.storage.getItem(encodedUrl).then(function (uint8array) {
+					var deferred = new defer();
+					var reader = new FileReader();
+					var blob;
+
+					if (!uint8array) return;
+
+					blob = new Blob([uint8array], { type: mimeType });
+
+					reader.addEventListener("loadend", function () {
+						deferred.resolve(reader.result);
+					});
+
+					reader.readAsText(blob, mimeType);
+
+					return deferred.promise;
+				});
+			}
+
+			/**
+	   * Get a base64 encoded result from Storage by Url
+	   * @param  {string} url
+	   * @param  {string} [mimeType]
+	   * @return {string} base64 encoded
+	   */
+
+		}, {
+			key: "getBase64",
+			value: function getBase64(url, mimeType) {
+				var encodedUrl = window.encodeURIComponent(url);
+
+				mimeType = mimeType || mime.lookup(url);
+
+				return this.storage.getItem(encodedUrl).then(function (uint8array) {
+					var deferred = new defer();
+					var reader = new FileReader();
+					var blob;
+
+					if (!uint8array) return;
+
+					blob = new Blob([uint8array], { type: mimeType });
+
+					reader.addEventListener("loadend", function () {
+						deferred.resolve(reader.result);
+					});
+					reader.readAsDataURL(blob, mimeType);
+
+					return deferred.promise;
+				});
+			}
+
+			/**
+	   * Create a Url from a stored item
+	   * @param  {string} url
+	   * @param  {object} [options.base64] use base64 encoding or blob url
+	   * @return {Promise} url promise with Url string
+	   */
+
+		}, {
+			key: "createUrl",
+			value: function createUrl(url, options) {
+				var deferred = new defer();
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				var tempUrl;
+				var response;
+				var useBase64 = options && options.base64;
+
+				if (url in this.urlCache) {
+					deferred.resolve(this.urlCache[url]);
+					return deferred.promise;
+				}
+
+				if (useBase64) {
+					response = this.getBase64(url);
+
+					if (response) {
+						response.then(function (tempUrl) {
+
+							this.urlCache[url] = tempUrl;
+							deferred.resolve(tempUrl);
+						}.bind(this));
+					}
+				} else {
+
+					response = this.getBlob(url);
+
+					if (response) {
+						response.then(function (blob) {
+
+							tempUrl = _URL.createObjectURL(blob);
+							this.urlCache[url] = tempUrl;
+							deferred.resolve(tempUrl);
+						}.bind(this));
+					}
+				}
+
+				if (!response) {
 					deferred.reject({
 						message: "File not found in storage: " + url,
 						stack: new Error().stack
 					});
 				}
-				return deferred.promise;
-			});
-		}
 
-		/**
-	  * Handle the response from request
-	  * @private
-	  * @param  {any} response
-	  * @param  {string} [type]
-	  * @return {any} the parsed result
-	  */
-		handleResponse(response, type$$1) {
-			var r;
-
-			if (type$$1 == "json") {
-				r = JSON.parse(response);
-			} else if (isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			} else if (type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
-			} else if (type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			} else {
-				r = response;
-			}
-
-			return r;
-		}
-
-		/**
-	  * Get a Blob from Storage by Url
-	  * @param  {string} url
-	  * @param  {string} [mimeType]
-	  * @return {Blob}
-	  */
-		getBlob(url, mimeType) {
-			let encodedUrl = window.encodeURIComponent(url);
-
-			return this.storage.getItem(encodedUrl).then(function (uint8array) {
-				if (!uint8array) return;
-
-				mimeType = mimeType || mime.lookup(url);
-
-				return new Blob([uint8array], { type: mimeType });
-			});
-		}
-
-		/**
-	  * Get Text from Storage by Url
-	  * @param  {string} url
-	  * @param  {string} [mimeType]
-	  * @return {string}
-	  */
-		getText(url, mimeType) {
-			let encodedUrl = window.encodeURIComponent(url);
-
-			mimeType = mimeType || mime.lookup(url);
-
-			return this.storage.getItem(encodedUrl).then(function (uint8array) {
-				var deferred = new defer();
-				var reader = new FileReader();
-				var blob;
-
-				if (!uint8array) return;
-
-				blob = new Blob([uint8array], { type: mimeType });
-
-				reader.addEventListener("loadend", () => {
-					deferred.resolve(reader.result);
-				});
-
-				reader.readAsText(blob, mimeType);
-
-				return deferred.promise;
-			});
-		}
-
-		/**
-	  * Get a base64 encoded result from Storage by Url
-	  * @param  {string} url
-	  * @param  {string} [mimeType]
-	  * @return {string} base64 encoded
-	  */
-		getBase64(url, mimeType) {
-			let encodedUrl = window.encodeURIComponent(url);
-
-			mimeType = mimeType || mime.lookup(url);
-
-			return this.storage.getItem(encodedUrl).then(uint8array => {
-				var deferred = new defer();
-				var reader = new FileReader();
-				var blob;
-
-				if (!uint8array) return;
-
-				blob = new Blob([uint8array], { type: mimeType });
-
-				reader.addEventListener("loadend", () => {
-					deferred.resolve(reader.result);
-				});
-				reader.readAsDataURL(blob, mimeType);
-
-				return deferred.promise;
-			});
-		}
-
-		/**
-	  * Create a Url from a stored item
-	  * @param  {string} url
-	  * @param  {object} [options.base64] use base64 encoding or blob url
-	  * @return {Promise} url promise with Url string
-	  */
-		createUrl(url, options) {
-			var deferred = new defer();
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var tempUrl;
-			var response;
-			var useBase64 = options && options.base64;
-
-			if (url in this.urlCache) {
-				deferred.resolve(this.urlCache[url]);
 				return deferred.promise;
 			}
 
-			if (useBase64) {
-				response = this.getBase64(url);
+			/**
+	   * Revoke Temp Url for a achive item
+	   * @param  {string} url url of the item in the store
+	   */
 
-				if (response) {
-					response.then(function (tempUrl) {
-
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
+		}, {
+			key: "revokeUrl",
+			value: function revokeUrl(url) {
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				var fromCache = this.urlCache[url];
+				if (fromCache) _URL.revokeObjectURL(fromCache);
+			}
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				var _URL = window.URL || window.webkitURL || window.mozURL;
+				for (var fromCache in this.urlCache) {
+					_URL.revokeObjectURL(fromCache);
 				}
-			} else {
-
-				response = this.getBlob(url);
-
-				if (response) {
-					response.then(function (blob) {
-
-						tempUrl = _URL.createObjectURL(blob);
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-					}.bind(this));
-				}
+				this.urlCache = {};
+				this.removeListeners();
 			}
+		}]);
 
-			if (!response) {
-				deferred.reject({
-					message: "File not found in storage: " + url,
-					stack: new Error().stack
-				});
-			}
-
-			return deferred.promise;
-		}
-
-		/**
-	  * Revoke Temp Url for a achive item
-	  * @param  {string} url url of the item in the store
-	  */
-		revokeUrl(url) {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var fromCache = this.urlCache[url];
-			if (fromCache) _URL.revokeObjectURL(fromCache);
-		}
-
-		destroy() {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			for (let fromCache in this.urlCache) {
-				_URL.revokeObjectURL(fromCache);
-			}
-			this.urlCache = {};
-			this.removeListeners();
-		}
-	}
+		return Store;
+	}();
 
 	eventEmitter(Store.prototype);
 
-	const CONTAINER_PATH = "META-INF/container.xml";
+	var _createClass$s = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	const INPUT_TYPE = {
+	function _classCallCheck$s(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var CONTAINER_PATH = "META-INF/container.xml";
+
+	var INPUT_TYPE = {
 		BINARY: "binary",
 		BASE64: "base64",
 		EPUB: "epub",
@@ -21052,8 +22439,13 @@
 	 * @example new Book("/path/to/book.epub", {})
 	 * @example new Book({ replacements: "blobUrl" })
 	 */
-	class Book {
-		constructor(url, options) {
+
+	var Book = function () {
+		function Book(url, options) {
+			var _this = this;
+
+			_classCallCheck$s(this, Book);
+
 			// Allow passing just options to the Book
 			if (typeof options === "undefined" && typeof url !== "string" && url instanceof Blob === false) {
 				options = url;
@@ -21213,9 +22605,9 @@
 			}
 
 			if (url) {
-				this.open(url, this.settings.openAs).catch(error => {
+				this.open(url, this.settings.openAs).catch(function (error) {
 					var err = new Error("Cannot load book at " + url);
-					this.emit(EVENTS.BOOK.OPEN_FAILED, err);
+					_this.emit(EVENTS.BOOK.OPEN_FAILED, err);
 				});
 			}
 		}
@@ -21227,496 +22619,587 @@
 	  * @returns {Promise} of when the book has been loaded
 	  * @example book.open("/path/to/book.epub")
 	  */
-		open(input, what) {
-			var opening;
-			var type$$1 = what || this.determineType(input);
 
-			if (type$$1 === INPUT_TYPE.BINARY) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input);
-			} else if (type$$1 === INPUT_TYPE.BASE64) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input, type$$1);
-			} else if (type$$1 === INPUT_TYPE.EPUB) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.request(input, "binary", this.settings.requestCredentials).then(this.openEpub.bind(this));
-			} else if (type$$1 == INPUT_TYPE.OPF) {
-				this.url = new Url(input);
-				opening = this.openPackaging(this.url.Path.toString());
-			} else if (type$$1 == INPUT_TYPE.MANIFEST) {
-				this.url = new Url(input);
-				opening = this.openManifest(this.url.Path.toString());
-			} else {
-				this.url = new Url(input);
-				opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
-			}
 
-			return opening;
-		}
+		_createClass$s(Book, [{
+			key: "open",
+			value: function open(input, what) {
+				var opening;
+				var type$$1 = what || this.determineType(input);
 
-		/**
-	  * Open an archived epub
-	  * @private
-	  * @param  {binary} data
-	  * @param  {string} [encoding]
-	  * @return {Promise}
-	  */
-		openEpub(data, encoding) {
-			return this.unarchive(data, encoding || this.settings.encoding).then(() => {
-				return this.openContainer(CONTAINER_PATH);
-			}).then(packagePath => {
-				return this.openPackaging(packagePath);
-			});
-		}
-
-		/**
-	  * Open the epub container
-	  * @private
-	  * @param  {string} url
-	  * @return {string} packagePath
-	  */
-		openContainer(url) {
-			return this.load(url).then(xml => {
-				this.container = new Container(xml);
-				return this.resolve(this.container.packagePath);
-			});
-		}
-
-		/**
-	  * Open the Open Packaging Format Xml
-	  * @private
-	  * @param  {string} url
-	  * @return {Promise}
-	  */
-		openPackaging(url) {
-			this.path = new Path(url);
-			return this.load(url).then(xml => {
-				this.packaging = new Packaging(xml);
-				return this.unpack(this.packaging);
-			});
-		}
-
-		/**
-	  * Open the manifest JSON
-	  * @private
-	  * @param  {string} url
-	  * @return {Promise}
-	  */
-		openManifest(url) {
-			this.path = new Path(url);
-			return this.load(url).then(json => {
-				this.packaging = new Packaging();
-				this.packaging.load(json);
-				return this.unpack(this.packaging);
-			});
-		}
-
-		/**
-	  * Load a resource from the Book
-	  * @param  {string} path path to the resource to load
-	  * @return {Promise}     returns a promise with the requested resource
-	  */
-		load(path) {
-			var resolved = this.resolve(path);
-			if (this.archived) {
-				return this.archive.request(resolved);
-			} else {
-				return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
-			}
-		}
-
-		/**
-	  * Resolve a path to it's absolute position in the Book
-	  * @param  {string} path
-	  * @param  {boolean} [absolute] force resolving the full URL
-	  * @return {string}          the resolved path string
-	  */
-		resolve(path, absolute) {
-			if (!path) {
-				return;
-			}
-			var resolved = path;
-			var isAbsolute = path.indexOf("://") > -1;
-
-			if (isAbsolute) {
-				return path;
-			}
-
-			if (this.path) {
-				resolved = this.path.resolve(path);
-			}
-
-			if (absolute != false && this.url) {
-				resolved = this.url.resolve(resolved);
-			}
-
-			return resolved;
-		}
-
-		/**
-	  * Get a canonical link to a path
-	  * @param  {string} path
-	  * @return {string} the canonical path string
-	  */
-		canonical(path) {
-			var url = path;
-
-			if (!path) {
-				return "";
-			}
-
-			if (this.settings.canonical) {
-				url = this.settings.canonical(path);
-			} else {
-				url = this.resolve(path, true);
-			}
-
-			return url;
-		}
-
-		/**
-	  * Determine the type of they input passed to open
-	  * @private
-	  * @param  {string} input
-	  * @return {string}  binary | directory | epub | opf
-	  */
-		determineType(input) {
-			var url;
-			var path;
-			var extension;
-
-			if (this.settings.encoding === "base64") {
-				return INPUT_TYPE.BASE64;
-			}
-
-			if (typeof input != "string") {
-				return INPUT_TYPE.BINARY;
-			}
-
-			url = new Url(input);
-			path = url.path();
-			extension = path.extension;
-
-			if (!extension) {
-				return INPUT_TYPE.DIRECTORY;
-			}
-
-			if (extension === "epub") {
-				return INPUT_TYPE.EPUB;
-			}
-
-			if (extension === "opf") {
-				return INPUT_TYPE.OPF;
-			}
-
-			if (extension === "json") {
-				return INPUT_TYPE.MANIFEST;
-			}
-		}
-
-		/**
-	  * unpack the contents of the Books packaging
-	  * @private
-	  * @param {Packaging} packaging object
-	  */
-		unpack(packaging) {
-			this.package = packaging; //TODO: deprecated this
-
-			this.spine.unpack(this.packaging, this.resolve.bind(this), this.canonical.bind(this));
-
-			this.resources = new Resources(this.packaging.manifest, {
-				archive: this.archive,
-				resolver: this.resolve.bind(this),
-				request: this.request.bind(this),
-				replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64")
-			});
-
-			this.loadNavigation(this.packaging).then(() => {
-				// this.toc = this.navigation.toc;
-				this.loading.navigation.resolve(this.navigation);
-			});
-
-			if (this.packaging.coverPath) {
-				this.cover = this.resolve(this.packaging.coverPath);
-			}
-			// Resolve promises
-			this.loading.manifest.resolve(this.packaging.manifest);
-			this.loading.metadata.resolve(this.packaging.metadata);
-			this.loading.spine.resolve(this.spine);
-			this.loading.cover.resolve(this.cover);
-			this.loading.resources.resolve(this.resources);
-			this.loading.pageList.resolve(this.pageList);
-
-			this.isOpen = true;
-
-			if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
-				this.replacements().then(() => {
-					this.opening.resolve(this);
-				}).catch(err => {
-					console.error(err);
-				});
-			} else {
-				// Resolve book opened promise
-				this.opening.resolve(this);
-			}
-		}
-
-		/**
-	  * Load Navigation and PageList from package
-	  * @private
-	  * @param {Packaging} packaging
-	  */
-		loadNavigation(packaging) {
-			let navPath = packaging.navPath || packaging.ncxPath;
-			let toc = packaging.toc;
-
-			// From json manifest
-			if (toc) {
-				return new Promise((resolve, reject) => {
-					this.navigation = new Navigation(toc);
-
-					if (packaging.pageList) {
-						this.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
-					}
-
-					resolve(this.navigation);
-				});
-			}
-
-			if (!navPath) {
-				return new Promise((resolve, reject) => {
-					this.navigation = new Navigation();
-					this.pageList = new PageList();
-
-					resolve(this.navigation);
-				});
-			}
-
-			return this.load(navPath, "xml").then(xml => {
-				this.navigation = new Navigation(xml);
-				this.pageList = new PageList(xml);
-				return this.navigation;
-			});
-		}
-
-		/**
-	  * Gets a Section of the Book from the Spine
-	  * Alias for `book.spine.get`
-	  * @param {string} target
-	  * @return {Section}
-	  */
-		section(target) {
-			return this.spine.get(target);
-		}
-
-		/**
-	  * Sugar to render a book to an element
-	  * @param  {element | string} element element or string to add a rendition to
-	  * @param  {object} [options]
-	  * @return {Rendition}
-	  */
-		renderTo(element, options) {
-			this.rendition = new Rendition(this, options);
-			this.rendition.attachTo(element);
-
-			return this.rendition;
-		}
-
-		/**
-	  * Set if request should use withCredentials
-	  * @param {boolean} credentials
-	  */
-		setRequestCredentials(credentials) {
-			this.settings.requestCredentials = credentials;
-		}
-
-		/**
-	  * Set headers request should use
-	  * @param {object} headers
-	  */
-		setRequestHeaders(headers) {
-			this.settings.requestHeaders = headers;
-		}
-
-		/**
-	  * Unarchive a zipped epub
-	  * @private
-	  * @param  {binary} input epub data
-	  * @param  {string} [encoding]
-	  * @return {Archive}
-	  */
-		unarchive(input, encoding) {
-			this.archive = new Archive();
-			return this.archive.open(input, encoding);
-		}
-
-		/**
-	  * Store the epubs contents
-	  * @private
-	  * @param  {binary} input epub data
-	  * @param  {string} [encoding]
-	  * @return {Store}
-	  */
-		store(name) {
-			// Use "blobUrl" or "base64" for replacements
-			let replacementsSetting = this.settings.replacements && this.settings.replacements !== "none";
-			// Save original url
-			let originalUrl = this.url;
-			// Save original request method
-			let requester = this.settings.requestMethod || request.bind(this);
-			// Create new Store
-			this.storage = new Store(name, requester, this.resolve.bind(this));
-			// Replace request method to go through store
-			this.request = this.storage.request.bind(this.storage);
-
-			this.opened.then(() => {
-				if (this.archived) {
-					this.storage.requester = this.archive.request.bind(this.archive);
-				}
-				// Substitute hook
-				let substituteResources = (output, section) => {
-					section.output = this.resources.substitute(output, section.url);
-				};
-
-				// Set to use replacements
-				this.resources.settings.replacements = replacementsSetting || "blobUrl";
-				// Create replacement urls
-				this.resources.replacements().then(() => {
-					return this.resources.replaceCss();
-				});
-
-				this.storage.on("offline", () => {
-					// Remove url to use relative resolving for hrefs
+				if (type$$1 === INPUT_TYPE.BINARY) {
+					this.archived = true;
 					this.url = new Url("/", "");
-					// Add hook to replace resources in contents
-					this.spine.hooks.serialize.register(substituteResources);
-				});
-
-				this.storage.on("online", () => {
-					// Restore original url
-					this.url = originalUrl;
-					// Remove hook
-					this.spine.hooks.serialize.deregister(substituteResources);
-				});
-			});
-
-			return this.storage;
-		}
-
-		/**
-	  * Get the cover url
-	  * @return {string} coverUrl
-	  */
-		coverUrl() {
-			var retrieved = this.loaded.cover.then(url => {
-				if (this.archived) {
-					// return this.archive.createUrl(this.cover);
-					return this.resources.get(this.cover);
+					opening = this.openEpub(input);
+				} else if (type$$1 === INPUT_TYPE.BASE64) {
+					this.archived = true;
+					this.url = new Url("/", "");
+					opening = this.openEpub(input, type$$1);
+				} else if (type$$1 === INPUT_TYPE.EPUB) {
+					this.archived = true;
+					this.url = new Url("/", "");
+					opening = this.request(input, "binary", this.settings.requestCredentials).then(this.openEpub.bind(this));
+				} else if (type$$1 == INPUT_TYPE.OPF) {
+					this.url = new Url(input);
+					opening = this.openPackaging(this.url.Path.toString());
+				} else if (type$$1 == INPUT_TYPE.MANIFEST) {
+					this.url = new Url(input);
+					opening = this.openManifest(this.url.Path.toString());
 				} else {
-					return this.cover;
+					this.url = new Url(input);
+					opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
 				}
-			});
 
-			return retrieved;
-		}
+				return opening;
+			}
 
-		/**
-	  * Load replacement urls
-	  * @private
-	  * @return {Promise} completed loading urls
-	  */
-		replacements() {
-			this.spine.hooks.serialize.register((output, section) => {
-				section.output = this.resources.substitute(output, section.url);
-			});
+			/**
+	   * Open an archived epub
+	   * @private
+	   * @param  {binary} data
+	   * @param  {string} [encoding]
+	   * @return {Promise}
+	   */
 
-			return this.resources.replacements().then(() => {
-				return this.resources.replaceCss();
-			});
-		}
+		}, {
+			key: "openEpub",
+			value: function openEpub(data, encoding) {
+				var _this2 = this;
 
-		/**
-	  * Find a DOM Range for a given CFI Range
-	  * @param  {EpubCFI} cfiRange a epub cfi range
-	  * @return {Range}
-	  */
-		getRange(cfiRange) {
-			var cfi = new EpubCFI(cfiRange);
-			var item = this.spine.get(cfi.spinePos);
-			var _request = this.load.bind(this);
-			if (!item) {
-				return new Promise((resolve, reject) => {
-					reject("CFI could not be found");
+				return this.unarchive(data, encoding || this.settings.encoding).then(function () {
+					return _this2.openContainer(CONTAINER_PATH);
+				}).then(function (packagePath) {
+					return _this2.openPackaging(packagePath);
 				});
 			}
-			return item.load(_request).then(function (contents) {
-				var range = cfi.toRange(item.document);
-				return range;
-			});
-		}
 
-		/**
-	  * Generates the Book Key using the identifer in the manifest or other string provided
-	  * @param  {string} [identifier] to use instead of metadata identifier
-	  * @return {string} key
-	  */
-		key(identifier) {
-			var ident = identifier || this.packaging.metadata.identifier || this.url.filename;
-			return `epubjs:${EPUBJS_VERSION}:${ident}`;
-		}
+			/**
+	   * Open the epub container
+	   * @private
+	   * @param  {string} url
+	   * @return {string} packagePath
+	   */
 
-		/**
-	  * Destroy the Book and all associated objects
-	  */
-		destroy() {
-			this.opened = undefined;
-			this.loading = undefined;
-			this.loaded = undefined;
-			this.ready = undefined;
+		}, {
+			key: "openContainer",
+			value: function openContainer(url) {
+				var _this3 = this;
 
-			this.isOpen = false;
-			this.isRendered = false;
+				return this.load(url).then(function (xml) {
+					_this3.container = new Container(xml);
+					return _this3.resolve(_this3.container.packagePath);
+				});
+			}
 
-			this.spine && this.spine.destroy();
-			this.locations && this.locations.destroy();
-			this.pageList && this.pageList.destroy();
-			this.archive && this.archive.destroy();
-			this.resources && this.resources.destroy();
-			this.container && this.container.destroy();
-			this.packaging && this.packaging.destroy();
-			this.rendition && this.rendition.destroy();
+			/**
+	   * Open the Open Packaging Format Xml
+	   * @private
+	   * @param  {string} url
+	   * @return {Promise}
+	   */
 
-			this.spine = undefined;
-			this.locations = undefined;
-			this.pageList = undefined;
-			this.archive = undefined;
-			this.resources = undefined;
-			this.container = undefined;
-			this.packaging = undefined;
-			this.rendition = undefined;
+		}, {
+			key: "openPackaging",
+			value: function openPackaging(url) {
+				var _this4 = this;
 
-			this.navigation = undefined;
-			this.url = undefined;
-			this.path = undefined;
-			this.archived = false;
-		}
+				this.path = new Path(url);
+				return this.load(url).then(function (xml) {
+					_this4.packaging = new Packaging(xml);
+					return _this4.unpack(_this4.packaging);
+				});
+			}
 
-	}
+			/**
+	   * Open the manifest JSON
+	   * @private
+	   * @param  {string} url
+	   * @return {Promise}
+	   */
+
+		}, {
+			key: "openManifest",
+			value: function openManifest(url) {
+				var _this5 = this;
+
+				this.path = new Path(url);
+				return this.load(url).then(function (json) {
+					_this5.packaging = new Packaging();
+					_this5.packaging.load(json);
+					return _this5.unpack(_this5.packaging);
+				});
+			}
+
+			/**
+	   * Load a resource from the Book
+	   * @param  {string} path path to the resource to load
+	   * @return {Promise}     returns a promise with the requested resource
+	   */
+
+		}, {
+			key: "load",
+			value: function load(path) {
+				var resolved = this.resolve(path);
+				if (this.archived) {
+					return this.archive.request(resolved);
+				} else {
+					return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
+				}
+			}
+
+			/**
+	   * Resolve a path to it's absolute position in the Book
+	   * @param  {string} path
+	   * @param  {boolean} [absolute] force resolving the full URL
+	   * @return {string}          the resolved path string
+	   */
+
+		}, {
+			key: "resolve",
+			value: function resolve(path, absolute) {
+				if (!path) {
+					return;
+				}
+				var resolved = path;
+				var isAbsolute = path.indexOf("://") > -1;
+
+				if (isAbsolute) {
+					return path;
+				}
+
+				if (this.path) {
+					resolved = this.path.resolve(path);
+				}
+
+				if (absolute != false && this.url) {
+					resolved = this.url.resolve(resolved);
+				}
+
+				return resolved;
+			}
+
+			/**
+	   * Get a canonical link to a path
+	   * @param  {string} path
+	   * @return {string} the canonical path string
+	   */
+
+		}, {
+			key: "canonical",
+			value: function canonical(path) {
+				var url = path;
+
+				if (!path) {
+					return "";
+				}
+
+				if (this.settings.canonical) {
+					url = this.settings.canonical(path);
+				} else {
+					url = this.resolve(path, true);
+				}
+
+				return url;
+			}
+
+			/**
+	   * Determine the type of they input passed to open
+	   * @private
+	   * @param  {string} input
+	   * @return {string}  binary | directory | epub | opf
+	   */
+
+		}, {
+			key: "determineType",
+			value: function determineType(input) {
+				var url;
+				var path;
+				var extension;
+
+				if (this.settings.encoding === "base64") {
+					return INPUT_TYPE.BASE64;
+				}
+
+				if (typeof input != "string") {
+					return INPUT_TYPE.BINARY;
+				}
+
+				url = new Url(input);
+				path = url.path();
+				extension = path.extension;
+
+				if (!extension) {
+					return INPUT_TYPE.DIRECTORY;
+				}
+
+				if (extension === "epub") {
+					return INPUT_TYPE.EPUB;
+				}
+
+				if (extension === "opf") {
+					return INPUT_TYPE.OPF;
+				}
+
+				if (extension === "json") {
+					return INPUT_TYPE.MANIFEST;
+				}
+			}
+
+			/**
+	   * unpack the contents of the Books packaging
+	   * @private
+	   * @param {Packaging} packaging object
+	   */
+
+		}, {
+			key: "unpack",
+			value: function unpack(packaging) {
+				var _this6 = this;
+
+				this.package = packaging; //TODO: deprecated this
+
+				this.spine.unpack(this.packaging, this.resolve.bind(this), this.canonical.bind(this));
+
+				this.resources = new Resources(this.packaging.manifest, {
+					archive: this.archive,
+					resolver: this.resolve.bind(this),
+					request: this.request.bind(this),
+					replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64")
+				});
+
+				this.loadNavigation(this.packaging).then(function () {
+					// this.toc = this.navigation.toc;
+					_this6.loading.navigation.resolve(_this6.navigation);
+				});
+
+				if (this.packaging.coverPath) {
+					this.cover = this.resolve(this.packaging.coverPath);
+				}
+				// Resolve promises
+				this.loading.manifest.resolve(this.packaging.manifest);
+				this.loading.metadata.resolve(this.packaging.metadata);
+				this.loading.spine.resolve(this.spine);
+				this.loading.cover.resolve(this.cover);
+				this.loading.resources.resolve(this.resources);
+				this.loading.pageList.resolve(this.pageList);
+
+				this.isOpen = true;
+
+				if (this.archived || this.settings.replacements && this.settings.replacements != "none") {
+					this.replacements().then(function () {
+						_this6.opening.resolve(_this6);
+					}).catch(function (err) {
+						console.error(err);
+					});
+				} else {
+					// Resolve book opened promise
+					this.opening.resolve(this);
+				}
+			}
+
+			/**
+	   * Load Navigation and PageList from package
+	   * @private
+	   * @param {Packaging} packaging
+	   */
+
+		}, {
+			key: "loadNavigation",
+			value: function loadNavigation(packaging) {
+				var _this7 = this;
+
+				var navPath = packaging.navPath || packaging.ncxPath;
+				var toc = packaging.toc;
+
+				// From json manifest
+				if (toc) {
+					return new Promise(function (resolve, reject) {
+						_this7.navigation = new Navigation(toc);
+
+						if (packaging.pageList) {
+							_this7.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
+						}
+
+						resolve(_this7.navigation);
+					});
+				}
+
+				if (!navPath) {
+					return new Promise(function (resolve, reject) {
+						_this7.navigation = new Navigation();
+						_this7.pageList = new PageList();
+
+						resolve(_this7.navigation);
+					});
+				}
+
+				return this.load(navPath, "xml").then(function (xml) {
+					_this7.navigation = new Navigation(xml);
+					_this7.pageList = new PageList(xml);
+					return _this7.navigation;
+				});
+			}
+
+			/**
+	   * Gets a Section of the Book from the Spine
+	   * Alias for `book.spine.get`
+	   * @param {string} target
+	   * @return {Section}
+	   */
+
+		}, {
+			key: "section",
+			value: function section(target) {
+				return this.spine.get(target);
+			}
+
+			/**
+	   * Sugar to render a book to an element
+	   * @param  {element | string} element element or string to add a rendition to
+	   * @param  {object} [options]
+	   * @return {Rendition}
+	   */
+
+		}, {
+			key: "renderTo",
+			value: function renderTo(element, options) {
+				this.rendition = new Rendition(this, options);
+				this.rendition.attachTo(element);
+
+				return this.rendition;
+			}
+
+			/**
+	   * Set if request should use withCredentials
+	   * @param {boolean} credentials
+	   */
+
+		}, {
+			key: "setRequestCredentials",
+			value: function setRequestCredentials(credentials) {
+				this.settings.requestCredentials = credentials;
+			}
+
+			/**
+	   * Set headers request should use
+	   * @param {object} headers
+	   */
+
+		}, {
+			key: "setRequestHeaders",
+			value: function setRequestHeaders(headers) {
+				this.settings.requestHeaders = headers;
+			}
+
+			/**
+	   * Unarchive a zipped epub
+	   * @private
+	   * @param  {binary} input epub data
+	   * @param  {string} [encoding]
+	   * @return {Archive}
+	   */
+
+		}, {
+			key: "unarchive",
+			value: function unarchive(input, encoding) {
+				this.archive = new Archive();
+				return this.archive.open(input, encoding);
+			}
+
+			/**
+	   * Store the epubs contents
+	   * @private
+	   * @param  {binary} input epub data
+	   * @param  {string} [encoding]
+	   * @return {Store}
+	   */
+
+		}, {
+			key: "store",
+			value: function store(name) {
+				var _this8 = this;
+
+				// Use "blobUrl" or "base64" for replacements
+				var replacementsSetting = this.settings.replacements && this.settings.replacements !== "none";
+				// Save original url
+				var originalUrl = this.url;
+				// Save original request method
+				var requester = this.settings.requestMethod || request.bind(this);
+				// Create new Store
+				this.storage = new Store(name, requester, this.resolve.bind(this));
+				// Replace request method to go through store
+				this.request = this.storage.request.bind(this.storage);
+
+				this.opened.then(function () {
+					if (_this8.archived) {
+						_this8.storage.requester = _this8.archive.request.bind(_this8.archive);
+					}
+					// Substitute hook
+					var substituteResources = function substituteResources(output, section) {
+						section.output = _this8.resources.substitute(output, section.url);
+					};
+
+					// Set to use replacements
+					_this8.resources.settings.replacements = replacementsSetting || "blobUrl";
+					// Create replacement urls
+					_this8.resources.replacements().then(function () {
+						return _this8.resources.replaceCss();
+					});
+
+					_this8.storage.on("offline", function () {
+						// Remove url to use relative resolving for hrefs
+						_this8.url = new Url("/", "");
+						// Add hook to replace resources in contents
+						_this8.spine.hooks.serialize.register(substituteResources);
+					});
+
+					_this8.storage.on("online", function () {
+						// Restore original url
+						_this8.url = originalUrl;
+						// Remove hook
+						_this8.spine.hooks.serialize.deregister(substituteResources);
+					});
+				});
+
+				return this.storage;
+			}
+
+			/**
+	   * Get the cover url
+	   * @return {string} coverUrl
+	   */
+
+		}, {
+			key: "coverUrl",
+			value: function coverUrl() {
+				var _this9 = this;
+
+				var retrieved = this.loaded.cover.then(function (url) {
+					if (_this9.archived) {
+						// return this.archive.createUrl(this.cover);
+						return _this9.resources.get(_this9.cover);
+					} else {
+						return _this9.cover;
+					}
+				});
+
+				return retrieved;
+			}
+
+			/**
+	   * Load replacement urls
+	   * @private
+	   * @return {Promise} completed loading urls
+	   */
+
+		}, {
+			key: "replacements",
+			value: function replacements() {
+				var _this10 = this;
+
+				this.spine.hooks.serialize.register(function (output, section) {
+					section.output = _this10.resources.substitute(output, section.url);
+				});
+
+				return this.resources.replacements().then(function () {
+					return _this10.resources.replaceCss();
+				});
+			}
+
+			/**
+	   * Find a DOM Range for a given CFI Range
+	   * @param  {EpubCFI} cfiRange a epub cfi range
+	   * @return {Range}
+	   */
+
+		}, {
+			key: "getRange",
+			value: function getRange(cfiRange) {
+				var cfi = new EpubCFI(cfiRange);
+				var item = this.spine.get(cfi.spinePos);
+				var _request = this.load.bind(this);
+				if (!item) {
+					return new Promise(function (resolve, reject) {
+						reject("CFI could not be found");
+					});
+				}
+				return item.load(_request).then(function (contents) {
+					var range = cfi.toRange(item.document);
+					return range;
+				});
+			}
+
+			/**
+	   * Generates the Book Key using the identifer in the manifest or other string provided
+	   * @param  {string} [identifier] to use instead of metadata identifier
+	   * @return {string} key
+	   */
+
+		}, {
+			key: "key",
+			value: function key(identifier) {
+				var ident = identifier || this.packaging.metadata.identifier || this.url.filename;
+				return "epubjs:" + EPUBJS_VERSION + ":" + ident;
+			}
+
+			/**
+	   * Destroy the Book and all associated objects
+	   */
+
+		}, {
+			key: "destroy",
+			value: function destroy() {
+				this.opened = undefined;
+				this.loading = undefined;
+				this.loaded = undefined;
+				this.ready = undefined;
+
+				this.isOpen = false;
+				this.isRendered = false;
+
+				this.spine && this.spine.destroy();
+				this.locations && this.locations.destroy();
+				this.pageList && this.pageList.destroy();
+				this.archive && this.archive.destroy();
+				this.resources && this.resources.destroy();
+				this.container && this.container.destroy();
+				this.packaging && this.packaging.destroy();
+				this.rendition && this.rendition.destroy();
+
+				this.spine = undefined;
+				this.locations = undefined;
+				this.pageList = undefined;
+				this.archive = undefined;
+				this.resources = undefined;
+				this.container = undefined;
+				this.packaging = undefined;
+				this.rendition = undefined;
+
+				this.navigation = undefined;
+				this.url = undefined;
+				this.path = undefined;
+				this.archived = false;
+			}
+		}]);
+
+		return Book;
+	}();
 
 	//-- Enable binding events to book
+
+
 	eventEmitter(Book.prototype);
 
 	var urlPolyfill$1 = createCommonjsModule(function (module) {
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	(function (root, factory) {
 	  // Fix for this being undefined in modules
 	  if (!root) {
 	    root = window || commonjsGlobal;
 	  }
-	  if (module.exports) {
+	  if ((_typeof(module)) === 'object' && module.exports) {
 	    // Node
 	    module.exports = factory(root);
 	  } else {
@@ -22157,7 +23640,7 @@
 	  }
 
 	  jURL.prototype = {
-	    toString: function () {
+	    toString: function toString() {
 	      return this.href;
 	    },
 	    get href() {
@@ -22302,9 +23785,13 @@
 	ePub.CFI = EpubCFI;
 	ePub.utils = utils;
 
+	var _typeof$k = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	if (!process$2) {
 	  var process$2 = {
-	    "cwd" : function () { return '/' }
+	    "cwd": function cwd() {
+	      return '/';
+	    }
 	  };
 	}
 
@@ -22321,55 +23808,38 @@
 	  var dots = 0;
 	  var code;
 	  for (var i = 0; i <= path.length; ++i) {
-	    if (i < path.length)
-	      code = path.charCodeAt(i);
-	    else if (code === 47/*/*/)
-	      break;
-	    else
-	      code = 47/*/*/;
-	    if (code === 47/*/*/) {
-	      if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
-	        if (res.length < 2 ||
-	            res.charCodeAt(res.length - 1) !== 46/*.*/ ||
-	            res.charCodeAt(res.length - 2) !== 46/*.*/) {
-	          if (res.length > 2) {
-	            var start = res.length - 1;
-	            var j = start;
-	            for (; j >= 0; --j) {
-	              if (res.charCodeAt(j) === 47/*/*/)
-	                break;
-	            }
-	            if (j !== start) {
-	              if (j === -1)
+	    if (i < path.length) code = path.charCodeAt(i);else if (code === 47 /*/*/) break;else code = 47 /*/*/;
+	    if (code === 47 /*/*/) {
+	        if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
+	          if (res.length < 2 || res.charCodeAt(res.length - 1) !== 46 /*.*/ || res.charCodeAt(res.length - 2) !== 46 /*.*/) {
+	              if (res.length > 2) {
+	                var start = res.length - 1;
+	                var j = start;
+	                for (; j >= 0; --j) {
+	                  if (res.charCodeAt(j) === 47 /*/*/) break;
+	                }
+	                if (j !== start) {
+	                  if (j === -1) res = '';else res = res.slice(0, j);
+	                  lastSlash = i;
+	                  dots = 0;
+	                  continue;
+	                }
+	              } else if (res.length === 2 || res.length === 1) {
 	                res = '';
-	              else
-	                res = res.slice(0, j);
-	              lastSlash = i;
-	              dots = 0;
-	              continue;
+	                lastSlash = i;
+	                dots = 0;
+	                continue;
+	              }
 	            }
-	          } else if (res.length === 2 || res.length === 1) {
-	            res = '';
-	            lastSlash = i;
-	            dots = 0;
-	            continue;
+	          if (allowAboveRoot) {
+	            if (res.length > 0) res += '/..';else res = '..';
 	          }
+	        } else {
+	          if (res.length > 0) res += '/' + path.slice(lastSlash + 1, i);else res = path.slice(lastSlash + 1, i);
 	        }
-	        if (allowAboveRoot) {
-	          if (res.length > 0)
-	            res += '/..';
-	          else
-	            res = '..';
-	        }
-	      } else {
-	        if (res.length > 0)
-	          res += '/' + path.slice(lastSlash + 1, i);
-	        else
-	          res = path.slice(lastSlash + 1, i);
-	      }
-	      lastSlash = i;
-	      dots = 0;
-	    } else if (code === 46/*.*/ && dots !== -1) {
+	        lastSlash = i;
+	        dots = 0;
+	      } else if (code === 46 /*.*/ && dots !== -1) {
 	      ++dots;
 	    } else {
 	      dots = -1;
@@ -22380,8 +23850,7 @@
 
 	function _format$1(sep, pathObject) {
 	  var dir = pathObject.dir || pathObject.root;
-	  var base = pathObject.base ||
-	    ((pathObject.name || '') + (pathObject.ext || ''));
+	  var base = pathObject.base || (pathObject.name || '') + (pathObject.ext || '');
 	  if (!dir) {
 	    return base;
 	  }
@@ -22400,11 +23869,8 @@
 
 	    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
 	      var path;
-	      if (i >= 0)
-	        path = arguments[i];
-	      else {
-	        if (cwd === undefined)
-	          cwd = process$2.cwd();
+	      if (i >= 0) path = arguments[i];else {
+	        if (cwd === undefined) cwd = process$2.cwd();
 	        path = cwd;
 	      }
 
@@ -22416,7 +23882,7 @@
 	      }
 
 	      resolvedPath = path + '/' + resolvedPath;
-	      resolvedAbsolute = path.charCodeAt(0) === 47/*/*/;
+	      resolvedAbsolute = path.charCodeAt(0) === 47 /*/*/;
 	    }
 
 	    // At this point the path should be resolved to a full absolute path, but
@@ -22426,10 +23892,7 @@
 	    resolvedPath = normalizeStringPosix$1(resolvedPath, !resolvedAbsolute);
 
 	    if (resolvedAbsolute) {
-	      if (resolvedPath.length > 0)
-	        return '/' + resolvedPath;
-	      else
-	        return '/';
+	      if (resolvedPath.length > 0) return '/' + resolvedPath;else return '/';
 	    } else if (resolvedPath.length > 0) {
 	      return resolvedPath;
 	    } else {
@@ -22437,109 +23900,92 @@
 	    }
 	  },
 
-
 	  normalize: function normalize(path) {
 	    assertPath$1(path);
 
-	    if (path.length === 0)
-	      return '.';
+	    if (path.length === 0) return '.';
 
-	    var isAbsolute = path.charCodeAt(0) === 47/*/*/;
-	    var trailingSeparator = path.charCodeAt(path.length - 1) === 47/*/*/;
+	    var isAbsolute = path.charCodeAt(0) === 47 /*/*/;
+	    var trailingSeparator = path.charCodeAt(path.length - 1) === 47 /*/*/;
 
 	    // Normalize the path
 	    path = normalizeStringPosix$1(path, !isAbsolute);
 
-	    if (path.length === 0 && !isAbsolute)
-	      path = '.';
-	    if (path.length > 0 && trailingSeparator)
-	      path += '/';
+	    if (path.length === 0 && !isAbsolute) path = '.';
+	    if (path.length > 0 && trailingSeparator) path += '/';
 
-	    if (isAbsolute)
-	      return '/' + path;
+	    if (isAbsolute) return '/' + path;
 	    return path;
 	  },
 
-
 	  isAbsolute: function isAbsolute(path) {
 	    assertPath$1(path);
-	    return path.length > 0 && path.charCodeAt(0) === 47/*/*/;
+	    return path.length > 0 && path.charCodeAt(0) === 47 /*/*/;
 	  },
 
-
 	  join: function join() {
-	    if (arguments.length === 0)
-	      return '.';
+	    if (arguments.length === 0) return '.';
 	    var joined;
 	    for (var i = 0; i < arguments.length; ++i) {
 	      var arg = arguments[i];
 	      assertPath$1(arg);
 	      if (arg.length > 0) {
-	        if (joined === undefined)
-	          joined = arg;
-	        else
-	          joined += '/' + arg;
+	        if (joined === undefined) joined = arg;else joined += '/' + arg;
 	      }
 	    }
-	    if (joined === undefined)
-	      return '.';
+	    if (joined === undefined) return '.';
 	    return posix$1.normalize(joined);
 	  },
-
 
 	  relative: function relative(from, to) {
 	    assertPath$1(from);
 	    assertPath$1(to);
 
-	    if (from === to)
-	      return '';
+	    if (from === to) return '';
 
 	    from = posix$1.resolve(from);
 	    to = posix$1.resolve(to);
 
-	    if (from === to)
-	      return '';
+	    if (from === to) return '';
 
 	    // Trim any leading backslashes
 	    var fromStart = 1;
 	    for (; fromStart < from.length; ++fromStart) {
-	      if (from.charCodeAt(fromStart) !== 47/*/*/)
-	        break;
+	      if (from.charCodeAt(fromStart) !== 47 /*/*/) break;
 	    }
 	    var fromEnd = from.length;
-	    var fromLen = (fromEnd - fromStart);
+	    var fromLen = fromEnd - fromStart;
 
 	    // Trim any leading backslashes
 	    var toStart = 1;
 	    for (; toStart < to.length; ++toStart) {
-	      if (to.charCodeAt(toStart) !== 47/*/*/)
-	        break;
+	      if (to.charCodeAt(toStart) !== 47 /*/*/) break;
 	    }
 	    var toEnd = to.length;
-	    var toLen = (toEnd - toStart);
+	    var toLen = toEnd - toStart;
 
 	    // Compare paths to find the longest common path from root
-	    var length = (fromLen < toLen ? fromLen : toLen);
+	    var length = fromLen < toLen ? fromLen : toLen;
 	    var lastCommonSep = -1;
 	    var i = 0;
 	    for (; i <= length; ++i) {
 	      if (i === length) {
 	        if (toLen > length) {
-	          if (to.charCodeAt(toStart + i) === 47/*/*/) {
-	            // We get here if `from` is the exact base path for `to`.
-	            // For example: from='/foo/bar'; to='/foo/bar/baz'
-	            return to.slice(toStart + i + 1);
-	          } else if (i === 0) {
+	          if (to.charCodeAt(toStart + i) === 47 /*/*/) {
+	              // We get here if `from` is the exact base path for `to`.
+	              // For example: from='/foo/bar'; to='/foo/bar/baz'
+	              return to.slice(toStart + i + 1);
+	            } else if (i === 0) {
 	            // We get here if `from` is the root
 	            // For example: from='/'; to='/foo'
 	            return to.slice(toStart + i);
 	          }
 	        } else if (fromLen > length) {
-	          if (from.charCodeAt(fromStart + i) === 47/*/*/) {
-	            // We get here if `to` is the exact base path for `from`.
-	            // For example: from='/foo/bar/baz'; to='/foo/bar'
-	            lastCommonSep = i;
-	          } else if (i === 0) {
+	          if (from.charCodeAt(fromStart + i) === 47 /*/*/) {
+	              // We get here if `to` is the exact base path for `from`.
+	              // For example: from='/foo/bar/baz'; to='/foo/bar'
+	              lastCommonSep = i;
+	            } else if (i === 0) {
 	            // We get here if `to` is the root.
 	            // For example: from='/foo'; to='/'
 	            lastCommonSep = 0;
@@ -22549,74 +23995,58 @@
 	      }
 	      var fromCode = from.charCodeAt(fromStart + i);
 	      var toCode = to.charCodeAt(toStart + i);
-	      if (fromCode !== toCode)
-	        break;
-	      else if (fromCode === 47/*/*/)
-	        lastCommonSep = i;
+	      if (fromCode !== toCode) break;else if (fromCode === 47 /*/*/) lastCommonSep = i;
 	    }
 
 	    var out = '';
 	    // Generate the relative path based on the path difference between `to`
 	    // and `from`
 	    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
-	      if (i === fromEnd || from.charCodeAt(i) === 47/*/*/) {
-	        if (out.length === 0)
-	          out += '..';
-	        else
-	          out += '/..';
-	      }
+	      if (i === fromEnd || from.charCodeAt(i) === 47 /*/*/) {
+	          if (out.length === 0) out += '..';else out += '/..';
+	        }
 	    }
 
 	    // Lastly, append the rest of the destination (`to`) path that comes after
 	    // the common path parts
-	    if (out.length > 0)
-	      return out + to.slice(toStart + lastCommonSep);
-	    else {
+	    if (out.length > 0) return out + to.slice(toStart + lastCommonSep);else {
 	      toStart += lastCommonSep;
-	      if (to.charCodeAt(toStart) === 47/*/*/)
-	        ++toStart;
+	      if (to.charCodeAt(toStart) === 47 /*/*/) ++toStart;
 	      return to.slice(toStart);
 	    }
 	  },
-
 
 	  _makeLong: function _makeLong(path) {
 	    return path;
 	  },
 
-
 	  dirname: function dirname(path) {
 	    assertPath$1(path);
-	    if (path.length === 0)
-	      return '.';
+	    if (path.length === 0) return '.';
 	    var code = path.charCodeAt(0);
-	    var hasRoot = (code === 47/*/*/);
+	    var hasRoot = code === 47 /*/*/;
 	    var end = -1;
 	    var matchedSlash = true;
 	    for (var i = path.length - 1; i >= 1; --i) {
 	      code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        if (!matchedSlash) {
-	          end = i;
-	          break;
-	        }
-	      } else {
+	      if (code === 47 /*/*/) {
+	          if (!matchedSlash) {
+	            end = i;
+	            break;
+	          }
+	        } else {
 	        // We saw the first non-path separator
 	        matchedSlash = false;
 	      }
 	    }
 
-	    if (end === -1)
-	      return hasRoot ? '/' : '.';
-	    if (hasRoot && end === 1)
-	      return '//';
+	    if (end === -1) return hasRoot ? '/' : '.';
+	    if (hasRoot && end === 1) return '//';
 	    return path.slice(0, end);
 	  },
 
-
 	  basename: function basename(path, ext) {
-	    if (ext !== undefined && typeof ext !== 'string')
-	      throw new TypeError('"ext" argument must be a string');
+	    if (ext !== undefined && typeof ext !== 'string') throw new TypeError('"ext" argument must be a string');
 	    assertPath$1(path);
 
 	    var start = 0;
@@ -22625,20 +24055,19 @@
 	    var i;
 
 	    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
-	      if (ext.length === path.length && ext === path)
-	        return '';
+	      if (ext.length === path.length && ext === path) return '';
 	      var extIdx = ext.length - 1;
 	      var firstNonSlashEnd = -1;
 	      for (i = path.length - 1; i >= 0; --i) {
 	        var code = path.charCodeAt(i);
-	        if (code === 47/*/*/) {
-	          // If we reached a path separator that was not part of a set of path
-	          // separators at the end of the string, stop now
-	          if (!matchedSlash) {
-	            start = i + 1;
-	            break;
-	          }
-	        } else {
+	        if (code === 47 /*/*/) {
+	            // If we reached a path separator that was not part of a set of path
+	            // separators at the end of the string, stop now
+	            if (!matchedSlash) {
+	              start = i + 1;
+	              break;
+	            }
+	          } else {
 	          if (firstNonSlashEnd === -1) {
 	            // We saw the first non-path separator, remember this index in case
 	            // we need it if the extension ends up not matching
@@ -22663,21 +24092,18 @@
 	        }
 	      }
 
-	      if (start === end)
-	        end = firstNonSlashEnd;
-	      else if (end === -1)
-	        end = path.length;
+	      if (start === end) end = firstNonSlashEnd;else if (end === -1) end = path.length;
 	      return path.slice(start, end);
 	    } else {
 	      for (i = path.length - 1; i >= 0; --i) {
-	        if (path.charCodeAt(i) === 47/*/*/) {
-	          // If we reached a path separator that was not part of a set of path
-	          // separators at the end of the string, stop now
-	          if (!matchedSlash) {
-	            start = i + 1;
-	            break;
-	          }
-	        } else if (end === -1) {
+	        if (path.charCodeAt(i) === 47 /*/*/) {
+	            // If we reached a path separator that was not part of a set of path
+	            // separators at the end of the string, stop now
+	            if (!matchedSlash) {
+	              start = i + 1;
+	              break;
+	            }
+	          } else if (end === -1) {
 	          // We saw the first non-path separator, mark this as the end of our
 	          // path component
 	          matchedSlash = false;
@@ -22685,12 +24111,10 @@
 	        }
 	      }
 
-	      if (end === -1)
-	        return '';
+	      if (end === -1) return '';
 	      return path.slice(start, end);
 	    }
 	  },
-
 
 	  extname: function extname(path) {
 	    assertPath$1(path);
@@ -22703,66 +24127,55 @@
 	    var preDotState = 0;
 	    for (var i = path.length - 1; i >= 0; --i) {
 	      var code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        // If we reached a path separator that was not part of a set of path
-	        // separators at the end of the string, stop now
-	        if (!matchedSlash) {
-	          startPart = i + 1;
-	          break;
+	      if (code === 47 /*/*/) {
+	          // If we reached a path separator that was not part of a set of path
+	          // separators at the end of the string, stop now
+	          if (!matchedSlash) {
+	            startPart = i + 1;
+	            break;
+	          }
+	          continue;
 	        }
-	        continue;
-	      }
 	      if (end === -1) {
 	        // We saw the first non-path separator, mark this as the end of our
 	        // extension
 	        matchedSlash = false;
 	        end = i + 1;
 	      }
-	      if (code === 46/*.*/) {
-	        // If this is our first dot, mark it as the start of our extension
-	        if (startDot === -1)
-	          startDot = i;
-	        else if (preDotState !== 1)
-	          preDotState = 1;
-	      } else if (startDot !== -1) {
+	      if (code === 46 /*.*/) {
+	          // If this is our first dot, mark it as the start of our extension
+	          if (startDot === -1) startDot = i;else if (preDotState !== 1) preDotState = 1;
+	        } else if (startDot !== -1) {
 	        // We saw a non-dot and non-path separator before our dot, so we should
 	        // have a good chance at having a non-empty extension
 	        preDotState = -1;
 	      }
 	    }
 
-	    if (startDot === -1 ||
-	        end === -1 ||
-	        // We saw a non-dot character immediately before the dot
-	        preDotState === 0 ||
-	        // The (right-most) trimmed path component is exactly '..'
-	        (preDotState === 1 &&
-	         startDot === end - 1 &&
-	         startDot === startPart + 1)) {
+	    if (startDot === -1 || end === -1 ||
+	    // We saw a non-dot character immediately before the dot
+	    preDotState === 0 ||
+	    // The (right-most) trimmed path component is exactly '..'
+	    preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
 	      return '';
 	    }
 	    return path.slice(startDot, end);
 	  },
 
-
 	  format: function format(pathObject) {
-	    if (pathObject === null || typeof pathObject !== 'object') {
-	      throw new TypeError(
-	        'Parameter "pathObject" must be an object, not ' + typeof(pathObject)
-	      );
+	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$k(pathObject)) !== 'object') {
+	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$k(pathObject)));
 	    }
 	    return _format$1('/', pathObject);
 	  },
-
 
 	  parse: function parse(path) {
 	    assertPath$1(path);
 
 	    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
-	    if (path.length === 0)
-	      return ret;
+	    if (path.length === 0) return ret;
 	    var code = path.charCodeAt(0);
-	    var isAbsolute = (code === 47/*/*/);
+	    var isAbsolute = code === 47 /*/*/;
 	    var start;
 	    if (isAbsolute) {
 	      ret.root = '/';
@@ -22783,47 +24196,38 @@
 	    // Get non-dir info
 	    for (; i >= start; --i) {
 	      code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        // If we reached a path separator that was not part of a set of path
-	        // separators at the end of the string, stop now
-	        if (!matchedSlash) {
-	          startPart = i + 1;
-	          break;
+	      if (code === 47 /*/*/) {
+	          // If we reached a path separator that was not part of a set of path
+	          // separators at the end of the string, stop now
+	          if (!matchedSlash) {
+	            startPart = i + 1;
+	            break;
+	          }
+	          continue;
 	        }
-	        continue;
-	      }
 	      if (end === -1) {
 	        // We saw the first non-path separator, mark this as the end of our
 	        // extension
 	        matchedSlash = false;
 	        end = i + 1;
 	      }
-	      if (code === 46/*.*/) {
-	        // If this is our first dot, mark it as the start of our extension
-	        if (startDot === -1)
-	          startDot = i;
-	        else if (preDotState !== 1)
-	          preDotState = 1;
-	      } else if (startDot !== -1) {
+	      if (code === 46 /*.*/) {
+	          // If this is our first dot, mark it as the start of our extension
+	          if (startDot === -1) startDot = i;else if (preDotState !== 1) preDotState = 1;
+	        } else if (startDot !== -1) {
 	        // We saw a non-dot and non-path separator before our dot, so we should
 	        // have a good chance at having a non-empty extension
 	        preDotState = -1;
 	      }
 	    }
 
-	    if (startDot === -1 ||
-	        end === -1 ||
-	        // We saw a non-dot character immediately before the dot
-	        preDotState === 0 ||
-	        // The (right-most) trimmed path component is exactly '..'
-	        (preDotState === 1 &&
-	         startDot === end - 1 &&
-	         startDot === startPart + 1)) {
+	    if (startDot === -1 || end === -1 ||
+	    // We saw a non-dot character immediately before the dot
+	    preDotState === 0 ||
+	    // The (right-most) trimmed path component is exactly '..'
+	    preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
 	      if (end !== -1) {
-	        if (startPart === 0 && isAbsolute)
-	          ret.base = ret.name = path.slice(1, end);
-	        else
-	          ret.base = ret.name = path.slice(startPart, end);
+	        if (startPart === 0 && isAbsolute) ret.base = ret.name = path.slice(1, end);else ret.base = ret.name = path.slice(startPart, end);
 	      }
 	    } else {
 	      if (startPart === 0 && isAbsolute) {
@@ -22836,426 +24240,520 @@
 	      ret.ext = path.slice(startDot, end);
 	    }
 
-	    if (startPart > 0)
-	      ret.dir = path.slice(0, startPart - 1);
-	    else if (isAbsolute)
-	      ret.dir = '/';
+	    if (startPart > 0) ret.dir = path.slice(0, startPart - 1);else if (isAbsolute) ret.dir = '/';
 
 	    return ret;
 	  },
-
 
 	  sep: '/',
 	  delimiter: ':',
 	  posix: null
 	};
 
-
 	var path$1 = posix$1;
 
-	class PrefabViews {
-		constructor(container) {
+	var _createClass$t = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$t(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PrefabViews = function () {
+		function PrefabViews(container) {
+			_classCallCheck$t(this, PrefabViews);
+
 			this.container = container;
 			this._views = [];
 			this.length = 0;
 			this.hidden = false;
 		}
 
-		all() {
-			return this._views;
-		}
-
-		first() {
-			return this._views[0];
-		}
-
-		last() {
-			return this._views[this._views.length - 1];
-		}
-
-		indexOf(view) {
-			return this._views.indexOf(view);
-		}
-
-		slice() {
-			return this._views.slice.apply(this._views, arguments);
-		}
-
-		get(i) {
-			return this._views[i];
-		}
-
-		append(view) {
-			var check = false;
-			this.forEach(function (v) {
-				if (v.section.href == view.section.href) {
-					check = true;
-				}
-			});
-			if (check) {
-				return view;
+		_createClass$t(PrefabViews, [{
+			key: 'all',
+			value: function all() {
+				return this._views;
 			}
-			// if ( check ) { console.log("AHOY views.append WUT", view.section.href)}
-			this._views.push(view);
-			this._views.sort(function (a, b) {
-				return a.section.href > b.section.href ? 1 : b.section.href > a.section.href ? -1 : 0;
-			});
-			if (this.container && view.element.dataset.reused != 'true') {
-				this.container.appendChild(view.element);
+		}, {
+			key: 'first',
+			value: function first() {
+				return this._views[0];
 			}
-			this.length++;
-			return view;
-		}
-
-		dump() {
-			return this._views.map(function (v) {
-				return v.section.href;
-			});
-		}
-
-		prepend(view) {
-			this._views.unshift(view);
-			if (this.container && view.element.dataset.reused != 'true') {
-				this.container.insertBefore(view.element, this.container.firstChild);
+		}, {
+			key: 'last',
+			value: function last() {
+				return this._views[this._views.length - 1];
 			}
-			this.length++;
-			return view;
-		}
-
-		insert(view, index) {
-			this._views.splice(index, 0, view);
-
-			if (this.container && view.element.dataset.reused != 'true') {
-				if (index < this.container.children.length) {
-					this.container.insertBefore(view.element, this.container.children[index]);
-				} else {
-					this.container.appendChild(view.element);
-				}
+		}, {
+			key: 'indexOf',
+			value: function indexOf(view) {
+				return this._views.indexOf(view);
 			}
-
-			this.length++;
-			return view;
-		}
-
-		remove(view) {
-			var index = this._views.indexOf(view);
-
-			if (index > -1) {
-				this._views.splice(index, 1);
+		}, {
+			key: 'slice',
+			value: function slice() {
+				return this._views.slice.apply(this._views, arguments);
 			}
-
-			this.destroy(view);
-
-			this.length--;
-		}
-
-		destroy(view) {
-			if (view.displayed) {
-				view.destroy();
+		}, {
+			key: 'get',
+			value: function get(i) {
+				return this._views[i];
 			}
-
-			// if(this.container && view.element.dataset.reused != 'true'){
-			// 	 this.container.removeChild(view.element);
-			// }
-			view = null;
-		}
-
-		// Iterators
-
-		forEach() {
-			return this._views.forEach.apply(this._views, arguments);
-		}
-
-		clear() {
-			// Remove all views
-			var view;
-			var len = this.length;
-
-			if (!this.length) return;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				this.destroy(view);
-			}
-
-			this._views = [];
-			this.length = 0;
-		}
-
-		find(section) {
-
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed && view.section.index == section.index) {
+		}, {
+			key: 'append',
+			value: function append(view) {
+				var check = false;
+				this.forEach(function (v) {
+					if (v.section.href == view.section.href) {
+						check = true;
+					}
+				});
+				if (check) {
 					return view;
 				}
+				// if ( check ) { console.log("AHOY views.append WUT", view.section.href)}
+				this._views.push(view);
+				this._views.sort(function (a, b) {
+					return a.section.href > b.section.href ? 1 : b.section.href > a.section.href ? -1 : 0;
+				});
+				if (this.container && view.element.dataset.reused != 'true') {
+					this.container.appendChild(view.element);
+				}
+				this.length++;
+				return view;
 			}
-		}
+		}, {
+			key: 'dump',
+			value: function dump() {
+				return this._views.map(function (v) {
+					return v.section.href;
+				});
+			}
+		}, {
+			key: 'prepend',
+			value: function prepend(view) {
+				this._views.unshift(view);
+				if (this.container && view.element.dataset.reused != 'true') {
+					this.container.insertBefore(view.element, this.container.firstChild);
+				}
+				this.length++;
+				return view;
+			}
+		}, {
+			key: 'insert',
+			value: function insert(view, index) {
+				this._views.splice(index, 0, view);
 
-		displayed() {
-			var displayed = [];
-			var view;
-			var len = this.length;
+				if (this.container && view.element.dataset.reused != 'true') {
+					if (index < this.container.children.length) {
+						this.container.insertBefore(view.element, this.container.children[index]);
+					} else {
+						this.container.appendChild(view.element);
+					}
+				}
 
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
+				this.length++;
+				return view;
+			}
+		}, {
+			key: 'remove',
+			value: function remove(view) {
+				var index = this._views.indexOf(view);
+
+				if (index > -1) {
+					this._views.splice(index, 1);
+				}
+
+				this.destroy(view);
+
+				this.length--;
+			}
+		}, {
+			key: 'destroy',
+			value: function destroy(view) {
 				if (view.displayed) {
-					displayed.push(view);
+					view.destroy();
+				}
+
+				// if(this.container && view.element.dataset.reused != 'true'){
+				// 	 this.container.removeChild(view.element);
+				// }
+				view = null;
+			}
+
+			// Iterators
+
+		}, {
+			key: 'forEach',
+			value: function forEach() {
+				return this._views.forEach.apply(this._views, arguments);
+			}
+		}, {
+			key: 'clear',
+			value: function clear() {
+				// Remove all views
+				var view;
+				var len = this.length;
+
+				if (!this.length) return;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					this.destroy(view);
+				}
+
+				this._views = [];
+				this.length = 0;
+			}
+		}, {
+			key: 'find',
+			value: function find(section) {
+
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed && view.section.index == section.index) {
+						return view;
+					}
 				}
 			}
-			return displayed;
-		}
+		}, {
+			key: 'displayed',
+			value: function displayed() {
+				var displayed = [];
+				var view;
+				var len = this.length;
 
-		show() {
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed) {
-					view.show();
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						displayed.push(view);
+					}
 				}
+				return displayed;
 			}
-			this.hidden = false;
-		}
+		}, {
+			key: 'show',
+			value: function show() {
+				var view;
+				var len = this.length;
 
-		hide() {
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if (view.displayed) {
-					view.hide();
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.show();
+					}
 				}
+				this.hidden = false;
 			}
-			this.hidden = true;
-		}
-	}
+		}, {
+			key: 'hide',
+			value: function hide() {
+				var view;
+				var len = this.length;
 
-	class PrePaginatedContinuousViewManager extends ContinuousViewManager {
-	  constructor(options) {
-	    super(options);
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.hide();
+					}
+				}
+				this.hidden = true;
+			}
+		}]);
 
-	    this.name = "prepaginated";
+		return PrefabViews;
+	}();
 
-	    this._manifest = null;
-	    this._spine = [];
-	    this.settings.scale = this.settings.scale || 1.0;
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+	var _createClass$u = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$u(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn$1(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits$1(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
+	  _inherits$1(PrePaginatedContinuousViewManager, _ContinuousViewManage);
+
+	  function PrePaginatedContinuousViewManager(options) {
+	    _classCallCheck$u(this, PrePaginatedContinuousViewManager);
+
+	    var _this = _possibleConstructorReturn$1(this, (PrePaginatedContinuousViewManager.__proto__ || Object.getPrototypeOf(PrePaginatedContinuousViewManager)).call(this, options));
+
+	    _this.name = "prepaginated";
+
+	    _this._manifest = null;
+	    _this._spine = [];
+	    _this.settings.scale = _this.settings.scale || 1.0;
+	    return _this;
 	  }
 
-	  render(element, size) {
-	    var scale = this.settings.scale;
-	    this.settings.scale = null; // we don't want the stage to scale
-	    ContinuousViewManager.prototype.render.call(this, element, size);
-	    // Views array methods
-	    // use prefab views
-	    this.settings.scale = scale;
-	    this.views = new PrefabViews(this.container);
-	  }
-
-	  onResized(e) {
-	    if (this.resizeTimeout) {
-	      clearTimeout(this.resizeTimeout);
+	  _createClass$u(PrePaginatedContinuousViewManager, [{
+	    key: "render",
+	    value: function render(element, size) {
+	      var scale = this.settings.scale;
+	      this.settings.scale = null; // we don't want the stage to scale
+	      ContinuousViewManager.prototype.render.call(this, element, size);
+	      // Views array methods
+	      // use prefab views
+	      this.settings.scale = scale;
+	      this.views = new PrefabViews(this.container);
 	    }
-	    console.log("AHOY PREPAGINATED onResized queued");
-	    this.resizeTimeout = setTimeout(function () {
-	      this.resize();
-	      console.log("AHOY PREPAGINATED onResized actual");
-	      this.resizeTimeout = null;
-	    }.bind(this), 500);
-	    // this.resize();
-	  }
+	  }, {
+	    key: "onResized",
+	    value: function onResized(e) {
+	      if (this.resizeTimeout) {
+	        clearTimeout(this.resizeTimeout);
+	      }
+	      console.log("AHOY PREPAGINATED onResized queued");
+	      this.resizeTimeout = setTimeout(function () {
+	        this.resize();
+	        console.log("AHOY PREPAGINATED onResized actual");
+	        this.resizeTimeout = null;
+	      }.bind(this), 500);
+	      // this.resize();
+	    }
+	  }, {
+	    key: "resize",
+	    value: function resize(width, height) {
 
-	  resize(width, height) {
+	      ContinuousViewManager.prototype.resize.call(this, width, height);
+	      this._redrawViews();
+	    }
+	  }, {
+	    key: "_redrawViews",
+	    value: function _redrawViews() {
+	      var self = this;
+	      for (var i = 0; i < self._spine.length; i++) {
+	        var href = self._spine[i];
+	        // // console.log("AHOY DRAWING", href);
+	        var section_ = self._manifest[href];
+	        // // var r = self.container.offsetWidth / section_.viewport.width;
+	        // // var h = Math.floor(dim.height * r);
+	        // var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
+	        // var r = w / section_.viewport.width;
+	        // var h = Math.floor(section_.viewport.height * r);
 
-	    ContinuousViewManager.prototype.resize.call(this, width, height);
-	    this._redrawViews();
-	  }
+	        var h, w;
 
-	  _redrawViews() {
-	    var self = this;
-	    for (var i = 0; i < self._spine.length; i++) {
-	      var href = self._spine[i];
-	      // // console.log("AHOY DRAWING", href);
-	      var section_ = self._manifest[href];
-	      // // var r = self.container.offsetWidth / section_.viewport.width;
-	      // // var h = Math.floor(dim.height * r);
-	      // var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
-	      // var r = w / section_.viewport.width;
-	      // var h = Math.floor(section_.viewport.height * r);
+	        var _self$sizeToViewport = self.sizeToViewport(section_);
 
-	      var h, w;
-	      [w, h] = self.sizeToViewport(section_);
+	        var _self$sizeToViewport2 = _slicedToArray(_self$sizeToViewport, 2);
 
-	      var div = self.container.querySelector(`div.epub-view[ref="${section_.index}"]`);
-	      div.style.width = `${w}px`;
-	      div.style.height = `${h}px`;
-	      div.setAttribute('original-height', h);
-	      div.setAttribute('layout-height', h);
+	        w = _self$sizeToViewport2[0];
+	        h = _self$sizeToViewport2[1];
 
-	      var view = this.views.find(section_);
-	      if (view) {
-	        view.size(w, h);
+
+	        var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+	        div.style.width = w + "px";
+	        div.style.height = h + "px";
+	        div.setAttribute('original-height', h);
+	        div.setAttribute('layout-height', h);
+
+	        var view = this.views.find(section_);
+	        if (view) {
+	          view.size(w, h);
+	        }
 	      }
 	    }
-	  }
 
-	  // RRE - debugging
-	  createView(section) {
+	    // RRE - debugging
 
-	    var view = this.views.find(section);
-	    if (view) {
+	  }, {
+	    key: "createView",
+	    value: function createView(section) {
+
+	      var view = this.views.find(section);
+	      if (view) {
+	        return view;
+	      }
+
+	      var w, h;
+
+	      var _sizeToViewport = this.sizeToViewport(section);
+
+	      var _sizeToViewport2 = _slicedToArray(_sizeToViewport, 2);
+
+	      w = _sizeToViewport2[0];
+	      h = _sizeToViewport2[1];
+
+	      var viewSettings = Object.assign({}, this.viewSettings);
+	      viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	      viewSettings.layout.height = h;
+	      viewSettings.layout.columnWidth = w;
+	      var view = new this.View(section, viewSettings);
 	      return view;
 	    }
+	  }, {
+	    key: "display",
+	    value: function display(section, target) {
+	      var self = this;
+	      var promises = [];
 
-	    var w, h;
-	    [w, h] = this.sizeToViewport(section);
-	    var viewSettings = Object.assign({}, this.viewSettings);
-	    viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-	    viewSettings.layout.height = h;
-	    viewSettings.layout.columnWidth = w;
-	    var view = new this.View(section, viewSettings);
-	    return view;
-	  }
+	      this.q.clear();
+	      var display = new defer();
+	      var promises = [];
+	      this.faking = {};
 
-	  display(section, target) {
-	    var self = this;
-	    var promises = [];
-
-	    this.q.clear();
-	    var display = new defer();
-	    var promises = [];
-	    this.faking = {};
-
-	    if (!this._manifest) {
-	      this.emit("building");
-	      self._manifest = {};
-	      var _buildManifest = function (section_) {
-	        self._manifest[section_.href] = false;
-	        if (self.settings.viewports && self.settings.viewports[section_.href]) {
-	          section_.viewport = self.settings.viewports[section_.href];
-	          self._manifest[section_.href] = section_;
-	        } else {
-	          self.q.enqueue(() => {
-	            section_.load(self.request).then(function (contents) {
-	              var meta = contents.querySelector('meta[name="viewport"]');
-	              var value = meta.getAttribute('content');
-	              var tmp = value.split(",");
-	              var key = section_.href;
-	              var idx = self._spine.indexOf(key);
-	              self.emit("building", { index: idx + 1, total: self._spine.length });
-	              section_.viewport = {};
-	              self._manifest[key] = section_;
-	              // self._manifest[key] = { viewport : {} };
-	              // self._manifest[key].index = section_.index;
-	              // self._manifest[key].href = section_.href;
-	              var viewport_width = tmp[0].replace('width=', '');
-	              var viewport_height = tmp[1].replace('height=', '');
-	              if (!viewport_height.match(/^\d+$/)) {
-	                viewport_width = viewport_height = 'auto';
-	              } else {
-	                viewport_width = parseInt(viewport_width, 10);
-	                viewport_height = parseInt(viewport_height, 10);
-	              }
-	              self._manifest[key].viewport.width = viewport_width;
-	              self._manifest[key].viewport.height = viewport_height;
-	              self.faking[key] = self._manifest[key].viewport;
+	      if (!this._manifest) {
+	        this.emit("building");
+	        self._manifest = {};
+	        var _buildManifest = function _buildManifest(section_) {
+	          self._manifest[section_.href] = false;
+	          if (self.settings.viewports && self.settings.viewports[section_.href]) {
+	            section_.viewport = self.settings.viewports[section_.href];
+	            self._manifest[section_.href] = section_;
+	          } else {
+	            self.q.enqueue(function () {
+	              section_.load(self.request).then(function (contents) {
+	                var meta = contents.querySelector('meta[name="viewport"]');
+	                var value = meta.getAttribute('content');
+	                var tmp = value.split(",");
+	                var key = section_.href;
+	                var idx = self._spine.indexOf(key);
+	                self.emit("building", { index: idx + 1, total: self._spine.length });
+	                section_.viewport = {};
+	                self._manifest[key] = section_;
+	                // self._manifest[key] = { viewport : {} };
+	                // self._manifest[key].index = section_.index;
+	                // self._manifest[key].href = section_.href;
+	                var viewport_width = tmp[0].replace('width=', '');
+	                var viewport_height = tmp[1].replace('height=', '');
+	                if (!viewport_height.match(/^\d+$/)) {
+	                  viewport_width = viewport_height = 'auto';
+	                } else {
+	                  viewport_width = parseInt(viewport_width, 10);
+	                  viewport_height = parseInt(viewport_height, 10);
+	                }
+	                self._manifest[key].viewport.width = viewport_width;
+	                self._manifest[key].viewport.height = viewport_height;
+	                self.faking[key] = self._manifest[key].viewport;
+	              });
 	            });
-	          });
+	          }
+	        };
+
+	        // can we build a manifest here?
+	        var prev_ = section.prev();
+	        while (prev_) {
+	          self._spine.unshift(prev_.href);
+	          _buildManifest(prev_);
+	          prev_ = prev_.prev();
 	        }
-	      };
 
-	      // can we build a manifest here?
-	      var prev_ = section.prev();
-	      while (prev_) {
-	        self._spine.unshift(prev_.href);
-	        _buildManifest(prev_);
-	        prev_ = prev_.prev();
+	        self._spine.push(section.href);
+	        _buildManifest(section);
+
+	        var next_ = section.next();
+	        while (next_) {
+	          self._spine.push(next_.href);
+	          _buildManifest(next_);
+	          next_ = next_.next();
+	        }
+
+	        console.log("AHOY PRE-PAGINATED", promises.length);
 	      }
 
-	      self._spine.push(section.href);
-	      _buildManifest(section);
+	      var _display = function () {
 
-	      var next_ = section.next();
-	      while (next_) {
-	        self._spine.push(next_.href);
-	        _buildManifest(next_);
-	        next_ = next_.next();
-	      }
+	        var check = document.querySelector('.epub-view');
+	        if (!check) {
+	          self._max_height = self._max_viewport_height = 0;
+	          self._max_width = self._max_viewport_width = 0;
+	          console.log("AHOY DRAWING", self._spine.length);
+	          for (var i = 0; i < self._spine.length; i++) {
+	            var href = self._spine[i];
+	            var section_ = self._manifest[href];
+	            var w, h;
 
-	      console.log("AHOY PRE-PAGINATED", promises.length);
-	    }
+	            var _self$sizeToViewport3 = self.sizeToViewport(section_);
 
-	    var _display = function () {
+	            var _self$sizeToViewport4 = _slicedToArray(_self$sizeToViewport3, 2);
 
-	      var check = document.querySelector('.epub-view');
-	      if (!check) {
-	        self._max_height = self._max_viewport_height = 0;
-	        self._max_width = self._max_viewport_width = 0;
-	        console.log("AHOY DRAWING", self._spine.length);
-	        for (var i = 0; i < self._spine.length; i++) {
-	          var href = self._spine[i];
-	          var section_ = self._manifest[href];
-	          var w, h;
-	          [w, h] = self.sizeToViewport(section_);
+	            w = _self$sizeToViewport4[0];
+	            h = _self$sizeToViewport4[1];
 
-	          self.container.innerHTML += `<div class="epub-view" ref="${section_.index}" data-href="${section_.href}" style="width: ${w}px; height: ${h}px; text-align: center; margin-left: auto; margin-right: auto"></div>`;
-	          var div = self.container.querySelector(`div.epub-view[ref="${section_.index}"]`);
-	          // div.setAttribute('use-')
-	          div.setAttribute('original-height', h);
-	          div.setAttribute('layout-height', h);
 
-	          if (window.debugManager) {
-	            div.style.backgroundImage = `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e${section_.href}%3c/text%3e%3c/svg%3e")`;
-	            var colorR = Math.floor(Math.random() * 100).toString();
-	            var colorG = Math.floor(Math.random() * 100).toString();
-	            var colorB = Math.floor(Math.random() * 100).toString();
-	            div.style.backgroundColor = `#${colorR}${colorG}${colorB}`;
+	            self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: " + w + "px; height: " + h + "px; text-align: center; margin-left: auto; margin-right: auto\"></div>";
+	            var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+	            // div.setAttribute('use-')
+	            div.setAttribute('original-height', h);
+	            div.setAttribute('layout-height', h);
+
+	            if (window.debugManager) {
+	              div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
+	              var colorR = Math.floor(Math.random() * 100).toString();
+	              var colorG = Math.floor(Math.random() * 100).toString();
+	              var colorB = Math.floor(Math.random() * 100).toString();
+	              div.style.backgroundColor = "#" + colorR + colorG + colorB;
+	            }
 	          }
 	        }
-	      }
 
-	      // find the <div> with this section
-	      // console.log("AHOY continuous.display START", section.href);
-	      var div = self.container.querySelector(`div.epub-view[ref="${section.index}"]`);
-	      div.scrollIntoView();
+	        // find the <div> with this section
+	        // console.log("AHOY continuous.display START", section.href);
+	        var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
+	        div.scrollIntoView();
 
-	      // this.q.clear();
-	      // return check ? this.update() : this.check();
-	      // var retval = check ? this.update() : this.check();
-	      var retval = this.check();
-	      console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
-	      retval.then(function () {
-	        this.q.clear();
-	        console.log("AHOY MANAGER BUILT");
-	        this.emit("built");
-	        return display.resolve();
-	      }.bind(this));
+	        // this.q.clear();
+	        // return check ? this.update() : this.check();
+	        // var retval = check ? this.update() : this.check();
+	        var retval = this.check();
+	        console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
+	        retval.then(function () {
+	          this.q.clear();
+	          console.log("AHOY MANAGER BUILT");
+	          this.emit("built");
+	          return display.resolve();
+	        }.bind(this));
 
-	      // return DefaultViewManager.prototype.display.call(this, section, target)
-	      //  .then(function () {
-	      //    return this.fill();
-	      //  }.bind(this));
+	        // return DefaultViewManager.prototype.display.call(this, section, target)
+	        //  .then(function () {
+	        //    return this.fill();
+	        //  }.bind(this));
 
-	      return retval;
-	    }.bind(this);
+	        return retval;
+	      }.bind(this);
 
-	    // // promises.push(_display);
-	    // while(promises.length) {
-	    //  this.q.enqueue(promises.shift);
-	    // }
+	      // // promises.push(_display);
+	      // while(promises.length) {
+	      //  this.q.enqueue(promises.shift);
+	      // }
 
-	    // console.log("AHOY PREPAGINATED", this.q._q.length);
-	    // this.q.enqueue().then((result) => {
-	    //  display.resolve();
-	    // })
+	      // console.log("AHOY PREPAGINATED", this.q._q.length);
+	      // this.q.enqueue().then((result) => {
+	      //  display.resolve();
+	      // })
 
-	    var q = function () {
-	      return this.q.enqueue(result => {
+	      var q = function () {
+	        return this.q.enqueue(function (result) {
+	          var waiting = 0;
+	          for (var i = 0; i < self._spine.length; i++) {
+	            var href = self._spine[i];
+	            var has_section = self._manifest[href];
+	            if (has_section == false) {
+	              waiting += 1;
+	            }
+	          }
+	          // console.log("AHOY PRE-PAGINATED WAITING", waiting);
+	          if (waiting == 0) {
+	            return _display();
+	          } else {
+	            q();
+	          }
+	        });
+	      }.bind(this);
+
+	      return q();
+
+	      return display.promise;
+	    }
+	  }, {
+	    key: "_checkStillLoading",
+	    value: function _checkStillLoading() {
+	      this.q.enqueue(function (result) {
 	        var waiting = 0;
 	        for (var i = 0; i < self._spine.length; i++) {
 	          var href = self._spine[i];
@@ -23264,853 +24762,2624 @@
 	            waiting += 1;
 	          }
 	        }
-	        // console.log("AHOY PRE-PAGINATED WAITING", waiting);
+	        console.log("AHOY PRE-PAGINATED WAITING", waiting);
 	        if (waiting == 0) {
 	          return _display();
 	        } else {
 	          q();
 	        }
 	      });
-	    }.bind(this);
-
-	    return q();
-
-	    return display.promise;
-	  }
-
-	  _checkStillLoading() {
-	    this.q.enqueue(result => {
-	      var waiting = 0;
-	      for (var i = 0; i < self._spine.length; i++) {
-	        var href = self._spine[i];
-	        var has_section = self._manifest[href];
-	        if (has_section == false) {
-	          waiting += 1;
-	        }
-	      }
-	      console.log("AHOY PRE-PAGINATED WAITING", waiting);
-	      if (waiting == 0) {
-	        return _display();
-	      } else {
-	        q();
-	      }
-	    });
-	  }
-
-	  fill(_full) {
-	    var full = _full || new defer();
-
-	    this.q.enqueue(() => {
-	      return this._checkStillLoading();
-	    }).then(result => {
-	      if (result) {
-	        this.fill(full);
-	      } else {
-	        full.resolve();
-	      }
-	    });
-
-	    return full.promise;
-	  }
-
-	  fillXX(_full) {
-	    var full = _full || new defer();
-
-	    this.q.enqueue(() => {
-	      return this.check();
-	    }).then(result => {
-	      if (result) {
-	        this.fill(full);
-	      } else {
-	        full.resolve();
-	      }
-	    });
-
-	    return full.promise;
-	  }
-
-	  moveTo(offset) {
-	    // var bounds = this.stage.bounds();
-	    // var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-	    var distX = 0,
-	        distY = 0;
-
-	    var offsetX = 0,
-	        offsetY = 0;
-
-	    if (!this.isPaginated) {
-	      distY = offset.top;
-	      offsetY = offset.top + this.settings.offset;
-	    } else {
-	      distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-	      offsetX = distX + this.settings.offset;
 	    }
+	  }, {
+	    key: "fill",
+	    value: function fill(_full) {
+	      var _this2 = this;
 
-	    if (distX > 0 || distY > 0) {
-	      this.scrollBy(distX, distY, true);
-	    }
-	  }
+	      var full = _full || new defer();
 
-	  afterResized(view) {
-	    this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-	  }
-
-	  // Remove Previous Listeners if present
-	  removeShownListeners(view) {
-
-	    // view.off("shown", this.afterDisplayed);
-	    // view.off("shown", this.afterDisplayedAbove);
-	    view.onDisplayed = function () {};
-	  }
-
-	  add(section) {
-	    var view = this.createView(section);
-
-	    this.views.append(view);
-
-	    view.on(EVENTS.VIEWS.RESIZED, bounds => {
-	      view.expanded = true;
-	    });
-
-	    view.on(EVENTS.VIEWS.AXIS, axis => {
-	      this.updateAxis(axis);
-	    });
-
-	    // view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-	    view.onDisplayed = this.afterDisplayed.bind(this);
-	    view.onResize = this.afterResized.bind(this);
-
-	    return view.display(this.request);
-	  }
-
-	  append(section) {
-
-	    var view = this.createView(section);
-
-	    view.on(EVENTS.VIEWS.RESIZED, bounds => {
-	      view.expanded = true;
-	      // do not do this
-	      // this.counter(bounds); // RRE
-	    });
-
-	    /*
-	    view.on(EVENTS.VIEWS.AXIS, (axis) => {
-	      this.updateAxis(axis);
-	    });
-	    */
-
-	    this.views.append(view);
-
-	    view.onDisplayed = this.afterDisplayed.bind(this);
-
-	    return view;
-	  }
-
-	  prepend(section) {
-	    var view = this.createView(section);
-
-	    view.on(EVENTS.VIEWS.RESIZED, bounds => {
-	      this.counter(bounds);
-	      view.expanded = true;
-	    });
-
-	    /*
-	    view.on(EVENTS.VIEWS.AXIS, (axis) => {
-	      this.updateAxis(axis);
-	    });
-	    */
-
-	    this.views.prepend(view);
-
-	    view.onDisplayed = this.afterDisplayed.bind(this);
-
-	    return view;
-	  }
-
-	  counter(bounds) {
-	    // return;
-	    if (this.settings.axis === "vertical") {
-	      // if ( ! this._timer ) {
-	      //  this._timer = setTimeout(function() {
-	      //    this._timer = null;
-	      //    console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-	      //    this.scrollBy(0, bounds.heightDelta, true);
-	      //    this.x1(`COUNTER ${bounds.heightDelta}`);
-	      //  }.bind(this), 500);
-	      // } else {
-	      //  console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-	      // }
-	      // console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-	      this.scrollBy(0, bounds.heightDelta, true);
-	    } else {
-	      this.scrollBy(bounds.widthDelta, 0, true);
-	    }
-	  }
-
-	  updateXXX(_offset) {
-	    var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-	    var visibleLength = horizontal ? bounds.width : bounds.height;
-	    var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-	    var divs = document.querySelectorAll('.epub-view');
-	    for (var i = 0; i < divs.length; i++) {
-	      var div = divs[i];
-	      var rect = div.getBoundingClientRect();
-	      // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-	      // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-	      if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-	        var section = this._manifest[div.dataset.href];
-	        // if ( ! div.querySelector('iframe') ) {
-	        //  newViews.push(this.append(section))
-	        // }
-	        // var idx = this._spine.indexOf(section.href);
-	        // if ( idx > 0 ) {
-	        //  visible.push(this._manifest[this._spine[idx - 1]]);
-	        // }
-	        // if ( idx < this._spine.length - 1 ) {
-	        //  visible.push(this._manifest[this._spine[idx + 1]]);
-	        // }
-	      }
-	      // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-	    }
-	  }
-
-	  update(_offset) {
-	    var container = this.bounds();
-	    var views = this.views.all();
-	    var viewsLength = views.length;
-	    var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-	    var isVisible;
-	    var view;
-
-	    var updating = new defer();
-	    var promises = [];
-	    var queued = {};
-	    for (var i = 0; i < viewsLength; i++) {
-	      view = views[i];
-
-	      isVisible = this.isVisible(view, offset, offset, container);
-	      if (isVisible === true) {
-	        queued[i] = true;
-	      }
-	    }
-
-	    for (var i = 0; i < viewsLength; i++) {
-	      view = views[i];
-	      var isVisible = queued[i];
-	      if (isVisible === true) {
-	        // console.log("visible " + view.index);
-
-	        if (!view.displayed) {
-	          // console.log("AHOY continuous.update !displayed", view.section.href);
-	          let displayed = view.display(this.request).then(function (view) {
-	            view.show();
-	          }, err => {
-	            // console.log("AHOY continuous.update ERROR", err);
-	            view.hide();
-	          });
-	          promises.push(displayed);
-	        } else {
-	          // console.log("AHOY continuous.update show", view.section.href);
-	          view.show();
-	        }
-	      } else {
-	        this.q.enqueue(view.destroy.bind(view));
-	        // console.log("hidden " + view.index);
-
-	        clearTimeout(this.trimTimeout);
-	        this.trimTimeout = setTimeout(function () {
-	          this.q.enqueue(this.trim.bind(this));
-	        }.bind(this), 250);
-	      }
-	    }
-
-	    if (promises.length) {
-	      return Promise.all(promises).catch(err => {
-	        updating.reject(err);
-	      });
-	    } else {
-	      updating.resolve();
-	      return updating.promise;
-	    }
-	  }
-
-	  check(_offsetLeft, _offsetTop) {
-	    var checking = new defer();
-	    var newViews = [];
-
-	    var horizontal = this.settings.axis === "horizontal";
-	    var delta = this.settings.offset || 0;
-
-	    if (_offsetLeft && horizontal) {
-	      delta = _offsetLeft;
-	    }
-
-	    if (_offsetTop && !horizontal) {
-	      delta = _offsetTop;
-	    }
-
-	    var bounds = this._bounds; // bounds saved this until resize
-
-	    let rtl = this.settings.direction === "rtl";
-	    let dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-	    var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-	    var visibleLength = horizontal ? bounds.width : bounds.height;
-	    var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-	    var prePaginated = this.layout.props.name == 'pre-paginated';
-
-	    var adjusted_top = offset - bounds.height * 8;
-	    var adjusted_end = offset + bounds.height * 8;
-	    // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
-
-	    // need to figure out which divs are viewable
-	    var divs = document.querySelectorAll('.epub-view');
-	    var visible = [];
-	    for (var i = 0; i < divs.length; i++) {
-	      var div = divs[i];
-	      var rect = div.getBoundingClientRect();
-	      // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-	      // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-	      if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-	        var section = this._manifest[div.dataset.href];
-	        visible.push(section);
-	        // if ( ! div.querySelector('iframe') ) {
-	        //  newViews.push(this.append(section))
-	        // }
-	        // var idx = this._spine.indexOf(section.href);
-	        // if ( idx > 0 ) {
-	        //  visible.push(this._manifest[this._spine[idx - 1]]);
-	        // }
-	        // if ( idx < this._spine.length - 1 ) {
-	        //  visible.push(this._manifest[this._spine[idx + 1]]);
-	        // }
-	      }
-	      // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-	    }
-
-	    this.__check_visible = visible;
-
-	    var section = visible[0];
-	    if (section && section.index > 0) {
-	      visible.unshift(this._manifest[this._spine[section.index - 1]]);
-	    }
-	    if (section) {
-	      var tmp = this._spine[section.index + 1];
-	      if (tmp) {
-	        visible.push(this._manifest[tmp]);
-	      }
-	    }
-	    // if ( section && section.prev() ) {
-	    //  visible.unshift(section.prev());
-	    // }
-	    // section = visible[visible.length - 1];
-	    // if (section && section.next() ) {
-	    //  visible.push(section.next());
-	    // }
-
-	    for (var i = 0; i < visible.length; i++) {
-	      var section = visible[i];
-	      // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
-	      // if ( div.querySelector('iframe') ) {
-	      //  continue;
-	      // }
-	      newViews.push(this.append(section));
-	    }
-
-	    // let promises = newViews.map((view) => {
-	    //  return view.displayed;
-	    // });
-
-	    var promises = [];
-	    for (var i = 0; i < newViews.length; i++) {
-	      if (newViews[i]) {
-	        promises.push(newViews[i]);
-	      }
-	    }
-
-	    if (newViews.length) {
-	      return Promise.all(promises).then(() => {
-	        // return this.check();
-	        // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
-	        //   // console.log("AHOY check again");
-	        //   return this.check();
-	        // }
-	      }).then(() => {
-	        // Check to see if anything new is on screen after rendering
-	        // console.log("AHOY update again");
-	        return this.update(delta);
-	      }, err => {
-	        return err;
-	      });
-	    } else {
 	      this.q.enqueue(function () {
-	        this.update();
+	        return _this2._checkStillLoading();
+	      }).then(function (result) {
+	        if (result) {
+	          _this2.fill(full);
+	        } else {
+	          full.resolve();
+	        }
+	      });
+
+	      return full.promise;
+	    }
+	  }, {
+	    key: "fillXX",
+	    value: function fillXX(_full) {
+	      var _this3 = this;
+
+	      var full = _full || new defer();
+
+	      this.q.enqueue(function () {
+	        return _this3.check();
+	      }).then(function (result) {
+	        if (result) {
+	          _this3.fill(full);
+	        } else {
+	          full.resolve();
+	        }
+	      });
+
+	      return full.promise;
+	    }
+	  }, {
+	    key: "moveTo",
+	    value: function moveTo(offset) {
+	      // var bounds = this.stage.bounds();
+	      // var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+	      var distX = 0,
+	          distY = 0;
+
+	      var offsetX = 0,
+	          offsetY = 0;
+
+	      if (!this.isPaginated) {
+	        distY = offset.top;
+	        offsetY = offset.top + this.settings.offset;
+	      } else {
+	        distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+	        offsetX = distX + this.settings.offset;
+	      }
+
+	      if (distX > 0 || distY > 0) {
+	        this.scrollBy(distX, distY, true);
+	      }
+	    }
+	  }, {
+	    key: "afterResized",
+	    value: function afterResized(view) {
+	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	    }
+
+	    // Remove Previous Listeners if present
+
+	  }, {
+	    key: "removeShownListeners",
+	    value: function removeShownListeners(view) {
+
+	      // view.off("shown", this.afterDisplayed);
+	      // view.off("shown", this.afterDisplayedAbove);
+	      view.onDisplayed = function () {};
+	    }
+	  }, {
+	    key: "add",
+	    value: function add(section) {
+	      var _this4 = this;
+
+	      var view = this.createView(section);
+
+	      this.views.append(view);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        view.expanded = true;
+	      });
+
+	      view.on(EVENTS.VIEWS.AXIS, function (axis) {
+	        _this4.updateAxis(axis);
+	      });
+
+	      // view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+	      view.onResize = this.afterResized.bind(this);
+
+	      return view.display(this.request);
+	    }
+	  }, {
+	    key: "append",
+	    value: function append(section) {
+
+	      var view = this.createView(section);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        view.expanded = true;
+	        // do not do this
+	        // this.counter(bounds); // RRE
+	      });
+
+	      /*
+	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+	        this.updateAxis(axis);
+	      });
+	      */
+
+	      this.views.append(view);
+
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+
+	      return view;
+	    }
+	  }, {
+	    key: "prepend",
+	    value: function prepend(section) {
+	      var _this5 = this;
+
+	      var view = this.createView(section);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        _this5.counter(bounds);
+	        view.expanded = true;
+	      });
+
+	      /*
+	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+	        this.updateAxis(axis);
+	      });
+	      */
+
+	      this.views.prepend(view);
+
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+
+	      return view;
+	    }
+	  }, {
+	    key: "counter",
+	    value: function counter(bounds) {
+	      // return;
+	      if (this.settings.axis === "vertical") {
+	        // if ( ! this._timer ) {
+	        //  this._timer = setTimeout(function() {
+	        //    this._timer = null;
+	        //    console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        //    this.scrollBy(0, bounds.heightDelta, true);
+	        //    this.x1(`COUNTER ${bounds.heightDelta}`);
+	        //  }.bind(this), 500);
+	        // } else {
+	        //  console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        // }
+	        // console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        this.scrollBy(0, bounds.heightDelta, true);
+	      } else {
+	        this.scrollBy(bounds.widthDelta, 0, true);
+	      }
+	    }
+	  }, {
+	    key: "updateXXX",
+	    value: function updateXXX(_offset) {
+	      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+	      var visibleLength = horizontal ? bounds.width : bounds.height;
+	      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+	      var divs = document.querySelectorAll('.epub-view');
+	      for (var i = 0; i < divs.length; i++) {
+	        var div = divs[i];
+	        var rect = div.getBoundingClientRect();
+	        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+	        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+	        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+	          var section = this._manifest[div.dataset.href];
+	          // if ( ! div.querySelector('iframe') ) {
+	          //  newViews.push(this.append(section))
+	          // }
+	          // var idx = this._spine.indexOf(section.href);
+	          // if ( idx > 0 ) {
+	          //  visible.push(this._manifest[this._spine[idx - 1]]);
+	          // }
+	          // if ( idx < this._spine.length - 1 ) {
+	          //  visible.push(this._manifest[this._spine[idx + 1]]);
+	          // }
+	        }
+	        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+	      }
+	    }
+	  }, {
+	    key: "update",
+	    value: function update(_offset) {
+	      var container = this.bounds();
+	      var views = this.views.all();
+	      var viewsLength = views.length;
+	      var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+	      var isVisible;
+	      var view;
+
+	      var updating = new defer();
+	      var promises = [];
+	      var queued = {};
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+
+	        isVisible = this.isVisible(view, offset, offset, container);
+	        if (isVisible === true) {
+	          queued[i] = true;
+	        }
+	      }
+
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+	        var isVisible = queued[i];
+	        if (isVisible === true) {
+	          // console.log("visible " + view.index);
+
+	          if (!view.displayed) {
+	            // console.log("AHOY continuous.update !displayed", view.section.href);
+	            var displayed = view.display(this.request).then(function (view) {
+	              view.show();
+	            }, function (err) {
+	              // console.log("AHOY continuous.update ERROR", err);
+	              view.hide();
+	            });
+	            promises.push(displayed);
+	          } else {
+	            // console.log("AHOY continuous.update show", view.section.href);
+	            view.show();
+	          }
+	        } else {
+	          this.q.enqueue(view.destroy.bind(view));
+	          // console.log("hidden " + view.index);
+
+	          clearTimeout(this.trimTimeout);
+	          this.trimTimeout = setTimeout(function () {
+	            this.q.enqueue(this.trim.bind(this));
+	          }.bind(this), 250);
+	        }
+	      }
+
+	      if (promises.length) {
+	        return Promise.all(promises).catch(function (err) {
+	          updating.reject(err);
+	        });
+	      } else {
+	        updating.resolve();
+	        return updating.promise;
+	      }
+	    }
+	  }, {
+	    key: "check",
+	    value: function check(_offsetLeft, _offsetTop) {
+	      var _this6 = this;
+
+	      var checking = new defer();
+	      var newViews = [];
+
+	      var horizontal = this.settings.axis === "horizontal";
+	      var delta = this.settings.offset || 0;
+
+	      if (_offsetLeft && horizontal) {
+	        delta = _offsetLeft;
+	      }
+
+	      if (_offsetTop && !horizontal) {
+	        delta = _offsetTop;
+	      }
+
+	      var bounds = this._bounds; // bounds saved this until resize
+
+	      var rtl = this.settings.direction === "rtl";
+	      var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+	      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+	      var visibleLength = horizontal ? bounds.width : bounds.height;
+	      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+	      var prePaginated = this.layout.props.name == 'pre-paginated';
+
+	      var adjusted_top = offset - bounds.height * 8;
+	      var adjusted_end = offset + bounds.height * 8;
+	      // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
+
+	      // need to figure out which divs are viewable
+	      var divs = document.querySelectorAll('.epub-view');
+	      var visible = [];
+	      for (var i = 0; i < divs.length; i++) {
+	        var div = divs[i];
+	        var rect = div.getBoundingClientRect();
+	        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+	        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+	        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+	          var section = this._manifest[div.dataset.href];
+	          visible.push(section);
+	          // if ( ! div.querySelector('iframe') ) {
+	          //  newViews.push(this.append(section))
+	          // }
+	          // var idx = this._spine.indexOf(section.href);
+	          // if ( idx > 0 ) {
+	          //  visible.push(this._manifest[this._spine[idx - 1]]);
+	          // }
+	          // if ( idx < this._spine.length - 1 ) {
+	          //  visible.push(this._manifest[this._spine[idx + 1]]);
+	          // }
+	        }
+	        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+	      }
+
+	      this.__check_visible = visible;
+
+	      var section = visible[0];
+	      if (section && section.index > 0) {
+	        visible.unshift(this._manifest[this._spine[section.index - 1]]);
+	      }
+	      if (section) {
+	        var tmp = this._spine[section.index + 1];
+	        if (tmp) {
+	          visible.push(this._manifest[tmp]);
+	        }
+	      }
+	      // if ( section && section.prev() ) {
+	      //  visible.unshift(section.prev());
+	      // }
+	      // section = visible[visible.length - 1];
+	      // if (section && section.next() ) {
+	      //  visible.push(section.next());
+	      // }
+
+	      for (var i = 0; i < visible.length; i++) {
+	        var section = visible[i];
+	        // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
+	        // if ( div.querySelector('iframe') ) {
+	        //  continue;
+	        // }
+	        newViews.push(this.append(section));
+	      }
+
+	      // let promises = newViews.map((view) => {
+	      //  return view.displayed;
+	      // });
+
+	      var promises = [];
+	      for (var i = 0; i < newViews.length; i++) {
+	        if (newViews[i]) {
+	          promises.push(newViews[i]);
+	        }
+	      }
+
+	      if (newViews.length) {
+	        return Promise.all(promises).then(function () {
+	          // return this.check();
+	          // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
+	          //   // console.log("AHOY check again");
+	          //   return this.check();
+	          // }
+	        }).then(function () {
+	          // Check to see if anything new is on screen after rendering
+	          // console.log("AHOY update again");
+	          return _this6.update(delta);
+	        }, function (err) {
+	          return err;
+	        });
+	      } else {
+	        this.q.enqueue(function () {
+	          this.update();
+	        }.bind(this));
+	        checking.resolve(false);
+	        return checking.promise;
+	      }
+	    }
+	  }, {
+	    key: "trim",
+	    value: function trim() {
+	      var task = new defer();
+	      var displayed = this.views.displayed();
+	      var first = displayed[0];
+	      var last = displayed[displayed.length - 1];
+	      var firstIndex = this.views.indexOf(first);
+	      var lastIndex = this.views.indexOf(last);
+	      var above = this.views.slice(0, firstIndex);
+	      var below = this.views.slice(lastIndex + 1);
+
+	      // Erase all but last above
+	      for (var i = 0; i < above.length - 3; i++) {
+	        if (above[i]) {
+	          // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
+	          this.erase(above[i], above);
+	        }
+	      }
+
+	      // Erase all except first below
+	      for (var j = 3; j < below.length; j++) {
+	        if (below[j]) {
+	          // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
+	          this.erase(below[j]);
+	        }
+	      }
+
+	      task.resolve();
+	      return task.promise;
+	    }
+	  }, {
+	    key: "erase",
+	    value: function erase(view, above) {
+	      //Trim
+
+	      var prevTop;
+	      var prevLeft;
+
+	      if (this.settings.height) {
+	        prevTop = this.container.scrollTop;
+	        prevLeft = this.container.scrollLeft;
+	      } else {
+	        prevTop = window.scrollY;
+	        prevLeft = window.scrollX;
+	      }
+
+	      var bounds = view.bounds();
+
+	      // console.log("AHOY erase", view.section.href, above);
+	      this.views.remove(view);
+
+	      if (above) {
+	        if (this.settings.axis === "vertical") ; else {
+	          this.scrollTo(prevLeft - bounds.width, 0, true);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "addEventListeners",
+	    value: function addEventListeners(stage) {
+
+	      window.addEventListener("unload", function (e) {
+	        this.ignore = true;
+	        // this.scrollTo(0,0);
+	        this.destroy();
 	      }.bind(this));
-	      checking.resolve(false);
-	      return checking.promise;
+
+	      this.addScrollListeners();
 	    }
-	  }
+	  }, {
+	    key: "addScrollListeners",
+	    value: function addScrollListeners() {
+	      var scroller;
 
-	  trim() {
-	    var task = new defer();
-	    var displayed = this.views.displayed();
-	    var first = displayed[0];
-	    var last = displayed[displayed.length - 1];
-	    var firstIndex = this.views.indexOf(first);
-	    var lastIndex = this.views.indexOf(last);
-	    var above = this.views.slice(0, firstIndex);
-	    var below = this.views.slice(lastIndex + 1);
+	      this.tick = requestAnimationFrame$1;
 
-	    // Erase all but last above
-	    for (var i = 0; i < above.length - 3; i++) {
-	      if (above[i]) {
-	        // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
-	        this.erase(above[i], above);
+	      if (this.settings.height) {
+	        this.prevScrollTop = this.container.scrollTop;
+	        this.prevScrollLeft = this.container.scrollLeft;
+	      } else {
+	        this.prevScrollTop = window.scrollY;
+	        this.prevScrollLeft = window.scrollX;
 	      }
-	    }
 
-	    // Erase all except first below
-	    for (var j = 3; j < below.length; j++) {
-	      if (below[j]) {
-	        // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
-	        this.erase(below[j]);
-	      }
-	    }
-
-	    task.resolve();
-	    return task.promise;
-	  }
-
-	  erase(view, above) {
-	    //Trim
-
-	    var prevTop;
-	    var prevLeft;
-
-	    if (this.settings.height) {
-	      prevTop = this.container.scrollTop;
-	      prevLeft = this.container.scrollLeft;
-	    } else {
-	      prevTop = window.scrollY;
-	      prevLeft = window.scrollX;
-	    }
-
-	    var bounds = view.bounds();
-
-	    // console.log("AHOY erase", view.section.href, above);
-	    this.views.remove(view);
-
-	    if (above) {
-	      if (this.settings.axis === "vertical") ; else {
-	        this.scrollTo(prevLeft - bounds.width, 0, true);
-	      }
-	    }
-	  }
-
-	  addEventListeners(stage) {
-
-	    window.addEventListener("unload", function (e) {
-	      this.ignore = true;
-	      // this.scrollTo(0,0);
-	      this.destroy();
-	    }.bind(this));
-
-	    this.addScrollListeners();
-	  }
-
-	  addScrollListeners() {
-	    var scroller;
-
-	    this.tick = requestAnimationFrame$1;
-
-	    if (this.settings.height) {
-	      this.prevScrollTop = this.container.scrollTop;
-	      this.prevScrollLeft = this.container.scrollLeft;
-	    } else {
-	      this.prevScrollTop = window.scrollY;
-	      this.prevScrollLeft = window.scrollX;
-	    }
-
-	    this.scrollDeltaVert = 0;
-	    this.scrollDeltaHorz = 0;
-
-	    if (this.settings.height) {
-	      scroller = this.container;
-	      this.scrollTop = this.container.scrollTop;
-	      this.scrollLeft = this.container.scrollLeft;
-	    } else {
-	      scroller = window;
-	      this.scrollTop = window.scrollY;
-	      this.scrollLeft = window.scrollX;
-	    }
-
-	    scroller.addEventListener("scroll", this.onScroll.bind(this));
-	    this._scrolled = debounce_1(this.scrolled.bind(this), 30);
-	    // this.tick.call(window, this.onScroll.bind(this));
-
-	    this.didScroll = false;
-	  }
-
-	  removeEventListeners() {
-	    var scroller;
-
-	    if (this.settings.height) {
-	      scroller = this.container;
-	    } else {
-	      scroller = window;
-	    }
-
-	    scroller.removeEventListener("scroll", this.onScroll.bind(this));
-	  }
-
-	  onScroll() {
-	    let scrollTop;
-	    let scrollLeft;
-	    let dir = this.settings.direction === "rtl" ? -1 : 1;
-
-	    if (this.settings.height) {
-	      scrollTop = this.container.scrollTop;
-	      scrollLeft = this.container.scrollLeft;
-	    } else {
-	      scrollTop = window.scrollY * dir;
-	      scrollLeft = window.scrollX * dir;
-	    }
-
-	    this.scrollTop = scrollTop;
-	    this.scrollLeft = scrollLeft;
-
-	    if (!this.ignore) {
-
-	      this._scrolled();
-	    } else {
-	      this.ignore = false;
-	    }
-
-	    this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-	    this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
-
-	    this.prevScrollTop = scrollTop;
-	    this.prevScrollLeft = scrollLeft;
-
-	    clearTimeout(this.scrollTimeout);
-	    this.scrollTimeout = setTimeout(function () {
 	      this.scrollDeltaVert = 0;
 	      this.scrollDeltaHorz = 0;
-	    }.bind(this), 150);
 
-	    this.didScroll = false;
-	  }
+	      if (this.settings.height) {
+	        scroller = this.container;
+	        this.scrollTop = this.container.scrollTop;
+	        this.scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scroller = window;
+	        this.scrollTop = window.scrollY;
+	        this.scrollLeft = window.scrollX;
+	      }
 
-	  scrolled() {
-	    this.q.enqueue(function () {
-	      this.check();
-	      this.recenter();
-	      setTimeout(function () {
+	      scroller.addEventListener("scroll", this.onScroll.bind(this));
+	      this._scrolled = debounce_1(this.scrolled.bind(this), 30);
+	      // this.tick.call(window, this.onScroll.bind(this));
+
+	      this.didScroll = false;
+	    }
+	  }, {
+	    key: "removeEventListeners",
+	    value: function removeEventListeners() {
+	      var scroller;
+
+	      if (this.settings.height) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      scroller.removeEventListener("scroll", this.onScroll.bind(this));
+	    }
+	  }, {
+	    key: "onScroll",
+	    value: function onScroll() {
+	      var scrollTop = void 0;
+	      var scrollLeft = void 0;
+	      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+	      if (this.settings.height) {
+	        scrollTop = this.container.scrollTop;
+	        scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scrollTop = window.scrollY * dir;
+	        scrollLeft = window.scrollX * dir;
+	      }
+
+	      this.scrollTop = scrollTop;
+	      this.scrollLeft = scrollLeft;
+
+	      if (!this.ignore) {
+
+	        this._scrolled();
+	      } else {
+	        this.ignore = false;
+	      }
+
+	      this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+	      this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+	      this.prevScrollTop = scrollTop;
+	      this.prevScrollLeft = scrollLeft;
+
+	      clearTimeout(this.scrollTimeout);
+	      this.scrollTimeout = setTimeout(function () {
+	        this.scrollDeltaVert = 0;
+	        this.scrollDeltaHorz = 0;
+	      }.bind(this), 150);
+
+	      this.didScroll = false;
+	    }
+	  }, {
+	    key: "scrolled",
+	    value: function scrolled() {
+	      this.q.enqueue(function () {
+	        this.check();
+	        this.recenter();
+	        setTimeout(function () {
+	          this.emit(EVENTS.MANAGERS.SCROLLED, {
+	            top: this.scrollTop,
+	            left: this.scrollLeft
+	          });
+	        }.bind(this), 500);
+	      }.bind(this));
+
+	      this.emit(EVENTS.MANAGERS.SCROLL, {
+	        top: this.scrollTop,
+	        left: this.scrollLeft
+	      });
+
+	      clearTimeout(this.afterScrolled);
+	      this.afterScrolled = setTimeout(function () {
 	        this.emit(EVENTS.MANAGERS.SCROLLED, {
 	          top: this.scrollTop,
 	          left: this.scrollLeft
 	        });
-	      }.bind(this), 500);
-	    }.bind(this));
-
-	    this.emit(EVENTS.MANAGERS.SCROLL, {
-	      top: this.scrollTop,
-	      left: this.scrollLeft
-	    });
-
-	    clearTimeout(this.afterScrolled);
-	    this.afterScrolled = setTimeout(function () {
-	      this.emit(EVENTS.MANAGERS.SCROLLED, {
-	        top: this.scrollTop,
-	        left: this.scrollLeft
-	      });
-	    }.bind(this));
-	  }
-
-	  next() {
-
-	    let dir = this.settings.direction;
-	    let delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-	    delta = this.container.offsetHeight / this.settings.scale;
-
-	    if (!this.views.length) return;
-
-	    if (this.isPaginated && this.settings.axis === "horizontal") {
-
-	      this.scrollBy(delta, 0, true);
-	    } else {
-
-	      // this.scrollBy(0, this.layout.height, true);
-	      this.scrollBy(0, delta, true);
-	    }
-
-	    this.q.enqueue(function () {
-	      this.check();
-	    }.bind(this));
-	  }
-
-	  prev() {
-
-	    let dir = this.settings.direction;
-	    let delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-	    if (!this.views.length) return;
-
-	    if (this.isPaginated && this.settings.axis === "horizontal") {
-
-	      this.scrollBy(-delta, 0, true);
-	    } else {
-
-	      this.scrollBy(0, -this.layout.height, true);
-	    }
-
-	    this.q.enqueue(function () {
-	      this.check();
-	    }.bind(this));
-	  }
-
-	  updateAxis(axis, forceUpdate) {
-
-	    if (!this.isPaginated) {
-	      axis = "vertical";
-	    }
-
-	    if (!forceUpdate && axis === this.settings.axis) {
-	      return;
-	    }
-
-	    this.settings.axis = axis;
-
-	    this.stage && this.stage.axis(axis);
-
-	    this.viewSettings.axis = axis;
-
-	    if (this.mapping) {
-	      this.mapping.axis(axis);
-	    }
-
-	    if (this.layout) {
-	      if (axis === "vertical") {
-	        this.layout.spread("none");
-	      } else {
-	        this.layout.spread(this.layout.settings.spread);
-	      }
-	    }
-
-	    if (axis === "vertical") {
-	      this.settings.infinite = true;
-	    } else {
-	      this.settings.infinite = false;
-	    }
-	  }
-
-	  recenter() {
-	    var wrapper = this.container.parentElement;
-	    var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
-	    wrapper.scrollLeft = w3;
-	  }
-
-	  sizeToViewport(section) {
-	    var h = this.layout.height;
-	    // reduce to 80% to avoid hacking epubjs/layout.js
-	    var w = this.layout.columnWidth * 0.8 * this.settings.scale;
-	    if (section.viewport.height != 'auto') {
-	      if (this.layout.columnWidth > section.viewport.width) {
-	        w = section.viewport.width * this.settings.scale;
-	      }
-	      var r = w / section.viewport.width;
-	      h = Math.floor(section.viewport.height * r);
-	    }
-	    return [w, h];
-	  }
-
-	  sizeToViewport_X(section) {
-	    var h = this.layout.height;
-	    var w = this.layout.columnWidth * 0.80;
-
-	    if (section.viewport.height != 'auto') {
-
-	      var r = w / section.viewport.width;
-	      h = section.viewport.height * r;
-	      var f = 1 / 0.60;
-	      var m = Math.min(f * this.layout.height / h, 1.0);
-	      console.log("AHOY SHRINKING", `( ${f} * ${this.layout.height} ) / ${h} = ${m} :: ${h * m}`);
-	      h *= m;
-
-	      h *= this.settings.scale;
-	      if (h > section.viewport.height) {
-	        h = section.viewport.height;
-	      }
-
-	      r = h / section.viewport.height;
-	      w = section.viewport.width * r;
-
-	      h = Math.floor(h);
-	      w = Math.floor(w);
-	    }
-	    return [w, h];
-	  }
-
-	  scale(scale) {
-	    var self = this;
-	    this.settings.scale = scale;
-	    var current = this.currentLocation();
-	    var index = -1;
-	    if (current[0]) {
-	      index = current[0].index;
-	    }
-
-	    this.views.hide();
-	    this.views.clear();
-	    this._redrawViews();
-	    this.views.show();
-	    setTimeout(function () {
-	      console.log("AHOY JUMPING TO", index);
-	      if (index > -1) {
-	        var div = self.container.querySelector(`div.epub-view[ref="${index}"]`);
-	        div.scrollIntoView(true);
-	      }
-	      this.check().then(function () {
-	        this.onScroll();
 	      }.bind(this));
-	    }.bind(this), 0);
-	  }
+	    }
+	  }, {
+	    key: "next",
+	    value: function next() {
 
-	  resetScale() {
-	    // NOOP
-	  }
+	      var dir = this.settings.direction;
+	      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
 
-	}
+	      delta = this.container.offsetHeight / this.settings.scale;
+
+	      if (!this.views.length) return;
+
+	      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+	        this.scrollBy(delta, 0, true);
+	      } else {
+
+	        // this.scrollBy(0, this.layout.height, true);
+	        this.scrollBy(0, delta, true);
+	      }
+
+	      this.q.enqueue(function () {
+	        this.check();
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "prev",
+	    value: function prev() {
+
+	      var dir = this.settings.direction;
+	      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+	      if (!this.views.length) return;
+
+	      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+	        this.scrollBy(-delta, 0, true);
+	      } else {
+
+	        this.scrollBy(0, -this.layout.height, true);
+	      }
+
+	      this.q.enqueue(function () {
+	        this.check();
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "updateAxis",
+	    value: function updateAxis(axis, forceUpdate) {
+
+	      if (!this.isPaginated) {
+	        axis = "vertical";
+	      }
+
+	      if (!forceUpdate && axis === this.settings.axis) {
+	        return;
+	      }
+
+	      this.settings.axis = axis;
+
+	      this.stage && this.stage.axis(axis);
+
+	      this.viewSettings.axis = axis;
+
+	      if (this.mapping) {
+	        this.mapping.axis(axis);
+	      }
+
+	      if (this.layout) {
+	        if (axis === "vertical") {
+	          this.layout.spread("none");
+	        } else {
+	          this.layout.spread(this.layout.settings.spread);
+	        }
+	      }
+
+	      if (axis === "vertical") {
+	        this.settings.infinite = true;
+	      } else {
+	        this.settings.infinite = false;
+	      }
+	    }
+	  }, {
+	    key: "recenter",
+	    value: function recenter() {
+	      var wrapper = this.container.parentElement;
+	      var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+	      wrapper.scrollLeft = w3;
+	    }
+	  }, {
+	    key: "sizeToViewport",
+	    value: function sizeToViewport(section) {
+	      var h = this.layout.height;
+	      // reduce to 80% to avoid hacking epubjs/layout.js
+	      var w = this.layout.columnWidth * 0.8 * this.settings.scale;
+	      if (section.viewport.height != 'auto') {
+	        if (this.layout.columnWidth > section.viewport.width) {
+	          w = section.viewport.width * this.settings.scale;
+	        }
+	        var r = w / section.viewport.width;
+	        h = Math.floor(section.viewport.height * r);
+	      }
+	      return [w, h];
+	    }
+	  }, {
+	    key: "sizeToViewport_X",
+	    value: function sizeToViewport_X(section) {
+	      var h = this.layout.height;
+	      var w = this.layout.columnWidth * 0.80;
+
+	      if (section.viewport.height != 'auto') {
+
+	        var r = w / section.viewport.width;
+	        h = section.viewport.height * r;
+	        var f = 1 / 0.60;
+	        var m = Math.min(f * this.layout.height / h, 1.0);
+	        console.log("AHOY SHRINKING", "( " + f + " * " + this.layout.height + " ) / " + h + " = " + m + " :: " + h * m);
+	        h *= m;
+
+	        h *= this.settings.scale;
+	        if (h > section.viewport.height) {
+	          h = section.viewport.height;
+	        }
+
+	        r = h / section.viewport.height;
+	        w = section.viewport.width * r;
+
+	        h = Math.floor(h);
+	        w = Math.floor(w);
+	      }
+	      return [w, h];
+	    }
+	  }, {
+	    key: "scale",
+	    value: function scale(_scale) {
+	      var self = this;
+	      this.settings.scale = _scale;
+	      var current = this.currentLocation();
+	      var index = -1;
+	      if (current[0]) {
+	        index = current[0].index;
+	      }
+
+	      this.views.hide();
+	      this.views.clear();
+	      this._redrawViews();
+	      this.views.show();
+	      setTimeout(function () {
+	        console.log("AHOY JUMPING TO", index);
+	        if (index > -1) {
+	          var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+	          div.scrollIntoView(true);
+	        }
+	        this.check().then(function () {
+	          this.onScroll();
+	        }.bind(this));
+	      }.bind(this), 0);
+	    }
+	  }, {
+	    key: "resetScale",
+	    value: function resetScale() {
+	      // NOOP
+	    }
+	  }]);
+
+	  return PrePaginatedContinuousViewManager;
+	}(ContinuousViewManager);
 
 	PrePaginatedContinuousViewManager.toString = function () {
 	  return 'prepaginated';
 	};
 
-	class ReusableIframeView extends IframeView {
-	    constructor(section, options) {
-	        super(section, options);
+	var _createClass$v = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$v(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn$2(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits$2(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ReusableIframeView = function (_IframeView) {
+	    _inherits$2(ReusableIframeView, _IframeView);
+
+	    function ReusableIframeView(section, options) {
+	        _classCallCheck$v(this, ReusableIframeView);
+
+	        return _possibleConstructorReturn$2(this, (ReusableIframeView.__proto__ || Object.getPrototypeOf(ReusableIframeView)).call(this, section, options));
 	        // this._layout.height = null;
 	    }
 
-	    container(axis) {
-	        var check = document.querySelector(`div[ref='${this.index}']`);
-	        if (check) {
-	            check.dataset.reused = 'true';
-	            return check;
+	    _createClass$v(ReusableIframeView, [{
+	        key: "container",
+	        value: function container(axis) {
+	            var check = document.querySelector("div[ref='" + this.index + "']");
+	            if (check) {
+	                check.dataset.reused = 'true';
+	                return check;
+	            }
+
+	            var element = document.createElement("div");
+
+	            element.classList.add("epub-view");
+
+	            // this.element.style.minHeight = "100px";
+	            element.style.height = "0px";
+	            element.style.width = "0px";
+	            element.style.overflow = "hidden";
+	            element.style.position = "relative";
+	            element.style.display = "block";
+
+	            if (axis && axis == "horizontal") {
+	                element.style.flex = "none";
+	            } else {
+	                element.style.flex = "initial";
+	            }
+
+	            return element;
 	        }
+	    }, {
+	        key: "create",
+	        value: function create() {
 
-	        var element = document.createElement("div");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
 
-	        element.classList.add("epub-view");
+	            if (!this.element) {
+	                this.element = this.createContainer();
+	            }
 
-	        // this.element.style.minHeight = "100px";
-	        element.style.height = "0px";
-	        element.style.width = "0px";
-	        element.style.overflow = "hidden";
-	        element.style.position = "relative";
-	        element.style.display = "block";
+	            if (this.element.hasAttribute('layout-height')) {
+	                var height = parseInt(this.element.getAttribute('layout-height'), 10);
+	                this._layout_height = height;
+	            }
 
-	        if (axis && axis == "horizontal") {
-	            element.style.flex = "none";
-	        } else {
-	            element.style.flex = "initial";
+	            this.iframe = this.element.querySelector("iframe");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
+
+	            this.iframe = document.createElement("iframe");
+	            this.iframe.id = this.id;
+	            this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
+	            this.iframe.style.overflow = "hidden";
+	            this.iframe.seamless = "seamless";
+	            // Back up if seamless isn't supported
+	            this.iframe.style.border = "none";
+
+	            this.iframe.setAttribute("enable-annotation", "true");
+
+	            this.resizing = true;
+
+	            // this.iframe.style.display = "none";
+	            this.element.style.visibility = "hidden";
+	            this.iframe.style.visibility = "hidden";
+
+	            this.iframe.style.width = "0";
+	            this.iframe.style.height = "0";
+	            this._width = 0;
+	            this._height = 0;
+
+	            this.element.setAttribute("ref", this.index);
+	            this.element.setAttribute("data-href", this.section.href);
+
+	            // this.element.appendChild(this.iframe);
+	            this.added = true;
+
+	            this.elementBounds = bounds$1(this.element);
+
+	            // if(width || height){
+	            //   this.resize(width, height);
+	            // } else if(this.width && this.height){
+	            //   this.resize(this.width, this.height);
+	            // } else {
+	            //   this.iframeBounds = bounds(this.iframe);
+	            // }
+
+
+	            if ("srcdoc" in this.iframe) {
+	                this.supportsSrcdoc = true;
+	            } else {
+	                this.supportsSrcdoc = false;
+	            }
+
+	            if (!this.settings.method) {
+	                this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+	            }
+
+	            return this.iframe;
 	        }
+	    }]);
 
-	        return element;
+	    return ReusableIframeView;
+	}(IframeView);
+
+	var isImplemented$3 = function () {
+		var assign = Object.assign,
+		    obj;
+		if (typeof assign !== 'function') return false;
+		obj = { foo: 'raz' };
+		assign(obj, { bar: 'dwa' }, { trzy: 'trzy' });
+		return obj.foo + obj.bar + obj.trzy === 'razdwatrzy';
+	};
+
+	var isImplemented$4 = function () {
+		try {
+			return true;
+		} catch (e) {
+			return false;
+		}
+	};
+
+	var keys$3 = Object.keys;
+
+	var shim$3 = function (object) {
+		return keys$3(object == null ? object : Object(object));
+	};
+
+	var keys$4 = isImplemented$4() ? Object.keys : shim$3;
+
+	var validValue$1 = function (value) {
+		if (value == null) throw new TypeError("Cannot use null or undefined");
+		return value;
+	};
+
+	var max$1 = Math.max;
+
+	var shim$4 = function (dest, src /*, …srcn*/) {
+		var error,
+		    i,
+		    l = max$1(arguments.length, 2),
+		    assign;
+		dest = Object(validValue$1(dest));
+		assign = function assign(key) {
+			try {
+				dest[key] = src[key];
+			} catch (e) {
+				if (!error) error = e;
+			}
+		};
+		for (i = 1; i < l; ++i) {
+			src = arguments[i];
+			keys$4(src).forEach(assign);
+		}
+		if (error !== undefined) throw error;
+		return dest;
+	};
+
+	var assign$2 = isImplemented$3() ? Object.assign : shim$4;
+
+	var forEach$1 = Array.prototype.forEach,
+	    create$3 = Object.create;
+
+	var process$3 = function process(src, obj) {
+		var key;
+		for (key in src) {
+			obj[key] = src[key];
+		}
+	};
+
+	var normalizeOptions$1 = function (options /*, …options*/) {
+		var result = create$3(null);
+		forEach$1.call(arguments, function (options) {
+			if (options == null) return;
+			process$3(Object(options), result);
+		});
+		return result;
+	};
+
+	// Deprecated
+
+	var isCallable$1 = function (obj) {
+	  return typeof obj === 'function';
+	};
+
+	var str$1 = 'razdwatrzy';
+
+	var isImplemented$5 = function () {
+		if (typeof str$1.contains !== 'function') return false;
+		return str$1.contains('dwa') === true && str$1.contains('foo') === false;
+	};
+
+	var indexOf$2 = String.prototype.indexOf;
+
+	var shim$5 = function (searchString /*, position*/) {
+		return indexOf$2.call(this, searchString, arguments[1]) > -1;
+	};
+
+	var contains$1 = isImplemented$5() ? String.prototype.contains : shim$5;
+
+	var d_1$1 = createCommonjsModule(function (module) {
+
+	var d;
+
+	d = module.exports = function (dscr, value /*, options*/) {
+		var c, e, w, options, desc;
+		if (arguments.length < 2 || typeof dscr !== 'string') {
+			options = value;
+			value = dscr;
+			dscr = null;
+		} else {
+			options = arguments[2];
+		}
+		if (dscr == null) {
+			c = w = true;
+			e = false;
+		} else {
+			c = contains$1.call(dscr, 'c');
+			e = contains$1.call(dscr, 'e');
+			w = contains$1.call(dscr, 'w');
+		}
+
+		desc = { value: value, configurable: c, enumerable: e, writable: w };
+		return !options ? desc : assign$2(normalizeOptions$1(options), desc);
+	};
+
+	d.gs = function (dscr, get, set /*, options*/) {
+		var c, e, options, desc;
+		if (typeof dscr !== 'string') {
+			options = set;
+			set = get;
+			get = dscr;
+			dscr = null;
+		} else {
+			options = arguments[3];
+		}
+		if (get == null) {
+			get = undefined;
+		} else if (!isCallable$1(get)) {
+			options = get;
+			get = set = undefined;
+		} else if (set == null) {
+			set = undefined;
+		} else if (!isCallable$1(set)) {
+			options = set;
+			set = undefined;
+		}
+		if (dscr == null) {
+			c = true;
+			e = false;
+		} else {
+			c = contains$1.call(dscr, 'c');
+			e = contains$1.call(dscr, 'e');
+		}
+
+		desc = { get: get, set: set, configurable: c, enumerable: e };
+		return !options ? desc : assign$2(normalizeOptions$1(options), desc);
+	};
+	});
+
+	var validCallable$1 = function (fn) {
+		if (typeof fn !== 'function') throw new TypeError(fn + " is not a function");
+		return fn;
+	};
+
+	var eventEmitter$1 = createCommonjsModule(function (module, exports) {
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+	var apply = Function.prototype.apply,
+	    call = Function.prototype.call,
+	    create = Object.create,
+	    defineProperty = Object.defineProperty,
+	    defineProperties = Object.defineProperties,
+	    hasOwnProperty = Object.prototype.hasOwnProperty,
+	    descriptor = { configurable: true, enumerable: false, writable: true },
+	    on,
+	    _once2,
+	    off,
+	    emit,
+	    methods,
+	    descriptors,
+	    base;
+
+	on = function on(type, listener) {
+		var data;
+
+		validCallable$1(listener);
+
+		if (!hasOwnProperty.call(this, '__ee__')) {
+			data = descriptor.value = create(null);
+			defineProperty(this, '__ee__', descriptor);
+			descriptor.value = null;
+		} else {
+			data = this.__ee__;
+		}
+		if (!data[type]) data[type] = listener;else if (_typeof(data[type]) === 'object') data[type].push(listener);else data[type] = [data[type], listener];
+
+		return this;
+	};
+
+	_once2 = function once(type, listener) {
+		var _once, self;
+
+		validCallable$1(listener);
+		self = this;
+		on.call(this, type, _once = function once() {
+			off.call(self, type, _once);
+			apply.call(listener, this, arguments);
+		});
+
+		_once.__eeOnceListener__ = listener;
+		return this;
+	};
+
+	off = function off(type, listener) {
+		var data, listeners, candidate, i;
+
+		validCallable$1(listener);
+
+		if (!hasOwnProperty.call(this, '__ee__')) return this;
+		data = this.__ee__;
+		if (!data[type]) return this;
+		listeners = data[type];
+
+		if ((typeof listeners === 'undefined' ? 'undefined' : _typeof(listeners)) === 'object') {
+			for (i = 0; candidate = listeners[i]; ++i) {
+				if (candidate === listener || candidate.__eeOnceListener__ === listener) {
+					if (listeners.length === 2) data[type] = listeners[i ? 0 : 1];else listeners.splice(i, 1);
+				}
+			}
+		} else {
+			if (listeners === listener || listeners.__eeOnceListener__ === listener) {
+				delete data[type];
+			}
+		}
+
+		return this;
+	};
+
+	emit = function emit(type) {
+		var i, l, listener, listeners, args;
+
+		if (!hasOwnProperty.call(this, '__ee__')) return;
+		listeners = this.__ee__[type];
+		if (!listeners) return;
+
+		if ((typeof listeners === 'undefined' ? 'undefined' : _typeof(listeners)) === 'object') {
+			l = arguments.length;
+			args = new Array(l - 1);
+			for (i = 1; i < l; ++i) {
+				args[i - 1] = arguments[i];
+			}listeners = listeners.slice();
+			for (i = 0; listener = listeners[i]; ++i) {
+				apply.call(listener, this, args);
+			}
+		} else {
+			switch (arguments.length) {
+				case 1:
+					call.call(listeners, this);
+					break;
+				case 2:
+					call.call(listeners, this, arguments[1]);
+					break;
+				case 3:
+					call.call(listeners, this, arguments[1], arguments[2]);
+					break;
+				default:
+					l = arguments.length;
+					args = new Array(l - 1);
+					for (i = 1; i < l; ++i) {
+						args[i - 1] = arguments[i];
+					}
+					apply.call(listeners, this, args);
+			}
+		}
+	};
+
+	methods = {
+		on: on,
+		once: _once2,
+		off: off,
+		emit: emit
+	};
+
+	descriptors = {
+		on: d_1$1(on),
+		once: d_1$1(_once2),
+		off: d_1$1(off),
+		emit: d_1$1(emit)
+	};
+
+	base = defineProperties({}, descriptors);
+
+	module.exports = exports = function exports(o) {
+		return o == null ? create(base) : defineProperties(Object(o), descriptors);
+	};
+	exports.methods = methods;
+	});
+	var eventEmitter_1$1 = eventEmitter$1.methods;
+
+	function Viewport(t, e) {
+	  var i = this;this.container = t, this.observers = [], this.lastX = 0, this.lastY = 0;var o = !1,
+	      n = function n() {
+	    o || (o = !0, requestAnimationFrame(function () {
+	      for (var t = i.observers, e = i.getState(), n = t.length; n--;) {
+	        t[n].check(e);
+	      }i.lastX = e.positionX, i.lastY = e.positionY, o = !1;
+	    }));
+	  },
+	      r = e.handleScrollResize,
+	      s = this.handler = r ? r(n) : n;addEventListener("scroll", s, !0), addEventListener("resize", s, !0), addEventListener("DOMContentLoaded", function () {
+	    (i.mutationObserver = new MutationObserver(n)).observe(document, { attributes: !0, childList: !0, subtree: !0 });
+	  });
+	}function Observer(t) {
+	  return this.offset = ~~t.offset || 0, this.container = t.container || document.body, this.once = Boolean(t.once), this.observerCollection = t.observerCollection || defaultObserverCollection, this.activate();
+	}function ObserverCollection(t) {
+	  for (var e = arguments.length, i = Array(e); e--;) {
+	    i[e] = arguments[e];
+	  }if (void 0 === t && (t = {}), !(this instanceof ObserverCollection)) return new (Function.prototype.bind.apply(ObserverCollection, [null].concat(i)))();this.viewports = new Map(), this.handleScrollResize = t.handleScrollResize;
+	}Viewport.prototype = { getState: function getState() {
+	    var t,
+	        e,
+	        i,
+	        o,
+	        n = this.container,
+	        r = this.lastX,
+	        s = this.lastY;return n === document.body ? (t = window.innerWidth, e = window.innerHeight, i = window.pageXOffset, o = window.pageYOffset) : (t = n.offsetWidth, e = n.offsetHeight, i = n.scrollLeft, o = n.scrollTop), { width: t, height: e, positionX: i, positionY: o, directionX: r < i ? "right" : r > i ? "left" : "none", directionY: s < o ? "down" : s > o ? "up" : "none" };
+	  }, destroy: function destroy() {
+	    var t = this.handler,
+	        e = this.mutationObserver;removeEventListener("scroll", t), removeEventListener("resize", t), e && e.disconnect();
+	  } }, Observer.prototype = { activate: function activate() {
+	    var t = this.container,
+	        e = this.observerCollection,
+	        i = e.viewports,
+	        o = i.get(t);o || (o = new Viewport(t, e), i.set(t, o));var n = o.observers;return n.indexOf(this) < 0 && n.push(this), o;
+	  }, destroy: function destroy() {
+	    var t = this.container,
+	        e = this.observerCollection.viewports,
+	        i = e.get(t);if (i) {
+	      var o = i.observers,
+	          n = o.indexOf(this);n > -1 && o.splice(n, 1), o.length || (i.destroy(), e.delete(t));
+	    }
+	  } };var defaultObserverCollection = new ObserverCollection();function PositionObserver(t) {
+	  for (var e = arguments.length, i = Array(e); e--;) {
+	    i[e] = arguments[e];
+	  }if (void 0 === t && (t = {}), !(this instanceof PositionObserver)) return new (Function.prototype.bind.apply(PositionObserver, [null].concat(i)))();this.onTop = t.onTop, this.onBottom = t.onBottom, this.onLeft = t.onLeft, this.onRight = t.onRight, this.onMaximized = t.onMaximized, this._wasTop = !0, this._wasBottom = !1, this._wasLeft = !0, this._wasRight = !1;var o = Observer.call(this, t);this.check(o.getState());
+	}function ElementObserver(t, e) {
+	  for (var i = arguments.length, o = Array(i); i--;) {
+	    o[i] = arguments[i];
+	  }if (void 0 === e && (e = {}), !(this instanceof ElementObserver)) return new (Function.prototype.bind.apply(ElementObserver, [null].concat(o)))();this.element = t, this.onEnter = e.onEnter, this.onExit = e.onExit, this._didEnter = !1;var n = Observer.call(this, e);isElementInDOM(t) && this.check(n.getState());
+	}function isElementInViewport(t, e, i, o) {
+	  var n,
+	      r,
+	      s,
+	      h,
+	      l = t.getBoundingClientRect();if (!l.width || !l.height) return !1;var a = window.innerWidth,
+	      c = window.innerHeight,
+	      v = a;if (o === document.body) n = c, r = 0, s = v, h = 0;else {
+	    if (!(l.top < c && l.bottom > 0 && l.left < v && l.right > 0)) return !1;var d = o.getBoundingClientRect();n = d.bottom, r = d.top, s = d.right, h = d.left;
+	  }return l.top < n + e && l.bottom > r - e && l.left < s + e && l.right > h - e;
+	}function isElementInDOM(t) {
+	  return t && t.parentNode;
+	}PositionObserver.prototype = Object.create(Observer.prototype), PositionObserver.prototype.constructor = PositionObserver, PositionObserver.prototype.check = function (t) {
+	  var e = this,
+	      i = e.onTop,
+	      o = e.onBottom,
+	      n = e.onLeft,
+	      r = e.onRight,
+	      s = e.onMaximized,
+	      h = e._wasTop,
+	      l = e._wasBottom,
+	      a = e._wasLeft,
+	      c = e._wasRight,
+	      v = e.container,
+	      d = e.offset,
+	      p = e.once,
+	      f = v.scrollHeight,
+	      b = v.scrollWidth,
+	      u = t.width,
+	      w = t.height,
+	      O = t.positionX,
+	      m = t.positionY,
+	      g = m - d <= 0,
+	      y = f > w && w + m + d >= f,
+	      E = O - d <= 0,
+	      _ = b > u && u + O + d >= b,
+	      C = !1;o && !l && y ? o.call(this, v, t) : i && !h && g ? i.call(this, v, t) : r && !c && _ ? r.call(this, v, t) : n && !a && E ? n.call(this, v, t) : s && f === w ? s.call(this, v, t) : C = !0, p && !C && this.destroy(), this._wasTop = g, this._wasBottom = y, this._wasLeft = E, this._wasRight = _;
+	}, ElementObserver.prototype = Object.create(Observer.prototype), ElementObserver.prototype.constructor = ElementObserver, ElementObserver.prototype.check = function (t) {
+	  var e = this.container,
+	      i = this.onEnter,
+	      o = this.onExit,
+	      n = this.element,
+	      r = this.offset,
+	      s = this.once,
+	      h = this._didEnter;if (!isElementInDOM(n)) return this.destroy();var l = isElementInViewport(n, r, t, e);!h && l ? (this._didEnter = !0, i && (i.call(this, n, t), s && this.destroy())) : h && !l && (this._didEnter = !1, o && (o.call(this, n, t), s && this.destroy()));
+	};//# sourceMappingURL=viewprt.esm.js.map
+
+	var inVp = function (elem) {
+	  var treshold = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	  treshold = Object.assign({ top: 0, right: 0, bottom: 0, left: 0 }, treshold);
+
+	  // Get the viewport dimensions
+	  var vp = {
+	    width: document.documentElement.clientWidth,
+	    height: document.documentElement.clientHeight
+	  };
+
+	  // Get the viewport offset and size of the element.
+	  // Normailze right and bottom to show offset from their
+	  // respective edges istead of the top-left edges.
+	  var box = elem.getBoundingClientRect();
+	  var top = box.top,
+	      left = box.left,
+	      width = box.width,
+	      height = box.height;
+
+	  var right = vp.width - box.right;
+	  var bottom = vp.height - box.bottom;
+
+	  // Calculate which sides of the element are cut-off
+	  // by the viewport.
+	  var cutOff = {
+	    top: top < treshold.top,
+	    left: left < treshold.left,
+	    bottom: bottom < treshold.bottom,
+	    right: right < treshold.right
+	  };
+
+	  // Calculate which sides of the element are partially shown
+	  var partial = {
+	    top: cutOff.top && top > -height + treshold.top,
+	    left: cutOff.left && left > -width + treshold.left,
+	    bottom: cutOff.bottom && bottom > -height + treshold.bottom,
+	    right: cutOff.right && right > -width + treshold.right
+	  };
+
+	  var isFullyVisible = top >= treshold.top && right >= treshold.right && bottom >= treshold.bottom && left >= treshold.left;
+
+	  var isPartiallyVisible = partial.top || partial.right || partial.bottom || partial.left;
+
+	  // var eTop = elem.offsetTop;
+	  // var eBottom = eTop + elem.offsetHeight;
+	  // var wTop = elem.offsetParent.scrollTop;
+	  // var wBottom = wTop + elem.offsetHeight;
+	  // var totalH = Math.max(eBottom, wBottom) - Math.min(eTop, wTop);
+	  // var wComp = totalH - elem.offsetHeight;
+	  // var eIn = elem.offsetHeight - wComp;
+	  // const percentage = (eIn <= 0 ? 0 : eIn / elem.offsetHeight * 100);
+
+	  // var offsetParent = elem.offsetParent;
+	  // var viewportHeight = offsetParent.offsetHeight;
+	  // var scrollTop = offsetParent.scrollTop;
+	  // var elemOffsetTop = elem.offsetTop;
+	  // var elemHeight = elem.offsetHeight;
+
+	  // var distance = ( scrollTop + viewportHeight ) - elemOffsetTop;
+	  // var percentage = distance / ((viewportHeight + elemHeight ) / 100);
+	  // percentage = Math.round(percentage);
+
+	  // var elH = $(el).outerHeight(),
+	  //     H = $(win).height(),
+	  //     r = el.getBoundingClientRect(), t=r.top, b=r.bottom;
+
+	  var elH = elem.offsetHeight;
+	  var H = elem.offsetParent.offsetHeight;
+	  var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : box.bottom < H ? box.bottom : H);
+
+	  // Calculate which edge of the element are visible.
+	  // Every edge can have three states:
+	  // - 'fully':     The edge is completely visible.
+	  // - 'partially': Some part of the edge can be seen.
+	  // - false:       The edge is not visible at all.
+	  var edges = {
+	    top: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.top && !cutOff.left && !cutOff.right && 'fully' || !cutOff.top && 'partially' || false,
+	    right: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.right && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.right && 'partially' || false,
+	    bottom: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.bottom && !cutOff.left && !cutOff.right && 'fully' || !cutOff.bottom && 'partially' || false,
+	    left: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.left && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.left && 'partially' || false,
+	    percentage: percentage
+	  };
+
+	  return {
+	    fully: isFullyVisible,
+	    partially: isPartiallyVisible,
+	    edges: edges
+	  };
+	};
+
+	var _createClass$w = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$w(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Views$1 = function () {
+	    function Views(container) {
+	        _classCallCheck$w(this, Views);
+
+	        this.container = container;
+	        this._views = [];
+	        this.length = 0;
+	        this.hidden = false;
 	    }
 
-	    create() {
+	    _createClass$w(Views, [{
+	        key: "all",
+	        value: function all() {
+	            return this._views;
+	        }
+	    }, {
+	        key: "first",
+	        value: function first() {
+	            // return this._views[0];
+	            return this.displayed()[0];
+	        }
+	    }, {
+	        key: "last",
+	        value: function last() {
+	            var d = this.displayed();
+	            return d[d.length - 1];
+	            // return this._views[this._views.length-1];
+	        }
+	    }, {
+	        key: "indexOf",
+	        value: function indexOf(view) {
+	            return this._views.indexOf(view);
+	        }
+	    }, {
+	        key: "slice",
+	        value: function slice() {
+	            return this._views.slice.apply(this._views, arguments);
+	        }
+	    }, {
+	        key: "get",
+	        value: function get(i) {
+	            return this._views[i];
+	        }
+	    }, {
+	        key: "append",
+	        value: function append(view) {
+	            this._views.push(view);
+	            if (this.container) {
+	                this.container.appendChild(view.element);
+	                view.observer = ElementObserver(view.element, {
+	                    container: this.container,
+	                    onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
+	                    onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
+	                    offset: 0, // offset from the edges of the viewport in pixels
+	                    once: false, // if true, observer is detroyed after first callback is triggered
+	                    observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
+	                });
 
-	        if (this.iframe) {
-	            return this.iframe;
+	                var _inVp = inVp(view.element),
+	                    edges = _inVp.edges;
+
+	                if (edges.percentage > 0) {
+	                    this.onEnter(view);
+	                }
+	            }
+	            this.length++;
+	            return view;
+	        }
+	    }, {
+	        key: "prepend",
+	        value: function prepend(view) {
+	            this._views.unshift(view);
+	            if (this.container) {
+	                this.container.insertBefore(view.element, this.container.firstChild);
+	            }
+	            this.length++;
+	            return view;
 	        }
 
-	        if (!this.element) {
-	            this.element = this.createContainer();
-	        }
+	        // insert(view, index) {
+	        //     this._views.splice(index, 0, view);
 
-	        if (this.element.hasAttribute('layout-height')) {
-	            var height = parseInt(this.element.getAttribute('layout-height'), 10);
-	            this._layout_height = height;
-	        }
+	        //     if(this.container){
+	        //         if(index < this.container.children.length){
+	        //             this.container.insertBefore(view.element, this.container.children[index]);
+	        //         } else {
+	        //             this.container.appendChild(view.element);
+	        //         }
+	        //     }
 
-	        this.iframe = this.element.querySelector("iframe");
-	        if (this.iframe) {
-	            return this.iframe;
-	        }
-
-	        this.iframe = document.createElement("iframe");
-	        this.iframe.id = this.id;
-	        this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
-	        this.iframe.style.overflow = "hidden";
-	        this.iframe.seamless = "seamless";
-	        // Back up if seamless isn't supported
-	        this.iframe.style.border = "none";
-
-	        this.iframe.setAttribute("enable-annotation", "true");
-
-	        this.resizing = true;
-
-	        // this.iframe.style.display = "none";
-	        this.element.style.visibility = "hidden";
-	        this.iframe.style.visibility = "hidden";
-
-	        this.iframe.style.width = "0";
-	        this.iframe.style.height = "0";
-	        this._width = 0;
-	        this._height = 0;
-
-	        this.element.setAttribute("ref", this.index);
-	        this.element.setAttribute("data-href", this.section.href);
-
-	        // this.element.appendChild(this.iframe);
-	        this.added = true;
-
-	        this.elementBounds = bounds$1(this.element);
-
-	        // if(width || height){
-	        //   this.resize(width, height);
-	        // } else if(this.width && this.height){
-	        //   this.resize(this.width, this.height);
-	        // } else {
-	        //   this.iframeBounds = bounds(this.iframe);
+	        //     this.length++;
+	        //     return view;
 	        // }
 
+	        // remove(view) {
+	        //     var index = this._views.indexOf(view);
 
-	        if ("srcdoc" in this.iframe) {
-	            this.supportsSrcdoc = true;
+	        //     if(index > -1) {
+	        //         this._views.splice(index, 1);
+	        //     }
+
+
+	        //     this.destroy(view);
+
+	        //     this.length--;
+	        // }
+
+	    }, {
+	        key: "destroy",
+	        value: function destroy(view) {
+	            // if(view.displayed){
+	            //     view.destroy();
+	            // }
+	            view.destroy();
+
+	            if (this.container) {
+	                this.container.removeChild(view.element);
+	            }
+	            view = null;
+	        }
+
+	        // Iterators
+
+	    }, {
+	        key: "forEach",
+	        value: function forEach() {
+	            // return this._views.forEach.apply(this._views, arguments);
+	            return this.displayed().forEach.apply(this._views, arguments);
+	        }
+	    }, {
+	        key: "clear",
+	        value: function clear() {
+	            // Remove all views
+	            var view;
+	            var len = this.length;
+
+	            if (!this.length) return;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                this.destroy(view);
+	            }
+
+	            this._views = [];
+	            this.length = 0;
+	        }
+	    }, {
+	        key: "updateLayout",
+	        value: function updateLayout(options) {
+	            var width = options.width;
+	            var height = options.height;
+	            this._views.forEach(function (view) {
+	                view.size(width, height);
+	                if (view.contents) {
+	                    view.contents.size(width, height);
+	                }
+	            });
+	        }
+	    }, {
+	        key: "find",
+	        value: function find(section) {
+
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                // view.displayed
+	                if (view.section.index == section.index) {
+	                    return view;
+	                }
+	            }
+	        }
+	    }, {
+	        key: "displayed",
+	        value: function displayed() {
+	            var displayed = [];
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+
+	                var _inVp2 = inVp(view.element),
+	                    fully = _inVp2.fully,
+	                    partially = _inVp2.partially;
+
+	                if ((fully || partially) && view.displayed) {
+	                    displayed.push(view);
+	                }
+	                // if(view.displayed){
+	                //     displayed.push(view);
+	                // }
+	            }
+	            return displayed;
+	        }
+	    }, {
+	        key: "show",
+	        value: function show() {
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                if (view.displayed) {
+	                    view.show();
+	                }
+	            }
+	            this.hidden = false;
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                if (view.displayed) {
+	                    view.hide();
+	                }
+	            }
+	            this.hidden = true;
+	        }
+	    }, {
+	        key: "onEnter",
+	        value: function onEnter(view, el, viewportState) {
+	            console.log("AHOY VIEWS ONENTER", view, viewportState);
+	            if (!view.displayed) {
+	                console.log("AHOY SHOULD BE SHOWING", view);
+	                this.emit("view.display", { view: view, viewportState: viewportState });
+	            }
+	        }
+	    }, {
+	        key: "onExit",
+	        value: function onExit(view, el, viewportState) {
+	            console.log("AHOY VIEWS ONEXIT", view, viewportState);
+	            view.unload();
+	        }
+	    }]);
+
+	    return Views;
+	}();
+
+	eventEmitter$1(Views$1.prototype);
+
+	var _createClass$x = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$x(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var ScrollingContinuousViewManager = function () {
+	  function ScrollingContinuousViewManager(options) {
+	    _classCallCheck$x(this, ScrollingContinuousViewManager);
+
+	    this.name = "default";
+	    this.optsSettings = options.settings;
+	    this.View = options.view;
+	    this.request = options.request;
+	    this.renditionQueue = options.queue;
+	    this.q = new Queue(this);
+
+	    this.settings = extend$1(this.settings || {}, {
+	      infinite: true,
+	      hidden: false,
+	      width: undefined,
+	      height: undefined,
+	      axis: undefined,
+	      flow: "scrolled",
+	      ignoreClass: "",
+	      fullsize: undefined
+	    });
+
+	    extend$1(this.settings, options.settings || {});
+
+	    this.viewSettings = {
+	      ignoreClass: this.settings.ignoreClass,
+	      axis: this.settings.axis,
+	      flow: this.settings.flow,
+	      layout: this.layout,
+	      method: this.settings.method, // srcdoc, blobUrl, write
+	      width: 0,
+	      height: 0,
+	      forceEvenPages: true
+	    };
+
+	    this.rendered = false;
+	  }
+
+	  _createClass$x(ScrollingContinuousViewManager, [{
+	    key: "render",
+	    value: function render(element, size) {
+	      var tag = element.tagName;
+
+	      if (typeof this.settings.fullsize === "undefined" && tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
+	        this.settings.fullsize = true;
+	      }
+
+	      if (this.settings.fullsize) {
+	        this.settings.overflow = "visible";
+	        this.overflow = this.settings.overflow;
+	      }
+
+	      this.settings.size = size;
+
+	      // Save the stage
+	      this.stage = new Stage({
+	        width: size.width,
+	        height: size.height,
+	        overflow: this.overflow,
+	        hidden: this.settings.hidden,
+	        axis: this.settings.axis,
+	        fullsize: this.settings.fullsize,
+	        direction: this.settings.direction,
+	        scale: this.settings.scale
+	      });
+
+	      this.stage.attachTo(element);
+
+	      // Get this stage container div
+	      this.container = this.stage.getContainer();
+
+	      // Views array methods
+	      this.views = new Views$1(this.container);
+
+	      // Calculate Stage Size
+	      this._bounds = this.bounds();
+	      this._stageSize = this.stage.size();
+
+	      // Set the dimensions for views
+	      this.viewSettings.width = this._stageSize.width;
+	      this.viewSettings.height = this._stageSize.height;
+
+	      // Function to handle a resize event.
+	      // Will only attach if width and height are both fixed.
+	      this.stage.onResize(this.onResized.bind(this));
+
+	      this.stage.onOrientationChange(this.onOrientationChange.bind(this));
+
+	      // Add Event Listeners
+	      this.addEventListeners();
+
+	      // Add Layout method
+	      // this.applyLayoutMethod();
+	      if (this.layout) {
+	        this.updateLayout();
+	      }
+
+	      this.rendered = true;
+	      this._spine = [];
+
+	      this.views.on("view.display", function (_ref) {
+	        var view = _ref.view,
+	            viewportState = _ref.viewportState;
+
+	        console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
+	        var old_h = view.element.offsetHeight;
+	        var scroll_y = this.container.scrollTop;
+	        view.display(this.request).then(function () {
+	          view.show();
+	          var new_h = view.element.offsetHeight;
+	          if (viewportState && viewportState.directionY == 'up' && !view.resized) {
+	            var delta = new_h - old_h;
+	            console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
+	            this.container.scrollTop += delta;
+	          }
+	          view.resized = true;
+
+	          this.gotoTarget(view);
+	        }.bind(this));
+	      }.bind(this));
+
+	      // we cannot do anything about the displays because we don't have
+	      // any data
+	    }
+	  }, {
+	    key: "display",
+	    value: function display(section, target) {
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      if (!this.views.length) {
+	        this.initializeViews(section);
+	      }
+
+	      // Check if moving to target is needed
+	      if (target === section.href || isNumber(target)) {
+	        target = undefined;
+	      }
+
+	      var current = this.current();
+
+	      this.ignore = false;
+	      var visible = this.views.find(section);
+
+	      console.log("AHOY scrolling display", section, visible, current, current == visible);
+
+	      if (target) {
+	        this._target = [visible, target];
+	      }
+
+	      visible.element.scrollIntoView();
+
+	      if (visible == current) {
+	        this.gotoTarget(visible);
+	      }
+
+	      displaying.resolve();
+	      return displayed;
+	    }
+	  }, {
+	    key: "gotoTarget",
+	    value: function gotoTarget(view) {
+	      if (this._target && this._target[0] == view) {
+	        var offset = view.locationOf(this._target[1]);
+
+	        // -- this does not work; top varies.
+	        // offset.top += view.element.getBoundingClientRect().top;
+
+	        var prev;var style;
+	        for (var i = 0; i < view.index; i++) {
+	          prev = this.views.get(i);
+	          style = window.getComputedStyle(prev.element);
+	          offset.top += parseInt(style.height) + parseInt(style.marginBottom) + parseInt(style.marginTop);
+	          // offset.top += prev.height() || prev.element.offsetHeight;
+	        }
+	        this.moveTo(offset);
+	        this._target = null;
+	      }
+	    }
+	  }, {
+	    key: "afterDisplayed",
+	    value: function afterDisplayed(view) {
+	      // if ( this._target && this._target[0] == view ) {
+	      //   let offset = view.locationOf(this._target[1]);
+	      //   this.moveTo(offset);
+	      //   this._target = null;
+	      // }
+	      this.emit(EVENTS.MANAGERS.ADDED, view);
+	    }
+	  }, {
+	    key: "afterResized",
+	    value: function afterResized(view) {
+	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	    }
+	  }, {
+	    key: "moveTo",
+	    value: function moveTo(offset) {
+	      var distX = 0,
+	          distY = 0;
+	      distY = offset.top;
+	      // this.scrollTo(distX, this.container.scrollTop + distY, true);
+	      this.scrollTo(distX, distY, false);
+	    }
+	  }, {
+	    key: "initializeViews",
+	    value: function initializeViews(section) {
+
+	      this.ignore = true;
+
+	      // if ( self._spine.length == 0 ) {
+	      //   console.time("AHOY initializeViews CRAWL");
+	      //   // can we build a manifest here?
+	      //   var prev_ = section.prev();
+	      //   while ( prev_ ) {
+	      //     // self._spine.unshift(prev_.href);
+	      //     self._spine.unshift(prev_);
+	      //     prev_ = prev_.prev();
+	      //   }
+
+	      //   self._spine.push(section);
+
+	      //   var next_ = section.next();
+	      //   while ( next_ ) {
+	      //     // self._spine.push(next_.href);
+	      //     self._spine.push(next_);
+	      //     next_ = next_.next();
+	      //   }
+
+	      //   console.timeEnd("AHOY initializeViews CRAWL");
+	      // }
+
+	      // this._spine.forEach(function (section) {
+	      this.settings.spine.each(function (section) {
+	        var _this = this;
+
+	        var view = new this.View(section, this.viewSettings);
+	        view.onDisplayed = this.afterDisplayed.bind(this);
+	        view.onResize = this.afterResized.bind(this);
+	        view.on(EVENTS.VIEWS.AXIS, function (axis) {
+	          _this.updateAxis(axis);
+	        });
+	        this.views.append(view);
+	      }.bind(this));
+
+	      this.ignore = false;
+	    }
+	  }, {
+	    key: "direction",
+	    value: function direction() {
+	      var dir = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ltr";
+
+	      this.settings.direction = dir;
+
+	      this.stage && this.stage.direction(dir);
+
+	      this.viewSettings.direction = dir;
+
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "onOrientationChange",
+	    value: function onOrientationChange(e) {}
+	  }, {
+	    key: "onResized",
+	    value: function onResized(e) {
+	      // if ( this.resizeTimeout ) {
+	      //   clearTimeout(this.resizeTimeout);
+	      // } else {
+	      //   // this._current = this.current() && this.current().section;
+	      //   // this._current = { view: this.current(), location: this.currentLocation() };
+	      // }
+	      // this.resizeTimeout = setTimeout(this.resize.bind(this), 100);
+	      this.resize();
+	    }
+	  }, {
+	    key: "resize",
+	    value: function resize(width, height) {
+	      var stageSize = this.stage.size(width, height);
+	      if (this.resizeTimeout) {
+	        clearTimeout(this.resizeTimeout);
+	        this.resizeTimeout = null;
+	      }
+
+	      this.ignore = true;
+
+	      // For Safari, wait for orientation to catch up
+	      // if the window is a square
+	      this.winBounds = windowBounds();
+	      if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
+	        // reset the stage size for next resize
+	        this._stageSize = undefined;
+	        return;
+	      }
+
+	      if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
+	        // Size is the same, no need to resize
+	        return;
+	      }
+
+	      this._stageSize = stageSize;
+
+	      this._bounds = this.bounds();
+
+	      // if ( ! this._resizeTarget ) {
+	      //   var current = this.current();
+	      //   if ( current ) {
+	      //     this._resizeTarget = current.section;
+	      //   }
+	      // }
+
+	      this.clear();
+
+	      // Update for new views
+	      this.viewSettings.width = this._stageSize.width;
+	      this.viewSettings.height = this._stageSize.height;
+
+	      this.updateLayout();
+
+	      // var section; var target;
+	      // if ( this._current ) {
+	      //   section = this._current.view.section;
+	      //   target = this._current.location[0].mapping.start;
+	      //   this._current = null;
+	      // } else {
+	      //   section = this._spine[0];
+	      // }
+	      // this.initializeViews(section);
+	      // this.display(section, target);
+
+	      // this.views.updateLayout(this.viewSettings);
+
+	      this.emit(EVENTS.MANAGERS.RESIZED, {
+	        width: this._stageSize.width,
+	        height: this._stageSize.height
+	      });
+	    }
+	  }, {
+	    key: "updateAxis",
+	    value: function updateAxis(axis, forceUpdate) {
+	      if (!this.isPaginated) {
+	        axis = "vertical";
+	      }
+
+	      if (!forceUpdate && axis === this.settings.axis) {
+	        return;
+	      }
+
+	      this.settings.axis = axis;
+
+	      this.stage && this.stage.axis(axis);
+
+	      this.viewSettings.axis = axis;
+
+	      if (this.mapping) {
+	        this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
+	      }
+
+	      if (this.layout) {
+	        this.layout.spread("none");
+	      }
+	    }
+	  }, {
+	    key: "updateFlow",
+	    value: function updateFlow(flow) {
+	      this.isPaginated = false;
+	      this.updateAxis("vertical");
+
+	      this.viewSettings.flow = flow;
+
+	      if (!this.settings.overflow) {
+	        this.overflow = this.isPaginated ? "hidden" : "auto";
+	      } else {
+	        this.overflow = this.settings.overflow;
+	      }
+
+	      this.stage && this.stage.overflow(this.overflow);
+
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "getContents",
+	    value: function getContents() {
+	      return [];
+	    }
+	  }, {
+	    key: "current",
+	    value: function current() {
+	      var visible = this.visible();
+	      var view;
+	      if (visible.length) {
+	        // Current is the last visible view
+	        var current = null;
+	        for (var i = 0; i < visible.length; i++) {
+	          view = visible[i];
+
+	          var _inVp = inVp(view.element),
+	              edges = _inVp.edges;
+
+	          if (!current) {
+	            current = view;current.percentage = edges.percentage;
+	          } else if (edges.percentage > current.percentage) {
+	            current = view;
+	            current.percentage = edges.percentage;
+	          }
+	        }
+	        if (current) {
+	          return current;
+	        }
+	        return visible[visible.length - 1];
+	      }
+	      return null;
+	    }
+	  }, {
+	    key: "visible",
+	    value: function visible() {
+	      var visible = [];
+	      var views = this.views.displayed();
+	      var viewsLength = views.length;
+	      var visible = [];
+	      var view;
+
+	      return this.views.displayed();
+
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+	        // const { fully, partially, edges } = inVp(view.element);
+	        // if ( fully && view.displayed ) { visible.push(view); }
+	        if (view.displayed) {
+	          visible.push(view);
+	        }
+	      }
+
+	      return visible;
+	    }
+	  }, {
+	    key: "scrollBy",
+	    value: function scrollBy(x, y, silent) {
+	      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+	      if (silent) {
+	        this.ignore = true;
+	      }
+
+	      if (!this.settings.fullsize) {
+	        if (x) this.container.scrollLeft += x * dir;
+	        if (y) this.container.scrollTop += y;
+	      } else {
+	        window.scrollBy(x * dir, y * dir);
+	      }
+	      this.scrolled = true;
+	    }
+	  }, {
+	    key: "scrollTo",
+	    value: function scrollTo(x, y, silent) {
+	      if (silent) {
+	        this.ignore = true;
+	      }
+
+	      if (!this.settings.fullsize) {
+	        this.container.scrollLeft = x;
+	        this.container.scrollTop = y;
+	      } else {
+	        window.scrollTo(x, y);
+	      }
+	      this.scrolled = true;
+	    }
+	  }, {
+	    key: "onScroll",
+	    value: function onScroll() {
+	      var scrollTop = void 0;
+	      var scrollLeft = void 0;
+
+	      if (!this.settings.fullsize) {
+	        scrollTop = this.container.scrollTop;
+	        scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scrollTop = window.scrollY;
+	        scrollLeft = window.scrollX;
+	      }
+
+	      this.scrollTop = scrollTop;
+	      this.scrollLeft = scrollLeft;
+
+	      if (!this.ignore) {
+	        this.emit(EVENTS.MANAGERS.SCROLL, {
+	          top: scrollTop,
+	          left: scrollLeft
+	        });
+
+	        clearTimeout(this.afterScrolled);
+	        this.afterScrolled = setTimeout(function () {
+	          this.emit(EVENTS.MANAGERS.SCROLLED, {
+	            top: this.scrollTop,
+	            left: this.scrollLeft
+	          });
+	        }.bind(this), 20);
+	      } else {
+	        this.ignore = false;
+	      }
+	    }
+	  }, {
+	    key: "bounds",
+	    value: function bounds() {
+	      var bounds;
+
+	      bounds = this.stage.bounds();
+
+	      return bounds;
+	    }
+	  }, {
+	    key: "applyLayout",
+	    value: function applyLayout(layout) {
+	      this.layout = layout;
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "updateLayout",
+	    value: function updateLayout() {
+	      if (!this.stage) {
+	        return;
+	      }
+
+	      this._stageSize = this.stage.size();
+	      this.layout.calculate(this._stageSize.width, this._stageSize.height);
+	      // this.layout.width = this.container.offsetWidth * 0.80;
+
+	      // Set the dimensions for views
+	      this.viewSettings.width = this.layout.width;
+	      this.viewSettings.height = this.layout.height;
+	      this.viewSettings.minHeight = this.viewSettings.height;
+
+	      this.setLayout(this.layout);
+	    }
+	  }, {
+	    key: "setLayout",
+	    value: function setLayout(layout) {
+
+	      this.viewSettings.layout = layout;
+
+	      this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
+
+	      if (this.views) {
+
+	        this.views._views.forEach(function (view) {
+	          view.size(layout.width, layout.height);
+	          view.reframe(layout.width, layout.height);
+	          view.setLayout(layout);
+	        });
+
+	        // this.views.forEach(function(view){
+	        //   if (view) {
+	        //     view.reframe(layout.width, layout.height);
+	        //     view.setLayout(layout);
+	        //   }
+	        // });
+	      }
+	    }
+	  }, {
+	    key: "addEventListeners",
+	    value: function addEventListeners() {
+	      var scroller;
+
+	      window.addEventListener("unload", function (e) {
+	        this.destroy();
+	      }.bind(this));
+
+	      if (!this.settings.fullsize) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      this._onScroll = this.onScroll.bind(this);
+	      scroller.addEventListener("scroll", this._onScroll);
+	    }
+	  }, {
+	    key: "removeEventListeners",
+	    value: function removeEventListeners() {
+	      var scroller;
+
+	      if (!this.settings.fullsize) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      scroller.removeEventListener("scroll", this._onScroll);
+	      this._onScroll = undefined;
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      clearTimeout(this.orientationTimeout);
+	      clearTimeout(this.resizeTimeout);
+	      clearTimeout(this.afterScrolled);
+
+	      this.clear();
+
+	      this.removeEventListeners();
+
+	      this.stage.destroy();
+
+	      this.rendered = false;
+
+	      /*
+	         clearTimeout(this.trimTimeout);
+	        if(this.settings.hidden) {
+	          this.element.removeChild(this.wrapper);
 	        } else {
-	            this.supportsSrcdoc = false;
+	          this.element.removeChild(this.container);
+	        }
+	      */
+	    }
+	  }, {
+	    key: "next",
+	    value: function next() {
+
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      var dir = this.settings.direction;
+
+	      if (!this.views.length) return;
+
+	      this.scrollTop = this.container.scrollTop;
+
+	      var top = this.container.scrollTop + this.container.offsetHeight;
+
+	      this.scrollBy(0, this.layout.height, false);
+
+	      this.q.enqueue(function () {
+	        displaying.resolve();
+	        return displayed;
+	      });
+	    }
+	  }, {
+	    key: "prev",
+	    value: function prev() {
+
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      var dir = this.settings.direction;
+
+	      if (!this.views.length) return;
+
+	      this.scrollTop = this.container.scrollTop;
+
+	      var top = this.container.scrollTop - this.container.offsetHeight;
+	      this.scrollBy(0, -this.layout.height, false);
+
+	      this.q.enqueue(function () {
+	        displaying.resolve();
+	        return displayed;
+	      });
+	    }
+	  }, {
+	    key: "clear",
+	    value: function clear() {
+
+	      // // this.q.clear();
+
+	      if (this.views) {
+	        this.views.hide();
+	        this.scrollTo(0, 0, true);
+	        this.views.clear();
+	      }
+	    }
+	  }, {
+	    key: "currentLocation",
+	    value: function currentLocation() {
+	      var _this2 = this;
+
+	      var visible = this.visible();
+	      var container = this.container.getBoundingClientRect();
+	      var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
+
+	      var offset = 0;
+	      var used = 0;
+
+	      if (this.settings.fullsize) {
+	        offset = window.scrollY;
+	      }
+
+	      var sections = visible.map(function (view) {
+	        var _view$section = view.section,
+	            index = _view$section.index,
+	            href = _view$section.href;
+
+	        var position = view.position();
+	        var height = view.height();
+
+	        var startPos = offset + container.top - position.top + used;
+	        var endPos = startPos + pageHeight - used;
+	        if (endPos > height) {
+	          endPos = height;
+	          used = endPos - startPos;
 	        }
 
-	        if (!this.settings.method) {
-	            this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+	        var totalPages = _this2.layout.count(height, pageHeight).pages;
+
+	        var currPage = Math.ceil(startPos / pageHeight);
+	        var pages = [];
+	        var endPage = Math.ceil(endPos / pageHeight);
+
+	        pages = [];
+	        for (var i = currPage; i <= endPage; i++) {
+	          var pg = i + 1;
+	          pages.push(pg);
 	        }
 
-	        return this.iframe;
+	        var mapping = _this2.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
+
+	        return {
+	          index: index,
+	          href: href,
+	          pages: pages,
+	          totalPages: totalPages,
+	          mapping: mapping
+	        };
+	      });
+
+	      return sections;
+	    }
+	  }, {
+	    key: "isRendered",
+	    value: function isRendered() {
+	      return this.rendered;
+	    }
+	  }]);
+
+	  return ScrollingContinuousViewManager;
+	}();
+
+	ScrollingContinuousViewManager.toString = function () {
+	  return 'continuous';
+	};
+
+	//-- Enable binding events to Manager
+	eventEmitter$1(ScrollingContinuousViewManager.prototype);
+
+	var _createClass$y = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$y(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn$3(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits$3(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var StickyIframeView = function (_IframeView) {
+	    _inherits$3(StickyIframeView, _IframeView);
+
+	    function StickyIframeView(section, options) {
+	        _classCallCheck$y(this, StickyIframeView);
+
+	        var _this = _possibleConstructorReturn$3(this, (StickyIframeView.__proto__ || Object.getPrototypeOf(StickyIframeView)).call(this, section, options));
+
+	        _this.element.style.height = _this.layout.height + "px";
+	        _this.element.style.width = _this.layout.width + "px";
+	        return _this;
 	    }
 
-	}
+	    _createClass$y(StickyIframeView, [{
+	        key: "container",
+	        value: function container(axis) {
+	            var check = document.querySelector("div[ref='" + this.index + "']");
+	            if (check) {
+	                check.dataset.reused = 'true';
+	                return check;
+	            }
 
-	Reader.EpubJS = Reader.extend({
+	            var element = document.createElement("div");
 
-	  initialize: function (id, options) {
+	            element.classList.add("epub-view");
+
+	            // this.element.style.minHeight = "100px";
+	            element.style.height = "0px";
+	            element.style.width = "0px";
+	            element.style.overflow = "hidden";
+	            element.style.position = "relative";
+	            element.style.display = "block";
+
+	            if (axis && axis == "horizontal") {
+	                element.style.flex = "none";
+	            } else {
+	                element.style.flex = "initial";
+	            }
+
+	            return element;
+	        }
+	    }, {
+	        key: "create",
+	        value: function create() {
+
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
+
+	            if (!this.element) {
+	                this.element = this.createContainer();
+	            }
+
+	            if (this.element.hasAttribute('layout-height')) {
+	                var height = parseInt(this.element.getAttribute('layout-height'), 10);
+	                this._layout_height = height;
+	            }
+
+	            this.iframe = this.element.querySelector("iframe");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
+
+	            this.iframe = document.createElement("iframe");
+	            this.iframe.id = this.id;
+	            this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
+	            this.iframe.style.overflow = "hidden";
+	            this.iframe.seamless = "seamless";
+	            // Back up if seamless isn't supported
+	            this.iframe.style.border = "none";
+
+	            this.iframe.setAttribute("enable-annotation", "true");
+
+	            this.resizing = true;
+
+	            // this.iframe.style.display = "none";
+	            this.element.style.visibility = "hidden";
+	            this.iframe.style.visibility = "hidden";
+
+	            this.iframe.style.width = "0";
+	            this.iframe.style.height = "0";
+	            this._width = 0;
+	            this._height = 0;
+
+	            this.element.setAttribute("ref", this.index);
+	            this.element.setAttribute("data-href", this.section.href);
+
+	            // this.element.appendChild(this.iframe);
+	            this.added = true;
+
+	            this.elementBounds = bounds$1(this.element);
+
+	            // if(width || height){
+	            //   this.resize(width, height);
+	            // } else if(this.width && this.height){
+	            //   this.resize(this.width, this.height);
+	            // } else {
+	            //   this.iframeBounds = bounds(this.iframe);
+	            // }
+
+
+	            if ("srcdoc" in this.iframe) {
+	                this.supportsSrcdoc = true;
+	            } else {
+	                this.supportsSrcdoc = false;
+	            }
+
+	            if (!this.settings.method) {
+	                this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+	            }
+
+	            return this.iframe;
+	        }
+	    }, {
+	        key: "reframe",
+	        value: function reframe(width, height) {
+	            var _this2 = this;
+
+	            var size;
+
+	            var minHeight = this.settings.minHeight || 0;
+
+	            if (isNumber(width)) {
+	                this.element.style.width = width + "px";
+	                if (this.iframe) {
+	                    this.iframe.style.width = width + "px";
+	                }
+	                this._width = width;
+	            }
+
+	            // this.element.style.width = '80%';
+	            // this.iframe.style.width = '100%';
+
+	            if (isNumber(height)) {
+	                height = height > minHeight ? height : minHeight;
+	                this.element.style.height = height + 80 + "px";
+	                if (this.iframe) {
+	                    this.iframe.style.height = height + "px";
+	                }
+	                console.log("AHOY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
+	                this._height = height;
+	            }
+
+	            var widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
+	            var heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
+
+	            size = {
+	                width: width,
+	                height: height,
+	                widthDelta: widthDelta,
+	                heightDelta: heightDelta
+	            };
+
+	            this.pane && this.pane.render();
+
+	            requestAnimationFrame(function () {
+	                var mark = void 0;
+	                for (var m in _this2.marks) {
+	                    if (_this2.marks.hasOwnProperty(m)) {
+	                        mark = _this2.marks[m];
+	                        _this2.placeMark(mark.element, mark.range);
+	                    }
+	                }
+	            });
+
+	            this.onResize(this, size);
+
+	            this.emit(EVENTS.VIEWS.RESIZED, size);
+
+	            this.prevBounds = size;
+
+	            this.elementBounds = bounds$1(this.element);
+	        }
+	    }, {
+	        key: "display",
+	        value: function display(request) {
+	            var displayed = new defer();
+
+	            if (!this.displayed) {
+
+	                this.render(request).then(function () {
+
+	                    this.emit(EVENTS.VIEWS.DISPLAYED, this);
+	                    this.onDisplayed(this);
+
+	                    this.displayed = true;
+	                    displayed.resolve(this);
+	                }.bind(this), function (err) {
+	                    displayed.reject(err, this);
+	                });
+	            } else {
+	                displayed.resolve(this);
+	            }
+
+	            return displayed.promise;
+	        }
+	    }, {
+	        key: "unload",
+	        value: function unload() {
+
+	            for (var cfiRange in this.highlights) {
+	                this.unhighlight(cfiRange);
+	            }
+
+	            for (var _cfiRange in this.underlines) {
+	                this.ununderline(_cfiRange);
+	            }
+
+	            for (var _cfiRange2 in this.marks) {
+	                this.unmark(_cfiRange2);
+	            }
+
+	            if (this.pane) {
+	                this.element.removeChild(this.pane.element);
+	                this.pane = undefined;
+	            }
+
+	            if (this.blobUrl) {
+	                revokeBlobUrl(this.blobUrl);
+	            }
+
+	            if (this.displayed) {
+	                this.displayed = false;
+
+	                this.removeListeners();
+
+	                this.stopExpanding = true;
+	                this.element.removeChild(this.iframe);
+
+	                this.iframe = undefined;
+	                this.contents = undefined;
+
+	                // this._textWidth = null;
+	                // this._textHeight = null;
+	                // this._width = null;
+	                // this._height = null;
+	            }
+
+	            // this.element.style.height = "0px";
+	            // this.element.style.width = "0px";
+	        }
+	    }]);
+
+	    return StickyIframeView;
+	}(IframeView);
+
+	var _Reader$extend;
+
+	function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	Reader.EpubJS = Reader.extend((_Reader$extend = {
+
+	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
 	    this._epubjs_ready = false;
 	    window.xpath = path$1;
 	  },
 
-	  open: function (target, callback) {
+	  open: function open(target, callback) {
 	    var self = this;
 	    if (typeof target == 'function') {
 	      callback = target;
 	      target = undefined;
 	    }
 	    if (callback == null) {
-	      callback = function () {};
+	      callback = function callback() {};
 	    }
 
 	    self.rootfiles = [];
@@ -24141,12 +27410,12 @@
 	        // fake it with the spine
 	        var locations = [];
 	        self._book.spine.each(function (item) {
-	          locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
-	          self.locations._locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
+	          locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+	          self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
 	        });
 	        self.locations.total = locations.length;
 	        var t;
-	        var f = function () {
+	        var f = function f() {
 	          if (self._rendition && self._rendition.manager && self._rendition.manager.stage) {
 	            var location = self._rendition.currentLocation();
 	            if (location && location.start) {
@@ -24169,12 +27438,11 @@
 	    // .then(callback);
 	  },
 
-	  parseRootfiles: function () {
+	  parseRootfiles: function parseRootfiles() {
 	    var self = this;
 	    self._book.load(self._book.url.resolve("META-INF/container.xml")).then(function (containerDoc) {
 	      var rootfiles = containerDoc.querySelectorAll("rootfile");
 	      if (rootfiles.length > 1) {
-	        console.log("AHOY ROOTFILES MULTIPLE RENDITIONS", rootfiles.length);
 	        for (var i = 0; i < rootfiles.length; i++) {
 	          var rootfile = rootfiles[i];
 	          var rootfilePath = rootfile.getAttribute('full-path');
@@ -24190,14 +27458,13 @@
 	    });
 	  },
 
-	  draw: function (target, callback) {
+	  draw: function draw(target, callback) {
 	    var self = this;
 
 	    if (self._rendition) {
 	      // self._unbindEvents();
 	      var container = self._rendition.manager.container;
 	      Object.keys(self._rendition.hooks).forEach(function (key) {
-	        console.log("AHOY draw clearing", key);
 	        self._rendition.hooks[key].clear();
 	      });
 	      self._rendition.destroy();
@@ -24223,13 +27490,21 @@
 	    } else {
 	      this._panes['epub'].style.overflow = 'auto';
 	      if (this.settings.manager == 'default') {
-	        this.settings.manager = 'continuous';
+	        // this.settings.manager = 'continuous';
+	        this.settings.manager = ScrollingContinuousViewManager;
+	        this.settings.view = StickyIframeView;
+	        this.settings.width = '100%'; // 100%?
+	        this.settings.spine = this._book.spine;
 	      }
 	    }
 
 	    if (!callback) {
-	      callback = function () {};
+	      callback = function callback() {};
 	    }
+
+	    self.settings.height = '100%';
+	    self.settings.width = '100%';
+	    self.settings['ignoreClass'] = 'annotator-hl';
 
 	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
 	      // this.settings.manager = 'prepaginated';
@@ -24241,21 +27516,17 @@
 	      this.settings.spread = 'none';
 	    }
 
-	    self.settings.height = '100%';
-	    self.settings.width = '100%';
-	    self.settings['ignoreClass'] = 'annotator-hl';
-
 	    if (self.options.scale != '100') {
 	      self.settings.scale = parseInt(self.options.scale, 10) / 100;
 	    }
 
-	    self._panes['book'].dataset.manager = this.settings.manager + (this.settings.spread ? `-${this.settings.spread}` : '');
+	    self._panes['book'].dataset.manager = this.settings.manager + (this.settings.spread ? '-' + this.settings.spread : '');
 	    self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
 	    self._drawRendition(target, callback);
 	  },
 
-	  _drawRendition: function (target, callback) {
+	  _drawRendition: function _drawRendition(target, callback) {
 	    var self = this;
 
 	    self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
@@ -24282,17 +27553,17 @@
 
 	    var status_index = 0;
 	    self._rendition.on('started', function () {
+	      self._manager = self._rendition.manager;
 
 	      self._rendition.manager.on("building", function (status) {
 	        if (status) {
 	          status_index += 1;
-	          self._panes['loader-status'].innerHTML = `<span>${Math.round(status_index / status.total * 100.0)}%</span>`;
+	          self._panes['loader-status'].innerHTML = '<span>' + Math.round(status_index / status.total * 100.0) + '%</span>';
 	        } else {
 	          self._enableBookLoader(-1);
 	        }
 	      });
 	      self._rendition.manager.on("built", function () {
-	        console.log("AHOY manager built");
 	        self._disableBookLoader(true);
 	      });
 	    });
@@ -24300,10 +27571,9 @@
 	    self._rendition.hooks.content.register(function (contents) {
 	      self.fire('ready:contents', contents);
 	      self.fire('readyContents', contents);
-	      contents.document.addEventListener('keydown', event => {
-	        const keyName = event.key;
+	      contents.document.addEventListener('keydown', function (event) {
+	        var keyName = event.key;
 	        self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
-	        console.log('inner keydown event: ', keyName);
 	      });
 	    });
 
@@ -24321,6 +27591,7 @@
 	        setTimeout(function () {
 	          self.fire('opened');
 	          self.fire('ready');
+	          self._disableBookLoader();
 	          clearTimeout(self._queueTimeout);
 	          self.tracking.event("openBook", {
 	            rootFilePath: self.options.rootFilePath,
@@ -24332,7 +27603,7 @@
 	    });
 	  },
 
-	  _scroll: function (delta) {
+	  _scroll: function _scroll(delta) {
 	    var self = this;
 	    if (self.options.flow == 'XXscrolled-doc') {
 	      var container = self._rendition.manager.container;
@@ -24360,11 +27631,10 @@
 	    return false;
 	  },
 
-	  _navigate: function (promise, callback) {
+	  _navigate: function _navigate(promise, callback) {
 	    var self = this;
 	    self._enableBookLoader(100);
 	    promise.then(function () {
-	      console.log("AHOY NAVIGATE FIN");
 	      self._disableBookLoader();
 	      if (callback) {
 	        callback();
@@ -24379,29 +27649,29 @@
 	    });
 	  },
 
-	  next: function () {
+	  next: function next() {
 	    var self = this;
 	    this.tracking.action('reader/go/next');
 	    self._scroll('NEXT') || self._navigate(this._rendition.next());
 	  },
 
-	  prev: function () {
+	  prev: function prev() {
 	    this.tracking.action('reader/go/previous');
 	    this._scroll('PREV') || this._navigate(this._rendition.prev());
 	  },
 
-	  first: function () {
+	  first: function first() {
 	    this.tracking.action('reader/go/first');
 	    this._navigate(this._rendition.display(0), undefined);
 	  },
 
-	  last: function () {
+	  last: function last() {
 	    this.tracking.action('reader/go/last');
 	    var target = this._book.spine.length - 1;
 	    this._navigate(this._rendition.display(target), undefined);
 	  },
 
-	  gotoPage: function (target, callback) {
+	  gotoPage: function gotoPage(target, callback) {
 	    var hash;
 	    if (target != null) {
 	      var section = this._book.spine.get(target);
@@ -24430,9 +27700,9 @@
 	          target = target + '#' + hash;
 	        }
 
-	        console.log("AHOY GUESSED", target);
+	        // console.log("AHOY GUESSED", target);
 	      } else if (target.toString().match(/^\d+$/)) {
-	        console.log("AHOY USING", section.href);
+	        // console.log("AHOY USING", section.href);
 	        target = section.href;
 	      }
 
@@ -24445,8 +27715,6 @@
 	      }
 	    }
 
-	    console.log("AHOY gotoPage", target);
-
 	    // this.__hash = hash;
 	    var navigating = this._rendition.display(target).then(function () {
 	      this._rendition.display(target);
@@ -24454,11 +27722,11 @@
 	    this._navigate(navigating, callback);
 	  },
 
-	  percentageFromCfi: function (cfi) {
+	  percentageFromCfi: function percentageFromCfi(cfi) {
 	    return this._book.percentageFromCfi(cfi);
 	  },
 
-	  destroy: function () {
+	  destroy: function destroy() {
 	    if (this._rendition) {
 	      try {
 	        this._rendition.destroy();
@@ -24468,7 +27736,7 @@
 	    this._drawn = false;
 	  },
 
-	  reopen: function (options, target) {
+	  reopen: function reopen(options, target) {
 	    // different per reader?
 	    var target = target || this.currentLocation();
 	    if (target.start) {
@@ -24519,14 +27787,14 @@
 	    }.bind(this));
 	  },
 
-	  currentLocation: function () {
+	  currentLocation: function currentLocation() {
 	    if (this._rendition && this._rendition.manager) {
 	      this._cached_location = this._rendition.currentLocation();
 	    }
 	    return this._cached_location;
 	  },
 
-	  _bindEvents: function () {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
 	    if (this._book.packaging.metadata.layout == 'pre-paginated') ; else if (this.options.flow == 'auto' || this.options.flow == 'paginated') ;
 
@@ -24546,6 +27814,9 @@
 	            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
 	            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
 	            "page-break-inside": "avoid"
+	          },
+	          "body": {
+	            "overflow": "hidden"
 	          }
 	        });
 	      }.bind(this._rendition));
@@ -24561,7 +27832,8 @@
 	            "margin": "0 !important"
 	          },
 	          "body": {
-	            "margin": "0"
+	            "margin": "0",
+	            "overflow": "hidden"
 	          }
 	        });
 	      }.bind(this._rendition));
@@ -24585,9 +27857,7 @@
 	      }
 	      self.fire('relocated', location);
 	      if (safari && self._last_location_start && self._last_location_start != location.start.href) {
-	        console.log("AHOY RELOCATED", self._last_location_start, location.start.href);
 	        self._fired = true;
-	        console.log("AHOY RENDITION Q", self._rendition.q.length());
 	        setTimeout(function () {
 	          // self._rendition.display(location.start.cfi);
 	        }, 0);
@@ -24621,8 +27891,6 @@
 
 	    this._rendition.on("rendered", function (section, view) {
 
-	      if (view.contents) ;
-
 	      self.on('keyDown', function (data) {
 	        if (data.keyName == 'Tab' && data.inner) {
 	          var container = self._rendition.manager.container;
@@ -24649,14 +27917,14 @@
 	                self._rendition.manager.scrollBy(delta);
 	              }
 	            }
-	            console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
+	            // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
 	          }, 0);
 	        }
 	      });
 	    });
 	  },
 
-	  _initializeReaderStyles: function () {
+	  _initializeReaderStyles: function _initializeReaderStyles() {
 	    var self = this;
 	    var themes = this.options.themes;
 	    if (themes) {
@@ -24669,22 +27937,22 @@
 	    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
 	  },
 
-	  _selectTheme: function (refresh) {
+	  _selectTheme: function _selectTheme(refresh) {
 	    var theme = this.options.theme || 'default';
 	    this._rendition.themes.select(theme);
 	  },
 
-	  _updateFontSize: function () {
+	  _updateFontSize: function _updateFontSize() {
 	    if (this.metadata.layout == 'pre-paginated') {
 	      // we're not doing font changes for pre-paginted
 	      return;
 	    }
 
 	    var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
-	    this._rendition.themes.fontSize(`${text_size}%`);
+	    this._rendition.themes.fontSize(text_size + '%');
 	  },
 
-	  _updateScale: function () {
+	  _updateScale: function _updateScale() {
 	    if (this.metadata.layout != 'pre-paginated') {
 	      // we're not scaling for reflowable
 	      return;
@@ -24696,62 +27964,54 @@
 	    }
 	  },
 
-	  _queueScale: function (scale) {
+	  _queueScale: function _queueScale(scale) {
 	    this._queueTimeout = setTimeout(function () {
 	      if (this._rendition.manager && this._rendition.manager.stage) {
-	        console.log("AHOY SCALING", this.settings.scale);
 	        this._rendition.scale(this.settings.scale);
 	      } else {
 	        this._queueScale();
 	      }
 	    }.bind(this), 100);
-	  },
+	  }
 
-	  _updateScale: function () {
-	    if (this.metadata.layout != 'pre-paginated') {
-	      // we're not scaling for reflowable
-	      return;
+	}, _defineProperty$1(_Reader$extend, '_updateScale', function _updateScale() {
+	  if (this.metadata.layout != 'pre-paginated') {
+	    // we're not scaling for reflowable
+	    return;
+	  }
+	  var scale = this.options.scale;
+	  if (scale) {
+	    scale = parseInt(scale, 10) / 100.0;
+	    this._rendition.scale(scale);
+	  }
+	}), _defineProperty$1(_Reader$extend, '_queueScale', function _queueScale(scale) {
+	  this._queueTimeout = setTimeout(function () {
+	    if (this._rendition.manager && this._rendition.manager.stage) {
+	      this._rendition.scale(this.settings.scale);
+	    } else {
+	      this._queueScale();
 	    }
-	    var scale = this.options.scale;
-	    if (scale) {
-	      scale = parseInt(scale, 10) / 100.0;
-	      this._rendition.scale(scale);
-	    }
-	  },
-
-	  _queueScale: function (scale) {
-	    this._queueTimeout = setTimeout(function () {
-	      if (this._rendition.manager && this._rendition.manager.stage) {
-	        console.log("AHOY SCALING", this.settings.scale);
-	        this._rendition.scale(this.settings.scale);
-	      } else {
-	        this._queueScale();
-	      }
-	    }.bind(this), 100);
-	  },
-
-	  EOT: true
-
-	});
+	  }.bind(this), 100);
+	}), _defineProperty$1(_Reader$extend, 'EOT', true), _Reader$extend));
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
-	  get: function () {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function (data) {
+	  set: function set(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
-	  get: function () {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    if (ie) {
 	      return {
-	        reset: function () {/* NOOP */},
-	        highlight: function (cfiRange) {/* NOOP */}
+	        reset: function reset() {/* NOOP */},
+	        highlight: function highlight(cfiRange) {/* NOOP */}
 	      };
 	    }
 	    if (!this._rendition.annotations.reset) {
@@ -24768,7 +28028,7 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
-	  get: function () {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._book.locations;
 	  }
@@ -24782,11 +28042,11 @@
 
 	Reader.Mock = Reader.extend({
 
-	  initialize: function (id, options) {
+	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
 	  },
 
-	  open: function (target, callback) {
+	  open: function open(target, callback) {
 	    this._book = {
 	      metadata: {
 	        title: 'The Mock Life',
@@ -24811,7 +28071,7 @@
 	    this.draw(target, callback);
 	  },
 
-	  draw: function (target, callback) {
+	  draw: function draw(target, callback) {
 	    var self = this;
 	    this.settings = { flow: this.options.flow };
 	    this.settings.height = '100%';
@@ -24830,21 +28090,21 @@
 	    self.fire('ready');
 	  },
 
-	  next: function () {
+	  next: function next() {
 	    // this._rendition.next();
 	  },
 
-	  prev: function () {
+	  prev: function prev() {
 	    // this._rendition.prev();
 	  },
 
-	  first: function () {
+	  first: function first() {
 	    // this._rendition.display(0);
 	  },
 
-	  last: function () {},
+	  last: function last() {},
 
-	  gotoPage: function (target) {
+	  gotoPage: function gotoPage(target) {
 	    if (typeof target == "string") {
 	      this.__currentIndex = this._locations.indexOf(target);
 	    } else {
@@ -24853,14 +28113,14 @@
 	    this.fire("relocated", this.currentLocation());
 	  },
 
-	  destroy: function () {
+	  destroy: function destroy() {
 	    // if ( this._rendition ) {
 	    //   this._rendition.destroy();
 	    // }
 	    // this._rendition = null;
 	  },
 
-	  currentLocation: function () {
+	  currentLocation: function currentLocation() {
 	    var cfi = this._locations[this.__currentIndex];
 	    return {
 	      start: { cfi: cfi, href: cfi },
@@ -24868,40 +28128,40 @@
 	    };
 	  },
 
-	  _bindEvents: function () {
+	  _bindEvents: function _bindEvents() {
 	  },
 
-	  _updateTheme: function () {},
+	  _updateTheme: function _updateTheme() {},
 
 	  EOT: true
 
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'metadata', {
-	  get: function () {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function (data) {
+	  set: function set(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'locations', {
-	  get: function () {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    var self = this;
 	    return {
 	      total: self._locations.length,
-	      locationFromCfi: function (cfi) {
+	      locationFromCfi: function locationFromCfi(cfi) {
 	        return self._locations.indexOf(cfi);
 	      },
-	      percentageFromCfi: function (cfi) {
+	      percentageFromCfi: function percentageFromCfi(cfi) {
 	        var index = self.locations.locationFromCfi(cfi);
 	        return index / self.locations.total;
 	      },
-	      cfiFromPercentage: function (percentage) {
+	      cfiFromPercentage: function cfiFromPercentage(percentage) {
 	        var index = Math.ceil(percentage * 10);
 	        return self._locations[index];
 	      }
@@ -24910,10 +28170,10 @@
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'annotations', {
-	  get: function () {
+	  get: function get$$1() {
 	    return {
-	      reset: function () {},
-	      highlight: function () {}
+	      reset: function reset() {},
+	      highlight: function highlight() {}
 	    };
 	  }
 	});
@@ -24927,7 +28187,7 @@
 	  mock: createReader$2
 	};
 
-	var reader$1 = function (id, options) {
+	var reader$1 = function reader(id, options) {
 	  options = options || {};
 	  var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
 	  var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
