@@ -133,11 +133,12 @@ class StickyIframeView extends IframeView {
 
         if(isNumber(height)){
             height = height > minHeight ? height : minHeight;
-            this.element.style.height = ( height + 80 ) + "px";
+            var styles = window.getComputedStyle(this.element);
+            this.element.style.height = ( height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom) ) + "px";
             if ( this.iframe ) {
                 this.iframe.style.height = height + "px";
             }
-            console.log("AHOY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
+            // console.log("AHOY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
             this._height = height;
         }
 

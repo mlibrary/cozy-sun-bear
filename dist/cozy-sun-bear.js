@@ -1,25 +1,5 @@
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.0514ade3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
- * Cozy Sun Bear 1.0.08db0267, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 798e770... update package -> packaging
-=======
- * Cozy Sun Bear 1.0.0798e770, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 9984e3c... support for import epub.js
-=======
- * Cozy Sun Bear 1.0.068f6bd3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> c41c316... update dependencies
-=======
- * Cozy Sun Bear 1.0.050a0493, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> c2dd0af... update dependencies
-=======
- * Cozy Sun Bear 1.0.0c2dd0af, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 14983ed... fold in inVp; fixes for karma/rollup happiness
+ * Cozy Sun Bear 1.0.0e110fa7, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -39,244 +19,6 @@
 	   * Polyfill URLSearchParams
 	   *
 	   * Inspired from : https://github.com/WebReflection/url-search-params/blob/master/src/url-search-params.js
-<<<<<<< HEAD
-	   */
-
-	  var checkIfIteratorIsSupported = function() {
-	    try {
-	      return !!Symbol.iterator;
-	    } catch (error) {
-	      return false;
-	    }
-	  };
-
-
-	  var iteratorSupported = checkIfIteratorIsSupported();
-
-	  var createIterator = function(items) {
-	    var iterator = {
-	      next: function() {
-	        var value = items.shift();
-	        return { done: value === void 0, value: value };
-	      }
-	    };
-
-	    if (iteratorSupported) {
-	      iterator[Symbol.iterator] = function() {
-	        return iterator;
-	      };
-	    }
-
-	    return iterator;
-	  };
-
-	  /**
-	   * Search param name and values should be encoded according to https://url.spec.whatwg.org/#urlencoded-serializing
-	   * encodeURIComponent() produces the same result except encoding spaces as `%20` instead of `+`.
-	   */
-	  var serializeParam = function(value) {
-	    return encodeURIComponent(value).replace(/%20/g, '+');
-	  };
-
-	  var deserializeParam = function(value) {
-	    return decodeURIComponent(value).replace(/\+/g, ' ');
-	  };
-
-	  var polyfillURLSearchParams = function() {
-
-	    var URLSearchParams = function(searchString) {
-	      Object.defineProperty(this, '_entries', { writable: true, value: {} });
-	      var typeofSearchString = typeof searchString;
-
-	      if (typeofSearchString === 'undefined') ; else if (typeofSearchString === 'string') {
-	        if (searchString !== '') {
-	          this._fromString(searchString);
-	        }
-	      } else if (searchString instanceof URLSearchParams) {
-	        var _this = this;
-	        searchString.forEach(function(value, name) {
-	          _this.append(name, value);
-	        });
-	      } else if ((searchString !== null) && (typeofSearchString === 'object')) {
-	        if (Object.prototype.toString.call(searchString) === '[object Array]') {
-	          for (var i = 0; i < searchString.length; i++) {
-	            var entry = searchString[i];
-	            if ((Object.prototype.toString.call(entry) === '[object Array]') || (entry.length !== 2)) {
-	              this.append(entry[0], entry[1]);
-	            } else {
-	              throw new TypeError('Expected [string, any] as entry at index ' + i + ' of URLSearchParams\'s input');
-	            }
-	          }
-	        } else {
-	          for (var key in searchString) {
-	            if (searchString.hasOwnProperty(key)) {
-	              this.append(key, searchString[key]);
-	            }
-	          }
-	        }
-	      } else {
-	        throw new TypeError('Unsupported input\'s type for URLSearchParams');
-	      }
-	    };
-
-	    var proto = URLSearchParams.prototype;
-
-	    proto.append = function(name, value) {
-	      if (name in this._entries) {
-	        this._entries[name].push(String(value));
-	      } else {
-	        this._entries[name] = [String(value)];
-	      }
-	    };
-
-	    proto.delete = function(name) {
-	      delete this._entries[name];
-	    };
-
-	    proto.get = function(name) {
-	      return (name in this._entries) ? this._entries[name][0] : null;
-	    };
-
-	    proto.getAll = function(name) {
-	      return (name in this._entries) ? this._entries[name].slice(0) : [];
-	    };
-
-	    proto.has = function(name) {
-	      return (name in this._entries);
-	    };
-
-	    proto.set = function(name, value) {
-	      this._entries[name] = [String(value)];
-	    };
-
-	    proto.forEach = function(callback, thisArg) {
-	      var entries;
-	      for (var name in this._entries) {
-	        if (this._entries.hasOwnProperty(name)) {
-	          entries = this._entries[name];
-	          for (var i = 0; i < entries.length; i++) {
-	            callback.call(thisArg, entries[i], name, this);
-	          }
-	        }
-	      }
-	    };
-
-	    proto.keys = function() {
-	      var items = [];
-	      this.forEach(function(value, name) {
-	        items.push(name);
-	      });
-	      return createIterator(items);
-	    };
-
-	    proto.values = function() {
-	      var items = [];
-	      this.forEach(function(value) {
-	        items.push(value);
-	      });
-	      return createIterator(items);
-	    };
-
-	    proto.entries = function() {
-	      var items = [];
-	      this.forEach(function(value, name) {
-	        items.push([name, value]);
-	      });
-	      return createIterator(items);
-	    };
-
-	    if (iteratorSupported) {
-	      proto[Symbol.iterator] = proto.entries;
-	    }
-
-	    proto.toString = function() {
-	      var searchArray = [];
-	      this.forEach(function(value, name) {
-	        searchArray.push(serializeParam(name) + '=' + serializeParam(value));
-	      });
-	      return searchArray.join('&');
-	    };
-
-
-	    global.URLSearchParams = URLSearchParams;
-	  };
-
-	  if (!('URLSearchParams' in global) || (new URLSearchParams('?a=1').toString() !== 'a=1')) {
-	    polyfillURLSearchParams();
-	  }
-
-	  var proto = URLSearchParams.prototype;
-
-	  if (typeof proto.sort !== 'function') {
-	    proto.sort = function() {
-	      var _this = this;
-	      var items = [];
-	      this.forEach(function(value, name) {
-	        items.push([name, value]);
-	        if (!_this._entries) {
-	          _this.delete(name);
-	        }
-	      });
-	      items.sort(function(a, b) {
-	        if (a[0] < b[0]) {
-	          return -1;
-	        } else if (a[0] > b[0]) {
-	          return +1;
-	        } else {
-	          return 0;
-	        }
-	      });
-	      if (_this._entries) { // force reset because IE keeps keys index
-	        _this._entries = {};
-	      }
-	      for (var i = 0; i < items.length; i++) {
-	        this.append(items[i][0], items[i][1]);
-	      }
-	    };
-	  }
-
-	  if (typeof proto._fromString !== 'function') {
-	    Object.defineProperty(proto, '_fromString', {
-	      enumerable: false,
-	      configurable: false,
-	      writable: false,
-	      value: function(searchString) {
-	        if (this._entries) {
-	          this._entries = {};
-	        } else {
-	          var keys = [];
-	          this.forEach(function(value, name) {
-	            keys.push(name);
-	          });
-	          for (var i = 0; i < keys.length; i++) {
-	            this.delete(keys[i]);
-	          }
-	        }
-
-	        searchString = searchString.replace(/^\?/, '');
-	        var attributes = searchString.split('&');
-	        var attribute;
-	        for (var i = 0; i < attributes.length; i++) {
-	          attribute = attributes[i].split('=');
-	          this.append(
-	            deserializeParam(attribute[0]),
-	            (attribute.length > 1) ? deserializeParam(attribute[1]) : ''
-	          );
-	        }
-	      }
-	    });
-	  }
-
-	  // HTMLAnchorElement
-
-	})(
-	  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
-	    : ((typeof window !== 'undefined') ? window
-	    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
-	);
-
-	(function(global) {
-=======
 	   */
 
 	  var checkIfIteratorIsSupported = function checkIfIteratorIsSupported() {
@@ -431,239 +173,10 @@
 	})(typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : commonjsGlobal);
 
 	(function (global) {
->>>>>>> 9984e3c... support for import epub.js
 	  /**
 	   * Polyfill URL
 	   *
 	   * Inspired from : https://github.com/arv/DOM-URL-Polyfill/blob/master/src/url.js
-<<<<<<< HEAD
-	   */
-
-	  var checkIfURLIsSupported = function() {
-	    try {
-	      var u = new URL('b', 'http://a');
-	      u.pathname = 'c%20d';
-	      return (u.href === 'http://a/c%20d') && u.searchParams;
-	    } catch (e) {
-	      return false;
-	    }
-	  };
-
-
-	  var polyfillURL = function() {
-	    var _URL = global.URL;
-
-	    var URL = function(url, base) {
-	      if (typeof url !== 'string') url = String(url);
-
-	      // Only create another document if the base is different from current location.
-	      var doc = document, baseElement;
-	      if (base && (global.location === void 0 || base !== global.location.href)) {
-	        doc = document.implementation.createHTMLDocument('');
-	        baseElement = doc.createElement('base');
-	        baseElement.href = base;
-	        doc.head.appendChild(baseElement);
-	        try {
-	          if (baseElement.href.indexOf(base) !== 0) throw new Error(baseElement.href);
-	        } catch (err) {
-	          throw new Error('URL unable to set base ' + base + ' due to ' + err);
-	        }
-	      }
-
-	      var anchorElement = doc.createElement('a');
-	      anchorElement.href = url;
-	      if (baseElement) {
-	        doc.body.appendChild(anchorElement);
-	        anchorElement.href = anchorElement.href; // force href to refresh
-	      }
-
-	      if (anchorElement.protocol === ':' || !/:/.test(anchorElement.href)) {
-	        throw new TypeError('Invalid URL');
-	      }
-
-	      Object.defineProperty(this, '_anchorElement', {
-	        value: anchorElement
-	      });
-
-
-	      // create a linked searchParams which reflect its changes on URL
-	      var searchParams = new URLSearchParams(this.search);
-	      var enableSearchUpdate = true;
-	      var enableSearchParamsUpdate = true;
-	      var _this = this;
-	      ['append', 'delete', 'set'].forEach(function(methodName) {
-	        var method = searchParams[methodName];
-	        searchParams[methodName] = function() {
-	          method.apply(searchParams, arguments);
-	          if (enableSearchUpdate) {
-	            enableSearchParamsUpdate = false;
-	            _this.search = searchParams.toString();
-	            enableSearchParamsUpdate = true;
-	          }
-	        };
-	      });
-
-	      Object.defineProperty(this, 'searchParams', {
-	        value: searchParams,
-	        enumerable: true
-	      });
-
-	      var search = void 0;
-	      Object.defineProperty(this, '_updateSearchParams', {
-	        enumerable: false,
-	        configurable: false,
-	        writable: false,
-	        value: function() {
-	          if (this.search !== search) {
-	            search = this.search;
-	            if (enableSearchParamsUpdate) {
-	              enableSearchUpdate = false;
-	              this.searchParams._fromString(this.search);
-	              enableSearchUpdate = true;
-	            }
-	          }
-	        }
-	      });
-	    };
-
-	    var proto = URL.prototype;
-
-	    var linkURLWithAnchorAttribute = function(attributeName) {
-	      Object.defineProperty(proto, attributeName, {
-	        get: function() {
-	          return this._anchorElement[attributeName];
-	        },
-	        set: function(value) {
-	          this._anchorElement[attributeName] = value;
-	        },
-	        enumerable: true
-	      });
-	    };
-
-	    ['hash', 'host', 'hostname', 'port', 'protocol']
-	      .forEach(function(attributeName) {
-	        linkURLWithAnchorAttribute(attributeName);
-	      });
-
-	    Object.defineProperty(proto, 'search', {
-	      get: function() {
-	        return this._anchorElement['search'];
-	      },
-	      set: function(value) {
-	        this._anchorElement['search'] = value;
-	        this._updateSearchParams();
-	      },
-	      enumerable: true
-	    });
-
-	    Object.defineProperties(proto, {
-
-	      'toString': {
-	        get: function() {
-	          var _this = this;
-	          return function() {
-	            return _this.href;
-	          };
-	        }
-	      },
-
-	      'href': {
-	        get: function() {
-	          return this._anchorElement.href.replace(/\?$/, '');
-	        },
-	        set: function(value) {
-	          this._anchorElement.href = value;
-	          this._updateSearchParams();
-	        },
-	        enumerable: true
-	      },
-
-	      'pathname': {
-	        get: function() {
-	          return this._anchorElement.pathname.replace(/(^\/?)/, '/');
-	        },
-	        set: function(value) {
-	          this._anchorElement.pathname = value;
-	        },
-	        enumerable: true
-	      },
-
-	      'origin': {
-	        get: function() {
-	          // get expected port from protocol
-	          var expectedPort = { 'http:': 80, 'https:': 443, 'ftp:': 21 }[this._anchorElement.protocol];
-	          // add port to origin if, expected port is different than actual port
-	          // and it is not empty f.e http://foo:8080
-	          // 8080 != 80 && 8080 != ''
-	          var addPortToOrigin = this._anchorElement.port != expectedPort &&
-	            this._anchorElement.port !== '';
-
-	          return this._anchorElement.protocol +
-	            '//' +
-	            this._anchorElement.hostname +
-	            (addPortToOrigin ? (':' + this._anchorElement.port) : '');
-	        },
-	        enumerable: true
-	      },
-
-	      'password': { // TODO
-	        get: function() {
-	          return '';
-	        },
-	        set: function(value) {
-	        },
-	        enumerable: true
-	      },
-
-	      'username': { // TODO
-	        get: function() {
-	          return '';
-	        },
-	        set: function(value) {
-	        },
-	        enumerable: true
-	      },
-	    });
-
-	    URL.createObjectURL = function(blob) {
-	      return _URL.createObjectURL.apply(_URL, arguments);
-	    };
-
-	    URL.revokeObjectURL = function(url) {
-	      return _URL.revokeObjectURL.apply(_URL, arguments);
-	    };
-
-	    global.URL = URL;
-
-	  };
-
-	  if (!checkIfURLIsSupported()) {
-	    polyfillURL();
-	  }
-
-	  if ((global.location !== void 0) && !('origin' in global.location)) {
-	    var getOrigin = function() {
-	      return global.location.protocol + '//' + global.location.hostname + (global.location.port ? (':' + global.location.port) : '');
-	    };
-
-	    try {
-	      Object.defineProperty(global.location, 'origin', {
-	        get: getOrigin,
-	        enumerable: true
-	      });
-	    } catch (e) {
-	      setInterval(function() {
-	        global.location.origin = getOrigin();
-	      }, 100);
-	    }
-	  }
-
-	})(
-	  (typeof commonjsGlobal !== 'undefined') ? commonjsGlobal
-	    : ((typeof window !== 'undefined') ? window
-	    : ((typeof self !== 'undefined') ? self : commonjsGlobal))
-	);
-=======
 	   */
 
 	  var checkIfURLIsSupported = function checkIfURLIsSupported() {
@@ -832,7 +345,6 @@
 	    }
 	  }
 	})(typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : commonjsGlobal);
->>>>>>> 9984e3c... support for import epub.js
 
 	/*
 	 * classList.js: Cross-browser full element.classList implementation.
@@ -4193,17 +3705,8 @@
 	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
 	 */
 	function isIndex(value, length) {
-	  var type = typeof value;
 	  length = length == null ? MAX_SAFE_INTEGER$1 : length;
-<<<<<<< HEAD
-
-	  return !!length &&
-	    (type == 'number' ||
-	      (type != 'symbol' && reIsUint.test(value))) &&
-	        (value > -1 && value % 1 == 0 && value < length);
-=======
 	  return !!length && (typeof value == 'number' || reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
->>>>>>> 9984e3c... support for import epub.js
 	}
 
 	var _isIndex = isIndex;
@@ -4527,14 +4030,6 @@
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = function () {
 	  try {
-	    // Use `util.types` for Node.js 10+.
-	    var types = freeModule && freeModule.require && freeModule.require('util').types;
-
-	    if (types) {
-	      return types;
-	    }
-
-	    // Legacy `process.binding('util')` for Node.js < 10.
 	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
 	}();
@@ -6536,8 +6031,6 @@
 	    // return ( this._input.value != this._current.text_size );
 	  },
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	  template: function template$$1() {
 	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
@@ -6547,44 +6040,6 @@
 	    this._output.innerHTML = this._input.value + '%';
 	    this._input.setAttribute('aria-valuenow', '' + this._input.value);
 	    this._input.setAttribute('aria-valuetext', this._input.value + ' percent');
-=======
-	  template: function () {
-	    return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Text Size</legend>
-        <div class="preview--text_size" id="x${this._id}-preview">
-          ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-        </div>
-        <p style="white-space: no-wrap">
-          <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
-          <span>T+</span>
-        </p>
-        <p>
-          <span>Text Size: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
-        </p>
-      </fieldset>`;
-	  },
-
-	  _updatePreview: function () {
-	    this._preview.style.fontSize = `${parseInt(this._input.value, 10) / 100}em`;
-	    this._output.innerHTML = `${this._input.value}%`;
->>>>>>> 8db0267... initial use import epub.js
-=======
-	  template: function template$$1() {
-	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
-	  },
-
-	  _updatePreview: function _updatePreview() {
-	    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
-	    this._output.innerHTML = this._input.value + '%';
-<<<<<<< HEAD
->>>>>>> 9984e3c... support for import epub.js
-=======
-	    this._input.setAttribute('aria-valuenow', '' + this._input.value);
-	    this._input.setAttribute('aria-valuetext', this._input.value + ' percent');
->>>>>>> c2dd0af... update dependencies
 	  },
 
 	  EOT: true
@@ -26098,6 +25553,7 @@
 	var _createClass$x = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck$x(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	window.inVp = inVp;
 
 	var Views$1 = function () {
 	    function Views(container) {
@@ -26284,9 +25740,10 @@
 
 	                var _inVp2 = inVp(view.element, this.container),
 	                    fully = _inVp2.fully,
-	                    partially = _inVp2.partially;
+	                    partially = _inVp2.partially,
+	                    edges = _inVp2.edges;
 
-	                if ((fully || partially) && view.displayed) {
+	                if ((fully || partially) && edges.percentage > 0 && view.displayed) {
 	                    displayed.push(view);
 	                }
 	                // if(view.displayed){
@@ -26326,16 +25783,16 @@
 	    }, {
 	        key: "onEnter",
 	        value: function onEnter(view, el, viewportState) {
-	            console.log("AHOY VIEWS ONENTER", view, viewportState);
+	            // console.log("AHOY VIEWS ONENTER", view, viewportState);
 	            if (!view.displayed) {
-	                console.log("AHOY SHOULD BE SHOWING", view);
+	                // console.log("AHOY SHOULD BE SHOWING", view);
 	                this.emit("view.display", { view: view, viewportState: viewportState });
 	            }
 	        }
 	    }, {
 	        key: "onExit",
 	        value: function onExit(view, el, viewportState) {
-	            console.log("AHOY VIEWS ONEXIT", view, viewportState);
+	            // console.log("AHOY VIEWS ONEXIT", view, viewportState);
 	            view.unload();
 	        }
 	    }]);
@@ -26455,7 +25912,7 @@
 	        var view = _ref.view,
 	            viewportState = _ref.viewportState;
 
-	        console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
+	        // console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
 	        var old_h = view.element.offsetHeight;
 	        var scroll_y = this.container.scrollTop;
 	        view.display(this.request).then(function () {
@@ -26463,7 +25920,7 @@
 	          var new_h = view.element.offsetHeight;
 	          if (viewportState && viewportState.directionY == 'up' && !view.resized) {
 	            var delta = new_h - old_h;
-	            console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
+	            // console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
 	            this.container.scrollTop += delta;
 	          }
 	          view.resized = true;
@@ -26495,7 +25952,7 @@
 	      this.ignore = false;
 	      var visible = this.views.find(section);
 
-	      console.log("AHOY scrolling display", section, visible, current, current == visible);
+	      // console.log("AHOY scrolling display", section, visible, current, current == visible);
 
 	      if (target) {
 	        this._target = [visible, target];
@@ -27233,11 +26690,12 @@
 
 	            if (isNumber(height)) {
 	                height = height > minHeight ? height : minHeight;
-	                this.element.style.height = height + 80 + "px";
+	                var styles = window.getComputedStyle(this.element);
+	                this.element.style.height = height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom) + "px";
 	                if (this.iframe) {
 	                    this.iframe.style.height = height + "px";
 	                }
-	                console.log("AHOY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
+	                // console.log("AHOY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
 	                this._height = height;
 	            }
 

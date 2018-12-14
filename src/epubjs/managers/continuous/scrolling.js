@@ -117,7 +117,7 @@ class ScrollingContinuousViewManager {
     this._spine = [];
 
     this.views.on("view.display", function({ view, viewportState }) {
-      console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
+      // console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
       var old_h = view.element.offsetHeight;
       var scroll_y = this.container.scrollTop;
       view.display(this.request).then(function() {
@@ -125,7 +125,7 @@ class ScrollingContinuousViewManager {
         var new_h = view.element.offsetHeight;
         if ( viewportState && viewportState.directionY == 'up' && ! view.resized ) {
           var delta = new_h - old_h;
-          console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
+          // console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
           this.container.scrollTop += delta;
         }
         view.resized = true;
@@ -157,7 +157,7 @@ class ScrollingContinuousViewManager {
     this.ignore = false;
     var visible = this.views.find(section);
 
-    console.log("AHOY scrolling display", section, visible, current, current == visible);
+    // console.log("AHOY scrolling display", section, visible, current, current == visible);
 
     if(target) {
       this._target = [ visible, target ];

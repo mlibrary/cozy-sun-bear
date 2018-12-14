@@ -7,6 +7,7 @@ import {
 } from "viewprt";
 
 import {inVp} from '../../../core/Util';
+window.inVp = inVp;
 
 class Views {
     constructor(container) {
@@ -170,7 +171,7 @@ class Views {
         for (var i = 0; i < len; i++) {
             view = this._views[i];
             const { fully, partially, edges } = inVp(view.element, this.container);
-            if ( ( fully || partially ) && view.displayed ) {
+            if ( ( fully || partially ) && edges.percentage > 0 && view.displayed ) {
                 displayed.push(view);
             }
             // if(view.displayed){
@@ -207,15 +208,15 @@ class Views {
     }
 
     onEnter(view, el, viewportState) {
-        console.log("AHOY VIEWS ONENTER", view, viewportState);
+        // console.log("AHOY VIEWS ONENTER", view, viewportState);
         if ( ! view.displayed ) {
-            console.log("AHOY SHOULD BE SHOWING", view);
+            // console.log("AHOY SHOULD BE SHOWING", view);
             this.emit("view.display", { view: view, viewportState: viewportState });
         }
     }
 
     onExit(view, el, viewportState) {
-        console.log("AHOY VIEWS ONEXIT", view, viewportState);
+        // console.log("AHOY VIEWS ONEXIT", view, viewportState);
         view.unload();
     }
 }
