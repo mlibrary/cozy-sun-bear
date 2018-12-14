@@ -5,6 +5,8 @@ import Queue from "epubjs/src/utils/queue";
 import Stage from "epubjs/src/managers/helpers/stage";
 import Views from "../helpers/scrolling_views";
 import { EVENTS } from "epubjs/src/utils/constants";
+import {inVp} from '../../../core/Util';
+
 
 import {
   ElementObserver,
@@ -12,7 +14,7 @@ import {
   ObserverCollection // Advanced: Used for grouping custom viewport handling
 } from "viewprt";
 
-import inVp from "in-vp";
+// import inVp from "in-vp";
 
 class ScrollingContinuousViewManager {
   constructor(options) {
@@ -394,7 +396,7 @@ class ScrollingContinuousViewManager {
       var current = null;
       for(var i = 0; i < visible.length; i++) {
         view = visible[i];
-        const { fully, partially, edges } = inVp(view.element);
+        const { fully, partially, edges } = inVp(view.element, this.container);
         if ( ! current ) { current = view; current.percentage = edges.percentage; }
         else if ( edges.percentage > current.percentage ) {
           current = view;
@@ -419,8 +421,6 @@ class ScrollingContinuousViewManager {
 
     for(var i = 0; i < viewsLength; i++) {
       view = views[i];
-      // const { fully, partially, edges } = inVp(view.element);
-      // if ( fully && view.displayed ) { visible.push(view); }
       if ( view.displayed ) {
         visible.push(view);
       }

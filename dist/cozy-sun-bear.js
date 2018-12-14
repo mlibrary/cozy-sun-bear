@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0514ade3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
  * Cozy Sun Bear 1.0.08db0267, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
@@ -16,6 +17,9 @@
 =======
  * Cozy Sun Bear 1.0.050a0493, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> c2dd0af... update dependencies
+=======
+ * Cozy Sun Bear 1.0.0c2dd0af, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 14983ed... fold in inVp; fixes for karma/rollup happiness
  * (c) 2018 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -1293,6 +1297,88 @@
 	    }
 	}
 
+	function inVp(elem) {
+	    var threshold = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    var container = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+
+	    if (threshold instanceof HTMLElement) {
+	        container = threshold;
+	        threshold = {};
+	    }
+
+	    threshold = Object.assign({
+	        top: 0,
+	        right: 0,
+	        bottom: 0,
+	        left: 0
+	    }, threshold);
+
+	    container = container || document.documentElement;
+
+	    // Get the viewport dimensions
+	    var vp = {
+	        width: container.clientWidth,
+	        height: container.clientHeight
+	    };
+
+	    // Get the viewport offset and size of the element.
+	    // Normailze right and bottom to show offset from their
+	    // respective edges istead of the top-left edges.
+	    var box = elem.getBoundingClientRect();
+	    var top = box.top,
+	        left = box.left,
+	        width = box.width,
+	        height = box.height;
+
+	    var right = vp.width - box.right;
+	    var bottom = vp.height - box.bottom;
+
+	    // Calculate which sides of the element are cut-off
+	    // by the viewport.
+	    var cutOff = {
+	        top: top < threshold.top,
+	        left: left < threshold.left,
+	        bottom: bottom < threshold.bottom,
+	        right: right < threshold.right
+	    };
+
+	    // Calculate which sides of the element are partially shown
+	    var partial = {
+	        top: cutOff.top && top > -height + threshold.top,
+	        left: cutOff.left && left > -width + threshold.left,
+	        bottom: cutOff.bottom && bottom > -height + threshold.bottom,
+	        right: cutOff.right && right > -width + threshold.right
+	    };
+
+	    var isFullyVisible = top >= threshold.top && right >= threshold.right && bottom >= threshold.bottom && left >= threshold.left;
+
+	    var isPartiallyVisible = partial.top || partial.right || partial.bottom || partial.left;
+
+	    var elH = elem.offsetHeight;
+	    var H = container.offsetHeight;
+	    var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : box.bottom < H ? box.bottom : H);
+
+	    // Calculate which edge of the element are visible.
+	    // Every edge can have three states:
+	    // - 'fully':     The edge is completely visible.
+	    // - 'partially': Some part of the edge can be seen.
+	    // - false:       The edge is not visible at all.
+	    var edges = {
+	        top: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.top && !cutOff.left && !cutOff.right && 'fully' || !cutOff.top && 'partially' || false,
+	        right: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.right && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.right && 'partially' || false,
+	        bottom: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.bottom && !cutOff.left && !cutOff.right && 'fully' || !cutOff.bottom && 'partially' || false,
+	        left: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.left && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.left && 'partially' || false,
+	        percentage: percentage
+	    };
+
+	    return {
+	        fully: isFullyVisible,
+	        partially: isPartiallyVisible,
+	        edges: edges
+	    };
+	}
+
 	var loader = {
 	    js: function js(url) {
 	        var handler = { _resolved: false };
@@ -1387,6 +1473,7 @@
 		cancelFn: cancelFn,
 		requestAnimFrame: requestAnimFrame,
 		cancelAnimFrame: cancelAnimFrame,
+		inVp: inVp,
 		loader: loader
 	});
 
@@ -26008,97 +26095,6 @@
 	      h = this._didEnter;if (!isElementInDOM(n)) return this.destroy();var l = isElementInViewport(n, r, t, e);!h && l ? (this._didEnter = !0, i && (i.call(this, n, t), s && this.destroy())) : h && !l && (this._didEnter = !1, o && (o.call(this, n, t), s && this.destroy()));
 	};
 
-	var inVp = function (elem) {
-	  var treshold = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	  treshold = Object.assign({ top: 0, right: 0, bottom: 0, left: 0 }, treshold);
-
-	  // Get the viewport dimensions
-	  var vp = {
-	    width: document.documentElement.clientWidth,
-	    height: document.documentElement.clientHeight
-	  };
-
-	  // Get the viewport offset and size of the element.
-	  // Normailze right and bottom to show offset from their
-	  // respective edges istead of the top-left edges.
-	  var box = elem.getBoundingClientRect();
-	  var top = box.top,
-	      left = box.left,
-	      width = box.width,
-	      height = box.height;
-
-	  var right = vp.width - box.right;
-	  var bottom = vp.height - box.bottom;
-
-	  // Calculate which sides of the element are cut-off
-	  // by the viewport.
-	  var cutOff = {
-	    top: top < treshold.top,
-	    left: left < treshold.left,
-	    bottom: bottom < treshold.bottom,
-	    right: right < treshold.right
-	  };
-
-	  // Calculate which sides of the element are partially shown
-	  var partial = {
-	    top: cutOff.top && top > -height + treshold.top,
-	    left: cutOff.left && left > -width + treshold.left,
-	    bottom: cutOff.bottom && bottom > -height + treshold.bottom,
-	    right: cutOff.right && right > -width + treshold.right
-	  };
-
-	  var isFullyVisible = top >= treshold.top && right >= treshold.right && bottom >= treshold.bottom && left >= treshold.left;
-
-	  var isPartiallyVisible = partial.top || partial.right || partial.bottom || partial.left;
-
-	  // var eTop = elem.offsetTop;
-	  // var eBottom = eTop + elem.offsetHeight;
-	  // var wTop = elem.offsetParent.scrollTop;
-	  // var wBottom = wTop + elem.offsetHeight;
-	  // var totalH = Math.max(eBottom, wBottom) - Math.min(eTop, wTop);
-	  // var wComp = totalH - elem.offsetHeight;
-	  // var eIn = elem.offsetHeight - wComp;
-	  // const percentage = (eIn <= 0 ? 0 : eIn / elem.offsetHeight * 100);
-
-	  // var offsetParent = elem.offsetParent;
-	  // var viewportHeight = offsetParent.offsetHeight;
-	  // var scrollTop = offsetParent.scrollTop;
-	  // var elemOffsetTop = elem.offsetTop;
-	  // var elemHeight = elem.offsetHeight;
-
-	  // var distance = ( scrollTop + viewportHeight ) - elemOffsetTop;
-	  // var percentage = distance / ((viewportHeight + elemHeight ) / 100);
-	  // percentage = Math.round(percentage);
-
-	  // var elH = $(el).outerHeight(),
-	  //     H = $(win).height(),
-	  //     r = el.getBoundingClientRect(), t=r.top, b=r.bottom;
-
-	  var elH = elem.offsetHeight;
-	  var H = elem.offsetParent.offsetHeight;
-	  var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : box.bottom < H ? box.bottom : H);
-
-	  // Calculate which edge of the element are visible.
-	  // Every edge can have three states:
-	  // - 'fully':     The edge is completely visible.
-	  // - 'partially': Some part of the edge can be seen.
-	  // - false:       The edge is not visible at all.
-	  var edges = {
-	    top: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.top && !cutOff.left && !cutOff.right && 'fully' || !cutOff.top && 'partially' || false,
-	    right: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.right && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.right && 'partially' || false,
-	    bottom: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.bottom && !cutOff.left && !cutOff.right && 'fully' || !cutOff.bottom && 'partially' || false,
-	    left: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.left && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.left && 'partially' || false,
-	    percentage: percentage
-	  };
-
-	  return {
-	    fully: isFullyVisible,
-	    partially: isPartiallyVisible,
-	    edges: edges
-	  };
-	};
-
 	var _createClass$x = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck$x(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26133,7 +26129,7 @@
 	        }
 	    }, {
 	        key: "indexOf",
-	        value: function indexOf(view) {
+	        value: function indexOf$$1(view) {
 	            return this._views.indexOf(view);
 	        }
 	    }, {
@@ -26161,9 +26157,7 @@
 	                    observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 	                });
 
-	                var _inVp = inVp(view.element),
-	                    fully = _inVp.fully,
-	                    partially = _inVp.partially,
+	                var _inVp = inVp(view.element, this.container),
 	                    edges = _inVp.edges;
 
 	                if (edges.percentage > 0) {
@@ -26288,10 +26282,9 @@
 	            for (var i = 0; i < len; i++) {
 	                view = this._views[i];
 
-	                var _inVp2 = inVp(view.element),
+	                var _inVp2 = inVp(view.element, this.container),
 	                    fully = _inVp2.fully,
-	                    partially = _inVp2.partially,
-	                    edges = _inVp2.edges;
+	                    partially = _inVp2.partially;
 
 	                if ((fully || partially) && view.displayed) {
 	                    displayed.push(view);
@@ -26355,6 +26348,8 @@
 	var _createClass$y = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck$y(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	// import inVp from "in-vp";
 
 	var ScrollingContinuousViewManager = function () {
 	  function ScrollingContinuousViewManager(options) {
@@ -26751,9 +26746,7 @@
 	        for (var i = 0; i < visible.length; i++) {
 	          view = visible[i];
 
-	          var _inVp = inVp(view.element),
-	              fully = _inVp.fully,
-	              partially = _inVp.partially,
+	          var _inVp = inVp(view.element, this.container),
 	              edges = _inVp.edges;
 
 	          if (!current) {
@@ -26783,8 +26776,6 @@
 
 	      for (var i = 0; i < viewsLength; i++) {
 	        view = views[i];
-	        // const { fully, partially, edges } = inVp(view.element);
-	        // if ( fully && view.displayed ) { visible.push(view); }
 	        if (view.displayed) {
 	          visible.push(view);
 	        }
@@ -28213,6 +28204,7 @@
 	exports.bind = bind;
 	exports.stamp = stamp;
 	exports.setOptions = setOptions;
+	exports.inVp = inVp;
 	exports.bus = bus;
 	exports.DomEvent = DomEvent;
 	exports.DomUtil = DomUtil;

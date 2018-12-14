@@ -1,7 +1,12 @@
-var json = require('rollup-plugin-json');
-var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
-var commonjs = require('rollup-plugin-commonjs');
-var nodeResolve = require('rollup-plugin-node-resolve');
+// var json = require('rollup-plugin-json');
+// // var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
+// var babel = require('rollup-plugin-babel');
+
+// var commonjs = require('rollup-plugin-commonjs');
+// var nodeResolve = require('rollup-plugin-node-resolve');
+// var polyfill = require('rollup-plugin-polyfill');
+
+var rollupConfig = require('./lib/rollup-config');
 
 function getSpecs(specList) {
   if (specList) {
@@ -65,17 +70,13 @@ module.exports = function (config) {
       'src/*.js': [ 'rollup', 'sourcemap' ]
     },
     rollupPreprocessor: {
-      plugins: [
-        json(),
-        nodeResolve({ jsnext: true, main: true, browser: true, preferBuiltins: true }),
-        commonjs(),
-        buble()
-      ],
-      output: {
-        format: 'umd',
-        name: 'cozy',
-        sourcemap: 'inline'
-      },
+      plugins: rollupConfig.plugins,
+      output: rollupConfig.output
+      // output: {
+      //   format: 'umd',
+      //   name: 'cozy',
+      //   sourcemap: 'inline'
+      // },
       // moduleName: 'cozy' //,
       // sourceMap: 'inline'
     },

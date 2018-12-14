@@ -6,7 +6,7 @@ import {
   ObserverCollection // Advanced: Used for grouping custom viewport handling
 } from "viewprt";
 
-import inVp from "in-vp";
+import {inVp} from '../../../core/Util';
 
 class Views {
     constructor(container) {
@@ -55,7 +55,7 @@ class Views {
                 once: false, // if true, observer is detroyed after first callback is triggered
                 observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
             })
-            const { fully, partially, edges } = inVp(view.element);
+            const { fully, partially, edges } = inVp(view.element, this.container);
             if ( edges.percentage > 0 ) {
                 this.onEnter(view);
             }
@@ -169,7 +169,7 @@ class Views {
 
         for (var i = 0; i < len; i++) {
             view = this._views[i];
-            const { fully, partially, edges } = inVp(view.element);
+            const { fully, partially, edges } = inVp(view.element, this.container);
             if ( ( fully || partially ) && view.displayed ) {
                 displayed.push(view);
             }

@@ -9,8 +9,6 @@ import {
   ObserverCollection // Advanced: Used for grouping custom viewport handling
 } from "viewprt";
 
-import inVp from "in-vp";
-
 class StickyIframeView extends IframeView {
     constructor(section, options) {
         super(section, options);

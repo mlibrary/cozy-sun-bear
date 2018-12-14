@@ -9,5 +9,5 @@ export var Mixin = {Events: Evented.prototype};
 
 import * as Util from './Util';
 export {Util};
-export {extend, bind, stamp, setOptions} from './Util';
+export {extend, bind, stamp, setOptions, inVp} from './Util';
 export {bus} from './Bus';
