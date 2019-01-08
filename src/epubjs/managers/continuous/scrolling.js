@@ -118,22 +118,31 @@ class ScrollingContinuousViewManager {
 
     this.views.on("view.display", function({ view, viewportState }) {
       // console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
-      var old_h = view.element.offsetHeight;
-      var scroll_y = this.container.scrollTop;
       view.display(this.request).then(function() {
         view.show();
-        var new_h = view.element.offsetHeight;
-        if ( viewportState && viewportState.directionY == 'up' && ! view.resized ) {
-          var delta = new_h - old_h;
-          // console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
-          this.container.scrollTop += delta;
-        }
-        view.resized = true;
-
         this.gotoTarget(view);
-
-      }.bind(this));
+      }.bind(this))
     }.bind(this));
+
+    // this.views.on("view.display", function({ view, viewportState }) {
+    //   console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
+    //   var old_h = view.element.offsetHeight;
+    //   var scroll_y = this.container.scrollTop;
+    //   view.display(this.request).then(function() {
+    //     view.show();
+    //     console.log("AHOY VIEW DISPLAY REDUX PROMISED", view, viewportState);
+    //     var new_h = view.element.offsetHeight;
+    //     if ( viewportState && viewportState.directionY == 'up' && ! view.resized ) {
+    //       var delta = new_h - old_h;
+    //       console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
+    //       this.container.scrollTop += delta;
+    //     }
+    //     view.resized = true;
+
+    //     this.gotoTarget(view);
+
+    //   }.bind(this));
+    // }.bind(this));
 
     // we cannot do anything about the displays because we don't have
     // any data
@@ -202,6 +211,22 @@ class ScrollingContinuousViewManager {
   }
 
   afterResized(view){
+
+    var bounds = this.container.getBoundingClientRect();
+    var rect = view.element.getBoundingClientRect();
+
+    this.ignore = true;
+
+    // view.element.dataset.resizable = "true"
+    view.reframeElement();
+
+    var delta;
+    if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
+      delta = view.element.getBoundingClientRect().height - rect.height;
+      this.container.scrollTop += delta;
+    }
+
+    // console.log("AHOY AFTER RESIZED", view, delta);
     this.emit(EVENTS.MANAGERS.RESIZE, view.section);
   }
 
@@ -563,6 +588,7 @@ class ScrollingContinuousViewManager {
 
     this._onScroll = this.onScroll.bind(this);
     scroller.addEventListener("scroll", this._onScroll);
+
   }
 
   removeEventListeners(){
