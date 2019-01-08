@@ -183,8 +183,11 @@ Reader.EpubJS = Reader.extend({
   _drawRendition: function(target, callback) {
     var self = this;
 
-    self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
+    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
+    self._rendition = new ePub.Rendition(self._book, self.settings);
     self._updateFontSize();
+    self._rendition.attachTo(self._panes['epub']);
+
     self._bindEvents();
     self._drawn = true;
 
@@ -422,7 +425,7 @@ Reader.EpubJS = Reader.extend({
     Util.extend(this.options, options);
 
     this.draw(target, function() {
-      this._updateFontSize();
+      // this._updateFontSize();
       this._updateScale();
       this._updateTheme();
       this._selectTheme(true);
@@ -465,7 +468,8 @@ Reader.EpubJS = Reader.extend({
             "page-break-inside": "avoid"
           },
           "body": {
-            "overflow": "hidden"
+            "overflow": "hidden",
+            "column-rule": "1px solid #ddd"
           }
         });
       }.bind(this._rendition))
