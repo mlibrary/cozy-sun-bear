@@ -117,35 +117,18 @@ class ScrollingContinuousViewManager {
     this._spine = [];
 
     this.views.on("view.display", function({ view, viewportState }) {
-      // console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
       view.display(this.request).then(function() {
         view.show();
         this.gotoTarget(view);
+        if ( true || this._forceLocationEvent ) {
+          this.emit(EVENTS.MANAGERS.SCROLLED, {
+            top: this.scrollTop,
+            left: this.scrollLeft
+          });
+          this._forceLocationEvent = false;
+        }
       }.bind(this))
     }.bind(this));
-
-    // this.views.on("view.display", function({ view, viewportState }) {
-    //   console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
-    //   var old_h = view.element.offsetHeight;
-    //   var scroll_y = this.container.scrollTop;
-    //   view.display(this.request).then(function() {
-    //     view.show();
-    //     console.log("AHOY VIEW DISPLAY REDUX PROMISED", view, viewportState);
-    //     var new_h = view.element.offsetHeight;
-    //     if ( viewportState && viewportState.directionY == 'up' && ! view.resized ) {
-    //       var delta = new_h - old_h;
-    //       console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
-    //       this.container.scrollTop += delta;
-    //     }
-    //     view.resized = true;
-
-    //     this.gotoTarget(view);
-
-    //   }.bind(this));
-    // }.bind(this));
-
-    // we cannot do anything about the displays because we don't have
-    // any data
   }
 
   display(section, target) {
@@ -720,6 +703,8 @@ class ScrollingContinuousViewManager {
         pages.push(pg);
       }
 
+      totalPages = pages.length;
+
       let mapping = this.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
 
       return {
@@ -730,6 +715,10 @@ class ScrollingContinuousViewManager {
         mapping
       };
     });
+
+    if ( sections.length == 0 ) {
+      self._forceLocationEvent = true;
+    }
 
     return sections;
   }
