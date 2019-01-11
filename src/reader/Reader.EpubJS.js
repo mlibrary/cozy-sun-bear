@@ -194,11 +194,8 @@ Reader.EpubJS = Reader.extend({
     if ( target && target.start ) { target = target.start; }
     if ( ! target && window.location.hash ) {
       if ( window.location.hash.substr(1, 3) == '/6/' ) {
+        var original_target = window.location.hash.substr(1);
         target = decodeURIComponent(window.location.hash.substr(1));
-        // if ( target.match(/\]$/ ) ) {
-        //   // target += '/2';
-        //   target += '/1:0';
-        // }
         target = "epubcfi(" + target + ")";
       } else {
         target = window.location.hash.substr(2);
@@ -323,6 +320,8 @@ Reader.EpubJS = Reader.extend({
   },
 
   gotoPage: function(target, callback) {
+    var self = this;
+
     var hash;
     if ( target != null ) {
       var section = this._book.spine.get(target);
@@ -366,7 +365,7 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
-    // this.__hash = hash;
+    self.tracking.reset();
     var navigating = this._rendition.display(target).then(function() {
       this._rendition.display(target);
     }.bind(this));
@@ -503,6 +502,12 @@ Reader.EpubJS = Reader.extend({
     this._rendition.on('resized', function(box) {
       self.fire('resized', box);
     })
+
+    this._rendition.on('click', function(event, contents) {
+      if ( event.isTrusted ) {
+        this.tracking.action("inline/go/link");
+      }
+    }.bind(this));
 
     this._rendition.on('relocated', function(location) {
       if ( self._fired ) { self._fired = false; return ; }

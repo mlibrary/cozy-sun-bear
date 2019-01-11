@@ -262,6 +262,7 @@ export var Reader = Evented.extend({
     this.tracking = function(reader) {
       var _action = [];
       var _last_location_start;
+      var _last_scrollTop;
       var _reader = reader;
       return {
         action: function(v) {
@@ -274,6 +275,10 @@ export var Reader = Evented.extend({
           }
         },
 
+        peek: function() {
+          return _action[0];
+        },
+
         event: function(action, data) {
           if ( data == null ) { data = {}; }
           data.action = action;
@@ -281,13 +286,32 @@ export var Reader = Evented.extend({
         },
 
         pageview: function(location) {
-          if ( location.start != _last_location_start ) {
+          var do_report = true;
+          if ( _reader.settings.flow == 'scrolled-doc' ) {
+            var scrollTop = 0;
+            if ( _reader._rendition.manager && _reader._rendition.manager.container ) {
+              scrollTop = _reader._rendition.manager.container.scrollTop;
+              console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
+            }
+            if ( _last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height ) {
+              do_report = false;
+            } else {
+              _last_scrollTop = scrollTop;
+            }
+          }
+          if ( location.start != _last_location_start && do_report ) {
             _last_location_start = location.start;
-            // console.log("AHOY RELOCATED", location, location.start, location.href, location.location, this.action());
-            _reader.fire('trackPageview', { cfi: location.start, href: location.href, action: this.action()})
-            return true;
+            var tracking = { cfi: location.start, href: location.href, action: this.action()};
+            _reader.fire('trackPageview', tracking)
+            return tracking;
           }
           return false;
+        },
+
+        reset: function() {
+          if ( _reader.settings.flow == 'scrolled-doc' ) {
+            _last_scrollTop = null;
+          }
         }
       }
     }(this);
@@ -339,28 +363,40 @@ export var Reader = Evented.extend({
     }
 
     self.on("updateLocation", function(location) {
-      var location_href = location.start;
-
-      if ( self._ignoreHistory ) {
-        self._ignoreHistory = false;
-        return;
-      }
-
-      if ( self.tracking.pageview(location) ) {
-        var tmp_href = window.location.href.split("#");
-        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
-        history.pushState({ cfi: location.start }, '', tmp_href.join('#'));
-
+      // possibly invoke a pageview event
+      var tracking;
+      if ( tracking = self.tracking.pageview(location) ) {
         if ( location.percentage ) {
           var p = Math.ceil(location.percentage * 100);
-          document.title = `${self._original_document_title} - ${p}%`;
-        }        
+          document.title = `${p} - ${self._original_document_title} - ${p}%`;
+        }
+        var tmp_href = window.location.href.split("#");
+        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
+        var context = [{ cfi: location.start }, '', tmp_href.join('#')];
+
+        if ( tracking.action && tracking.action.match(/\/go\/link/) ) {
+          // console.log("AHOY ACTION", tracking.action, context[0].cfi);
+          history.pushState.apply(history, context);
+        } else {
+          history.replaceState.apply(history, context);
+        }
       }
     })
 
     window.addEventListener('popstate', function(event) {
-      if ( event.isTrusted && event.state !== null ) {
-        self._ignoreHistory = true;
+      console.log("AHOY POP STATE", event)
+      if ( event.isTrusted && event.state != null ) {
+        if ( event.state.cfi == self.__last_state_cfi ) {
+          console.log("AHOY POP STATE IGNORE", self.__last_state_cfi);
+          event.preventDefault();
+          return;
+        }
+        self.__last_state_cfi = event.state.cfi;
+        if ( event.state == null || event.state.cfi == null ) {
+          $log.innerHTML += `<li>NULL</li>`;
+          event.preventDefault();
+          return;
+        }
         self.gotoPage(event.state.cfi);
       }
     })
