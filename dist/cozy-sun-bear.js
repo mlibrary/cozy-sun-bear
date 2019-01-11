@@ -4284,7 +4284,7 @@
 	    if (/5\.1[.\d]* Safari/.test(navigator.userAgent)) {
 	      elem[request]();
 	    } else {
-	      elem[request](keyboardAllowed && Element.ALLOW_KEYBOARD_INPUT);
+	      elem[request](keyboardAllowed ? Element.ALLOW_KEYBOARD_INPUT : {});
 	    }
 	  },
 	  exit: function exit() {
@@ -4556,6 +4556,7 @@
 	    this.tracking = function (reader) {
 	      var _action = [];
 	      var _last_location_start;
+	      var _last_scrollTop;
 	      var _reader = reader;
 	      return {
 	        action: function action(v) {
@@ -4568,6 +4569,10 @@
 	          }
 	        },
 
+	        peek: function peek() {
+	          return _action[0];
+	        },
+
 	        event: function event(action, data) {
 	          if (data == null) {
 	            data = {};
@@ -4577,13 +4582,32 @@
 	        },
 
 	        pageview: function pageview(location) {
-	          if (location.start != _last_location_start) {
+	          var do_report = true;
+	          if (_reader.settings.flow == 'scrolled-doc') {
+	            var scrollTop = 0;
+	            if (_reader._rendition.manager && _reader._rendition.manager.container) {
+	              scrollTop = _reader._rendition.manager.container.scrollTop;
+	              console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
+	            }
+	            if (_last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height) {
+	              do_report = false;
+	            } else {
+	              _last_scrollTop = scrollTop;
+	            }
+	          }
+	          if (location.start != _last_location_start && do_report) {
 	            _last_location_start = location.start;
-	            // console.log("AHOY RELOCATED", location, location.start, location.href, location.location, this.action());
-	            _reader.fire('trackPageview', { cfi: location.start, href: location.href, action: this.action() });
-	            return true;
+	            var tracking = { cfi: location.start, href: location.href, action: this.action() };
+	            _reader.fire('trackPageview', tracking);
+	            return tracking;
 	          }
 	          return false;
+	        },
+
+	        reset: function reset() {
+	          if (_reader.settings.flow == 'scrolled-doc') {
+	            _last_scrollTop = null;
+	          }
 	        }
 	      };
 	    }(this);
@@ -4633,28 +4657,40 @@
 	    }
 
 	    self.on("updateLocation", function (location) {
-	      var location_href = location.start;
-
-	      if (self._ignoreHistory) {
-	        self._ignoreHistory = false;
-	        return;
-	      }
-
-	      if (self.tracking.pageview(location)) {
-	        var tmp_href = window.location.href.split("#");
-	        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
-	        history.pushState({ cfi: location.start }, '', tmp_href.join('#'));
-
+	      // possibly invoke a pageview event
+	      var tracking;
+	      if (tracking = self.tracking.pageview(location)) {
 	        if (location.percentage) {
 	          var p = Math.ceil(location.percentage * 100);
-	          document.title = self._original_document_title + ' - ' + p + '%';
+	          document.title = p + ' - ' + self._original_document_title + ' - ' + p + '%';
+	        }
+	        var tmp_href = window.location.href.split("#");
+	        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
+	        var context = [{ cfi: location.start }, '', tmp_href.join('#')];
+
+	        if (tracking.action && tracking.action.match(/\/go\/link/)) {
+	          // console.log("AHOY ACTION", tracking.action, context[0].cfi);
+	          history.pushState.apply(history, context);
+	        } else {
+	          history.replaceState.apply(history, context);
 	        }
 	      }
 	    });
 
 	    window.addEventListener('popstate', function (event) {
-	      if (event.isTrusted && event.state !== null) {
-	        self._ignoreHistory = true;
+	      console.log("AHOY POP STATE", event);
+	      if (event.isTrusted && event.state != null) {
+	        if (event.state.cfi == self.__last_state_cfi) {
+	          console.log("AHOY POP STATE IGNORE", self.__last_state_cfi);
+	          event.preventDefault();
+	          return;
+	        }
+	        self.__last_state_cfi = event.state.cfi;
+	        if (event.state == null || event.state.cfi == null) {
+	          $log.innerHTML += '<li>NULL</li>';
+	          event.preventDefault();
+	          return;
+	        }
 	        self.gotoPage(event.state.cfi);
 	      }
 	    });
@@ -5583,7 +5619,7 @@
 
 	      this._modal.on('click', 'a[href]', function (modal, target) {
 	        target = target.getAttribute('data-href');
-	        this._reader.tracking.action('contents/go');
+	        this._reader.tracking.action('contents/go/link');
 	        this._reader.gotoPage(target);
 	        return true;
 	      }.bind(this));
@@ -6567,7 +6603,7 @@
 
 	      this._modal.on('click', 'a[href]', function (modal, target) {
 	        target = target.getAttribute('href');
-	        this._reader.tracking.action('search/go');
+	        this._reader.tracking.action('search/go/link');
 	        this._reader.gotoPage(target);
 	        return true;
 	      }.bind(this));
@@ -21135,6 +21171,7 @@
 				return this.q.enqueue(function reportedLocation() {
 					requestAnimationFrame(function reportedLocationAfterRAF() {
 						var location = this.manager.currentLocation();
+						console.log("AHOY RENDITION reportLocation > reportedLocation > reportedLocationAfterRAF > ", location);
 						if (location && location.then && typeof location.then === "function") {
 							location.then(function (result) {
 								var located = this.located(result);
@@ -26383,35 +26420,18 @@
 	        var view = _ref.view,
 	            viewportState = _ref.viewportState;
 
-	        // console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
 	        view.display(this.request).then(function () {
 	          view.show();
 	          this.gotoTarget(view);
+	          {
+	            this.emit(EVENTS.MANAGERS.SCROLLED, {
+	              top: this.scrollTop,
+	              left: this.scrollLeft
+	            });
+	            this._forceLocationEvent = false;
+	          }
 	        }.bind(this));
 	      }.bind(this));
-
-	      // this.views.on("view.display", function({ view, viewportState }) {
-	      //   console.log("AHOY VIEW DISPLAY REDUX", view, viewportState);
-	      //   var old_h = view.element.offsetHeight;
-	      //   var scroll_y = this.container.scrollTop;
-	      //   view.display(this.request).then(function() {
-	      //     view.show();
-	      //     console.log("AHOY VIEW DISPLAY REDUX PROMISED", view, viewportState);
-	      //     var new_h = view.element.offsetHeight;
-	      //     if ( viewportState && viewportState.directionY == 'up' && ! view.resized ) {
-	      //       var delta = new_h - old_h;
-	      //       console.log("AHOY VIEW DISPLAY ADJUST", this.container.scrollTop, old_h, new_h, delta);
-	      //       this.container.scrollTop += delta;
-	      //     }
-	      //     view.resized = true;
-
-	      //     this.gotoTarget(view);
-
-	      //   }.bind(this));
-	      // }.bind(this));
-
-	      // we cannot do anything about the displays because we don't have
-	      // any data
 	    }
 	  }, {
 	    key: "display",
@@ -27014,6 +27034,8 @@
 	          pages.push(pg);
 	        }
 
+	        totalPages = pages.length;
+
 	        var mapping = _this2.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
 
 	        return {
@@ -27024,6 +27046,10 @@
 	          mapping: mapping
 	        };
 	      });
+
+	      if (sections.length == 0) {
+	        self._forceLocationEvent = true;
+	      }
 
 	      return sections;
 	    }
@@ -27494,11 +27520,8 @@
 	    }
 	    if (!target && window.location.hash) {
 	      if (window.location.hash.substr(1, 3) == '/6/') {
+	        var original_target = window.location.hash.substr(1);
 	        target = decodeURIComponent(window.location.hash.substr(1));
-	        // if ( target.match(/\]$/ ) ) {
-	        //   // target += '/2';
-	        //   target += '/1:0';
-	        // }
 	        target = "epubcfi(" + target + ")";
 	      } else {
 	        target = window.location.hash.substr(2);
@@ -27627,6 +27650,8 @@
 	  },
 
 	  gotoPage: function gotoPage(target, callback) {
+	    var self = this;
+
 	    var hash;
 	    if (target != null) {
 	      var section = this._book.spine.get(target);
@@ -27670,7 +27695,7 @@
 	      }
 	    }
 
-	    // this.__hash = hash;
+	    self.tracking.reset();
 	    var navigating = this._rendition.display(target).then(function () {
 	      this._rendition.display(target);
 	    }.bind(this));
@@ -27806,6 +27831,12 @@
 	    this._rendition.on('resized', function (box) {
 	      self.fire('resized', box);
 	    });
+
+	    this._rendition.on('click', function (event, contents) {
+	      if (event.isTrusted) {
+	        this.tracking.action("inline/go/link");
+	      }
+	    }.bind(this));
 
 	    this._rendition.on('relocated', function (location) {
 	      if (self._fired) {
