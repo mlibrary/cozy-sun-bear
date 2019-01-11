@@ -21171,7 +21171,6 @@
 				return this.q.enqueue(function reportedLocation() {
 					requestAnimationFrame(function reportedLocationAfterRAF() {
 						var location = this.manager.currentLocation();
-						console.log("AHOY RENDITION reportLocation > reportedLocation > reportedLocationAfterRAF > ", location);
 						if (location && location.then && typeof location.then === "function") {
 							location.then(function (result) {
 								var located = this.located(result);
