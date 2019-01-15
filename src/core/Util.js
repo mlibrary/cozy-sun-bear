@@ -243,6 +243,101 @@ export function cancelAnimFrame(id) {
     }
 }
 
+export function inVp(elem, threshold = {}, container = null) {
+
+    if ( threshold instanceof HTMLElement ) {
+        container = threshold;
+        threshold = {};
+    }
+
+    threshold = Object.assign({
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    }, threshold);
+
+    container = container || document.documentElement;
+
+    // Get the viewport dimensions
+    const vp = {
+        width: container.clientWidth,
+        height: container.clientHeight
+    };
+
+    // Get the viewport offset and size of the element.
+    // Normailze right and bottom to show offset from their
+    // respective edges istead of the top-left edges.
+    const box = elem.getBoundingClientRect();
+    const {
+        top,
+        left,
+        width,
+        height
+    } = box;
+    const right = vp.width - box.right;
+    const bottom = vp.height - box.bottom;
+
+    // Calculate which sides of the element are cut-off
+    // by the viewport.
+    const cutOff = {
+        top: top < threshold.top,
+        left: left < threshold.left,
+        bottom: bottom < threshold.bottom,
+        right: right < threshold.right
+    };
+
+    // Calculate which sides of the element are partially shown
+    const partial = {
+        top: cutOff.top && top > -height + threshold.top,
+        left: cutOff.left && left > -width + threshold.left,
+        bottom: cutOff.bottom && bottom > -height + threshold.bottom,
+        right: cutOff.right && right > -width + threshold.right
+    };
+
+    const isFullyVisible = top >= threshold.top &&
+        right >= threshold.right &&
+        bottom >= threshold.bottom &&
+        left >= threshold.left;
+
+    const isPartiallyVisible = partial.top ||
+        partial.right ||
+        partial.bottom ||
+        partial.left;
+
+
+    var elH = elem.offsetHeight;
+    var H = container.offsetHeight;
+    var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : (box.bottom < H ? box.bottom : H));
+
+    // Calculate which edge of the element are visible.
+    // Every edge can have three states:
+    // - 'fully':     The edge is completely visible.
+    // - 'partially': Some part of the edge can be seen.
+    // - false:       The edge is not visible at all.
+    const edges = {
+        top: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.top && !cutOff.left && !cutOff.right) && 'fully') ||
+            (!cutOff.top && 'partially') ||
+            false,
+        right: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.right && !cutOff.top && !cutOff.bottom) && 'fully') ||
+            (!cutOff.right && 'partially') ||
+            false,
+        bottom: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.bottom && !cutOff.left && !cutOff.right) && 'fully') ||
+            (!cutOff.bottom && 'partially') ||
+            false,
+        left: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.left && !cutOff.top && !cutOff.bottom) && 'fully') ||
+            (!cutOff.left && 'partially') ||
+            false,
+        percentage: percentage
+    };
+
+    return {
+        fully: isFullyVisible,
+        partially: isPartiallyVisible,
+        edges
+    };
+}
+
 export var loader = {
     js: function(url) {
         var handler = { _resolved: false };

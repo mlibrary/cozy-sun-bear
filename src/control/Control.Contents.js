@@ -49,7 +49,7 @@ export var Contents = Control.extend({
 
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('data-href');
-        this._reader.tracking.action('contents/go');
+        this._reader.tracking.action('contents/go/link');
         this._reader.gotoPage(target);
         return true;
       }.bind(this))
@@ -95,7 +95,11 @@ export var Contents = Control.extend({
     var option = DomUtil.create('li');
     if ( chapter.href ) {
       var anchor = DomUtil.create('a', null, option);
-      anchor.textContent = chapter.label;
+      if ( chapter.html ) {
+        anchor.innerHTML = chapter.html;
+      } else {
+        anchor.textContent = chapter.label;
+      }
       // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
       // option.textContent = tab + chapter.label;
       anchor.setAttribute('href', chapter.href);
