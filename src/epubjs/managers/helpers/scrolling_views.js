@@ -10,11 +10,12 @@ import {inVp} from '../../../core/Util';
 window.inVp = inVp;
 
 class Views {
-    constructor(container) {
+    constructor(container, preloading=false) {
         this.container = container;
         this._views = [];
         this.length = 0;
         this.hidden = false;
+        this.preloading = false; // preloading;
     }
 
     all() {
@@ -32,6 +33,16 @@ class Views {
         // return this._views[this._views.length-1];
     }
 
+    prev(view) {
+        var index = this.indexOf(view);
+        return this.get(index - 1);
+    }
+
+    next(view) {
+        var index = this.indexOf(view);
+        return this.get(index + 1);
+    }
+
     indexOf(view) {
         return this._views.indexOf(view);
     }
@@ -41,13 +52,17 @@ class Views {
     }
 
     get(i) {
-        return this._views[i];
+        return i < 0 ? null : this._views[i];
     }
 
     append(view){
         this._views.push(view);
         if(this.container){
-        this.container.appendChild(view.element);
+            this.container.appendChild(view.element);
+            var threshold = {};
+            var h = this.container.offsetHeight;
+            threshold.top = - ( h * 0.25 );
+            threshold.bottom = - ( h * 0.25 );
             view.observer = ElementObserver(view.element, {
                 container: this.container,
                 onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
@@ -56,7 +71,7 @@ class Views {
                 once: false, // if true, observer is detroyed after first callback is triggered
                 observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
             })
-            const { fully, partially, edges } = inVp(view.element, this.container);
+            const { fully, partially, edges } = inVp(view.element, threshold, this.container);
             if ( edges.percentage > 0 ) {
                 this.onEnter(view);
             }
@@ -201,6 +216,7 @@ class Views {
         for (var i = 0; i < len; i++) {
             view = this._views[i];
             if(view.displayed){
+                // console.log("AHOY VIEWS hide", view.index);
                 view.hide();
             }
         }
@@ -208,15 +224,34 @@ class Views {
     }
 
     onEnter(view, el, viewportState) {
-        // console.log("AHOY VIEWS ONENTER", view, viewportState);
+        // console.log("AHOY VIEWS onEnter", view.index, view.preloaded, view.displayed);
+        var preload = ! view.displayed || view.preloaded;
         if ( ! view.displayed ) {
             // console.log("AHOY SHOULD BE SHOWING", view);
             this.emit("view.display", { view: view, viewportState: viewportState });
         }
+        if ( this.preloading && preload ) {
+            // can we grab the next one?
+            this.preload(this.next(view), view.index);
+            this.preload(this.prev(view), view.index);
+        }
+        if ( ! view.displayed && view.preloaded ) {
+            // console.log("AHOY VIEWS onEnter TOGGLE", view.index, view.preloaded, view.displayed);
+            view.preloaded = false;
+        }
+    }
+
+    preload(view, index) {
+        if ( view ) {
+            view.preloaded = true;
+            // console.log("AHOY VIEWS preload", index, ">", view.index);
+            this.emit("view.display", { view: view, viewportState: {} });
+        }
     }
 
     onExit(view, el, viewportState) {
-        // console.log("AHOY VIEWS ONEXIT", view, viewportState);
+        // console.log("AHOY VIEWS onExit", view.index, view.preloaded);
+        if ( view.preloaded ) { return ; }
         view.unload();
     }
 }
