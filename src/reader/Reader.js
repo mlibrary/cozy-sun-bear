@@ -291,7 +291,7 @@ export var Reader = Evented.extend({
             var scrollTop = 0;
             if ( _reader._rendition.manager && _reader._rendition.manager.container ) {
               scrollTop = _reader._rendition.manager.container.scrollTop;
-              console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
+              // console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
             }
             if ( _last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height ) {
               do_report = false;
