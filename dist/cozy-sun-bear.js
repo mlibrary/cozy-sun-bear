@@ -27706,7 +27706,9 @@
 	    }
 
 	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager) {
-	      this.settings.minHeight = this.options.minHeight;
+	      if (this.options.minHeight) {
+	        this.settings.minHeight = this.options.minHeight;
+	      }
 	    }
 
 	    if (self.options.scale != '100') {
