@@ -127,8 +127,14 @@ Reader.EpubJS = Reader.extend({
       // two pages side by side
       if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
         this.settings.flow = 'scrolled-doc';
-        this.settings.manager = PrePaginatedContinuousViewManager;
-        this.settings.view = ReusableIframeView;
+
+        // this.settings.manager = PrePaginatedContinuousViewManager;
+        // this.settings.view = ReusableIframeView;
+
+        this.settings.manager = ScrollingContinuousViewManager;
+        this.settings.view = StickyIframeView;
+        this.settings.width = '100%'; // 100%?
+        this.settings.spine = this._book.spine;
       }
     }
 
@@ -156,12 +162,19 @@ Reader.EpubJS = Reader.extend({
 
     if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
         // this.settings.manager = 'prepaginated';
-        this.settings.manager = PrePaginatedContinuousViewManager;
-        this.settings.view = ReusableIframeView;
+        // this.settings.manager = PrePaginatedContinuousViewManager;
+        // this.settings.view = ReusableIframeView;
+        this.settings.manager = ScrollingContinuousViewManager;
+        this.settings.view = StickyIframeView;
+        this.settings.spread = 'none';
     }
 
     if ( this.settings.manager == PrePaginatedContinuousViewManager ) {
       this.settings.spread = 'none';
+    }
+
+    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager ) {
+      this.settings.minHeight = this.options.minHeight;
     }
 
     // would pre-paginated work better if we scaled the default view from the start? maybe?
@@ -603,7 +616,7 @@ Reader.EpubJS = Reader.extend({
   },
 
   _updateFontSize: function() {
-    if ( this.metadata.layout == 'pre-paginated') {
+    if ( false && this.metadata.layout == 'pre-paginated') {
       // we're not doing font changes for pre-paginted
       return;
     }
@@ -628,28 +641,8 @@ Reader.EpubJS = Reader.extend({
     this._queueTimeout = setTimeout(function() {
       if ( this._rendition.manager && this._rendition.manager.stage ) {
         this._rendition.scale(this.settings.scale);
-      } else {
-        this._queueScale();
-      }
-    }.bind(this), 100);
-  },
-
-  _updateScale: function() {
-    if ( this.metadata.layout != 'pre-paginated') {
-      // we're not scaling for reflowable
-      return;
-    }
-    var scale = this.options.scale;
-    if ( scale ) {
-      scale = parseInt(scale, 10) / 100.0;
-      this._rendition.scale(scale);
-    }
-  },
-
-  _queueScale: function(scale) {
-    this._queueTimeout = setTimeout(function() {
-      if ( this._rendition.manager && this._rendition.manager.stage ) {
-        this._rendition.scale(this.settings.scale);
+        var text_size = this.settings.scale == 1.0 ? 100 : this.settings.scale * 100.0;
+        this._rendition.themes.fontSize(`${text_size}%`);
       } else {
         this._queueScale();
       }
