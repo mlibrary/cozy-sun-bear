@@ -4587,7 +4587,7 @@
 	            var scrollTop = 0;
 	            if (_reader._rendition.manager && _reader._rendition.manager.container) {
 	              scrollTop = _reader._rendition.manager.container.scrollTop;
-	              console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
+	              // console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
 	            }
 	            if (_last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height) {
 	              do_report = false;
@@ -13491,8 +13491,12 @@
 			value: function format(contents) {
 				var formating;
 
+<<<<<<< HEAD
 				var viewport = contents.viewport();
 				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
+=======
+				if (this.name === "pre-paginated") {
+>>>>>>> 44e75cd... builds
 					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
 					formating = contents.fit(this.columnWidth, this.height);
 				} else if (this._flow === "paginated") {
@@ -26114,12 +26118,14 @@
 
 	var Views$1 = function () {
 	    function Views(container) {
+
 	        _classCallCheck$x(this, Views);
 
 	        this.container = container;
 	        this._views = [];
 	        this.length = 0;
 	        this.hidden = false;
+	        this.preloading = false; // preloading;
 	    }
 
 	    _createClass$x(Views, [{
@@ -26141,6 +26147,18 @@
 	            // return this._views[this._views.length-1];
 	        }
 	    }, {
+	        key: "prev",
+	        value: function prev(view) {
+	            var index = this.indexOf(view);
+	            return this.get(index - 1);
+	        }
+	    }, {
+	        key: "next",
+	        value: function next(view) {
+	            var index = this.indexOf(view);
+	            return this.get(index + 1);
+	        }
+	    }, {
 	        key: "indexOf",
 	        value: function indexOf$$1(view) {
 	            return this._views.indexOf(view);
@@ -26153,7 +26171,7 @@
 	    }, {
 	        key: "get",
 	        value: function get(i) {
-	            return this._views[i];
+	            return i < 0 ? null : this._views[i];
 	        }
 	    }, {
 	        key: "append",
@@ -26161,6 +26179,10 @@
 	            this._views.push(view);
 	            if (this.container) {
 	                this.container.appendChild(view.element);
+	                var threshold = {};
+	                var h = this.container.offsetHeight;
+	                threshold.top = -(h * 0.25);
+	                threshold.bottom = -(h * 0.25);
 	                view.observer = ElementObserver(view.element, {
 	                    container: this.container,
 	                    onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
@@ -26170,7 +26192,7 @@
 	                    observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 	                });
 
-	                var _inVp = inVp(view.element, this.container),
+	                var _inVp = inVp(view.element, threshold, this.container),
 	                    edges = _inVp.edges;
 
 	                if (edges.percentage > 0) {
@@ -26332,6 +26354,7 @@
 	            for (var i = 0; i < len; i++) {
 	                view = this._views[i];
 	                if (view.displayed) {
+	                    // console.log("AHOY VIEWS hide", view.index);
 	                    view.hide();
 	                }
 	            }
@@ -26340,16 +26363,38 @@
 	    }, {
 	        key: "onEnter",
 	        value: function onEnter(view, el, viewportState) {
-	            // console.log("AHOY VIEWS ONENTER", view, viewportState);
+	            // console.log("AHOY VIEWS onEnter", view.index, view.preloaded, view.displayed);
+	            var preload = !view.displayed || view.preloaded;
 	            if (!view.displayed) {
 	                // console.log("AHOY SHOULD BE SHOWING", view);
 	                this.emit("view.display", { view: view, viewportState: viewportState });
+	            }
+	            if (this.preloading && preload) {
+	                // can we grab the next one?
+	                this.preload(this.next(view), view.index);
+	                this.preload(this.prev(view), view.index);
+	            }
+	            if (!view.displayed && view.preloaded) {
+	                // console.log("AHOY VIEWS onEnter TOGGLE", view.index, view.preloaded, view.displayed);
+	                view.preloaded = false;
+	            }
+	        }
+	    }, {
+	        key: "preload",
+	        value: function preload(view, index) {
+	            if (view) {
+	                view.preloaded = true;
+	                // console.log("AHOY VIEWS preload", index, ">", view.index);
+	                this.emit("view.display", { view: view, viewportState: {} });
 	            }
 	        }
 	    }, {
 	        key: "onExit",
 	        value: function onExit(view, el, viewportState) {
-	            // console.log("AHOY VIEWS ONEXIT", view, viewportState);
+	            // console.log("AHOY VIEWS onExit", view.index, view.preloaded);
+	            if (view.preloaded) {
+	                return;
+	            }
 	            view.unload();
 	        }
 	    }]);
@@ -26384,7 +26429,8 @@
 	      axis: undefined,
 	      flow: "scrolled",
 	      ignoreClass: "",
-	      fullsize: undefined
+	      fullsize: undefined,
+	      minHeight: 1024
 	    });
 
 	    extend$1(this.settings, options.settings || {});
@@ -26401,6 +26447,11 @@
 	    };
 
 	    this.rendered = false;
+	    this.settings.scale = this.settings.scale || 1.0;
+	    this.settings.xscale = this.settings.scale;
+
+	    this.fraction = 0.8;
+	    // this.settings.maxWidth = 1024;
 	  }
 
 	  _createClass$y(ScrollingContinuousViewManager, [{
@@ -26428,7 +26479,7 @@
 	        axis: this.settings.axis,
 	        fullsize: this.settings.fullsize,
 	        direction: this.settings.direction,
-	        scale: this.settings.scale
+	        scale: 1.0 // this.settings.scale --- scrolling scales different
 	      });
 
 	      this.stage.attachTo(element);
@@ -26437,11 +26488,14 @@
 	      this.container = this.stage.getContainer();
 
 	      // Views array methods
-	      this.views = new Views$1(this.container);
+	      this.views = new Views$1(this.container, this.layout.name == 'pre-paginated');
 
 	      // Calculate Stage Size
 	      this._bounds = this.bounds();
 	      this._stageSize = this.stage.size();
+
+	      var ar = this._stageSize.width / this._stageSize.height;
+	      console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
 
 	      // Set the dimensions for views
 	      this.viewSettings.width = this._stageSize.width;
@@ -26469,6 +26523,7 @@
 	        var view = _ref.view,
 	            viewportState = _ref.viewportState;
 
+	        // console.log("AHOY VIEWS scrolling.view.display", view.index);
 	        view.display(this.request).then(function () {
 	          view.show();
 	          this.gotoTarget(view);
@@ -26562,7 +26617,9 @@
 	      var delta;
 	      if (rect.bottom <= bounds.bottom && rect.top < 0) {
 	        delta = view.element.getBoundingClientRect().height - rect.height;
-	        this.container.scrollTop += delta;
+	        // delta /= this.settings.scale;
+	        // console.log("AHOY afterResized", view.index, this.container.scrollTop, view.element.getBoundingClientRect().height, rect.height, delta / this.settings.scale);
+	        this.container.scrollTop += Math.ceil(delta);
 	      }
 
 	      // console.log("AHOY AFTER RESIZED", view, delta);
@@ -26606,10 +26663,34 @@
 	      // }
 
 	      // this._spine.forEach(function (section) {
+
 	      this.settings.spine.each(function (section) {
 	        var _this = this;
 
-	        var view = new this.View(section, this.viewSettings);
+	        // if ( this.layout.name == 'pre-paginated' ) {
+	        //   // do something
+	        //   // viewSettings.layout.height = h;
+	        //   // viewSettings.layout.columnWidth = w;
+
+	        //   var r = this.layout.height / this.layout.columnWidth;
+
+	        //   viewSettings.layout.columnWidth = this.layout.columnWidth * 0.8;
+	        //   viewSettings.layout.height = this.layout.height * ( this.layout.columnWidth)
+
+	        // }
+	        var viewSettings = Object.assign({}, this.viewSettings);
+	        viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	        if (this.layout.name == 'pre-paginated') {
+	          viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
+	          viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
+	          viewSettings.minHeight *= this.settings.xscale;
+	          viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
+	          viewSettings.height = viewSettings.height * this.settings.xscale;
+	          viewSettings.layout.height = viewSettings.height;
+	          // console.log("AHOY new view", section.index, viewSettings.height);
+	        }
+
+	        var view = new this.View(section, viewSettings);
 	        view.onDisplayed = this.afterDisplayed.bind(this);
 	        view.onResize = this.afterResized.bind(this);
 	        view.on(EVENTS.VIEWS.AXIS, function (axis) {
@@ -26899,9 +26980,9 @@
 	      // this.layout.width = this.container.offsetWidth * 0.80;
 
 	      // Set the dimensions for views
-	      this.viewSettings.width = this.layout.width;
-	      this.viewSettings.height = this.layout.height;
-	      this.viewSettings.minHeight = this.viewSettings.height;
+	      this.viewSettings.width = this.layout.width; //  * this.settings.scale;
+	      this.viewSettings.height = this.calculateHeight(this.layout.height);
+	      this.viewSettings.minHeight = this.viewSettings.height; // * this.settings.scale;
 
 	      this.setLayout(this.layout);
 	    }
@@ -26916,9 +26997,20 @@
 	      if (this.views) {
 
 	        this.views._views.forEach(function (view) {
-	          view.size(layout.width, layout.height);
-	          view.reframe(layout.width, layout.height);
-	          view.setLayout(layout);
+	          var viewSettings = Object.assign({}, this.viewSettings);
+	          viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	          if (this.layout.name == 'pre-paginated') {
+	            viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
+	            viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
+	            viewSettings.minHeight *= this.settings.xscale;
+	            viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
+	            viewSettings.height = viewSettings.height * this.settings.xscale;
+	            viewSettings.layout.height = viewSettings.height;
+	          }
+
+	          view.size(viewSettings.layout.width, viewSettings.layout.height);
+	          view.reframe(viewSettings.layout.width, viewSettings.layout.height);
+	          view.setLayout(viewSettings.layout);
 	        });
 
 	        // this.views.forEach(function(view){
@@ -27107,6 +27199,39 @@
 	    value: function isRendered() {
 	      return this.rendered;
 	    }
+	  }, {
+	    key: "scale",
+	    value: function scale(s) {
+	      if (s == null) {
+	        s = 1.0;
+	      }
+	      this.settings.scale = this.settings.xscale = s;
+
+	      // if (this.stage) {
+	      //   this.stage.scale(s);
+	      // }
+
+	      this.clear();
+	      this.updateLayout();
+	      this.emit(EVENTS.MANAGERS.RESIZED, {
+	        width: this._stageSize.width,
+	        height: this._stageSize.height
+	      });
+	    }
+	  }, {
+	    key: "calcuateWidth",
+	    value: function calcuateWidth(width) {
+	      var retval = width * this.fraction * this.settings.xscale;
+	      // if ( retval > this.settings.maxWidth * this.settings.xscale ) {
+	      //   retval = this.settings.maxWidth * this.settings.xscale;
+	      // }
+	      return retval;
+	    }
+	  }, {
+	    key: "calculateHeight",
+	    value: function calculateHeight(height) {
+	      return height > this.settings.minHeight ? this.layout.height : this.settings.minHeight;
+	    }
 	  }]);
 
 	  return ScrollingContinuousViewManager;
@@ -27137,6 +27262,9 @@
 
 	        _this.element.style.height = _this.layout.height + "px";
 	        _this.element.style.width = _this.layout.width + "px";
+	        _this.element.style.visibility = "hidden";
+
+	        // console.log("AHOY sticky NEW", this.layout.height);
 	        return _this;
 	    }
 
@@ -27159,6 +27287,8 @@
 	            element.style.overflow = "hidden";
 	            element.style.position = "relative";
 	            element.style.display = "block";
+
+	            element.setAttribute('ref', this.index);
 
 	            if (axis && axis == "horizontal") {
 	                element.style.flex = "none";
@@ -27248,6 +27378,9 @@
 	            var size;
 
 	            var minHeight = this.settings.minHeight || 0;
+	            var maxHeight = this.settings.maxHeight || -1;
+
+	            console.log("AHOY AHOY reframe", this.index, width, height);
 
 	            if (isNumber(width)) {
 	                this.element.style.width = width + "px";
@@ -27262,6 +27395,7 @@
 
 	            if (isNumber(height)) {
 	                height = height > minHeight ? height : minHeight;
+	                // height = height > maxHeight ? maxHeight: height;
 	                var styles = window.getComputedStyle(this.element);
 	                // setting the element height is delayed
 	                if (this.iframe) {
@@ -27338,6 +27472,51 @@
 	            return displayed.promise;
 	        }
 	    }, {
+	        key: "onLoad",
+	        value: function onLoad(event, promise) {
+	            var _this3 = this;
+
+	            this.window = this.iframe.contentWindow;
+	            this.document = this.iframe.contentDocument;
+
+	            this.contents = new Contents$1(this.document, this.document.body, this.section.cfiBase, this.section.index);
+	            this.contents.axis = this.settings.axis;
+
+	            this.rendering = false;
+
+	            var link = this.document.querySelector("link[rel='canonical']");
+	            if (link) {
+	                link.setAttribute("href", this.section.canonical);
+	            } else {
+	                link = this.document.createElement("link");
+	                link.setAttribute("rel", "canonical");
+	                link.setAttribute("href", this.section.canonical);
+	                this.document.querySelector("head").appendChild(link);
+	            }
+
+	            this.contents.on(EVENTS.CONTENTS.EXPAND, function () {
+	                if (_this3.displayed && _this3.iframe) {
+	                    _this3.expand();
+	                    if (_this3.contents) {
+	                        console.log("AHOY EXPAND", _this3.index, _this3.layout.columnWidth, _this3.layout.height);
+	                        _this3.layout.format(_this3.contents);
+	                    }
+	                }
+	            });
+
+	            this.contents.on(EVENTS.CONTENTS.RESIZE, function (e) {
+	                if (_this3.displayed && _this3.iframe) {
+	                    _this3.expand();
+	                    if (_this3.contents) {
+	                        console.log("AHOY RESIZE", _this3.index, _this3.layout.columnWidth, _this3.layout.height);
+	                        _this3.layout.format(_this3.contents);
+	                    }
+	                }
+	            });
+
+	            promise.resolve(this.contents);
+	        }
+	    }, {
 	        key: "unload",
 	        value: function unload() {
 
@@ -27369,6 +27548,7 @@
 
 	                this.stopExpanding = true;
 	                this.element.removeChild(this.iframe);
+	                this.element.style.visibility = "hidden";
 
 	                this.iframe = undefined;
 	                this.contents = undefined;
@@ -27382,16 +27562,17 @@
 	            // this.element.style.height = "0px";
 	            // this.element.style.width = "0px";
 	        }
+
+	        // setLayout(layout) {
+
+	        // }
+
 	    }]);
 
 	    return StickyIframeView;
 	}(IframeView);
 
-	var _Reader$extend;
-
-	function _defineProperty$1(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-	Reader.EpubJS = Reader.extend((_Reader$extend = {
+	Reader.EpubJS = Reader.extend({
 
 	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
@@ -27506,8 +27687,14 @@
 	      // two pages side by side
 	      if (this._container.offsetHeight <= this.options.forceScrolledDocHeight) {
 	        this.settings.flow = 'scrolled-doc';
-	        this.settings.manager = PrePaginatedContinuousViewManager;
-	        this.settings.view = ReusableIframeView;
+
+	        // this.settings.manager = PrePaginatedContinuousViewManager;
+	        // this.settings.view = ReusableIframeView;
+
+	        this.settings.manager = ScrollingContinuousViewManager;
+	        this.settings.view = StickyIframeView;
+	        this.settings.width = '100%'; // 100%?
+	        this.settings.spine = this._book.spine;
 	      }
 	    }
 
@@ -27535,12 +27722,19 @@
 
 	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
 	      // this.settings.manager = 'prepaginated';
-	      this.settings.manager = PrePaginatedContinuousViewManager;
-	      this.settings.view = ReusableIframeView;
+	      // this.settings.manager = PrePaginatedContinuousViewManager;
+	      // this.settings.view = ReusableIframeView;
+	      this.settings.manager = ScrollingContinuousViewManager;
+	      this.settings.view = StickyIframeView;
+	      this.settings.spread = 'none';
 	    }
 
 	    if (this.settings.manager == PrePaginatedContinuousViewManager) {
 	      this.settings.spread = 'none';
+	    }
+
+	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager) {
+	      this.settings.minHeight = this.options.minHeight;
 	    }
 
 	    if (self.options.scale != '100') {
@@ -27979,10 +28173,6 @@
 	  },
 
 	  _updateFontSize: function _updateFontSize() {
-	    if (this.metadata.layout == 'pre-paginated') {
-	      // we're not doing font changes for pre-paginted
-	      return;
-	    }
 
 	    var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
 	    this._rendition.themes.fontSize(text_size + '%');
@@ -28004,31 +28194,17 @@
 	    this._queueTimeout = setTimeout(function () {
 	      if (this._rendition.manager && this._rendition.manager.stage) {
 	        this._rendition.scale(this.settings.scale);
+	        var text_size = this.settings.scale == 1.0 ? 100 : this.settings.scale * 100.0;
+	        this._rendition.themes.fontSize(text_size + '%');
 	      } else {
 	        this._queueScale();
 	      }
 	    }.bind(this), 100);
-	  }
+	  },
 
-	}, _defineProperty$1(_Reader$extend, '_updateScale', function _updateScale() {
-	  if (this.metadata.layout != 'pre-paginated') {
-	    // we're not scaling for reflowable
-	    return;
-	  }
-	  var scale = this.options.scale;
-	  if (scale) {
-	    scale = parseInt(scale, 10) / 100.0;
-	    this._rendition.scale(scale);
-	  }
-	}), _defineProperty$1(_Reader$extend, '_queueScale', function _queueScale(scale) {
-	  this._queueTimeout = setTimeout(function () {
-	    if (this._rendition.manager && this._rendition.manager.stage) {
-	      this._rendition.scale(this.settings.scale);
-	    } else {
-	      this._queueScale();
-	    }
-	  }.bind(this), 100);
-	}), _defineProperty$1(_Reader$extend, 'EOT', true), _Reader$extend));
+	  EOT: true
+
+	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
 	  get: function get$$1() {
