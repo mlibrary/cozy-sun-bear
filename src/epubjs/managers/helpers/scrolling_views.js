@@ -15,7 +15,7 @@ class Views {
         this._views = [];
         this.length = 0;
         this.hidden = false;
-        this.preloading = false; // preloading;
+        this.preloading = preloading;
     }
 
     all() {
@@ -245,7 +245,7 @@ class Views {
         if ( view ) {
             view.preloaded = true;
             // console.log("AHOY VIEWS preload", index, ">", view.index);
-            this.emit("view.display", { view: view, viewportState: {} });
+            this.emit("view.preload", { view: view });
         }
     }
 
