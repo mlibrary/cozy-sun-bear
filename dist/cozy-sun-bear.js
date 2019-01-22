@@ -15589,8 +15589,12 @@
 
 				if (viewport.width == 'auto' && viewport.height == 'auto') {
 					viewportWidth = width;
+<<<<<<< HEAD
 					viewportHeight = height; // this.textHeight(); // height;
 					console.log("AHOY contents.fit", height, this.textHeight());
+=======
+					viewportHeight = height;
+>>>>>>> 69ed554... handle viewport width/height=auto
 				} else {
 					viewportWidth = parseInt(viewport.width);
 					viewportHeight = parseInt(viewport.height);
