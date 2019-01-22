@@ -124,6 +124,12 @@ class ScrollingContinuousViewManager {
     this.rendered = true;
     this._spine = [];
 
+    this.views.on("view.preload", function({view}) {
+      view.display(this.request).then(function() {
+        view.show();
+      })
+    }.bind(this));
+
     this.views.on("view.display", function({ view, viewportState }) {
       // console.log("AHOY VIEWS scrolling.view.display", view.index);
       view.display(this.request).then(function() {
