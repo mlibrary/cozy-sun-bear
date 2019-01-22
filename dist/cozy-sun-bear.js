@@ -15566,8 +15566,20 @@
 			key: "fit",
 			value: function fit(width, height) {
 				var viewport = this.viewport();
-				var viewportWidth = parseInt(viewport.width);
-				var viewportHeight = parseInt(viewport.height);
+				var viewportWidth;
+				var viewportHeight;
+
+				// var viewportWidth = parseInt(viewport.width);
+				// var viewportHeight = parseInt(viewport.height);
+
+				if (viewport.width == 'auto' && viewport.height == 'auto') {
+					viewportWidth = width;
+					viewportHeight = height;
+				} else {
+					viewportWidth = parseInt(viewport.width);
+					viewportHeight = parseInt(viewport.height);
+				}
+
 				var widthScale = width / viewportWidth;
 				var heightScale = height / viewportHeight;
 				var scale;
