@@ -13492,12 +13492,17 @@
 				var formating;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 				var viewport = contents.viewport();
 				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
 =======
 				if (this.name === "pre-paginated") {
 >>>>>>> 44e75cd... builds
+=======
+				if (this.name === "pre-paginated" && contents.viewport().height != 'auto' && contents.viewport().height != undefined) {
+>>>>>>> d957dce... tweaking pre-pag + auto
 					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
+					console.log("AHOY layout.format", contents.viewport());
 					formating = contents.fit(this.columnWidth, this.height);
 				} else if (this._flow === "paginated") {
 					formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
@@ -15590,11 +15595,16 @@
 				if (viewport.width == 'auto' && viewport.height == 'auto') {
 					viewportWidth = width;
 <<<<<<< HEAD
+<<<<<<< HEAD
 					viewportHeight = height; // this.textHeight(); // height;
 					console.log("AHOY contents.fit", height, this.textHeight());
 =======
 					viewportHeight = height;
 >>>>>>> 69ed554... handle viewport width/height=auto
+=======
+					viewportHeight = height; // this.textHeight(); // height;
+					console.log("AHOY contents.fit", height, this.textHeight());
+>>>>>>> d957dce... tweaking pre-pag + auto
 				} else {
 					viewportWidth = parseInt(viewport.width);
 					viewportHeight = parseInt(viewport.height);
