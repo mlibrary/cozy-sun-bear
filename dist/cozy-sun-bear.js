@@ -26118,6 +26118,7 @@
 
 	var Views$1 = function () {
 	    function Views(container) {
+	        var preloading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
 	        _classCallCheck$x(this, Views);
 
@@ -26125,7 +26126,7 @@
 	        this._views = [];
 	        this.length = 0;
 	        this.hidden = false;
-	        this.preloading = false; // preloading;
+	        this.preloading = preloading;
 	    }
 
 	    _createClass$x(Views, [{
@@ -26385,7 +26386,7 @@
 	            if (view) {
 	                view.preloaded = true;
 	                // console.log("AHOY VIEWS preload", index, ">", view.index);
-	                this.emit("view.display", { view: view, viewportState: {} });
+	                this.emit("view.preload", { view: view });
 	            }
 	        }
 	    }, {
@@ -26519,9 +26520,17 @@
 	      this.rendered = true;
 	      this._spine = [];
 
-	      this.views.on("view.display", function (_ref) {
-	        var view = _ref.view,
-	            viewportState = _ref.viewportState;
+	      this.views.on("view.preload", function (_ref) {
+	        var view = _ref.view;
+
+	        view.display(this.request).then(function () {
+	          view.show();
+	        });
+	      }.bind(this));
+
+	      this.views.on("view.display", function (_ref2) {
+	        var view = _ref2.view,
+	            viewportState = _ref2.viewportState;
 
 	        // console.log("AHOY VIEWS scrolling.view.display", view.index);
 	        view.display(this.request).then(function () {
@@ -27380,7 +27389,7 @@
 	            var minHeight = this.settings.minHeight || 0;
 	            var maxHeight = this.settings.maxHeight || -1;
 
-	            console.log("AHOY AHOY reframe", this.index, width, height);
+	            // console.log("AHOY AHOY reframe", this.index, width, height);
 
 	            if (isNumber(width)) {
 	                this.element.style.width = width + "px";
@@ -27498,7 +27507,7 @@
 	                if (_this3.displayed && _this3.iframe) {
 	                    _this3.expand();
 	                    if (_this3.contents) {
-	                        console.log("AHOY EXPAND", _this3.index, _this3.layout.columnWidth, _this3.layout.height);
+	                        // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
 	                        _this3.layout.format(_this3.contents);
 	                    }
 	                }
@@ -27508,7 +27517,7 @@
 	                if (_this3.displayed && _this3.iframe) {
 	                    _this3.expand();
 	                    if (_this3.contents) {
-	                        console.log("AHOY RESIZE", _this3.index, _this3.layout.columnWidth, _this3.layout.height);
+	                        // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
 	                        _this3.layout.format(_this3.contents);
 	                    }
 	                }
