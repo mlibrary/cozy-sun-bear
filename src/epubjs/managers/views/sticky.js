@@ -128,7 +128,7 @@ class StickyIframeView extends IframeView {
         var minHeight = this.settings.minHeight || 0;
         var maxHeight = this.settings.maxHeight || -1;
 
-        console.log("AHOY AHOY reframe", this.index, width, height);
+        // console.log("AHOY AHOY reframe", this.index, width, height);
 
         if(isNumber(width)){
             this.element.style.width = width + "px";
@@ -245,7 +245,7 @@ class StickyIframeView extends IframeView {
         if(this.displayed && this.iframe) {
           this.expand();
           if (this.contents) {
-            console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
+            // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
             this.layout.format(this.contents);
           }
         }
@@ -255,7 +255,7 @@ class StickyIframeView extends IframeView {
         if(this.displayed && this.iframe) {
           this.expand();
           if (this.contents) {
-            console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
+            // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
             this.layout.format(this.contents);
           }
         }
