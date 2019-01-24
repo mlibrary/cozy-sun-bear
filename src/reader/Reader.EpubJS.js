@@ -12,6 +12,8 @@ import ReusableIframeView from '../epubjs/managers/views/iframe';
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
+import debounce from 'lodash/debounce';
+
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
@@ -524,7 +526,7 @@ Reader.EpubJS = Reader.extend({
       }
     }.bind(this));
 
-    this._rendition.on('relocated', function(location) {
+    var relocated_handler = debounce(function(location) {
       if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
       if ( Browser.safari && self._last_location_start && self._last_location_start != location.start.href ) {
@@ -534,31 +536,24 @@ Reader.EpubJS = Reader.extend({
         }, 0);
       }
       self._last_location_start = location.start.href;
-    })
+    }, 10);
+
+    this._rendition.on('relocated', relocated_handler);
 
     this._rendition.on('displayerror', function(err) {
       console.log("AHOY RENDITION DISPLAY ERROR", err);
     })
 
-    this._rendition.on("locationChanged", function(location) {
+    var locationChanged_handler = debounce(function(location) {
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
 
-      // if ( self.__hash && view.contents ) {
-      //   var check = section.contents.querySelector(`#${self.__hash}`);
-      //   if ( check ) {
-      //     var new_target = section.cfiFromElement(check);
-      //     this.display(new_target);
-      //     self.__hash = null;
-      //     return;
-      //   }
-      // }
-
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
-      // self.fire("relocated", location);
-    });
+    }, 150);
+
+    this._rendition.on("locationChanged", locationChanged_handler);
 
     this._rendition.on("rendered", function(section, view) {
 

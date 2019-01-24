@@ -368,7 +368,7 @@ export var Reader = Evented.extend({
       if ( tracking = self.tracking.pageview(location) ) {
         if ( location.percentage ) {
           var p = Math.ceil(location.percentage * 100);
-          document.title = `${p} - ${self._original_document_title} - ${p}%`;
+          document.title = `${p} - ${self._original_document_title}`;
         }
         var tmp_href = window.location.href.split("#");
         tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);

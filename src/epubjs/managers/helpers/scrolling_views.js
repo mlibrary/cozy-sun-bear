@@ -69,7 +69,7 @@ class Views {
                 onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
                 offset: 0, // offset from the edges of the viewport in pixels
                 once: false, // if true, observer is detroyed after first callback is triggered
-                observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
+                observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
             })
             const { fully, partially, edges } = inVp(view.element, threshold, this.container);
             if ( edges.percentage > 0 ) {

@@ -4662,7 +4662,7 @@
 	      if (tracking = self.tracking.pageview(location)) {
 	        if (location.percentage) {
 	          var p = Math.ceil(location.percentage * 100);
-	          document.title = p + ' - ' + self._original_document_title + ' - ' + p + '%';
+	          document.title = p + ' - ' + self._original_document_title;
 	        }
 	        var tmp_href = window.location.href.split("#");
 	        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
@@ -13493,6 +13493,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 				var viewport = contents.viewport();
 				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
 =======
@@ -13501,8 +13502,11 @@
 =======
 				if (this.name === "pre-paginated" && contents.viewport().height != 'auto' && contents.viewport().height != undefined) {
 >>>>>>> d957dce... tweaking pre-pag + auto
+=======
+				var viewport = contents.viewport();
+				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
+>>>>>>> 84f3179... performance tuning
 					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
-					console.log("AHOY layout.format", contents.viewport());
 					formating = contents.fit(this.columnWidth, this.height);
 				} else if (this._flow === "paginated") {
 					formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
@@ -26204,7 +26208,7 @@
 	                    onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
 	                    offset: 0, // offset from the edges of the viewport in pixels
 	                    once: false, // if true, observer is detroyed after first callback is triggered
-	                    observerCollection: new ObserverCollection() // Advanced: Used for grouping custom viewport handling
+	                    observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
 	                });
 
 	                var _inVp = inVp(view.element, threshold, this.container),
@@ -28106,7 +28110,7 @@
 	      }
 	    }.bind(this));
 
-	    this._rendition.on('relocated', function (location) {
+	    var relocated_handler = debounce_1(function (location) {
 	      if (self._fired) {
 	        self._fired = false;return;
 	      }
@@ -28118,31 +28122,24 @@
 	        }, 0);
 	      }
 	      self._last_location_start = location.start.href;
-	    });
+	    }, 10);
+
+	    this._rendition.on('relocated', relocated_handler);
 
 	    this._rendition.on('displayerror', function (err) {
 	      console.log("AHOY RENDITION DISPLAY ERROR", err);
 	    });
 
-	    this._rendition.on("locationChanged", function (location) {
+	    var locationChanged_handler = debounce_1(function (location) {
 	      var view = this.manager.current();
 	      var section = view.section;
 	      var current = this.book.navigation.get(section.href);
 
-	      // if ( self.__hash && view.contents ) {
-	      //   var check = section.contents.querySelector(`#${self.__hash}`);
-	      //   if ( check ) {
-	      //     var new_target = section.cfiFromElement(check);
-	      //     this.display(new_target);
-	      //     self.__hash = null;
-	      //     return;
-	      //   }
-	      // }
-
 	      self.fire("updateSection", current);
 	      self.fire("updateLocation", location);
-	      // self.fire("relocated", location);
-	    });
+	    }, 150);
+
+	    this._rendition.on("locationChanged", locationChanged_handler);
 
 	    this._rendition.on("rendered", function (section, view) {
 
