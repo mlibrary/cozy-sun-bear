@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0aa8b998, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.01a7c20a, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -13491,13 +13491,25 @@
 			value: function format(contents) {
 				var formating;
 
-				if (this.name === "pre-paginated") {
+				var viewport = contents.viewport();
+				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
+					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
 					formating = contents.fit(this.columnWidth, this.height);
 				} else if (this._flow === "paginated") {
 					formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
 				} else {
 					// scrolled
 					formating = contents.size(this.width, null);
+					if (this.name === 'pre-paginated') {
+						contents.content.style.overflow = 'auto';
+						contents.addStylesheetRules({
+							"body": {
+								"margin": 0,
+								"padding": "1em !important",
+								"box-sizing": "border-box"
+							}
+						});
+					}
 				}
 
 				return formating; // might be a promise in some View Managers
@@ -15565,11 +15577,29 @@
 			key: "fit",
 			value: function fit(width, height) {
 				var viewport = this.viewport();
-				var viewportWidth = parseInt(viewport.width);
-				var viewportHeight = parseInt(viewport.height);
+				var viewportWidth;
+				var viewportHeight;
+
+				// var viewportWidth = parseInt(viewport.width);
+				// var viewportHeight = parseInt(viewport.height);
+
+				if (viewport.width == 'auto' && viewport.height == 'auto') {
+					viewportWidth = width;
+					viewportHeight = height; // this.textHeight(); // height;
+					console.log("AHOY contents.fit", height, this.textHeight());
+				} else {
+					viewportWidth = parseInt(viewport.width);
+					viewportHeight = parseInt(viewport.height);
+				}
+
 				var widthScale = width / viewportWidth;
 				var heightScale = height / viewportHeight;
-				var scale = widthScale < heightScale ? widthScale : heightScale;
+				var scale;
+				if (this.axis == 'xxxvertical') {
+					scale = widthScale > heightScale ? widthScale : heightScale;
+				} else {
+					scale = widthScale < heightScale ? widthScale : heightScale;
+				}
 
 				// the translate does not work as intended, elements can end up unaligned
 				// var offsetY = (height - (viewportHeight * scale)) / 2;
@@ -16579,6 +16609,7 @@
 			this.epubcfi = new EpubCFI();
 
 			this.layout = this.settings.layout;
+			// console.log("AHOY iframe NEW", this.layout.height);
 			// Dom events to listen for
 			// this.listenedEvents = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
 
@@ -16691,6 +16722,7 @@
 					var _this = this;
 
 					// apply the layout function to the contents
+					// console.log("AHOY IFRAME render", this.layout.height);
 					this.layout.format(this.contents);
 
 					// find and report the writingMode axis
@@ -16743,6 +16775,7 @@
 
 				if (this.layout.name === "pre-paginated") {
 					this.lock("both", width, height);
+					// console.log("AHOY IRAME size lock", width, height);
 				} else if (this.settings.axis === "horizontal") {
 					this.lock("height", width, height);
 				} else {
@@ -16804,7 +16837,11 @@
 
 				this._expanding = true;
 
-				if (this.layout.name === "pre-paginated") {
+				if (this.layout.name === 'pre-paginated' && this.settings.axis === 'vertical') {
+					height = this.contents.textHeight();
+					width = this.contents.textWidth();
+					// width = this.layout.columnWidth;
+				} else if (this.layout.name === "pre-paginated") {
 					width = this.layout.columnWidth;
 					height = this.layout.height;
 				}
@@ -16827,6 +16864,8 @@
 					} // Expand Vertically
 					else if (this.settings.axis === "vertical") {
 							height = this.contents.textHeight();
+							// width = this.contents.textWidth();
+							// console.log("AHOY AHOY expand", this.index, width, height, "/", this._width, this._height);
 						}
 
 				// Only Resize if dimensions have changed or
@@ -17046,6 +17085,7 @@
 					this.iframe.style.transform = null;
 				}
 
+				// console.log("AHOY VIEWS iframe show", this.index);
 				this.emit(EVENTS.VIEWS.SHOWN, this);
 			}
 		}, {
@@ -17056,6 +17096,7 @@
 				this.iframe.style.visibility = "hidden";
 
 				this.stopExpanding = true;
+				// console.log("AHOY VIEWS iframe hide", this.index);
 				this.emit(EVENTS.VIEWS.HIDDEN, this);
 			}
 		}, {
@@ -18010,10 +18051,10 @@
 					document.body.style["direction"] = direction;
 				}
 
-				if (scale && scale > 1.0) {
+				if (scale && scale != 1.0) {
 					container.style["transform-origin"] = "top left";
 					container.style["transform"] = "scale(" + scale + ")";
-					container.style.overflow = "visible";
+					container.style.overflow = "auto"; // "visible" breaks something?
 				} else {
 					container.style["transform-origin"] = null;
 					container.style["transform"] = null;
@@ -18172,6 +18213,11 @@
 					height = _windowBounds.height - bodyPadding.top - bodyPadding.bottom;
 				}
 
+				if (this.settings.scale) {
+					width /= this.settings.scale;
+					height /= this.settings.scale;
+				}
+
 				return {
 					width: width - this.containerPadding.left - this.containerPadding.right,
 					height: height - this.containerPadding.top - this.containerPadding.bottom
@@ -18268,12 +18314,13 @@
 			key: "scale",
 			value: function scale(s) {
 				if (this.container) {
-					if (s > 1.0) {
+					if (s != 1.0) {
+						this._originalOverflow = this.container.style.overflow;
 						this.container.style["transform-origin"] = "top left";
 						this.container.style["transform"] = "scale(" + s + ")";
-						this.container.style.overflow = "visible";
+						this.container.style.overflow = "auto"; // "visible"
 					} else {
-						this.container.style.overflow = null;
+						this.container.style.overflow = this._originalOverflow;
 						this.container.style["transform-origin"] = null;
 						this.container.style["transform"] = null;
 					}
@@ -22726,7 +22773,8 @@
 
 				return this.load(url).then(function (xml) {
 					_this3.container = new Container(xml);
-					return _this3.resolve(_this3.container.packagePath);
+					return _this3.resolve(_this3.settings.packagePath || _this3.container.packagePath);
+					// return this.resolve(this.container.packagePath);
 				});
 			}
 
@@ -26057,7 +26105,7 @@
 	      r = this.offset,
 	      s = this.once,
 	      h = this._didEnter;if (!isElementInDOM(n)) return this.destroy();var l = isElementInViewport(n, r, t, e);!h && l ? (this._didEnter = !0, i && (i.call(this, n, t), s && this.destroy())) : h && !l && (this._didEnter = !1, o && (o.call(this, n, t), s && this.destroy()));
-	};//# sourceMappingURL=viewprt.esm.js.map
+	};
 
 	var _createClass$x = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -27526,7 +27574,7 @@
 	        target = "epubcfi(" + target + ")";
 	      } else {
 	        target = window.location.hash.substr(2);
-	        target = self._book.url.path().resolve(target);
+	        target = self._book.url.path().resolve(decodeURIComponent(target));
 	      }
 	    }
 

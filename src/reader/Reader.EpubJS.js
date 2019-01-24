@@ -199,7 +199,7 @@ Reader.EpubJS = Reader.extend({
         target = "epubcfi(" + target + ")";
       } else {
         target = window.location.hash.substr(2);
-        target = self._book.url.path().resolve(target);
+        target = self._book.url.path().resolve(decodeURIComponent(target));
       }
     }
 
