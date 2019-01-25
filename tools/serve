@@ -4,9 +4,12 @@ var	argv = require('optimist').argv;
 var server = require('./serve.js');
 
 var port = argv.p;
+var address = argv.a;
 
-if (!argv.p) {
-	server();
-} else {
-	server(port);
-}
+server();
+
+// if (!argv.p) {
+// 	server(null, argv.a);
+// } else {
+// 	server(port);
+// }
