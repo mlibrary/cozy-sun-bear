@@ -66,9 +66,11 @@
     "url-polyfill": "^1.0.13"
   },
   "dependencies": {
+    "babel-preset-es2105": "0.0.0",
     "epubjs": "git+https://github.com/mlibrary/epub.js.git#patched",
     "event-emitter": "^0.3.4",
-    "lodash": "^4.17.4",
+    "intersection-observer": "^0.5.1",
+    "lodash": "^4.17.11",
     "mustache": "^2.3.0",
     "viewprt": "^3.1.0"
   },
