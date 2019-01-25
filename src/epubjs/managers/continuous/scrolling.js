@@ -180,15 +180,21 @@ class ScrollingContinuousViewManager {
       // -- this does not work; top varies.
       // offset.top += view.element.getBoundingClientRect().top;
 
-      var prev; var style;
-      for(var i = 0; i < view.index; i++) {
-        prev = this.views.get(i);
-        style = window.getComputedStyle(prev.element);
-        offset.top += parseInt(style.height) + parseInt(style.marginBottom) + parseInt(style.marginTop);
-        // offset.top += prev.height() || prev.element.offsetHeight;
-      }
-      this.moveTo(offset);
-      this._target = null;
+      setTimeout(function() {
+        offset.top += this.container.scrollTop;
+        this.moveTo(offset);
+        this._target = null;
+      }.bind(this), 10);
+
+      // var prev; var style;
+      // for(var i = 0; i < view.index; i++) {
+      //   prev = this.views.get(i);
+      //   style = window.getComputedStyle(prev.element);
+      //   offset.top += ( parseInt(style.height) / this.settings.scale ) + parseInt(style.marginBottom) + parseInt(style.marginTop);
+      //   // offset.top += prev.height() || prev.element.offsetHeight;
+      // }
+      // this.moveTo(offset);
+      // this._target = null;
     }
   }
 
