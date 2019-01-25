@@ -1,10 +1,10 @@
 import EventEmitter from "event-emitter";
 
-import {
-  ElementObserver,
-  PositionObserver,
-  ObserverCollection // Advanced: Used for grouping custom viewport handling
-} from "viewprt";
+// import {
+//   ElementObserver,
+//   PositionObserver,
+//   ObserverCollection // Advanced: Used for grouping custom viewport handling
+// } from "viewprt";
 
 import {inVp} from '../../../core/Util';
 window.inVp = inVp;
@@ -16,6 +16,11 @@ class Views {
         this.length = 0;
         this.hidden = false;
         this.preloading = preloading;
+        this.observer = new IntersectionObserver(this.handleObserver.bind(this), {
+            root: this.containr,
+            rootMargin: '0px',
+            threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        });
     }
 
     all() {
@@ -63,21 +68,40 @@ class Views {
             var h = this.container.offsetHeight;
             threshold.top = - ( h * 0.25 );
             threshold.bottom = - ( h * 0.25 );
-            view.observer = ElementObserver(view.element, {
-                container: this.container,
-                onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
-                onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
-                offset: 0, // offset from the edges of the viewport in pixels
-                once: false, // if true, observer is detroyed after first callback is triggered
-                observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
-            })
-            const { fully, partially, edges } = inVp(view.element, threshold, this.container);
-            if ( edges.percentage > 0 ) {
-                this.onEnter(view);
-            }
+            // view.observer = ElementObserver(view.element, {
+            //     container: this.container,
+            //     onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
+            //     onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
+            //     offset: 0, // offset from the edges of the viewport in pixels
+            //     once: false, // if true, observer is detroyed after first callback is triggered
+            //     observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
+            // })
+            // const { fully, partially, edges } = inVp(view.element, threshold, this.container);
+            // if ( edges.percentage > 0 ) {
+            //     this.onEnter(view);
+            // }
+
+            this.observer.observe(view.element);
         }
         this.length++;
         return view;
+    }
+
+    handleObserver(entries, observer) {
+        entries.forEach(entry => {
+            var div = entry.target;
+            var index = div.getAttribute('ref');
+            var view = this.get(index);
+            if ( entry.isIntersecting && entry.intersectionRatio > 0.0  ) {
+                if ( ! view.displayed ) {
+                    console.log("AHOY OBSERVING", entries.length, index, 'onEnter');
+                    this.onEnter(view);
+                }
+            } else if ( view.displayed ) {
+                console.log("AHOY OBSERVING", entries.length, index, 'onExit');
+                this.onExit(view);
+            }
+        })
     }
 
     prepend(view){

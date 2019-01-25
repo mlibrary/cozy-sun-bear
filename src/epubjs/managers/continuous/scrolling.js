@@ -7,13 +7,6 @@ import Views from "../helpers/scrolling_views";
 import { EVENTS } from "epubjs/src/utils/constants";
 import {inVp} from '../../../core/Util';
 
-
-import {
-  ElementObserver,
-  PositionObserver,
-  ObserverCollection // Advanced: Used for grouping custom viewport handling
-} from "viewprt";
-
 // import inVp from "in-vp";
 
 class ScrollingContinuousViewManager {
