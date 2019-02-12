@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 var	argv = require('optimist').argv;
-var server = require('./serve.js');
+var server_js = argv._[0] || './serve.js';
+var server = require(server_js);
 
 var port = argv.p;
 var address = argv.a;
