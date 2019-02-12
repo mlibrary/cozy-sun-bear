@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.024e3c3d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.04262dea, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7502,7 +7502,7 @@
 	            content.appendChild(option);
 	          }
 	          if (highlight) {
-	            reader.annotations.highlight(cfiRange);
+	            reader.annotations.highlight(cfiRange, {}, null, 'epubjs-search-hl');
 	          }
 	        });
 	      } else {
@@ -14262,7 +14262,7 @@
 				var formating;
 
 				var viewport = contents.viewport();
-				console.log("AHOY contents.format VIEWPORT", this.name, viewport.height);
+				// console.log("AHOY contents.format VIEWPORT", this.name, viewport.height);
 				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
 					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
 					formating = contents.fit(this.columnWidth, this.height);
@@ -18945,16 +18945,27 @@
 					}
 				}
 
+				var _round = function _round(value) {
+					return Math.round(value);
+
+					// -- this calculates the closest even number to value
+					var retval = 2 * Math.round(value / 2);
+					if (retval > value) {
+						retval -= 2;
+					}
+					return retval;
+				};
+
 				if (!isNumber(width)) {
 					bounds = this.container.getBoundingClientRect();
-					width = Math.floor(bounds.width);
+					width = _round(bounds.width); // Math.floor(bounds.width);
 					//height = bounds.height;
 				}
 
 				if (!isNumber(height)) {
 					bounds = bounds || this.container.getBoundingClientRect();
 					//width = bounds.width;
-					height = bounds.height;
+					height = _round(bounds.height); // bounds.height;
 				}
 
 				this.containerStyles = window.getComputedStyle(this.container);
@@ -28535,6 +28546,7 @@
 
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
 	    self._rendition = new ePub.Rendition(self._book, self.settings);
+	    self._book.rendition = self._rendition;
 	    self._updateFontSize();
 	    self._rendition.attachTo(self._panes['epub']);
 
@@ -28940,7 +28952,7 @@
 	    }
 
 	    // base for highlights
-	    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
+	    // this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
 	  },
 
 	  _selectTheme: function _selectTheme(refresh) {
