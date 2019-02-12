@@ -194,7 +194,7 @@ export var Search = Control.extend({
             content.appendChild(option);
           }
           if (highlight) {
-            reader.annotations.highlight(cfiRange);
+            reader.annotations.highlight(cfiRange, {}, null, 'epubjs-search-hl');
           }
         });
       } else {
