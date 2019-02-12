@@ -202,6 +202,7 @@ Reader.EpubJS = Reader.extend({
 
     // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
     self._rendition = new ePub.Rendition(self._book, self.settings);
+    self._book.rendition = self._rendition;
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
@@ -599,7 +600,7 @@ Reader.EpubJS = Reader.extend({
     }
 
     // base for highlights
-    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
+    // this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
   },
 
   _selectTheme: function(refresh) {
