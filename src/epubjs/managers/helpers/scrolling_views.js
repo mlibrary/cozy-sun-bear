@@ -97,7 +97,7 @@ class Views {
                     console.log("AHOY OBSERVING", entries.length, index, 'onEnter');
                     this.onEnter(view);
                 }
-            } else if ( view.displayed ) {
+            } else if ( view && view.displayed ) {
                 console.log("AHOY OBSERVING", entries.length, index, 'onExit');
                 this.onExit(view);
             }
@@ -145,6 +145,7 @@ class Views {
         // if(view.displayed){
         //     view.destroy();
         // }
+        this.observer.unobserve(view.element);
         view.destroy();
 
         if(this.container){
@@ -174,6 +175,7 @@ class Views {
 
         this._views = [];
         this.length = 0;
+        this.observer.disconnect();
     }
 
     updateLayout(options) {

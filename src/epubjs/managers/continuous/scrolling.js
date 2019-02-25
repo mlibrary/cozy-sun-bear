@@ -12,7 +12,7 @@ import {inVp} from '../../../core/Util';
 class ScrollingContinuousViewManager {
   constructor(options) {
 
-    this.name = "default";
+    this.name = "scrolling";
     this.optsSettings = options.settings;
     this.View = options.view;
     this.request = options.request;
