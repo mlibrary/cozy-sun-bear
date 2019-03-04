@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.081dc6a2, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0e22239c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -16424,6 +16424,7 @@
 				} else {
 					scale = widthScale < heightScale ? widthScale : heightScale;
 				}
+				// console.log("AHOY contents.fit", width, height, ":", viewportWidth, viewportHeight, ":", scale);
 
 				// the translate does not work as intended, elements can end up unaligned
 				// var offsetY = (height - (viewportHeight * scale)) / 2;
@@ -27682,7 +27683,17 @@
 	  }, {
 	    key: "getContents",
 	    value: function getContents() {
-	      return [];
+	      var contents = [];
+	      if (!this.views) {
+	        return contents;
+	      }
+	      this.views.forEach(function (view) {
+	        var viewContents = view && view.contents;
+	        if (viewContents) {
+	          contents.push(viewContents);
+	        }
+	      });
+	      return contents;
 	    }
 	  }, {
 	    key: "current",
@@ -28075,7 +28086,8 @@
 	  }, {
 	    key: "calculateHeight",
 	    value: function calculateHeight(height) {
-	      return height > this.settings.minHeight ? this.layout.height : this.settings.minHeight;
+	      var minHeight = this.layout.name == 'xxpre-paginated' ? 0 : this.settings.minHeight;
+	      return height > minHeight ? this.layout.height : this.settings.minHeight;
 	    }
 	  }]);
 
@@ -28237,12 +28249,13 @@
 	                this._width = width;
 	            }
 
-	            // this.element.style.width = '80%';
-	            // this.iframe.style.width = '100%';
-
 	            if (isNumber(height)) {
-	                height = height > minHeight ? height : minHeight;
-	                // height = height > maxHeight ? maxHeight: height;
+	                var checkMinHeight = false; // not doing this
+	                if (isNumber(width) && width > height) {
+	                    checkMinHeight = false;
+	                }
+	                height = checkMinHeight && height <= minHeight ? minHeight : height;
+
 	                var styles = window.getComputedStyle(this.element);
 	                // setting the element height is delayed
 	                if (this.iframe) {

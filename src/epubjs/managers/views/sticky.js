@@ -138,12 +138,11 @@ class StickyIframeView extends IframeView {
             this._width = width;
         }
 
-        // this.element.style.width = '80%';
-        // this.iframe.style.width = '100%';
-
         if(isNumber(height)){
-            height = height > minHeight ? height : minHeight;
-            // height = height > maxHeight ? maxHeight: height;
+            var checkMinHeight = false; // not doing this
+            if ( isNumber(width) && width > height ) { checkMinHeight = false; }
+            height = checkMinHeight && ( height <= minHeight ) ? minHeight : height;
+
             var styles = window.getComputedStyle(this.element);
             // setting the element height is delayed
             if ( this.iframe ) {

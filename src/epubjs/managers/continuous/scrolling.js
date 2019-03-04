@@ -434,7 +434,17 @@ class ScrollingContinuousViewManager {
   }
 
   getContents() {
-    return [];
+    var contents = [];
+    if (!this.views) {
+      return contents;
+    }
+    this.views.forEach(function(view){
+      const viewContents = view && view.contents;
+      if (viewContents) {
+        contents.push(viewContents);
+      }
+    });
+    return contents;
   }
 
   current(){
@@ -804,7 +814,8 @@ class ScrollingContinuousViewManager {
   }
 
   calculateHeight(height) {
-    return height > this.settings.minHeight ? this.layout.height : this.settings.minHeight;
+    var minHeight = this.layout.name == 'xxpre-paginated' ? 0 : this.settings.minHeight;
+    return height > minHeight ? this.layout.height : this.settings.minHeight;
   }
 
 }
