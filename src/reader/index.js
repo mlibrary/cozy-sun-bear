@@ -1,11 +1,13 @@
 import {Reader} from './Reader';
 import * as EpubJS from './Reader.EpubJS';
 import * as Mock from './Reader.Mock';
+import * as PdfJS from './Reader.PdfJS';
 
 var engines = {
   epubjs: EpubJS.createReader,
-  mock: Mock.createReader
-}
+  mock: Mock.createReader,
+  pdfjs: PdfJS.createReader,
+};
 
 export var reader = function(id, options) {
   options = options || {};
@@ -18,4 +20,4 @@ export var reader = function(id, options) {
   options.engine_href = engine_href;
 
   return engines[engine].apply(_this, [id, options]);
-}
+};

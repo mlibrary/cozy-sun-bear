@@ -282,7 +282,11 @@ export var Reader = Evented.extend({
     panes['right'] = DomUtil.create('div', prefix + 'right', panes['main']);
     panes['book'] = DomUtil.create('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = DomUtil.create('div', prefix + 'book-loading', panes['book']);
-    panes['epub'] = DomUtil.create('div', prefix + 'book-epub', panes['book']);
+    if (this.options.engine == 'pdfjs') {
+      panes['pdf'] = DomUtil.create('div', prefix + 'book-pdf', panes['book']);
+    } else {
+      panes['epub'] = DomUtil.create('div', prefix + 'book-epub', panes['book']);
+    }
     this._initBookLoader();
   },
 

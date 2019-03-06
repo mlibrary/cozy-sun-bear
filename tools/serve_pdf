@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var	argv = require('optimist').argv;
+var server_pdf_js = argv._[0] || './serve_pdf.js';
+var server_pdf = require(server_pdf_js);
+
+var port = argv.p;
+var address = argv.a;
+
+server_pdf();

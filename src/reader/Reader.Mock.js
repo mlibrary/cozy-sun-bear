@@ -1,5 +1,6 @@
 import * as Util from '../core/Util';
 import {Reader} from './Reader';
+//
 import * as DomUtil from '../dom/DomUtil';
 
 Reader.Mock = Reader.extend({
@@ -124,7 +125,7 @@ Reader.Mock = Reader.extend({
 
   EOT: true
 
-})
+});
 
 Object.defineProperty(Reader.Mock.prototype, 'metadata', {
   get: function() {
@@ -165,7 +166,9 @@ Object.defineProperty(Reader.Mock.prototype, 'annotations', {
       highlight: function() {}
     }
   }
-})
+});
+
+window.Reader = Reader;
 
 export function createReader(id, options) {
   return new Reader.Mock(id, options);
