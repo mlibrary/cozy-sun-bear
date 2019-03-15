@@ -223,10 +223,6 @@ Reader.EpubJS = Reader.extend({
     self._rendition.hooks.content.register(function(contents) {
       self.fire('ready:contents', contents);
       self.fire('readyContents', contents);
-      contents.document.addEventListener('keydown', (event) => {
-        const keyName = event.key;
-        self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
-      });
     })
 
     self.gotoPage(target, function() {
@@ -509,6 +505,15 @@ Reader.EpubJS = Reader.extend({
       }
     }.bind(this));
 
+    this._rendition.on('keydown', function(event, contents) {
+      var target = event.target;
+      var IGNORE_TARGETS = [ 'input', 'textarea' ];
+      if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
+        return;
+      }
+      this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
+    }.bind(this));
+
     this._rendition.on('relocated', function(location) {
       if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
@@ -574,8 +579,6 @@ Reader.EpubJS = Reader.extend({
           }, 0);
         }
       })
-
-
     })
   },
 

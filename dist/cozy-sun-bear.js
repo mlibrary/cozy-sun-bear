@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.01a7c20a, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0686abef, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -3065,9 +3065,9 @@
 	  function remainingWait(time) {
 	    var timeSinceLastCall = time - lastCallTime,
 	        timeSinceLastInvoke = time - lastInvokeTime,
-	        result = wait - timeSinceLastCall;
+	        timeWaiting = wait - timeSinceLastCall;
 
-	    return maxing ? nativeMin(result, maxWait - timeSinceLastInvoke) : result;
+	    return maxing ? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting;
 	  }
 
 	  function shouldInvoke(time) {
@@ -3690,6 +3690,8 @@
 
 	var isArrayLike_1 = isArrayLike;
 
+	var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/** Used as references for various `Number` constants. */
 	var MAX_SAFE_INTEGER$1 = 9007199254740991;
 
@@ -3705,13 +3707,15 @@
 	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
 	 */
 	function isIndex(value, length) {
+	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$9(value);
 	  length = length == null ? MAX_SAFE_INTEGER$1 : length;
-	  return !!length && (typeof value == 'number' || reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
+
+	  return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
 	}
 
 	var _isIndex = isIndex;
 
-	var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$a = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
 
@@ -3729,7 +3733,7 @@
 	  if (!isObject_1(object)) {
 	    return false;
 	  }
-	  var type = typeof index === 'undefined' ? 'undefined' : _typeof$9(index);
+	  var type = typeof index === 'undefined' ? 'undefined' : _typeof$a(index);
 	  if (type == 'number' ? isArrayLike_1(object) && _isIndex(index, object.length) : type == 'string' && index in object) {
 	    return eq_1(object[index], value);
 	  }
@@ -4030,6 +4034,14 @@
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = function () {
 	  try {
+	    // Use `util.types` for Node.js 10+.
+	    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+	    if (types) {
+	      return types;
+	    }
+
+	    // Legacy `process.binding('util')` for Node.js < 10.
 	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
 	}();
@@ -4708,7 +4720,7 @@
 	        check = check.parentElement;
 	      }
 
-	      var IGNORE_TARGETS = ['input', 'target'];
+	      var IGNORE_TARGETS = ['input', 'textarea'];
 	      if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
 	        return;
 	      }
@@ -8376,7 +8388,7 @@
 		RangeObject: RangeObject
 	});
 
-	var _typeof$a = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$b = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	if (!process$1) {
 	  var process$1 = {
@@ -8754,8 +8766,8 @@
 	  },
 
 	  format: function format(pathObject) {
-	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$a(pathObject)) !== 'object') {
-	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$a(pathObject)));
+	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$b(pathObject)) !== 'object') {
+	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$b(pathObject)));
 	    }
 	    return _format('/', pathObject);
 	  },
@@ -9095,7 +9107,7 @@
 		return Url;
 	}();
 
-	var _typeof$b = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$c = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -9147,7 +9159,7 @@
 
 			if (typeof base === "string") {
 				this.base = this.parseComponent(base);
-			} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object" && base.steps) {
+			} else if ((typeof base === "undefined" ? "undefined" : _typeof$c(base)) === "object" && base.steps) {
 				this.base = base;
 			}
 
@@ -9182,12 +9194,12 @@
 				if (this.isCfiString(cfi)) {
 					return "string";
 					// Is a range object
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$c(cfi)) === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
 					return "range";
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && typeof cfi.nodeType != "undefined") {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$c(cfi)) === "object" && typeof cfi.nodeType != "undefined") {
 					// || typeof cfi === "function"
 					return "node";
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$b(cfi)) === "object" && cfi instanceof EpubCFI) {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$c(cfi)) === "object" && cfi instanceof EpubCFI) {
 					return "EpubCFI";
 				} else {
 					return false;
@@ -9643,7 +9655,7 @@
 				if (typeof base === "string") {
 					cfi.base = this.parseComponent(base);
 					cfi.spinePos = cfi.base.steps[1].index;
-				} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object") {
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$c(base)) === "object") {
 					cfi.base = base;
 				}
 
@@ -9725,7 +9737,7 @@
 				if (typeof base === "string") {
 					cfi.base = this.parseComponent(base);
 					cfi.spinePos = cfi.base.steps[1].index;
-				} else if ((typeof base === "undefined" ? "undefined" : _typeof$b(base)) === "object") {
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$c(base)) === "object") {
 					cfi.base = base;
 				}
 
@@ -13492,6 +13504,7 @@
 				var formating;
 
 				var viewport = contents.viewport();
+				// console.log("AHOY contents.format VIEWPORT", this.name, viewport.height);
 				if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined) {
 					// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
 					formating = contents.fit(this.columnWidth, this.height);
@@ -13579,7 +13592,7 @@
 
 	eventEmitter(Layout.prototype);
 
-	var _typeof$c = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$d = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$f = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -13625,7 +13638,7 @@
 				if (arguments.length === 0) {
 					return;
 				}
-				if (arguments.length === 1 && _typeof$c(arguments[0]) === "object") {
+				if (arguments.length === 1 && _typeof$d(arguments[0]) === "object") {
 					return this.registerThemes(arguments[0]);
 				}
 				if (arguments.length === 1 && typeof arguments[0] === "string") {
@@ -13634,7 +13647,7 @@
 				if (arguments.length === 2 && typeof arguments[1] === "string") {
 					return this.registerUrl(arguments[0], arguments[1]);
 				}
-				if (arguments.length === 2 && _typeof$c(arguments[1]) === "object") {
+				if (arguments.length === 2 && _typeof$d(arguments[1]) === "object") {
 					return this.registerRules(arguments[0], arguments[1]);
 				}
 			}
@@ -13655,7 +13668,7 @@
 				if (typeof theme === "string") {
 					return this.registerUrl("default", theme);
 				}
-				if ((typeof theme === "undefined" ? "undefined" : _typeof$c(theme)) === "object") {
+				if ((typeof theme === "undefined" ? "undefined" : _typeof$d(theme)) === "object") {
 					return this.registerRules("default", theme);
 				}
 			}
@@ -14442,6 +14455,7 @@
 
 			this.epubReadingSystem("epub.js", EPUBJS_VERSION);
 
+			this.setViewport();
 			this.listeners();
 		}
 
@@ -14553,6 +14567,11 @@
 		}, {
 			key: "textWidth",
 			value: function textWidth() {
+				var viewport = this.$viewport;
+				if (viewport && viewport.width && viewport.width != 'auto') {
+					return Math.round(parseFloat(viewport.width, 10));
+				}
+
 				var rect = void 0;
 				var width = void 0;
 				var range = this.document.createRange();
@@ -14581,6 +14600,11 @@
 		}, {
 			key: "textHeight",
 			value: function textHeight() {
+				var viewport = this.$viewport;
+				if (viewport && viewport.height && viewport.height != 'auto') {
+					return Math.round(parseFloat(viewport.height, 10));
+				}
+
 				var rect = void 0;
 				var height = void 0;
 				var range = this.document.createRange();
@@ -14802,6 +14826,55 @@
 				}
 
 				return settings;
+			}
+		}, {
+			key: "setViewport",
+			value: function setViewport() {
+				this.$viewport = { height: 'auto', width: 'auto' };
+				var $viewport = this.document.querySelector("meta[name='viewport']");
+				var parsed = {
+					"width": undefined,
+					"height": undefined,
+					"scale": undefined,
+					"minimum": undefined,
+					"maximum": undefined,
+					"scalable": undefined
+				};
+
+				/*
+	   * check for the viewport size
+	   * <meta name="viewport" content="width=1024,height=697" />
+	   */
+				if ($viewport && $viewport.hasAttribute("content")) {
+					var content = $viewport.getAttribute("content");
+					var _width = content.match(/width\s*=\s*([^,]*)/);
+					var _height = content.match(/height\s*=\s*([^,]*)/);
+					var _scale = content.match(/initial-scale\s*=\s*([^,]*)/);
+					var _minimum = content.match(/minimum-scale\s*=\s*([^,]*)/);
+					var _maximum = content.match(/maximum-scale\s*=\s*([^,]*)/);
+					var _scalable = content.match(/user-scalable\s*=\s*([^,]*)/);
+
+					if (_width && _width.length && typeof _width[1] !== "undefined") {
+						parsed.width = _width[1];
+					}
+					if (_height && _height.length && typeof _height[1] !== "undefined") {
+						parsed.height = _height[1];
+					}
+					if (_scale && _scale.length && typeof _scale[1] !== "undefined") {
+						parsed.scale = _scale[1];
+					}
+					if (_minimum && _minimum.length && typeof _minimum[1] !== "undefined") {
+						parsed.minimum = _minimum[1];
+					}
+					if (_maximum && _maximum.length && typeof _maximum[1] !== "undefined") {
+						parsed.maximum = _maximum[1];
+					}
+					if (_scalable && _scalable.length && typeof _scalable[1] !== "undefined") {
+						parsed.scalable = _scalable[1];
+					}
+				}
+				this.$viewport.height = parseFloat(parsed.height) || 'auto';
+				this.$viewport.width = parseFloat(parsed.width) || 'auto';
 			}
 
 			/**
@@ -15600,6 +15673,7 @@
 				} else {
 					scale = widthScale < heightScale ? widthScale : heightScale;
 				}
+				// console.log("AHOY contents.fit", width, height, ":", viewportWidth, viewportHeight, ":", scale);
 
 				// the translate does not work as intended, elements can end up unaligned
 				// var offsetY = (height - (viewportHeight * scale)) / 2;
@@ -17423,7 +17497,7 @@
 
 	eventEmitter(IframeView.prototype);
 
-	var _typeof$d = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$e = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is the
@@ -17451,25 +17525,25 @@
 	 * // => false
 	 */
 	function isObject$1(value) {
-	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$d(value);
+	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$e(value);
 	  return value != null && (type == 'object' || type == 'function');
 	}
 
 	var isObject_1$1 = isObject$1;
 
-	var _typeof$e = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$f = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/** Detect free variable `global` from Node.js. */
-	var freeGlobal$1 = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$e(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+	var freeGlobal$1 = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$f(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 	var _freeGlobal$1 = freeGlobal$1;
 
-	var _typeof$f = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$g = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
 
 	/** Detect free variable `self`. */
-	var freeSelf$1 = (typeof self === 'undefined' ? 'undefined' : _typeof$f(self)) == 'object' && self && self.Object === Object && self;
+	var freeSelf$1 = (typeof self === 'undefined' ? 'undefined' : _typeof$g(self)) == 'object' && self && self.Object === Object && self;
 
 	/** Used as a reference to the global object. */
 	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
@@ -17593,7 +17667,7 @@
 
 	var _baseGetTag$1 = baseGetTag$1;
 
-	var _typeof$g = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$h = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -17620,12 +17694,12 @@
 	 * // => false
 	 */
 	function isObjectLike$1(value) {
-	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$g(value)) == 'object';
+	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$h(value)) == 'object';
 	}
 
 	var isObjectLike_1$1 = isObjectLike$1;
 
-	var _typeof$h = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$i = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
 
@@ -17650,7 +17724,7 @@
 	 * // => false
 	 */
 	function isSymbol$1(value) {
-	    return (typeof value === 'undefined' ? 'undefined' : _typeof$h(value)) == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
+	    return (typeof value === 'undefined' ? 'undefined' : _typeof$i(value)) == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
 	}
 
 	var isSymbol_1$1 = isSymbol$1;
@@ -18174,16 +18248,27 @@
 					}
 				}
 
+				var _round = function _round(value) {
+					return Math.round(value);
+
+					// -- this calculates the closest even number to value
+					var retval = 2 * Math.round(value / 2);
+					if (retval > value) {
+						retval -= 2;
+					}
+					return retval;
+				};
+
 				if (!isNumber(width)) {
 					bounds = this.container.getBoundingClientRect();
-					width = Math.floor(bounds.width);
+					width = _round(bounds.width); // Math.floor(bounds.width);
 					//height = bounds.height;
 				}
 
 				if (!isNumber(height)) {
 					bounds = bounds || this.container.getBoundingClientRect();
 					//width = bounds.width;
-					height = bounds.height;
+					height = _round(bounds.height); // bounds.height;
 				}
 
 				this.containerStyles = window.getComputedStyle(this.container);
@@ -19898,7 +19983,7 @@
 
 	eventEmitter(Snap.prototype);
 
-	var _typeof$i = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$j = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$p = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20296,7 +20381,7 @@
 				this.addScrollListeners();
 
 				if (this.isPaginated && this.settings.snap) {
-					this.snapper = new Snap(this, this.settings.snap && _typeof$i(this.settings.snap) === "object" && this.settings.snap);
+					this.snapper = new Snap(this, this.settings.snap && _typeof$j(this.settings.snap) === "object" && this.settings.snap);
 				}
 			}
 		}, {
@@ -20481,7 +20566,7 @@
 				_get$1(ContinuousViewManager.prototype.__proto__ || Object.getPrototypeOf(ContinuousViewManager.prototype), "updateFlow", this).call(this, flow);
 
 				if (this.rendered && this.isPaginated && this.settings.snap) {
-					this.snapper = new Snap(this, this.settings.snap && _typeof$i(this.settings.snap) === "object" && this.settings.snap);
+					this.snapper = new Snap(this, this.settings.snap && _typeof$j(this.settings.snap) === "object" && this.settings.snap);
 				}
 			}
 		}, {
@@ -20498,7 +20583,7 @@
 		return ContinuousViewManager;
 	}(DefaultViewManager);
 
-	var _typeof$j = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$k = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$q = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20547,7 +20632,7 @@
 
 			extend$1(this.settings, options);
 
-			if (_typeof$j(this.settings.manager) === "object") {
+			if (_typeof$k(this.settings.manager) === "object") {
 				this.manager = this.settings.manager;
 			}
 
@@ -23872,7 +23957,7 @@
 	ePub.CFI = EpubCFI;
 	ePub.utils = utils;
 
-	var _typeof$k = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$l = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	if (!process$2) {
 	  var process$2 = {
@@ -24250,8 +24335,8 @@
 	  },
 
 	  format: function format(pathObject) {
-	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$k(pathObject)) !== 'object') {
-	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$k(pathObject)));
+	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$l(pathObject)) !== 'object') {
+	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$l(pathObject)));
 	    }
 	    return _format$1('/', pathObject);
 	  },
@@ -27598,10 +27683,6 @@
 	    self._rendition.hooks.content.register(function (contents) {
 	      self.fire('ready:contents', contents);
 	      self.fire('readyContents', contents);
-	      contents.document.addEventListener('keydown', function (event) {
-	        var keyName = event.key;
-	        self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey, inner: true });
-	      });
 	    });
 
 	    self.gotoPage(target, function () {
@@ -27885,6 +27966,15 @@
 	      if (event.isTrusted) {
 	        this.tracking.action("inline/go/link");
 	      }
+	    }.bind(this));
+
+	    this._rendition.on('keydown', function (event, contents) {
+	      var target = event.target;
+	      var IGNORE_TARGETS = ['input', 'textarea'];
+	      if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
+	        return;
+	      }
+	      this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
 	    }.bind(this));
 
 	    this._rendition.on('relocated', function (location) {

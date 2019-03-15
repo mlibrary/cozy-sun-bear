@@ -414,7 +414,7 @@ export var Reader = Evented.extend({
         check = check.parentElement;
       }
 
-      var IGNORE_TARGETS = [ 'input', 'target' ];
+      var IGNORE_TARGETS = [ 'input', 'textarea' ];
       if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
         return;
       }
