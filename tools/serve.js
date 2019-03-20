@@ -14,16 +14,23 @@ var proxy = require('express-http-proxy');
 var slow = require('connect-slow');
 var url = require('url');
 
-function start(_port) {
- if (!_port) {
+function start() {
+ // if (!argv.ip) { argv.ip = '127.0.0.01'; }
+ var addr = '127.0.0.1';
+ if(argv.listen) { addr = argv.listen; }
+ var tmp = addr.split(':');
+ var options = {};
+ options.address = tmp.shift();
+ options.port = tmp.shift();
+ if (!options.port) {
     portfinder.basePort = 8080;
     portfinder.getPort(function (err, openPort) {
       if (err) throw err;
-      port = openPort
-      listen(port);
+      options.port = openPort
+      listen(options);
     });
   } else {
-    listen(_port);
+    listen(options);
   }
 }
 
@@ -42,7 +49,7 @@ function setHeaders(res, path) {
   }
 }
 
-function listen(port) {
+function listen(options) {
 
   var app = express();
   var staticServer = serveStatic(path.resolve(__dirname, '../../'), {
@@ -152,12 +159,12 @@ function listen(port) {
 
   if(!logger) app.use(morgan('dev'))
 
-  server.listen(port, '127.0.0.1');
+  server.listen(options.port, options.address);
 
   log('Starting up Server, serving '.yellow
     + __dirname.replace("tools", '').green
     + ' on port: '.yellow
-    + port.toString().cyan);
+    + `${options.address}:${options.port}`.cyan);
   log('Hit CTRL-C to stop the server');
 
 }
