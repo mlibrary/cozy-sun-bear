@@ -1,4 +1,6 @@
 import IframeView from "epubjs/src/managers/views/iframe";
+import Contents from "epubjs/src/contents";
+
 import { EVENTS } from "epubjs/src/utils/constants";
 
 import {extend, borders, uuid, isNumber, bounds, defer, createBlobUrl, revokeBlobUrl} from "epubjs/src/utils/core";
@@ -15,6 +17,9 @@ class StickyIframeView extends IframeView {
 
         this.element.style.height = `${this.layout.height}px`;
         this.element.style.width = `${this.layout.width}px`;
+        this.element.style.visibility = "hidden";
+
+        // console.log("AHOY sticky NEW", this.layout.height);
     }
 
     container(axis) {
@@ -34,6 +39,8 @@ class StickyIframeView extends IframeView {
         element.style.overflow = "hidden";
         element.style.position = "relative";
         element.style.display = "block";
+
+        element.setAttribute('ref', this.index);
 
         if(axis && axis == "horizontal"){
             element.style.flex = "none";
@@ -119,6 +126,9 @@ class StickyIframeView extends IframeView {
         var size;
 
         var minHeight = this.settings.minHeight || 0;
+        var maxHeight = this.settings.maxHeight || -1;
+
+        // console.log("AHOY AHOY reframe", this.index, width, height);
 
         if(isNumber(width)){
             this.element.style.width = width + "px";
@@ -128,11 +138,11 @@ class StickyIframeView extends IframeView {
             this._width = width;
         }
 
-        // this.element.style.width = '80%';
-        // this.iframe.style.width = '100%';
-
         if(isNumber(height)){
-            height = height > minHeight ? height : minHeight;
+            var checkMinHeight = false; // not doing this
+            if ( isNumber(width) && width > height ) { checkMinHeight = false; }
+            height = checkMinHeight && ( height <= minHeight ) ? minHeight : height;
+
             var styles = window.getComputedStyle(this.element);
             // setting the element height is delayed
             if ( this.iframe ) {
@@ -210,6 +220,49 @@ class StickyIframeView extends IframeView {
         return displayed.promise;
     }
 
+    onLoad(event, promise) {
+
+      this.window = this.iframe.contentWindow;
+      this.document = this.iframe.contentDocument;
+
+      this.contents = new Contents(this.document, this.document.body, this.section.cfiBase, this.section.index);
+      this.contents.axis = this.settings.axis;
+
+      this.rendering = false;
+
+      var link = this.document.querySelector("link[rel='canonical']");
+      if (link) {
+        link.setAttribute("href", this.section.canonical);
+      } else {
+        link = this.document.createElement("link");
+        link.setAttribute("rel", "canonical");
+        link.setAttribute("href", this.section.canonical);
+        this.document.querySelector("head").appendChild(link);
+      }
+
+      this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
+        if(this.displayed && this.iframe) {
+          this.expand();
+          if (this.contents) {
+            // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
+            this.layout.format(this.contents);
+          }
+        }
+      });
+
+      this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
+        if(this.displayed && this.iframe) {
+          this.expand();
+          if (this.contents) {
+            // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
+            this.layout.format(this.contents);
+          }
+        }
+      });
+
+      promise.resolve(this.contents);
+    }
+
     unload() {
 
         for (let cfiRange in this.highlights) {
@@ -240,6 +293,7 @@ class StickyIframeView extends IframeView {
 
             this.stopExpanding = true;
             this.element.removeChild(this.iframe);
+            this.element.style.visibility = "hidden";
 
             this.iframe = undefined;
             this.contents = undefined;
@@ -253,6 +307,10 @@ class StickyIframeView extends IframeView {
         // this.element.style.height = "0px";
         // this.element.style.width = "0px";
     }
+
+    // setLayout(layout) {
+        
+    // }
 
 }
 
