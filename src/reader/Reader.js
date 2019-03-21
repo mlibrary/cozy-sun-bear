@@ -44,15 +44,14 @@ export var Reader = Evented.extend({
     metadata: {},
     flow: 'auto',
     engine: 'epubjs',
-    fontSizeLarge: '140%',
-    fontSizeSmall: '90%',
-    fontSizeDefault: '100%',
     trackResize: true,
-    text_size: 100,
     mobileMediaQuery: '(min-device-width : 300px) and (max-device-width : 600px)',
     forceScrolledDocHeight: 1200,
-    theme: 'default',
     rootfilePath: '',
+    text_size: 100,
+    scale: 100.0,
+    flowOptions: {},
+    theme: 'default',
     themes: []
   },
 
@@ -61,9 +60,27 @@ export var Reader = Evented.extend({
 
     self._original_document_title = document.title;
 
-    if ( localStorage.getItem('cozy.options') ) {
+    if ( false && localStorage.getItem('cozy.options') ) {
       options = assign(options, JSON.parse(localStorage.getItem('cozy.options')));
+      if ( options[this.flow] && options[this.flow].text_size ) {
+        options.text_size = options[this.flow].text_size;
+      }
+      if ( options[this.flow] && options[this.flow].scale ) {      
+        options.scale = options[this.flow].scale;
+      }
     }
+
+    this._cozyOptions = {};
+    if ( localStorage.getItem('cozy.options') ) {
+      this._cozyOptions = JSON.parse(localStorage.getItem('cozy.options'));
+      if ( this._cozyOptions.theme ) {
+        this.options.theme = this._cozyOptions.theme;
+      }
+      // if ( this._cozyOptions.flow ) {
+      //   this.options.flow = this._cozyOptions.flow;
+      // }
+    }
+
     options = Util.setOptions(this, options);
 
     this._checkFeatureCompatibility();
@@ -138,7 +155,30 @@ export var Reader = Evented.extend({
       // do not save
       delete saved_options.flow;
     }
+
+    // var key = `${this.flow}/${this.metadata.layout}`;
+    var key = this.metadata.layout;
+    if ( saved_options.text_size || saved_options.scale ) {
+      saved_options[key] = {};
+      if ( saved_options.text_size ) {
+        saved_options[key].text_size = saved_options.text_size;
+        delete saved_options.text_size;
+      }
+      if ( saved_options.scale ) {
+        saved_options[key].scale = saved_options.scale;
+        delete saved_options.scale;
+      }
+      if ( saved_options.flow ) {
+        saved_options[key].flow = saved_options.flow;
+        delete saved_options.flow;
+      }
+    }
+
+    // saved_options[this.flow] = {}
+    // if ( saved_options.text_size ) {
+    // }
     localStorage.setItem('cozy.options', JSON.stringify(saved_options));
+    this._cozyOptions = saved_options;
   },
 
   _updateTheme: function() {
@@ -291,7 +331,7 @@ export var Reader = Evented.extend({
             var scrollTop = 0;
             if ( _reader._rendition.manager && _reader._rendition.manager.container ) {
               scrollTop = _reader._rendition.manager.container.scrollTop;
-              console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
+              // console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
             }
             if ( _last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height ) {
               do_report = false;
@@ -368,7 +408,7 @@ export var Reader = Evented.extend({
       if ( tracking = self.tracking.pageview(location) ) {
         if ( location.percentage ) {
           var p = Math.ceil(location.percentage * 100);
-          document.title = `${p} - ${self._original_document_title} - ${p}%`;
+          document.title = `${p}% - ${self._original_document_title}`;
         }
         var tmp_href = window.location.href.split("#");
         tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
@@ -547,9 +587,6 @@ export var Reader = Evented.extend({
       this.options.flow = 'scrolled-doc';
     }
     if ( this._checkMobileDevice() ) {
-      // this.options.fontSizeLarge = '160%';
-      // this.options.fontSizeSmall ='100%';
-      // this.options.fontSizeDefault = '120%';
       this.options.text_size = 120;
     }
   },
@@ -619,6 +656,32 @@ export var Reader = Evented.extend({
   },
 
   EOT: true
+});
+
+Object.defineProperty(Reader.prototype, 'flow', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return ( this.options.flow == 'auto' ? 'paginated' : this.options.flow );
+  }
+});
+
+Object.defineProperty(Reader.prototype, 'flowOptions', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+
+    var flow = this.flow;
+    if ( ! this.options.flowOptions[flow] ) {
+      this.options.flowOptions[flow] = {};
+    }
+    if ( ! this.options.flowOptions[flow].text_size ) {
+      this.options.flowOptions[flow].text_size = this.options.text_size;
+    }
+    if ( ! this.options.flowOptions[flow].scale ) {
+      this.options.flowOptions[flow].scale = this.options.scale;
+    }
+
+    return this.options.flowOptions[flow]
+  }
 });
 
 export function createReader(id, options) {

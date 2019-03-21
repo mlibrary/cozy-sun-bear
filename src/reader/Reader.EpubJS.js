@@ -12,6 +12,8 @@ import ReusableIframeView from '../epubjs/managers/views/iframe';
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
+import debounce from 'lodash/debounce';
+
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
@@ -46,6 +48,7 @@ Reader.EpubJS = Reader.extend({
     this._book.loaded.navigation.then(function(toc) {
       self._contents = toc;
       self.metadata = self._book.packaging.metadata;
+
       self.fire('updateContents', toc);
       self.fire('updateTitle', self._book.packaging.metadata);
     })
@@ -119,18 +122,57 @@ Reader.EpubJS = Reader.extend({
       self._rendition = null;
     }
 
-    this.settings = { flow: this.options.flow };
-    this.settings.manager = this.options.manager || 'default';
 
-    if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-      // dumb check to see if the window is _tall_ enough to put
-      // two pages side by side
-      if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
-        this.settings.flow = 'scrolled-doc';
-        this.settings.manager = PrePaginatedContinuousViewManager;
-        this.settings.view = ReusableIframeView;
+    var key = self.metadata.layout;
+    var flow = this.options.flow;
+    if ( self._cozyOptions[key] && self._cozyOptions[key].flow ) {
+      flow = self._cozyOptions[key].flow;
+    }
+
+    if ( flow == 'auto' ) {
+      if ( this.metadata.layout == 'pre-paginated' ) {
+          if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ){
+            flow = 'scrolled-doc';
+          }
+      } else {
+        flow = 'paginated';
       }
     }
+
+    // if ( flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
+    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ){
+    //     flow = 'scrolled-doc';
+    //   }
+    // }
+
+    // var key = `${flow}/${self.metadata.layout}`;
+    if ( self._cozyOptions[key] ) {
+      if ( self._cozyOptions[key].text_size ) {
+        self.options.text_size = self._cozyOptions[key].text_size;
+      }
+      if ( self._cozyOptions[key].scale ) {
+        self.options.scale = self._cozyOptions[key].scale;
+      }
+    }
+
+    this.settings = { flow: flow };
+    this.settings.manager = this.options.manager || 'default';
+
+    // if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
+    //   // dumb check to see if the window is _tall_ enough to put
+    //   // two pages side by side
+    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
+    //     this.settings.flow = 'scrolled-doc';
+
+    //     // this.settings.manager = PrePaginatedContinuousViewManager;
+    //     // this.settings.view = ReusableIframeView;
+
+    //     this.settings.manager = ScrollingContinuousViewManager;
+    //     this.settings.view = StickyIframeView;
+    //     this.settings.width = '100%'; // 100%?
+    //     this.settings.spine = this._book.spine;
+    //   }
+    // }
 
     if ( this.settings.flow == 'auto' || this.settings.flow == 'paginated' ) {
       this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
@@ -156,18 +198,17 @@ Reader.EpubJS = Reader.extend({
 
     if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
         // this.settings.manager = 'prepaginated';
-        this.settings.manager = PrePaginatedContinuousViewManager;
-        this.settings.view = ReusableIframeView;
+        // this.settings.manager = PrePaginatedContinuousViewManager;
+        // this.settings.view = ReusableIframeView;
+        this.settings.manager = ScrollingContinuousViewManager;
+        this.settings.view = StickyIframeView;
+        this.settings.spread = 'none';
     }
 
-    if ( this.settings.manager == PrePaginatedContinuousViewManager ) {
-      this.settings.spread = 'none';
-    }
-
-    // would pre-paginated work better if we scaled the default view from the start? maybe?
-    if ( false && this.metadata.layout == 'pre-paginated' && this.settings.manager == 'default' ) {
-      this.settings.spread = 'none';
-      this._panes['epub'].style.overflow = 'auto';
+    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager ) {
+      if ( this.options.minHeight ) {
+        this.settings.minHeight = this.options.minHeight;
+      }
     }
 
     if ( self.options.scale != '100' ) {
@@ -185,6 +226,7 @@ Reader.EpubJS = Reader.extend({
 
     // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
     self._rendition = new ePub.Rendition(self._book, self.settings);
+    self._book.rendition = self._rendition;
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
@@ -514,7 +556,7 @@ Reader.EpubJS = Reader.extend({
       this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
     }.bind(this));
 
-    this._rendition.on('relocated', function(location) {
+    var relocated_handler = debounce(function(location) {
       if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
       if ( Browser.safari && self._last_location_start && self._last_location_start != location.start.href ) {
@@ -524,31 +566,24 @@ Reader.EpubJS = Reader.extend({
         }, 0);
       }
       self._last_location_start = location.start.href;
-    })
+    }, 10);
+
+    this._rendition.on('relocated', relocated_handler);
 
     this._rendition.on('displayerror', function(err) {
       console.log("AHOY RENDITION DISPLAY ERROR", err);
     })
 
-    this._rendition.on("locationChanged", function(location) {
+    var locationChanged_handler = debounce(function(location) {
       var view = this.manager.current();
       var section = view.section;
       var current = this.book.navigation.get(section.href);
 
-      // if ( self.__hash && view.contents ) {
-      //   var check = section.contents.querySelector(`#${self.__hash}`);
-      //   if ( check ) {
-      //     var new_target = section.cfiFromElement(check);
-      //     this.display(new_target);
-      //     self.__hash = null;
-      //     return;
-      //   }
-      // }
-
       self.fire("updateSection", current);
       self.fire("updateLocation", location);
-      // self.fire("relocated", location);
-    });
+    }, 150);
+
+    this._rendition.on("locationChanged", locationChanged_handler);
 
     this._rendition.on("rendered", function(section, view) {
 
@@ -592,26 +627,21 @@ Reader.EpubJS = Reader.extend({
     }
 
     // base for highlights
-    this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
+    // this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
   },
 
   _selectTheme: function(refresh) {
     var theme = this.options.theme || 'default';
     this._rendition.themes.select(theme);
-    if ( 0 && refresh ) {
-      var cfi = this.currentLocation().end.cfi;
-      this._rendition.manager.clear();
-      this._rendition.display(cfi);
-    }
   },
 
   _updateFontSize: function() {
-    if ( this.metadata.layout == 'pre-paginated') {
-      // we're not doing font changes for pre-paginted
+    if ( false && this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginated
       return;
     }
 
-    var text_size = this.options.text_size == 'auto' ? 100 : this.options.text_size;
+    var text_size = this.options.text_size || 100; // this.options.modes[this.flow].text_size; // this.options.text_size == 'auto' ? 100 : this.options.text_size;
     this._rendition.themes.fontSize(`${text_size}%`);
   },
 
@@ -620,6 +650,7 @@ Reader.EpubJS = Reader.extend({
       // we're not scaling for reflowable
       return;
     }
+    // var scale = this.options.modes[this.flow].scale;
     var scale = this.options.scale;
     if ( scale ) {
       this.settings.scale = parseInt(scale, 10) / 100.0;
@@ -631,28 +662,8 @@ Reader.EpubJS = Reader.extend({
     this._queueTimeout = setTimeout(function() {
       if ( this._rendition.manager && this._rendition.manager.stage ) {
         this._rendition.scale(this.settings.scale);
-      } else {
-        this._queueScale();
-      }
-    }.bind(this), 100);
-  },
-
-  _updateScale: function() {
-    if ( this.metadata.layout != 'pre-paginated') {
-      // we're not scaling for reflowable
-      return;
-    }
-    var scale = this.options.scale;
-    if ( scale ) {
-      scale = parseInt(scale, 10) / 100.0;
-      this._rendition.scale(scale);
-    }
-  },
-
-  _queueScale: function(scale) {
-    this._queueTimeout = setTimeout(function() {
-      if ( this._rendition.manager && this._rendition.manager.stage ) {
-        this._rendition.scale(this.settings.scale);
+        var text_size = this.settings.scale == 1.0 ? 100 : this.settings.scale * 100.0;
+        this._rendition.themes.fontSize(`${text_size}%`);
       } else {
         this._queueScale();
       }
