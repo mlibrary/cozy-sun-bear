@@ -367,7 +367,13 @@ Reader.include({
     }
 
     if ( options.srcdoc ) {
-      iframe.srcdoc = options.srcdoc;
+      if ("srcdoc" in iframe) {
+        iframe.srcdoc = options.srcdoc;
+      } else {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(options.srcdoc);
+        iframe.contentDocument.close();
+      }
     } else if ( options.href ) {
       iframe.setAttribute('src', options.href);
     }
