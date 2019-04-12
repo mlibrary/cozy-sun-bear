@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.04fcac11, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.072247f9, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -6384,6 +6384,19 @@
 	    }
 	  },
 
+	  update: function update(options) {
+	    if (options.title) {
+	      this.options.title = options.title;
+	      var titleEl = this.container.querySelector('.modal__title');
+	      titleEl.innerText = options.title;
+	    }
+
+	    if (options.fraction) {
+	      this.options.fraction = options.fraction;
+	      this.container.style.width = parseInt(this.container.offsetWidth * this.options.fraction) + 'px';
+	    }
+	  },
+
 	  EOT: true
 	});
 
@@ -6392,6 +6405,53 @@
 	    var modal = new Modal(options);
 	    return modal.addTo(this);
 	    // return this;
+	  },
+
+	  popup: function popup(options) {
+	    options = assign_1({ title: 'Info', fraction: 1.0 }, options);
+
+	    if (!this._popupModal) {
+	      this._popupModal = this.modal({
+	        title: options.title,
+	        region: 'left',
+	        template: '<div style="height: 100%; width: 100%"></div>',
+	        fraction: options.fraction || 1.0,
+	        actions: [{ label: 'OK', callback: function callback(event) {}, close: true }]
+	      });
+	    } else {
+	      this._popupModal.update({ title: options.title, fraction: options.fraction });
+	    }
+
+	    var iframe;
+	    var modalDiv = this._popupModal.container.querySelector('main > div');
+	    var iframe = modalDiv.querySelector('iframe');
+	    if (iframe) {
+	      modalDiv.removeChild(iframe);
+	    }
+	    iframe = document.createElement('iframe');
+	    iframe.style.width = '100%';
+	    iframe.style.height = '100%';
+	    iframe = modalDiv.appendChild(iframe);
+
+	    if (options.onLoad) {
+	      iframe.addEventListener('load', function () {
+	        options.onLoad(iframe.contentDocument, this._popupModal);
+	      }.bind(this));
+	    }
+
+	    if (options.srcdoc) {
+	      if ("srcdoc" in iframe) {
+	        iframe.srcdoc = options.srcdoc;
+	      } else {
+	        iframe.contentDocument.open();
+	        iframe.contentDocument.write(options.srcdoc);
+	        iframe.contentDocument.close();
+	      }
+	    } else if (options.href) {
+	      iframe.setAttribute('src', options.href);
+	    }
+
+	    this._popupModal.activate();
 	  },
 
 	  EOT: true
@@ -28486,6 +28546,85 @@
 	    return StickyIframeView;
 	}(IframeView);
 
+	function popupTables(reader, contents) {
+	  var tables = contents.document.querySelectorAll('table');
+	  var h = reader._rendition.manager.layout.height;
+	  var clipped_tables = [];
+	  for (var i = 0; i < tables.length; i++) {
+	    var table = tables[i];
+	    if (table.offsetHeight >= h) {
+	      clipped_tables.push(table);
+	    }
+	  }
+
+	  if (!clipped_tables.length) {
+	    return;
+	  }
+
+	  // stash this before modifying the HTML to add popup button
+	  contents._originalHTML = contents.document.documentElement.outerHTML;
+
+	  setTimeout(function () {
+	    for (var i = 0; i < clipped_tables.length; i++) {
+	      var table = clipped_tables[i];
+	      table.style.opacity = '0.75';
+	      var tableHTML = table.outerHTML;
+
+	      var clipDiv = contents.document.createElement('div');
+	      clipDiv.style.position = 'absolute';
+	      clipDiv.style.padding = '8px';
+	      clipDiv.style.textAlign = 'center';
+	      clipDiv.style.bottom = '10px';
+	      clipDiv.style.width = table.offsetWidth * 0.9 + 'px';
+	      clipDiv.style.left = table.offsetLeft + table.offsetWidth / 2 - table.offsetWidth * 0.9 / 2 + 'px';
+	      clipDiv.style.backgroundColor = 'black';
+	      clipDiv.style.color = 'white';
+	      clipDiv.innerHTML = '<p><span aria-hidden="true">\u2756 </span>This table will appear clipped in Firefox.<br /><button style="font-size: 1em">Read Table</button></p>';
+	      clipDiv = contents.document.body.appendChild(clipDiv);
+
+	      var button = clipDiv.querySelector('button');
+	      button.dataset.tableHTML = tableHTML;
+	      button.addEventListener('click', function (e) {
+	        e.preventDefault();
+
+	        var regex = /<body[^>]+>/;
+	        var index0 = contents._originalHTML.search(regex);
+	        var newHTML = contents._originalHTML.substr(0, index0) + '<body style="padding: 20px">' + ('<section>' + this.dataset.tableHTML + '</section>') + '</body></html>';
+
+	        reader.popup({
+	          title: 'View Table',
+	          srcdoc: newHTML,
+	          onLoad: function onLoad(contentDocument, modal) {
+	            // adpated from epub.js#replaceLinks --- need to catch _any_ link
+	            // to close the modal
+	            var base = contentDocument.querySelector("base");
+	            var location = base ? base.getAttribute("href") : undefined;
+
+	            var links = contentDocument.querySelectorAll('a[href]');
+	            for (var i = 0; i < links.length; i++) {
+	              var link = links[i];
+	              var href = link.getAttribute('href');
+	              link.addEventListener('click', function (event) {
+	                modal.closeModal();
+	                var absolute = href.indexOf('://') > -1;
+	                if (absolute) {
+	                  link.setAttribute('target', '_blank');
+	                } else {
+	                  var linkUrl = new Url(href, location);
+	                  if (linkUrl) {
+	                    event.preventDefault();
+	                    reader.gotoPage(linkUrl.Path.path + (linkUrl.hash ? linkUrl.hash : ''));
+	                  }
+	                }
+	              });
+	            }
+	          }
+	        });
+	      });
+	    }
+	  }, 500);
+	}
+
 	Reader.EpubJS = Reader.extend({
 
 	  initialize: function initialize(id, options) {
@@ -28738,6 +28877,11 @@
 	    self._rendition.hooks.content.register(function (contents) {
 	      self.fire('ready:contents', contents);
 	      self.fire('readyContents', contents);
+
+	      // check for tables + columns
+	      if (gecko && self._rendition.manager.layout.name == 'reflowable') {
+	        popupTables(self, contents);
+	      }
 	    });
 
 	    self.gotoPage(target, function () {

@@ -309,6 +309,19 @@ export var Modal = Class.extend({
     }
   },
 
+  update: function(options) {
+    if ( options.title ) {
+      this.options.title = options.title;
+      var titleEl = this.container.querySelector('.modal__title');
+      titleEl.innerText = options.title;
+    }
+
+    if (options.fraction) {
+      this.options.fraction = options.fraction;
+      this.container.style.width = parseInt(this.container.offsetWidth * this.options.fraction) + 'px';
+    }
+  },
+
   EOT: true
 });
 
@@ -317,6 +330,56 @@ Reader.include({
     var modal = new Modal(options);
     return modal.addTo(this);
     // return this;
+  },
+
+  popup: function(options) {
+    options = assign({title: 'Info', fraction: 1.0}, options);
+
+    if ( ! this._popupModal ) {
+      this._popupModal = this.modal({
+        title: options.title,
+        region: 'left',
+        template: '<div style="height: 100%; width: 100%"></div>',
+        fraction: options.fraction || 1.0,
+        actions: [ 
+            { label: 'OK', callback: function(event) { }, close: true },
+        ]
+      })
+    } else {
+      this._popupModal.update({ title: options.title, fraction: options.fraction });
+    }
+
+    var iframe;
+    var modalDiv = this._popupModal.container.querySelector('main > div');
+    var iframe = modalDiv.querySelector('iframe');
+    if ( iframe ) {
+      modalDiv.removeChild(iframe);
+    }
+    iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe = modalDiv.appendChild(iframe);
+
+    if ( options.onLoad ) {
+      iframe.addEventListener('load', function() {
+        options.onLoad(iframe.contentDocument, this._popupModal);
+      }.bind(this));
+    }
+
+    if ( options.srcdoc ) {
+      if ("srcdoc" in iframe) {
+        iframe.srcdoc = options.srcdoc;
+      } else {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(options.srcdoc);
+        iframe.contentDocument.close();
+      }
+    } else if ( options.href ) {
+      iframe.setAttribute('src', options.href);
+    }
+
+    this._popupModal.activate();
+
   },
 
   EOT: true

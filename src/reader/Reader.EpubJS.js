@@ -12,6 +12,8 @@ import ReusableIframeView from '../epubjs/managers/views/iframe';
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
+import { popupTables } from "../utils/manglers";
+
 import debounce from 'lodash/debounce';
 
 Reader.EpubJS = Reader.extend({
@@ -265,6 +267,11 @@ Reader.EpubJS = Reader.extend({
     self._rendition.hooks.content.register(function(contents) {
       self.fire('ready:contents', contents);
       self.fire('readyContents', contents);
+
+      // check for tables + columns
+      if ( Browser.gecko && self._rendition.manager.layout.name == 'reflowable' ) {
+        popupTables(self, contents);
+      }
     })
 
     self.gotoPage(target, function() {
