@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.072247f9, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.0eccf588, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 09636cb... create a rendition proxy to able to set up hooks in advance
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -28723,7 +28727,7 @@
 	  draw: function draw(target, callback) {
 	    var self = this;
 
-	    if (self._rendition) {
+	    if (self._rendition && !self._rendition.draft) {
 	      // self._unbindEvents();
 	      var container = self._rendition.manager.container;
 	      Object.keys(self._rendition.hooks).forEach(function (key) {
@@ -28835,7 +28839,7 @@
 	    var self = this;
 
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
-	    self._rendition = new ePub.Rendition(self._book, self.settings);
+	    self.rendition = new ePub.Rendition(self._book, self.settings);
 	    self._book.rendition = self._rendition;
 	    self._updateFontSize();
 	    self._rendition.attachTo(self._panes['epub']);
@@ -29332,6 +29336,31 @@
 	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._book.locations;
+	  }
+	});
+
+	Object.defineProperty(Reader.EpubJS.prototype, 'rendition', {
+	  get: function get$$1() {
+	    if (!this._rendition) {
+	      this._rendition = { draft: true };
+	      this._rendition.hooks = {};
+	      this._rendition.hooks.content = new Hook(this);
+	    }
+	    return this._rendition;
+	  },
+
+	  set: function set(rendition) {
+	    var hook = this._rendition.hooks.content;
+	    hook.hooks.forEach(function (fn) {
+	      rendition.hooks.content.register(fn);
+	    });
+	    this._rendition = rendition;
+	  }
+	});
+
+	Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
+	  get: function get$$1() {
+	    return ePub.CFI;
 	  }
 	});
 
