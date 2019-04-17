@@ -29350,10 +29350,12 @@
 	  },
 
 	  set: function set(rendition) {
-	    var hook = this._rendition.hooks.content;
-	    hook.hooks.forEach(function (fn) {
-	      rendition.hooks.content.register(fn);
-	    });
+	    if (this._rendition && this._rendition.draft) {
+	      var hook = this._rendition.hooks.content;
+	      hook.hooks.forEach(function (fn) {
+	        rendition.hooks.content.register(fn);
+	      });
+	    }
 	    this._rendition = rendition;
 	  }
 	});
