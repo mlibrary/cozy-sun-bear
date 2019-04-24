@@ -16,6 +16,8 @@ import { popupTables } from "../utils/manglers";
 
 import debounce from 'lodash/debounce';
 
+import Hook from "epubjs/src/utils/hook";
+
 Reader.EpubJS = Reader.extend({
 
   initialize: function(id, options) {
@@ -114,7 +116,7 @@ Reader.EpubJS = Reader.extend({
   draw: function(target, callback) {
     var self = this;
 
-    if ( self._rendition ) {
+    if ( self._rendition && ! self._rendition.draft ) {
       // self._unbindEvents();
       var container = self._rendition.manager.container;
       Object.keys(self._rendition.hooks).forEach(function(key) {
@@ -227,7 +229,7 @@ Reader.EpubJS = Reader.extend({
     var self = this;
 
     // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
-    self._rendition = new ePub.Rendition(self._book, self.settings);
+    self.rendition = new ePub.Rendition(self._book, self.settings);
     self._book.rendition = self._rendition;
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
@@ -720,6 +722,33 @@ Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
     return this._book.locations;
   }
 });
+
+Object.defineProperty(Reader.EpubJS.prototype, 'rendition', {
+  get: function() {
+    if ( ! this._rendition ) {
+      this._rendition = { draft: true };
+      this._rendition.hooks = {};
+      this._rendition.hooks.content = new Hook(this);
+    }
+    return this._rendition;
+  },
+
+  set: function(rendition) {
+    if ( this._rendition && this._rendition.draft ) {
+      var hook = this._rendition.hooks.content;
+      hook.hooks.forEach(function(fn) {
+        rendition.hooks.content.register(fn)
+      })
+    }
+    this._rendition = rendition;
+  }
+})
+
+Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
+  get: function() {
+    return ePub.CFI;
+  }
+})
 
 window.Reader = Reader;
 
