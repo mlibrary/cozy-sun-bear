@@ -52,7 +52,8 @@ export var Reader = Evented.extend({
     scale: 100.0,
     flowOptions: {},
     theme: 'default',
-    themes: []
+    themes: [],
+    injectStylesheet: null
   },
 
   initialize: function(id, options) {

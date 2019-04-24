@@ -159,7 +159,7 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
-    this.settings = { flow: flow };
+    this.settings = { flow: flow, stylesheet: this.options.injectStylesheet };
     this.settings.manager = this.options.manager || 'default';
 
     // if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
