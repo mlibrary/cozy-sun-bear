@@ -220,6 +220,16 @@ class StickyIframeView extends IframeView {
         return displayed.promise;
     }
 
+    show() {
+        super.show();
+        this.element.dataset.visible = true;
+    }
+
+    hide() {
+        super.hide();
+        this.element.dataset.visible = false;
+    }
+
     onLoad(event, promise) {
 
       this.window = this.iframe.contentWindow;

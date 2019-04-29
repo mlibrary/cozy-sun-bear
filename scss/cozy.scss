@@ -404,6 +404,19 @@ $grid-padding:       1rem;
       margin-left: auto;
       margin-right: auto;
       border: 1px solid #ddd;
+
+      &:not([style*="visibility: visible"])::before {
+        display: block;
+        width: 20px;
+        height: 20px;
+        content: "";
+        visibility: visible;
+        animation: cozy-loader-continuous-page 1s ease infinite;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
   }
 }
 
@@ -423,6 +436,19 @@ $grid-padding:       1rem;
       margin-left: auto;
       margin-right: auto;
       border: 1px solid #ddd;
+
+      &:not([style*="visibility: visible"])::before {
+        display: block;
+        width: 20px;
+        height: 20px;
+        content: "";
+        visibility: visible;
+        animation: cozy-loader-continuous-page 1s ease infinite;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
   }
 }
 
