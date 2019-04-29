@@ -1,9 +1,13 @@
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0c4c4940, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
  * Cozy Sun Bear 1.0.0d1c1314, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> f33764c... add injectStylesheet
+=======
+ * Cozy Sun Bear 1.0.0f33764c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 6d94f43... rebase + rebuild
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
