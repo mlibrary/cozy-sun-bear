@@ -117,7 +117,7 @@ export var Search = Control.extend({
   submitQuery: function() {
     var self = this;
 
-    var url = this.options.searchUrl + this.searchString;
+    var url = this.options.searchUrl + encodeURIComponent(this.searchString);
 
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
