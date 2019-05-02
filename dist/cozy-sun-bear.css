@@ -1381,7 +1381,7 @@
   margin-left: auto;
   margin-right: auto;
   border: 1px solid #ddd; }
-  .cozy-module-book[data-manager=continuous][data-layout=reflowable] .epub-view:not([style*="visibility: visible"])::before {
+  .cozy-module-book[data-manager=continuous][data-layout=reflowable] .epub-view.epub-view---loading::before {
     display: block;
     width: 20px;
     height: 20px;
@@ -1390,6 +1390,17 @@
     animation: cozy-loader-continuous-page 1s ease infinite;
     position: absolute;
     top: 20px;
+    left: 50%;
+    transform: translateX(-50%); }
+  .cozy-module-book[data-manager=continuous][data-layout=reflowable] .epub-view.epub-view---loading::after {
+    display: block;
+    width: 20px;
+    height: 20px;
+    content: "";
+    visibility: visible;
+    animation: cozy-loader-continuous-page 1s ease infinite;
+    position: absolute;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%); }
 
@@ -1407,7 +1418,7 @@
   margin-left: auto;
   margin-right: auto;
   border: 1px solid #ddd; }
-  .cozy-module-book[data-manager=continuous-none][data-layout=pre-paginated] .epub-view:not([style*="visibility: visible"])::before {
+  .cozy-module-book[data-manager=continuous-none][data-layout=pre-paginated] .epub-view.epub-view---loading::before {
     display: block;
     width: 20px;
     height: 20px;
@@ -1416,6 +1427,17 @@
     animation: cozy-loader-continuous-page 1s ease infinite;
     position: absolute;
     top: 20px;
+    left: 50%;
+    transform: translateX(-50%); }
+  .cozy-module-book[data-manager=continuous-none][data-layout=pre-paginated] .epub-view.epub-view---loading::after {
+    display: block;
+    width: 20px;
+    height: 20px;
+    content: "";
+    visibility: visible;
+    animation: cozy-loader-continuous-page 1s ease infinite;
+    position: absolute;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%); }
 
