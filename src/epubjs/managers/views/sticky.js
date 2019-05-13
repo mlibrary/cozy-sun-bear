@@ -86,6 +86,7 @@ class StickyIframeView extends IframeView {
         // this.iframe.style.display = "none";
         this.element.style.visibility = "hidden";
         this.iframe.style.visibility = "hidden";
+        this.element.classList.add('epub-view---loading');
 
         this.iframe.style.width = "0";
         this.iframe.style.height = "0";
@@ -218,6 +219,15 @@ class StickyIframeView extends IframeView {
 
 
         return displayed.promise;
+    }
+
+    show() {
+        super.show();
+        this.element.classList.remove('epub-view---loading');
+    }
+
+    hide() {
+        super.hide();
     }
 
     onLoad(event, promise) {

@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.047c436c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.02f89403, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -28220,6 +28220,8 @@
 
 	var _createClass$z = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _get$2 = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 	function _classCallCheck$z(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn$4(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -28309,6 +28311,7 @@
 	            // this.iframe.style.display = "none";
 	            this.element.style.visibility = "hidden";
 	            this.iframe.style.visibility = "hidden";
+	            this.element.classList.add('epub-view---loading');
 
 	            this.iframe.style.width = "0";
 	            this.iframe.style.height = "0";
@@ -28445,6 +28448,17 @@
 	            }
 
 	            return displayed.promise;
+	        }
+	    }, {
+	        key: "show",
+	        value: function show() {
+	            _get$2(StickyIframeView.prototype.__proto__ || Object.getPrototypeOf(StickyIframeView.prototype), "show", this).call(this);
+	            this.element.classList.remove('epub-view---loading');
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            _get$2(StickyIframeView.prototype.__proto__ || Object.getPrototypeOf(StickyIframeView.prototype), "hide", this).call(this);
 	        }
 	    }, {
 	        key: "onLoad",
