@@ -77,6 +77,90 @@ export function popupTables(reader, contents) {
   }, 500);
 }
 
+export function testTables(reader, contents) {
+  var tables = contents.document.querySelectorAll('table');
+  var h = reader._rendition.manager.layout.height;
+  var clipped_tables = [];
+  for(var i = 0; i < tables.length; i++) {
+    var table = tables[i];
+    if ( table.offsetHeight >= h ) {
+      clipped_tables.push(table);
+    }
+  }
+
+  if ( ! clipped_tables.length ) { return ; }
+  console.log("AHOY testTables", clipped_tables.length);
+
+  contents.addStylesheetRules({
+    'table.clipped': {
+      'max-height': `${h * 0.25}px !important`,
+      overflow: 'hidden !important',
+      display: 'block !important',
+      position: 'relative !important'
+    },
+    'div.clipped': {
+      position: 'absolute',
+      display: 'flex',
+      'align-items': 'center',
+      'justify-content': 'center',
+      top: '0px',
+      bottom: '0px',
+      right: '0px',
+      left: '0px',
+      'background-color': 'rgba(255, 255, 255, 0.75)'
+    },
+    'div.clipped button': {
+      'background-color': '#000000',
+      color: '#ffffff',
+      margin: '2px 0',
+      border: '1px solid transparent',
+      'border-radius': '4px',
+      padding: '1rem 1rem'
+    },
+    'div.clipped button:active': {
+      transform: 'translateY(1px)',
+      filter: 'saturate(150%)'
+    },
+    'div.clipped button:hover, div.clipped button:focus': {
+      color: '#000000',
+      'border-color': 'currentColor',
+      'background-color': 'white'
+    }
+  });
+
+  clipped_tables.forEach((table) => {
+    // table.style.maxHeight = `${h * 0.25}px`;
+    // table.style.overflow = 'hidden';
+    // table.style.display = 'block';
+    // table.style.position = 'relative';
+    table.classList.add('clipped');
+
+    var div = document.createElement('div');
+    div.classList.add('clipped');
+    // div.style.position = 'absolute';
+    // div.style.display = 'flex';
+    // div.style.alignItems = 'center';
+    // div.style.justifyContent = 'center';
+    // div.style.left = '0px'; div.style.right = '0px';
+    // div.style.top = '0px'; div.style.bottom = '0px'; 
+    // div.style.backgroundColor = 'rgba(255, 255, 255, 0.75)';
+    table.appendChild(div);
+
+    var button = document.createElement('button');
+    // button.style.backgroundColor = '#000000';
+    // button.style.color = '#ffffff';
+    // button.style.margin = '2px 0';
+    // button.style.border = '1px solid transparent';
+    // button.style.borderRadius = '4px';
+    // button.style.padding = '0.5em 1em';
+
+    button.innerText = 'READ THIS TABLE';
+
+    div.appendChild(button);
+
+  });
+}
+
 export function extractElement() {
 
 }
