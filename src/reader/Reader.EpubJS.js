@@ -271,7 +271,7 @@ Reader.EpubJS = Reader.extend({
       self.fire('readyContents', contents);
 
       // check for tables + columns
-      if ( self._rendition.manager.layout.name == 'reflowable' ) {
+      if ( self._rendition.manager.layout.name == 'reflowable' && ! ( Browser.ie || Browser.edge ) ) {
         popupTables(self, contents);
       }
 

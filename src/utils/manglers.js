@@ -17,11 +17,16 @@ export function popupTables(reader, contents) {
 
   contents.addStylesheetRules({
     'table.clipped': {
-      'max-height': `${h * 0.25}px !important`,
-      overflow: 'hidden !important',
-      display: 'inline-block !important',
+      'break-inside': 'avoid',
+      'width': `${reader._rendition.manager.layout.columnWidth * 0.95}px !important`,
+      'table-layout': 'fixed'
+    },
+    'table.clipped tbody': {
+      'height': `${h * 0.25}px !important`,
+      overflow: 'scroll !important',
+      display: 'block !important',
       position: 'relative !important',
-      'break-inside': 'avoid'
+      width: '100%'
     },
     'table.clipped::after': {
       content: "",
@@ -60,6 +65,8 @@ export function popupTables(reader, contents) {
     }
   });
 
+  reader._originalHTML = {};
+
   clipped_tables.forEach((table) => {
     // find a dang background color
     var element = table;
@@ -95,17 +102,27 @@ export function popupTables(reader, contents) {
 
     var div = document.createElement('div');
     div.classList.add('clipped');
-    table.appendChild(div);
+    table.querySelector('tbody').appendChild(div);
 
     var button = document.createElement('button');
     button.innerText = 'Open table';
-    button.dataset.tableHTML = tableHTML;
+
+    var tableId = table.getAttribute('data-id');
+    if ( ! tableId ) { 
+      var ts = ( new Date() ).getTime();
+      tableId = "table" + ts + Math.random(ts);
+      table.setAttribute('data-id', tableId);
+    }
+
+    reader._originalHTML[tableId] = tableHTML;
+    // button.dataset.tableHTML = tableHTML;
     button.addEventListener('click', function(event) {
       event.preventDefault();
 
       var regex = /<body[^>]+>/;
       var index0 = contents._originalHTML.search(regex);
-      var newHTML = contents._originalHTML.substr(0, index0) + `<body style="padding: 1.5rem; background: ${bgcolor}"><section>${this.dataset.tableHTML}</section></body></html>`;
+      var tableHTML = reader._originalHTML[tableId];
+      var newHTML = contents._originalHTML.substr(0, index0) + `<body style="padding: 1.5rem; background: ${bgcolor}"><section>${tableHTML}</section></body></html>`;
 
       reader.popup({
         title: 'View Table',
