@@ -659,6 +659,17 @@ export var Reader = Evented.extend({
   EOT: true
 });
 
+Object.defineProperty(Reader.prototype, 'metadata', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._metadata;
+  },
+
+  set: function(data) {
+    this._metadata = Util.extend({}, data, this.options.metadata);
+  }
+});
+
 Object.defineProperty(Reader.prototype, 'flow', {
   get: function() {
     // return the combined metadata of configured + book metadata
