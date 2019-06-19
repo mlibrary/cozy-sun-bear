@@ -338,7 +338,7 @@ Reader.include({
     if ( ! this._popupModal ) {
       this._popupModal = this.modal({
         title: options.title,
-        region: 'left',
+        region: 'full',
         template: '<div style="height: 100%; width: 100%"></div>',
         fraction: options.fraction || 1.0,
         actions: [ 
