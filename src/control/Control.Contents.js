@@ -38,6 +38,8 @@ export var Contents = Control.extend({
   },
 
   _bindEvents() {
+    var self = this;
+    
     this._reader.on('updateContents', function(data) {
 
       DomEvent.on(this._control, 'click', function(event) {
