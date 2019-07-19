@@ -7,6 +7,8 @@ var engines = {
   mock: Mock.createReader
 }
 
+export {Reader};
+
 export var reader = function(id, options) {
   options = options || {};
   var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';

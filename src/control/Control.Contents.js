@@ -32,6 +32,14 @@ export var Contents = Control.extend({
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
+    this._bindEvents();
+
+    return container;
+  },
+
+  _bindEvents() {
+    var self = this;
+    
     this._reader.on('updateContents', function(data) {
 
       DomEvent.on(this._control, 'click', function(event) {
@@ -83,8 +91,6 @@ export var Contents = Control.extend({
       }
       _process(data.toc, 0, parent);
     }.bind(this))
-
-    return container;
   },
 
   _createOption(chapter, tabindex, parent) {

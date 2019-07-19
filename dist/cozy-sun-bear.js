@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.057b9cdd, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0e6cd8ae, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5714,6 +5714,17 @@
 	  EOT: true
 	});
 
+	Object.defineProperty(Reader.prototype, 'metadata', {
+	  get: function get$$1() {
+	    // return the combined metadata of configured + book metadata
+	    return this._metadata;
+	  },
+
+	  set: function set(data) {
+	    this._metadata = extend({}, data, this.options.metadata);
+	  }
+	});
+
 	Object.defineProperty(Reader.prototype, 'flow', {
 	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
@@ -6463,7 +6474,6 @@
 	  defaultTemplate: '<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>',
 
 	  onAdd: function onAdd(reader) {
-	    var self = this;
 	    var container = this._container;
 	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
@@ -6485,6 +6495,14 @@
 	    this._control = container.querySelector("[data-toggle=open]");
 	    this._control.setAttribute('id', 'action-' + this._id);
 	    container.style.position = 'relative';
+
+	    this._bindEvents();
+
+	    return container;
+	  },
+
+	  _bindEvents: function _bindEvents() {
+	    var self = this;
 
 	    this._reader.on('updateContents', function (data) {
 
@@ -6537,10 +6555,7 @@
 	      };
 	      _process(data.toc, 0, parent);
 	    }.bind(this));
-
-	    return container;
 	  },
-
 	  _createOption: function _createOption(chapter, tabindex, parent) {
 	    var option = create$1('li');
 	    if (chapter.href) {
@@ -29651,6 +29666,7 @@
 	exports.bus = bus;
 	exports.DomEvent = DomEvent;
 	exports.DomUtil = DomUtil;
+	exports.Reader = Reader;
 	exports.reader = reader$1;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
