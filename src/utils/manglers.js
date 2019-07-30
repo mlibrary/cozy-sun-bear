@@ -28,6 +28,9 @@ export function popupTables(reader, contents) {
       position: 'relative !important',
       width: '100%'
     },
+    'table.clipped tr': {
+      display: 'block !important'
+    },
     'table.clipped::after': {
       content: "",
       display: 'block',
