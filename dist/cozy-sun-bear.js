@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.038756d0, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0fb49fc2, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5309,7 +5309,7 @@
 
 	    this._fadeAnimated = this.options.fadeAnimation && any3d;
 
-	    addClass(container, 'cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
+	    addClass(container, 'cozy-reader cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
 
 	    var position = getStyle(container, 'position');
 
@@ -7532,6 +7532,18 @@
 	        self.submitQuery();
 	      }
 	    }, this);
+
+	    window.addEventListener('keydown', function (evt) {
+	      var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
+
+	      if (cmd === 1 || cmd === 8 || cmd === 5 || cmd === 12) {
+	        if (evt.keyCode == '70') {
+	          // command/control-F
+	          evt.preventDefault();
+	          this._container.querySelector("#cozy-search-string").focus();
+	        }
+	      }
+	    }.bind(this));
 
 	    return container;
 	  },
@@ -28742,6 +28754,8 @@
 	  });
 	}
 
+	window.ePub = ePub;
+
 	Reader.EpubJS = Reader.extend({
 
 	  initialize: function initialize(id, options) {
@@ -28850,7 +28864,7 @@
 	      self._rendition = null;
 	    }
 
-	    var key = self.metadata.layout;
+	    var key = self.metadata.layout || 'reflowable';
 	    var flow = this.options.flow;
 	    if (self._cozyOptions[key] && self._cozyOptions[key].flow) {
 	      flow = self._cozyOptions[key].flow;
@@ -28862,7 +28876,8 @@
 	          flow = 'scrolled-doc';
 	        }
 	      } else {
-	        flow = 'paginated';
+	        // flow = 'paginated';
+	        flow = this.metadata.flow || 'auto';
 	      }
 	    }
 

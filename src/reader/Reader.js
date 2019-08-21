@@ -245,7 +245,7 @@ export var Reader = Evented.extend({
 
     this._fadeAnimated = this.options.fadeAnimation && Browser.any3d;
 
-    DomUtil.addClass(container, 'cozy-container' +
+    DomUtil.addClass(container, 'cozy-reader cozy-container' +
       (Browser.touch ? ' cozy-touch' : '') +
       (Browser.retina ? ' cozy-retina' : '') +
       (Browser.ielt9 ? ' cozy-oldie' : '') +

@@ -1,6 +1,7 @@
 import * as Util from '../core/Util';
 import {Reader} from './Reader';
 import ePub from 'epubjs';
+window.ePub = ePub;
 import * as DomUtil from '../dom/DomUtil';
 import * as Browser from '../core/Browser';
 
@@ -127,7 +128,7 @@ Reader.EpubJS = Reader.extend({
     }
 
 
-    var key = self.metadata.layout;
+    var key = self.metadata.layout || 'reflowable';
     var flow = this.options.flow;
     if ( self._cozyOptions[key] && self._cozyOptions[key].flow ) {
       flow = self._cozyOptions[key].flow;
@@ -139,7 +140,8 @@ Reader.EpubJS = Reader.extend({
             flow = 'scrolled-doc';
           }
       } else {
-        flow = 'paginated';
+        // flow = 'paginated';
+        flow = this.metadata.flow || 'auto';
       }
     }
 
