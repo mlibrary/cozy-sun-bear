@@ -399,6 +399,7 @@ export var Reader = Evented.extend({
         // setTimeout(function() {
         //   self.invalidateSize({});
         // }, 100);
+        self.fire('fullscreenchange', { isFullscreen: screenfull.isFullscreen });
         console.log('AHOY: Am I fullscreen?', screenfull.isFullscreen ? 'YES' : 'NO');
       });
     }
