@@ -68,7 +68,7 @@ export function popupTables(reader, contents) {
     }
   });
 
-  reader._originalHTML = {};
+  reader._originalHTML = reader._originalHTML || {};
 
   clipped_tables.forEach((table) => {
     // find a dang background color
