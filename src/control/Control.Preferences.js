@@ -11,19 +11,26 @@ import keys from 'lodash/keys';
 export var Preferences = Control.extend({
   options: {
     label: 'Preferences',
-    hasThemes: false,
-    html: '<i class="icon-cog oi" data-glyph="cog" title="Preferences and Settings" aria-hidden="true"></i>'
+    hasThemes: false
   },
+
+  defaultTemplate: `<button class="button--sm cozy-preferences oi" data-toggle="open" data-glyph="cog" aria-label="Preferences and Settings"></button>`,
 
   onAdd: function(reader) {
     var self = this;
-    var className = this._className('preferences'),
-        container = DomUtil.create('div', className),
-        options = this.options;
+    var className = this._className();
+    var container = DomUtil.create('div', className);
+    var template = this.options.template || this.defaultTemplate;
+    var body = new DOMParser().parseFromString(template, "text/html").body;
+    while ( body.children.length ) {
+      container.appendChild(body.children[0]);
+    }
 
-    this._activated = false;
-    this._control = this._createButton(options.html || options.label, options.label,
-            className, container, this._action)
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function(event) {
+      event.preventDefault();
+      self.activate();
+    }, this);
 
     // self.initializeForm();
     this._modal = this._reader.modal({
@@ -41,32 +48,13 @@ export var Preferences = Control.extend({
       region: 'right'
     });
 
-
     return container;
   },
 
-  _action: function() {
+  activate: function() {
     var self = this;
     self.initializeForm();
     self._modal.activate();
-  },
-
-  _createButton: function (html, title, className, container, fn) {
-    var link = DomUtil.create('button', className, container);
-    link.innerHTML = html;
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-
-    DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop);
-    DomEvent.on(link, 'click', fn, this);
-
-    return link;
   },
 
   _createPanel: function() {
