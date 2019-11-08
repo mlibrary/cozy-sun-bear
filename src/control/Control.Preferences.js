@@ -82,6 +82,8 @@ export var Preferences = Control.extend({
       possible_fieldsets.push('Theme');
     }
 
+    possible_fieldsets.push('Keyboard');
+
     this._fieldsets = [];
     possible_fieldsets.forEach(function(cls) {
       var fieldset = new Preferences.fieldset[cls](this);
@@ -292,6 +294,31 @@ Preferences.fieldset.Display = Fieldset.extend({
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll${scrolled_help}</label>
           </fieldset>`;
+  },
+
+  EOT: true
+
+});
+
+Preferences.fieldset.Keyboard = Fieldset.extend({
+
+  initializeForm: function(form) {
+  },
+
+  updateForm: function(form, options, saveable) {
+  },
+
+  template: function() {
+    return `<fieldset>
+              <legend>Keyboard</legend>
+              <label> &#8984;-F focus on search field</label>
+               <br>
+              <label>&#8984; - the Command Key symbol</label>
+              <label>&#0094; - the Control Key symbol</label>
+              <label>&#9095; - the Alternative Key symbol</label>
+              <label>&#8997; - the Option Key symbol</label>
+              <label>&#8679; - the Shift Key symbol</label>
+           </fieldset>`;
   },
 
   EOT: true
