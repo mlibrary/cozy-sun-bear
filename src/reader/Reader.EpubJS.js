@@ -598,6 +598,31 @@ Reader.EpubJS = Reader.extend({
     this._rendition.on("locationChanged", locationChanged_handler);
 
     this._rendition.on("rendered", function(section, view) {
+      var iframes = document.querySelectorAll('iframe');
+      var current = self._book.navigation && self._book.navigation.get(section.href);
+      if ( ! current ) {
+        [ 'h1', 'h2' ].forEach(() => {
+          var tmp = view.document.querySelectorAll('h1');
+          if ( tmp ) {
+            current = [];
+            for(var i = 0; i < tmp.length; i++) {
+              current.push(tmp[i].innerText);
+            }
+            current = current.join(' - ');
+            return;
+          }
+        })
+      }
+      if ( ! current ) {
+        // STILL NOTHING
+        current = `Section ${section.index}`;
+      }
+      if ( current ) {
+        view.iframe.title = `Contents: ${current}` ;
+      }
+    });
+
+    this._rendition.on("rendered", function(section, view) {
 
       self.on('keyDown', function(data) {
         if ( data.keyName == 'Tab' && data.inner ) {
