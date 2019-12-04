@@ -274,6 +274,8 @@ export var Reader = Evented.extend({
     var prefix = 'cozy-module-';
 
     DomUtil.addClass(container, 'cozy-container');
+    panes['live-status'] = DomUtil.create('div', prefix + 'live-status u-screenreader', container);
+    panes['live-status'].setAttribute('aria-live', 'polite');
     panes['top'] = DomUtil.create('div', prefix + 'top', container);
     panes['main'] = DomUtil.create('div', prefix + 'main', container);
     panes['bottom'] = DomUtil.create('div', prefix + 'bottom', container);
@@ -655,6 +657,22 @@ export var Reader = Evented.extend({
     <div class="spinner-quarter spinner-quarter--3"></div>
     <div class="spinner-quarter spinner-quarter--4"></div>
   </div>`;
+  },
+
+  updateLiveStatus: function(message) {
+    if ( ! this._panes['live-status'] ) { return ; }
+    if ( message != this._last_message ) {
+      if ( this._last_timer ) { clearTimeout(this._last_timer); this._last_timer = null; }
+      var clearDelay = 500;
+      setTimeout(() => {
+        this._panes['live-status'].innerText = message;
+        this._last_message = message;
+        console.log("-- status:", message);
+      }, 50);
+      this._last_timer = setTimeout(() => {
+        this._panes['live-status'].innerText = '';
+      }, clearDelay);
+    }
   },
 
   EOT: true
