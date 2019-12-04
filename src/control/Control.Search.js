@@ -103,7 +103,7 @@ export var Search = Control.extend({
         if ( evt.keyCode == '70' ) {
           // command/control-F
           evt.preventDefault();
-          this._container.querySelector("#cozy-search-string").focus(); 
+          this._container.querySelector("#cozy-search-string").focus();
         }
       }
     }.bind(this));
@@ -190,19 +190,25 @@ export var Search = Control.extend({
         highlight = false;
       }
       if ( this._data.search_results.length ) {
-        content = DomUtil.create('ul');
+        content = DomUtil.create('ol');
 
         this._data.search_results.forEach(function(result) {
           var option = DomUtil.create('li');
           var anchor = DomUtil.create('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
+          var res = result.cfi.split("!");
+          var cfi = reader._rendition.epubcfi.fromRange(res[1], res[0]);
+          var loc = reader.locations.locationFromCfi(cfi);
 
           if (result.snippet) {
-            if (result.title) {
-              var chapterTitle = DomUtil.create('i');
-              chapterTitle.textContent = result.title + ": ";
-              anchor.appendChild(chapterTitle);
-            }
+            // if (result.title) {
+            //   var chapterTitle = DomUtil.create('i');
+            //   chapterTitle.textContent = result.title + ": ";
+            //   anchor.appendChild(chapterTitle);
+            // }
+            var locElement = DomUtil.create('i');
+            locElement.textContent = "Location " + loc + " • ";
+            anchor.appendChild(locElement);
             anchor.appendChild(document.createTextNode(result.snippet));
 
             anchor.setAttribute("href", cfiRange);
