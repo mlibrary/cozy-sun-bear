@@ -84,6 +84,7 @@ export var Navigator = Control.extend({
     this._reader.on('relocated', function(location) {
       if ( ! self._initiated ) { return; }
       if ( ! self._mouseDown ) {
+        location = self._reader.currentLocation();
         self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(self._reader.currentLocation().start.cfi) * 100);
         self._update();
       }
@@ -107,6 +108,7 @@ export var Navigator = Control.extend({
       setTimeout(function() {
         this._update();
       }.bind(this), 100);
+      return;
     }
 
     var rangeBg = this._background;
@@ -114,6 +116,16 @@ export var Navigator = Control.extend({
 
     var value = parseInt(range.value, 10);
     var percentage = value;
+
+    if ( current.start.location != this._last_reported_location ) {
+      this._last_reported_location = current.start.location;
+      var message = `Location ${current.start.location}; ${percentage}%`;
+      this._reader.updateLiveStatus(message);
+    }
+
+    range.setAttribute('aria-valuenow', value);
+    range.setAttribute('aria-valuetext', `${value}% • Location ${current.start.location} of ${this._total}`);
+
 
     rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
