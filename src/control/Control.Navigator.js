@@ -117,15 +117,11 @@ export var Navigator = Control.extend({
     var value = parseInt(range.value, 10);
     var percentage = value;
 
-    if ( current.start.location != this._last_reported_location ) {
-      this._last_reported_location = current.start.location;
-      var message = `Location ${current.start.location}; ${percentage}%`;
-      this._reader.updateLiveStatus(message);
-    }
-
-    range.setAttribute('aria-valuenow', value);
-    range.setAttribute('aria-valuetext', `${value}% • Location ${current.start.location} of ${this._total}`);
-
+    // if ( current.start.location != this._last_reported_location ) {
+    //   this._last_reported_location = current.start.location;
+    //   var message = `Location ${current.start.location}; ${percentage}%`;
+    //   this._reader.updateLiveStatus(message);
+    // }
 
     rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
@@ -134,6 +130,15 @@ export var Navigator = Control.extend({
     if ( current && current.start ) {
       var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
       this._spanCurrentLocation.innerHTML = ( current_location );
+
+      range.setAttribute('aria-valuenow', value);
+      range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
+
+      if ( current_location != this._last_reported_location ) {
+        this._last_reported_location = current_location;
+        var message = `Location ${current_location}; ${percentage}%`;
+        this._reader.updateLiveStatus(message);
+      }
     }
     self._last_delta = self._last_value > value; self._last_value = value;
   },
