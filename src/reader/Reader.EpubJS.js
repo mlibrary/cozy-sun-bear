@@ -597,6 +597,11 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on("locationChanged", locationChanged_handler);
 
+    this.on('updateLocations', function() {
+      // trigger this when all the locations have been loaded from the spine
+      this._rendition.emit('relocated', this._rendition.currentLocation());
+    })
+
     this._rendition.on("rendered", function(section, view) {
 
       self.on('keyDown', function(data) {
