@@ -597,6 +597,15 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on("locationChanged", locationChanged_handler);
 
+    this.on('updateLocations', function() {
+      // trigger this when all the locations have been loaded from the spine
+      this._rendition.emit('relocated', this._rendition.currentLocation());
+    })
+
+    this._rendition.on("rendered", function(section, view) {
+      self._updateFrameTitle(section, view);
+    });
+
     this._rendition.on("rendered", function(section, view) {
 
       self.on('keyDown', function(data) {
@@ -680,6 +689,46 @@ Reader.EpubJS = Reader.extend({
         this._queueScale();
       }
     }.bind(this), 100);
+  },
+
+  _updateFrameTitle: function(section, view) {
+    var self = this;
+
+    var title = `Section ${section.index + 1}`;
+    var current = self._book.navigation && self._book.navigation.get(section.href);
+    if ( ! current ) {
+      var subtitle;
+      for(var tag of [ 'h1', 'h2' ]) {
+        var tmp = view.document.querySelectorAll(tag);
+        if ( tmp ) {
+          var buffer = [];
+          for(var i = 0; i < tmp.length; i++) {
+            buffer.push(tmp[i].innerText);
+            if ( tag == 'h2' ) { break; } // only one of these
+          }
+          subtitle = buffer.join(' - ');
+          break;
+        }
+      }
+      if ( ! subtitle ) {
+        for(var i = section.index; i >= 0; i--) {
+          var previousSection = self._book.spine.get(i);
+          var previous = self._book.navigation.get(previousSection.href);
+          if ( previous ) {
+            subtitle = previous.label;
+            break;
+          }
+        }
+      }
+      if ( subtitle ) {
+        title += ': ' + subtitle;
+      }
+    } else {
+      title += ': ' + current.label;
+    }
+    if ( title ) {
+      view.iframe.title = `Contents: ${title}` ;
+    }
   },
 
   EOT: true
