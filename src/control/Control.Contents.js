@@ -44,27 +44,37 @@ export var Contents = Control.extend({
 
       DomEvent.on(this._control, 'click', function(event) {
         event.preventDefault();
+        self._goto_interval = false;
         self._reader.tracking.action('contents/open');
         self._modal.activate();
-      }, this)
+      }, this);
 
       this._modal = this._reader.modal({
         template: '<ul></ul>',
         title: 'Contents',
         region: 'left',
-        className: 'cozy-modal-contents'
-      });
+        className: 'cozy-modal-contents',
+        callbacks: {
+          onShow: function() {},
+          onClose: function (modal) {
+          if (self._goto_interval) {
+            self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+            self._reader.rendition.manager.container.focus();
+          }
+        }
+      }});
 
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('data-href');
+        this._goto_interval = true;
         this._reader.tracking.action('contents/go/link');
         this._reader.gotoPage(target);
         return true;
-      }.bind(this))
+      }.bind(this));
 
       this._modal.on('closed', function() {
         self._reader.tracking.action('contents/close');
-      })
+      });
 
       this._setupSkipLink();
 
@@ -88,7 +98,7 @@ export var Contents = Control.extend({
             _process(item.subitems, tabindex + 1, option);
           }
         })
-      }
+      };
       _process(data.toc, 0, parent);
     }.bind(this))
   },
@@ -115,7 +125,7 @@ export var Contents = Control.extend({
       span.textContent = chapter.label;
     }
 
-    if ( parent.tagName == 'LI' ) {
+    if ( parent.tagName === 'LI' ) {
       // need to nest
       var tmp = parent.querySelector('ul');
       if ( ! tmp ) {
@@ -158,4 +168,4 @@ export var Contents = Control.extend({
 
 export var contents = function(options) {
   return new Contents(options);
-}
+};
