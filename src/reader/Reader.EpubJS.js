@@ -568,9 +568,125 @@ Reader.EpubJS = Reader.extend({
       this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
     }.bind(this));
 
+    var hideEverything = function() {
+      self._rendition.manager.getContents().forEach((contents) => {
+        hideEverythingInContents(contents);
+      })
+    }
+
+    var hideEverythingInContents = function(contents) {
+      var elements = contents.document.querySelectorAll('body *');
+      for(var i = 0; i < elements.length; i++) {
+        if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+          console.log("AHOY HIDING EVERYTHING", elements[i]);
+          elements[i].setAttribute('aria-hidden', true);
+          elements[i].setAttribute('tabindex', '-1');
+        }
+      }
+    }
+
+    var hideEverythingVisible = function(contents) {
+      var elements = contents.document.querySelectorAll('[aria-hidden="false"]');
+      for(var i = 0; i < elements.length; i++) {
+        if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+          console.log("AHOY HIDING EVERYTHING", elements[i]);
+          elements[i].setAttribute('aria-hidden', true);
+        }
+      }
+    }
+
+    var showNode = function(node) {
+      node.setAttribute('aria-hidden', false);
+      // node.setAttribute('tabindex', 0);
+      for(var child of node.children){
+        showNode(child);
+      }
+    }
+
+    var showNodeAndSelf = function(node) {
+      if ( node.getAttribute('aria-hidden') == 'true' ) {
+        console.log("AHOY ACTIVATING", node);
+        showNode(node);
+        var parent = node.parentNode;
+        while ( parent != node.ownerDocument.body ) {
+          console.log("AHOY ACTIVATING UP", parent);
+          parent.setAttribute('aria-hidden', false);
+          //node.setAttribute('tabindex', 0);
+          parent = parent.parentNode;
+        }
+      }
+    }
+
+    var showEverything = function(range) {
+      var selfOrElement = function(node) {
+        return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
+      }
+
+      var ancestor = selfOrElement(range.commonAncestorContainer);
+      var startContainer = selfOrElement(range.startContainer);
+      var endContainer = selfOrElement(range.endContainer);
+
+      var _iterator = document.createNodeIterator(
+        ancestor,
+        NodeFilter.SHOW_ALL,
+        {
+          acceptNode: function(node) {
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      )
+
+      console.log("AHOY COMMON ANCESTOR", ancestor, startContainer);
+
+      var _nodes = [];
+      while ( _iterator.nextNode() ) {
+        if (_nodes.length === 0 && _iterator.referenceNode !== startContainer) continue;
+        _nodes.push(_iterator.referenceNode);
+        if (_iterator.referenceNode === endContainer) break;
+      }
+
+      _nodes.forEach((node) => {
+        if ( node.nodeType == Node.ELEMENT_NODE ) {
+          showNodeAndSelf(node);
+        } else {
+          showNodeAndSelf(node.parentNode);
+        }
+      })
+    }
+
+    var find_contents = function(contents, cfi) {
+      for(var content of contents) {
+        if ( cfi.indexOf(content.cfiBase) > -1 ) {
+          return content;
+        }
+      }
+      return null; // ???
+    }
+
     var relocated_handler = debounce(function(location) {
       if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
+
+      setTimeout(() => {
+        if ( location.start.cfi == self._last_location_start_cfi && 
+             location.end.cfi == self._last_location_end_cfi ) {
+          return;
+        }
+        self._last_location_start_cfi = location.start.cfi;
+        self._last_location_end_cfi = location.end.cfi;
+        var contents = find_contents(self._rendition.manager.getContents(), location.start.cfi);
+        hideEverythingVisible(contents);
+        var doc = contents.document;
+        var startRange = new ePub.CFI(location.start.cfi).toRange(doc);
+        var endRange = new ePub.CFI(location.end.cfi).toRange(doc);
+        var r = doc.createRange();
+        r.setStart(startRange.startContainer, startRange.startOffset);
+        r.setEnd(endRange.endContainer, endRange.endOffset);
+        console.log("AHOY SHOW CURRENT", location);
+        showEverything(r);
+        // self._rendition.manager.container.focus();
+      }, 0);
+
       if ( Browser.safari && self._last_location_start && self._last_location_start != location.start.href ) {
         self._fired = true;
         setTimeout(function() {
@@ -607,6 +723,22 @@ Reader.EpubJS = Reader.extend({
     });
 
     this._rendition.on("rendered", function(section, view) {
+
+      var contents = self._rendition.getContents();
+      contents.forEach( (content) => {
+        content.addStylesheetRules({
+          '[aria-hidden="true"]': {
+            opacity: 0.25
+          },
+          '[aria-hidden="ambiguous"]': {
+            'background-color': 'antiquewhite'
+          },
+          ':focus': {
+            'outline': '2px dashed goldenrod'
+          }
+        })
+        hideEverythingInContents(content);
+      });
 
       self.on('keyDown', function(data) {
         if ( data.keyName == 'Tab' && data.inner ) {
