@@ -574,13 +574,30 @@ Reader.EpubJS = Reader.extend({
       })
     }
 
+    var NOT_INTERACTIVE = {};
+    NOT_INTERACTIVE['P'] = true;
+    NOT_INTERACTIVE['DIV'] = true;
+    NOT_INTERACTIVE['UL'] = true;
+    NOT_INTERACTIVE['OL'] = true;
+
+    var INTERACTIVE = {};
+    INTERACTIVE['A'] = true;
+    INTERACTIVE['SELECT'] = true;
+    INTERACTIVE['BUTTON'] = true;
+    INTERACTIVE['INPUT'] = true;
+
     var hideEverythingInContents = function(contents) {
       var elements = contents.document.querySelectorAll('body *');
       for(var i = 0; i < elements.length; i++) {
         if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
-          console.log("AHOY HIDING EVERYTHING", elements[i]);
-          elements[i].setAttribute('aria-hidden', true);
-          elements[i].setAttribute('tabindex', '-1');
+          var element = elements[i];
+          console.log("AHOY HIDING EVERYTHING", element);
+          element.setAttribute('aria-hidden', true);
+          if ( NOT_INTERACTIVE[element.nodeName] ) {
+            element.setAttribute('tabindex', '-1');
+          } else if ( INTERACTIVE[element.nodeName] ) {
+            element.setAttribute('tabindex', '-1');
+          }
         }
       }
     }
@@ -591,12 +608,18 @@ Reader.EpubJS = Reader.extend({
         if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
           console.log("AHOY HIDING EVERYTHING", elements[i]);
           elements[i].setAttribute('aria-hidden', true);
+          if ( INTERACTIVE[elements[i].nodeName] ) {
+            elements[i].setAttribute('tabindex', '-1');
+          }
         }
       }
     }
 
     var showNode = function(node) {
       node.setAttribute('aria-hidden', false);
+      if ( INTERACTIVE[node.nodeName] ) {
+        node.setAttribute('tabindex', 0);
+      }
       // node.setAttribute('tabindex', 0);
       for(var child of node.children){
         showNode(child);
@@ -727,6 +750,9 @@ Reader.EpubJS = Reader.extend({
       var contents = self._rendition.getContents();
       contents.forEach( (content) => {
         content.addStylesheetRules({
+          'html': {
+            'font-size': '24px'
+          },
           '[aria-hidden="true"]': {
             opacity: 0.25
           },
@@ -734,10 +760,25 @@ Reader.EpubJS = Reader.extend({
             'background-color': 'antiquewhite'
           },
           ':focus': {
-            'outline': '2px dashed goldenrod'
+            'outline': '2px solid goldenrod',
+            'padding': '4px',
+            'background': 'lightgoldenrodyellow'
           }
         })
         hideEverythingInContents(content);
+        content.document.addEventListener('keydown', function(event) {
+          if ( event.keyCode == 9 ) {
+            var activeElement = document.activeElement;
+            var bounds = activeElement.getBoundingClientRect();
+            var container = reader._manager.container;
+            if ( bounds.x > container.scrollLeft + container.offsetWidth || 
+                 bounds.x < container.scrollLeft ) {
+              // event.preventDefault();
+              console.log("AHOY TABBING", activeElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
+              // container.ownerDocument.documentElement.querySelector('a.cozy-control-next').focus();
+            }
+          }
+        })
       });
 
       self.on('keyDown', function(data) {
