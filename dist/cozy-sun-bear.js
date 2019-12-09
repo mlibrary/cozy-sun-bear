@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.00429135, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 5e65338... better tab algorith
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -27394,17 +27398,51 @@
 	            'background': 'lightgoldenrodyellow'
 	          }
 	        });
+
+	        const FOCUSABLE_ELEMENTS = [
+	            'a[href]',
+	            'area[href]',
+	            'input:not([disabled]):not([type="hidden"])',
+	            'select:not([disabled])',
+	            'textarea:not([disabled])',
+	            'button:not([disabled])',
+	            'iframe',
+	            'object',
+	            'embed',
+	            '[contenteditable]',
+	            '[tabindex]:not([tabindex^="-"])'
+	          ];
+
+	        var nodes = content.document.querySelectorAll(FOCUSABLE_ELEMENTS);
+	        var focusableNodes = Object.keys(nodes).map((key) => nodes[key]);
+
+	        var cozyNodes = document.querySelectorAll(FOCUSABLE_ELEMENTS);
+	        var cozyFocusableNodes = Object.keys(cozyNodes).map((key) => cozyNodes[key]);
+
 	        hideEverythingInContents(content);
+
 	        content.document.addEventListener('keydown', function(event) {
 	          if ( event.keyCode == 9 ) {
-	            var activeElement = document.activeElement;
-	            var bounds = activeElement.getBoundingClientRect();
-	            var container = reader._manager.container;
-	            if ( bounds.x > container.scrollLeft + container.offsetWidth || 
-	                 bounds.x < container.scrollLeft ) {
-	              // event.preventDefault();
-	              console.log("AHOY TABBING", activeElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
-	              // container.ownerDocument.documentElement.querySelector('a.cozy-control-next').focus();
+	            var activeElement = content.document.activeElement;
+	            var idx = focusableNodes.indexOf(activeElement);
+	            console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
+
+	            if ( idx < 0 ) { return ; }
+	            var delta = event.shiftKey ? -1 : 1;
+	            var nextElement = focusableNodes[idx + delta];
+	            if ( nextElement ) {
+	              var bounds = nextElement.getBoundingClientRect();
+	              var container = reader._manager.container;
+	              var x = ( bounds.x + container.scrollLeft );
+	              if ( x > container.scrollLeft + container.offsetWidth || 
+	                   x < container.scrollLeft ) {
+	                event.preventDefault();
+	                console.log("AHOY TABBING", nextElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
+	                var iidx = cozyFocusableNodes.indexOf(container);
+	                cozyFocusableNodes[iidx + delta].focus();
+	              }
+	            } else {
+	              console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
 	            }
 	          }
 	        });
