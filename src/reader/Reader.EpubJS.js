@@ -783,8 +783,11 @@ Reader.EpubJS = Reader.extend({
         var nodes = content.document.querySelectorAll(FOCUSABLE_ELEMENTS);
         var focusableNodes = Object.keys(nodes).map((key) => nodes[key]);
 
-        var cozyNodes = document.querySelectorAll(FOCUSABLE_ELEMENTS);
+        var cozyNodes = self._panes['main'].querySelectorAll(FOCUSABLE_ELEMENTS.concat(['.epub-container']));
         var cozyFocusableNodes = Object.keys(cozyNodes).map((key) => cozyNodes[key]);
+
+        window.cozyFocusableNodes = cozyFocusableNodes;
+        window.FOCUSABLE_ELEMENTS = FOCUSABLE_ELEMENTS;
 
         hideEverythingInContents(content);
 
@@ -792,7 +795,7 @@ Reader.EpubJS = Reader.extend({
           if ( event.keyCode == 9 ) {
             var activeElement = content.document.activeElement;
             var idx = focusableNodes.indexOf(activeElement);
-            console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
+            console.log("AHOY TABBING INITIAL", idx, document.activeElement, content.document.activeElement);
 
             if ( idx < 0 ) { return ; }
             var delta = event.shiftKey ? -1 : 1;
@@ -804,9 +807,13 @@ Reader.EpubJS = Reader.extend({
               if ( x > container.scrollLeft + container.offsetWidth || 
                    x < container.scrollLeft ) {
                 event.preventDefault();
-                console.log("AHOY TABBING", nextElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
                 var iidx = cozyFocusableNodes.indexOf(container);
-                cozyFocusableNodes[iidx + delta].focus();
+                var nextCozyElement = cozyFocusableNodes[iidx + delta];
+                if ( nextCozyElement.localName == 'iframe' ) {
+                  nextCozyElement = cozyFocusableNodes[iidx + delta + delta];
+                }
+                nextCozyElement.focus();
+                console.log("AHOY NOT TABBING", nextElement, nextCozyElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
               }
             } else {
               console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);

@@ -1,9 +1,13 @@
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
  * Cozy Sun Bear 1.0.00429135, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> 5e65338... better tab algorith
+=======
+ * Cozy Sun Bear 1.0.05e65338, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 6cd6604... one direction works at least
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -18248,18 +18252,6 @@
 	      maxing = false,
 	      trailing = true;
 
-<<<<<<< HEAD
-			var _round = function(value) {
-				return Math.round(value);
-
-				// -- this calculates the closest even number to value
-				var retval = 2 * Math.round(value / 2);
-				if ( retval > value ) {
-					retval -= 2;
-				}
-				return retval;
-			};
-=======
 	  if (typeof func != 'function') {
 	    throw new TypeError(FUNC_ERROR_TEXT$1);
 	  }
@@ -18270,7 +18262,6 @@
 	    maxWait = maxing ? nativeMax$2(toNumber_1$1(options.maxWait) || 0, wait) : maxWait;
 	    trailing = 'trailing' in options ? !!options.trailing : trailing;
 	  }
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 
 	  function invokeFunc(time) {
 	    var args = lastArgs,
@@ -21158,16 +21149,10 @@
 				return displayed;
 			}
 
-<<<<<<< HEAD
-	function request(url, type$$1, withCredentials, headers) {
-		var supportsURL = (typeof window != "undefined") ? window.URL : false; // TODO: fallback for url if window isn't defined
-		var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
-=======
 			this.manager.display(section, target)
 				.then(() => {
 					displaying.resolve(section);
 					this.displaying = undefined;
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 
 					/**
 					 * Emit that a section has been displayed
@@ -21196,50 +21181,6 @@
 			// view.onLayout = this.layout.format.bind(this.layout);
 			view.create();
 
-<<<<<<< HEAD
-		if (!("overrideMimeType" in xhrPrototype)) {
-			// IE10 might have response, but not overrideMimeType
-			Object.defineProperty(xhrPrototype, "overrideMimeType", {
-				value: function xmlHttpRequestOverrideMimeType() {}
-			});
-		}
-
-		if(withCredentials) {
-			xhr.withCredentials = true;
-		}
-
-		xhr.onreadystatechange = handler;
-		xhr.onerror = err;
-
-		xhr.open("GET", url, true);
-
-		for(header in headers) {
-			xhr.setRequestHeader(header, headers[header]);
-		}
-
-		if(type$$1 == "json") {
-			xhr.setRequestHeader("Accept", "application/json");
-		}
-
-		// If type isn"t set, determine it from the file extension
-		if(!type$$1) {
-			type$$1 = new Path(url).extension;
-		}
-
-		if(type$$1 == "blob"){
-			xhr.responseType = BLOB_RESPONSE;
-		}
-
-
-		if(isXml(type$$1)) {
-			// xhr.responseType = "document";
-			xhr.overrideMimeType("text/xml"); // for OPF parsing
-		}
-
-		if(type$$1 == "binary") {
-			xhr.responseType = "arraybuffer";
-		}
-=======
 			// Fit to size of the container, apply padding
 			this.manager.resizeView(view);
 
@@ -21270,7 +21211,6 @@
 					// this.map = new Map(view, this.layout);
 					this.hooks.show.trigger(view, this);
 					this.trigger("rendered", view.section);
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 
 				}.bind(this))
 				.catch(function(e){
@@ -21302,41 +21242,8 @@
 							 */
 							this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
 						});
-<<<<<<< HEAD
-						return deferred.promise;
-					}
-					if(responseXML){
-						r = this.responseXML;
-					} else
-					if(isXml(type$$1)){
-						// xhr.overrideMimeType("text/xml"); // for OPF parsing
-						// If this.responseXML wasn't set, try to parse using a DOMParser from text
-						r = parse(this.response, "text/xml");
-					}else
-					if(type$$1 == "xhtml"){
-						r = parse(this.response, "application/xhtml+xml");
-					}else
-					if(type$$1 == "html" || type$$1 == "htm"){
-						r = parse(this.response, "text/html");
-					}else
-					if(type$$1 == "json"){
-						r = JSON.parse(this.response);
-					}else
-					if(type$$1 == "blob"){
-
-						if(supportsURL) {
-							r = this.response;
-						} else {
-							//-- Safari doesn't support responseType blob, so create a blob from arraybuffer
-							r = new Blob([this.response]);
-						}
-
-					}else{
-						r = this.response;
-=======
 					} else {
 						this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 					}
 				});
 
@@ -21425,73 +21332,17 @@
 		/**
 		 * Clear all rendered views
 		 */
-<<<<<<< HEAD
-		request(url, type$$1){
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
-			}
-
-			if(type$$1 == "blob"){
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
-			}
-
-			if (response) {
-				response.then(function (r) {
-					let result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
-				}.bind(this));
-			} else {
-				deferred.reject({
-					message : "File not found in the epub: " + url,
-					stack : new Error().stack
-				});
-			}
-			return deferred.promise;
-=======
 		clear(){
 			this.manager.clear();
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 		}
 
 		/**
 		 * Go to the next "page" in the rendition
 		 * @return {Promise}
 		 */
-<<<<<<< HEAD
-		handleResponse(response, type$$1){
-			var r;
-
-			if(type$$1 == "json") {
-				r = JSON.parse(response);
-			}
-			else
-			if(isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			}
-			else
-			if(type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
-			}
-			else
-			if(type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			 } else {
-				 r = response;
-			 }
-
-			return r;
-=======
 		next(){
 			return this.q.enqueue(this.manager.next.bind(this.manager))
 				.then(this.reportLocation.bind(this));
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 		}
 
 		/**
@@ -21770,27 +21621,6 @@
 			let pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
 			let pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
 
-<<<<<<< HEAD
-		/**
-		 * Request a url
-		 * @param  {string} url  a url to request from storage
-		 * @param  {string} [type] specify the type of the returned result
-		 * @param  {boolean} [withCredentials]
-		 * @param  {object} [headers]
-		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-		 */
-		request(url, type$$1, withCredentials, headers){
-			if (this.online) {
-				// From network
-				return this.requester(url, type$$1, withCredentials, headers).then((data) => {
-					// save to store if not present
-					this.put(url);
-					return data;
-				})
-			} else {
-				// From store
-				return this.retrieve(url, type$$1);
-=======
 			if (pageStart != -1) {
 				located.start.page = pageStart;
 			}
@@ -21806,7 +21636,6 @@
 			if (start.index === this.book.spine.first().index &&
 					located.start.displayed.page === 1) {
 				located.atStart = true;
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 			}
 
 			return located;
@@ -21815,39 +21644,6 @@
 		/**
 		 * Remove and Clean Up the Rendition
 		 */
-<<<<<<< HEAD
-		retrieve(url, type$$1) {
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
-			}
-
-			if(type$$1 == "blob"){
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
-			}
-
-
-			return response.then((r) => {
-				var deferred = new defer();
-				var result;
-				if (r) {
-					result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
-				} else {
-					deferred.reject({
-						message : "File not found in storage: " + url,
-						stack : new Error().stack
-					});
-				}
-				return deferred.promise;
-			});
-=======
 		destroy(){
 			// Clear the queue
 			// this.q.clear();
@@ -21879,7 +21675,6 @@
 			// this.started = undefined;
 
 
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 		}
 
 		/**
@@ -21887,33 +21682,10 @@
 		 * @private
 		 * @param  {Contents} view contents
 		 */
-<<<<<<< HEAD
-		handleResponse(response, type$$1){
-			var r;
-
-			if(type$$1 == "json") {
-				r = JSON.parse(response);
-			}
-			else
-			if(isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			}
-			else
-			if(type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
-			}
-			else
-			if(type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			 } else {
-				 r = response;
-			 }
-=======
 		passEvents(contents){
 			DOM_EVENTS.forEach((e) => {
 				contents.on(e, (ev) => this.triggerViewEvent(ev, contents));
 			});
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 
 			contents.on(EVENTS.CONTENTS.SELECTED, (e) => this.triggerSelectedEvent(e, contents));
 		}
@@ -22342,35 +22114,6 @@
 		 * @param  {string} [type]
 		 * @return {any} the parsed result
 		 */
-<<<<<<< HEAD
-		open(input, what) {
-			var opening;
-			var type$$1 = what || this.determineType(input);
-
-			if (type$$1 === INPUT_TYPE.BINARY) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input);
-			} else if (type$$1 === INPUT_TYPE.BASE64) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input, type$$1);
-			} else if (type$$1 === INPUT_TYPE.EPUB) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.request(input, "binary", this.settings.requestCredentials)
-					.then(this.openEpub.bind(this));
-			} else if(type$$1 == INPUT_TYPE.OPF) {
-				this.url = new Url(input);
-				opening = this.openPackaging(this.url.Path.toString());
-			} else if(type$$1 == INPUT_TYPE.MANIFEST) {
-				this.url = new Url(input);
-				opening = this.openManifest(this.url.Path.toString());
-			} else {
-				this.url = new Url(input);
-				opening = this.openContainer(CONTAINER_PATH)
-					.then(this.openPackaging.bind(this));
-=======
 		handleResponse(response, type$$1){
 			var r;
 
@@ -22380,7 +22123,6 @@
 			else
 			if(isXml(type$$1)) {
 				r = parse(response, "text/xml");
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 			}
 			else
 			if(type$$1 == "xhtml") {
@@ -22858,33 +22600,7 @@
 
 			} else {
 
-<<<<<<< HEAD
-	var urlPolyfill$1 = createCommonjsModule(function (module) {
-	(function (root, factory) {
-	    // Fix for this being undefined in modules
-	    if (!root) {
-	      root = window || commonjsGlobal;
-	    }
-	    if (module.exports) {
-	        // Node
-	        module.exports = factory(root);
-	    } else {
-	        // Browser globals (root is window)
-	        root.URL = factory(root);
-	  }
-	}(commonjsGlobal, function (scope) {
-	  // feature detect for URL constructor
-	  var hasWorkingUrl = false;
-	  if (!scope.forceJURL) {
-	    try {
-	      var u = new URL('b', 'http://a');
-	      u.pathname = 'c%20d';
-	      hasWorkingUrl = u.href === 'http://a/c%20d';
-	    } catch(e) {}
-	  }
-=======
 				response = this.getBlob(url);
->>>>>>> aab4aec... manipulate the epub to show/hide based on current visibility
 
 				if (response) {
 					response.then(function(blob) {
@@ -27416,8 +27132,11 @@
 	        var nodes = content.document.querySelectorAll(FOCUSABLE_ELEMENTS);
 	        var focusableNodes = Object.keys(nodes).map((key) => nodes[key]);
 
-	        var cozyNodes = document.querySelectorAll(FOCUSABLE_ELEMENTS);
+	        var cozyNodes = self._panes['main'].querySelectorAll(FOCUSABLE_ELEMENTS.concat(['.epub-container']));
 	        var cozyFocusableNodes = Object.keys(cozyNodes).map((key) => cozyNodes[key]);
+
+	        window.cozyFocusableNodes = cozyFocusableNodes;
+	        window.FOCUSABLE_ELEMENTS = FOCUSABLE_ELEMENTS;
 
 	        hideEverythingInContents(content);
 
@@ -27425,7 +27144,7 @@
 	          if ( event.keyCode == 9 ) {
 	            var activeElement = content.document.activeElement;
 	            var idx = focusableNodes.indexOf(activeElement);
-	            console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
+	            console.log("AHOY TABBING INITIAL", idx, document.activeElement, content.document.activeElement);
 
 	            if ( idx < 0 ) { return ; }
 	            var delta = event.shiftKey ? -1 : 1;
@@ -27437,9 +27156,13 @@
 	              if ( x > container.scrollLeft + container.offsetWidth || 
 	                   x < container.scrollLeft ) {
 	                event.preventDefault();
-	                console.log("AHOY TABBING", nextElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
 	                var iidx = cozyFocusableNodes.indexOf(container);
-	                cozyFocusableNodes[iidx + delta].focus();
+	                var nextCozyElement = cozyFocusableNodes[iidx + delta];
+	                if ( nextCozyElement.localName == 'iframe' ) {
+	                  nextCozyElement = cozyFocusableNodes[iidx + delta + delta];
+	                }
+	                nextCozyElement.focus();
+	                console.log("AHOY NOT TABBING", nextElement, nextCozyElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
 	              }
 	            } else {
 	              console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
