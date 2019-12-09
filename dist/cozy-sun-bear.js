@@ -26967,7 +26967,13 @@
 	    var showNode = function(node) {
 	      node.setAttribute('aria-hidden', false);
 	      if ( INTERACTIVE[node.nodeName] ) {
-	        node.setAttribute('tabindex', 0);
+	        var container = self._manager.container;
+	        var bounds = node.getBoundingClientRect();
+	        var x = bounds.x;
+	        if ( x > container.scrollLeft + container.offsetWidth || 
+	             x < container.scrollLeft ) ; else {
+	          node.setAttribute('tabindex', 0);
+	        }
 	      }
 	      // node.setAttribute('tabindex', 0);
 	      for(var child of node.children){
@@ -27024,6 +27030,22 @@
 	          showNodeAndSelf(node.parentNode);
 	        }
 	      });
+
+	      // var container = self._manager.container;
+	      // var nodes = ancestor.ownerDocument.querySelectorAll(window.FOCUSABLE_ELEMENTS);
+	      // nodes.forEach((node) => {
+	      //   var bounds = node.getBoundingClientRect();
+	      //   var x = bounds.x; // + container.scrollLeft;
+	      //   console.log("AHOY ACTIVATING CHECK", node, bounds.x, x, container.scrollLeft, container.scrollLeft + container.scrollWidth,
+	      //     x > container.scrollLeft + container.offsetWidth,
+	      //     x < container.scrollLeft);
+	      //   if ( x > container.scrollLeft + container.offsetWidth || 
+	      //        x < container.scrollLeft ) {
+	      //     node.setAttribute('tabindex', '-1');
+	      //     node.setAttribute('aria-hidden', true);
+	      //   }
+	      // })
+
 	    };
 
 	    var find_contents = function(contents, cfi) {
@@ -27116,12 +27138,12 @@
 	        });
 
 	        const FOCUSABLE_ELEMENTS = [
-	            'a[href]',
+	            'a[href]:not([tabindex^="-1"])',
 	            'area[href]',
 	            'input:not([disabled]):not([type="hidden"])',
 	            'select:not([disabled])',
 	            'textarea:not([disabled])',
-	            'button:not([disabled])',
+	            'button:not([disabled]):not([tabindex^="-1"])',
 	            'iframe',
 	            'object',
 	            'embed',
@@ -27140,35 +27162,6 @@
 
 	        hideEverythingInContents(content);
 
-	        content.document.addEventListener('keydown', function(event) {
-	          if ( event.keyCode == 9 ) {
-	            var activeElement = content.document.activeElement;
-	            var idx = focusableNodes.indexOf(activeElement);
-	            console.log("AHOY TABBING INITIAL", idx, document.activeElement, content.document.activeElement);
-
-	            if ( idx < 0 ) { return ; }
-	            var delta = event.shiftKey ? -1 : 1;
-	            var nextElement = focusableNodes[idx + delta];
-	            if ( nextElement ) {
-	              var bounds = nextElement.getBoundingClientRect();
-	              var container = reader._manager.container;
-	              var x = ( bounds.x + container.scrollLeft );
-	              if ( x > container.scrollLeft + container.offsetWidth || 
-	                   x < container.scrollLeft ) {
-	                event.preventDefault();
-	                var iidx = cozyFocusableNodes.indexOf(container);
-	                var nextCozyElement = cozyFocusableNodes[iidx + delta];
-	                if ( nextCozyElement.localName == 'iframe' ) {
-	                  nextCozyElement = cozyFocusableNodes[iidx + delta + delta];
-	                }
-	                nextCozyElement.focus();
-	                console.log("AHOY NOT TABBING", nextElement, nextCozyElement, bounds.x, container.scrollLeft, container.scrollLeft + container.offsetWidth);
-	              }
-	            } else {
-	              console.log("AHOY TABBING NO ELEMENT", idx, document.activeElement, content.document.activeElement);
-	            }
-	          }
-	        });
 	      });
 
 	      self.on('keyDown', function(data) {
