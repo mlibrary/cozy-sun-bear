@@ -135,8 +135,19 @@ function showEverythingVisible(container, range) {
   })
 }
 
+var method;
+export function setMethod(what) {
+  method = what;
+}
 export function updateFocus(reader, location) {
   if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
+  if ( method == 'v2' ) {
+    updateFocusXtreme(reader, location);
+  } else if ( method == 'v3' ) {
+    updateFocusXtremeXX(reader, location);
+  }
+
+  return;
 
   setTimeout(() => {
     if ( location.start.cfi == reader._last_location_start_cfi && 
@@ -160,6 +171,188 @@ export function updateFocus(reader, location) {
   }, 0);
 
   reader._last_location_start = location.start.href;
+}
+
+export function updateFocusXtremeXX(reader, location) {
+  // don't use location
+  var t0 = performance.now();
+
+  var selfOrElement = function(node) {
+    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
+  }
+
+  var container = reader._rendition.manager.container;
+  var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
+  hideEverythingVisible(contents);
+
+  var containerX = container.scrollLeft;
+  var containerX2 = container.scrollLeft + container.offsetWidth;
+
+  var _showThisNode = function(node) {
+    var bounds = node.getBoundingClientRect();
+    var x = bounds.left;
+    var x2 = bounds.left + bounds.width;
+
+    var isVisible = false;
+    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
+
+    if ( isVisible ) {
+      // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
+      node.setAttribute('aria-hidden', 'false');
+      if ( INTERACTIVE[node.nodeName] ) {
+        node.setAttribute('tabindex', '0');
+      }
+      var hasSeenVisibleChild = false;
+      for(var child of node.children) {
+        var retval = _showThisNode(child);
+        if ( retval ) { hasSeenVisibleChild = true; }
+        if ( ! retval && hasSeenVisibleChild ) {
+          break;
+        }
+      }
+    }
+
+    return isVisible;
+  }
+
+  var startRange = new ePub.CFI(location.start.cfi).toRange(contents.document);
+  var startNode = selfOrElement(startRange.startContainer);
+  console.log("AHOY", location.start.cfi, startNode, performance.now() - t0);
+
+  var _nodes = [];
+  var checkNode = startNode;
+  while ( checkNode != contents.document.body ) {
+    var bounds = checkNode.getBoundingClientRect();
+    var x = bounds.left;
+    var x2 = bounds.left + bounds.width;
+
+    var isVisible = false;
+    // if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+    if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+
+    if ( isVisible ) {
+      startNode = checkNode;
+      checkNode = checkNode.parentNode;
+    } else {
+      break;
+    }
+
+  }
+
+  console.log("AHOY NEXT START", location.start.cfi, startNode, performance.now() - t0);
+
+  var parentNode = startNode.parentNode;
+  while ( parentNode != contents.document.body ) {
+    parentNode.setAttribute('aria-hidden', false);
+    parentNode = parentNode.parentNode;
+  }
+
+  _showThisNode(startNode);
+  var nextNode = startNode.nextElementSibling;
+  while ( nextNode ) {
+    var isVisible = _showThisNode(nextNode);
+    if ( ! isVisible ) { break; }
+    nextNode = nextNode.nextElementSibling;
+  }
+
+  console.log("AHOY BENCHMARK XTREME XX", performance.now() - t0);
+
+}
+
+export function updateFocusXtreme(reader, location) {
+  // don't use location
+  var t0 = performance.now();
+
+  var container = reader._rendition.manager.container;
+  var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
+  hideEverythingVisible(contents);
+  // just stop there for now
+  var _nodes = [];
+  // for(var child of contents.document.body.children) {
+  //   _nodes.push(child);
+  // }
+
+  var containerX = container.scrollLeft;
+  var containerX2 = container.scrollLeft + container.offsetWidth;
+
+  var _showThisNode = function(node) {
+    var bounds = node.getBoundingClientRect();
+    var x = bounds.left;
+    var x2 = bounds.left + bounds.width;
+
+    var isVisible = false;
+    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
+
+    if ( isVisible ) {
+      // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
+      node.setAttribute('aria-hidden', 'false');
+      if ( INTERACTIVE[node.nodeName] ) {
+        node.setAttribute('tabindex', '0');
+      }
+      var hasSeenVisibleChild = false;
+      for(var child of node.children) {
+        var retval = _showThisNode(child);
+        if ( retval ) { hasSeenVisibleChild = true; }
+        if ( ! retval && hasSeenVisibleChild ) {
+          break;
+        }
+      }
+    }
+
+    return isVisible;
+  }
+
+  for(var child of contents.document.body.children) {
+    _showThisNode(child);
+  }
+
+  while ( _nodes.length ) {
+    var node = _nodes.pop();
+    var bounds = node.getBoundingClientRect();
+
+    var x = bounds.left;
+    var x2 = bounds.left + bounds.width;
+
+    var isVisible = false;
+    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
+    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
+
+    // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
+
+    node.setAttribute('aria-hidden', 'false');
+
+    if ( isVisible ) {
+      var _tmp = [];
+      for(var child of node.children) {
+        _tmp.push(child);
+      }
+      // _tmp.reverse();
+      _nodes.unshift.apply(_nodes, _tmp);
+    }
+
+    // if ( x > container.scrollLeft + container.offsetWidth || 
+    //      x < container.scrollLeft ) {
+    // } else {
+
+
+  }
+
+  console.log("AHOY BENCHMARK XTREME", performance.now() - t0);
 }
 
 export function setupFocusRules(reader) {
