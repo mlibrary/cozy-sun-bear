@@ -196,18 +196,19 @@ export var Search = Control.extend({
           var option = DomUtil.create('li');
           var anchor = DomUtil.create('a', null, option);
           var cfiRange = "epubcfi(" + result.cfi + ")";
-          var res = result.cfi.split("!");
-          var cfi = reader._rendition.epubcfi.fromRange(res[1], res[0]);
-          var loc = reader.locations.locationFromCfi(cfi);
 
           if (result.snippet) {
-            // if (result.title) {
-            //   var chapterTitle = DomUtil.create('i');
-            //   chapterTitle.textContent = result.title + ": ";
-            //   anchor.appendChild(chapterTitle);
-            // }
+            // results for epubs
+            var loc = reader.locations.locationFromCfi(cfiRange);
+            var locText = "Location " + loc + " • ";
+            if (cfiRange.match(/^epubcfi\(page/)) {
+              // results for pdfs
+              // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
+              loc = cfiRange.split("=")[1]
+              locText = "Page " + loc.slice(0, -1) + " • ";
+            }
             var locElement = DomUtil.create('i');
-            locElement.textContent = "Location " + loc + " • ";
+            locElement.textContent = locText;
             anchor.appendChild(locElement);
             anchor.appendChild(document.createTextNode(result.snippet));
 

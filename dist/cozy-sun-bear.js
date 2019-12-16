@@ -1,11 +1,11 @@
 /*
- * Cozy Sun Bear 1.0.0a0a5a26, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.042cfcc7, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.cozy = {})));
+	(global = global || self, factory(global.cozy = {}));
 }(this, (function (exports) { 'use strict';
 
 	var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -1723,6 +1723,7 @@
 	};
 
 	var Util = /*#__PURE__*/Object.freeze({
+		__proto__: null,
 		extend: extend,
 		create: create,
 		bind: bind,
@@ -2176,7 +2177,7 @@
 	 * ```
 	 */
 
-	var style$1 = document.documentElement.style;
+	var style = document.documentElement.style;
 
 	// @property ie: Boolean; `true` for all Internet Explorer versions (not Edge).
 	var ie = 'ActiveXObject' in window;
@@ -2214,19 +2215,19 @@
 
 	// @property opera12: Boolean
 	// `true` for the Opera browser supporting CSS transforms (version 12 or later).
-	var opera12 = 'OTransition' in style$1;
+	var opera12 = 'OTransition' in style;
 
 	// @property win: Boolean; `true` when the browser is running in a Windows platform
 	var win = navigator.platform.indexOf('Win') === 0;
 
 	// @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
-	var ie3d = ie && ('transition' in style$1);
+	var ie3d = ie && ('transition' in style);
 
 	// @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
 	var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
 
 	// @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
-	var gecko3d = 'MozPerspective' in style$1;
+	var gecko3d = 'MozPerspective' in style;
 
 	// @property any3d: Boolean
 	// `true` for all browsers supporting CSS transforms.
@@ -2298,7 +2299,7 @@
 	    }
 	}());
 
-	var columnCount = ( 'columnCount' in style$1 );
+	var columnCount = ( 'columnCount' in style );
 	var classList = ( document.documentElement.classList !== undefined );
 
 	function userAgentContains(str) {
@@ -2306,6 +2307,7 @@
 	}
 
 	var Browser = /*#__PURE__*/Object.freeze({
+		__proto__: null,
 		ie: ie,
 		ielt9: ielt9,
 		edge: edge,
@@ -2680,7 +2682,7 @@
 
 	// inspired by Zepto touch code by Thomas Fuchs
 	function addDoubleTapListener(obj, handler, id) {
-		var last, touch$$1,
+		var last, touch,
 		    doubleTap = false,
 		    delay = 250;
 
@@ -2699,27 +2701,27 @@
 			var now = Date.now(),
 			    delta = now - (last || now);
 
-			touch$$1 = e.touches ? e.touches[0] : e;
+			touch = e.touches ? e.touches[0] : e;
 			doubleTap = (delta > 0 && delta <= delay);
 			last = now;
 		}
 
 		function onTouchEnd(e) {
-			if (doubleTap && !touch$$1.cancelBubble) {
+			if (doubleTap && !touch.cancelBubble) {
 				if (pointer) {
 					if ((!edge) || e.pointerType === 'mouse') { return; }
 					// work around .type being readonly with MSPointer* events
 					var newTouch = {},
 					    prop, i;
 
-					for (i in touch$$1) {
-						prop = touch$$1[i];
-						newTouch[i] = prop && prop.bind ? prop.bind(touch$$1) : prop;
+					for (i in touch) {
+						prop = touch[i];
+						newTouch[i] = prop && prop.bind ? prop.bind(touch) : prop;
 					}
-					touch$$1 = newTouch;
+					touch = newTouch;
 				}
-				touch$$1.type = 'dblclick';
-				handler(touch$$1);
+				touch.type = 'dblclick';
+				handler(touch);
 				last = null;
 			}
 		}
@@ -3054,6 +3056,7 @@
 	}
 
 	var DomEvent = /*#__PURE__*/Object.freeze({
+		__proto__: null,
 		on: on,
 		off: off,
 		stopPropagation: stopPropagation,
@@ -3398,6 +3401,7 @@
 	}
 
 	var DomUtil = /*#__PURE__*/Object.freeze({
+		__proto__: null,
 		TRANSFORM: TRANSFORM,
 		TRANSITION: TRANSITION,
 		TRANSITION_END: TRANSITION_END,
@@ -3528,10 +3532,11 @@
 
 	  try {
 	    value[symToStringTag] = undefined;
+	    var unmasked = true;
 	  } catch (e) {}
 
 	  var result = nativeObjectToString.call(value);
-	  {
+	  if (unmasked) {
 	    if (isOwn) {
 	      value[symToStringTag] = tag;
 	    } else {
@@ -4675,7 +4680,7 @@
 
 	var isBuffer_1 = createCommonjsModule(function (module, exports) {
 	/** Detect free variable `exports`. */
-	var freeExports = exports && !exports.nodeType && exports;
+	var freeExports =  exports && !exports.nodeType && exports;
 
 	/** Detect free variable `module`. */
 	var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
@@ -4785,7 +4790,7 @@
 
 	var _nodeUtil = createCommonjsModule(function (module, exports) {
 	/** Detect free variable `exports`. */
-	var freeExports = exports && !exports.nodeType && exports;
+	var freeExports =  exports && !exports.nodeType && exports;
 
 	/** Detect free variable `module`. */
 	var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
@@ -5414,7 +5419,7 @@
 	  // DOM event handling
 
 	  // @section Interaction events
-	  _initEvents: function (remove$$1) {
+	  _initEvents: function (remove) {
 	    this._targets = {};
 	    this._targets[stamp(this._container)] = this;
 
@@ -5506,7 +5511,7 @@
 	    // }
 
 	    if (any3d && this.options.transform3DLimit) {
-	      (remove$$1 ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
+	      (remove ? this.off : this.on).call(this, 'moveend', this._onMoveEnd);
 	    }
 
 	    var self = this;
@@ -5751,9 +5756,9 @@
 
 	  _initBookLoader: function() {
 	    // is this not awesome?
-	    var template$$1 = this.options.loader_template || this.loaderTemplate();
+	    var template = this.options.loader_template || this.loaderTemplate();
 
-	    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
+	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while ( body.children.length ) {
 	      this._panes['loader'].appendChild(body.children[0]);
 	    }
@@ -6245,7 +6250,7 @@
 
 	  addTo: function(reader) {
 	    this._reader = reader;
-	    var template$$1 = this.options.template;
+	    var template = this.options.template;
 
 	    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id}" aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-modal-close>
@@ -6256,7 +6261,7 @@
               <button class="modal__close" aria-label="Close modal" aria-controls="modal-${this._id}-container" data-modal-close></button>
             </header>
             <main class="modal__content ${this.options.className.main ? this.options.className.main : ''}" id="modal-${this._id}-content">
-              ${template$$1}
+              ${template}
             </main>`;
 
 	    if ( this.options.actions ) {
@@ -6333,17 +6338,6 @@
 
 	  activate: function() {
 	    return this.showModal();
-	    var self = this;
-	    activeModal = this;
-	    addClass(self._reader._container, 'st-modal-activating');
-	    this._resize();
-	    addClass(this._reader._container, 'st-modal-open');
-	    setTimeout(function() {
-	      addClass(self._container, 'active');
-	      removeClass(self._reader._container, 'st-modal-activating');
-	      self._container.setAttribute('aria-hidden', 'false');
-	      self.setFocusToFirstNode();
-	    }, 25);
 	  },
 
 	  addEventListeners: function () {
@@ -6865,8 +6859,8 @@
 	    var self = this;
 	    var className = this._className();
 	    var container = create$1('div', className);
-	    var template$$1 = this.options.template || this.defaultTemplate;
-	    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
+	    var template = this.options.template || this.defaultTemplate;
+	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while ( body.children.length ) {
 	      container.appendChild(body.children[0]);
 	    }
@@ -6905,7 +6899,7 @@
 	  _createPanel: function() {
 	    if ( this._modal._container.querySelector('form') ) { return; }
 
-	    var template$$1 = '';
+	    var template = '';
 
 	    var possible_fieldsets = [];
 	    if ( this._reader.metadata.layout == 'pre-paginated' ) {
@@ -6929,7 +6923,7 @@
 	    this._fieldsets = [];
 	    possible_fieldsets.forEach(function(cls) {
 	      var fieldset = new Preferences.fieldset[cls](this);
-	      template$$1 += fieldset.template();
+	      template += fieldset.template();
 	      this._fieldsets.push(fieldset);
 	    }.bind(this));
 
@@ -6937,21 +6931,21 @@
 	      this.options.hasFields = true;
 	      for(var i in this.options.fields) {
 	        var field = this.options.fields[i];
-	        template$$1 += `<fieldset class="custom-field">
+	        template += `<fieldset class="custom-field">
           <legend>${field.label}</legend>
         `;
 	        for(var j in field.inputs) {
 	          var input = field.inputs[j];
 	          var checked = input.value == field.value ? ' checked="checked"' : '';
-	          template$$1 += `<label><input id="preferences-custom-${i}-${j}" type="radio" name="x${field.name}" value="${input.value}" ${checked}/>${input.label}</label>`;
+	          template += `<label><input id="preferences-custom-${i}-${j}" type="radio" name="x${field.name}" value="${input.value}" ${checked}/>${input.label}</label>`;
 	        }
 	        if ( field.hint ) {
-	          template$$1 += `<p class="hint" style="font-size: 90%">${field.hint}</p>`;
+	          template += `<p class="hint" style="font-size: 90%">${field.hint}</p>`;
 	        }
 	      }
 	    }
 
-	    template$$1 = '<form>' + template$$1 + '</form>';
+	    template = '<form>' + template + '</form>';
 
 	    // this._modal = this._reader.modal({
 	    //   template: template,
@@ -6968,7 +6962,7 @@
 	    //   region: 'right'
 	    // });
 
-	    this._modal._container.querySelector('main').innerHTML = template$$1;
+	    this._modal._container.querySelector('main').innerHTML = template;
 	    this._form = this._modal._container.querySelector('form');
 	  },
 
@@ -7017,9 +7011,9 @@
 
 	  options: {},
 
-	  initialize: function (control$$1, options) {
+	  initialize: function (control, options) {
 	      setOptions(this, options);
-	      this._control = control$$1;
+	      this._control = control;
 	      this._current = {};
 	      this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
 	  },
@@ -7155,17 +7149,17 @@
 	  },
 
 	  template: function() {
-	    var template$$1 = `<fieldset>
+	    var template = `<fieldset>
             <legend>Theme</legend>
             <label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-default" value="default" />Default</label>`;
 
 	    this._control._reader.options.themes.forEach(function(theme) {
-	      template$$1 += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`;
+	      template += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`;
 	    }.bind(this));
 
-	    template$$1 += '</fieldset>';
+	    template += '</fieldset>';
 
-	    return template$$1;
+	    return template;
 
 	  },
 
@@ -7193,17 +7187,17 @@
 	  },
 
 	  template: function() {
-	    var template$$1 = `<fieldset>
+	    var template = `<fieldset>
             <legend>Rendition</legend>
     `;
 
 	    this._control._reader.rootfiles.forEach(function(rootfile, i) {
-	      template$$1 += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
+	      template += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
 	    }.bind(this));
 
-	    template$$1 += '</fieldset>';
+	    template += '</fieldset>';
 
-	    return template$$1;
+	    return template;
 
 	  },
 
@@ -7339,11 +7333,11 @@
 	  _onAddExtra: function() { },
 
 	  _bindEvents: function(container) {
-	    var control$$1 = container.querySelector("[data-toggle=button]");
-	    if ( ! control$$1 ) { return ; }
-	    disableClickPropagation(control$$1);
-	    on(control$$1, 'click', stop);
-	    on(control$$1, 'click', this._action, this);
+	    var control = container.querySelector("[data-toggle=button]");
+	    if ( ! control ) { return ; }
+	    disableClickPropagation(control);
+	    on(control, 'click', stop);
+	    on(control, 'click', this._action, this);
 	  },
 
 	  _action: function() {
@@ -7783,18 +7777,19 @@
 	          var option = create$1('li');
 	          var anchor = create$1('a', null, option);
 	          var cfiRange = "epubcfi(" + result.cfi + ")";
-	          var res = result.cfi.split("!");
-	          var cfi = reader._rendition.epubcfi.fromRange(res[1], res[0]);
-	          var loc = reader.locations.locationFromCfi(cfi);
 
 	          if (result.snippet) {
-	            // if (result.title) {
-	            //   var chapterTitle = DomUtil.create('i');
-	            //   chapterTitle.textContent = result.title + ": ";
-	            //   anchor.appendChild(chapterTitle);
-	            // }
+	            // results for epubs
+	            var loc = reader.locations.locationFromCfi(cfiRange);
+	            var locText = "Location " + loc + " • ";
+	            if (cfiRange.match(/^epubcfi\(page/)) {
+	              // results for pdfs
+	              // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
+	              loc = cfiRange.split("=")[1];
+	              locText = "Page " + loc.slice(0, -1) + " • ";
+	            }
 	            var locElement = create$1('i');
-	            locElement.textContent = "Location " + loc + " • ";
+	            locElement.textContent = locText;
 	            anchor.appendChild(locElement);
 	            anchor.appendChild(document.createTextNode(result.snippet));
 
@@ -8391,6 +8386,7 @@
 
 	var isImplemented$1 = function () {
 		try {
+			Object.keys("primitive");
 			return true;
 		} catch (e) {
 			return false;
@@ -8911,7 +8907,7 @@
 	 * @returns {{ width: Number, height: Number}}
 	 * @memberof Core
 	 */
-	function bounds$1(el) {
+	function bounds(el) {
 
 		var style = window.getComputedStyle(el);
 		var widthProps = ["width", "paddingRight", "paddingLeft", "marginRight", "marginLeft", "borderRightWidth", "borderLeftWidth"];
@@ -9246,7 +9242,7 @@
 				if (node && node.nodeType === 3) { // Node.TEXT_NODE
 					func(node);
 				}
-			}, true);
+			});
 		}
 	}
 
@@ -9541,6 +9537,7 @@
 	}
 
 	var utils = /*#__PURE__*/Object.freeze({
+		__proto__: null,
 		requestAnimationFrame: requestAnimationFrame$1,
 		uuid: uuid,
 		documentHeight: documentHeight,
@@ -9553,7 +9550,7 @@
 		insert: insert,
 		locationOf: locationOf,
 		indexOfSorted: indexOfSorted,
-		bounds: bounds$1,
+		bounds: bounds,
 		borders: borders,
 		nodeBounds: nodeBounds,
 		windowBounds: windowBounds,
@@ -10339,7 +10336,7 @@
 
 	const ELEMENT_NODE$1 = 1;
 	const TEXT_NODE$1 = 3;
-	const DOCUMENT_NODE$1 = 9;
+	const DOCUMENT_NODE = 9;
 
 	/**
 		* Parsing and creation of EpubCFIs: http://www.idpf.org/epub/linking/cfi/epub-cfi.html
@@ -10360,7 +10357,7 @@
 	*/
 	class EpubCFI {
 		constructor(cfiFrom, base, ignoreClass){
-			var type$$1;
+			var type;
 
 			this.str = "";
 
@@ -10384,17 +10381,17 @@
 				this.base = base;
 			}
 
-			type$$1 = this.checkType(cfiFrom);
+			type = this.checkType(cfiFrom);
 
 
-			if(type$$1 === "string") {
+			if(type === "string") {
 				this.str = cfiFrom;
 				return extend$1(this, this.parse(cfiFrom));
-			} else if (type$$1 === "range") {
+			} else if (type === "range") {
 				return extend$1(this, this.fromRange(cfiFrom, this.base, ignoreClass));
-			} else if (type$$1 === "node") {
+			} else if (type === "node") {
 				return extend$1(this, this.fromNode(cfiFrom, this.base, ignoreClass));
-			} else if (type$$1 === "EpubCFI" && cfiFrom.path) {
+			} else if (type === "EpubCFI" && cfiFrom.path) {
 				return cfiFrom;
 			} else if (!cfiFrom) {
 				return this;
@@ -10507,7 +10504,7 @@
 		}
 
 		parseStep(stepStr){
-			var type$$1, num, index, has_brackets, id;
+			var type, num, index, has_brackets, id;
 
 			has_brackets = stepStr.match(/\[(.*)\]/);
 			if(has_brackets && has_brackets[1]){
@@ -10522,15 +10519,15 @@
 			}
 
 			if(num % 2 === 0) { // Even = is an element
-				type$$1 = "element";
+				type = "element";
 				index = num / 2 - 1;
 			} else {
-				type$$1 = "text";
+				type = "text";
 				index = (num - 1 ) / 2;
 			}
 
 			return {
-				"type" : type$$1,
+				"type" : type,
 				"index" : index,
 				"id" : id || null
 			};
@@ -10781,7 +10778,7 @@
 			var step;
 
 			while(currentNode && currentNode.parentNode &&
-						currentNode.parentNode.nodeType != DOCUMENT_NODE$1) {
+						currentNode.parentNode.nodeType != DOCUMENT_NODE) {
 
 				if (ignoreClass) {
 					step = this.filteredStep(currentNode, ignoreClass);
@@ -12884,14 +12881,14 @@
 			items.forEach(function(item){
 				var id = item.getAttribute("id"),
 						href = item.getAttribute("href") || "",
-						type$$1 = item.getAttribute("media-type") || "",
+						type = item.getAttribute("media-type") || "",
 						overlay = item.getAttribute("media-overlay") || "",
 						properties = item.getAttribute("properties") || "";
 
 				manifest[id] = {
 					"href" : href,
 					// "url" : href,
-					"type" : type$$1,
+					"type" : type,
 					"overlay" : overlay,
 					"properties" : properties.length ? properties.split(" ") : []
 				};
@@ -13152,16 +13149,16 @@
 		 * @param {document} xml navigation html / xhtml / ncx
 		 */
 		parse(xml) {
-			let isXml$$1 = xml.nodeType;
+			let isXml = xml.nodeType;
 			let html;
 			let ncx;
 
-			if (isXml$$1) {
+			if (isXml) {
 				html = qs(xml, "html");
 				ncx = qs(xml, "ncx");
 			}
 
-			if (!isXml$$1) {
+			if (!isXml) {
 				this.toc = this.load(xml);
 			} else if(html) {
 				this.toc = this.parseNav(xml);
@@ -13230,14 +13227,14 @@
 		 * @param  {string} type
 		 * @return {object} landmarkItem
 		 */
-		landmark(type$$1) {
+		landmark(type) {
 			var index;
 
-			if(!type$$1) {
+			if(!type) {
 				return this.landmarks;
 			}
 
-			index = this.landmarksByType[type$$1];
+			index = this.landmarksByType[type];
 
 			return this.landmarks[index];
 		}
@@ -13369,14 +13366,14 @@
 				return;
 			}
 
-			let type$$1 = content.getAttributeNS("http://www.idpf.org/2007/ops", "type") || undefined;
+			let type = content.getAttributeNS("http://www.idpf.org/2007/ops", "type") || undefined;
 			let href = content.getAttribute("href") || "";
 			let text = content.textContent || "";
 
 			return {
 				"href": href,
 				"label": text,
-				"type" : type$$1
+				"type" : type
 			};
 		}
 
@@ -13902,8 +13899,8 @@
 		 * @param  {string} path
 		 * @return {string} url
 		 */
-		get(path$$1) {
-			var indexInUrls = this.urls.indexOf(path$$1);
+		get(path) {
+			var indexInUrls = this.urls.indexOf(path);
 			if (indexInUrls === -1) {
 				return;
 			}
@@ -13912,7 +13909,7 @@
 					resolve(this.replacementUrls[indexInUrls]);
 				}.bind(this));
 			} else {
-				return this.createUrl(path$$1);
+				return this.createUrl(path);
 			}
 		}
 
@@ -14764,10 +14761,10 @@
 			var safeFilter = filter.acceptNode;
 			safeFilter.acceptNode = filter.acceptNode;
 
-			var treeWalker$$1 = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, safeFilter, false);
+			var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, safeFilter, false);
 			var node;
 			var result;
-			while ((node = treeWalker$$1.nextNode())) {
+			while ((node = treeWalker.nextNode())) {
 				result = func(node);
 				if(result) break;
 			}
@@ -17214,7 +17211,7 @@
 
 			this.added = true;
 
-			this.elementBounds = bounds$1(this.element);
+			this.elementBounds = bounds(this.element);
 
 			// if(width || height){
 			//   this.resize(width, height);
@@ -17459,7 +17456,7 @@
 
 			this.prevBounds = size;
 
-			this.elementBounds = bounds$1(this.element);
+			this.elementBounds = bounds(this.element);
 
 		}
 
@@ -17674,7 +17671,7 @@
 
 		bounds(force) {
 			if(force || !this.elementBounds) {
-				this.elementBounds = bounds$1(this.element);
+				this.elementBounds = bounds(this.element);
 			}
 
 			return this.elementBounds;
@@ -18180,13 +18177,6 @@
 
 			var _round = function(value) {
 				return Math.round(value);
-
-				// -- this calculates the closest even number to value
-				var retval = 2 * Math.round(value / 2);
-				if ( retval > value ) {
-					retval -= 2;
-				}
-				return retval;
 			};
 
 			if(!isNumber(width)) {
@@ -21428,7 +21418,7 @@
 	//-- Enable binding events to Renderer
 	eventEmitter(Rendition.prototype);
 
-	function request(url, type$$1, withCredentials, headers) {
+	function request(url, type, withCredentials, headers) {
 		var supportsURL = (typeof window != "undefined") ? window.URL : false; // TODO: fallback for url if window isn't defined
 		var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
 
@@ -21462,26 +21452,26 @@
 			xhr.setRequestHeader(header, headers[header]);
 		}
 
-		if(type$$1 == "json") {
+		if(type == "json") {
 			xhr.setRequestHeader("Accept", "application/json");
 		}
 
 		// If type isn"t set, determine it from the file extension
-		if(!type$$1) {
-			type$$1 = new Path(url).extension;
+		if(!type) {
+			type = new Path(url).extension;
 		}
 
-		if(type$$1 == "blob"){
+		if(type == "blob"){
 			xhr.responseType = BLOB_RESPONSE;
 		}
 
 
-		if(isXml(type$$1)) {
+		if(isXml(type)) {
 			// xhr.responseType = "document";
 			xhr.overrideMimeType("text/xml"); // for OPF parsing
 		}
 
-		if(type$$1 == "binary") {
+		if(type == "binary") {
 			xhr.responseType = "arraybuffer";
 		}
 
@@ -21523,21 +21513,21 @@
 					if(responseXML){
 						r = this.responseXML;
 					} else
-					if(isXml(type$$1)){
+					if(isXml(type)){
 						// xhr.overrideMimeType("text/xml"); // for OPF parsing
 						// If this.responseXML wasn't set, try to parse using a DOMParser from text
 						r = parse(this.response, "text/xml");
 					}else
-					if(type$$1 == "xhtml"){
+					if(type == "xhtml"){
 						r = parse(this.response, "application/xhtml+xml");
 					}else
-					if(type$$1 == "html" || type$$1 == "htm"){
+					if(type == "html" || type == "htm"){
 						r = parse(this.response, "text/html");
 					}else
-					if(type$$1 == "json"){
+					if(type == "json"){
 						r = JSON.parse(this.response);
 					}else
-					if(type$$1 == "blob"){
+					if(type == "blob"){
 
 						if(supportsURL) {
 							r = this.response;
@@ -21627,17 +21617,17 @@
 		 * @param  {string} [type] specify the type of the returned result
 		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
 		 */
-		request(url, type$$1){
+		request(url, type){
 			var deferred = new defer();
 			var response;
 			var path = new Path(url);
 
 			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
+			if(!type) {
+				type = path.extension;
 			}
 
-			if(type$$1 == "blob"){
+			if(type == "blob"){
 				response = this.getBlob(url);
 			} else {
 				response = this.getText(url);
@@ -21645,7 +21635,7 @@
 
 			if (response) {
 				response.then(function (r) {
-					let result = this.handleResponse(r, type$$1);
+					let result = this.handleResponse(r, type);
 					deferred.resolve(result);
 				}.bind(this));
 			} else {
@@ -21664,22 +21654,22 @@
 		 * @param  {string} [type]
 		 * @return {any} the parsed result
 		 */
-		handleResponse(response, type$$1){
+		handleResponse(response, type){
 			var r;
 
-			if(type$$1 == "json") {
+			if(type == "json") {
 				r = JSON.parse(response);
 			}
 			else
-			if(isXml(type$$1)) {
+			if(isXml(type)) {
 				r = parse(response, "text/xml");
 			}
 			else
-			if(type$$1 == "xhtml") {
+			if(type == "xhtml") {
 				r = parse(response, "application/xhtml+xml");
 			}
 			else
-			if(type$$1 == "html" || type$$1 == "htm") {
+			if(type == "html" || type == "htm") {
 				r = parse(response, "text/html");
 			 } else {
 				 r = response;
@@ -21954,17 +21944,17 @@
 		 * @param  {object} [headers]
 		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
 		 */
-		request(url, type$$1, withCredentials, headers){
+		request(url, type, withCredentials, headers){
 			if (this.online) {
 				// From network
-				return this.requester(url, type$$1, withCredentials, headers).then((data) => {
+				return this.requester(url, type, withCredentials, headers).then((data) => {
 					// save to store if not present
 					this.put(url);
 					return data;
 				})
 			} else {
 				// From store
-				return this.retrieve(url, type$$1);
+				return this.retrieve(url, type);
 			}
 
 		}
@@ -21975,17 +21965,17 @@
 		 * @param  {string} [type] specify the type of the returned result
 		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
 		 */
-		retrieve(url, type$$1) {
+		retrieve(url, type) {
 			var deferred = new defer();
 			var response;
 			var path = new Path(url);
 
 			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
+			if(!type) {
+				type = path.extension;
 			}
 
-			if(type$$1 == "blob"){
+			if(type == "blob"){
 				response = this.getBlob(url);
 			} else {
 				response = this.getText(url);
@@ -21996,7 +21986,7 @@
 				var deferred = new defer();
 				var result;
 				if (r) {
-					result = this.handleResponse(r, type$$1);
+					result = this.handleResponse(r, type);
 					deferred.resolve(result);
 				} else {
 					deferred.reject({
@@ -22015,22 +22005,22 @@
 		 * @param  {string} [type]
 		 * @return {any} the parsed result
 		 */
-		handleResponse(response, type$$1){
+		handleResponse(response, type){
 			var r;
 
-			if(type$$1 == "json") {
+			if(type == "json") {
 				r = JSON.parse(response);
 			}
 			else
-			if(isXml(type$$1)) {
+			if(isXml(type)) {
 				r = parse(response, "text/xml");
 			}
 			else
-			if(type$$1 == "xhtml") {
+			if(type == "xhtml") {
 				r = parse(response, "application/xhtml+xml");
 			}
 			else
-			if(type$$1 == "html" || type$$1 == "htm") {
+			if(type == "html" || type == "htm") {
 				r = parse(response, "text/html");
 			 } else {
 				 r = response;
@@ -22414,25 +22404,25 @@
 		 */
 		open(input, what) {
 			var opening;
-			var type$$1 = what || this.determineType(input);
+			var type = what || this.determineType(input);
 
-			if (type$$1 === INPUT_TYPE.BINARY) {
+			if (type === INPUT_TYPE.BINARY) {
 				this.archived = true;
 				this.url = new Url("/", "");
 				opening = this.openEpub(input);
-			} else if (type$$1 === INPUT_TYPE.BASE64) {
+			} else if (type === INPUT_TYPE.BASE64) {
 				this.archived = true;
 				this.url = new Url("/", "");
-				opening = this.openEpub(input, type$$1);
-			} else if (type$$1 === INPUT_TYPE.EPUB) {
+				opening = this.openEpub(input, type);
+			} else if (type === INPUT_TYPE.EPUB) {
 				this.archived = true;
 				this.url = new Url("/", "");
 				opening = this.request(input, "binary", this.settings.requestCredentials)
 					.then(this.openEpub.bind(this));
-			} else if(type$$1 == INPUT_TYPE.OPF) {
+			} else if(type == INPUT_TYPE.OPF) {
 				this.url = new Url(input);
 				opening = this.openPackaging(this.url.Path.toString());
-			} else if(type$$1 == INPUT_TYPE.MANIFEST) {
+			} else if(type == INPUT_TYPE.MANIFEST) {
 				this.url = new Url(input);
 				opening = this.openManifest(this.url.Path.toString());
 			} else {
@@ -22910,13 +22900,13 @@
 	//-- Enable binding events to book
 	eventEmitter(Book.prototype);
 
-	var urlPolyfill$1 = createCommonjsModule(function (module) {
+	var urlPolyfill = createCommonjsModule(function (module) {
 	(function (root, factory) {
 	    // Fix for this being undefined in modules
 	    if (!root) {
 	      root = window || commonjsGlobal;
 	    }
-	    if (module.exports) {
+	    if ( module.exports) {
 	        // Node
 	        module.exports = factory(root);
 	    } else {
@@ -23539,6 +23529,7 @@
 
 	var isImplemented$4 = function () {
 		try {
+			Object.keys('primitive');
 			return true;
 		} catch (e) { return false; }
 	};
@@ -23871,7 +23862,10 @@
 	        this._views.push(view);
 	        if(this.container){
 	            this.container.appendChild(view.element);
+	            var threshold = {};
 	            var h = this.container.offsetHeight;
+	            threshold.top = - ( h * 0.25 );
+	            threshold.bottom = - ( h * 0.25 );
 	            // view.observer = ElementObserver(view.element, {
 	            //     container: this.container,
 	            //     onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
@@ -24549,22 +24543,10 @@
 	  }
 
 	  visible() {
-	    var visible = [];
 	    var views = this.views.displayed();
 	    var viewsLength = views.length;
-	    var visible = [];
-	    var view;
 
 	    return this.views.displayed();
-
-	    for(var i = 0; i < viewsLength; i++) {
-	      view = views[i];
-	      if ( view.displayed ) {
-	        visible.push(view);
-	      }
-	    }
-
-	    return visible;
 	  }
 
 	  scrollBy(x, y, silent){
@@ -24990,7 +24972,7 @@
 	        // this.element.appendChild(this.iframe);
 	        this.added = true;
 
-	        this.elementBounds = bounds$1(this.element);
+	        this.elementBounds = bounds(this.element);
 
 	        // if(width || height){
 	        //   this.resize(width, height);
@@ -25072,7 +25054,7 @@
 
 	        this.prevBounds = size;
 
-	        this.elementBounds = bounds$1(this.element);
+	        this.elementBounds = bounds(this.element);
 
 	    }
 
@@ -26154,7 +26136,7 @@
 
 	window.Reader = Reader;
 
-	function createReader$1(id, options) {
+	function createReader(id, options) {
 	  return new Reader.EpubJS(id, options);
 	}
 
@@ -26321,13 +26303,13 @@
 	  }
 	});
 
-	function createReader$2(id, options) {
+	function createReader$1(id, options) {
 	  return new Reader.Mock(id, options);
 	}
 
 	var engines = {
-	  epubjs: createReader$1,
-	  mock: createReader$2
+	  epubjs: createReader,
+	  mock: createReader$1
 	};
 
 	var reader$1 = function(id, options) {
@@ -26350,25 +26332,25 @@
 	  return this;
 	}
 
-	exports.version = version;
-	exports.noConflict = noConflict;
-	exports.Control = Control;
-	exports.control = control;
 	exports.Browser = Browser;
-	exports.Evented = Evented;
-	exports.Mixin = Mixin;
-	exports.Util = Util;
 	exports.Class = Class;
-	exports.extend = extend;
-	exports.bind = bind;
-	exports.stamp = stamp;
-	exports.setOptions = setOptions;
-	exports.inVp = inVp;
-	exports.bus = bus;
+	exports.Control = Control;
 	exports.DomEvent = DomEvent;
 	exports.DomUtil = DomUtil;
+	exports.Evented = Evented;
+	exports.Mixin = Mixin;
 	exports.Reader = Reader;
+	exports.Util = Util;
+	exports.bind = bind;
+	exports.bus = bus;
+	exports.control = control;
+	exports.extend = extend;
+	exports.inVp = inVp;
+	exports.noConflict = noConflict;
 	exports.reader = reader$1;
+	exports.setOptions = setOptions;
+	exports.stamp = stamp;
+	exports.version = version;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
