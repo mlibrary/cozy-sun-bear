@@ -1,6 +1,7 @@
 /*
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
  * Cozy Sun Bear 1.0.00429135, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
@@ -8,6 +9,9 @@
 =======
  * Cozy Sun Bear 1.0.05e65338, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> 6cd6604... one direction works at least
+=======
+ * Cozy Sun Bear 1.0.028f9b38, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> d05f350... extract focus handling
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5404,9 +5408,14 @@
 	    panes['main'] = create$1('div', prefix + 'main', container);
 	    panes['bottom'] = create$1('div', prefix + 'bottom', container);
 
+	    var h = create$1('h2', 'u-screenreader', panes['main']);
+	    h.innerText = 'Navigation';
 	    panes['left'] = create$1('div', prefix + 'left', panes['main']);
-	    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
 	    panes['right'] = create$1('div', prefix + 'right', panes['main']);
+
+	    h = create$1('h2', 'u-screenreader', panes['main']);
+	    h.innerText = 'Viewer';
+	    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
 	    panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
 	    panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
 	    panes['epub'] = create$1('div', prefix + 'book-epub', panes['book']);
@@ -23963,21 +23972,21 @@
 	 * @returns {Book} a new Book object
 	 * @example ePub("/path/to/book.epub", {})
 	 */
-	function ePub(url, options) {
+	function ePub$1(url, options) {
 		return new Book(url, options);
 	}
 
-	ePub.VERSION = EPUBJS_VERSION;
+	ePub$1.VERSION = EPUBJS_VERSION;
 
 	if (typeof(global) !== "undefined") {
 		global.EPUBJS_VERSION = EPUBJS_VERSION;
 	}
 
-	ePub.Book = Book;
-	ePub.Rendition = Rendition;
-	ePub.Contents = Contents$1;
-	ePub.CFI = EpubCFI;
-	ePub.utils = utils;
+	ePub$1.Book = Book;
+	ePub$1.Rendition = Rendition;
+	ePub$1.Contents = Contents$1;
+	ePub$1.CFI = EpubCFI;
+	ePub$1.utils = utils;
 
 	if (!process$2) {
 	  var process$2 = {
@@ -26380,7 +26389,237 @@
 	  });
 	}
 
-	window.ePub = ePub;
+	var INTERACTIVE = {};
+	INTERACTIVE['A'] = true;
+	INTERACTIVE['SELECT'] = true;
+	INTERACTIVE['BUTTON'] = true;
+	INTERACTIVE['INPUT'] = true;
+
+	function hideEverythingInContents(contents) {
+	  var elements = contents.document.querySelectorAll('body *');
+	  for(var i = 0; i < elements.length; i++) {
+	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	      var element = elements[i];
+	      element.setAttribute('aria-hidden', true);
+	      element.setAttribute('tabindex', '-1');
+	    }
+	  }
+	}
+
+	function hideEverythingVisible(contents) {
+	  var elements = contents.document.querySelectorAll('[aria-hidden="false"]');
+	  for(var i = 0; i < elements.length; i++) {
+	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	      elements[i].setAttribute('aria-hidden', true);
+	      if ( INTERACTIVE[elements[i].nodeName] ) {
+	        elements[i].setAttribute('tabindex', '-1');
+	      }
+	    }
+	  }
+	}
+
+	function findMatchingContents(contents, cfi) {
+	  for(var content of contents) {
+	    if ( cfi.indexOf(content.cfiBase) > -1 ) {
+	      return content;
+	    }
+	  }
+	  return null; // ???
+	}
+
+	function showEverythingVisible(container, range) {
+	  var selfOrElement = function(node) {
+	    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
+	  };
+
+	  var showNode = function(node) {
+	    console.log("AHOY showNode", node);
+	    node.setAttribute('aria-hidden', false);
+	    if ( INTERACTIVE[node.nodeName] ) {
+	      var bounds = node.getBoundingClientRect();
+	      var x = bounds.x;
+	      var x2 = x + container.scrollLeft;
+	      console.log("AHOY NODE BOUNDS", node, x, x2, 
+	        "A",
+	        x > container.scrollLeft + container.offsetWidth,
+	        x < container.scrollLeft,
+	        "B",
+	        x2 > container.scrollLeft + container.offsetWidth,
+	        x2 < container.scrollLeft
+	        );
+	      if ( x > container.scrollLeft + container.offsetWidth || 
+	           x < container.scrollLeft ) ; else {
+	        node.setAttribute('tabindex', 0);
+	        node.addEventListener('focus', (event) => {
+	          console.log("AHOY FOCUS", node, container.scrollLeft, container.dataset.scrollLeft);
+	          var scrollLeft = parseInt(container.dataset.scrollLeft, 10);
+	          setTimeout(() => {
+	            container.scrollLeft = scrollLeft;
+	          }, 0);
+	        });
+	      }
+	    }
+	    // node.setAttribute('tabindex', 0);
+	    for(var child of node.children){
+	      console.log("AHOY SHOWING CHILDREN", child);
+	      showNode(child);
+	    }
+	  };
+
+	  var showNodeAndSelf = function(node) {
+	    if ( node.getAttribute('aria-hidden') == 'true' ) {
+	      console.log("AHOY ACTIVATING", node);
+	      showNode(node);
+	      var parent = node.parentNode;
+	      while ( parent != node.ownerDocument.body ) {
+	        // console.log("AHOY ACTIVATING UP", parent);
+	        parent.setAttribute('aria-hidden', false);
+	        //node.setAttribute('tabindex', 0);
+	        parent = parent.parentNode;
+	      }
+	    }
+	  };
+
+	  var ancestor = selfOrElement(range.commonAncestorContainer);
+	  var startContainer = selfOrElement(range.startContainer);
+	  var endContainer = selfOrElement(range.endContainer);
+
+	  var _iterator = document.createNodeIterator(
+	    ancestor,
+	    NodeFilter.SHOW_ALL,
+	    {
+	      acceptNode: function(node) {
+	        return NodeFilter.FILTER_ACCEPT;
+	      }
+	    }
+	  );
+
+	  console.log("AHOY COMMON ANCESTOR", ancestor, startContainer);
+
+	  var _nodes = [];
+	  while ( _iterator.nextNode() ) {
+	    console.log("AHOY ITERATOR", _nodes.length, _iterator.referenceNode, startContainer, _iterator.referenceNode !== startContainer);
+	    if (_nodes.length === 0 && _iterator.referenceNode !== startContainer) continue;
+	    _nodes.push(_iterator.referenceNode);
+	    if (_iterator.referenceNode === endContainer) break;
+	  }
+
+	  console.log("AHOY NODES", _nodes, _nodes[0] == startContainer);
+	  if ( _nodes.length == 1 && _nodes[0] == startContainer ) {
+	    _nodes.pop();
+	    console.log("AHOY WTF", startContainer, document.body, startContainer === document.body);
+	    for(var child of startContainer.children) {
+	      _nodes.push(child);
+	    }
+	  }
+
+	  _nodes.forEach((node) => {
+	    console.log("AHOY SHOW PRE", node);
+	    if ( node.nodeType == Node.ELEMENT_NODE ) {
+	      console.log("AHOY SHOW", node);
+	      showNodeAndSelf(node);
+	    } else {
+	      showNodeAndSelf(node.parentNode);
+	    }
+	  });
+	}
+
+	function updateFocus(reader, location) {
+	  if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
+
+	  setTimeout(() => {
+	    if ( location.start.cfi == reader._last_location_start_cfi && 
+	         location.end.cfi == reader._last_location_end_cfi ) {
+	      return;
+	    }
+	    reader._last_location_start_cfi = location.start.cfi;
+	    reader._last_location_end_cfi = location.end.cfi;
+	    var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
+	    console.log("AHOY updateFocus contents =", contents);
+	    hideEverythingVisible(contents);
+	    var doc = contents.document;
+	    var startRange = new ePub.CFI(location.start.cfi).toRange(doc);
+	    var endRange = new ePub.CFI(location.end.cfi).toRange(doc);
+	    var r = doc.createRange();
+	    r.setStart(startRange.startContainer, startRange.startOffset);
+	    r.setEnd(endRange.endContainer, endRange.endOffset);
+	    console.log("AHOY SHOW CURRENT", location);
+	    showEverythingVisible(reader._rendition.manager.container, r);
+	    // self._rendition.manager.container.focus();
+	  }, 0);
+
+	  reader._last_location_start = location.start.href;
+	}
+
+	function setupFocusRules(reader) {
+	  var contents = reader._rendition.getContents();
+	  contents.forEach( (content) => {
+	    content.addStylesheetRules({
+	      '[aria-hidden="true"]': {
+	        'opacity': '0.25 !important'
+	      },
+	      ':focus': {
+	        'outline': '2px solid goldenrod',
+	        'padding': '4px',
+	        'background': 'lightgoldenrodyellow'
+	      }
+	    });
+
+	    hideEverythingInContents(content);
+
+	    // --- attempts to heal safari/edge
+	    content.document.addEventListener('keydown', function(event) {
+	      if ( event.keyCode == 9 ) {
+
+	        var activeElement = content.document.activeElement;
+	        if ( activeElement ) {
+	          console.log("AHOY TAB ACTIVE ELEMENT", activeElement, reader._manager.container.scrollLeft);
+	          reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
+	        } else {
+	          reader._manager.container.dataset.scrollLeft = 0;
+	          console.log("AHOY TAB NO ACTIVE ELEMENT");
+	        }
+	      }
+	    });
+	  });
+
+	  reader.on('keyDown', function(data) {
+	    if ( data.keyName == 'Tab' ) {
+	      console.log("AHOY KEYDOWN COZY", data.keyName, document.activeElement.localName, reader._manager.container.scrollLeft);
+	      reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
+	    }
+
+	    if ( data.keyName == 'Tab' && data.inner ) {
+	      var container = reader._rendition.manager.container;
+	      // container.dataset.scrollLeft = 0;
+
+	      var mod;
+	      var delta;
+	      var x; var xyz;
+	      setTimeout(function() {
+	        var scrollLeft = container.scrollLeft;
+	        mod = scrollLeft % parseInt(reader._rendition.manager.layout.delta, 10);
+	        if ( mod > 0 && ( mod / reader._rendition.manager.layout.delta ) < 0.99 ) {
+	          // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+	          // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
+	          x = Math.floor(container.scrollLeft / parseInt(reader._rendition.manager.layout.delta, 10));
+	          if ( data.shiftKey ) { x -= 0 ; }
+	          else { x += 1; }
+	          var y = container.scrollLeft;
+	          delta = ( x * self._rendition.manager.layout.delta ) - y;
+	          xyz = ( x * reader._rendition.manager.layout.delta );
+	          // if ( data.shiftKey ) { delta *= -1 ; }
+	          {
+	            reader._rendition.manager.scrollBy(delta);
+	          }
+	        }
+	        // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
+	      }, 0);
+	    }
+	  });
+	}
+
+	window.ePub = ePub$1;
 
 	Reader.EpubJS = Reader.extend({
 
@@ -26410,7 +26649,7 @@
 	      book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
 	      book_options.openAs = 'epub';
 	    }
-	    this._book = ePub(book_href, book_options);
+	    this._book = ePub$1(book_href, book_options);
 	    sessionStorage.removeItem('rootfilePath');
 
 	    this._book.loaded.navigation.then(function(toc) {
@@ -26594,7 +26833,7 @@
 	    var self = this;
 
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
-	    self.rendition = new ePub.Rendition(self._book, self.settings);
+	    self.rendition = new ePub$1.Rendition(self._book, self.settings);
 	    self._book.rendition = self._rendition;
 	    self._updateFontSize();
 	    self._rendition.attachTo(self._panes['epub']);
@@ -26923,163 +27162,12 @@
 	      this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
 	    }.bind(this));
 
-	    var NOT_INTERACTIVE = {};
-	    NOT_INTERACTIVE['P'] = true;
-	    NOT_INTERACTIVE['DIV'] = true;
-	    NOT_INTERACTIVE['UL'] = true;
-	    NOT_INTERACTIVE['OL'] = true;
-
-	    var INTERACTIVE = {};
-	    INTERACTIVE['A'] = true;
-	    INTERACTIVE['SELECT'] = true;
-	    INTERACTIVE['BUTTON'] = true;
-	    INTERACTIVE['INPUT'] = true;
-
-	    var hideEverythingInContents = function(contents) {
-	      var elements = contents.document.querySelectorAll('body *');
-	      for(var i = 0; i < elements.length; i++) {
-	        if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
-	          var element = elements[i];
-	          console.log("AHOY HIDING EVERYTHING", element);
-	          element.setAttribute('aria-hidden', true);
-	          if ( NOT_INTERACTIVE[element.nodeName] ) {
-	            element.setAttribute('tabindex', '-1');
-	          } else if ( INTERACTIVE[element.nodeName] ) {
-	            element.setAttribute('tabindex', '-1');
-	          }
-	        }
-	      }
-	    };
-
-	    var hideEverythingVisible = function(contents) {
-	      var elements = contents.document.querySelectorAll('[aria-hidden="false"]');
-	      for(var i = 0; i < elements.length; i++) {
-	        if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
-	          console.log("AHOY HIDING EVERYTHING", elements[i]);
-	          elements[i].setAttribute('aria-hidden', true);
-	          if ( INTERACTIVE[elements[i].nodeName] ) {
-	            elements[i].setAttribute('tabindex', '-1');
-	          }
-	        }
-	      }
-	    };
-
-	    var showNode = function(node) {
-	      node.setAttribute('aria-hidden', false);
-	      if ( INTERACTIVE[node.nodeName] ) {
-	        var container = self._manager.container;
-	        var bounds = node.getBoundingClientRect();
-	        var x = bounds.x;
-	        if ( x > container.scrollLeft + container.offsetWidth || 
-	             x < container.scrollLeft ) ; else {
-	          node.setAttribute('tabindex', 0);
-	        }
-	      }
-	      // node.setAttribute('tabindex', 0);
-	      for(var child of node.children){
-	        showNode(child);
-	      }
-	    };
-
-	    var showNodeAndSelf = function(node) {
-	      if ( node.getAttribute('aria-hidden') == 'true' ) {
-	        console.log("AHOY ACTIVATING", node);
-	        showNode(node);
-	        var parent = node.parentNode;
-	        while ( parent != node.ownerDocument.body ) {
-	          console.log("AHOY ACTIVATING UP", parent);
-	          parent.setAttribute('aria-hidden', false);
-	          //node.setAttribute('tabindex', 0);
-	          parent = parent.parentNode;
-	        }
-	      }
-	    };
-
-	    var showEverything = function(range) {
-	      var selfOrElement = function(node) {
-	        return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
-	      };
-
-	      var ancestor = selfOrElement(range.commonAncestorContainer);
-	      var startContainer = selfOrElement(range.startContainer);
-	      var endContainer = selfOrElement(range.endContainer);
-
-	      var _iterator = document.createNodeIterator(
-	        ancestor,
-	        NodeFilter.SHOW_ALL,
-	        {
-	          acceptNode: function(node) {
-	            return NodeFilter.FILTER_ACCEPT;
-	          }
-	        }
-	      );
-
-	      console.log("AHOY COMMON ANCESTOR", ancestor, startContainer);
-
-	      var _nodes = [];
-	      while ( _iterator.nextNode() ) {
-	        if (_nodes.length === 0 && _iterator.referenceNode !== startContainer) continue;
-	        _nodes.push(_iterator.referenceNode);
-	        if (_iterator.referenceNode === endContainer) break;
-	      }
-
-	      _nodes.forEach((node) => {
-	        if ( node.nodeType == Node.ELEMENT_NODE ) {
-	          showNodeAndSelf(node);
-	        } else {
-	          showNodeAndSelf(node.parentNode);
-	        }
-	      });
-
-	      // var container = self._manager.container;
-	      // var nodes = ancestor.ownerDocument.querySelectorAll(window.FOCUSABLE_ELEMENTS);
-	      // nodes.forEach((node) => {
-	      //   var bounds = node.getBoundingClientRect();
-	      //   var x = bounds.x; // + container.scrollLeft;
-	      //   console.log("AHOY ACTIVATING CHECK", node, bounds.x, x, container.scrollLeft, container.scrollLeft + container.scrollWidth,
-	      //     x > container.scrollLeft + container.offsetWidth,
-	      //     x < container.scrollLeft);
-	      //   if ( x > container.scrollLeft + container.offsetWidth || 
-	      //        x < container.scrollLeft ) {
-	      //     node.setAttribute('tabindex', '-1');
-	      //     node.setAttribute('aria-hidden', true);
-	      //   }
-	      // })
-
-	    };
-
-	    var find_contents = function(contents, cfi) {
-	      for(var content of contents) {
-	        if ( cfi.indexOf(content.cfiBase) > -1 ) {
-	          return content;
-	        }
-	      }
-	      return null; // ???
-	    };
-
 	    var relocated_handler = debounce_1(function(location) {
 	      if ( self._fired ) { self._fired = false; return ; }
 	      self.fire('relocated', location);
 
-	      setTimeout(() => {
-	        if ( location.start.cfi == self._last_location_start_cfi && 
-	             location.end.cfi == self._last_location_end_cfi ) {
-	          return;
-	        }
-	        self._last_location_start_cfi = location.start.cfi;
-	        self._last_location_end_cfi = location.end.cfi;
-	        var contents = find_contents(self._rendition.manager.getContents(), location.start.cfi);
-	        hideEverythingVisible(contents);
-	        var doc = contents.document;
-	        var startRange = new ePub.CFI(location.start.cfi).toRange(doc);
-	        var endRange = new ePub.CFI(location.end.cfi).toRange(doc);
-	        var r = doc.createRange();
-	        r.setStart(startRange.startContainer, startRange.startOffset);
-	        r.setEnd(endRange.endContainer, endRange.endOffset);
-	        console.log("AHOY SHOW CURRENT", location);
-	        showEverything(r);
-	        // self._rendition.manager.container.focus();
-	      }, 0);
+	      // hideEverything/showEverything
+	      updateFocus(self, location);
 
 	      if ( safari && self._last_location_start && self._last_location_start != location.start.href ) {
 	        self._fired = true;
@@ -27087,7 +27175,6 @@
 	          // self._rendition.display(location.start.cfi);
 	        }, 0);
 	      }
-	      self._last_location_start = location.start.href;
 	    }, 10);
 
 	    this._rendition.on('relocated', relocated_handler);
@@ -27118,79 +27205,11 @@
 
 	    this._rendition.on("rendered", function(section, view) {
 
-	      var contents = self._rendition.getContents();
-	      contents.forEach( (content) => {
-	        content.addStylesheetRules({
-	          'html': {
-	            'font-size': '24px'
-	          },
-	          '[aria-hidden="true"]': {
-	            opacity: 0.25
-	          },
-	          '[aria-hidden="ambiguous"]': {
-	            'background-color': 'antiquewhite'
-	          },
-	          ':focus': {
-	            'outline': '2px solid goldenrod',
-	            'padding': '4px',
-	            'background': 'lightgoldenrodyellow'
-	          }
-	        });
+	      if ( self.settings.flow == 'scrolled-doc' ) { return ; }
 
-	        const FOCUSABLE_ELEMENTS = [
-	            'a[href]:not([tabindex^="-1"])',
-	            'area[href]',
-	            'input:not([disabled]):not([type="hidden"])',
-	            'select:not([disabled])',
-	            'textarea:not([disabled])',
-	            'button:not([disabled]):not([tabindex^="-1"])',
-	            'iframe',
-	            'object',
-	            'embed',
-	            '[contenteditable]',
-	            '[tabindex]:not([tabindex^="-"])'
-	          ];
+	      // add focus rules
+	      setupFocusRules(self);
 
-	        var nodes = content.document.querySelectorAll(FOCUSABLE_ELEMENTS);
-	        var focusableNodes = Object.keys(nodes).map((key) => nodes[key]);
-
-	        var cozyNodes = self._panes['main'].querySelectorAll(FOCUSABLE_ELEMENTS.concat(['.epub-container']));
-	        var cozyFocusableNodes = Object.keys(cozyNodes).map((key) => cozyNodes[key]);
-
-	        window.cozyFocusableNodes = cozyFocusableNodes;
-	        window.FOCUSABLE_ELEMENTS = FOCUSABLE_ELEMENTS;
-
-	        hideEverythingInContents(content);
-
-	      });
-
-	      self.on('keyDown', function(data) {
-	        if ( data.keyName == 'Tab' && data.inner ) {
-	          var container = self._rendition.manager.container;
-	          var mod;
-	          var delta;
-	          var x; var xyz;
-	          setTimeout(function() {
-	            var scrollLeft = container.scrollLeft;
-	            mod = scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-	            if ( mod > 0 && ( mod / self._rendition.manager.layout.delta ) < 0.99 ) {
-	              // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-	              // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
-	              x = Math.floor(container.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10));
-	              if ( data.shiftKey ) { x -= 0 ; }
-	              else { x += 1; }
-	              var y = container.scrollLeft;
-	              delta = ( x * self._rendition.manager.layout.delta ) - y;
-	              xyz = ( x * self._rendition.manager.layout.delta );
-	              // if ( data.shiftKey ) { delta *= -1 ; }
-	              {
-	                self._rendition.manager.scrollBy(delta);
-	              }
-	            }
-	            // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
-	          }, 0);
-	        }
-	      });
 	    });
 	  },
 
@@ -27350,7 +27369,7 @@
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
 	  get: function() {
-	    return ePub.CFI;
+	    return ePub$1.CFI;
 	  }
 	});
 
