@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0f4d47d6, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0a0a5a26, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -15214,6 +15214,7 @@
 
 			this.epubReadingSystem("epub.js", EPUBJS_VERSION);
 
+			this.setViewport();
 			this.listeners();
 		}
 
@@ -15317,6 +15318,8 @@
 			* @returns {number} width
 			*/
 		textWidth() {
+			var viewport = this.$viewport;
+
 			let rect;
 			let width;
 			let range = this.document.createRange();
@@ -15342,6 +15345,8 @@
 			* @returns {number} height
 			*/
 		textHeight() {
+			var viewport = this.$viewport;
+
 			let rect;
 			let height;
 			let range = this.document.createRange();
@@ -15543,6 +15548,54 @@
 
 
 			return settings;
+		}
+
+		setViewport() {
+			this.$viewport = { height: 'auto', width: 'auto' };
+			var $viewport = this.document.querySelector("meta[name='viewport']");
+			var parsed = {
+				"width": undefined,
+				"height": undefined,
+				"scale": undefined,
+				"minimum": undefined,
+				"maximum": undefined,
+				"scalable": undefined
+			};
+
+			/*
+			* check for the viewport size
+			* <meta name="viewport" content="width=1024,height=697" />
+			*/
+			if($viewport && $viewport.hasAttribute("content")) {
+				let content = $viewport.getAttribute("content");
+				let _width = content.match(/width\s*=\s*([^,]*)/);
+				let _height = content.match(/height\s*=\s*([^,]*)/);
+				let _scale = content.match(/initial-scale\s*=\s*([^,]*)/);
+				let _minimum = content.match(/minimum-scale\s*=\s*([^,]*)/);
+				let _maximum = content.match(/maximum-scale\s*=\s*([^,]*)/);
+				let _scalable = content.match(/user-scalable\s*=\s*([^,]*)/);
+
+				if(_width && _width.length && typeof _width[1] !== "undefined"){
+					parsed.width = _width[1];
+				}
+				if(_height && _height.length && typeof _height[1] !== "undefined"){
+					parsed.height = _height[1];
+				}
+				if(_scale && _scale.length && typeof _scale[1] !== "undefined"){
+					parsed.scale = _scale[1];
+				}
+				if(_minimum && _minimum.length && typeof _minimum[1] !== "undefined"){
+					parsed.minimum = _minimum[1];
+				}
+				if(_maximum && _maximum.length && typeof _maximum[1] !== "undefined"){
+					parsed.maximum = _maximum[1];
+				}
+				if(_scalable && _scalable.length && typeof _scalable[1] !== "undefined"){
+					parsed.scalable = _scalable[1];
+				}
+			}
+			this.$viewport.height = parseFloat(parsed.height) || 'auto';
+			this.$viewport.width = parseFloat(parsed.width) || 'auto';
 		}
 
 		/**
@@ -16249,6 +16302,7 @@
 			} else {
 				scale = widthScale < heightScale ? widthScale : heightScale;
 			}
+			// console.log("AHOY contents.fit", width, height, ":", viewportWidth, viewportHeight, ":", scale);
 
 			// the translate does not work as intended, elements can end up unaligned
 			// var offsetY = (height - (viewportHeight * scale)) / 2;
