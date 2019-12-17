@@ -5,6 +5,15 @@ INTERACTIVE['SELECT'] = true;
 INTERACTIVE['BUTTON'] = true;
 INTERACTIVE['INPUT'] = true;
 
+function isInteractive(node) {
+  if ( INTERACTIVE[node.nodeName] ) {
+    // possibly...
+    if ( node.nodeName == 'A' ) { return node.hasAttribute('href'); }
+    return true;
+  }
+  return false;
+}
+
 function hideEverythingInContents(contents) {
   var elements = contents.document.querySelectorAll('body *');
   for(var i = 0; i < elements.length; i++) {
@@ -173,9 +182,19 @@ export function updateFocus(reader, location) {
   reader._last_location_start = location.start.href;
 }
 
+var getBoundingClientRect = function(element) {
+  if ( ! element._boundingClientRect ) {
+
+      // If not, get it then store it for future use.
+      element._boundingClientRect = element.getBoundingClientRect();
+      // elemsWithBoundingRects.push( element );
+    }
+    return element._boundingClientRect;
+}
+
 export function updateFocusXtremeXX(reader, location) {
   // don't use location
-  var t0 = performance.now();
+  performance.mark('start');
 
   var selfOrElement = function(node) {
     return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
@@ -185,11 +204,14 @@ export function updateFocusXtremeXX(reader, location) {
   var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
   hideEverythingVisible(contents);
 
+  performance.mark('hideEverythingVisible');
+  performance.measure('measure-1', 'start', 'hideEverythingVisible');
+
   var containerX = container.scrollLeft;
   var containerX2 = container.scrollLeft + container.offsetWidth;
 
   var _showThisNode = function(node) {
-    var bounds = node.getBoundingClientRect();
+    var bounds = getBoundingClientRect(node); // node.getBoundingClientRect();
     var x = bounds.left;
     var x2 = bounds.left + bounds.width;
 
@@ -204,7 +226,7 @@ export function updateFocusXtremeXX(reader, location) {
     if ( isVisible ) {
       // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
       node.setAttribute('aria-hidden', 'false');
-      if ( INTERACTIVE[node.nodeName] ) {
+      if ( isInteractive(node) ) {
         node.setAttribute('tabindex', '0');
       }
       var hasSeenVisibleChild = false;
@@ -222,12 +244,16 @@ export function updateFocusXtremeXX(reader, location) {
 
   var startRange = new ePub.CFI(location.start.cfi).toRange(contents.document);
   var startNode = selfOrElement(startRange.startContainer);
-  console.log("AHOY", location.start.cfi, startNode, performance.now() - t0);
+  performance.mark('initial_startNode');
+  performance.measure('measure-1b', 'start', 'initial_startNode');
+  performance.measure('measure-2', 'hideEverythingVisible', 'initial_startNode');
+
+  console.log("AHOY", location.start.cfi, startNode);
 
   var _nodes = [];
   var checkNode = startNode;
   while ( checkNode != contents.document.body ) {
-    var bounds = checkNode.getBoundingClientRect();
+    var bounds = getBoundingClientRect(checkNode); // checkNode.getBoundingClientRect();
     var x = bounds.left;
     var x2 = bounds.left + bounds.width;
 
@@ -245,23 +271,55 @@ export function updateFocusXtremeXX(reader, location) {
 
   }
 
-  console.log("AHOY NEXT START", location.start.cfi, startNode, performance.now() - t0);
+  performance.mark('max_startNode');
+  performance.measure('measure-3', 'initial_startNode', 'max_startNode');
 
-  var parentNode = startNode.parentNode;
+  var parentNode = startNode; // .parentNode;
   while ( parentNode != contents.document.body ) {
     parentNode.setAttribute('aria-hidden', false);
     parentNode = parentNode.parentNode;
   }
 
+  performance.mark('parentNode');
+  performance.measure('measure-4','max_startNode', 'parentNode');
+
+
   _showThisNode(startNode);
-  var nextNode = startNode.nextElementSibling;
-  while ( nextNode ) {
-    var isVisible = _showThisNode(nextNode);
-    if ( ! isVisible ) { break; }
-    nextNode = nextNode.nextElementSibling;
+
+  performance.mark('showThisNode');
+  performance.measure('measure-5','parentNode', 'showThisNode');
+
+
+  // var nextNode = startNode.nextElementSibling;
+  // while ( nextNode ) {
+  //   var isVisible = _showThisNode(nextNode);
+  //   if ( ! isVisible ) { break; }
+  //   nextNode = nextNode.nextElementSibling;
+  // }
+
+  var children = startNode.parentNode.children;
+  var doProcess = false;
+  for (var nextNode of children) {
+    if ( nextNode == startNode ) { doProcess = true; }
+    else if ( doProcess ) {
+      var isVisible = _showThisNode(nextNode);
+      if ( ! isVisible ) { break; }
+    }
   }
 
-  console.log("AHOY BENCHMARK XTREME XX", performance.now() - t0);
+
+  performance.mark('nextElementSibling');
+  performance.measure('measure-6','showThisNode', 'nextElementSibling');
+
+  const allEntries = performance.getEntriesByType("mark");
+  console.log(allEntries);
+
+  let entries = performance.getEntriesByType("measure");
+  for (var i=0; i < entries.length; i++) {
+    console.log("AHOY XX", entries[i].name, entries[i].duration);
+  }
+
+  performance.clearMarks();
 
 }
 
