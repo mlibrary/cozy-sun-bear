@@ -802,7 +802,9 @@
 .modal__content ul, .modal__content ol {
   margin: 0;
   padding: 0;
-  padding-left: 1.2rem;
+  padding-left: 1.2rem; }
+
+.modal__content ul {
   list-style: none; }
 
 .modal__content ul li a, .modal__content ul li span, .modal__content ol li a, .modal__content ol li span {
