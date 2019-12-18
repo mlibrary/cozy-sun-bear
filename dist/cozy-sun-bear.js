@@ -1,10 +1,10 @@
 /*
- * Cozy Sun Bear 1.0.0d462997, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('intersection-observer')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'intersection-observer'], factory) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.cozy = {})));
 }(this, (function (exports) { 'use strict';
 
@@ -600,6 +600,718 @@
 	}());
 
 	}
+
+	/**
+	 * Copyright 2016 Google Inc. All Rights Reserved.
+	 *
+	 * Licensed under the W3C SOFTWARE AND DOCUMENT NOTICE AND LICENSE.
+	 *
+	 *  https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
+	 *
+	 */
+
+	(function(window, document) {
+
+
+	// Exits early if all IntersectionObserver and IntersectionObserverEntry
+	// features are natively supported.
+	if ('IntersectionObserver' in window &&
+	    'IntersectionObserverEntry' in window &&
+	    'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
+
+	  // Minimal polyfill for Edge 15's lack of `isIntersecting`
+	  // See: https://github.com/w3c/IntersectionObserver/issues/211
+	  if (!('isIntersecting' in window.IntersectionObserverEntry.prototype)) {
+	    Object.defineProperty(window.IntersectionObserverEntry.prototype,
+	      'isIntersecting', {
+	      get: function () {
+	        return this.intersectionRatio > 0;
+	      }
+	    });
+	  }
+	  return;
+	}
+
+
+	/**
+	 * Creates the global IntersectionObserverEntry constructor.
+	 * https://w3c.github.io/IntersectionObserver/#intersection-observer-entry
+	 * @param {Object} entry A dictionary of instance properties.
+	 * @constructor
+	 */
+	function IntersectionObserverEntry(entry) {
+	  this.time = entry.time;
+	  this.target = entry.target;
+	  this.rootBounds = entry.rootBounds;
+	  this.boundingClientRect = entry.boundingClientRect;
+	  this.intersectionRect = entry.intersectionRect || getEmptyRect();
+	  this.isIntersecting = !!entry.intersectionRect;
+
+	  // Calculates the intersection ratio.
+	  var targetRect = this.boundingClientRect;
+	  var targetArea = targetRect.width * targetRect.height;
+	  var intersectionRect = this.intersectionRect;
+	  var intersectionArea = intersectionRect.width * intersectionRect.height;
+
+	  // Sets intersection ratio.
+	  if (targetArea) {
+	    // Round the intersection ratio to avoid floating point math issues:
+	    // https://github.com/w3c/IntersectionObserver/issues/324
+	    this.intersectionRatio = Number((intersectionArea / targetArea).toFixed(4));
+	  } else {
+	    // If area is zero and is intersecting, sets to 1, otherwise to 0
+	    this.intersectionRatio = this.isIntersecting ? 1 : 0;
+	  }
+	}
+
+
+	/**
+	 * Creates the global IntersectionObserver constructor.
+	 * https://w3c.github.io/IntersectionObserver/#intersection-observer-interface
+	 * @param {Function} callback The function to be invoked after intersection
+	 *     changes have queued. The function is not invoked if the queue has
+	 *     been emptied by calling the `takeRecords` method.
+	 * @param {Object=} opt_options Optional configuration options.
+	 * @constructor
+	 */
+	function IntersectionObserver(callback, opt_options) {
+
+	  var options = opt_options || {};
+
+	  if (typeof callback != 'function') {
+	    throw new Error('callback must be a function');
+	  }
+
+	  if (options.root && options.root.nodeType != 1) {
+	    throw new Error('root must be an Element');
+	  }
+
+	  // Binds and throttles `this._checkForIntersections`.
+	  this._checkForIntersections = throttle(
+	      this._checkForIntersections.bind(this), this.THROTTLE_TIMEOUT);
+
+	  // Private properties.
+	  this._callback = callback;
+	  this._observationTargets = [];
+	  this._queuedEntries = [];
+	  this._rootMarginValues = this._parseRootMargin(options.rootMargin);
+
+	  // Public properties.
+	  this.thresholds = this._initThresholds(options.threshold);
+	  this.root = options.root || null;
+	  this.rootMargin = this._rootMarginValues.map(function(margin) {
+	    return margin.value + margin.unit;
+	  }).join(' ');
+	}
+
+
+	/**
+	 * The minimum interval within which the document will be checked for
+	 * intersection changes.
+	 */
+	IntersectionObserver.prototype.THROTTLE_TIMEOUT = 100;
+
+
+	/**
+	 * The frequency in which the polyfill polls for intersection changes.
+	 * this can be updated on a per instance basis and must be set prior to
+	 * calling `observe` on the first target.
+	 */
+	IntersectionObserver.prototype.POLL_INTERVAL = null;
+
+	/**
+	 * Use a mutation observer on the root element
+	 * to detect intersection changes.
+	 */
+	IntersectionObserver.prototype.USE_MUTATION_OBSERVER = true;
+
+
+	/**
+	 * Starts observing a target element for intersection changes based on
+	 * the thresholds values.
+	 * @param {Element} target The DOM element to observe.
+	 */
+	IntersectionObserver.prototype.observe = function(target) {
+	  var isTargetAlreadyObserved = this._observationTargets.some(function(item) {
+	    return item.element == target;
+	  });
+
+	  if (isTargetAlreadyObserved) {
+	    return;
+	  }
+
+	  if (!(target && target.nodeType == 1)) {
+	    throw new Error('target must be an Element');
+	  }
+
+	  this._registerInstance();
+	  this._observationTargets.push({element: target, entry: null});
+	  this._monitorIntersections();
+	  this._checkForIntersections();
+	};
+
+
+	/**
+	 * Stops observing a target element for intersection changes.
+	 * @param {Element} target The DOM element to observe.
+	 */
+	IntersectionObserver.prototype.unobserve = function(target) {
+	  this._observationTargets =
+	      this._observationTargets.filter(function(item) {
+
+	    return item.element != target;
+	  });
+	  if (!this._observationTargets.length) {
+	    this._unmonitorIntersections();
+	    this._unregisterInstance();
+	  }
+	};
+
+
+	/**
+	 * Stops observing all target elements for intersection changes.
+	 */
+	IntersectionObserver.prototype.disconnect = function() {
+	  this._observationTargets = [];
+	  this._unmonitorIntersections();
+	  this._unregisterInstance();
+	};
+
+
+	/**
+	 * Returns any queue entries that have not yet been reported to the
+	 * callback and clears the queue. This can be used in conjunction with the
+	 * callback to obtain the absolute most up-to-date intersection information.
+	 * @return {Array} The currently queued entries.
+	 */
+	IntersectionObserver.prototype.takeRecords = function() {
+	  var records = this._queuedEntries.slice();
+	  this._queuedEntries = [];
+	  return records;
+	};
+
+
+	/**
+	 * Accepts the threshold value from the user configuration object and
+	 * returns a sorted array of unique threshold values. If a value is not
+	 * between 0 and 1 and error is thrown.
+	 * @private
+	 * @param {Array|number=} opt_threshold An optional threshold value or
+	 *     a list of threshold values, defaulting to [0].
+	 * @return {Array} A sorted list of unique and valid threshold values.
+	 */
+	IntersectionObserver.prototype._initThresholds = function(opt_threshold) {
+	  var threshold = opt_threshold || [0];
+	  if (!Array.isArray(threshold)) threshold = [threshold];
+
+	  return threshold.sort().filter(function(t, i, a) {
+	    if (typeof t != 'number' || isNaN(t) || t < 0 || t > 1) {
+	      throw new Error('threshold must be a number between 0 and 1 inclusively');
+	    }
+	    return t !== a[i - 1];
+	  });
+	};
+
+
+	/**
+	 * Accepts the rootMargin value from the user configuration object
+	 * and returns an array of the four margin values as an object containing
+	 * the value and unit properties. If any of the values are not properly
+	 * formatted or use a unit other than px or %, and error is thrown.
+	 * @private
+	 * @param {string=} opt_rootMargin An optional rootMargin value,
+	 *     defaulting to '0px'.
+	 * @return {Array<Object>} An array of margin objects with the keys
+	 *     value and unit.
+	 */
+	IntersectionObserver.prototype._parseRootMargin = function(opt_rootMargin) {
+	  var marginString = opt_rootMargin || '0px';
+	  var margins = marginString.split(/\s+/).map(function(margin) {
+	    var parts = /^(-?\d*\.?\d+)(px|%)$/.exec(margin);
+	    if (!parts) {
+	      throw new Error('rootMargin must be specified in pixels or percent');
+	    }
+	    return {value: parseFloat(parts[1]), unit: parts[2]};
+	  });
+
+	  // Handles shorthand.
+	  margins[1] = margins[1] || margins[0];
+	  margins[2] = margins[2] || margins[0];
+	  margins[3] = margins[3] || margins[1];
+
+	  return margins;
+	};
+
+
+	/**
+	 * Starts polling for intersection changes if the polling is not already
+	 * happening, and if the page's visibility state is visible.
+	 * @private
+	 */
+	IntersectionObserver.prototype._monitorIntersections = function() {
+	  if (!this._monitoringIntersections) {
+	    this._monitoringIntersections = true;
+
+	    // If a poll interval is set, use polling instead of listening to
+	    // resize and scroll events or DOM mutations.
+	    if (this.POLL_INTERVAL) {
+	      this._monitoringInterval = setInterval(
+	          this._checkForIntersections, this.POLL_INTERVAL);
+	    }
+	    else {
+	      addEvent(window, 'resize', this._checkForIntersections, true);
+	      addEvent(document, 'scroll', this._checkForIntersections, true);
+
+	      if (this.USE_MUTATION_OBSERVER && 'MutationObserver' in window) {
+	        this._domObserver = new MutationObserver(this._checkForIntersections);
+	        this._domObserver.observe(document, {
+	          attributes: true,
+	          childList: true,
+	          characterData: true,
+	          subtree: true
+	        });
+	      }
+	    }
+	  }
+	};
+
+
+	/**
+	 * Stops polling for intersection changes.
+	 * @private
+	 */
+	IntersectionObserver.prototype._unmonitorIntersections = function() {
+	  if (this._monitoringIntersections) {
+	    this._monitoringIntersections = false;
+
+	    clearInterval(this._monitoringInterval);
+	    this._monitoringInterval = null;
+
+	    removeEvent(window, 'resize', this._checkForIntersections, true);
+	    removeEvent(document, 'scroll', this._checkForIntersections, true);
+
+	    if (this._domObserver) {
+	      this._domObserver.disconnect();
+	      this._domObserver = null;
+	    }
+	  }
+	};
+
+
+	/**
+	 * Scans each observation target for intersection changes and adds them
+	 * to the internal entries queue. If new entries are found, it
+	 * schedules the callback to be invoked.
+	 * @private
+	 */
+	IntersectionObserver.prototype._checkForIntersections = function() {
+	  var rootIsInDom = this._rootIsInDom();
+	  var rootRect = rootIsInDom ? this._getRootRect() : getEmptyRect();
+
+	  this._observationTargets.forEach(function(item) {
+	    var target = item.element;
+	    var targetRect = getBoundingClientRect(target);
+	    var rootContainsTarget = this._rootContainsTarget(target);
+	    var oldEntry = item.entry;
+	    var intersectionRect = rootIsInDom && rootContainsTarget &&
+	        this._computeTargetAndRootIntersection(target, rootRect);
+
+	    var newEntry = item.entry = new IntersectionObserverEntry({
+	      time: now(),
+	      target: target,
+	      boundingClientRect: targetRect,
+	      rootBounds: rootRect,
+	      intersectionRect: intersectionRect
+	    });
+
+	    if (!oldEntry) {
+	      this._queuedEntries.push(newEntry);
+	    } else if (rootIsInDom && rootContainsTarget) {
+	      // If the new entry intersection ratio has crossed any of the
+	      // thresholds, add a new entry.
+	      if (this._hasCrossedThreshold(oldEntry, newEntry)) {
+	        this._queuedEntries.push(newEntry);
+	      }
+	    } else {
+	      // If the root is not in the DOM or target is not contained within
+	      // root but the previous entry for this target had an intersection,
+	      // add a new record indicating removal.
+	      if (oldEntry && oldEntry.isIntersecting) {
+	        this._queuedEntries.push(newEntry);
+	      }
+	    }
+	  }, this);
+
+	  if (this._queuedEntries.length) {
+	    this._callback(this.takeRecords(), this);
+	  }
+	};
+
+
+	/**
+	 * Accepts a target and root rect computes the intersection between then
+	 * following the algorithm in the spec.
+	 * TODO(philipwalton): at this time clip-path is not considered.
+	 * https://w3c.github.io/IntersectionObserver/#calculate-intersection-rect-algo
+	 * @param {Element} target The target DOM element
+	 * @param {Object} rootRect The bounding rect of the root after being
+	 *     expanded by the rootMargin value.
+	 * @return {?Object} The final intersection rect object or undefined if no
+	 *     intersection is found.
+	 * @private
+	 */
+	IntersectionObserver.prototype._computeTargetAndRootIntersection =
+	    function(target, rootRect) {
+
+	  // If the element isn't displayed, an intersection can't happen.
+	  if (window.getComputedStyle(target).display == 'none') return;
+
+	  var targetRect = getBoundingClientRect(target);
+	  var intersectionRect = targetRect;
+	  var parent = getParentNode(target);
+	  var atRoot = false;
+
+	  while (!atRoot) {
+	    var parentRect = null;
+	    var parentComputedStyle = parent.nodeType == 1 ?
+	        window.getComputedStyle(parent) : {};
+
+	    // If the parent isn't displayed, an intersection can't happen.
+	    if (parentComputedStyle.display == 'none') return;
+
+	    if (parent == this.root || parent == document) {
+	      atRoot = true;
+	      parentRect = rootRect;
+	    } else {
+	      // If the element has a non-visible overflow, and it's not the <body>
+	      // or <html> element, update the intersection rect.
+	      // Note: <body> and <html> cannot be clipped to a rect that's not also
+	      // the document rect, so no need to compute a new intersection.
+	      if (parent != document.body &&
+	          parent != document.documentElement &&
+	          parentComputedStyle.overflow != 'visible') {
+	        parentRect = getBoundingClientRect(parent);
+	      }
+	    }
+
+	    // If either of the above conditionals set a new parentRect,
+	    // calculate new intersection data.
+	    if (parentRect) {
+	      intersectionRect = computeRectIntersection(parentRect, intersectionRect);
+
+	      if (!intersectionRect) break;
+	    }
+	    parent = getParentNode(parent);
+	  }
+	  return intersectionRect;
+	};
+
+
+	/**
+	 * Returns the root rect after being expanded by the rootMargin value.
+	 * @return {Object} The expanded root rect.
+	 * @private
+	 */
+	IntersectionObserver.prototype._getRootRect = function() {
+	  var rootRect;
+	  if (this.root) {
+	    rootRect = getBoundingClientRect(this.root);
+	  } else {
+	    // Use <html>/<body> instead of window since scroll bars affect size.
+	    var html = document.documentElement;
+	    var body = document.body;
+	    rootRect = {
+	      top: 0,
+	      left: 0,
+	      right: html.clientWidth || body.clientWidth,
+	      width: html.clientWidth || body.clientWidth,
+	      bottom: html.clientHeight || body.clientHeight,
+	      height: html.clientHeight || body.clientHeight
+	    };
+	  }
+	  return this._expandRectByRootMargin(rootRect);
+	};
+
+
+	/**
+	 * Accepts a rect and expands it by the rootMargin value.
+	 * @param {Object} rect The rect object to expand.
+	 * @return {Object} The expanded rect.
+	 * @private
+	 */
+	IntersectionObserver.prototype._expandRectByRootMargin = function(rect) {
+	  var margins = this._rootMarginValues.map(function(margin, i) {
+	    return margin.unit == 'px' ? margin.value :
+	        margin.value * (i % 2 ? rect.width : rect.height) / 100;
+	  });
+	  var newRect = {
+	    top: rect.top - margins[0],
+	    right: rect.right + margins[1],
+	    bottom: rect.bottom + margins[2],
+	    left: rect.left - margins[3]
+	  };
+	  newRect.width = newRect.right - newRect.left;
+	  newRect.height = newRect.bottom - newRect.top;
+
+	  return newRect;
+	};
+
+
+	/**
+	 * Accepts an old and new entry and returns true if at least one of the
+	 * threshold values has been crossed.
+	 * @param {?IntersectionObserverEntry} oldEntry The previous entry for a
+	 *    particular target element or null if no previous entry exists.
+	 * @param {IntersectionObserverEntry} newEntry The current entry for a
+	 *    particular target element.
+	 * @return {boolean} Returns true if a any threshold has been crossed.
+	 * @private
+	 */
+	IntersectionObserver.prototype._hasCrossedThreshold =
+	    function(oldEntry, newEntry) {
+
+	  // To make comparing easier, an entry that has a ratio of 0
+	  // but does not actually intersect is given a value of -1
+	  var oldRatio = oldEntry && oldEntry.isIntersecting ?
+	      oldEntry.intersectionRatio || 0 : -1;
+	  var newRatio = newEntry.isIntersecting ?
+	      newEntry.intersectionRatio || 0 : -1;
+
+	  // Ignore unchanged ratios
+	  if (oldRatio === newRatio) return;
+
+	  for (var i = 0; i < this.thresholds.length; i++) {
+	    var threshold = this.thresholds[i];
+
+	    // Return true if an entry matches a threshold or if the new ratio
+	    // and the old ratio are on the opposite sides of a threshold.
+	    if (threshold == oldRatio || threshold == newRatio ||
+	        threshold < oldRatio !== threshold < newRatio) {
+	      return true;
+	    }
+	  }
+	};
+
+
+	/**
+	 * Returns whether or not the root element is an element and is in the DOM.
+	 * @return {boolean} True if the root element is an element and is in the DOM.
+	 * @private
+	 */
+	IntersectionObserver.prototype._rootIsInDom = function() {
+	  return !this.root || containsDeep(document, this.root);
+	};
+
+
+	/**
+	 * Returns whether or not the target element is a child of root.
+	 * @param {Element} target The target element to check.
+	 * @return {boolean} True if the target element is a child of root.
+	 * @private
+	 */
+	IntersectionObserver.prototype._rootContainsTarget = function(target) {
+	  return containsDeep(this.root || document, target);
+	};
+
+
+	/**
+	 * Adds the instance to the global IntersectionObserver registry if it isn't
+	 * already present.
+	 * @private
+	 */
+	IntersectionObserver.prototype._registerInstance = function() {
+	};
+
+
+	/**
+	 * Removes the instance from the global IntersectionObserver registry.
+	 * @private
+	 */
+	IntersectionObserver.prototype._unregisterInstance = function() {
+	};
+
+
+	/**
+	 * Returns the result of the performance.now() method or null in browsers
+	 * that don't support the API.
+	 * @return {number} The elapsed time since the page was requested.
+	 */
+	function now() {
+	  return window.performance && performance.now && performance.now();
+	}
+
+
+	/**
+	 * Throttles a function and delays its execution, so it's only called at most
+	 * once within a given time period.
+	 * @param {Function} fn The function to throttle.
+	 * @param {number} timeout The amount of time that must pass before the
+	 *     function can be called again.
+	 * @return {Function} The throttled function.
+	 */
+	function throttle(fn, timeout) {
+	  var timer = null;
+	  return function () {
+	    if (!timer) {
+	      timer = setTimeout(function() {
+	        fn();
+	        timer = null;
+	      }, timeout);
+	    }
+	  };
+	}
+
+
+	/**
+	 * Adds an event handler to a DOM node ensuring cross-browser compatibility.
+	 * @param {Node} node The DOM node to add the event handler to.
+	 * @param {string} event The event name.
+	 * @param {Function} fn The event handler to add.
+	 * @param {boolean} opt_useCapture Optionally adds the even to the capture
+	 *     phase. Note: this only works in modern browsers.
+	 */
+	function addEvent(node, event, fn, opt_useCapture) {
+	  if (typeof node.addEventListener == 'function') {
+	    node.addEventListener(event, fn, opt_useCapture || false);
+	  }
+	  else if (typeof node.attachEvent == 'function') {
+	    node.attachEvent('on' + event, fn);
+	  }
+	}
+
+
+	/**
+	 * Removes a previously added event handler from a DOM node.
+	 * @param {Node} node The DOM node to remove the event handler from.
+	 * @param {string} event The event name.
+	 * @param {Function} fn The event handler to remove.
+	 * @param {boolean} opt_useCapture If the event handler was added with this
+	 *     flag set to true, it should be set to true here in order to remove it.
+	 */
+	function removeEvent(node, event, fn, opt_useCapture) {
+	  if (typeof node.removeEventListener == 'function') {
+	    node.removeEventListener(event, fn, opt_useCapture || false);
+	  }
+	  else if (typeof node.detatchEvent == 'function') {
+	    node.detatchEvent('on' + event, fn);
+	  }
+	}
+
+
+	/**
+	 * Returns the intersection between two rect objects.
+	 * @param {Object} rect1 The first rect.
+	 * @param {Object} rect2 The second rect.
+	 * @return {?Object} The intersection rect or undefined if no intersection
+	 *     is found.
+	 */
+	function computeRectIntersection(rect1, rect2) {
+	  var top = Math.max(rect1.top, rect2.top);
+	  var bottom = Math.min(rect1.bottom, rect2.bottom);
+	  var left = Math.max(rect1.left, rect2.left);
+	  var right = Math.min(rect1.right, rect2.right);
+	  var width = right - left;
+	  var height = bottom - top;
+
+	  return (width >= 0 && height >= 0) && {
+	    top: top,
+	    bottom: bottom,
+	    left: left,
+	    right: right,
+	    width: width,
+	    height: height
+	  };
+	}
+
+
+	/**
+	 * Shims the native getBoundingClientRect for compatibility with older IE.
+	 * @param {Element} el The element whose bounding rect to get.
+	 * @return {Object} The (possibly shimmed) rect of the element.
+	 */
+	function getBoundingClientRect(el) {
+	  var rect;
+
+	  try {
+	    rect = el.getBoundingClientRect();
+	  } catch (err) {
+	    // Ignore Windows 7 IE11 "Unspecified error"
+	    // https://github.com/w3c/IntersectionObserver/pull/205
+	  }
+
+	  if (!rect) return getEmptyRect();
+
+	  // Older IE
+	  if (!(rect.width && rect.height)) {
+	    rect = {
+	      top: rect.top,
+	      right: rect.right,
+	      bottom: rect.bottom,
+	      left: rect.left,
+	      width: rect.right - rect.left,
+	      height: rect.bottom - rect.top
+	    };
+	  }
+	  return rect;
+	}
+
+
+	/**
+	 * Returns an empty rect object. An empty rect is returned when an element
+	 * is not in the DOM.
+	 * @return {Object} The empty rect.
+	 */
+	function getEmptyRect() {
+	  return {
+	    top: 0,
+	    bottom: 0,
+	    left: 0,
+	    right: 0,
+	    width: 0,
+	    height: 0
+	  };
+	}
+
+	/**
+	 * Checks to see if a parent element contains a child element (including inside
+	 * shadow DOM).
+	 * @param {Node} parent The parent element.
+	 * @param {Node} child The child element.
+	 * @return {boolean} True if the parent node contains the child node.
+	 */
+	function containsDeep(parent, child) {
+	  var node = child;
+	  while (node) {
+	    if (node == parent) return true;
+
+	    node = getParentNode(node);
+	  }
+	  return false;
+	}
+
+
+	/**
+	 * Gets the parent node of an element or its host element if the parent node
+	 * is a shadow root.
+	 * @param {Node} node The node whose parent to get.
+	 * @return {Node|null} The parent node or null if no parent exists.
+	 */
+	function getParentNode(node) {
+	  var parent = node.parentNode;
+
+	  if (parent && parent.nodeType == 11 && parent.host) {
+	    // If the parent is a shadow root, return the host element.
+	    return parent.host;
+	  }
+	  return parent;
+	}
+
+
+	// Exposes the constructors globally.
+	window.IntersectionObserver = IntersectionObserver;
+	window.IntersectionObserverEntry = IntersectionObserverEntry;
+
+	}(window, document));
 
 	var version = "1.0.0";
 
@@ -2791,7 +3503,7 @@
 	var objectProto = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
+	var hasOwnProperty$1 = objectProto.hasOwnProperty;
 
 	/**
 	 * Used to resolve the
@@ -2811,7 +3523,7 @@
 	 * @returns {string} Returns the raw `toStringTag`.
 	 */
 	function getRawTag(value) {
-	  var isOwn = hasOwnProperty.call(value, symToStringTag),
+	  var isOwn = hasOwnProperty$1.call(value, symToStringTag),
 	      tag = value[symToStringTag];
 
 	  try {
@@ -3171,6 +3883,7 @@
 	      }
 	      if (maxing) {
 	        // Handle invocations in a tight loop.
+	        clearTimeout(timerId);
 	        timerId = setTimeout(timerExpired, wait);
 	        return invokeFunc(lastCallTime);
 	      }
@@ -3290,11 +4003,11 @@
 	var funcToString$1 = funcProto$1.toString;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
+	var hasOwnProperty$2 = objectProto$2.hasOwnProperty;
 
 	/** Used to detect if a method is native. */
 	var reIsNative = RegExp('^' +
-	  funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&')
+	  funcToString$1.call(hasOwnProperty$2).replace(reRegExpChar, '\\$&')
 	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 	);
 
@@ -3421,7 +4134,7 @@
 	var objectProto$3 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
+	var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
 
 	/**
 	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -3435,7 +4148,7 @@
 	 */
 	function assignValue(object, key, value) {
 	  var objValue = object[key];
-	  if (!(hasOwnProperty$2.call(object, key) && eq_1(objValue, value)) ||
+	  if (!(hasOwnProperty$3.call(object, key) && eq_1(objValue, value)) ||
 	      (value === undefined && !(key in object))) {
 	    _baseAssignValue(object, key, value);
 	  }
@@ -3884,7 +4597,7 @@
 	var objectProto$5 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$3 = objectProto$5.hasOwnProperty;
+	var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
 
 	/** Built-in value references. */
 	var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
@@ -3908,7 +4621,7 @@
 	 * // => false
 	 */
 	var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
-	  return isObjectLike_1(value) && hasOwnProperty$3.call(value, 'callee') &&
+	  return isObjectLike_1(value) && hasOwnProperty$4.call(value, 'callee') &&
 	    !propertyIsEnumerable.call(value, 'callee');
 	};
 
@@ -4129,7 +4842,7 @@
 	var objectProto$6 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$4 = objectProto$6.hasOwnProperty;
+	var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
 
 	/**
 	 * Creates an array of the enumerable property names of the array-like `value`.
@@ -4149,7 +4862,7 @@
 	      length = result.length;
 
 	  for (var key in value) {
-	    if ((inherited || hasOwnProperty$4.call(value, key)) &&
+	    if ((inherited || hasOwnProperty$5.call(value, key)) &&
 	        !(skipIndexes && (
 	           // Safari 9 has enumerable `arguments.length` in strict mode.
 	           key == 'length' ||
@@ -4193,7 +4906,7 @@
 	var objectProto$7 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
+	var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
 
 	/**
 	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -4208,7 +4921,7 @@
 	  }
 	  var result = [];
 	  for (var key in Object(object)) {
-	    if (hasOwnProperty$5.call(object, key) && key != 'constructor') {
+	    if (hasOwnProperty$6.call(object, key) && key != 'constructor') {
 	      result.push(key);
 	    }
 	  }
@@ -4255,7 +4968,7 @@
 	var objectProto$8 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
+	var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
 
 	/**
 	 * Assigns own enumerable string keyed properties of source objects to the
@@ -4295,7 +5008,7 @@
 	    return;
 	  }
 	  for (var key in source) {
-	    if (hasOwnProperty$6.call(source, key)) {
+	    if (hasOwnProperty$7.call(source, key)) {
 	      _assignValue(object, key, source[key]);
 	    }
 	  }
@@ -7622,12 +8335,59 @@
 
 	var Mixin = {Events: Evented.prototype};
 
+	// ES3 safe
+	var _undefined = void 0;
+
+	var is = function (value) { return value !== _undefined && value !== null; };
+
+	// prettier-ignore
+	var possibleTypes = { "object": true, "function": true, "undefined": true /* document.all */ };
+
+	var is$1 = function (value) {
+		if (!is(value)) return false;
+		return hasOwnProperty.call(possibleTypes, typeof value);
+	};
+
+	var is$2 = function (value) {
+		if (!is$1(value)) return false;
+		try {
+			if (!value.constructor) return false;
+			return value.constructor.prototype === value;
+		} catch (error) {
+			return false;
+		}
+	};
+
+	var is$3 = function (value) {
+		if (typeof value !== "function") return false;
+
+		if (!hasOwnProperty.call(value, "length")) return false;
+
+		try {
+			if (typeof value.length !== "number") return false;
+			if (typeof value.call !== "function") return false;
+			if (typeof value.apply !== "function") return false;
+		} catch (error) {
+			return false;
+		}
+
+		return !is$2(value);
+	};
+
+	var classRe = /^\s*class[\s{/}]/, functionToString = Function.prototype.toString;
+
+	var is$4 = function (value) {
+		if (!is$3(value)) return false;
+		if (classRe.test(functionToString.call(value))) return false;
+		return true;
+	};
+
 	var isImplemented = function () {
 		var assign = Object.assign, obj;
 		if (typeof assign !== "function") return false;
 		obj = { foo: "raz" };
 		assign(obj, { bar: "dwa" }, { trzy: "trzy" });
-		return (obj.foo + obj.bar + obj.trzy) === "razdwatrzy";
+		return obj.foo + obj.bar + obj.trzy === "razdwatrzy";
 	};
 
 	var isImplemented$1 = function () {
@@ -7641,11 +8401,9 @@
 	// eslint-disable-next-line no-empty-function
 	var noop = function () {};
 
-	var _undefined = noop(); // Support ES3 engines
+	var _undefined$1 = noop(); // Support ES3 engines
 
-	var isValue = function (val) {
-	 return (val !== _undefined) && (val !== null);
-	};
+	var isValue = function (val) { return val !== _undefined$1 && val !== null; };
 
 	var keys$1 = Object.keys;
 
@@ -7660,7 +8418,7 @@
 
 	var max   = Math.max;
 
-	var shim$1 = function (dest, src /*, …srcn*/) {
+	var shim$1 = function (dest, src/*, …srcn*/) {
 		var error, i, length = max(arguments.length, 2), assign;
 		dest = Object(validValue(dest));
 		assign = function (key) {
@@ -7678,9 +8436,7 @@
 		return dest;
 	};
 
-	var assign$1 = isImplemented()
-		? Object.assign
-		: shim$1;
+	var assign$1 = isImplemented() ? Object.assign : shim$1;
 
 	var forEach = Array.prototype.forEach, create$2 = Object.create;
 
@@ -7690,7 +8446,7 @@
 	};
 
 	// eslint-disable-next-line no-unused-vars
-	var normalizeOptions = function (opts1 /*, …options*/) {
+	var normalizeOptions = function (opts1/*, …options*/) {
 		var result = create$2(null);
 		forEach.call(arguments, function (options) {
 			if (!isValue(options)) return;
@@ -7699,17 +8455,11 @@
 		return result;
 	};
 
-	// Deprecated
-
-	var isCallable = function (obj) {
-	 return typeof obj === "function";
-	};
-
 	var str = "razdwatrzy";
 
 	var isImplemented$2 = function () {
 		if (typeof str.contains !== "function") return false;
-		return (str.contains("dwa") === true) && (str.contains("foo") === false);
+		return str.contains("dwa") === true && str.contains("foo") === false;
 	};
 
 	var indexOf$1 = String.prototype.indexOf;
@@ -7718,39 +8468,37 @@
 		return indexOf$1.call(this, searchString, arguments[1]) > -1;
 	};
 
-	var contains = isImplemented$2()
-		? String.prototype.contains
-		: shim$2;
+	var contains = isImplemented$2() ? String.prototype.contains : shim$2;
 
 	var d_1 = createCommonjsModule(function (module) {
 
-	var d;
 
-	d = module.exports = function (dscr, value/*, options*/) {
+
+	var d = (module.exports = function (dscr, value/*, options*/) {
 		var c, e, w, options, desc;
-		if ((arguments.length < 2) || (typeof dscr !== 'string')) {
+		if (arguments.length < 2 || typeof dscr !== "string") {
 			options = value;
 			value = dscr;
 			dscr = null;
 		} else {
 			options = arguments[2];
 		}
-		if (dscr == null) {
+		if (is(dscr)) {
+			c = contains.call(dscr, "c");
+			e = contains.call(dscr, "e");
+			w = contains.call(dscr, "w");
+		} else {
 			c = w = true;
 			e = false;
-		} else {
-			c = contains.call(dscr, 'c');
-			e = contains.call(dscr, 'e');
-			w = contains.call(dscr, 'w');
 		}
 
 		desc = { value: value, configurable: c, enumerable: e, writable: w };
 		return !options ? desc : assign$1(normalizeOptions(options), desc);
-	};
+	});
 
 	d.gs = function (dscr, get, set/*, options*/) {
 		var c, e, options, desc;
-		if (typeof dscr !== 'string') {
+		if (typeof dscr !== "string") {
 			options = set;
 			set = get;
 			get = dscr;
@@ -7758,23 +8506,23 @@
 		} else {
 			options = arguments[3];
 		}
-		if (get == null) {
+		if (!is(get)) {
 			get = undefined;
-		} else if (!isCallable(get)) {
+		} else if (!is$4(get)) {
 			options = get;
 			get = set = undefined;
-		} else if (set == null) {
+		} else if (!is(set)) {
 			set = undefined;
-		} else if (!isCallable(set)) {
+		} else if (!is$4(set)) {
 			options = set;
 			set = undefined;
 		}
-		if (dscr == null) {
+		if (is(dscr)) {
+			c = contains.call(dscr, "c");
+			e = contains.call(dscr, "e");
+		} else {
 			c = true;
 			e = false;
-		} else {
-			c = contains.call(dscr, 'c');
-			e = contains.call(dscr, 'e');
 		}
 
 		desc = { get: get, set: set, configurable: c, enumerable: e };
@@ -13611,12 +14359,25 @@
 		format(contents){
 			var formating;
 
-			if (this.name === "pre-paginated") {
+			var viewport = contents.viewport();
+			// console.log("AHOY contents.format VIEWPORT", this.name, viewport.height);
+			if (this.name === "pre-paginated" && viewport.height != 'auto' && viewport.height != undefined ) {
+				// console.log("AHOY CONTENTS format", this.columnWidth, this.height);
 				formating = contents.fit(this.columnWidth, this.height);
 			} else if (this._flow === "paginated") {
 				formating = contents.columns(this.width, this.height, this.columnWidth, this.gap);
 			} else { // scrolled
 				formating = contents.size(this.width, null);
+				if ( this.name === 'pre-paginated' ) {
+					contents.content.style.overflow = 'auto';
+					contents.addStylesheetRules({
+						"body": {
+							"margin": 0,
+							"padding": "1em !important",
+							"box-sizing": "border-box"
+						}
+					});
+				}
 			}
 
 			return formating; // might be a promise in some View Managers
@@ -14454,6 +15215,7 @@
 
 			this.epubReadingSystem("epub.js", EPUBJS_VERSION);
 
+			this.setViewport();
 			this.listeners();
 		}
 
@@ -14557,6 +15319,8 @@
 			* @returns {number} width
 			*/
 		textWidth() {
+			var viewport = this.$viewport;
+
 			let rect;
 			let width;
 			let range = this.document.createRange();
@@ -14582,6 +15346,8 @@
 			* @returns {number} height
 			*/
 		textHeight() {
+			var viewport = this.$viewport;
+
 			let rect;
 			let height;
 			let range = this.document.createRange();
@@ -14783,6 +15549,54 @@
 
 
 			return settings;
+		}
+
+		setViewport() {
+			this.$viewport = { height: 'auto', width: 'auto' };
+			var $viewport = this.document.querySelector("meta[name='viewport']");
+			var parsed = {
+				"width": undefined,
+				"height": undefined,
+				"scale": undefined,
+				"minimum": undefined,
+				"maximum": undefined,
+				"scalable": undefined
+			};
+
+			/*
+			* check for the viewport size
+			* <meta name="viewport" content="width=1024,height=697" />
+			*/
+			if($viewport && $viewport.hasAttribute("content")) {
+				let content = $viewport.getAttribute("content");
+				let _width = content.match(/width\s*=\s*([^,]*)/);
+				let _height = content.match(/height\s*=\s*([^,]*)/);
+				let _scale = content.match(/initial-scale\s*=\s*([^,]*)/);
+				let _minimum = content.match(/minimum-scale\s*=\s*([^,]*)/);
+				let _maximum = content.match(/maximum-scale\s*=\s*([^,]*)/);
+				let _scalable = content.match(/user-scalable\s*=\s*([^,]*)/);
+
+				if(_width && _width.length && typeof _width[1] !== "undefined"){
+					parsed.width = _width[1];
+				}
+				if(_height && _height.length && typeof _height[1] !== "undefined"){
+					parsed.height = _height[1];
+				}
+				if(_scale && _scale.length && typeof _scale[1] !== "undefined"){
+					parsed.scale = _scale[1];
+				}
+				if(_minimum && _minimum.length && typeof _minimum[1] !== "undefined"){
+					parsed.minimum = _minimum[1];
+				}
+				if(_maximum && _maximum.length && typeof _maximum[1] !== "undefined"){
+					parsed.maximum = _maximum[1];
+				}
+				if(_scalable && _scalable.length && typeof _scalable[1] !== "undefined"){
+					parsed.scalable = _scalable[1];
+				}
+			}
+			this.$viewport.height = parseFloat(parsed.height) || 'auto';
+			this.$viewport.width = parseFloat(parsed.width) || 'auto';
 		}
 
 		/**
@@ -15466,11 +16280,30 @@
 		 */
 		fit(width, height){
 			var viewport = this.viewport();
-			var viewportWidth = parseInt(viewport.width);
-			var viewportHeight = parseInt(viewport.height);
+			var viewportWidth;
+			var viewportHeight;
+
+			// var viewportWidth = parseInt(viewport.width);
+			// var viewportHeight = parseInt(viewport.height);
+
+			if ( viewport.width == 'auto' && viewport.height == 'auto' ) {
+				viewportWidth = width;
+				viewportHeight = height; // this.textHeight(); // height;
+				console.log("AHOY contents.fit", height, this.textHeight());
+			} else {
+				viewportWidth = parseInt(viewport.width);
+				viewportHeight = parseInt(viewport.height);
+			}
+
 			var widthScale = width / viewportWidth;
 			var heightScale = height / viewportHeight;
-			var scale = widthScale < heightScale ? widthScale : heightScale;
+			var scale;
+			if ( this.axis == 'xxxvertical' ) {
+				scale = widthScale > heightScale ? widthScale : heightScale;
+			} else {
+				scale = widthScale < heightScale ? widthScale : heightScale;
+			}
+			// console.log("AHOY contents.fit", width, height, ":", viewportWidth, viewportHeight, ":", scale);
 
 			// the translate does not work as intended, elements can end up unaligned
 			// var offsetY = (height - (viewportHeight * scale)) / 2;
@@ -16315,6 +17148,7 @@
 			this.epubcfi = new EpubCFI();
 
 			this.layout = this.settings.layout;
+			// console.log("AHOY iframe NEW", this.layout.height);
 			// Dom events to listen for
 			// this.listenedEvents = ["keydown", "keyup", "keypressed", "mouseup", "mousedown", "click", "touchend", "touchstart"];
 
@@ -16425,6 +17259,7 @@
 				.then(function(){
 
 					// apply the layout function to the contents
+					// console.log("AHOY IFRAME render", this.layout.height);
 					this.layout.format(this.contents);
 
 					// find and report the writingMode axis
@@ -16477,6 +17312,7 @@
 
 			if(this.layout.name === "pre-paginated") {
 				this.lock("both", width, height);
+				// console.log("AHOY IRAME size lock", width, height);
 			} else if(this.settings.axis === "horizontal") {
 				this.lock("height", width, height);
 			} else {
@@ -16537,7 +17373,12 @@
 
 			this._expanding = true;
 
-			if(this.layout.name === "pre-paginated") {
+			if(this.layout.name === 'pre-paginated' && this.settings.axis === 'vertical') {
+				height = this.contents.textHeight();
+				width = this.contents.textWidth();
+	            // width = this.layout.columnWidth;
+
+			} else if(this.layout.name === "pre-paginated") {
 				width = this.layout.columnWidth;
 				height = this.layout.height;
 			}
@@ -16563,6 +17404,8 @@
 			} // Expand Vertically
 			else if(this.settings.axis === "vertical") {
 				height = this.contents.textHeight();
+				// width = this.contents.textWidth();
+				// console.log("AHOY AHOY expand", this.index, width, height, "/", this._width, this._height);
 			}
 
 			// Only Resize if dimensions have changed or
@@ -16779,6 +17622,7 @@
 				this.iframe.style.transform = null;
 			}
 
+			// console.log("AHOY VIEWS iframe show", this.index);
 			this.emit(EVENTS.VIEWS.SHOWN, this);
 		}
 
@@ -16788,6 +17632,7 @@
 			this.iframe.style.visibility = "hidden";
 
 			this.stopExpanding = true;
+			// console.log("AHOY VIEWS iframe hide", this.index);
 			this.emit(EVENTS.VIEWS.HIDDEN, this);
 		}
 
@@ -17072,480 +17917,8 @@
 
 	eventEmitter(IframeView.prototype);
 
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject$1(value) {
-	  var type = typeof value;
-	  return value != null && (type == 'object' || type == 'function');
-	}
-
-	var isObject_1$1 = isObject$1;
-
-	/** Detect free variable `global` from Node.js. */
-	var freeGlobal$1 = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
-
-	var _freeGlobal$1 = freeGlobal$1;
-
-	/** Detect free variable `self`. */
-	var freeSelf$1 = typeof self == 'object' && self && self.Object === Object && self;
-
-	/** Used as a reference to the global object. */
-	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
-
-	var _root$1 = root$1;
-
-	/**
-	 * Gets the timestamp of the number of milliseconds that have elapsed since
-	 * the Unix epoch (1 January 1970 00:00:00 UTC).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 2.4.0
-	 * @category Date
-	 * @returns {number} Returns the timestamp.
-	 * @example
-	 *
-	 * _.defer(function(stamp) {
-	 *   console.log(_.now() - stamp);
-	 * }, _.now());
-	 * // => Logs the number of milliseconds it took for the deferred invocation.
-	 */
-	var now$1 = function() {
-	  return _root$1.Date.now();
-	};
-
-	var now_1$1 = now$1;
-
-	/** Built-in value references. */
-	var Symbol$2 = _root$1.Symbol;
-
-	var _Symbol$1 = Symbol$2;
-
-	/** Used for built-in method references. */
-	var objectProto$9 = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var nativeObjectToString$2 = objectProto$9.toString;
-
-	/** Built-in value references. */
-	var symToStringTag$2 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
-
-	/**
-	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the raw `toStringTag`.
-	 */
-	function getRawTag$1(value) {
-	  var isOwn = hasOwnProperty$7.call(value, symToStringTag$2),
-	      tag = value[symToStringTag$2];
-
-	  try {
-	    value[symToStringTag$2] = undefined;
-	  } catch (e) {}
-
-	  var result = nativeObjectToString$2.call(value);
-	  {
-	    if (isOwn) {
-	      value[symToStringTag$2] = tag;
-	    } else {
-	      delete value[symToStringTag$2];
-	    }
-	  }
-	  return result;
-	}
-
-	var _getRawTag$1 = getRawTag$1;
-
-	/** Used for built-in method references. */
-	var objectProto$a = Object.prototype;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var nativeObjectToString$3 = objectProto$a.toString;
-
-	/**
-	 * Converts `value` to a string using `Object.prototype.toString`.
-	 *
-	 * @private
-	 * @param {*} value The value to convert.
-	 * @returns {string} Returns the converted string.
-	 */
-	function objectToString$1(value) {
-	  return nativeObjectToString$3.call(value);
-	}
-
-	var _objectToString$1 = objectToString$1;
-
-	/** `Object#toString` result references. */
-	var nullTag$1 = '[object Null]',
-	    undefinedTag$1 = '[object Undefined]';
-
-	/** Built-in value references. */
-	var symToStringTag$3 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
-
-	/**
-	 * The base implementation of `getTag` without fallbacks for buggy environments.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */
-	function baseGetTag$1(value) {
-	  if (value == null) {
-	    return value === undefined ? undefinedTag$1 : nullTag$1;
-	  }
-	  return (symToStringTag$3 && symToStringTag$3 in Object(value))
-	    ? _getRawTag$1(value)
-	    : _objectToString$1(value);
-	}
-
-	var _baseGetTag$1 = baseGetTag$1;
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike$1(value) {
-	  return value != null && typeof value == 'object';
-	}
-
-	var isObjectLike_1$1 = isObjectLike$1;
-
-	/** `Object#toString` result references. */
-	var symbolTag$1 = '[object Symbol]';
-
-	/**
-	 * Checks if `value` is classified as a `Symbol` primitive or object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-	 * @example
-	 *
-	 * _.isSymbol(Symbol.iterator);
-	 * // => true
-	 *
-	 * _.isSymbol('abc');
-	 * // => false
-	 */
-	function isSymbol$1(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1);
-	}
-
-	var isSymbol_1$1 = isSymbol$1;
-
-	/** Used as references for various `Number` constants. */
-	var NAN$1 = 0 / 0;
-
-	/** Used to match leading and trailing whitespace. */
-	var reTrim$1 = /^\s+|\s+$/g;
-
-	/** Used to detect bad signed hexadecimal string values. */
-	var reIsBadHex$1 = /^[-+]0x[0-9a-f]+$/i;
-
-	/** Used to detect binary string values. */
-	var reIsBinary$1 = /^0b[01]+$/i;
-
-	/** Used to detect octal string values. */
-	var reIsOctal$1 = /^0o[0-7]+$/i;
-
-	/** Built-in method references without a dependency on `root`. */
-	var freeParseInt$1 = parseInt;
-
-	/**
-	 * Converts `value` to a number.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to process.
-	 * @returns {number} Returns the number.
-	 * @example
-	 *
-	 * _.toNumber(3.2);
-	 * // => 3.2
-	 *
-	 * _.toNumber(Number.MIN_VALUE);
-	 * // => 5e-324
-	 *
-	 * _.toNumber(Infinity);
-	 * // => Infinity
-	 *
-	 * _.toNumber('3.2');
-	 * // => 3.2
-	 */
-	function toNumber$1(value) {
-	  if (typeof value == 'number') {
-	    return value;
-	  }
-	  if (isSymbol_1$1(value)) {
-	    return NAN$1;
-	  }
-	  if (isObject_1$1(value)) {
-	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-	    value = isObject_1$1(other) ? (other + '') : other;
-	  }
-	  if (typeof value != 'string') {
-	    return value === 0 ? value : +value;
-	  }
-	  value = value.replace(reTrim$1, '');
-	  var isBinary = reIsBinary$1.test(value);
-	  return (isBinary || reIsOctal$1.test(value))
-	    ? freeParseInt$1(value.slice(2), isBinary ? 2 : 8)
-	    : (reIsBadHex$1.test(value) ? NAN$1 : +value);
-	}
-
-	var toNumber_1$1 = toNumber$1;
-
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT$1 = 'Expected a function';
-
-	/* Built-in method references for those with the same name as other `lodash` methods. */
-	var nativeMax$2 = Math.max,
-	    nativeMin$1 = Math.min;
-
-	/**
-	 * Creates a debounced function that delays invoking `func` until after `wait`
-	 * milliseconds have elapsed since the last time the debounced function was
-	 * invoked. The debounced function comes with a `cancel` method to cancel
-	 * delayed `func` invocations and a `flush` method to immediately invoke them.
-	 * Provide `options` to indicate whether `func` should be invoked on the
-	 * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
-	 * with the last arguments provided to the debounced function. Subsequent
-	 * calls to the debounced function return the result of the last `func`
-	 * invocation.
-	 *
-	 * **Note:** If `leading` and `trailing` options are `true`, `func` is
-	 * invoked on the trailing edge of the timeout only if the debounced function
-	 * is invoked more than once during the `wait` timeout.
-	 *
-	 * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-	 * until to the next tick, similar to `setTimeout` with a timeout of `0`.
-	 *
-	 * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-	 * for details over the differences between `_.debounce` and `_.throttle`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to debounce.
-	 * @param {number} [wait=0] The number of milliseconds to delay.
-	 * @param {Object} [options={}] The options object.
-	 * @param {boolean} [options.leading=false]
-	 *  Specify invoking on the leading edge of the timeout.
-	 * @param {number} [options.maxWait]
-	 *  The maximum time `func` is allowed to be delayed before it's invoked.
-	 * @param {boolean} [options.trailing=true]
-	 *  Specify invoking on the trailing edge of the timeout.
-	 * @returns {Function} Returns the new debounced function.
-	 * @example
-	 *
-	 * // Avoid costly calculations while the window size is in flux.
-	 * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
-	 *
-	 * // Invoke `sendMail` when clicked, debouncing subsequent calls.
-	 * jQuery(element).on('click', _.debounce(sendMail, 300, {
-	 *   'leading': true,
-	 *   'trailing': false
-	 * }));
-	 *
-	 * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
-	 * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
-	 * var source = new EventSource('/stream');
-	 * jQuery(source).on('message', debounced);
-	 *
-	 * // Cancel the trailing debounced invocation.
-	 * jQuery(window).on('popstate', debounced.cancel);
-	 */
-	function debounce$1(func, wait, options) {
-	  var lastArgs,
-	      lastThis,
-	      maxWait,
-	      result,
-	      timerId,
-	      lastCallTime,
-	      lastInvokeTime = 0,
-	      leading = false,
-	      maxing = false,
-	      trailing = true;
-
-	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT$1);
-	  }
-	  wait = toNumber_1$1(wait) || 0;
-	  if (isObject_1$1(options)) {
-	    leading = !!options.leading;
-	    maxing = 'maxWait' in options;
-	    maxWait = maxing ? nativeMax$2(toNumber_1$1(options.maxWait) || 0, wait) : maxWait;
-	    trailing = 'trailing' in options ? !!options.trailing : trailing;
-	  }
-
-	  function invokeFunc(time) {
-	    var args = lastArgs,
-	        thisArg = lastThis;
-
-	    lastArgs = lastThis = undefined;
-	    lastInvokeTime = time;
-	    result = func.apply(thisArg, args);
-	    return result;
-	  }
-
-	  function leadingEdge(time) {
-	    // Reset any `maxWait` timer.
-	    lastInvokeTime = time;
-	    // Start the timer for the trailing edge.
-	    timerId = setTimeout(timerExpired, wait);
-	    // Invoke the leading edge.
-	    return leading ? invokeFunc(time) : result;
-	  }
-
-	  function remainingWait(time) {
-	    var timeSinceLastCall = time - lastCallTime,
-	        timeSinceLastInvoke = time - lastInvokeTime,
-	        timeWaiting = wait - timeSinceLastCall;
-
-	    return maxing
-	      ? nativeMin$1(timeWaiting, maxWait - timeSinceLastInvoke)
-	      : timeWaiting;
-	  }
-
-	  function shouldInvoke(time) {
-	    var timeSinceLastCall = time - lastCallTime,
-	        timeSinceLastInvoke = time - lastInvokeTime;
-
-	    // Either this is the first call, activity has stopped and we're at the
-	    // trailing edge, the system time has gone backwards and we're treating
-	    // it as the trailing edge, or we've hit the `maxWait` limit.
-	    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
-	      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
-	  }
-
-	  function timerExpired() {
-	    var time = now_1$1();
-	    if (shouldInvoke(time)) {
-	      return trailingEdge(time);
-	    }
-	    // Restart the timer.
-	    timerId = setTimeout(timerExpired, remainingWait(time));
-	  }
-
-	  function trailingEdge(time) {
-	    timerId = undefined;
-
-	    // Only invoke if we have `lastArgs` which means `func` has been
-	    // debounced at least once.
-	    if (trailing && lastArgs) {
-	      return invokeFunc(time);
-	    }
-	    lastArgs = lastThis = undefined;
-	    return result;
-	  }
-
-	  function cancel() {
-	    if (timerId !== undefined) {
-	      clearTimeout(timerId);
-	    }
-	    lastInvokeTime = 0;
-	    lastArgs = lastCallTime = lastThis = timerId = undefined;
-	  }
-
-	  function flush() {
-	    return timerId === undefined ? result : trailingEdge(now_1$1());
-	  }
-
-	  function debounced() {
-	    var time = now_1$1(),
-	        isInvoking = shouldInvoke(time);
-
-	    lastArgs = arguments;
-	    lastThis = this;
-	    lastCallTime = time;
-
-	    if (isInvoking) {
-	      if (timerId === undefined) {
-	        return leadingEdge(lastCallTime);
-	      }
-	      if (maxing) {
-	        // Handle invocations in a tight loop.
-	        timerId = setTimeout(timerExpired, wait);
-	        return invokeFunc(lastCallTime);
-	      }
-	    }
-	    if (timerId === undefined) {
-	      timerId = setTimeout(timerExpired, wait);
-	    }
-	    return result;
-	  }
-	  debounced.cancel = cancel;
-	  debounced.flush = flush;
-	  return debounced;
-	}
-
-	var debounce_1$1 = debounce$1;
-
-	/** Error message constants. */
-	var FUNC_ERROR_TEXT$2 = 'Expected a function';
 
 	/**
 	 * Creates a throttled function that only invokes `func` at most once per
@@ -17596,13 +17969,13 @@
 	      trailing = true;
 
 	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT$2);
+	    throw new TypeError(FUNC_ERROR_TEXT$1);
 	  }
-	  if (isObject_1$1(options)) {
+	  if (isObject_1(options)) {
 	    leading = 'leading' in options ? !!options.leading : leading;
 	    trailing = 'trailing' in options ? !!options.trailing : trailing;
 	  }
-	  return debounce_1$1(func, wait, {
+	  return debounce_1(func, wait, {
 	    'leading': leading,
 	    'maxWait': wait,
 	    'trailing': trailing
@@ -17685,10 +18058,10 @@
 				document.body.style["direction"] = direction;
 			}
 
-			if (scale && scale > 1.0) {
+			if (scale && scale != 1.0) {
 				container.style["transform-origin"] = "top left";
 				container.style["transform"] = "scale(" + scale + ")";
-				container.style.overflow = "visible";
+				container.style.overflow = "auto"; // "visible" breaks something?
 			} else {
 				container.style["transform-origin"] = null;
 				container.style["transform"] = null;
@@ -17806,16 +18179,27 @@
 				}
 			}
 
+			var _round = function(value) {
+				return Math.round(value);
+
+				// -- this calculates the closest even number to value
+				var retval = 2 * Math.round(value / 2);
+				if ( retval > value ) {
+					retval -= 2;
+				}
+				return retval;
+			};
+
 			if(!isNumber(width)) {
 				bounds = this.container.getBoundingClientRect();
-				width = Math.floor(bounds.width);
+				width = _round(bounds.width); // Math.floor(bounds.width);
 				//height = bounds.height;
 			}
 
 			if(!isNumber(height)) {
 				bounds = bounds || this.container.getBoundingClientRect();
 				//width = bounds.width;
-				height = bounds.height;
+				height = _round(bounds.height); // bounds.height;
 			}
 
 
@@ -17848,6 +18232,11 @@
 				height = _windowBounds.height -
 									bodyPadding.top -
 									bodyPadding.bottom;
+			}
+
+			if ( this.settings.scale ) {
+				width /= this.settings.scale;
+				height /= this.settings.scale;
 			}
 
 			return {
@@ -17944,12 +18333,13 @@
 
 		scale(s) {
 			if (this.container) {
-				if ( s > 1.0 ) {
+				if ( s != 1.0 ) {
+					this._originalOverflow = this.container.style.overflow;
 					this.container.style["transform-origin"] = "top left";
 					this.container.style["transform"] = "scale(" + s + ")";
-					this.container.style.overflow = "visible";
+					this.container.style.overflow = "auto"; // "visible"
 				} else {
-					this.container.style.overflow = null;
+					this.container.style.overflow = this._originalOverflow;
 					this.container.style["transform-origin"] = null;
 					this.container.style["transform"] = null;
 				}
@@ -19834,7 +20224,7 @@
 
 			this._onScroll = this.onScroll.bind(this);
 			scroller.addEventListener("scroll", this._onScroll);
-			this._scrolled = debounce_1$1(this.scrolled.bind(this), 30);
+			this._scrolled = debounce_1(this.scrolled.bind(this), 30);
 			// this.tick.call(window, this.onScroll.bind(this));
 
 			this.didScroll = false;
@@ -22082,7 +22472,8 @@
 			return this.load(url)
 				.then((xml) => {
 					this.container = new Container(xml);
-					return this.resolve(this.container.packagePath);
+					return this.resolve(this.settings.packagePath || this.container.packagePath);
+					// return this.resolve(this.container.packagePath);
 				});
 		}
 
@@ -23208,7 +23599,7 @@
 
 	// Deprecated
 
-	var isCallable$1 = function (obj) { return typeof obj === 'function'; };
+	var isCallable = function (obj) { return typeof obj === 'function'; };
 
 	var str$1 = 'razdwatrzy';
 
@@ -23265,12 +23656,12 @@
 		}
 		if (get == null) {
 			get = undefined;
-		} else if (!isCallable$1(get)) {
+		} else if (!isCallable(get)) {
 			options = get;
 			get = set = undefined;
 		} else if (set == null) {
 			set = undefined;
-		} else if (!isCallable$1(set)) {
+		} else if (!isCallable(set)) {
 			options = set;
 			set = undefined;
 		}
