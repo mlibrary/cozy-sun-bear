@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
  * Cozy Sun Bear 1.0.00429135, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
@@ -20,6 +21,9 @@
 =======
  * Cozy Sun Bear 1.0.0be05eb7, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> e456773... performance tweaking
+=======
+ * Cozy Sun Bear 1.0.0e456773, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 9a2d34b... tune and handle resize
  * (c) 2019 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -15906,9 +15910,10 @@
 			if (!styleEl) {
 				styleEl = this.document.createElement("style");
 				styleEl.id = key;
-				// Append style element to head
-				this.document.head.appendChild(styleEl);
 			}
+
+			// Append style element to head
+			this.document.head.appendChild(styleEl);
 
 			// Grab style sheet
 			styleSheet = styleEl.sheet;
@@ -26396,6 +26401,8 @@
 	INTERACTIVE['BUTTON'] = true;
 	INTERACTIVE['INPUT'] = true;
 
+	var installedResizeHandler = false;
+
 	function isInteractive(node) {
 	  if ( INTERACTIVE[node.nodeName] ) {
 	    // possibly...
@@ -26543,8 +26550,19 @@
 	  if ( method == 'v2' ) {
 	    updateFocusXtreme(reader, location);
 	  } else if ( method == 'v3' ) {
-	    updateFocusXtremeXX(reader, location);
+	    // updateFocusXtremeXX(reader, location);
+	    setTimeout(() => {
+	      if ( location.start.cfi == reader._last_location_start_cfi && 
+	           location.end.cfi == reader._last_location_end_cfi ) {
+	        return;
+	      }
+	      reader._last_location_start_cfi = location.start.cfi;
+	      reader._last_location_end_cfi = location.end.cfi;
+	      updateFocusXtremeXX(reader, location);
+	    }, 0);
 	  }
+
+	  reader._last_location_start = location.start.href;
 
 	  return;
 
@@ -26572,14 +26590,26 @@
 	  reader._last_location_start = location.start.href;
 	}
 
+	var elemsWithBoundingRects = [];
 	var getBoundingClientRect = function(element) {
 	  if ( ! element._boundingClientRect ) {
 
-	      // If not, get it then store it for future use.
-	      element._boundingClientRect = element.getBoundingClientRect();
-	      // elemsWithBoundingRects.push( element );
+	    // If not, get it then store it for future use.
+	    element._boundingClientRect = element.getBoundingClientRect();
+	    elemsWithBoundingRects.push( element );
+	  }
+	  return element._boundingClientRect;
+	};
+
+	var clearClientRects = function() {
+	  var i;
+	  for ( i = 0; i < elemsWithBoundingRects.length; i++ ) {
+	    if ( elemsWithBoundingRects[ i ] ) {
+	      elemsWithBoundingRects[ i ]._boundingClientRect = null;
 	    }
-	    return element._boundingClientRect;
+	  }
+	  elemsWithBoundingRects = [];
+	  console.log("AHOY AHOY CLIENT RECTS CLEARED");
 	};
 
 	function updateFocusXtremeXX(reader, location) {
@@ -26699,15 +26729,13 @@
 	  performance.mark('nextElementSibling');
 	  performance.measure('measure-6','showThisNode', 'nextElementSibling');
 
-	  const allEntries = performance.getEntriesByType("mark");
-	  console.log(allEntries);
-
-	  let entries = performance.getEntriesByType("measure");
-	  for (var i=0; i < entries.length; i++) {
-	    console.log("AHOY XX", entries[i].name, entries[i].duration);
-	  }
+	  // let entries = performance.getEntriesByType("measure");
+	  // for (var i=0; i < entries.length; i++) {
+	  //   console.log("AHOY XX", entries[i].name, entries[i].duration);
+	  // }
 
 	  performance.clearMarks();
+	  performance.clearMeasures();
 
 	}
 
@@ -26802,6 +26830,14 @@
 	}
 
 	function setupFocusRules(reader) {
+
+	  if ( ! installedResizeHandler ) {
+	    installedResizeHandler = true;
+	    reader.on('resize', () => {
+	      clearClientRects();
+	    });
+	  }
+
 	  var contents = reader._rendition.getContents();
 	  contents.forEach( (content) => {
 	    content.addStylesheetRules({
