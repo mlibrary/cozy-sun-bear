@@ -85,6 +85,44 @@ Reader.EpubJS = Reader.extend({
         }
 
         t = setTimeout(f, 100);
+      } else if ( self._book.pageList && ! self._book.pageList.locations.length ) {
+        self._book.locations.generateFromPageList(self._book.pageList).then(function(locations) {
+          console.log("AHOY WUT", locations);
+          self.fire('updateLocations', locations);
+        })
+      } else if ( 0 ) {
+        console.log("AHOY AHOY HAVE PAGE LIST NO LOCATIONS");
+        var n = self._book.pageList.pageList.length - 1;
+        var i = 0;
+        self._book.pageList.pageList.forEach((page) => {
+          var parts = page.href.split('#');
+          var href = parts[0];
+          var target = parts[1];
+
+          var section = self._book.spine.get(href);
+          if ( target ) {
+            section.load(self._book.request)
+              .then(function(contents) {
+                i += 1;
+                var node = contents.ownerDocument.querySelector(`#${target}`);
+                // var cfiObject = self._book.spine.epubcfi.fromNode(node, section.cfiBase);
+                var cfi = section.cfiFromElement(node);
+                console.log("AHOY", node, cfi);
+                // self._book.pageList.locations[page.page] = self._book.spine.epubcfi.toString(cfi);
+                self._book.pageList.locations[page.page] = cfi;
+                self._book.locations._locations[page.page - 0] = cfi;
+                self._book.locations.total = self._book.locations._locations.length - 1;
+              })
+          }
+        })
+        var ix = setInterval(() => {
+          if ( i >= n ) {
+            clearInterval(ix);
+            self.fire('updateLocations', self._book.locations);
+          } else {
+            console.log("AHOY WAITING LOCATIONS", i, n);
+          }
+        }, 100);
       } else {
         self._book.locations.generate(1600).then(function(locations) {
           self.fire('updateLocations', locations);
