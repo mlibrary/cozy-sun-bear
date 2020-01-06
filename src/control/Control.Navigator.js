@@ -40,6 +40,7 @@ export var Navigator = Control.extend({
     this._spanCurrentPercentage = container.querySelector(".currentPercentage");
     this._spanCurrentLocation = container.querySelector(".currentLocation");
     this._spanTotalLocations = container.querySelector(".totalLocations");
+    this._spanCurrentPageLabel = container.querySelector('.currentPageLabel');
 
     this._bindEvents();
   },
@@ -50,7 +51,7 @@ export var Navigator = Control.extend({
         <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
         <div class="cozy-navigator-range__background"></div>
       </div>
-      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>
+      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>
     `;
 
     var body = new DOMParser().parseFromString(template, "text/html").body;
@@ -97,7 +98,7 @@ export var Navigator = Control.extend({
     var locations = this._reader.locations;
     var cfi = locations.cfiFromPercentage(value / 100);
     this._reader.tracking.action("navigator/go");
-    this._reader.gotoPage(cfi);
+    this._reader.display(cfi);
   },
 
   _update: function() {
@@ -131,6 +132,22 @@ export var Navigator = Control.extend({
       var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
       this._spanCurrentLocation.innerHTML = ( current_location );
 
+      if ( this._reader.pageList ) {
+        var pages = this._reader.pageList.pagesFromLocation(current);
+        var pageLabels = [];
+        var label = 'p.';
+        if ( pages.length ) {
+          var p1 = pages.shift();
+          pageLabels.push(this._reader.pageList.pageLabel(p1));
+          if ( pages.length ) {
+            var p2 = pages.pop();
+            pageLabels.push(this._reader.pageList.pageLabel(p2));
+            label = 'pp.';
+          }
+        }
+        this._spanCurrentPageLabel.innerHTML = ` (${label} ${pageLabels.join('-')})`;
+      }
+
       range.setAttribute('aria-valuenow', value);
       range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
 
@@ -146,6 +163,11 @@ export var Navigator = Control.extend({
   _initializeNavigator: function(locations) {
     console.log("AHOY updateLocations PROCESSING LOCATION");
     this._initiated = true;
+
+    if ( ! this._reader.pageList ) {
+      this._spanCurrentLocation.style.display = 'none';
+    }
+
     this._total = this._reader.locations.total;
     if ( this._reader.currentLocation() && this._reader.currentLocation().start ) {
       this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
