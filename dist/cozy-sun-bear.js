@@ -1,6 +1,6 @@
 /*
- * Cozy Sun Bear 1.0.0e2ff1a3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
- * (c) 2019 Regents of the University of Michigan
+ * Cozy Sun Bear 1.0.04cd138f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -10610,23 +10610,24 @@
 		 * Convert CFI to a epubcfi(...) string
 		 * @returns {string} epubcfi
 		 */
-		toString() {
+		toString(cfi) {
+			if ( ! cfi ) { cfi = this; }
 			var cfiString = "epubcfi(";
 
-			cfiString += this.segmentString(this.base);
+			cfiString += this.segmentString(cfi.base);
 
 			cfiString += "!";
-			cfiString += this.segmentString(this.path);
+			cfiString += this.segmentString(cfi.path);
 
 			// Add Range, if present
-			if(this.range && this.start) {
+			if(cfi.range && cfi.start) {
 				cfiString += ",";
-				cfiString += this.segmentString(this.start);
+				cfiString += this.segmentString(cfi.start);
 			}
 
-			if(this.range && this.end) {
+			if(cfi.range && cfi.end) {
 				cfiString += ",";
-				cfiString += this.segmentString(this.end);
+				cfiString += this.segmentString(cfi.end);
 			}
 
 			cfiString += ")";
@@ -11802,6 +11803,7 @@
 		constructor() {
 			this.spineItems = [];
 			this.spineByHref = {};
+			this.spineByAbsoluteHref = {};
 			this.spineById = {};
 
 			this.hooks = {};
@@ -11933,7 +11935,16 @@
 			} else if(typeof target === "string") {
 				// Remove fragments
 				target = target.split("#")[0];
-				index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+				index = this.spineByAbsoluteHref[target] || this.spineByAbsoluteHref[encodeURI(target)] || this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+				if ( ! index ) {
+					// check for relative paths
+					for(var i = 0; i < this.spineItems.length; i++)	{
+						if ( this.spineItems[i].href.indexOf('/' + target) > -1 ) {
+							index = i;
+							break;
+						}
+					}
+				}
 			}
 
 			return this.spineItems[index] || null;
@@ -11954,9 +11965,12 @@
 			// see pr for details: https://github.com/futurepress/epub.js/pull/358
 			this.spineByHref[decodeURI(section.href)] = index;
 			this.spineByHref[encodeURI(section.href)] = index;
+			this.spineByHref[section.href.substring(section.href.lastIndexOf('/')+1)] = index;
 			this.spineByHref[section.href] = index;
 
 			this.spineById[section.idref] = index;
+
+			this.spineByAbsoluteHref[section.url] = index;
 
 			return index;
 		}
@@ -12352,6 +12366,30 @@
 			this.processingTimeout = undefined;
 		}
 
+		generateFromPageList(pageList) {
+
+			this.break = 1600;
+			this.q.pause();
+
+			this._pageList = pageList;
+
+			this.spine.each(function(section) {
+				if (section.linear) {
+					this.q.enqueue(this.process.bind(this), section);
+				}
+			}.bind(this));
+
+			return this.q.run().then(function() {
+				this.total = this._locations.length - 1;
+
+				if (this._currentCfi) {
+					this.currentLocation = this._currentCfi;
+				}
+
+				return this._locations;
+			}.bind(this));
+		}
+
 		/**
 		 * Load all of sections in the book to generate locations
 		 * @param  {int} chars how many chars to split on
@@ -12400,6 +12438,21 @@
 					var completed = new defer();
 					var locations = this.parse(contents, section.cfiBase);
 					this._locations = this._locations.concat(locations);
+
+					if ( this._pageList ) {
+
+						var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
+
+						pages.forEach((page) => {
+							var item = this._pageList.pageList[page - 1];
+
+							var parts = item.href.split('#');
+							var target = parts[1] ? '#' + parts[1] : 'body';
+							var node = contents.ownerDocument.querySelector(target);
+							var cfi = section.cfiFromElement(node);
+							this._pageList.locations[page - 1] = cfi;
+						});
+					}
 
 					section.unload();
 
@@ -13102,13 +13155,17 @@
 	 * @param {document} xml navigation html / xhtml / ncx
 	 */
 	class Navigation {
-		constructor(xml) {
+		constructor(xml, path, canonical) {
 			this.toc = [];
 			this.tocByHref = {};
 			this.tocById = {};
 
 			this.landmarks = [];
 			this.landmarksByType = {};
+
+			this.canonical = canonical;
+
+			this.path = path;
 
 			this.length = 0;
 			if (xml) {
@@ -13288,9 +13345,12 @@
 				}
 			}
 
+			var path = this.path.resolve(src);
+
 			return {
 				"id": id,
 				"href": src,
+				"canonical": this.canonical(path),
 				"label": text,
 				"html": html,
 				"subitems" : subitems,
@@ -13921,7 +13981,7 @@
 	 * @param {document} [xml]
 	 */
 	class PageList {
-		constructor(xml) {
+		constructor(xml, path, canonical) {
 			this.pages = [];
 			this.locations = [];
 			this.epubcfi = new EpubCFI();
@@ -13930,8 +13990,13 @@
 			this.lastPage = 0;
 			this.totalPages = 0;
 
+			this.pagesByAbsolutePath = {};
+
 			this.toc = undefined;
 			this.ncx = undefined;
+
+			this.path = path;
+			this.canonical = canonical;
 
 			if (xml) {
 				this.pageList = this.parse(xml);
@@ -13976,7 +14041,7 @@
 			if(!navItems || length === 0) return list;
 
 			for (i = 0; i < length; ++i) {
-				item = this.item(navItems[i]);
+				item = this.item(navItems[i], i);
 				list.push(item);
 			}
 
@@ -13989,11 +14054,12 @@
 		 * @param  {node} item
 		 * @return {object} pageListItem
 		 */
-		item(item){
+		item(item, i){
 			var content = qs(item, "a"),
 					href = content.getAttribute("href") || "",
 					text = content.textContent || "",
-					page = parseInt(text),
+					pageLabel = text,
+					page = i + 1, 
 					isCfi = href.indexOf("epubcfi"),
 					split,
 					packageUrl,
@@ -14007,12 +14073,14 @@
 					"cfi" : cfi,
 					"href" : href,
 					"packageUrl" : packageUrl,
-					"page" : page
+					"page" : page,
+					"pageLabel": pageLabel
 				};
 			} else {
 				return {
 					"href" : href,
-					"page" : page
+					"page" : page,
+					"pageLabel": pageLabel
 				};
 			}
 		}
@@ -14027,6 +14095,15 @@
 				this.pages.push(item.page);
 				if (item.cfi) {
 					this.locations.push(item.cfi);
+				}
+				if ( item.href ) {
+					var href = (item.href.split('#'))[0];
+					var path = this.path.resolve(href);
+					var absolute = this.canonical(path);
+					if ( this.pagesByAbsolutePath[absolute] == null ) {
+						this.pagesByAbsolutePath[absolute] = [];
+					}
+					this.pagesByAbsolutePath[absolute].push(item.page);
 				}
 			}, this);
 			this.firstPage = parseInt(this.pages[0]);
@@ -14069,6 +14146,36 @@
 			return pg;
 		}
 
+		pagesFromLocation(location) {
+			var pgs = [];
+
+			// Check if the pageList has not been set yet
+			if(this.locations.length === 0) {
+				return [];
+			}
+
+			var pg = this.pageFromCfi(location.start.cfi);
+			if ( pg == -1 ) {
+				return [];
+			}
+
+			pgs.push(pg);
+			pg = this.pageFromCfi(location.end.cfi);
+			if ( pg != pgs[0] ) {
+				pgs.push(pg);
+			}
+
+			return pgs;
+		}
+
+		pageLabel(page) {
+			var item = this.pageList[page];
+			if ( item ) {
+				return item.pageLabel || `#${page}`;
+			}
+			return -1;
+		}
+
 		/**
 		 * Get an EpubCFI from a Page List Item
 		 * @param  {string | number} pg
@@ -14091,6 +14198,14 @@
 			return cfi;
 		}
 
+		cfiFromPageLabel(pageLabel) {
+			var item = this.pageList.find(item => item.pageLabel == pageLabel);
+			if ( item ) {
+				return this.cfiFromPage(item.page);
+			}
+			return -1;
+		}
+
 		/**
 		 * Get a Page from Book percentage
 		 * @param  {number} percent
@@ -14099,6 +14214,16 @@
 		pageFromPercentage(percent){
 			var pg = Math.round(this.totalPages * percent);
 			return pg;
+		}
+
+		itemFromPercentage(percent) {
+			var pg = this.pageFromPercentage(percent);
+			return this.pageList[pg - 1];
+		}
+
+		itemFromCfi(cfi) {
+			var pg = this.pageFromCfi(cfi);
+			return this.pageList[pg - 1];
 		}
 
 		/**
@@ -23132,10 +23257,11 @@
 				});
 			}
 
-			return this.load(navPath, "xml")
+			navPath = new Path(this.resolve(navPath));
+			return this.load(navPath.path, "xml")
 				.then((xml) => {
-					this.navigation = new Navigation(xml);
-					this.pageList = new PageList(xml);
+					this.navigation = new Navigation(xml, navPath, this.canonical.bind(this));
+					this.pageList = new PageList(xml, navPath, this.canonical.bind(this));
 					return this.navigation;
 				});
 		}
@@ -25892,7 +26018,7 @@
 	//-- Enable binding events to Manager
 	eventEmitter$1(ScrollingContinuousViewManager.prototype);
 
-	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};
+	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};//# sourceMappingURL=viewprt.esm.js.map
 
 	class StickyIframeView extends IframeView {
 	    constructor(section, options) {
@@ -26420,128 +26546,8 @@
 	  return null; // ???
 	}
 
-	function showEverythingVisible(container, range) {
-	  var selfOrElement = function(node) {
-	    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
-	  };
-
-	  var showNode = function(node) {
-	    console.log("AHOY showNode", node);
-	    node.setAttribute('aria-hidden', false);
-	    if ( INTERACTIVE[node.nodeName] ) {
-	      var bounds = node.getBoundingClientRect();
-	      var x = bounds.x;
-	      var x2 = x + container.scrollLeft;
-	      console.log("AHOY NODE BOUNDS", node, x, x2, 
-	        "A",
-	        x > container.scrollLeft + container.offsetWidth,
-	        x < container.scrollLeft,
-	        "B",
-	        x2 > container.scrollLeft + container.offsetWidth,
-	        x2 < container.scrollLeft
-	        );
-	      if ( x > container.scrollLeft + container.offsetWidth || 
-	           x < container.scrollLeft ) ; else {
-	        node.setAttribute('tabindex', 0);
-	        node.addEventListener('focus', (event) => {
-	          console.log("AHOY FOCUS", node, container.scrollLeft, container.dataset.scrollLeft);
-	          var scrollLeft = parseInt(container.dataset.scrollLeft, 10);
-	          setTimeout(() => {
-	            container.scrollLeft = scrollLeft;
-	          }, 0);
-	        });
-	      }
-	    }
-	    // node.setAttribute('tabindex', 0);
-	    for(var child of node.children){
-	      console.log("AHOY SHOWING CHILDREN", child);
-	      showNode(child);
-	    }
-	  };
-
-	  var showNodeAndSelf = function(node) {
-	    if ( node.getAttribute('aria-hidden') == 'true' ) {
-	      console.log("AHOY ACTIVATING", node);
-	      showNode(node);
-	      var parent = node.parentNode;
-	      while ( parent != node.ownerDocument.body ) {
-	        // console.log("AHOY ACTIVATING UP", parent);
-	        parent.setAttribute('aria-hidden', false);
-	        //node.setAttribute('tabindex', 0);
-	        parent = parent.parentNode;
-	      }
-	    }
-	  };
-
-	  var ancestor = selfOrElement(range.commonAncestorContainer);
-	  var startContainer = selfOrElement(range.startContainer);
-	  var endContainer = selfOrElement(range.endContainer);
-
-	  var _iterator = document.createNodeIterator(
-	    ancestor,
-	    NodeFilter.SHOW_ALL,
-	    {
-	      acceptNode: function(node) {
-	        return NodeFilter.FILTER_ACCEPT;
-	      }
-	    }
-	  );
-
-	  console.log("AHOY COMMON ANCESTOR", ancestor, startContainer);
-
-	  var _nodes = [];
-	  while ( _iterator.nextNode() ) {
-	    console.log("AHOY ITERATOR", _nodes.length, _iterator.referenceNode, startContainer, _iterator.referenceNode !== startContainer);
-	    if (_nodes.length === 0 && _iterator.referenceNode !== startContainer) continue;
-	    _nodes.push(_iterator.referenceNode);
-	    if (_iterator.referenceNode === endContainer) break;
-	  }
-
-	  console.log("AHOY NODES", _nodes, _nodes[0] == startContainer);
-	  if ( _nodes.length == 1 && _nodes[0] == startContainer ) {
-	    _nodes.pop();
-	    console.log("AHOY WTF", startContainer, document.body, startContainer === document.body);
-	    for(var child of startContainer.children) {
-	      _nodes.push(child);
-	    }
-	  }
-
-	  _nodes.forEach((node) => {
-	    console.log("AHOY SHOW PRE", node);
-	    if ( node.nodeType == Node.ELEMENT_NODE ) {
-	      console.log("AHOY SHOW", node);
-	      showNodeAndSelf(node);
-	    } else {
-	      showNodeAndSelf(node.parentNode);
-	    }
-	  });
-	}
-
-	var method;
-	function setMethod(what) {
-	  method = what;
-	}
 	function updateFocus(reader, location) {
 	  if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
-	  if ( method == 'v2' ) {
-	    updateFocusXtreme(reader, location);
-	  } else if ( method == 'v3' ) {
-	    // updateFocusXtremeXX(reader, location);
-	    setTimeout(() => {
-	      if ( location.start.cfi == reader._last_location_start_cfi && 
-	           location.end.cfi == reader._last_location_end_cfi ) {
-	        return;
-	      }
-	      reader._last_location_start_cfi = location.start.cfi;
-	      reader._last_location_end_cfi = location.end.cfi;
-	      updateFocusXtremeXX(reader, location);
-	    }, 0);
-	  }
-
-	  reader._last_location_start = location.start.href;
-
-	  return;
-
 	  setTimeout(() => {
 	    if ( location.start.cfi == reader._last_location_start_cfi && 
 	         location.end.cfi == reader._last_location_end_cfi ) {
@@ -26549,18 +26555,7 @@
 	    }
 	    reader._last_location_start_cfi = location.start.cfi;
 	    reader._last_location_end_cfi = location.end.cfi;
-	    var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
-	    console.log("AHOY updateFocus contents =", contents);
-	    hideEverythingVisible(contents);
-	    var doc = contents.document;
-	    var startRange = new ePub.CFI(location.start.cfi).toRange(doc);
-	    var endRange = new ePub.CFI(location.end.cfi).toRange(doc);
-	    var r = doc.createRange();
-	    r.setStart(startRange.startContainer, startRange.startOffset);
-	    r.setEnd(endRange.endContainer, endRange.endOffset);
-	    console.log("AHOY SHOW CURRENT", location);
-	    showEverythingVisible(reader._rendition.manager.container, r);
-	    // self._rendition.manager.container.focus();
+	    __updateFocus(reader, location);
 	  }, 0);
 
 	  reader._last_location_start = location.start.href;
@@ -26585,12 +26580,10 @@
 	    }
 	  }
 	  elemsWithBoundingRects = [];
-	  console.log("AHOY AHOY CLIENT RECTS CLEARED");
 	};
 
-	function updateFocusXtremeXX(reader, location) {
+	function __updateFocus(reader, location) {
 	  // don't use location
-	  performance.mark('start');
 
 	  var selfOrElement = function(node) {
 	    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
@@ -26599,9 +26592,6 @@
 	  var container = reader._rendition.manager.container;
 	  var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
 	  hideEverythingVisible(contents);
-
-	  performance.mark('hideEverythingVisible');
-	  performance.measure('measure-1', 'start', 'hideEverythingVisible');
 
 	  var containerX = container.scrollLeft;
 	  var containerX2 = container.scrollLeft + container.offsetWidth;
@@ -26640,11 +26630,6 @@
 
 	  var startRange = new ePub.CFI(location.start.cfi).toRange(contents.document);
 	  var startNode = selfOrElement(startRange.startContainer);
-	  performance.mark('initial_startNode');
-	  performance.measure('measure-1b', 'start', 'initial_startNode');
-	  performance.measure('measure-2', 'hideEverythingVisible', 'initial_startNode');
-
-	  console.log("AHOY", location.start.cfi, startNode);
 	  var checkNode = startNode;
 	  while ( checkNode != contents.document.body ) {
 	    var bounds = getBoundingClientRect(checkNode); // checkNode.getBoundingClientRect();
@@ -26665,31 +26650,13 @@
 
 	  }
 
-	  performance.mark('max_startNode');
-	  performance.measure('measure-3', 'initial_startNode', 'max_startNode');
-
 	  var parentNode = startNode; // .parentNode;
 	  while ( parentNode != contents.document.body ) {
 	    parentNode.setAttribute('aria-hidden', false);
 	    parentNode = parentNode.parentNode;
 	  }
 
-	  performance.mark('parentNode');
-	  performance.measure('measure-4','max_startNode', 'parentNode');
-
-
 	  _showThisNode(startNode);
-
-	  performance.mark('showThisNode');
-	  performance.measure('measure-5','parentNode', 'showThisNode');
-
-
-	  // var nextNode = startNode.nextElementSibling;
-	  // while ( nextNode ) {
-	  //   var isVisible = _showThisNode(nextNode);
-	  //   if ( ! isVisible ) { break; }
-	  //   nextNode = nextNode.nextElementSibling;
-	  // }
 
 	  var children = startNode.parentNode.children;
 	  var doProcess = false;
@@ -26700,109 +26667,6 @@
 	      if ( ! isVisible ) { break; }
 	    }
 	  }
-
-
-	  performance.mark('nextElementSibling');
-	  performance.measure('measure-6','showThisNode', 'nextElementSibling');
-
-	  // let entries = performance.getEntriesByType("measure");
-	  // for (var i=0; i < entries.length; i++) {
-	  //   console.log("AHOY XX", entries[i].name, entries[i].duration);
-	  // }
-
-	  performance.clearMarks();
-	  performance.clearMeasures();
-
-	}
-
-	function updateFocusXtreme(reader, location) {
-	  // don't use location
-	  var t0 = performance.now();
-
-	  var container = reader._rendition.manager.container;
-	  var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
-	  hideEverythingVisible(contents);
-	  // just stop there for now
-	  var _nodes = [];
-	  // for(var child of contents.document.body.children) {
-	  //   _nodes.push(child);
-	  // }
-
-	  var containerX = container.scrollLeft;
-	  var containerX2 = container.scrollLeft + container.offsetWidth;
-
-	  var _showThisNode = function(node) {
-	    var bounds = node.getBoundingClientRect();
-	    var x = bounds.left;
-	    var x2 = bounds.left + bounds.width;
-
-	    var isVisible = false;
-	    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
-	    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
-	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
-
-	    if ( isVisible ) {
-	      // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
-	      node.setAttribute('aria-hidden', 'false');
-	      if ( INTERACTIVE[node.nodeName] ) {
-	        node.setAttribute('tabindex', '0');
-	      }
-	      var hasSeenVisibleChild = false;
-	      for(var child of node.children) {
-	        var retval = _showThisNode(child);
-	        if ( retval ) { hasSeenVisibleChild = true; }
-	        if ( ! retval && hasSeenVisibleChild ) {
-	          break;
-	        }
-	      }
-	    }
-
-	    return isVisible;
-	  };
-
-	  for(var child of contents.document.body.children) {
-	    _showThisNode(child);
-	  }
-
-	  while ( _nodes.length ) {
-	    var node = _nodes.pop();
-	    var bounds = node.getBoundingClientRect();
-
-	    var x = bounds.left;
-	    var x2 = bounds.left + bounds.width;
-
-	    var isVisible = false;
-	    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
-	    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
-	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
-	    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
-
-	    // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
-
-	    node.setAttribute('aria-hidden', 'false');
-
-	    if ( isVisible ) {
-	      var _tmp = [];
-	      for(var child of node.children) {
-	        _tmp.push(child);
-	      }
-	      // _tmp.reverse();
-	      _nodes.unshift.apply(_nodes, _tmp);
-	    }
-
-	    // if ( x > container.scrollLeft + container.offsetWidth || 
-	    //      x < container.scrollLeft ) {
-	    // } else {
-
-
-	  }
-
-	  console.log("AHOY BENCHMARK XTREME", performance.now() - t0);
 	}
 
 	function setupFocusRules(reader) {
@@ -26816,16 +26680,19 @@
 
 	  var contents = reader._rendition.getContents();
 	  contents.forEach( (content) => {
-	    content.addStylesheetRules({
-	      '[aria-hidden="true"]': {
-	        'opacity': '0.25 !important'
-	      },
-	      ':focus': {
-	        'outline': '2px solid goldenrod',
-	        'padding': '4px',
-	        'background': 'lightgoldenrodyellow'
-	      }
-	    });
+	  
+	    if ( reader.options.addFocusStyles ) {
+	      content.addStylesheetRules({
+	        '[aria-hidden="true"]': {
+	          'opacity': '0.25 !important'
+	        },
+	        ':focus': {
+	          'outline': '2px solid goldenrod',
+	          'padding': '4px',
+	          'background': 'lightgoldenrodyellow'
+	        }
+	      });
+	    }
 
 	    hideEverythingInContents(content);
 
@@ -26835,11 +26702,9 @@
 
 	        var activeElement = content.document.activeElement;
 	        if ( activeElement ) {
-	          console.log("AHOY TAB ACTIVE ELEMENT", activeElement, reader._manager.container.scrollLeft);
 	          reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
 	        } else {
 	          reader._manager.container.dataset.scrollLeft = 0;
-	          console.log("AHOY TAB NO ACTIVE ELEMENT");
 	        }
 	      }
 	    });
@@ -26847,7 +26712,6 @@
 
 	  reader.on('keyDown', function(data) {
 	    if ( data.keyName == 'Tab' ) {
-	      console.log("AHOY KEYDOWN COZY", data.keyName, document.activeElement.localName, reader._manager.container.scrollLeft);
 	      reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
 	    }
 
@@ -26875,24 +26739,12 @@
 	            reader._rendition.manager.scrollBy(delta);
 	          }
 	        }
-	        // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
 	      }, 0);
 	    }
 	  });
 	}
 
-	var focus = /*#__PURE__*/Object.freeze({
-		setMethod: setMethod,
-		updateFocus: updateFocus,
-		updateFocusXtremeXX: updateFocusXtremeXX,
-		updateFocusXtreme: updateFocusXtreme,
-		setupFocusRules: setupFocusRules
-	});
-
 	window.ePub = ePub$1;
-	window.xtools = {};
-	window.xtools.focus = focus;
-	window.xtools.focus.setMethod('v3');
 
 	Reader.EpubJS = Reader.extend({
 

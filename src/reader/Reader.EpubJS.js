@@ -15,9 +15,6 @@ import StickyIframeView from '../epubjs/managers/views/sticky';
 
 import { popupTables } from "../utils/manglers";
 import * as focus from "../utils/focus";
-window.xtools = {};
-window.xtools.focus = focus;
-window.xtools.focus.setMethod('v3');
 
 import debounce from 'lodash/debounce';
 
