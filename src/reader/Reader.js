@@ -448,7 +448,7 @@ export var Reader = Evented.extend({
           event.preventDefault();
           return;
         }
-        self.gotoPage(event.state.cfi);
+        self.display(event.state.cfi);
       }
     })
 

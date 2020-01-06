@@ -68,7 +68,7 @@ export var Contents = Control.extend({
         target = target.getAttribute('data-href');
         this._goto_interval = true;
         this._reader.tracking.action('contents/go/link');
-        this._reader.gotoPage(target);
+        this._reader.display(target);
         return true;
       }.bind(this));
 
