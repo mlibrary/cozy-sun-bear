@@ -140,6 +140,7 @@ function showEverythingVisible(container, range) {
 
 export function updateFocus(reader, location) {
   if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
+  if ( reader.options.disableFocusHandling ) { return ; }
   setTimeout(() => {
     if ( location.start.cfi == reader._last_location_start_cfi && 
          location.end.cfi == reader._last_location_end_cfi ) {
@@ -275,7 +276,7 @@ export function setupFocusRules(reader) {
   var contents = reader._rendition.getContents();
   contents.forEach( (content) => {
   
-    if ( reader.options.addFocusStyles ) {
+    if ( reader.options.debugFocusHandling ) {
       content.addStylesheetRules({
         '[aria-hidden="true"]': {
           'opacity': '0.25 !important'
