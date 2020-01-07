@@ -1,6 +1,6 @@
 /*
- * Cozy Sun Bear 1.0.0494661c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
- * (c) 2019 Regents of the University of Michigan
+ * Cozy Sun Bear 1.0.04cd138f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -3503,7 +3503,7 @@
 	var objectProto = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$1 = objectProto.hasOwnProperty;
+	var hasOwnProperty = objectProto.hasOwnProperty;
 
 	/**
 	 * Used to resolve the
@@ -3523,7 +3523,7 @@
 	 * @returns {string} Returns the raw `toStringTag`.
 	 */
 	function getRawTag(value) {
-	  var isOwn = hasOwnProperty$1.call(value, symToStringTag),
+	  var isOwn = hasOwnProperty.call(value, symToStringTag),
 	      tag = value[symToStringTag];
 
 	  try {
@@ -4003,11 +4003,11 @@
 	var funcToString$1 = funcProto$1.toString;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$2 = objectProto$2.hasOwnProperty;
+	var hasOwnProperty$1 = objectProto$2.hasOwnProperty;
 
 	/** Used to detect if a method is native. */
 	var reIsNative = RegExp('^' +
-	  funcToString$1.call(hasOwnProperty$2).replace(reRegExpChar, '\\$&')
+	  funcToString$1.call(hasOwnProperty$1).replace(reRegExpChar, '\\$&')
 	  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 	);
 
@@ -4134,7 +4134,7 @@
 	var objectProto$3 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
+	var hasOwnProperty$2 = objectProto$3.hasOwnProperty;
 
 	/**
 	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -4148,7 +4148,7 @@
 	 */
 	function assignValue(object, key, value) {
 	  var objValue = object[key];
-	  if (!(hasOwnProperty$3.call(object, key) && eq_1(objValue, value)) ||
+	  if (!(hasOwnProperty$2.call(object, key) && eq_1(objValue, value)) ||
 	      (value === undefined && !(key in object))) {
 	    _baseAssignValue(object, key, value);
 	  }
@@ -4597,7 +4597,7 @@
 	var objectProto$5 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
+	var hasOwnProperty$3 = objectProto$5.hasOwnProperty;
 
 	/** Built-in value references. */
 	var propertyIsEnumerable = objectProto$5.propertyIsEnumerable;
@@ -4621,7 +4621,7 @@
 	 * // => false
 	 */
 	var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
-	  return isObjectLike_1(value) && hasOwnProperty$4.call(value, 'callee') &&
+	  return isObjectLike_1(value) && hasOwnProperty$3.call(value, 'callee') &&
 	    !propertyIsEnumerable.call(value, 'callee');
 	};
 
@@ -4842,7 +4842,7 @@
 	var objectProto$6 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
+	var hasOwnProperty$4 = objectProto$6.hasOwnProperty;
 
 	/**
 	 * Creates an array of the enumerable property names of the array-like `value`.
@@ -4862,7 +4862,7 @@
 	      length = result.length;
 
 	  for (var key in value) {
-	    if ((inherited || hasOwnProperty$5.call(value, key)) &&
+	    if ((inherited || hasOwnProperty$4.call(value, key)) &&
 	        !(skipIndexes && (
 	           // Safari 9 has enumerable `arguments.length` in strict mode.
 	           key == 'length' ||
@@ -4906,7 +4906,7 @@
 	var objectProto$7 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
+	var hasOwnProperty$5 = objectProto$7.hasOwnProperty;
 
 	/**
 	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -4921,7 +4921,7 @@
 	  }
 	  var result = [];
 	  for (var key in Object(object)) {
-	    if (hasOwnProperty$6.call(object, key) && key != 'constructor') {
+	    if (hasOwnProperty$5.call(object, key) && key != 'constructor') {
 	      result.push(key);
 	    }
 	  }
@@ -4968,7 +4968,7 @@
 	var objectProto$8 = Object.prototype;
 
 	/** Used to check objects for own properties. */
-	var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
+	var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
 
 	/**
 	 * Assigns own enumerable string keyed properties of source objects to the
@@ -5008,7 +5008,7 @@
 	    return;
 	  }
 	  for (var key in source) {
-	    if (hasOwnProperty$7.call(source, key)) {
+	    if (hasOwnProperty$6.call(source, key)) {
 	      _assignValue(object, key, source[key]);
 	    }
 	  }
@@ -5395,10 +5395,9 @@
 	    panes['top'] = create$1('div', prefix + 'top', container);
 	    panes['main'] = create$1('div', prefix + 'main', container);
 	    panes['bottom'] = create$1('div', prefix + 'bottom', container);
-
 	    panes['left'] = create$1('div', prefix + 'left', panes['main']);
-	    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
 	    panes['right'] = create$1('div', prefix + 'right', panes['main']);
+	    panes['book-cover'] = create$1('div', prefix + 'book-cover', panes['main']);
 	    panes['book'] = create$1('div', prefix + 'book', panes['book-cover']);
 	    panes['loader'] = create$1('div', prefix + 'book-loading', panes['book']);
 	    panes['epub'] = create$1('div', prefix + 'book-epub', panes['book']);
@@ -8335,81 +8334,40 @@
 
 	var Mixin = {Events: Evented.prototype};
 
-	// ES3 safe
-	var _undefined = void 0;
-
-	var is = function (value) { return value !== _undefined && value !== null; };
-
-	// prettier-ignore
-	var possibleTypes = { "object": true, "function": true, "undefined": true /* document.all */ };
-
-	var is$1 = function (value) {
-		if (!is(value)) return false;
-		return hasOwnProperty.call(possibleTypes, typeof value);
-	};
-
-	var is$2 = function (value) {
-		if (!is$1(value)) return false;
-		try {
-			if (!value.constructor) return false;
-			return value.constructor.prototype === value;
-		} catch (error) {
-			return false;
-		}
-	};
-
-	var is$3 = function (value) {
-		if (typeof value !== "function") return false;
-
-		if (!hasOwnProperty.call(value, "length")) return false;
-
-		try {
-			if (typeof value.length !== "number") return false;
-			if (typeof value.call !== "function") return false;
-			if (typeof value.apply !== "function") return false;
-		} catch (error) {
-			return false;
-		}
-
-		return !is$2(value);
-	};
-
-	var classRe = /^\s*class[\s{/}]/, functionToString = Function.prototype.toString;
-
-	var is$4 = function (value) {
-		if (!is$3(value)) return false;
-		if (classRe.test(functionToString.call(value))) return false;
-		return true;
-	};
-
 	var isImplemented = function () {
 		var assign = Object.assign, obj;
 		if (typeof assign !== "function") return false;
 		obj = { foo: "raz" };
 		assign(obj, { bar: "dwa" }, { trzy: "trzy" });
-		return obj.foo + obj.bar + obj.trzy === "razdwatrzy";
+		return (obj.foo + obj.bar + obj.trzy) === "razdwatrzy";
 	};
 
 	var isImplemented$1 = function () {
 		try {
 			return true;
 		} catch (e) {
-			return false;
-		}
+	 return false;
+	}
 	};
 
 	// eslint-disable-next-line no-empty-function
 	var noop = function () {};
 
-	var _undefined$1 = noop(); // Support ES3 engines
+	var _undefined = noop(); // Support ES3 engines
 
-	var isValue = function (val) { return val !== _undefined$1 && val !== null; };
+	var isValue = function (val) {
+	 return (val !== _undefined) && (val !== null);
+	};
 
 	var keys$1 = Object.keys;
 
-	var shim = function (object) { return keys$1(isValue(object) ? Object(object) : object); };
+	var shim = function (object) {
+		return keys$1(isValue(object) ? Object(object) : object);
+	};
 
-	var keys$2 = isImplemented$1() ? Object.keys : shim;
+	var keys$2 = isImplemented$1()
+		? Object.keys
+		: shim;
 
 	var validValue = function (value) {
 		if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
@@ -8418,7 +8376,7 @@
 
 	var max   = Math.max;
 
-	var shim$1 = function (dest, src/*, …srcn*/) {
+	var shim$1 = function (dest, src /*, …srcn*/) {
 		var error, i, length = max(arguments.length, 2), assign;
 		dest = Object(validValue(dest));
 		assign = function (key) {
@@ -8436,7 +8394,9 @@
 		return dest;
 	};
 
-	var assign$1 = isImplemented() ? Object.assign : shim$1;
+	var assign$1 = isImplemented()
+		? Object.assign
+		: shim$1;
 
 	var forEach = Array.prototype.forEach, create$2 = Object.create;
 
@@ -8446,7 +8406,7 @@
 	};
 
 	// eslint-disable-next-line no-unused-vars
-	var normalizeOptions = function (opts1/*, …options*/) {
+	var normalizeOptions = function (opts1 /*, …options*/) {
 		var result = create$2(null);
 		forEach.call(arguments, function (options) {
 			if (!isValue(options)) return;
@@ -8455,11 +8415,17 @@
 		return result;
 	};
 
+	// Deprecated
+
+	var isCallable = function (obj) {
+	 return typeof obj === "function";
+	};
+
 	var str = "razdwatrzy";
 
 	var isImplemented$2 = function () {
 		if (typeof str.contains !== "function") return false;
-		return str.contains("dwa") === true && str.contains("foo") === false;
+		return (str.contains("dwa") === true) && (str.contains("foo") === false);
 	};
 
 	var indexOf$1 = String.prototype.indexOf;
@@ -8468,37 +8434,39 @@
 		return indexOf$1.call(this, searchString, arguments[1]) > -1;
 	};
 
-	var contains = isImplemented$2() ? String.prototype.contains : shim$2;
+	var contains = isImplemented$2()
+		? String.prototype.contains
+		: shim$2;
 
 	var d_1 = createCommonjsModule(function (module) {
 
+	var d;
 
-
-	var d = (module.exports = function (dscr, value/*, options*/) {
+	d = module.exports = function (dscr, value/*, options*/) {
 		var c, e, w, options, desc;
-		if (arguments.length < 2 || typeof dscr !== "string") {
+		if ((arguments.length < 2) || (typeof dscr !== 'string')) {
 			options = value;
 			value = dscr;
 			dscr = null;
 		} else {
 			options = arguments[2];
 		}
-		if (is(dscr)) {
-			c = contains.call(dscr, "c");
-			e = contains.call(dscr, "e");
-			w = contains.call(dscr, "w");
-		} else {
+		if (dscr == null) {
 			c = w = true;
 			e = false;
+		} else {
+			c = contains.call(dscr, 'c');
+			e = contains.call(dscr, 'e');
+			w = contains.call(dscr, 'w');
 		}
 
 		desc = { value: value, configurable: c, enumerable: e, writable: w };
 		return !options ? desc : assign$1(normalizeOptions(options), desc);
-	});
+	};
 
 	d.gs = function (dscr, get, set/*, options*/) {
 		var c, e, options, desc;
-		if (typeof dscr !== "string") {
+		if (typeof dscr !== 'string') {
 			options = set;
 			set = get;
 			get = dscr;
@@ -8506,23 +8474,23 @@
 		} else {
 			options = arguments[3];
 		}
-		if (!is(get)) {
+		if (get == null) {
 			get = undefined;
-		} else if (!is$4(get)) {
+		} else if (!isCallable(get)) {
 			options = get;
 			get = set = undefined;
-		} else if (!is(set)) {
+		} else if (set == null) {
 			set = undefined;
-		} else if (!is$4(set)) {
+		} else if (!isCallable(set)) {
 			options = set;
 			set = undefined;
 		}
-		if (is(dscr)) {
-			c = contains.call(dscr, "c");
-			e = contains.call(dscr, "e");
-		} else {
+		if (dscr == null) {
 			c = true;
 			e = false;
+		} else {
+			c = contains.call(dscr, 'c');
+			e = contains.call(dscr, 'e');
 		}
 
 		desc = { get: get, set: set, configurable: c, enumerable: e };
@@ -10642,23 +10610,24 @@
 		 * Convert CFI to a epubcfi(...) string
 		 * @returns {string} epubcfi
 		 */
-		toString() {
+		toString(cfi) {
+			if ( ! cfi ) { cfi = this; }
 			var cfiString = "epubcfi(";
 
-			cfiString += this.segmentString(this.base);
+			cfiString += this.segmentString(cfi.base);
 
 			cfiString += "!";
-			cfiString += this.segmentString(this.path);
+			cfiString += this.segmentString(cfi.path);
 
 			// Add Range, if present
-			if(this.range && this.start) {
+			if(cfi.range && cfi.start) {
 				cfiString += ",";
-				cfiString += this.segmentString(this.start);
+				cfiString += this.segmentString(cfi.start);
 			}
 
-			if(this.range && this.end) {
+			if(cfi.range && cfi.end) {
 				cfiString += ",";
-				cfiString += this.segmentString(this.end);
+				cfiString += this.segmentString(cfi.end);
 			}
 
 			cfiString += ")";
@@ -11834,6 +11803,7 @@
 		constructor() {
 			this.spineItems = [];
 			this.spineByHref = {};
+			this.spineByAbsoluteHref = {};
 			this.spineById = {};
 
 			this.hooks = {};
@@ -11965,7 +11935,16 @@
 			} else if(typeof target === "string") {
 				// Remove fragments
 				target = target.split("#")[0];
-				index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+				index = this.spineByAbsoluteHref[target] || this.spineByAbsoluteHref[encodeURI(target)] || this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+				if ( ! index ) {
+					// check for relative paths
+					for(var i = 0; i < this.spineItems.length; i++)	{
+						if ( this.spineItems[i].href.indexOf('/' + target) > -1 ) {
+							index = i;
+							break;
+						}
+					}
+				}
 			}
 
 			return this.spineItems[index] || null;
@@ -11986,9 +11965,12 @@
 			// see pr for details: https://github.com/futurepress/epub.js/pull/358
 			this.spineByHref[decodeURI(section.href)] = index;
 			this.spineByHref[encodeURI(section.href)] = index;
+			this.spineByHref[section.href.substring(section.href.lastIndexOf('/')+1)] = index;
 			this.spineByHref[section.href] = index;
 
 			this.spineById[section.idref] = index;
+
+			this.spineByAbsoluteHref[section.url] = index;
 
 			return index;
 		}
@@ -12384,6 +12366,30 @@
 			this.processingTimeout = undefined;
 		}
 
+		generateFromPageList(pageList) {
+
+			this.break = 1600;
+			this.q.pause();
+
+			this._pageList = pageList;
+
+			this.spine.each(function(section) {
+				if (section.linear) {
+					this.q.enqueue(this.process.bind(this), section);
+				}
+			}.bind(this));
+
+			return this.q.run().then(function() {
+				this.total = this._locations.length - 1;
+
+				if (this._currentCfi) {
+					this.currentLocation = this._currentCfi;
+				}
+
+				return this._locations;
+			}.bind(this));
+		}
+
 		/**
 		 * Load all of sections in the book to generate locations
 		 * @param  {int} chars how many chars to split on
@@ -12432,6 +12438,21 @@
 					var completed = new defer();
 					var locations = this.parse(contents, section.cfiBase);
 					this._locations = this._locations.concat(locations);
+
+					if ( this._pageList ) {
+
+						var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
+
+						pages.forEach((page) => {
+							var item = this._pageList.pageList[page - 1];
+
+							var parts = item.href.split('#');
+							var target = parts[1] ? '#' + parts[1] : 'body';
+							var node = contents.ownerDocument.querySelector(target);
+							var cfi = section.cfiFromElement(node);
+							this._pageList.locations[page - 1] = cfi;
+						});
+					}
 
 					section.unload();
 
@@ -13134,13 +13155,17 @@
 	 * @param {document} xml navigation html / xhtml / ncx
 	 */
 	class Navigation {
-		constructor(xml) {
+		constructor(xml, path, canonical) {
 			this.toc = [];
 			this.tocByHref = {};
 			this.tocById = {};
 
 			this.landmarks = [];
 			this.landmarksByType = {};
+
+			this.canonical = canonical;
+
+			this.path = path;
 
 			this.length = 0;
 			if (xml) {
@@ -13320,9 +13345,12 @@
 				}
 			}
 
+			var path = this.path.resolve(src);
+
 			return {
 				"id": id,
 				"href": src,
+				"canonical": this.canonical(path),
 				"label": text,
 				"html": html,
 				"subitems" : subitems,
@@ -13953,7 +13981,7 @@
 	 * @param {document} [xml]
 	 */
 	class PageList {
-		constructor(xml) {
+		constructor(xml, path, canonical) {
 			this.pages = [];
 			this.locations = [];
 			this.epubcfi = new EpubCFI();
@@ -13962,8 +13990,13 @@
 			this.lastPage = 0;
 			this.totalPages = 0;
 
+			this.pagesByAbsolutePath = {};
+
 			this.toc = undefined;
 			this.ncx = undefined;
+
+			this.path = path;
+			this.canonical = canonical;
 
 			if (xml) {
 				this.pageList = this.parse(xml);
@@ -14008,7 +14041,7 @@
 			if(!navItems || length === 0) return list;
 
 			for (i = 0; i < length; ++i) {
-				item = this.item(navItems[i]);
+				item = this.item(navItems[i], i);
 				list.push(item);
 			}
 
@@ -14021,11 +14054,12 @@
 		 * @param  {node} item
 		 * @return {object} pageListItem
 		 */
-		item(item){
+		item(item, i){
 			var content = qs(item, "a"),
 					href = content.getAttribute("href") || "",
 					text = content.textContent || "",
-					page = parseInt(text),
+					pageLabel = text,
+					page = i + 1, 
 					isCfi = href.indexOf("epubcfi"),
 					split,
 					packageUrl,
@@ -14039,12 +14073,14 @@
 					"cfi" : cfi,
 					"href" : href,
 					"packageUrl" : packageUrl,
-					"page" : page
+					"page" : page,
+					"pageLabel": pageLabel
 				};
 			} else {
 				return {
 					"href" : href,
-					"page" : page
+					"page" : page,
+					"pageLabel": pageLabel
 				};
 			}
 		}
@@ -14059,6 +14095,15 @@
 				this.pages.push(item.page);
 				if (item.cfi) {
 					this.locations.push(item.cfi);
+				}
+				if ( item.href ) {
+					var href = (item.href.split('#'))[0];
+					var path = this.path.resolve(href);
+					var absolute = this.canonical(path);
+					if ( this.pagesByAbsolutePath[absolute] == null ) {
+						this.pagesByAbsolutePath[absolute] = [];
+					}
+					this.pagesByAbsolutePath[absolute].push(item.page);
 				}
 			}, this);
 			this.firstPage = parseInt(this.pages[0]);
@@ -14101,6 +14146,36 @@
 			return pg;
 		}
 
+		pagesFromLocation(location) {
+			var pgs = [];
+
+			// Check if the pageList has not been set yet
+			if(this.locations.length === 0) {
+				return [];
+			}
+
+			var pg = this.pageFromCfi(location.start.cfi);
+			if ( pg == -1 ) {
+				return [];
+			}
+
+			pgs.push(pg);
+			pg = this.pageFromCfi(location.end.cfi);
+			if ( pg != pgs[0] ) {
+				pgs.push(pg);
+			}
+
+			return pgs;
+		}
+
+		pageLabel(page) {
+			var item = this.pageList[page];
+			if ( item ) {
+				return item.pageLabel || `#${page}`;
+			}
+			return -1;
+		}
+
 		/**
 		 * Get an EpubCFI from a Page List Item
 		 * @param  {string | number} pg
@@ -14123,6 +14198,14 @@
 			return cfi;
 		}
 
+		cfiFromPageLabel(pageLabel) {
+			var item = this.pageList.find(item => item.pageLabel == pageLabel);
+			if ( item ) {
+				return this.cfiFromPage(item.page);
+			}
+			return -1;
+		}
+
 		/**
 		 * Get a Page from Book percentage
 		 * @param  {number} percent
@@ -14131,6 +14214,16 @@
 		pageFromPercentage(percent){
 			var pg = Math.round(this.totalPages * percent);
 			return pg;
+		}
+
+		itemFromPercentage(percent) {
+			var pg = this.pageFromPercentage(percent);
+			return this.pageList[pg - 1];
+		}
+
+		itemFromCfi(cfi) {
+			var pg = this.pageFromCfi(cfi);
+			return this.pageList[pg - 1];
 		}
 
 		/**
@@ -17917,8 +18010,480 @@
 
 	eventEmitter(IframeView.prototype);
 
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject$1(value) {
+	  var type = typeof value;
+	  return value != null && (type == 'object' || type == 'function');
+	}
+
+	var isObject_1$1 = isObject$1;
+
+	/** Detect free variable `global` from Node.js. */
+	var freeGlobal$1 = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+	var _freeGlobal$1 = freeGlobal$1;
+
+	/** Detect free variable `self`. */
+	var freeSelf$1 = typeof self == 'object' && self && self.Object === Object && self;
+
+	/** Used as a reference to the global object. */
+	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
+
+	var _root$1 = root$1;
+
+	/**
+	 * Gets the timestamp of the number of milliseconds that have elapsed since
+	 * the Unix epoch (1 January 1970 00:00:00 UTC).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 2.4.0
+	 * @category Date
+	 * @returns {number} Returns the timestamp.
+	 * @example
+	 *
+	 * _.defer(function(stamp) {
+	 *   console.log(_.now() - stamp);
+	 * }, _.now());
+	 * // => Logs the number of milliseconds it took for the deferred invocation.
+	 */
+	var now$1 = function() {
+	  return _root$1.Date.now();
+	};
+
+	var now_1$1 = now$1;
+
+	/** Built-in value references. */
+	var Symbol$2 = _root$1.Symbol;
+
+	var _Symbol$1 = Symbol$2;
+
+	/** Used for built-in method references. */
+	var objectProto$9 = Object.prototype;
+
+	/** Used to check objects for own properties. */
+	var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString$2 = objectProto$9.toString;
+
+	/** Built-in value references. */
+	var symToStringTag$2 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
+
+	/**
+	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the raw `toStringTag`.
+	 */
+	function getRawTag$1(value) {
+	  var isOwn = hasOwnProperty$7.call(value, symToStringTag$2),
+	      tag = value[symToStringTag$2];
+
+	  try {
+	    value[symToStringTag$2] = undefined;
+	  } catch (e) {}
+
+	  var result = nativeObjectToString$2.call(value);
+	  {
+	    if (isOwn) {
+	      value[symToStringTag$2] = tag;
+	    } else {
+	      delete value[symToStringTag$2];
+	    }
+	  }
+	  return result;
+	}
+
+	var _getRawTag$1 = getRawTag$1;
+
+	/** Used for built-in method references. */
+	var objectProto$a = Object.prototype;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var nativeObjectToString$3 = objectProto$a.toString;
+
+	/**
+	 * Converts `value` to a string using `Object.prototype.toString`.
+	 *
+	 * @private
+	 * @param {*} value The value to convert.
+	 * @returns {string} Returns the converted string.
+	 */
+	function objectToString$1(value) {
+	  return nativeObjectToString$3.call(value);
+	}
+
+	var _objectToString$1 = objectToString$1;
+
+	/** `Object#toString` result references. */
+	var nullTag$1 = '[object Null]',
+	    undefinedTag$1 = '[object Undefined]';
+
+	/** Built-in value references. */
+	var symToStringTag$3 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
+
+	/**
+	 * The base implementation of `getTag` without fallbacks for buggy environments.
+	 *
+	 * @private
+	 * @param {*} value The value to query.
+	 * @returns {string} Returns the `toStringTag`.
+	 */
+	function baseGetTag$1(value) {
+	  if (value == null) {
+	    return value === undefined ? undefinedTag$1 : nullTag$1;
+	  }
+	  return (symToStringTag$3 && symToStringTag$3 in Object(value))
+	    ? _getRawTag$1(value)
+	    : _objectToString$1(value);
+	}
+
+	var _baseGetTag$1 = baseGetTag$1;
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike$1(value) {
+	  return value != null && typeof value == 'object';
+	}
+
+	var isObjectLike_1$1 = isObjectLike$1;
+
+	/** `Object#toString` result references. */
+	var symbolTag$1 = '[object Symbol]';
+
+	/**
+	 * Checks if `value` is classified as a `Symbol` primitive or object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+	 * @example
+	 *
+	 * _.isSymbol(Symbol.iterator);
+	 * // => true
+	 *
+	 * _.isSymbol('abc');
+	 * // => false
+	 */
+	function isSymbol$1(value) {
+	  return typeof value == 'symbol' ||
+	    (isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1);
+	}
+
+	var isSymbol_1$1 = isSymbol$1;
+
+	/** Used as references for various `Number` constants. */
+	var NAN$1 = 0 / 0;
+
+	/** Used to match leading and trailing whitespace. */
+	var reTrim$1 = /^\s+|\s+$/g;
+
+	/** Used to detect bad signed hexadecimal string values. */
+	var reIsBadHex$1 = /^[-+]0x[0-9a-f]+$/i;
+
+	/** Used to detect binary string values. */
+	var reIsBinary$1 = /^0b[01]+$/i;
+
+	/** Used to detect octal string values. */
+	var reIsOctal$1 = /^0o[0-7]+$/i;
+
+	/** Built-in method references without a dependency on `root`. */
+	var freeParseInt$1 = parseInt;
+
+	/**
+	 * Converts `value` to a number.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to process.
+	 * @returns {number} Returns the number.
+	 * @example
+	 *
+	 * _.toNumber(3.2);
+	 * // => 3.2
+	 *
+	 * _.toNumber(Number.MIN_VALUE);
+	 * // => 5e-324
+	 *
+	 * _.toNumber(Infinity);
+	 * // => Infinity
+	 *
+	 * _.toNumber('3.2');
+	 * // => 3.2
+	 */
+	function toNumber$1(value) {
+	  if (typeof value == 'number') {
+	    return value;
+	  }
+	  if (isSymbol_1$1(value)) {
+	    return NAN$1;
+	  }
+	  if (isObject_1$1(value)) {
+	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+	    value = isObject_1$1(other) ? (other + '') : other;
+	  }
+	  if (typeof value != 'string') {
+	    return value === 0 ? value : +value;
+	  }
+	  value = value.replace(reTrim$1, '');
+	  var isBinary = reIsBinary$1.test(value);
+	  return (isBinary || reIsOctal$1.test(value))
+	    ? freeParseInt$1(value.slice(2), isBinary ? 2 : 8)
+	    : (reIsBadHex$1.test(value) ? NAN$1 : +value);
+	}
+
+	var toNumber_1$1 = toNumber$1;
+
 	/** Error message constants. */
 	var FUNC_ERROR_TEXT$1 = 'Expected a function';
+
+	/* Built-in method references for those with the same name as other `lodash` methods. */
+	var nativeMax$2 = Math.max,
+	    nativeMin$1 = Math.min;
+
+	/**
+	 * Creates a debounced function that delays invoking `func` until after `wait`
+	 * milliseconds have elapsed since the last time the debounced function was
+	 * invoked. The debounced function comes with a `cancel` method to cancel
+	 * delayed `func` invocations and a `flush` method to immediately invoke them.
+	 * Provide `options` to indicate whether `func` should be invoked on the
+	 * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
+	 * with the last arguments provided to the debounced function. Subsequent
+	 * calls to the debounced function return the result of the last `func`
+	 * invocation.
+	 *
+	 * **Note:** If `leading` and `trailing` options are `true`, `func` is
+	 * invoked on the trailing edge of the timeout only if the debounced function
+	 * is invoked more than once during the `wait` timeout.
+	 *
+	 * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+	 * until to the next tick, similar to `setTimeout` with a timeout of `0`.
+	 *
+	 * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+	 * for details over the differences between `_.debounce` and `_.throttle`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Function
+	 * @param {Function} func The function to debounce.
+	 * @param {number} [wait=0] The number of milliseconds to delay.
+	 * @param {Object} [options={}] The options object.
+	 * @param {boolean} [options.leading=false]
+	 *  Specify invoking on the leading edge of the timeout.
+	 * @param {number} [options.maxWait]
+	 *  The maximum time `func` is allowed to be delayed before it's invoked.
+	 * @param {boolean} [options.trailing=true]
+	 *  Specify invoking on the trailing edge of the timeout.
+	 * @returns {Function} Returns the new debounced function.
+	 * @example
+	 *
+	 * // Avoid costly calculations while the window size is in flux.
+	 * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+	 *
+	 * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+	 * jQuery(element).on('click', _.debounce(sendMail, 300, {
+	 *   'leading': true,
+	 *   'trailing': false
+	 * }));
+	 *
+	 * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+	 * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
+	 * var source = new EventSource('/stream');
+	 * jQuery(source).on('message', debounced);
+	 *
+	 * // Cancel the trailing debounced invocation.
+	 * jQuery(window).on('popstate', debounced.cancel);
+	 */
+	function debounce$1(func, wait, options) {
+	  var lastArgs,
+	      lastThis,
+	      maxWait,
+	      result,
+	      timerId,
+	      lastCallTime,
+	      lastInvokeTime = 0,
+	      leading = false,
+	      maxing = false,
+	      trailing = true;
+
+	  if (typeof func != 'function') {
+	    throw new TypeError(FUNC_ERROR_TEXT$1);
+	  }
+	  wait = toNumber_1$1(wait) || 0;
+	  if (isObject_1$1(options)) {
+	    leading = !!options.leading;
+	    maxing = 'maxWait' in options;
+	    maxWait = maxing ? nativeMax$2(toNumber_1$1(options.maxWait) || 0, wait) : maxWait;
+	    trailing = 'trailing' in options ? !!options.trailing : trailing;
+	  }
+
+	  function invokeFunc(time) {
+	    var args = lastArgs,
+	        thisArg = lastThis;
+
+	    lastArgs = lastThis = undefined;
+	    lastInvokeTime = time;
+	    result = func.apply(thisArg, args);
+	    return result;
+	  }
+
+	  function leadingEdge(time) {
+	    // Reset any `maxWait` timer.
+	    lastInvokeTime = time;
+	    // Start the timer for the trailing edge.
+	    timerId = setTimeout(timerExpired, wait);
+	    // Invoke the leading edge.
+	    return leading ? invokeFunc(time) : result;
+	  }
+
+	  function remainingWait(time) {
+	    var timeSinceLastCall = time - lastCallTime,
+	        timeSinceLastInvoke = time - lastInvokeTime,
+	        timeWaiting = wait - timeSinceLastCall;
+
+	    return maxing
+	      ? nativeMin$1(timeWaiting, maxWait - timeSinceLastInvoke)
+	      : timeWaiting;
+	  }
+
+	  function shouldInvoke(time) {
+	    var timeSinceLastCall = time - lastCallTime,
+	        timeSinceLastInvoke = time - lastInvokeTime;
+
+	    // Either this is the first call, activity has stopped and we're at the
+	    // trailing edge, the system time has gone backwards and we're treating
+	    // it as the trailing edge, or we've hit the `maxWait` limit.
+	    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+	      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+	  }
+
+	  function timerExpired() {
+	    var time = now_1$1();
+	    if (shouldInvoke(time)) {
+	      return trailingEdge(time);
+	    }
+	    // Restart the timer.
+	    timerId = setTimeout(timerExpired, remainingWait(time));
+	  }
+
+	  function trailingEdge(time) {
+	    timerId = undefined;
+
+	    // Only invoke if we have `lastArgs` which means `func` has been
+	    // debounced at least once.
+	    if (trailing && lastArgs) {
+	      return invokeFunc(time);
+	    }
+	    lastArgs = lastThis = undefined;
+	    return result;
+	  }
+
+	  function cancel() {
+	    if (timerId !== undefined) {
+	      clearTimeout(timerId);
+	    }
+	    lastInvokeTime = 0;
+	    lastArgs = lastCallTime = lastThis = timerId = undefined;
+	  }
+
+	  function flush() {
+	    return timerId === undefined ? result : trailingEdge(now_1$1());
+	  }
+
+	  function debounced() {
+	    var time = now_1$1(),
+	        isInvoking = shouldInvoke(time);
+
+	    lastArgs = arguments;
+	    lastThis = this;
+	    lastCallTime = time;
+
+	    if (isInvoking) {
+	      if (timerId === undefined) {
+	        return leadingEdge(lastCallTime);
+	      }
+	      if (maxing) {
+	        // Handle invocations in a tight loop.
+	        timerId = setTimeout(timerExpired, wait);
+	        return invokeFunc(lastCallTime);
+	      }
+	    }
+	    if (timerId === undefined) {
+	      timerId = setTimeout(timerExpired, wait);
+	    }
+	    return result;
+	  }
+	  debounced.cancel = cancel;
+	  debounced.flush = flush;
+	  return debounced;
+	}
+
+	var debounce_1$1 = debounce$1;
+
+	/** Error message constants. */
+	var FUNC_ERROR_TEXT$2 = 'Expected a function';
 
 	/**
 	 * Creates a throttled function that only invokes `func` at most once per
@@ -17969,13 +18534,13 @@
 	      trailing = true;
 
 	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT$1);
+	    throw new TypeError(FUNC_ERROR_TEXT$2);
 	  }
-	  if (isObject_1(options)) {
+	  if (isObject_1$1(options)) {
 	    leading = 'leading' in options ? !!options.leading : leading;
 	    trailing = 'trailing' in options ? !!options.trailing : trailing;
 	  }
-	  return debounce_1(func, wait, {
+	  return debounce_1$1(func, wait, {
 	    'leading': leading,
 	    'maxWait': wait,
 	    'trailing': trailing
@@ -20224,7 +20789,7 @@
 
 			this._onScroll = this.onScroll.bind(this);
 			scroller.addEventListener("scroll", this._onScroll);
-			this._scrolled = debounce_1(this.scrolled.bind(this), 30);
+			this._scrolled = debounce_1$1(this.scrolled.bind(this), 30);
 			// this.tick.call(window, this.onScroll.bind(this));
 
 			this.didScroll = false;
@@ -22692,10 +23257,11 @@
 				});
 			}
 
-			return this.load(navPath, "xml")
+			navPath = new Path(this.resolve(navPath));
+			return this.load(navPath.path, "xml")
 				.then((xml) => {
-					this.navigation = new Navigation(xml);
-					this.pageList = new PageList(xml);
+					this.navigation = new Navigation(xml, navPath, this.canonical.bind(this));
+					this.pageList = new PageList(xml, navPath, this.canonical.bind(this));
 					return this.navigation;
 				});
 		}
@@ -23514,21 +24080,572 @@
 	 * @returns {Book} a new Book object
 	 * @example ePub("/path/to/book.epub", {})
 	 */
-	function ePub(url, options) {
+	function ePub$1(url, options) {
 		return new Book(url, options);
 	}
 
-	ePub.VERSION = EPUBJS_VERSION;
+	ePub$1.VERSION = EPUBJS_VERSION;
 
 	if (typeof(global) !== "undefined") {
 		global.EPUBJS_VERSION = EPUBJS_VERSION;
 	}
 
-	ePub.Book = Book;
-	ePub.Rendition = Rendition;
-	ePub.Contents = Contents$1;
-	ePub.CFI = EpubCFI;
-	ePub.utils = utils;
+	ePub$1.Book = Book;
+	ePub$1.Rendition = Rendition;
+	ePub$1.Contents = Contents$1;
+	ePub$1.CFI = EpubCFI;
+	ePub$1.utils = utils;
+
+	if (!process$2) {
+	  var process$2 = {
+	    "cwd" : function () { return '/' }
+	  };
+	}
+
+	function assertPath$1(path) {
+	  if (typeof path !== 'string') {
+	    throw new TypeError('Path must be a string. Received ' + path);
+	  }
+	}
+
+	// Resolves . and .. elements in a path with directory names
+	function normalizeStringPosix$1(path, allowAboveRoot) {
+	  var res = '';
+	  var lastSlash = -1;
+	  var dots = 0;
+	  var code;
+	  for (var i = 0; i <= path.length; ++i) {
+	    if (i < path.length)
+	      code = path.charCodeAt(i);
+	    else if (code === 47/*/*/)
+	      break;
+	    else
+	      code = 47/*/*/;
+	    if (code === 47/*/*/) {
+	      if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
+	        if (res.length < 2 ||
+	            res.charCodeAt(res.length - 1) !== 46/*.*/ ||
+	            res.charCodeAt(res.length - 2) !== 46/*.*/) {
+	          if (res.length > 2) {
+	            var start = res.length - 1;
+	            var j = start;
+	            for (; j >= 0; --j) {
+	              if (res.charCodeAt(j) === 47/*/*/)
+	                break;
+	            }
+	            if (j !== start) {
+	              if (j === -1)
+	                res = '';
+	              else
+	                res = res.slice(0, j);
+	              lastSlash = i;
+	              dots = 0;
+	              continue;
+	            }
+	          } else if (res.length === 2 || res.length === 1) {
+	            res = '';
+	            lastSlash = i;
+	            dots = 0;
+	            continue;
+	          }
+	        }
+	        if (allowAboveRoot) {
+	          if (res.length > 0)
+	            res += '/..';
+	          else
+	            res = '..';
+	        }
+	      } else {
+	        if (res.length > 0)
+	          res += '/' + path.slice(lastSlash + 1, i);
+	        else
+	          res = path.slice(lastSlash + 1, i);
+	      }
+	      lastSlash = i;
+	      dots = 0;
+	    } else if (code === 46/*.*/ && dots !== -1) {
+	      ++dots;
+	    } else {
+	      dots = -1;
+	    }
+	  }
+	  return res;
+	}
+
+	function _format$1(sep, pathObject) {
+	  var dir = pathObject.dir || pathObject.root;
+	  var base = pathObject.base ||
+	    ((pathObject.name || '') + (pathObject.ext || ''));
+	  if (!dir) {
+	    return base;
+	  }
+	  if (dir === pathObject.root) {
+	    return dir + base;
+	  }
+	  return dir + sep + base;
+	}
+
+	var posix$1 = {
+	  // path.resolve([from ...], to)
+	  resolve: function resolve() {
+	    var resolvedPath = '';
+	    var resolvedAbsolute = false;
+	    var cwd;
+
+	    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+	      var path;
+	      if (i >= 0)
+	        path = arguments[i];
+	      else {
+	        if (cwd === undefined)
+	          cwd = process$2.cwd();
+	        path = cwd;
+	      }
+
+	      assertPath$1(path);
+
+	      // Skip empty entries
+	      if (path.length === 0) {
+	        continue;
+	      }
+
+	      resolvedPath = path + '/' + resolvedPath;
+	      resolvedAbsolute = path.charCodeAt(0) === 47/*/*/;
+	    }
+
+	    // At this point the path should be resolved to a full absolute path, but
+	    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+	    // Normalize the path
+	    resolvedPath = normalizeStringPosix$1(resolvedPath, !resolvedAbsolute);
+
+	    if (resolvedAbsolute) {
+	      if (resolvedPath.length > 0)
+	        return '/' + resolvedPath;
+	      else
+	        return '/';
+	    } else if (resolvedPath.length > 0) {
+	      return resolvedPath;
+	    } else {
+	      return '.';
+	    }
+	  },
+
+
+	  normalize: function normalize(path) {
+	    assertPath$1(path);
+
+	    if (path.length === 0)
+	      return '.';
+
+	    var isAbsolute = path.charCodeAt(0) === 47/*/*/;
+	    var trailingSeparator = path.charCodeAt(path.length - 1) === 47/*/*/;
+
+	    // Normalize the path
+	    path = normalizeStringPosix$1(path, !isAbsolute);
+
+	    if (path.length === 0 && !isAbsolute)
+	      path = '.';
+	    if (path.length > 0 && trailingSeparator)
+	      path += '/';
+
+	    if (isAbsolute)
+	      return '/' + path;
+	    return path;
+	  },
+
+
+	  isAbsolute: function isAbsolute(path) {
+	    assertPath$1(path);
+	    return path.length > 0 && path.charCodeAt(0) === 47/*/*/;
+	  },
+
+
+	  join: function join() {
+	    if (arguments.length === 0)
+	      return '.';
+	    var joined;
+	    for (var i = 0; i < arguments.length; ++i) {
+	      var arg = arguments[i];
+	      assertPath$1(arg);
+	      if (arg.length > 0) {
+	        if (joined === undefined)
+	          joined = arg;
+	        else
+	          joined += '/' + arg;
+	      }
+	    }
+	    if (joined === undefined)
+	      return '.';
+	    return posix$1.normalize(joined);
+	  },
+
+
+	  relative: function relative(from, to) {
+	    assertPath$1(from);
+	    assertPath$1(to);
+
+	    if (from === to)
+	      return '';
+
+	    from = posix$1.resolve(from);
+	    to = posix$1.resolve(to);
+
+	    if (from === to)
+	      return '';
+
+	    // Trim any leading backslashes
+	    var fromStart = 1;
+	    for (; fromStart < from.length; ++fromStart) {
+	      if (from.charCodeAt(fromStart) !== 47/*/*/)
+	        break;
+	    }
+	    var fromEnd = from.length;
+	    var fromLen = (fromEnd - fromStart);
+
+	    // Trim any leading backslashes
+	    var toStart = 1;
+	    for (; toStart < to.length; ++toStart) {
+	      if (to.charCodeAt(toStart) !== 47/*/*/)
+	        break;
+	    }
+	    var toEnd = to.length;
+	    var toLen = (toEnd - toStart);
+
+	    // Compare paths to find the longest common path from root
+	    var length = (fromLen < toLen ? fromLen : toLen);
+	    var lastCommonSep = -1;
+	    var i = 0;
+	    for (; i <= length; ++i) {
+	      if (i === length) {
+	        if (toLen > length) {
+	          if (to.charCodeAt(toStart + i) === 47/*/*/) {
+	            // We get here if `from` is the exact base path for `to`.
+	            // For example: from='/foo/bar'; to='/foo/bar/baz'
+	            return to.slice(toStart + i + 1);
+	          } else if (i === 0) {
+	            // We get here if `from` is the root
+	            // For example: from='/'; to='/foo'
+	            return to.slice(toStart + i);
+	          }
+	        } else if (fromLen > length) {
+	          if (from.charCodeAt(fromStart + i) === 47/*/*/) {
+	            // We get here if `to` is the exact base path for `from`.
+	            // For example: from='/foo/bar/baz'; to='/foo/bar'
+	            lastCommonSep = i;
+	          } else if (i === 0) {
+	            // We get here if `to` is the root.
+	            // For example: from='/foo'; to='/'
+	            lastCommonSep = 0;
+	          }
+	        }
+	        break;
+	      }
+	      var fromCode = from.charCodeAt(fromStart + i);
+	      var toCode = to.charCodeAt(toStart + i);
+	      if (fromCode !== toCode)
+	        break;
+	      else if (fromCode === 47/*/*/)
+	        lastCommonSep = i;
+	    }
+
+	    var out = '';
+	    // Generate the relative path based on the path difference between `to`
+	    // and `from`
+	    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
+	      if (i === fromEnd || from.charCodeAt(i) === 47/*/*/) {
+	        if (out.length === 0)
+	          out += '..';
+	        else
+	          out += '/..';
+	      }
+	    }
+
+	    // Lastly, append the rest of the destination (`to`) path that comes after
+	    // the common path parts
+	    if (out.length > 0)
+	      return out + to.slice(toStart + lastCommonSep);
+	    else {
+	      toStart += lastCommonSep;
+	      if (to.charCodeAt(toStart) === 47/*/*/)
+	        ++toStart;
+	      return to.slice(toStart);
+	    }
+	  },
+
+
+	  _makeLong: function _makeLong(path) {
+	    return path;
+	  },
+
+
+	  dirname: function dirname(path) {
+	    assertPath$1(path);
+	    if (path.length === 0)
+	      return '.';
+	    var code = path.charCodeAt(0);
+	    var hasRoot = (code === 47/*/*/);
+	    var end = -1;
+	    var matchedSlash = true;
+	    for (var i = path.length - 1; i >= 1; --i) {
+	      code = path.charCodeAt(i);
+	      if (code === 47/*/*/) {
+	        if (!matchedSlash) {
+	          end = i;
+	          break;
+	        }
+	      } else {
+	        // We saw the first non-path separator
+	        matchedSlash = false;
+	      }
+	    }
+
+	    if (end === -1)
+	      return hasRoot ? '/' : '.';
+	    if (hasRoot && end === 1)
+	      return '//';
+	    return path.slice(0, end);
+	  },
+
+
+	  basename: function basename(path, ext) {
+	    if (ext !== undefined && typeof ext !== 'string')
+	      throw new TypeError('"ext" argument must be a string');
+	    assertPath$1(path);
+
+	    var start = 0;
+	    var end = -1;
+	    var matchedSlash = true;
+	    var i;
+
+	    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
+	      if (ext.length === path.length && ext === path)
+	        return '';
+	      var extIdx = ext.length - 1;
+	      var firstNonSlashEnd = -1;
+	      for (i = path.length - 1; i >= 0; --i) {
+	        var code = path.charCodeAt(i);
+	        if (code === 47/*/*/) {
+	          // If we reached a path separator that was not part of a set of path
+	          // separators at the end of the string, stop now
+	          if (!matchedSlash) {
+	            start = i + 1;
+	            break;
+	          }
+	        } else {
+	          if (firstNonSlashEnd === -1) {
+	            // We saw the first non-path separator, remember this index in case
+	            // we need it if the extension ends up not matching
+	            matchedSlash = false;
+	            firstNonSlashEnd = i + 1;
+	          }
+	          if (extIdx >= 0) {
+	            // Try to match the explicit extension
+	            if (code === ext.charCodeAt(extIdx)) {
+	              if (--extIdx === -1) {
+	                // We matched the extension, so mark this as the end of our path
+	                // component
+	                end = i;
+	              }
+	            } else {
+	              // Extension does not match, so our result is the entire path
+	              // component
+	              extIdx = -1;
+	              end = firstNonSlashEnd;
+	            }
+	          }
+	        }
+	      }
+
+	      if (start === end)
+	        end = firstNonSlashEnd;
+	      else if (end === -1)
+	        end = path.length;
+	      return path.slice(start, end);
+	    } else {
+	      for (i = path.length - 1; i >= 0; --i) {
+	        if (path.charCodeAt(i) === 47/*/*/) {
+	          // If we reached a path separator that was not part of a set of path
+	          // separators at the end of the string, stop now
+	          if (!matchedSlash) {
+	            start = i + 1;
+	            break;
+	          }
+	        } else if (end === -1) {
+	          // We saw the first non-path separator, mark this as the end of our
+	          // path component
+	          matchedSlash = false;
+	          end = i + 1;
+	        }
+	      }
+
+	      if (end === -1)
+	        return '';
+	      return path.slice(start, end);
+	    }
+	  },
+
+
+	  extname: function extname(path) {
+	    assertPath$1(path);
+	    var startDot = -1;
+	    var startPart = 0;
+	    var end = -1;
+	    var matchedSlash = true;
+	    // Track the state of characters (if any) we see before our first dot and
+	    // after any path separator we find
+	    var preDotState = 0;
+	    for (var i = path.length - 1; i >= 0; --i) {
+	      var code = path.charCodeAt(i);
+	      if (code === 47/*/*/) {
+	        // If we reached a path separator that was not part of a set of path
+	        // separators at the end of the string, stop now
+	        if (!matchedSlash) {
+	          startPart = i + 1;
+	          break;
+	        }
+	        continue;
+	      }
+	      if (end === -1) {
+	        // We saw the first non-path separator, mark this as the end of our
+	        // extension
+	        matchedSlash = false;
+	        end = i + 1;
+	      }
+	      if (code === 46/*.*/) {
+	        // If this is our first dot, mark it as the start of our extension
+	        if (startDot === -1)
+	          startDot = i;
+	        else if (preDotState !== 1)
+	          preDotState = 1;
+	      } else if (startDot !== -1) {
+	        // We saw a non-dot and non-path separator before our dot, so we should
+	        // have a good chance at having a non-empty extension
+	        preDotState = -1;
+	      }
+	    }
+
+	    if (startDot === -1 ||
+	        end === -1 ||
+	        // We saw a non-dot character immediately before the dot
+	        preDotState === 0 ||
+	        // The (right-most) trimmed path component is exactly '..'
+	        (preDotState === 1 &&
+	         startDot === end - 1 &&
+	         startDot === startPart + 1)) {
+	      return '';
+	    }
+	    return path.slice(startDot, end);
+	  },
+
+
+	  format: function format(pathObject) {
+	    if (pathObject === null || typeof pathObject !== 'object') {
+	      throw new TypeError(
+	        'Parameter "pathObject" must be an object, not ' + typeof(pathObject)
+	      );
+	    }
+	    return _format$1('/', pathObject);
+	  },
+
+
+	  parse: function parse(path) {
+	    assertPath$1(path);
+
+	    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
+	    if (path.length === 0)
+	      return ret;
+	    var code = path.charCodeAt(0);
+	    var isAbsolute = (code === 47/*/*/);
+	    var start;
+	    if (isAbsolute) {
+	      ret.root = '/';
+	      start = 1;
+	    } else {
+	      start = 0;
+	    }
+	    var startDot = -1;
+	    var startPart = 0;
+	    var end = -1;
+	    var matchedSlash = true;
+	    var i = path.length - 1;
+
+	    // Track the state of characters (if any) we see before our first dot and
+	    // after any path separator we find
+	    var preDotState = 0;
+
+	    // Get non-dir info
+	    for (; i >= start; --i) {
+	      code = path.charCodeAt(i);
+	      if (code === 47/*/*/) {
+	        // If we reached a path separator that was not part of a set of path
+	        // separators at the end of the string, stop now
+	        if (!matchedSlash) {
+	          startPart = i + 1;
+	          break;
+	        }
+	        continue;
+	      }
+	      if (end === -1) {
+	        // We saw the first non-path separator, mark this as the end of our
+	        // extension
+	        matchedSlash = false;
+	        end = i + 1;
+	      }
+	      if (code === 46/*.*/) {
+	        // If this is our first dot, mark it as the start of our extension
+	        if (startDot === -1)
+	          startDot = i;
+	        else if (preDotState !== 1)
+	          preDotState = 1;
+	      } else if (startDot !== -1) {
+	        // We saw a non-dot and non-path separator before our dot, so we should
+	        // have a good chance at having a non-empty extension
+	        preDotState = -1;
+	      }
+	    }
+
+	    if (startDot === -1 ||
+	        end === -1 ||
+	        // We saw a non-dot character immediately before the dot
+	        preDotState === 0 ||
+	        // The (right-most) trimmed path component is exactly '..'
+	        (preDotState === 1 &&
+	         startDot === end - 1 &&
+	         startDot === startPart + 1)) {
+	      if (end !== -1) {
+	        if (startPart === 0 && isAbsolute)
+	          ret.base = ret.name = path.slice(1, end);
+	        else
+	          ret.base = ret.name = path.slice(startPart, end);
+	      }
+	    } else {
+	      if (startPart === 0 && isAbsolute) {
+	        ret.name = path.slice(1, startDot);
+	        ret.base = path.slice(1, end);
+	      } else {
+	        ret.name = path.slice(startPart, startDot);
+	        ret.base = path.slice(startPart, end);
+	      }
+	      ret.ext = path.slice(startDot, end);
+	    }
+
+	    if (startPart > 0)
+	      ret.dir = path.slice(0, startPart - 1);
+	    else if (isAbsolute)
+	      ret.dir = '/';
+
+	    return ret;
+	  },
+
+
+	  sep: '/',
+	  delimiter: ':',
+	  posix: null
+	};
+
+
+	var path$1 = posix$1;
 
 	var isImplemented$3 = function () {
 		var assign = Object.assign, obj;
@@ -23583,7 +24700,7 @@
 
 	var forEach$1 = Array.prototype.forEach, create$3 = Object.create;
 
-	var process$2 = function (src, obj) {
+	var process$3 = function (src, obj) {
 		var key;
 		for (key in src) obj[key] = src[key];
 	};
@@ -23592,14 +24709,14 @@
 		var result = create$3(null);
 		forEach$1.call(arguments, function (options) {
 			if (options == null) return;
-			process$2(Object(options), result);
+			process$3(Object(options), result);
 		});
 		return result;
 	};
 
 	// Deprecated
 
-	var isCallable = function (obj) { return typeof obj === 'function'; };
+	var isCallable$1 = function (obj) { return typeof obj === 'function'; };
 
 	var str$1 = 'razdwatrzy';
 
@@ -23656,12 +24773,12 @@
 		}
 		if (get == null) {
 			get = undefined;
-		} else if (!isCallable(get)) {
+		} else if (!isCallable$1(get)) {
 			options = get;
 			get = set = undefined;
 		} else if (set == null) {
 			set = undefined;
-		} else if (!isCallable(set)) {
+		} else if (!isCallable$1(set)) {
 			options = set;
 			set = undefined;
 		}
@@ -24901,7 +26018,7 @@
 	//-- Enable binding events to Manager
 	eventEmitter$1(ScrollingContinuousViewManager.prototype);
 
-	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};
+	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};//# sourceMappingURL=viewprt.esm.js.map
 
 	class StickyIframeView extends IframeView {
 	    constructor(section, options) {
@@ -25380,14 +26497,262 @@
 	  });
 	}
 
-	window.ePub = ePub;
+	var INTERACTIVE = {};
+	INTERACTIVE['A'] = true;
+	INTERACTIVE['SELECT'] = true;
+	INTERACTIVE['BUTTON'] = true;
+	INTERACTIVE['INPUT'] = true;
+
+	var installedResizeHandler = false;
+
+	function isInteractive(node) {
+	  if ( INTERACTIVE[node.nodeName] ) {
+	    // possibly...
+	    if ( node.nodeName == 'A' ) { return node.hasAttribute('href'); }
+	    return true;
+	  }
+	  return false;
+	}
+
+	function hideEverythingInContents(contents) {
+	  var elements = contents.document.querySelectorAll('body *');
+	  for(var i = 0; i < elements.length; i++) {
+	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	      var element = elements[i];
+	      element.setAttribute('aria-hidden', true);
+	      element.setAttribute('tabindex', '-1');
+	    }
+	  }
+	}
+
+	function hideEverythingVisible(contents) {
+	  var elements = contents.document.querySelectorAll('[aria-hidden="false"]');
+	  for(var i = 0; i < elements.length; i++) {
+	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	      elements[i].setAttribute('aria-hidden', true);
+	      if ( INTERACTIVE[elements[i].nodeName] ) {
+	        elements[i].setAttribute('tabindex', '-1');
+	      }
+	    }
+	  }
+	}
+
+	function findMatchingContents(contents, cfi) {
+	  for(var content of contents) {
+	    if ( cfi.indexOf(content.cfiBase) > -1 ) {
+	      return content;
+	    }
+	  }
+	  return null; // ???
+	}
+
+	function updateFocus(reader, location) {
+	  if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
+	  if ( reader.options.disableFocusHandling ) { return ; }
+	  setTimeout(() => {
+	    if ( location.start.cfi == reader._last_location_start_cfi && 
+	         location.end.cfi == reader._last_location_end_cfi ) {
+	      return;
+	    }
+	    reader._last_location_start_cfi = location.start.cfi;
+	    reader._last_location_end_cfi = location.end.cfi;
+	    __updateFocus(reader, location);
+	  }, 0);
+
+	  reader._last_location_start = location.start.href;
+	}
+
+	var elemsWithBoundingRects = [];
+	var getBoundingClientRect = function(element) {
+	  if ( ! element._boundingClientRect ) {
+
+	    // If not, get it then store it for future use.
+	    element._boundingClientRect = element.getBoundingClientRect();
+	    elemsWithBoundingRects.push( element );
+	  }
+	  return element._boundingClientRect;
+	};
+
+	var clearClientRects = function() {
+	  var i;
+	  for ( i = 0; i < elemsWithBoundingRects.length; i++ ) {
+	    if ( elemsWithBoundingRects[ i ] ) {
+	      elemsWithBoundingRects[ i ]._boundingClientRect = null;
+	    }
+	  }
+	  elemsWithBoundingRects = [];
+	};
+
+	function __updateFocus(reader, location) {
+	  // don't use location
+
+	  var selfOrElement = function(node) {
+	    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
+	  };
+
+	  var container = reader._rendition.manager.container;
+	  var contents = findMatchingContents(reader._rendition.manager.getContents(), location.start.cfi);
+	  hideEverythingVisible(contents);
+
+	  var containerX = container.scrollLeft;
+	  var containerX2 = container.scrollLeft + container.offsetWidth;
+
+	  var _showThisNode = function(node) {
+	    var bounds = getBoundingClientRect(node); // node.getBoundingClientRect();
+	    var x = bounds.left;
+	    var x2 = bounds.left + bounds.width;
+
+	    var isVisible = false;
+	    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+	    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+	    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
+	    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
+	    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
+
+	    if ( isVisible ) {
+	      // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
+	      node.setAttribute('aria-hidden', 'false');
+	      if ( isInteractive(node) ) {
+	        node.setAttribute('tabindex', '0');
+	      }
+	      var hasSeenVisibleChild = false;
+	      for(var child of node.children) {
+	        var retval = _showThisNode(child);
+	        if ( retval ) { hasSeenVisibleChild = true; }
+	        if ( ! retval && hasSeenVisibleChild ) {
+	          break;
+	        }
+	      }
+	    }
+
+	    return isVisible;
+	  };
+
+	  var startRange = new ePub.CFI(location.start.cfi).toRange(contents.document);
+	  var startNode = selfOrElement(startRange.startContainer);
+	  var checkNode = startNode;
+	  while ( checkNode != contents.document.body ) {
+	    var bounds = getBoundingClientRect(checkNode); // checkNode.getBoundingClientRect();
+	    var x = bounds.left;
+	    var x2 = bounds.left + bounds.width;
+
+	    var isVisible = false;
+	    // if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
+	    if ( x >= containerX && x < containerX2 ) { isVisible = true; }
+	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+
+	    if ( isVisible ) {
+	      startNode = checkNode;
+	      checkNode = checkNode.parentNode;
+	    } else {
+	      break;
+	    }
+
+	  }
+
+	  var parentNode = startNode; // .parentNode;
+	  while ( parentNode != contents.document.body ) {
+	    parentNode.setAttribute('aria-hidden', false);
+	    parentNode = parentNode.parentNode;
+	  }
+
+	  _showThisNode(startNode);
+
+	  var children = startNode.parentNode.children;
+	  var doProcess = false;
+	  for (var nextNode of children) {
+	    if ( nextNode == startNode ) { doProcess = true; }
+	    else if ( doProcess ) {
+	      var isVisible = _showThisNode(nextNode);
+	      if ( ! isVisible ) { break; }
+	    }
+	  }
+	}
+
+	function setupFocusRules(reader) {
+
+	  if ( ! installedResizeHandler ) {
+	    installedResizeHandler = true;
+	    reader.on('resize', () => {
+	      clearClientRects();
+	    });
+	  }
+
+	  var contents = reader._rendition.getContents();
+	  contents.forEach( (content) => {
+	  
+	    if ( reader.options.debugFocusHandling ) {
+	      content.addStylesheetRules({
+	        '[aria-hidden="true"]': {
+	          'opacity': '0.25 !important'
+	        },
+	        ':focus': {
+	          'outline': '2px solid goldenrod',
+	          'padding': '4px',
+	          'background': 'lightgoldenrodyellow'
+	        }
+	      });
+	    }
+
+	    hideEverythingInContents(content);
+
+	    // --- attempts to heal safari/edge
+	    content.document.addEventListener('keydown', function(event) {
+	      if ( event.keyCode == 9 ) {
+
+	        var activeElement = content.document.activeElement;
+	        if ( activeElement ) {
+	          reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
+	        } else {
+	          reader._manager.container.dataset.scrollLeft = 0;
+	        }
+	      }
+	    });
+	  });
+
+	  reader.on('keyDown', function(data) {
+	    if ( data.keyName == 'Tab' ) {
+	      reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
+	    }
+
+	    if ( data.keyName == 'Tab' && data.inner ) {
+	      var container = reader._rendition.manager.container;
+	      // container.dataset.scrollLeft = 0;
+
+	      var mod;
+	      var delta;
+	      var x; var xyz;
+	      setTimeout(function() {
+	        var scrollLeft = container.scrollLeft;
+	        mod = scrollLeft % parseInt(reader._rendition.manager.layout.delta, 10);
+	        if ( mod > 0 && ( mod / reader._rendition.manager.layout.delta ) < 0.99 ) {
+	          // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
+	          // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
+	          x = Math.floor(container.scrollLeft / parseInt(reader._rendition.manager.layout.delta, 10));
+	          if ( data.shiftKey ) { x -= 0 ; }
+	          else { x += 1; }
+	          var y = container.scrollLeft;
+	          delta = ( x * self._rendition.manager.layout.delta ) - y;
+	          xyz = ( x * reader._rendition.manager.layout.delta );
+	          // if ( data.shiftKey ) { delta *= -1 ; }
+	          {
+	            reader._rendition.manager.scrollBy(delta);
+	          }
+	        }
+	      }, 0);
+	    }
+	  });
+	}
+
+	window.ePub = ePub$1;
 
 	Reader.EpubJS = Reader.extend({
 
 	  initialize: function(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
 	    this._epubjs_ready = false;
-	    window.xpath = path;
+	    window.xpath = path$1;
 	  },
 
 	  open: function(target, callback) {
@@ -25410,7 +26775,7 @@
 	      book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
 	      book_options.openAs = 'epub';
 	    }
-	    this._book = ePub(book_href, book_options);
+	    this._book = ePub$1(book_href, book_options);
 	    sessionStorage.removeItem('rootfilePath');
 
 	    this._book.loaded.navigation.then(function(toc) {
@@ -25594,7 +26959,7 @@
 	    var self = this;
 
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
-	    self.rendition = new ePub.Rendition(self._book, self.settings);
+	    self.rendition = new ePub$1.Rendition(self._book, self.settings);
 	    self._book.rendition = self._rendition;
 	    self._updateFontSize();
 	    self._rendition.attachTo(self._panes['epub']);
@@ -25741,8 +27106,8 @@
 	        // maybe it needs to be resolved
 	        var guessed = target;
 	        if ( guessed.indexOf("://") < 0 ) {
-	          var path1 = path.resolve(this._book.path.directory, this._book.packaging.navPath);
-	          var path2 = path.resolve(path.dirname(path1), target);
+	          var path1 = path$1.resolve(this._book.path.directory, this._book.packaging.navPath);
+	          var path2 = path$1.resolve(path$1.dirname(path1), target);
 	          guessed = this._book.canonical(path2);
 	        }
 	        if ( guessed.indexOf("#") !== 0 ) {
@@ -25926,13 +27291,16 @@
 	    var relocated_handler = debounce_1(function(location) {
 	      if ( self._fired ) { self._fired = false; return ; }
 	      self.fire('relocated', location);
+
+	      // hideEverything/showEverything
+	      updateFocus(self, location);
+
 	      if ( safari && self._last_location_start && self._last_location_start != location.start.href ) {
 	        self._fired = true;
 	        setTimeout(function() {
 	          // self._rendition.display(location.start.cfi);
 	        }, 0);
 	      }
-	      self._last_location_start = location.start.href;
 	    }, 10);
 
 	    this._rendition.on('relocated', relocated_handler);
@@ -25963,33 +27331,11 @@
 
 	    this._rendition.on("rendered", function(section, view) {
 
-	      self.on('keyDown', function(data) {
-	        if ( data.keyName == 'Tab' && data.inner ) {
-	          var container = self._rendition.manager.container;
-	          var mod;
-	          var delta;
-	          var x; var xyz;
-	          setTimeout(function() {
-	            var scrollLeft = container.scrollLeft;
-	            mod = scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-	            if ( mod > 0 && ( mod / self._rendition.manager.layout.delta ) < 0.99 ) {
-	              // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-	              // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
-	              x = Math.floor(container.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10));
-	              if ( data.shiftKey ) { x -= 0 ; }
-	              else { x += 1; }
-	              var y = container.scrollLeft;
-	              delta = ( x * self._rendition.manager.layout.delta ) - y;
-	              xyz = ( x * self._rendition.manager.layout.delta );
-	              // if ( data.shiftKey ) { delta *= -1 ; }
-	              {
-	                self._rendition.manager.scrollBy(delta);
-	              }
-	            }
-	            // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
-	          }, 0);
-	        }
-	      });
+	      if ( self.settings.flow == 'scrolled-doc' ) { return ; }
+
+	      // add focus rules
+	      setupFocusRules(self);
+
 	    });
 	  },
 
@@ -26149,7 +27495,7 @@
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
 	  get: function() {
-	    return ePub.CFI;
+	    return ePub$1.CFI;
 	  }
 	});
 

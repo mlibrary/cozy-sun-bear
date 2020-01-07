@@ -14,6 +14,7 @@ import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scroll
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
 import { popupTables } from "../utils/manglers";
+import * as focus from "../utils/focus";
 
 import debounce from 'lodash/debounce';
 
@@ -571,13 +572,16 @@ Reader.EpubJS = Reader.extend({
     var relocated_handler = debounce(function(location) {
       if ( self._fired ) { self._fired = false; return ; }
       self.fire('relocated', location);
+
+      // hideEverything/showEverything
+      focus.updateFocus(self, location);
+
       if ( Browser.safari && self._last_location_start && self._last_location_start != location.start.href ) {
         self._fired = true;
         setTimeout(function() {
           // self._rendition.display(location.start.cfi);
         }, 0);
       }
-      self._last_location_start = location.start.href;
     }, 10);
 
     this._rendition.on('relocated', relocated_handler);
@@ -608,33 +612,11 @@ Reader.EpubJS = Reader.extend({
 
     this._rendition.on("rendered", function(section, view) {
 
-      self.on('keyDown', function(data) {
-        if ( data.keyName == 'Tab' && data.inner ) {
-          var container = self._rendition.manager.container;
-          var mod;
-          var delta;
-          var x; var xyz;
-          setTimeout(function() {
-            var scrollLeft = container.scrollLeft;
-            mod = scrollLeft % parseInt(self._rendition.manager.layout.delta, 10);
-            if ( mod > 0 && ( mod / self._rendition.manager.layout.delta ) < 0.99 ) {
-              // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-              // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
-              x = Math.floor(container.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10));
-              if ( data.shiftKey ) { x -= 0 ; }
-              else { x += 1; }
-              var y = container.scrollLeft;
-              delta = ( x * self._rendition.manager.layout.delta ) - y;
-              xyz = ( x * self._rendition.manager.layout.delta );
-              // if ( data.shiftKey ) { delta *= -1 ; }
-              if ( true || ! data.shiftKey ) {
-                self._rendition.manager.scrollBy(delta);
-              }
-            }
-            // console.log("AHOY DOING THE SCROLLING", data.shiftKey, scrollLeft, mod, x, xyz, delta);
-          }, 0);
-        }
-      })
+      if ( self.settings.flow == 'scrolled-doc' ) { return ; }
+
+      // add focus rules
+      focus.setupFocusRules(self);
+
     })
   },
 

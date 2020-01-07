@@ -279,10 +279,9 @@ export var Reader = Evented.extend({
     panes['top'] = DomUtil.create('div', prefix + 'top', container);
     panes['main'] = DomUtil.create('div', prefix + 'main', container);
     panes['bottom'] = DomUtil.create('div', prefix + 'bottom', container);
-
     panes['left'] = DomUtil.create('div', prefix + 'left', panes['main']);
-    panes['book-cover'] = DomUtil.create('div', prefix + 'book-cover', panes['main']);
     panes['right'] = DomUtil.create('div', prefix + 'right', panes['main']);
+    panes['book-cover'] = DomUtil.create('div', prefix + 'book-cover', panes['main']);
     panes['book'] = DomUtil.create('div', prefix + 'book', panes['book-cover']);
     panes['loader'] = DomUtil.create('div', prefix + 'book-loading', panes['book']);
     panes['epub'] = DomUtil.create('div', prefix + 'book-epub', panes['book']);
