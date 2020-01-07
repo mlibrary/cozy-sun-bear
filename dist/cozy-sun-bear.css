@@ -1278,6 +1278,25 @@
       background: #e8e8e8; }
       .cozy-container .button--inline[disabled]:active {
         box-shadow: none; }
+  .cozy-container [class*="button"] + [class*="button"] {
+    margin-left: 0.5rem; }
+  .cozy-container .button-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    transition-property: max-height, opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: linear;
+    max-height: 100px; }
+    .cozy-container .button-group[aria-hidden="true"] {
+      opacity: 0;
+      max-height: 0; }
+    .cozy-container .button-group[aria-hidden="false"] {
+      opacity: 1; }
+    .cozy-container .button-group .toggled {
+      color: #fff;
+      background-position: 0;
+      box-shadow: 0 0 0 6px rgba(0, 44, 99, 0.75); }
   .cozy-container .doi-label form {
     display: inline-block; }
   .cozy-container input[type='text'] {

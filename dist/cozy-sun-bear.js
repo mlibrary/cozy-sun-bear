@@ -1,10 +1,13 @@
 /*
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
 =======
 >>>>>>> 7e3a868... build
+=======
+>>>>>>> 6d233c3... add pagelist to contents widget
 <<<<<<< HEAD
  * Cozy Sun Bear 1.0.0747fe65, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> c331f8f... generate locations with a pagelist
@@ -15,6 +18,9 @@
 >>>>>>> 3352dcc... generate locations with a pagelist
 =======
  * Cozy Sun Bear 1.0.03352dcc, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.022ff869, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 77e34ee... add pagelist to contents widget
  * (c) 2020 Regents of the University of Michigan
 >>>>>>> 22ff869... build
  */
@@ -6563,7 +6569,19 @@
 	      }, this);
 
 	      this._modal = this._reader.modal({
-	        template: '<ul></ul>',
+	        template: `
+<div class="cozy-contents-toolbar button-group" aria-hidden="true">
+  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>
+  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>
+</div>
+<div class="cozy-contents-main">
+  <div class="cozy-contents-contentlist">
+    <ul></ul>
+  </div>
+  <div class="cozy-contents-pagelist" style="display: none">
+    <ul></ul>
+  </div>
+</div>`.trim(),
 	        title: 'Contents',
 	        region: 'left',
 	        className: 'cozy-modal-contents',
@@ -6577,7 +6595,30 @@
 	          }
 	        } });
 
+<<<<<<< HEAD
 	      this._modal.on('click', 'a[href]', function (modal, target) {
+=======
+	      this._display = {};
+	      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
+	      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
+	      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
+
+	      this._toolbar.addEventListener('click', (event) => {
+	        if ( event.target.dataset.toggle ) {
+	          var target = event.target.dataset.toggle;
+	          var current = this._toolbar.querySelector('[data-toggle].toggled');
+	          if ( current ) {
+	            current.classList.remove('toggled');
+	            this._display[current.dataset.toggle].style.display = 'none';
+	          }
+	          event.target.classList.add('toggled');
+	          this._display[event.target.dataset.toggle].style.display = 'block';
+	          this._reader.updateLiveStatus(`Displaying ${event.target.innerText}`);
+	        }
+	      });
+
+	      this._modal.on('click', 'a[href]', function(modal, target) {
+>>>>>>> 77e34ee... add pagelist to contents widget
 	        target = target.getAttribute('data-href');
 	        this._goto_interval = true;
 	        this._reader.tracking.action('contents/go/link');
@@ -6591,6 +6632,7 @@
 
 	      this._setupSkipLink();
 
+<<<<<<< HEAD
 	      var parent = self._modal._container.querySelector('ul');
 	      // var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
 	      // while ( s.length ) {
@@ -6606,6 +6648,11 @@
 	      // }
 	      var _process = function _process(items, tabindex, parent) {
 	        items.forEach(function (item) {
+=======
+	      var parent = self._modal._container.querySelector('.cozy-contents-contentlist ul');
+	      var _process = function(items, tabindex, parent) {
+	        items.forEach(function(item) {
+>>>>>>> 77e34ee... add pagelist to contents widget
 	          var option = self._createOption(item, tabindex, parent);
 	          if (item.subitems && item.subitems.length) {
 	            _process(item.subitems, tabindex + 1, option);
@@ -6613,7 +6660,30 @@
 	        });
 	      };
 	      _process(data.toc, 0, parent);
+
 	    }.bind(this));
+
+	    this._reader.on('updateLocations', (data) => {
+
+	      if ( this._reader.pageList ) {
+	        // this._toolbar.style.display = 'flex';
+	        this._toolbar.setAttribute('aria-hidden', 'false');
+	      }
+
+	      if ( self._reader.pageList ) {
+	        parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
+	        for(var i = 0; i < self._reader.pageList.pages.length; i++) {
+	          var pg = self._reader.pageList.pages[i];
+	          var info = self._reader.pageList.pageList[i];
+	          var cfi = self._reader.pageList.locations[i];
+	          var item = { 
+	            label: ( info.pageLabel || info.page ),
+	            href: cfi
+	          };
+	          var option = self._createOption(item, 0, parent);
+	        }
+	      }
+	    });
 	  },
 	  _createOption: function _createOption(chapter, tabindex, parent) {
 	    var option = create$1('li');
@@ -35261,7 +35331,7 @@
 	//-- Enable binding events to Manager
 	eventEmitter$1(ScrollingContinuousViewManager.prototype);
 
-	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};
+	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};//# sourceMappingURL=viewprt.esm.js.map
 
 	var _createClass$z = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 

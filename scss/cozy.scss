@@ -247,6 +247,42 @@ $grid-padding:       1rem;
     display: inline;
   }
 
+  [class*="button"] + [class*="button"] {
+    margin-left: 0.5rem;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+
+    transition-property: max-height, opacity;
+    transition-duration: 0.2s;
+    // transition-delay: 0.2s;
+    transition-timing-function: linear;
+
+    max-height: 100px;
+
+    &[aria-hidden="true"] {
+      // transform: scale(0);
+      opacity: 0;
+      max-height: 0;
+    }
+
+    &[aria-hidden="false"] {
+      // transform: scale(1);
+      opacity: 1;
+      // height: auto;
+    }
+
+    .toggled {
+      // box-shadow: inset 0 1px 12px $shadow;
+      color: $white;
+      background-position: 0;
+      box-shadow: 0 0 0 6px rgba($brand-color, .75);
+    }
+  }
+
   ///////////////////////////////////
   // fields
   ///////////////////////////////////
