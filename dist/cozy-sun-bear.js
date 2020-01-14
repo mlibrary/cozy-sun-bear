@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.04cd138f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.09c9696b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7627,6 +7627,7 @@
 	    this._data = null;
 	    this._canceled = false;
 	    this._processing = false;
+	    this._addLocation = false;
 
 	    this._reader.on('ready', function() {
 
@@ -7656,6 +7657,11 @@
 	        this._reader.tracking.action('contents/close');
 	      }.bind(this));
 
+	    }.bind(this));
+
+	    // only add locations when they've been processed
+	    this._reader.on('updateLocations', function() {
+	      this._addLocation = true;
 	    }.bind(this));
 
 	    on(this._control, 'click', function(event) {
@@ -7785,17 +7791,19 @@
 
 	          if (result.snippet) {
 	            // results for epubs
-	            var loc = reader.locations.locationFromCfi(cfiRange);
-	            var locText = "Location " + loc + " • ";
-	            if (cfiRange.match(/^epubcfi\(page/)) {
-	              // results for pdfs
-	              // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
-	              loc = cfiRange.split("=")[1];
-	              locText = "Page " + loc.slice(0, -1) + " • ";
+	            if ( self._addLocation ) {
+	              var loc = reader.locations.locationFromCfi(cfiRange);
+	              var locText = "Location " + loc + " • ";
+	              if (cfiRange.match(/^epubcfi\(page/)) {
+	                // results for pdfs
+	                // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
+	                loc = cfiRange.split("=")[1];
+	                locText = "Page " + loc.slice(0, -1) + " • ";
+	              }
+	              var locElement = create$1('i');
+	              locElement.textContent = locText;
+	              anchor.appendChild(locElement);
 	            }
-	            var locElement = create$1('i');
-	            locElement.textContent = locText;
-	            anchor.appendChild(locElement);
 	            anchor.appendChild(document.createTextNode(result.snippet));
 
 	            anchor.setAttribute("href", cfiRange);
@@ -26814,7 +26822,6 @@
 	        t = setTimeout(f, 100);
 	      } else {
 	        self._book.locations.generate(1600).then(function(locations) {
-	          // console.log("AHOY WUT", locations);
 	          self.fire('updateLocations', locations);
 	        });
 	      }
