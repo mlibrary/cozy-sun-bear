@@ -152,13 +152,17 @@ export var Reader = Evented.extend({
   saveOptions: function(options) {
     var saved_options = {};
     assign(saved_options, options);
+    var key = this.metadata.layout || 'reflowable';
+    var flow = saved_options.flow;
     if ( saved_options.flow == 'auto' ) {
       // do not save
       delete saved_options.flow;
+      flow = this.metadata.flow || 'paginated';
     }
+    // key += '/' + flow;
 
     // var key = `${this.flow}/${this.metadata.layout}`;
-    var key = this.metadata.layout;
+    // var key = this.metadata.layout;
     if ( saved_options.text_size || saved_options.scale ) {
       saved_options[key] = {};
       if ( saved_options.text_size ) {

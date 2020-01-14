@@ -708,7 +708,7 @@ Reader.EpubJS = Reader.extend({
     } else {
       title += ': ' + current.label;
     }
-    if ( title ) {
+    if ( title && view.iframe ) {
       view.iframe.title = `Contents: ${title}` ;
     }
   },
