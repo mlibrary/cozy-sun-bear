@@ -41,6 +41,7 @@ export var Search = Control.extend({
     this._data = null;
     this._canceled = false;
     this._processing = false;
+    this._addLocation = false;
 
     this._reader.on('ready', function() {
 
@@ -70,6 +71,11 @@ export var Search = Control.extend({
         this._reader.tracking.action('contents/close');
       }.bind(this))
 
+    }.bind(this));
+
+    // only add locations when they've been processed
+    this._reader.on('updateLocations', function() {
+      this._addLocation = true;
     }.bind(this));
 
     DomEvent.on(this._control, 'click', function(event) {
@@ -199,17 +205,19 @@ export var Search = Control.extend({
 
           if (result.snippet) {
             // results for epubs
-            var loc = reader.locations.locationFromCfi(cfiRange);
-            var locText = "Location " + loc + " • ";
-            if (cfiRange.match(/^epubcfi\(page/)) {
-              // results for pdfs
-              // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
-              loc = cfiRange.split("=")[1]
-              locText = "Page " + loc.slice(0, -1) + " • ";
+            if ( self._addLocation ) {
+              var loc = reader.locations.locationFromCfi(cfiRange);
+              var locText = "Location " + loc + " • ";
+              if (cfiRange.match(/^epubcfi\(page/)) {
+                // results for pdfs
+                // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
+                loc = cfiRange.split("=")[1]
+                locText = "Page " + loc.slice(0, -1) + " • ";
+              }
+              var locElement = DomUtil.create('i');
+              locElement.textContent = locText;
+              anchor.appendChild(locElement);
             }
-            var locElement = DomUtil.create('i');
-            locElement.textContent = locText;
-            anchor.appendChild(locElement);
             anchor.appendChild(document.createTextNode(result.snippet));
 
             anchor.setAttribute("href", cfiRange);

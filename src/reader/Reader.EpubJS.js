@@ -87,7 +87,6 @@ Reader.EpubJS = Reader.extend({
         t = setTimeout(f, 100);
       } else {
         self._book.locations.generate(1600).then(function(locations) {
-          // console.log("AHOY WUT", locations);
           self.fire('updateLocations', locations);
         })
       }
