@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0747fe65, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.02df2ecd, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> 5abd452... build
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5218,10 +5222,18 @@
 
 	  saveOptions: function saveOptions(options) {
 	    var saved_options = {};
+	    if ( localStorage.getItem('cozy.options') ) {
+	      saved_options = JSON.parse(localStorage.getItem('cozy.options'));
+	    }
+
 	    assign_1(saved_options, options);
 	    var key = this.metadata.layout || 'reflowable';
 	    var flow = saved_options.flow;
+<<<<<<< HEAD
 	    if (saved_options.flow == 'auto') {
+=======
+	    if ( saved_options.flow == 'auto' ) {
+>>>>>>> 5abd452... build
 	      // do not save
 	      delete saved_options.flow;
 	      flow = this.metadata.flow || 'paginated';
@@ -5230,7 +5242,11 @@
 
 	    // var key = `${this.flow}/${this.metadata.layout}`;
 	    // var key = this.metadata.layout;
+<<<<<<< HEAD
 	    if (saved_options.text_size || saved_options.scale) {
+=======
+	    if ( saved_options.text_size || saved_options.scale ) {
+>>>>>>> 5abd452... build
 	      saved_options[key] = {};
 	      if (saved_options.text_size) {
 	        saved_options[key].text_size = saved_options.text_size;
@@ -22176,6 +22192,7 @@
 					if (view.contents) {
 						_this2.hooks.content.trigger(view.contents, _this2).then(function () {
 							/**
+<<<<<<< HEAD
 	       * Emit that a section has been rendered
 	       * @event rendered
 	       * @param {Section} section
@@ -22184,6 +22201,16 @@
 	       */
 							view.emit(EVENTS.RENDITION.RENDITION, view.section, view);
 							_this2.emit(EVENTS.RENDITION.RENDERED, view.section, view);
+=======
+							 * Emit that a section has been rendered
+							 * @event rendered
+							 * @param {Section} section
+							 * @param {View} view
+							 * @memberof Rendition
+							 */
+							view.emit(EVENTS.RENDITION.RENDITION, view.section, view);
+							this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
+>>>>>>> 5abd452... build
 						});
 					} else {
 						_this2.emit(EVENTS.RENDITION.RENDERED, view.section, view);
@@ -27749,8 +27776,13 @@
 	      this._bounds = this.bounds();
 	      this._stageSize = this.stage.size();
 
+<<<<<<< HEAD
 	      var ar = this._stageSize.width / this._stageSize.height;
 	      console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
+=======
+	    var ar = this._stageSize.width / this._stageSize.height;
+	    // console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
+>>>>>>> 5abd452... build
 
 	      // Set the dimensions for views
 	      this.viewSettings.width = this._stageSize.width;
@@ -27891,8 +27923,18 @@
 	        this.container.scrollTop += Math.ceil(delta);
 	      }
 
+<<<<<<< HEAD
 	      // console.log("AHOY AFTER RESIZED", view, delta);
 	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+=======
+	    var delta;
+	    if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
+	      requestAnimationFrame$1(function afterDisplayedAfterRAF() {
+	        delta = view.element.getBoundingClientRect().height - rect.height;
+	        // console.log("AHOY afterResized", view.index, view.element.getBoundingClientRect().height, rect.height, delta);
+	        this.container.scrollTop += Math.ceil(delta);        
+	      }.bind(this));
+>>>>>>> 5abd452... build
 	    }
 	  }, {
 	    key: "moveTo",
@@ -27907,7 +27949,53 @@
 	    key: "initializeViews",
 	    value: function initializeViews(section) {
 
+<<<<<<< HEAD
 	      this.ignore = true;
+=======
+	    // the default manager emits EVENTS.MANAGERS.RESIZE when the view is resized
+	    // which causes the rendition to scroll to display the current location
+	    // since we've (in theory) adjusted that during the paint frame
+	    // don't emit
+	    // -- this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	  }
+
+	  moveTo(offset) {
+	    var distX = 0, distY = 0;
+	    distY = offset.top;
+	    // this.scrollTo(distX, this.container.scrollTop + distY, true);
+	    this.scrollTo(distX, distY, false);
+	  }
+
+	  initializeViews(section) {
+
+	    this.ignore = true;
+
+	    // if ( self._spine.length == 0 ) {
+	    //   console.time("AHOY initializeViews CRAWL");
+	    //   // can we build a manifest here?
+	    //   var prev_ = section.prev();
+	    //   while ( prev_ ) {
+	    //     // self._spine.unshift(prev_.href);
+	    //     self._spine.unshift(prev_);
+	    //     prev_ = prev_.prev();
+	    //   }
+
+	    //   self._spine.push(section);
+
+	    //   var next_ = section.next();
+	    //   while ( next_ ) {
+	    //     // self._spine.push(next_.href);
+	    //     self._spine.push(next_);
+	    //     next_ = next_.next();
+	    //   }
+
+	    //   console.timeEnd("AHOY initializeViews CRAWL");
+	    // }
+
+	    // this._spine.forEach(function (section) {
+
+	   this.settings.spine.each(function (section) {
+>>>>>>> 5abd452... build
 
 	      // if ( self._spine.length == 0 ) {
 	      //   console.time("AHOY initializeViews CRAWL");
@@ -27931,7 +28019,21 @@
 	      //   console.timeEnd("AHOY initializeViews CRAWL");
 	      // }
 
+<<<<<<< HEAD
 	      // this._spine.forEach(function (section) {
+=======
+	      var view = new this.View(section, viewSettings);
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+	      view.onResize = this.afterResized.bind(this);
+	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+	        this.updateAxis(axis);
+	      });
+	      // view.on('BAMBOOZLE', (e) => {
+	      //   this.afterResizedBamboozled(view);
+	      // })
+	      this.views.append(view);
+	    }.bind(this));
+>>>>>>> 5abd452... build
 
 	      this.settings.spine.each(function (section) {
 	        var _this = this;
@@ -28717,7 +28819,33 @@
 
 	            this.emit(EVENTS.VIEWS.RESIZED, size);
 
+<<<<<<< HEAD
 	            this.prevBounds = size;
+=======
+	    queryReframeElement() {
+	        if ( ! this.iframe ) { return -1; }
+	        var height = this.iframe.offsetHeight;
+	        var styles = window.getComputedStyle(this.element);
+	        var new_height = ( height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom) );
+	        return new_height;
+	    }
+
+	    reframeElement() {
+	        if ( ! this.iframe ) { return; }
+	        var height = this.iframe.offsetHeight;
+	        var styles = window.getComputedStyle(this.element);
+	        var new_height = ( 
+	            height + 
+	            parseInt(styles.paddingTop, 10) + 
+	            parseInt(styles.paddingBottom, 10) + 
+	            parseInt(styles.borderTop, 10) + 
+	            parseInt(styles.borderBottom, 10)
+	        );
+	        var current_height = this.element.offsetHeight;
+	        if ( new_height < current_height ) { return ; }
+	        this.element.style.height = `${new_height}px`;
+	    }
+>>>>>>> 5abd452... build
 
 	            this.elementBounds = bounds$1(this.element);
 	        }
@@ -29479,6 +29607,7 @@
 	    var flow = this.options.flow;
 	    if (self._cozyOptions[key] && self._cozyOptions[key].flow) {
 	      flow = self._cozyOptions[key].flow;
+	      this.options.flow = flow; // restore from stored preferences
 	    }
 
 	    if (flow == 'auto') {
@@ -30061,8 +30190,13 @@
 	    } else {
 	      title += ': ' + current.label;
 	    }
+<<<<<<< HEAD
 	    if (title && view.iframe) {
 	      view.iframe.title = 'Contents: ' + title;
+=======
+	    if ( title && view.iframe ) {
+	      view.iframe.title = `Contents: ${title}` ;
+>>>>>>> 5abd452... build
 	    }
 	  },
 
