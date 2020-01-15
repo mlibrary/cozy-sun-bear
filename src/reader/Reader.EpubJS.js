@@ -132,6 +132,7 @@ Reader.EpubJS = Reader.extend({
     var flow = this.options.flow;
     if ( self._cozyOptions[key] && self._cozyOptions[key].flow ) {
       flow = self._cozyOptions[key].flow;
+      this.options.flow = flow; // restore from stored preferences
     }
 
     if ( flow == 'auto' ) {
