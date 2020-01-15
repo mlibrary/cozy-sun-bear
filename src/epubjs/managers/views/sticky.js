@@ -185,14 +185,28 @@ class StickyIframeView extends IframeView {
 
     }
 
-    reframeElement() {
-        if ( ! this.iframe ) { return; }
-        // var height = this.iframe.contentDocument.body.offsetHeight;
+    queryReframeElement() {
+        if ( ! this.iframe ) { return -1; }
         var height = this.iframe.offsetHeight;
         var styles = window.getComputedStyle(this.element);
         var new_height = ( height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom) )
+        return new_height;
+    }
+
+    reframeElement() {
+        if ( ! this.iframe ) { return; }
+        var height = this.iframe.offsetHeight;
+        var styles = window.getComputedStyle(this.element);
+        var new_height = ( 
+            height + 
+            parseInt(styles.paddingTop, 10) + 
+            parseInt(styles.paddingBottom, 10) + 
+            parseInt(styles.borderTop, 10) + 
+            parseInt(styles.borderBottom, 10)
+        );
+        var current_height = this.element.offsetHeight;
+        if ( new_height < current_height ) { return ; }
         this.element.style.height = `${new_height}px`;
-        // console.log("AHOY AFTER RESIZED ELEMENT", this.index, height, new_height, styles.paddingTop, styles.paddingBottom);
     }
 
     display(request) {
