@@ -151,6 +151,10 @@ export var Reader = Evented.extend({
 
   saveOptions: function(options) {
     var saved_options = {};
+    if ( localStorage.getItem('cozy.options') ) {
+      saved_options = JSON.parse(localStorage.getItem('cozy.options'));
+    }
+
     assign(saved_options, options);
     var key = this.metadata.layout || 'reflowable';
     var flow = saved_options.flow;
