@@ -592,6 +592,7 @@ Reader.EpubJS = Reader.extend({
 
     var locationChanged_handler = debounce(function(location) {
       var view = this.manager.current();
+      if ( ! view ) { return ; }
       var section = view.section;
       var current = this.book.navigation.get(section.href);
 
