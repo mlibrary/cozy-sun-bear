@@ -201,8 +201,8 @@ class StickyIframeView extends IframeView {
             height + 
             parseInt(styles.paddingTop, 10) + 
             parseInt(styles.paddingBottom, 10) + 
-            parseInt(styles.borderTop, 10) + 
-            parseInt(styles.borderBottom, 10)
+            parseInt(styles.borderTopWidth, 10) + 
+            parseInt(styles.borderBottomWidth, 10)
         );
         var current_height = this.element.offsetHeight;
         if ( new_height < current_height ) { return ; }
