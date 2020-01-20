@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.09c9696b, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.082537c0, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -1337,13 +1337,13 @@
 
 	// @function create(proto: Object, properties?: Object): Object
 	// Compatibility polyfill for [Object.create](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
-	var create = Object.create || (function () {
+	var create = Object.create || function () {
 	    function F() {}
 	    return function (proto) {
 	        F.prototype = proto;
 	        return new F();
 	    };
-	})();
+	}();
 
 	// @function bind(fn: Function, …): Function
 	// Returns a new function bound to the arguments passed, like [Function.prototype.bind](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
@@ -1385,7 +1385,7 @@
 	function throttle(fn, time, context) {
 	    var lock, args, wrapperFn, later;
 
-	    later = function () {
+	    later = function later() {
 	        // reset lock and call if queued
 	        lock = false;
 	        if (args) {
@@ -1394,11 +1394,10 @@
 	        }
 	    };
 
-	    wrapperFn = function () {
+	    wrapperFn = function wrapperFn() {
 	        if (lock) {
 	            // called too soon, queue to call later
 	            args = arguments;
-
 	        } else {
 	            // call and lock until later
 	            fn.apply(context, arguments);
@@ -1423,7 +1422,9 @@
 
 	// @function falseFn(): Function
 	// Returns a function which always returns `false`.
-	function falseFn() { return false; }
+	function falseFn() {
+	    return false;
+	}
 
 	// @function formatNum(num: Number, digits?: Number): Number
 	// Returns the number `num` rounded to `digits` decimals, or to 5 decimals by default.
@@ -1435,7 +1436,7 @@
 	// @function isNumeric(num: Number): Boolean
 	// Returns whether num is actually numeric
 	function isNumeric(num) {
-	  return !isNaN(parseFloat(num)) && isFinite(num);
+	    return !isNaN(parseFloat(num)) && isFinite(num);
 	}
 
 	// @function trim(str: String): String
@@ -1472,7 +1473,7 @@
 	    for (var i in obj) {
 	        params.push(encodeURIComponent(uppercase ? i.toUpperCase() : i) + '=' + encodeURIComponent(obj[i]));
 	    }
-	    return ((!existingUrl || existingUrl.indexOf('?') === -1) ? '?' : '&') + params.join('&');
+	    return (!existingUrl || existingUrl.indexOf('?') === -1 ? '?' : '&') + params.join('&');
 	}
 
 	var templateRe = /\{ *([\w_\-]+) *\}/g;
@@ -1488,7 +1489,6 @@
 
 	        if (value === undefined) {
 	            throw new Error('No value provided for variable ' + str);
-
 	        } else if (typeof value === 'function') {
 	            value = value(data);
 	        }
@@ -1499,14 +1499,16 @@
 	// @function isArray(obj): Boolean
 	// Compatibility polyfill for [Array.isArray](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray)
 	var isArray = Array.isArray || function (obj) {
-	    return (Object.prototype.toString.call(obj) === '[object Array]');
+	    return Object.prototype.toString.call(obj) === '[object Array]';
 	};
 
 	// @function indexOf(array: Array, el: Object): Number
 	// Compatibility polyfill for [Array.prototype.indexOf](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
 	function indexOf(array, el) {
 	    for (var i = 0; i < array.length; i++) {
-	        if (array[i] === el) { return i; }
+	        if (array[i] === el) {
+	            return i;
+	        }
 	    }
 	    return -1;
 	}
@@ -1535,8 +1537,9 @@
 	}
 
 	var requestFn = window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
-	var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
-	        getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
+	var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') || getPrefixed('CancelRequestAnimationFrame') || function (id) {
+	    window.clearTimeout(id);
+	};
 
 	// @function requestAnimFrame(fn: Function, context?: Object, immediate?: Boolean): Number
 	// Schedules `fn` to be executed when the browser repaints. `fn` is bound to
@@ -1560,9 +1563,12 @@
 	    }
 	}
 
-	function inVp(elem, threshold = {}, container = null) {
+	function inVp(elem) {
+	    var threshold = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	    var container = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-	    if ( threshold instanceof HTMLElement ) {
+
+	    if (threshold instanceof HTMLElement) {
 	        container = threshold;
 	        threshold = {};
 	    }
@@ -1577,7 +1583,7 @@
 	    container = container || document.documentElement;
 
 	    // Get the viewport dimensions
-	    const vp = {
+	    var vp = {
 	        width: container.clientWidth,
 	        height: container.clientHeight
 	    };
@@ -1585,19 +1591,18 @@
 	    // Get the viewport offset and size of the element.
 	    // Normailze right and bottom to show offset from their
 	    // respective edges istead of the top-left edges.
-	    const box = elem.getBoundingClientRect();
-	    const {
-	        top,
-	        left,
-	        width,
-	        height
-	    } = box;
-	    const right = vp.width - box.right;
-	    const bottom = vp.height - box.bottom;
+	    var box = elem.getBoundingClientRect();
+	    var top = box.top,
+	        left = box.left,
+	        width = box.width,
+	        height = box.height;
+
+	    var right = vp.width - box.right;
+	    var bottom = vp.height - box.bottom;
 
 	    // Calculate which sides of the element are cut-off
 	    // by the viewport.
-	    const cutOff = {
+	    var cutOff = {
 	        top: top < threshold.top,
 	        left: left < threshold.left,
 	        bottom: bottom < threshold.bottom,
@@ -1605,79 +1610,68 @@
 	    };
 
 	    // Calculate which sides of the element are partially shown
-	    const partial = {
+	    var partial = {
 	        top: cutOff.top && top > -height + threshold.top,
 	        left: cutOff.left && left > -width + threshold.left,
 	        bottom: cutOff.bottom && bottom > -height + threshold.bottom,
 	        right: cutOff.right && right > -width + threshold.right
 	    };
 
-	    const isFullyVisible = top >= threshold.top &&
-	        right >= threshold.right &&
-	        bottom >= threshold.bottom &&
-	        left >= threshold.left;
+	    var isFullyVisible = top >= threshold.top && right >= threshold.right && bottom >= threshold.bottom && left >= threshold.left;
 
-	    const isPartiallyVisible = partial.top ||
-	        partial.right ||
-	        partial.bottom ||
-	        partial.left;
-
+	    var isPartiallyVisible = partial.top || partial.right || partial.bottom || partial.left;
 
 	    var elH = elem.offsetHeight;
 	    var H = container.offsetHeight;
-	    var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : (box.bottom < H ? box.bottom : H));
+	    var percentage = Math.max(0, top > 0 ? Math.min(elH, H - top) : box.bottom < H ? box.bottom : H);
 
 	    // Calculate which edge of the element are visible.
 	    // Every edge can have three states:
 	    // - 'fully':     The edge is completely visible.
 	    // - 'partially': Some part of the edge can be seen.
 	    // - false:       The edge is not visible at all.
-	    const edges = {
-	        top: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.top && !cutOff.left && !cutOff.right) && 'fully') ||
-	            (!cutOff.top && 'partially') ||
-	            false,
-	        right: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.right && !cutOff.top && !cutOff.bottom) && 'fully') ||
-	            (!cutOff.right && 'partially') ||
-	            false,
-	        bottom: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.bottom && !cutOff.left && !cutOff.right) && 'fully') ||
-	            (!cutOff.bottom && 'partially') ||
-	            false,
-	        left: !isFullyVisible && !isPartiallyVisible ? false : ((!cutOff.left && !cutOff.top && !cutOff.bottom) && 'fully') ||
-	            (!cutOff.left && 'partially') ||
-	            false,
+	    var edges = {
+	        top: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.top && !cutOff.left && !cutOff.right && 'fully' || !cutOff.top && 'partially' || false,
+	        right: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.right && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.right && 'partially' || false,
+	        bottom: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.bottom && !cutOff.left && !cutOff.right && 'fully' || !cutOff.bottom && 'partially' || false,
+	        left: !isFullyVisible && !isPartiallyVisible ? false : !cutOff.left && !cutOff.top && !cutOff.bottom && 'fully' || !cutOff.left && 'partially' || false,
 	        percentage: percentage
 	    };
 
 	    return {
 	        fully: isFullyVisible,
 	        partially: isPartiallyVisible,
-	        edges
+	        edges: edges
 	    };
 	}
 
 	var loader = {
-	    js: function(url) {
+	    js: function js(url) {
 	        var handler = { _resolved: false };
 	        handler.callbacks = [];
 	        handler.error = [];
-	        handler.then = function(cb) {
+	        handler.then = function (cb) {
 	            handler.callbacks.push(cb);
-	            if ( handler._resolved ) { return handler.resolve(); }
+	            if (handler._resolved) {
+	                return handler.resolve();
+	            }
 	            return handler;
 	        };
-	        handler.catch = function(cb) {
+	        handler.catch = function (cb) {
 	            handler.error.push(cb);
-	            if ( handler._resolved ) { return handler.reject(); }
+	            if (handler._resolved) {
+	                return handler.reject();
+	            }
 	            return handler;
 	        };
-	        handler.resolve = function(_argv) {
+	        handler.resolve = function (_argv) {
 	            // var _argv;
 	            handler._resolved = true;
-	            while ( handler.callbacks.length ) {
+	            while (handler.callbacks.length) {
 	                var cb = handler.callbacks.shift();
 	                try {
 	                    _argv = cb(_argv);
-	                } catch(e) {
+	                } catch (e) {
 	                    console.log(e);
 	                    handler.reject(e);
 	                    break;
@@ -1686,8 +1680,8 @@
 	            return handler;
 	        };
 
-	        handler.reject = function(e) {
-	            while ( handler.error.length ) {
+	        handler.reject = function (e) {
+	            while (handler.error.length) {
 	                var cb = handler.error.shift();
 	                cb(e);
 	            }
@@ -1696,18 +1690,18 @@
 	            return handler;
 	        };
 
-	        if ( url == undefined ) {
+	        if (url == undefined) {
 	            handler._resolved = true;
 	            return handler;
 	        }
 
 	        var element = document.createElement('script');
 
-	        element.onload = function() {
-	          handler.resolve(url);
+	        element.onload = function () {
+	            handler.resolve(url);
 	        };
-	        element.onerror = function() {
-	          handler.catch.apply(arguments);
+	        element.onerror = function () {
+	            handler.catch.apply(arguments);
 	        };
 
 	        element.async = true;
@@ -1764,7 +1758,7 @@
 		// @function extend(props: Object): Function
 		// [Extends the current class](#class-inheritance) given the properties to be included.
 		// Returns a Javascript function that is a class constructor (to be called with `new`).
-		var NewClass = function () {
+		var NewClass = function NewClass() {
 
 			// call the constructor
 			if (this.initialize) {
@@ -1809,13 +1803,15 @@
 
 		// mix given properties into the prototype
 		extend(proto, props);
-		
+
 		proto._initHooks = [];
 
 		// add method for calling all hooks
 		proto.callInitHooks = function () {
 
-			if (this._initHooksCalled) { return; }
+			if (this._initHooksCalled) {
+				return;
+			}
 
 			if (parentProto.callInitHooks) {
 				parentProto.callInitHooks.call(this);
@@ -1830,7 +1826,6 @@
 
 		return NewClass;
 	};
-
 
 	// @function include(properties: Object): this
 	// [Includes a mixin](#class-includes) into the current class.
@@ -1848,7 +1843,8 @@
 
 	// @function addInitHook(fn: Function): this
 	// Adds a [constructor hook](#class-constructor-hooks) to the class.
-	Class.addInitHook = function (fn) { // (Function) || (String, args...)
+	Class.addInitHook = function (fn) {
+		// (Function) || (String, args...)
 		var args = Array.prototype.slice.call(arguments, 1);
 
 		var init = typeof fn === 'function' ? fn : function () {
@@ -1861,7 +1857,9 @@
 	};
 
 	function checkDeprecatedMixinEvents(includes) {
-		if (!cozy || !cozy.Mixin) { return; }
+		if (!cozy || !cozy.Mixin) {
+			return;
+		}
 
 		includes = cozy.Util.isArray(includes) ? includes : [includes];
 
@@ -1873,6 +1871,8 @@
 		// 	}
 		// }
 	}
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/*
 	 * @class Evented
@@ -1902,22 +1902,21 @@
 	var Evented = Class.extend({
 
 		/* @method on(type: String, fn: Function, context?: Object): this
-		 * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
-		 *
-		 * @alternative
-		 * @method on(eventMap: Object): this
-		 * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
-		 */
-		on: function (types, fn, context) {
+	  * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
+	  *
+	  * @alternative
+	  * @method on(eventMap: Object): this
+	  * Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
+	  */
+		on: function on(types, fn, context) {
 
 			// types can be a map of types/handlers
-			if (typeof types === 'object') {
+			if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					// we don't process space-separated events here for performance;
 					// it's a hot path since Layer uses the on(obj) syntax
 					this._on(type, types[type], fn);
 				}
-
 			} else {
 				// types can be a string of space-separated words
 				types = splitWords(types);
@@ -1931,27 +1930,25 @@
 		},
 
 		/* @method off(type: String, fn?: Function, context?: Object): this
-		 * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
-		 *
-		 * @alternative
-		 * @method off(eventMap: Object): this
-		 * Removes a set of type/listener pairs.
-		 *
-		 * @alternative
-		 * @method off: this
-		 * Removes all listeners to all events on the object.
-		 */
-		off: function (types, fn, context) {
+	  * Removes a previously added listener function. If no function is specified, it will remove all the listeners of that particular event from the object. Note that if you passed a custom context to `on`, you must pass the same context to `off` in order to remove the listener.
+	  *
+	  * @alternative
+	  * @method off(eventMap: Object): this
+	  * Removes a set of type/listener pairs.
+	  *
+	  * @alternative
+	  * @method off: this
+	  * Removes all listeners to all events on the object.
+	  */
+		off: function off(types, fn, context) {
 
 			if (!types) {
 				// clear all listeners if called without arguments
 				delete this._events;
-
-			} else if (typeof types === 'object') {
+			} else if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					this._off(type, types[type], fn);
 				}
-
 			} else {
 				types = splitWords(types);
 
@@ -1964,7 +1961,7 @@
 		},
 
 		// attach listener (without syntactic sugar now)
-		_on: function (type, fn, context) {
+		_on: function _on(type, fn, context) {
 			this._events = this._events || {};
 
 			/* get/init listeners for type */
@@ -1978,7 +1975,7 @@
 				// Less memory footprint.
 				context = undefined;
 			}
-			var newListener = {fn: fn, ctx: context},
+			var newListener = { fn: fn, ctx: context },
 			    listeners = typeListeners;
 
 			// check if fn already there
@@ -1991,12 +1988,12 @@
 			listeners.push(newListener);
 		},
 
-		_off: function (type, fn, context) {
-			var listeners,
-			    i,
-			    len;
+		_off: function _off(type, fn, context) {
+			var listeners, i, len;
 
-			if (!this._events) { return; }
+			if (!this._events) {
+				return;
+			}
 
 			listeners = this._events[type];
 
@@ -2023,7 +2020,9 @@
 				// find fn and remove it
 				for (i = 0, len = listeners.length; i < len; i++) {
 					var l = listeners[i];
-					if (l.ctx !== context) { continue; }
+					if (l.ctx !== context) {
+						continue;
+					}
 					if (l.fn === fn) {
 
 						// set the removed listener to noop so that's not called if remove happens in fire
@@ -2045,16 +2044,18 @@
 		// Fires an event of the specified type. You can optionally provide an data
 		// object — the first argument of the listener function will contain its
 		// properties. The event can optionally be propagated to event parents.
-		fire: function (type, data, propagate) {
-			if (!this.listens(type, propagate)) { return this; }
+		fire: function fire(type, data, propagate) {
+			if (!this.listens(type, propagate)) {
+				return this;
+			}
 
-			var event = extend({}, data, {type: type, target: this});
+			var event = extend({}, data, { type: type, target: this });
 
 			if (this._events) {
 				var listeners = this._events[type];
 
 				if (listeners) {
-					this._firingCount = (this._firingCount + 1) || 1;
+					this._firingCount = this._firingCount + 1 || 1;
 					for (var i = 0, len = listeners.length; i < len; i++) {
 						var l = listeners[i];
 						l.fn.call(l.ctx || this, event);
@@ -2074,14 +2075,18 @@
 
 		// @method listens(type: String): Boolean
 		// Returns `true` if a particular event type has any listeners attached to it.
-		listens: function (type, propagate) {
+		listens: function listens(type, propagate) {
 			var listeners = this._events && this._events[type];
-			if (listeners && listeners.length) { return true; }
+			if (listeners && listeners.length) {
+				return true;
+			}
 
 			if (propagate) {
 				// also check parents for listeners if event propagates
 				for (var id in this._eventParents) {
-					if (this._eventParents[id].listens(type, propagate)) { return true; }
+					if (this._eventParents[id].listens(type, propagate)) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -2089,9 +2094,9 @@
 
 		// @method once(…): this
 		// Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
-		once: function (types, fn, context) {
+		once: function once(types, fn, context) {
 
-			if (typeof types === 'object') {
+			if ((typeof types === 'undefined' ? 'undefined' : _typeof(types)) === 'object') {
 				for (var type in types) {
 					this.once(type, types[type], fn);
 				}
@@ -2099,20 +2104,16 @@
 			}
 
 			var handler = bind(function () {
-				this
-				    .off(types, fn, context)
-				    .off(types, handler, context);
+				this.off(types, fn, context).off(types, handler, context);
 			}, this);
 
 			// add a listener that's executed once and removed after that
-			return this
-			    .on(types, fn, context)
-			    .on(types, handler, context);
+			return this.on(types, fn, context).on(types, handler, context);
 		},
 
 		// @method addEventParent(obj: Evented): this
 		// Adds an event parent - an `Evented` that will receive propagated events
-		addEventParent: function (obj) {
+		addEventParent: function addEventParent(obj) {
 			this._eventParents = this._eventParents || {};
 			this._eventParents[stamp(obj)] = obj;
 			return this;
@@ -2120,16 +2121,16 @@
 
 		// @method removeEventParent(obj: Evented): this
 		// Removes an event parent, so it will stop receiving propagated events
-		removeEventParent: function (obj) {
+		removeEventParent: function removeEventParent(obj) {
 			if (this._eventParents) {
 				delete this._eventParents[stamp(obj)];
 			}
 			return this;
 		},
 
-		_propagateEvent: function (e) {
+		_propagateEvent: function _propagateEvent(e) {
 			for (var id in this._eventParents) {
-				this._eventParents[id].fire(e.type, extend({layer: e.target}, e), true);
+				this._eventParents[id].fire(e.type, extend({ layer: e.target }, e), true);
 			}
 		}
 	});
@@ -2160,6 +2161,8 @@
 	// @method hasEventListeners(…): Boolean
 	// Alias to [`listens(…)`](#evented-listens)
 	proto.hasEventListeners = proto.listens;
+
+	var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/*
 	 * @namespace Browser
@@ -2220,10 +2223,10 @@
 	var win = navigator.platform.indexOf('Win') === 0;
 
 	// @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
-	var ie3d = ie && ('transition' in style$1);
+	var ie3d = ie && 'transition' in style$1;
 
 	// @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
-	var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
+	var webkit3d = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() && !android23;
 
 	// @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
 	var gecko3d = 'MozPerspective' in style$1;
@@ -2255,8 +2258,7 @@
 	// This does not necessarily mean that the browser is running in a computer with
 	// a touchscreen, it only means that the browser is capable of understanding
 	// touch events.
-	var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
-	        (window.DocumentTouch && document instanceof window.DocumentTouch));
+	var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch);
 
 	// @property mobileOpera: Boolean; `true` for the Opera browser in a mobile device.
 	var mobileOpera = mobile && opera;
@@ -2267,14 +2269,13 @@
 
 	// @property retina: Boolean
 	// `true` for browsers on a high-resolution "retina" screen.
-	var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
-
+	var retina = (window.devicePixelRatio || window.screen.deviceXDPI / window.screen.logicalXDPI) > 1;
 
 	// @property canvas: Boolean
 	// `true` when the browser supports [`<canvas>`](https://developer.mozilla.org/docs/Web/API/Canvas_API).
-	var canvas = (function () {
+	var canvas = function () {
 	    return !!document.createElement('canvas').getContext;
-	}());
+	}();
 
 	// @property svg: Boolean
 	// `true` when the browser supports [SVG](https://developer.mozilla.org/docs/Web/SVG).
@@ -2283,7 +2284,7 @@
 
 	// @property vml: Boolean
 	// `true` if the browser supports [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language).
-	var vml = !svg && (function () {
+	var vml = !svg && function () {
 	    try {
 	        var div = document.createElement('div');
 	        div.innerHTML = '<v:shape adj="1"/>';
@@ -2291,15 +2292,14 @@
 	        var shape = div.firstChild;
 	        shape.style.behavior = 'url(#default#VML)';
 
-	        return shape && (typeof shape.adj === 'object');
-
+	        return shape && _typeof$1(shape.adj) === 'object';
 	    } catch (e) {
 	        return false;
 	    }
-	}());
+	}();
 
-	var columnCount = ( 'columnCount' in style$1 );
-	var classList = ( document.documentElement.classList !== undefined );
+	var columnCount = 'columnCount' in style$1;
+	var classList = document.documentElement.classList !== undefined;
 
 	function userAgentContains(str) {
 	    return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
@@ -2339,6 +2339,8 @@
 		classList: classList
 	});
 
+	var _typeof$2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/*
 	 * @class Point
 	 * @aka L.Point
@@ -2361,27 +2363,27 @@
 
 	function Point(x, y, round) {
 		// @property x: Number; The `x` coordinate of the point
-		this.x = (round ? Math.round(x) : x);
+		this.x = round ? Math.round(x) : x;
 		// @property y: Number; The `y` coordinate of the point
-		this.y = (round ? Math.round(y) : y);
+		this.y = round ? Math.round(y) : y;
 	}
 
 	Point.prototype = {
 
 		// @method clone(): Point
 		// Returns a copy of the current point.
-		clone: function () {
+		clone: function clone() {
 			return new Point(this.x, this.y);
 		},
 
 		// @method add(otherPoint: Point): Point
 		// Returns the result of addition of the current and the given points.
-		add: function (point) {
+		add: function add(point) {
 			// non-destructive, returns a new point
 			return this.clone()._add(toPoint(point));
 		},
 
-		_add: function (point) {
+		_add: function _add(point) {
 			// destructive, used directly for performance in situations where it's safe to modify existing point
 			this.x += point.x;
 			this.y += point.y;
@@ -2390,11 +2392,11 @@
 
 		// @method subtract(otherPoint: Point): Point
 		// Returns the result of subtraction of the given point from the current.
-		subtract: function (point) {
+		subtract: function subtract(point) {
 			return this.clone()._subtract(toPoint(point));
 		},
 
-		_subtract: function (point) {
+		_subtract: function _subtract(point) {
 			this.x -= point.x;
 			this.y -= point.y;
 			return this;
@@ -2402,11 +2404,11 @@
 
 		// @method divideBy(num: Number): Point
 		// Returns the result of division of the current point by the given number.
-		divideBy: function (num) {
+		divideBy: function divideBy(num) {
 			return this.clone()._divideBy(num);
 		},
 
-		_divideBy: function (num) {
+		_divideBy: function _divideBy(num) {
 			this.x /= num;
 			this.y /= num;
 			return this;
@@ -2414,11 +2416,11 @@
 
 		// @method multiplyBy(num: Number): Point
 		// Returns the result of multiplication of the current point by the given number.
-		multiplyBy: function (num) {
+		multiplyBy: function multiplyBy(num) {
 			return this.clone()._multiplyBy(num);
 		},
 
-		_multiplyBy: function (num) {
+		_multiplyBy: function _multiplyBy(num) {
 			this.x *= num;
 			this.y *= num;
 			return this;
@@ -2429,24 +2431,24 @@
 		// `scale`. In linear algebra terms, multiply the point by the
 		// [scaling matrix](https://en.wikipedia.org/wiki/Scaling_%28geometry%29#Matrix_representation)
 		// defined by `scale`.
-		scaleBy: function (point) {
+		scaleBy: function scaleBy(point) {
 			return new Point(this.x * point.x, this.y * point.y);
 		},
 
 		// @method unscaleBy(scale: Point): Point
 		// Inverse of `scaleBy`. Divide each coordinate of the current point by
 		// each coordinate of `scale`.
-		unscaleBy: function (point) {
+		unscaleBy: function unscaleBy(point) {
 			return new Point(this.x / point.x, this.y / point.y);
 		},
 
 		// @method round(): Point
 		// Returns a copy of the current point with rounded coordinates.
-		round: function () {
+		round: function round() {
 			return this.clone()._round();
 		},
 
-		_round: function () {
+		_round: function _round() {
 			this.x = Math.round(this.x);
 			this.y = Math.round(this.y);
 			return this;
@@ -2454,11 +2456,11 @@
 
 		// @method floor(): Point
 		// Returns a copy of the current point with floored coordinates (rounded down).
-		floor: function () {
+		floor: function floor() {
 			return this.clone()._floor();
 		},
 
-		_floor: function () {
+		_floor: function _floor() {
 			this.x = Math.floor(this.x);
 			this.y = Math.floor(this.y);
 			return this;
@@ -2466,11 +2468,11 @@
 
 		// @method ceil(): Point
 		// Returns a copy of the current point with ceiled coordinates (rounded up).
-		ceil: function () {
+		ceil: function ceil() {
 			return this.clone()._ceil();
 		},
 
-		_ceil: function () {
+		_ceil: function _ceil() {
 			this.x = Math.ceil(this.x);
 			this.y = Math.ceil(this.y);
 			return this;
@@ -2478,7 +2480,7 @@
 
 		// @method distanceTo(otherPoint: Point): Number
 		// Returns the cartesian distance between the current and the given points.
-		distanceTo: function (point) {
+		distanceTo: function distanceTo(point) {
 			point = toPoint(point);
 
 			var x = point.x - this.x,
@@ -2489,28 +2491,24 @@
 
 		// @method equals(otherPoint: Point): Boolean
 		// Returns `true` if the given point has the same coordinates.
-		equals: function (point) {
+		equals: function equals(point) {
 			point = toPoint(point);
 
-			return point.x === this.x &&
-			       point.y === this.y;
+			return point.x === this.x && point.y === this.y;
 		},
 
 		// @method contains(otherPoint: Point): Boolean
 		// Returns `true` if both coordinates of the given point are less than the corresponding current point coordinates (in absolute values).
-		contains: function (point) {
+		contains: function contains(point) {
 			point = toPoint(point);
 
-			return Math.abs(point.x) <= Math.abs(this.x) &&
-			       Math.abs(point.y) <= Math.abs(this.y);
+			return Math.abs(point.x) <= Math.abs(this.x) && Math.abs(point.y) <= Math.abs(this.y);
 		},
 
 		// @method toString(): String
 		// Returns a string representation of the point for debugging purposes.
-		toString: function () {
-			return 'Point(' +
-			        formatNum(this.x) + ', ' +
-			        formatNum(this.y) + ')';
+		toString: function toString() {
+			return 'Point(' + formatNum(this.x) + ', ' + formatNum(this.y) + ')';
 		}
 	};
 
@@ -2534,7 +2532,7 @@
 		if (x === undefined || x === null) {
 			return x;
 		}
-		if (typeof x === 'object' && 'x' in x && 'y' in x) {
+		if ((typeof x === 'undefined' ? 'undefined' : _typeof$2(x)) === 'object' && 'x' in x && 'y' in x) {
 			return new Point(x.x, x.y);
 		}
 		return new Point(x, y, round);
@@ -2544,13 +2542,11 @@
 	 * Extends L.DomEvent to provide touch support for Internet Explorer and Windows-based devices.
 	 */
 
-
-	var POINTER_DOWN =   msPointer ? 'MSPointerDown'   : 'pointerdown',
-	    POINTER_MOVE =   msPointer ? 'MSPointerMove'   : 'pointermove',
-	    POINTER_UP =     msPointer ? 'MSPointerUp'     : 'pointerup',
+	var POINTER_DOWN = msPointer ? 'MSPointerDown' : 'pointerdown',
+	    POINTER_MOVE = msPointer ? 'MSPointerMove' : 'pointermove',
+	    POINTER_UP = msPointer ? 'MSPointerUp' : 'pointerup',
 	    POINTER_CANCEL = msPointer ? 'MSPointerCancel' : 'pointercancel',
 	    TAG_WHITE_LIST = ['INPUT', 'SELECT', 'OPTION'],
-
 	    _pointers = {},
 	    _pointerDocListener = false;
 
@@ -2563,10 +2559,8 @@
 	function addPointerListener(obj, type, handler, id) {
 		if (type === 'touchstart') {
 			_addPointerStart(obj, handler, id);
-
 		} else if (type === 'touchmove') {
 			_addPointerMove(obj, handler, id);
-
 		} else if (type === 'touchend') {
 			_addPointerEnd(obj, handler, id);
 		}
@@ -2579,10 +2573,8 @@
 
 		if (type === 'touchstart') {
 			obj.removeEventListener(POINTER_DOWN, handler, false);
-
 		} else if (type === 'touchmove') {
 			obj.removeEventListener(POINTER_MOVE, handler, false);
-
 		} else if (type === 'touchend') {
 			obj.removeEventListener(POINTER_UP, handler, false);
 			obj.removeEventListener(POINTER_CANCEL, handler, false);
@@ -2649,9 +2641,11 @@
 	}
 
 	function _addPointerMove(obj, handler, id) {
-		var onMove = function (e) {
+		var onMove = function onMove(e) {
 			// don't fire touch moves when mouse isn't down
-			if ((e.pointerType === e.MSPOINTER_TYPE_MOUSE || e.pointerType === 'mouse') && e.buttons === 0) { return; }
+			if ((e.pointerType === e.MSPOINTER_TYPE_MOUSE || e.pointerType === 'mouse') && e.buttons === 0) {
+				return;
+			}
 
 			_handlePointer(e, handler);
 		};
@@ -2661,7 +2655,7 @@
 	}
 
 	function _addPointerEnd(obj, handler, id) {
-		var onUp = function (e) {
+		var onUp = function onUp(e) {
 			_handlePointer(e, handler);
 		};
 
@@ -2680,7 +2674,8 @@
 
 	// inspired by Zepto touch code by Thomas Fuchs
 	function addDoubleTapListener(obj, handler, id) {
-		var last, touch$$1,
+		var last,
+		    touch$$1,
 		    doubleTap = false,
 		    delay = 250;
 
@@ -2688,29 +2683,36 @@
 			var count;
 
 			if (pointer) {
-				if ((!edge) || e.pointerType === 'mouse') { return; }
+				if (!edge || e.pointerType === 'mouse') {
+					return;
+				}
 				count = _pointersCount;
 			} else {
 				count = e.touches.length;
 			}
 
-			if (count > 1) { return; }
+			if (count > 1) {
+				return;
+			}
 
 			var now = Date.now(),
 			    delta = now - (last || now);
 
 			touch$$1 = e.touches ? e.touches[0] : e;
-			doubleTap = (delta > 0 && delta <= delay);
+			doubleTap = delta > 0 && delta <= delay;
 			last = now;
 		}
 
 		function onTouchEnd(e) {
 			if (doubleTap && !touch$$1.cancelBubble) {
 				if (pointer) {
-					if ((!edge) || e.pointerType === 'mouse') { return; }
+					if (!edge || e.pointerType === 'mouse') {
+						return;
+					}
 					// work around .type being readonly with MSPointer* events
 					var newTouch = {},
-					    prop, i;
+					    prop,
+					    i;
 
 					for (i in touch$$1) {
 						prop = touch$$1[i];
@@ -2754,6 +2756,8 @@
 		return this;
 	}
 
+	var _typeof$3 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	/*
 	 * @namespace DomEvent
 	 * Utility functions to work with the [DOM events](https://developer.mozilla.org/docs/Web/API/Event), used by Leaflet internally.
@@ -2772,7 +2776,7 @@
 	// Adds a set of type/listener pairs, e.g. `{click: onClick, mousemove: onMouseMove}`
 	function on(obj, types, fn, context) {
 
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof$3(types)) === 'object') {
 			for (var type in types) {
 				addOne(obj, type, types[type], fn);
 			}
@@ -2804,7 +2808,7 @@
 	// Removes all known event listeners
 	function off(obj, types, fn, context) {
 
-		if (typeof types === 'object') {
+		if ((typeof types === 'undefined' ? 'undefined' : _typeof$3(types)) === 'object') {
 			for (var type in types) {
 				removeOne(obj, type, types[type], fn);
 			}
@@ -2825,9 +2829,11 @@
 	function addOne(obj, type, fn, context) {
 		var id = type + stamp(fn) + (context ? '_' + stamp(context) : '');
 
-		if (obj[eventsKey] && obj[eventsKey][id]) { return this; }
+		if (obj[eventsKey] && obj[eventsKey][id]) {
+			return this;
+		}
 
-		var handler = function (e) {
+		var handler = function handler(e) {
 			return fn.call(context || obj, e || window.event);
 		};
 
@@ -2836,36 +2842,30 @@
 		if (pointer && type.indexOf('touch') === 0) {
 			// Needs DomEvent.Pointer.js
 			addPointerListener(obj, type, handler, id);
-
-		} else if (touch && (type === 'dblclick') && addDoubleTapListener &&
-		           !(pointer && chrome)) {
+		} else if (touch && type === 'dblclick' && addDoubleTapListener && !(pointer && chrome)) {
 			// Chrome >55 does not need the synthetic dblclicks from addDoubleTapListener
 			// See #5180
 			addDoubleTapListener(obj, handler, id);
-
 		} else if ('addEventListener' in obj) {
 
 			if (type === 'mousewheel') {
 				obj.addEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', handler, false);
-
-			} else if ((type === 'mouseenter') || (type === 'mouseleave')) {
-				handler = function (e) {
+			} else if (type === 'mouseenter' || type === 'mouseleave') {
+				handler = function handler(e) {
 					e = e || window.event;
 					if (isExternalTarget(obj, e)) {
 						originalHandler(e);
 					}
 				};
 				obj.addEventListener(type === 'mouseenter' ? 'mouseover' : 'mouseout', handler, false);
-
 			} else {
 				if (type === 'click' && android) {
-					handler = function (e) {
+					handler = function handler(e) {
 						filterClick(e, originalHandler);
 					};
 				}
 				obj.addEventListener(type, handler, false);
 			}
-
 		} else if ('attachEvent' in obj) {
 			obj.attachEvent('on' + type, handler);
 		}
@@ -2879,25 +2879,21 @@
 		var id = type + stamp(fn) + (context ? '_' + stamp(context) : ''),
 		    handler = obj[eventsKey] && obj[eventsKey][id];
 
-		if (!handler) { return this; }
+		if (!handler) {
+			return this;
+		}
 
 		if (pointer && type.indexOf('touch') === 0) {
 			removePointerListener(obj, type, id);
-
-		} else if (touch && (type === 'dblclick') && removeDoubleTapListener) {
+		} else if (touch && type === 'dblclick' && removeDoubleTapListener) {
 			removeDoubleTapListener(obj, id);
-
 		} else if ('removeEventListener' in obj) {
 
 			if (type === 'mousewheel') {
 				obj.removeEventListener('onwheel' in obj ? 'wheel' : 'mousewheel', handler, false);
-
 			} else {
-				obj.removeEventListener(
-					type === 'mouseenter' ? 'mouseover' :
-					type === 'mouseleave' ? 'mouseout' : type, handler, false);
+				obj.removeEventListener(type === 'mouseenter' ? 'mouseover' : type === 'mouseleave' ? 'mouseout' : type, handler, false);
 			}
-
 		} else if ('detachEvent' in obj) {
 			obj.detachEvent('on' + type, handler);
 		}
@@ -2916,7 +2912,8 @@
 
 		if (e.stopPropagation) {
 			e.stopPropagation();
-		} else if (e.originalEvent) {  // In case of Leaflet event.
+		} else if (e.originalEvent) {
+			// In case of Leaflet event.
 			e.originalEvent._stopped = true;
 		} else {
 			e.cancelBubble = true;
@@ -2973,16 +2970,12 @@
 
 		var rect = container.getBoundingClientRect();
 
-		return new Point(
-			e.clientX - rect.left - container.clientLeft,
-			e.clientY - rect.top - container.clientTop);
+		return new Point(e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop);
 	}
 
 	// Chrome on Win scrolls double the pixels as in other platforms (see #4538),
 	// and Firefox scrolls device pixels, not CSS pixels
-	var wheelPxFactor =
-		(win && chrome) ? 2 :
-		gecko ? window.devicePixelRatio : 1;
+	var wheelPxFactor = win && chrome ? 2 : gecko ? window.devicePixelRatio : 1;
 
 	// @function getWheelDelta(ev: DOMEvent): Number
 	// Gets normalized wheel delta from a mousewheel DOM event, in vertical
@@ -2990,15 +2983,15 @@
 	// Events from pointing devices without precise scrolling are mapped to
 	// a best guess of 60 pixels.
 	function getWheelDelta(e) {
-		return (edge) ? e.wheelDeltaY / 2 : // Don't trust window-geometry-based delta
-		       (e.deltaY && e.deltaMode === 0) ? -e.deltaY / wheelPxFactor : // Pixels
-		       (e.deltaY && e.deltaMode === 1) ? -e.deltaY * 20 : // Lines
-		       (e.deltaY && e.deltaMode === 2) ? -e.deltaY * 60 : // Pages
-		       (e.deltaX || e.deltaZ) ? 0 :	// Skip horizontal/depth wheel events
-		       e.wheelDelta ? (e.wheelDeltaY || e.wheelDelta) / 2 : // Legacy IE pixels
-		       (e.detail && Math.abs(e.detail) < 32765) ? -e.detail * 20 : // Legacy Moz lines
-		       e.detail ? e.detail / -32765 * 60 : // Legacy Moz pages
-		       0;
+		return edge ? e.wheelDeltaY / 2 : // Don't trust window-geometry-based delta
+		e.deltaY && e.deltaMode === 0 ? -e.deltaY / wheelPxFactor : // Pixels
+		e.deltaY && e.deltaMode === 1 ? -e.deltaY * 20 : // Lines
+		e.deltaY && e.deltaMode === 2 ? -e.deltaY * 60 : // Pages
+		e.deltaX || e.deltaZ ? 0 : // Skip horizontal/depth wheel events
+		e.wheelDelta ? (e.wheelDeltaY || e.wheelDelta) / 2 : // Legacy IE pixels
+		e.detail && Math.abs(e.detail) < 32765 ? -e.detail * 20 : // Legacy Moz lines
+		e.detail ? e.detail / -32765 * 60 : // Legacy Moz pages
+		0;
 	}
 
 	var skipEvents = {};
@@ -3020,31 +3013,33 @@
 
 		var related = e.relatedTarget;
 
-		if (!related) { return true; }
+		if (!related) {
+			return true;
+		}
 
 		try {
-			while (related && (related !== el)) {
+			while (related && related !== el) {
 				related = related.parentNode;
 			}
 		} catch (err) {
 			return false;
 		}
-		return (related !== el);
+		return related !== el;
 	}
 
 	var lastClick;
 
 	// this is a horrible workaround for a bug in Android where a single touch triggers two click events
 	function filterClick(e, handler) {
-		var timeStamp = (e.timeStamp || (e.originalEvent && e.originalEvent.timeStamp)),
-		    elapsed = lastClick && (timeStamp - lastClick);
+		var timeStamp = e.timeStamp || e.originalEvent && e.originalEvent.timeStamp,
+		    elapsed = lastClick && timeStamp - lastClick;
 
 		// are they closer together than 500ms yet more than 100ms?
 		// Android typically triggers them ~300ms apart while multiple listeners
 		// on the same event should be triggered far faster;
 		// or check if click is simulated on the element, and if it is, reject any non-simulated events
 
-		if ((elapsed && elapsed > 100 && elapsed < 500) || (e.target._simulatedClick && !e._simulated)) {
+		if (elapsed && elapsed > 100 && elapsed < 500 || e.target._simulatedClick && !e._simulated) {
 			stop(e);
 			return;
 		}
@@ -3081,35 +3076,31 @@
 	 * in HTML and SVG classes in SVG.
 	 */
 
-	 if (!Element.prototype.matches) {
+	if (!Element.prototype.matches) {
 	    var ep = Element.prototype;
-	 
+
 	    if (ep.webkitMatchesSelector) // Chrome <34, SF<7.1, iOS<8
-	      ep.matches = ep.webkitMatchesSelector;
-	 
+	        ep.matches = ep.webkitMatchesSelector;
+
 	    if (ep.msMatchesSelector) // IE9/10/11 & Edge
-	      ep.matches = ep.msMatchesSelector;
-	 
+	        ep.matches = ep.msMatchesSelector;
+
 	    if (ep.mozMatchesSelector) // FF<34
-	      ep.matches = ep.mozMatchesSelector;
-	 }
+	        ep.matches = ep.mozMatchesSelector;
+	}
 
 	// @property TRANSFORM: String
 	// Vendor-prefixed fransform style name (e.g. `'webkitTransform'` for WebKit).
-	var TRANSFORM = testProp(
-	    ['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
+	var TRANSFORM = testProp(['transform', 'WebkitTransform', 'OTransform', 'MozTransform', 'msTransform']);
 
 	// webkitTransition comes first because some browser versions that drop vendor prefix don't do
 	// the same for the transitionend event, in particular the Android 4.1 stock browser
 
 	// @property TRANSITION: String
 	// Vendor-prefixed transform style name.
-	var TRANSITION = testProp(
-	    ['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
+	var TRANSITION = testProp(['webkitTransition', 'transition', 'OTransition', 'MozTransition', 'msTransition']);
 
-	var TRANSITION_END =
-	    TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
-
+	var TRANSITION_END = TRANSITION === 'webkitTransition' || TRANSITION === 'OTransition' ? TRANSITION + 'End' : 'transitionend';
 
 	// @function get(id: String|HTMLElement): HTMLElement
 	// Returns an element given its DOM id, or returns the element itself
@@ -3122,7 +3113,7 @@
 	// Returns the value for a certain style attribute on an element,
 	// including computed values or values set through CSS.
 	function getStyle(el, style) {
-	    var value = el.style[style] || (el.currentStyle && el.currentStyle[style]);
+	    var value = el.style[style] || el.currentStyle && el.currentStyle[style];
 
 	    if ((!value || value === 'auto') && document.defaultView) {
 	        var css = document.defaultView.getComputedStyle(el, null);
@@ -3245,13 +3236,15 @@
 	    } catch (e) {
 	        // don't set opacity to 1 if we haven't already set an opacity,
 	        // it isn't needed and breaks transparent pngs.
-	        if (value === 1) { return; }
+	        if (value === 1) {
+	            return;
+	        }
 	    }
 
 	    value = Math.round(value * 100);
 
 	    if (filter) {
-	        filter.Enabled = (value !== 100);
+	        filter.Enabled = value !== 100;
 	        filter.Opacity = value;
 	    } else {
 	        el.style.filter += ' progid:' + filterName + '(opacity=' + value + ')';
@@ -3285,11 +3278,7 @@
 	function setTransform(el, offset, scale) {
 	    var pos = offset || new Point(0, 0);
 
-	    el.style[TRANSFORM] =
-	        (ie3d ?
-	            'translate(' + pos.x + 'px,' + pos.y + 'px)' :
-	            'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') +
-	        (scale ? ' scale(' + scale + ')' : '');
+	    el.style[TRANSFORM] = (ie3d ? 'translate(' + pos.x + 'px,' + pos.y + 'px)' : 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') + (scale ? ' scale(' + scale + ')' : '');
 	}
 
 	// @function setPosition(el: HTMLElement, position: Point)
@@ -3331,24 +3320,23 @@
 	var enableTextSelection;
 	var _userSelect;
 	if ('onselectstart' in document) {
-	    disableTextSelection = function () {
+	    disableTextSelection = function disableTextSelection() {
 	        on(window, 'selectstart', preventDefault);
 	    };
-	    enableTextSelection = function () {
+	    enableTextSelection = function enableTextSelection() {
 	        off(window, 'selectstart', preventDefault);
 	    };
 	} else {
-	    var userSelectProperty = testProp(
-	        ['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+	    var userSelectProperty = testProp(['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-	    disableTextSelection = function () {
+	    disableTextSelection = function disableTextSelection() {
 	        if (userSelectProperty) {
 	            var style = document.documentElement.style;
 	            _userSelect = style[userSelectProperty];
 	            style[userSelectProperty] = 'none';
 	        }
 	    };
-	    enableTextSelection = function () {
+	    enableTextSelection = function enableTextSelection() {
 	        if (userSelectProperty) {
 	            document.documentElement.style[userSelectProperty] = _userSelect;
 	            _userSelect = undefined;
@@ -3379,7 +3367,9 @@
 	    while (element.tabIndex === -1) {
 	        element = element.parentNode;
 	    }
-	    if (!element || !element.style) { return; }
+	    if (!element || !element.style) {
+	        return;
+	    }
 	    restoreOutline();
 	    _outlineElement = element;
 	    _outlineStyle = element.style.outline;
@@ -3390,7 +3380,9 @@
 	// @function restoreOutline()
 	// Cancels the effects of a previous [`L.DomUtil.preventOutline`]().
 	function restoreOutline() {
-	    if (!_outlineElement) { return; }
+	    if (!_outlineElement) {
+	        return;
+	    }
 	    _outlineElement.style.outline = _outlineStyle;
 	    _outlineElement = undefined;
 	    _outlineStyle = undefined;
@@ -5019,55 +5011,14 @@
 	var document$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
 	var keyboardAllowed = typeof Element !== 'undefined' && 'ALLOW_KEYBOARD_INPUT' in Element;
 
-	var fn = (function () {
+	var fn = function () {
 	  var val;
 
-	  var fnMap = [
-	    [
-	      'requestFullscreen',
-	      'exitFullscreen',
-	      'fullscreenElement',
-	      'fullscreenEnabled',
-	      'fullscreenchange',
-	      'fullscreenerror'
-	    ],
-	    // New WebKit
-	    [
-	      'webkitRequestFullscreen',
-	      'webkitExitFullscreen',
-	      'webkitFullscreenElement',
-	      'webkitFullscreenEnabled',
-	      'webkitfullscreenchange',
-	      'webkitfullscreenerror'
-
-	    ],
-	    // Old WebKit (Safari 5.1)
-	    [
-	      'webkitRequestFullScreen',
-	      'webkitCancelFullScreen',
-	      'webkitCurrentFullScreenElement',
-	      'webkitCancelFullScreen',
-	      'webkitfullscreenchange',
-	      'webkitfullscreenerror'
-
-	    ],
-	    [
-	      'mozRequestFullScreen',
-	      'mozCancelFullScreen',
-	      'mozFullScreenElement',
-	      'mozFullScreenEnabled',
-	      'mozfullscreenchange',
-	      'mozfullscreenerror'
-	    ],
-	    [
-	      'msRequestFullscreen',
-	      'msExitFullscreen',
-	      'msFullscreenElement',
-	      'msFullscreenEnabled',
-	      'MSFullscreenChange',
-	      'MSFullscreenError'
-	    ]
-	  ];
+	  var fnMap = [['requestFullscreen', 'exitFullscreen', 'fullscreenElement', 'fullscreenEnabled', 'fullscreenchange', 'fullscreenerror'],
+	  // New WebKit
+	  ['webkitRequestFullscreen', 'webkitExitFullscreen', 'webkitFullscreenElement', 'webkitFullscreenEnabled', 'webkitfullscreenchange', 'webkitfullscreenerror'],
+	  // Old WebKit (Safari 5.1)
+	  ['webkitRequestFullScreen', 'webkitCancelFullScreen', 'webkitCurrentFullScreenElement', 'webkitCancelFullScreen', 'webkitfullscreenchange', 'webkitfullscreenerror'], ['mozRequestFullScreen', 'mozCancelFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled', 'mozfullscreenchange', 'mozfullscreenerror'], ['msRequestFullscreen', 'msExitFullscreen', 'msFullscreenElement', 'msFullscreenEnabled', 'MSFullscreenChange', 'MSFullscreenError']];
 
 	  var i = 0;
 	  var l = fnMap.length;
@@ -5084,7 +5035,7 @@
 	  }
 
 	  return false;
-	})();
+	}();
 
 	var eventNameMap = {
 	  change: fn.fullscreenchange,
@@ -5092,7 +5043,7 @@
 	};
 
 	var screenfull = {
-	  request: function (elem) {
+	  request: function request(elem) {
 	    var request = fn.requestFullscreen;
 
 	    elem = elem || document$1.documentElement;
@@ -5107,29 +5058,29 @@
 	      elem[request](keyboardAllowed ? Element.ALLOW_KEYBOARD_INPUT : {});
 	    }
 	  },
-	  exit: function () {
+	  exit: function exit() {
 	    document$1[fn.exitFullscreen]();
 	  },
-	  toggle: function (elem) {
+	  toggle: function toggle(elem) {
 	    if (this.isFullscreen) {
 	      this.exit();
 	    } else {
 	      this.request(elem);
 	    }
 	  },
-	  onchange: function (callback) {
+	  onchange: function onchange(callback) {
 	    this.on('change', callback);
 	  },
-	  onerror: function (callback) {
+	  onerror: function onerror(callback) {
 	    this.on('error', callback);
 	  },
-	  on: function (event, callback) {
+	  on: function on(event, callback) {
 	    var eventName = eventNameMap[event];
 	    if (eventName) {
 	      document$1.addEventListener(eventName, callback, false);
 	    }
 	  },
-	  off: function (event, callback) {
+	  off: function off(event, callback) {
 	    var eventName = eventNameMap[event];
 	    if (eventName) {
 	      document$1.removeEventListener(eventName, callback, false);
@@ -5140,19 +5091,19 @@
 
 	Object.defineProperties(screenfull, {
 	  isFullscreen: {
-	    get: function () {
+	    get: function get() {
 	      return Boolean(document$1[fn.fullscreenElement]);
 	    }
 	  },
 	  element: {
 	    enumerable: true,
-	    get: function () {
+	    get: function get() {
 	      return document$1[fn.fullscreenElement];
 	    }
 	  },
 	  enabled: {
 	    enumerable: true,
-	    get: function () {
+	    get: function get() {
 	      // Coerce to boolean in case of old WebKit
 	      return Boolean(document$1[fn.fullscreenEnabled]);
 	    }
@@ -5161,15 +5112,7 @@
 
 	var Reader = Evented.extend({
 	  options: {
-	    regions: [
-	      'header',
-	      'toolbar.top',
-	      'toolbar.left',
-	      'main',
-	      'toolbar.right',
-	      'toolbar.bottom',
-	      'footer'
-	    ],
+	    regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
 	    metadata: {},
 	    flow: 'auto',
 	    engine: 'epubjs',
@@ -5185,15 +5128,15 @@
 	    injectStylesheet: null
 	  },
 
-	  initialize: function(id, options) {
+	  initialize: function initialize(id, options) {
 	    var self = this;
 
 	    self._original_document_title = document.title;
 
 	    this._cozyOptions = {};
-	    if ( localStorage.getItem('cozy.options') ) {
+	    if (localStorage.getItem('cozy.options')) {
 	      this._cozyOptions = JSON.parse(localStorage.getItem('cozy.options'));
-	      if ( this._cozyOptions.theme ) {
+	      if (this._cozyOptions.theme) {
 	        this.options.theme = this._cozyOptions.theme;
 	      }
 	      // if ( this._cozyOptions.flow ) {
@@ -5210,19 +5153,24 @@
 	    this._initContainer(id);
 	    this._initLayout();
 
-	    if ( this.options.themes && this.options.themes.length > 0 ) {
-	        this.options.themes.forEach(function(theme) {
-	            if ( theme.href ) { return; }
-	            var klass = theme.klass;
-	            var rules = {};
-	            for(var rule in theme.rules) {
-	                var new_rule = '.' + klass;
-	                if ( rule == 'body' ) { new_rule = 'body' + new_rule; }
-	                else { new_rule += ' ' + rule ; }
-	                rules[new_rule] = theme.rules[rule];
-	            }
-	            theme.rules = rules;
-	        });
+	    if (this.options.themes && this.options.themes.length > 0) {
+	      this.options.themes.forEach(function (theme) {
+	        if (theme.href) {
+	          return;
+	        }
+	        var klass = theme.klass;
+	        var rules = {};
+	        for (var rule in theme.rules) {
+	          var new_rule = '.' + klass;
+	          if (rule == 'body') {
+	            new_rule = 'body' + new_rule;
+	          } else {
+	            new_rule += ' ' + rule;
+	          }
+	          rules[new_rule] = theme.rules[rule];
+	        }
+	        theme.rules = rules;
+	      });
 	    }
 
 	    this._updateTheme();
@@ -5237,10 +5185,10 @@
 	    this._mode = this.options.mode;
 	  },
 
-	  start: function(target, cb) {
+	  start: function start(target, cb) {
 	    var self = this;
 
-	    if ( typeof(target) == 'function' && cb === undefined ) {
+	    if (typeof target == 'function' && cb === undefined) {
 	      cb = target;
 	      target = undefined;
 	    }
@@ -5253,7 +5201,7 @@
 	    // })
 	  },
 
-	  _start: function(target, cb) {
+	  _start: function _start(target, cb) {
 	    var self = this;
 	    target = target || 0;
 
@@ -5264,31 +5212,35 @@
 	    self.open(target, cb);
 	  },
 
-	  reopen: function(options, target) {
+	  reopen: function reopen(options, target) {
 	    /* NOP */
 	  },
 
-	  saveOptions: function(options) {
+	  saveOptions: function saveOptions(options) {
 	    var saved_options = {};
 	    assign_1(saved_options, options);
-	    if ( saved_options.flow == 'auto' ) {
+	    var key = this.metadata.layout || 'reflowable';
+	    var flow = saved_options.flow;
+	    if (saved_options.flow == 'auto') {
 	      // do not save
 	      delete saved_options.flow;
+	      flow = this.metadata.flow || 'paginated';
 	    }
+	    // key += '/' + flow;
 
 	    // var key = `${this.flow}/${this.metadata.layout}`;
-	    var key = this.metadata.layout;
-	    if ( saved_options.text_size || saved_options.scale ) {
+	    // var key = this.metadata.layout;
+	    if (saved_options.text_size || saved_options.scale) {
 	      saved_options[key] = {};
-	      if ( saved_options.text_size ) {
+	      if (saved_options.text_size) {
 	        saved_options[key].text_size = saved_options.text_size;
 	        delete saved_options.text_size;
 	      }
-	      if ( saved_options.scale ) {
+	      if (saved_options.scale) {
 	        saved_options[key].scale = saved_options.scale;
 	        delete saved_options.scale;
 	      }
-	      if ( saved_options.flow ) {
+	      if (saved_options.flow) {
 	        saved_options[key].flow = saved_options.flow;
 	        delete saved_options.flow;
 	      }
@@ -5301,52 +5253,50 @@
 	    this._cozyOptions = saved_options;
 	  },
 
-	  _updateTheme: function() {
-	    removeClass(this._container, 'cozy-theme-' + ( this._container.dataset.theme || 'default' ));
+	  _updateTheme: function _updateTheme() {
+	    removeClass(this._container, 'cozy-theme-' + (this._container.dataset.theme || 'default'));
 	    addClass(this._container, 'cozy-theme-' + this.options.theme);
 	    this._container.dataset.theme = this.options.theme;
 	  },
 
-	  draw: function(target) {
+	  draw: function draw(target) {
 	    // NOOP
 	  },
 
-	  next: function() {
+	  next: function next() {
 	    // NOOP
 	  },
 
-	  prev: function() {
+	  prev: function prev() {
 	    // NOOP
 	  },
 
-	  display: function(index) {
+	  display: function display(index) {
 	    // NOOP
 	  },
 
-	  gotoPage: function(target) {
+	  gotoPage: function gotoPage(target) {
 	    // NOOP
 	  },
 
-	  goBack: function() {
+	  goBack: function goBack() {
 	    history.back();
 	  },
 
-	  goForward: function() {
+	  goForward: function goForward() {
 	    history.forward();
 	  },
 
-	  requestFullscreen: function() {
-	    if ( screenfull.enabled ) {
+	  requestFullscreen: function requestFullscreen() {
+	    if (screenfull.enabled) {
 	      // this._preResize();
 	      screenfull.toggle(this._container);
 	    }
 	  },
 
-	  _preResize: function() {
+	  _preResize: function _preResize() {},
 
-	  },
-
-	  _initContainer: function (id) {
+	  _initContainer: function _initContainer(id) {
 	    var container = this._container = get(id);
 
 	    if (!container) {
@@ -5359,30 +5309,23 @@
 	    this._containerId = stamp(container);
 	  },
 
-	  _initLayout: function () {
+	  _initLayout: function _initLayout() {
 	    var container = this._container;
 
 	    this._fadeAnimated = this.options.fadeAnimation && any3d;
 
-	    addClass(container, 'cozy-reader cozy-container' +
-	      (touch ? ' cozy-touch' : '') +
-	      (retina ? ' cozy-retina' : '') +
-	      (ielt9 ? ' cozy-oldie' : '') +
-	      (safari ? ' cozy-safari' : '') +
-	      (this._fadeAnimated ? ' cozy-fade-anim' : '') +
-	      ' cozy-engine-' + this.options.engine +
-	      ' cozy-theme-' + this.options.theme);
+	    addClass(container, 'cozy-reader cozy-container' + (touch ? ' cozy-touch' : '') + (retina ? ' cozy-retina' : '') + (ielt9 ? ' cozy-oldie' : '') + (safari ? ' cozy-safari' : '') + (this._fadeAnimated ? ' cozy-fade-anim' : '') + ' cozy-engine-' + this.options.engine + ' cozy-theme-' + this.options.theme);
 
 	    var position = getStyle(container, 'position');
 
 	    this._initPanes();
 
-	    if ( ! columnCount ) {
+	    if (!columnCount) {
 	      this.options.flow = 'scrolled-doc';
 	    }
 	  },
 
-	  _initPanes: function () {
+	  _initPanes: function _initPanes() {
 
 	    var panes = this._panes = {};
 	    var container = this._container;
@@ -5404,7 +5347,7 @@
 	    this._initBookLoader();
 	  },
 
-	  _checkIfLoaded: function () {
+	  _checkIfLoaded: function _checkIfLoaded() {
 	    if (!this._loaded) {
 	      throw new Error('Set map center and zoom first.');
 	    }
@@ -5413,18 +5356,18 @@
 	  // DOM event handling
 
 	  // @section Interaction events
-	  _initEvents: function (remove$$1) {
+	  _initEvents: function _initEvents(remove$$1) {
 	    this._targets = {};
 	    this._targets[stamp(this._container)] = this;
 
-	    this.tracking = function(reader) {
+	    this.tracking = function (reader) {
 	      var _action = [];
 	      var _last_location_start;
 	      var _last_scrollTop;
 	      var _reader = reader;
 	      return {
-	        action: function(v) {
-	          if ( v ) {
+	        action: function action(v) {
+	          if (v) {
 	            _action = [v];
 	            this.event(v);
 	            // _reader.fire('trackAction', { action: v })
@@ -5433,45 +5376,47 @@
 	          }
 	        },
 
-	        peek: function() {
+	        peek: function peek() {
 	          return _action[0];
 	        },
 
-	        event: function(action, data) {
-	          if ( data == null ) { data = {}; }
+	        event: function event(action, data) {
+	          if (data == null) {
+	            data = {};
+	          }
 	          data.action = action;
 	          _reader.fire("trackAction", data);
 	        },
 
-	        pageview: function(location) {
+	        pageview: function pageview(location) {
 	          var do_report = true;
-	          if ( _reader.settings.flow == 'scrolled-doc' ) {
+	          if (_reader.settings.flow == 'scrolled-doc') {
 	            var scrollTop = 0;
-	            if ( _reader._rendition.manager && _reader._rendition.manager.container ) {
+	            if (_reader._rendition.manager && _reader._rendition.manager.container) {
 	              scrollTop = _reader._rendition.manager.container.scrollTop;
 	              // console.log("AHOY CHECKING SCROLLTOP", _last_scrollTop, scrollTop, Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height);
 	            }
-	            if ( _last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height ) {
+	            if (_last_scrollTop && Math.abs(_last_scrollTop - scrollTop) < _reader._rendition.manager.layout.height) {
 	              do_report = false;
 	            } else {
 	              _last_scrollTop = scrollTop;
 	            }
 	          }
-	          if ( location.start != _last_location_start && do_report ) {
+	          if (location.start != _last_location_start && do_report) {
 	            _last_location_start = location.start;
-	            var tracking = { cfi: location.start, href: location.href, action: this.action()};
+	            var tracking = { cfi: location.start, href: location.href, action: this.action() };
 	            _reader.fire('trackPageview', tracking);
 	            return tracking;
 	          }
 	          return false;
 	        },
 
-	        reset: function() {
-	          if ( _reader.settings.flow == 'scrolled-doc' ) {
+	        reset: function reset() {
+	          if (_reader.settings.flow == 'scrolled-doc') {
 	            _last_scrollTop = null;
 	          }
 	        }
-	      }
+	      };
 	    }(this);
 
 	    // @event click: MouseEvent
@@ -5510,7 +5455,7 @@
 
 	    var self = this;
 	    if (screenfull.enabled) {
-	      screenfull.on('change', function() {
+	      screenfull.on('change', function () {
 	        // setTimeout(function() {
 	        //   self.invalidateSize({});
 	        // }, 100);
@@ -5519,19 +5464,19 @@
 	      });
 	    }
 
-	    self.on("updateLocation", function(location) {
+	    self.on("updateLocation", function (location) {
 	      // possibly invoke a pageview event
 	      var tracking;
-	      if ( tracking = self.tracking.pageview(location) ) {
-	        if ( location.percentage ) {
+	      if (tracking = self.tracking.pageview(location)) {
+	        if (location.percentage) {
 	          var p = Math.ceil(location.percentage * 100);
-	          document.title = `${p}% - ${self._original_document_title}`;
+	          document.title = p + '% - ' + self._original_document_title;
 	        }
 	        var tmp_href = window.location.href.split("#");
 	        tmp_href[1] = location.start.substr(8, location.start.length - 8 - 1);
 	        var context = [{ cfi: location.start }, '', tmp_href.join('#')];
 
-	        if ( tracking.action && tracking.action.match(/\/go\/link/) ) {
+	        if (tracking.action && tracking.action.match(/\/go\/link/)) {
 	          // console.log("AHOY ACTION", tracking.action, context[0].cfi);
 	          history.pushState.apply(history, context);
 	        } else {
@@ -5540,17 +5485,17 @@
 	      }
 	    });
 
-	    window.addEventListener('popstate', function(event) {
+	    window.addEventListener('popstate', function (event) {
 	      console.log("AHOY POP STATE", event);
-	      if ( event.isTrusted && event.state != null ) {
-	        if ( event.state.cfi == self.__last_state_cfi ) {
+	      if (event.isTrusted && event.state != null) {
+	        if (event.state.cfi == self.__last_state_cfi) {
 	          console.log("AHOY POP STATE IGNORE", self.__last_state_cfi);
 	          event.preventDefault();
 	          return;
 	        }
 	        self.__last_state_cfi = event.state.cfi;
-	        if ( event.state == null || event.state.cfi == null ) {
-	          $log.innerHTML += `<li>NULL</li>`;
+	        if (event.state == null || event.state.cfi == null) {
+	          $log.innerHTML += '<li>NULL</li>';
 	          event.preventDefault();
 	          return;
 	        }
@@ -5558,29 +5503,29 @@
 	      }
 	    });
 
-	    document.addEventListener('keydown', function(event) {
+	    document.addEventListener('keydown', function (event) {
 	      var keyName = event.key;
 	      var target = event.target;
 
 	      // check if the activeElement is ".special-panel"
 	      var check = document.activeElement;
-	      while ( check.localName != 'body' ) {
-	        if ( check.classList.contains('special-panel') ) {
+	      while (check.localName != 'body') {
+	        if (check.classList.contains('special-panel')) {
 	          return;
 	        }
 	        check = check.parentElement;
 	      }
 
-	      var IGNORE_TARGETS = [ 'input', 'textarea' ];
-	      if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
+	      var IGNORE_TARGETS = ['input', 'textarea'];
+	      if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
 	        return;
 	      }
 
 	      self.fire('keyDown', { keyName: keyName, shiftKey: event.shiftKey });
 	    });
 
-	    self.on('keyDown', function(data) {
-	      switch(data.keyName) {
+	    self.on('keyDown', function (data) {
+	      switch (data.keyName) {
 	        case 'ArrowRight':
 	        case 'PageDown':
 	          self.next();
@@ -5607,13 +5552,15 @@
 	  //   }
 	  // },
 
-	  _onScroll: function () {
-	    this._container.scrollTop  = 0;
+	  _onScroll: function _onScroll() {
+	    this._container.scrollTop = 0;
 	    this._container.scrollLeft = 0;
 	  },
 
-	  _handleDOMEvent: function (e) {
-	    if (!this._loaded || skipped(e)) { return; }
+	  _handleDOMEvent: function _handleDOMEvent(e) {
+	    if (!this._loaded || skipped(e)) {
+	      return;
+	    }
 
 	    var type = e.type === 'keypress' && e.keyCode === 13 ? 'click' : e.type;
 
@@ -5625,7 +5572,7 @@
 	    this._fireDOMEvent(e, type);
 	  },
 
-	  _fireDOMEvent: function (e, type, targets) {
+	  _fireDOMEvent: function _fireDOMEvent(e, type, targets) {
 
 	    if (e.type === 'click') {
 	      // Fire a synthetic 'preclick' event which propagates up (mainly for closing popups).
@@ -5638,12 +5585,16 @@
 	      this._fireDOMEvent(synth, synth.type, targets);
 	    }
 
-	    if (e._stopped) { return; }
+	    if (e._stopped) {
+	      return;
+	    }
 
 	    // Find the layer the event is propagating from and its parents.
 	    targets = (targets || []).concat(this._findEventTargets(e, type));
 
-	    if (!targets.length) { return; }
+	    if (!targets.length) {
+	      return;
+	    }
 
 	    var target = targets[0];
 	    if (type === 'contextmenu' && target.listens(type, true)) {
@@ -5655,21 +5606,21 @@
 	    };
 
 	    if (e.type !== 'keypress') {
-	      var isMarker = (target.options && 'icon' in target.options);
-	      data.containerPoint = isMarker ?
-	          this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
+	      var isMarker = target.options && 'icon' in target.options;
+	      data.containerPoint = isMarker ? this.latLngToContainerPoint(target.getLatLng()) : this.mouseEventToContainerPoint(e);
 	      data.layerPoint = this.containerPointToLayerPoint(data.containerPoint);
 	      data.latlng = isMarker ? target.getLatLng() : this.layerPointToLatLng(data.layerPoint);
 	    }
 
 	    for (var i = 0; i < targets.length; i++) {
 	      targets[i].fire(type, data, true);
-	      if (data.originalEvent._stopped ||
-	        (targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1)) { return; }
+	      if (data.originalEvent._stopped || targets[i].options.nonBubblingEvents && indexOf(targets[i].options.nonBubblingEvents, type) !== -1) {
+	        return;
+	      }
 	    }
 	  },
 
-	  getFixedBookPanelSize: function() {
+	  getFixedBookPanelSize: function getFixedBookPanelSize() {
 	    // have to make the book
 	    var style = window.getComputedStyle(this._panes['book']);
 	    var h = this._panes['book'].clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
@@ -5677,113 +5628,114 @@
 	    return { height: Math.floor(h * 1.00), width: Math.floor(w * 1.00) };
 	  },
 
-	  invalidateSize: function(options) {
+	  invalidateSize: function invalidateSize(options) {
 	    // TODO: IS THIS EVER USED?
 	    var self = this;
 
-	    if ( ! self._drawn ) { return; }
+	    if (!self._drawn) {
+	      return;
+	    }
 
 	    cancelAnimFrame(this._resizeRequest);
 
-	    if (! this._loaded) { return this; }
+	    if (!this._loaded) {
+	      return this;
+	    }
 
 	    this.fire('resized');
 	  },
 
-	  _resizeBookPane: function() {
+	  _resizeBookPane: function _resizeBookPane() {},
 
-	  },
+	  _setupHooks: function _setupHooks() {},
 
-	  _setupHooks: function() {
-
-	  },
-
-	  _checkFeatureCompatibility: function() {
-	    if ( ! isPropertySupported('columnCount') || this._checkMobileDevice() ) {
+	  _checkFeatureCompatibility: function _checkFeatureCompatibility() {
+	    if (!isPropertySupported('columnCount') || this._checkMobileDevice()) {
 	      // force
 	      this.options.flow = 'scrolled-doc';
 	    }
-	    if ( this._checkMobileDevice() ) {
+	    if (this._checkMobileDevice()) {
 	      this.options.text_size = 120;
 	    }
 	  },
 
-	  _checkMobileDevice: function() {
-	    if ( this._isMobile === undefined ) {
+	  _checkMobileDevice: function _checkMobileDevice() {
+	    if (this._isMobile === undefined) {
 	      this._isMobile = false;
-	      if ( this.options.mobileMediaQuery ) {
+	      if (this.options.mobileMediaQuery) {
 	        this._isMobile = window.matchMedia(this.options.mobileMediaQuery).matches;
 	      }
 	    }
 	    return this._isMobile;
 	  },
 
-	  _enableBookLoader: function(delay=0) {
+	  _enableBookLoader: function _enableBookLoader() {
+	    var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
 	    var self = this;
 	    self._clearBookLoaderTimeout();
-	    if ( delay < 0 ) {
+	    if (delay < 0) {
 	      delay = 0;
 	      self._force_progress = true;
 	    }
-	    self._loader_timeout = setTimeout(function() {
+	    self._loader_timeout = setTimeout(function () {
 	      self._panes['loader'].style.display = 'block';
 	    }, delay);
 	  },
 
-	  _disableBookLoader: function(force=false) {
+	  _disableBookLoader: function _disableBookLoader() {
+	    var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
 	    var self = this;
 	    self._clearBookLoaderTimeout();
-	    if ( ! self._force_progress || force ) {
+	    if (!self._force_progress || force) {
 	      self._panes['loader'].style.display = 'none';
 	      self._force_progress = false;
 	      self._panes['loader-status'].innerHTML = '';
 	    }
 	  },
 
-	  _clearBookLoaderTimeout: function() {
+	  _clearBookLoaderTimeout: function _clearBookLoaderTimeout() {
 	    var self = this;
-	    if ( self._loader_timeout ) {
+	    if (self._loader_timeout) {
 	      clearTimeout(self._loader_timeout);
 	      self._loader_timeout = null;
 	    }
 	  },
 
-	  _initBookLoader: function() {
+	  _initBookLoader: function _initBookLoader() {
 	    // is this not awesome?
 	    var template$$1 = this.options.loader_template || this.loaderTemplate();
 
 	    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
-	    while ( body.children.length ) {
+	    while (body.children.length) {
 	      this._panes['loader'].appendChild(body.children[0]);
 	    }
 	    this._panes['loader-status'] = create$1('div', 'cozy-module-book-loading-status', this._panes['loader']);
 	  },
 
-	  loaderTemplate: function() {
-	    return `<div class="cozy-loader-spinner">
-    <div class="spinner-backdrop spinner-backdrop--1"></div>
-    <div class="spinner-backdrop spinner-backdrop--2"></div>
-    <div class="spinner-backdrop spinner-backdrop--3"></div>
-    <div class="spinner-backdrop spinner-backdrop--4"></div>
-    <div class="spinner-quarter spinner-quarter--1"></div>
-    <div class="spinner-quarter spinner-quarter--2"></div>
-    <div class="spinner-quarter spinner-quarter--3"></div>
-    <div class="spinner-quarter spinner-quarter--4"></div>
-  </div>`;
+	  loaderTemplate: function loaderTemplate() {
+	    return '<div class="cozy-loader-spinner">\n    <div class="spinner-backdrop spinner-backdrop--1"></div>\n    <div class="spinner-backdrop spinner-backdrop--2"></div>\n    <div class="spinner-backdrop spinner-backdrop--3"></div>\n    <div class="spinner-backdrop spinner-backdrop--4"></div>\n    <div class="spinner-quarter spinner-quarter--1"></div>\n    <div class="spinner-quarter spinner-quarter--2"></div>\n    <div class="spinner-quarter spinner-quarter--3"></div>\n    <div class="spinner-quarter spinner-quarter--4"></div>\n  </div>';
 	  },
 
-	  updateLiveStatus: function(message) {
-	    if ( ! this._panes['live-status'] ) { return ; }
-	    if ( message != this._last_message ) {
-	      if ( this._last_timer ) { clearTimeout(this._last_timer); this._last_timer = null; }
+	  updateLiveStatus: function updateLiveStatus(message) {
+	    var _this = this;
+
+	    if (!this._panes['live-status']) {
+	      return;
+	    }
+	    if (message != this._last_message) {
+	      if (this._last_timer) {
+	        clearTimeout(this._last_timer);this._last_timer = null;
+	      }
 	      var clearDelay = 500;
-	      setTimeout(() => {
-	        this._panes['live-status'].innerText = message;
-	        this._last_message = message;
+	      setTimeout(function () {
+	        _this._panes['live-status'].innerText = message;
+	        _this._last_message = message;
 	        console.log("-- status:", message);
 	      }, 50);
-	      this._last_timer = setTimeout(() => {
-	        this._panes['live-status'].innerText = '';
+	      this._last_timer = setTimeout(function () {
+	        _this._panes['live-status'].innerText = '';
 	      }, clearDelay);
 	    }
 	  },
@@ -5792,39 +5744,39 @@
 	});
 
 	Object.defineProperty(Reader.prototype, 'metadata', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function(data) {
+	  set: function set(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.prototype, 'flow', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
-	    return ( this.options.flow == 'auto' ? 'paginated' : this.options.flow );
+	    return this.options.flow == 'auto' ? 'paginated' : this.options.flow;
 	  }
 	});
 
 	Object.defineProperty(Reader.prototype, 'flowOptions', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 
 	    var flow = this.flow;
-	    if ( ! this.options.flowOptions[flow] ) {
+	    if (!this.options.flowOptions[flow]) {
 	      this.options.flowOptions[flow] = {};
 	    }
-	    if ( ! this.options.flowOptions[flow].text_size ) {
+	    if (!this.options.flowOptions[flow].text_size) {
 	      this.options.flowOptions[flow].text_size = this.options.text_size;
 	    }
-	    if ( ! this.options.flowOptions[flow].scale ) {
+	    if (!this.options.flowOptions[flow].scale) {
 	      this.options.flowOptions[flow].scale = this.options.scale;
 	    }
 
-	    return this.options.flowOptions[flow]
+	    return this.options.flowOptions[flow];
 	  }
 	});
 
@@ -5846,13 +5798,13 @@
 	        // `'topright'`, `'bottomleft'` or `'bottomright'`
 	    },
 
-	    initialize: function (options) {
+	    initialize: function initialize(options) {
 	        setOptions(this, options);
-	        if ( options.container ) {
+	        if (options.container) {
 	            this._container = options.container;
 	            this._locked = true;
 	        }
-	        this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
+	        this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
 	    },
 
 	    /* @section
@@ -5861,13 +5813,13 @@
 	     * @method getRegion: string
 	     * Returns the region of the control.
 	     */
-	    getRegion: function () {
+	    getRegion: function getRegion() {
 	        return this.options.region;
 	    },
 
 	    // @method setRegion(region: string): this
 	    // Sets the region of the control.
-	    setRegion: function (region) {
+	    setRegion: function setRegion(region) {
 	        var reader = this._reader;
 
 	        if (reader) {
@@ -5885,13 +5837,13 @@
 
 	    // @method getContainer: HTMLElement
 	    // Returns the HTMLElement that contains the control.
-	    getContainer: function () {
+	    getContainer: function getContainer() {
 	        return this._container;
 	    },
 
 	    // @method addTo(reader: Map): this
 	    // Adds the control to the given reader.
-	    addTo: function (reader) {
+	    addTo: function addTo(reader) {
 	        this.remove();
 	        this._reader = reader;
 
@@ -5899,7 +5851,7 @@
 
 	        addClass(container, 'cozy-control');
 
-	        if ( ! this._locked ) {
+	        if (!this._locked) {
 	            var region = this.getRegion();
 	            var area = reader.getControlRegion(region);
 	            area.appendChild(container);
@@ -5910,16 +5862,16 @@
 
 	    // @method remove: this
 	    // Removes the control from the reader it is currently active on.
-	    remove: function () {
+	    remove: function remove$$1() {
 	        if (!this._reader) {
 	            return this;
 	        }
 
-	        if (! this._container) {
+	        if (!this._container) {
 	            return this;
 	        }
 
-	        if ( ! this._locked ) {
+	        if (!this._locked) {
 	            remove(this._container);
 	        }
 
@@ -5932,26 +5884,26 @@
 	        return this;
 	    },
 
-	    _refocusOnMap: function (e) {
+	    _refocusOnMap: function _refocusOnMap(e) {
 	        // if reader exists and event is not a keyboard event
 	        if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
 	            this._reader.getContainer().focus();
 	        }
 	    },
 
-	    _className: function(widget) {
-	        var className = [ 'cozy-control' ];
-	        if ( this.options.direction ) {
+	    _className: function _className(widget) {
+	        var className = ['cozy-control'];
+	        if (this.options.direction) {
 	            className.push('cozy-control-' + this.options.direction);
 	        }
-	        if ( widget ) {
+	        if (widget) {
 	            className.push('cozy-control-' + widget);
 	        }
 	        return className.join(' ');
 	    }
 	});
 
-	var control = function (options) {
+	var control = function control(options) {
 	    return new Control(options);
 	};
 
@@ -5973,64 +5925,65 @@
 	Reader.include({
 	    // @method addControl(control: Control): this
 	    // Adds the given control to the reader
-	    addControl: function (control) {
+	    addControl: function addControl(control) {
 	        control.addTo(this);
 	        return this;
 	    },
 
 	    // @method removeControl(control: Control): this
 	    // Removes the given control from the reader
-	    removeControl: function (control) {
+	    removeControl: function removeControl(control) {
 	        control.remove();
 	        return this;
 	    },
 
-	    getControlContainer: function() {
+	    getControlContainer: function getControlContainer() {
 	        var l = 'cozy-';
-	        if ( ! this._controlContainer ) {
-	            this._controlContainer =
-	                create$1('div', l + 'control-container', this._container);
+	        if (!this._controlContainer) {
+	            this._controlContainer = create$1('div', l + 'control-container', this._container);
 	        }
 	        return this._controlContainer;
 	    },
 
-	    getControlRegion: function (target) {
+	    getControlRegion: function getControlRegion(target) {
 
-	        if ( ! this._panes[target] ) {
+	        if (!this._panes[target]) {
 	            // target is dot-delimited string
 	            // first dot is the panel
 	            var parts = target.split('.');
 	            var tmp = [];
 	            var parent = this._container;
 	            var x = 0;
-	            while ( parts.length ) {
+	            while (parts.length) {
 	                var slug = parts.shift();
 	                tmp.push(slug);
 	                var panel = tmp.join(".");
 	                var className = 'cozy-panel-' + slug;
-	                if ( ! this._panes[panel] ) {
+	                if (!this._panes[panel]) {
 	                    this._panes[panel] = create$1('div', className, parent);
 	                }
 	                parent = this._panes[panel];
 	                x += 1;
-	                if ( x > 100 ) { break; }
+	                if (x > 100) {
+	                    break;
+	                }
 	            }
 	        }
 	        return this._panes[target];
 	    },
 
-	    getControlRegion_1: function (target) {
+	    getControlRegion_1: function getControlRegion_1(target) {
 
 	        var tmp = target.split('.');
 	        var region = tmp.shift();
 	        var slot = tmp.pop() || '-slot';
 
 	        var container = this._panes[region];
-	        if ( ! this._panes[target] ) {
+	        if (!this._panes[target]) {
 	            var className = 'cozy-' + region + '--item cozy-slot-' + slot;
-	            if ( ! this._panes[region + '.' + slot] ) {
+	            if (!this._panes[region + '.' + slot]) {
 	                var div = create$1('div', className);
-	                if ( slot == 'left' || slot == 'bottom' ) {
+	                if (slot == 'left' || slot == 'bottom') {
 	                    var childElement = this._panes[region].firstChild;
 	                    this._panes[region].insertBefore(div, childElement);
 	                } else {
@@ -6045,17 +5998,17 @@
 	        return this._panes[target];
 	    },
 
-	    _classify: function(tmp) {
+	    _classify: function _classify(tmp) {
 	        var l = 'cozy-';
 	        var className = [];
-	        for(var i in tmp) {
+	        for (var i in tmp) {
 	            className.push(l + tmp[i]);
 	        }
 	        className = className.join(' ');
 	        return className;
 	    },
 
-	    _clearControlRegion: function () {
+	    _clearControlRegion: function _clearControlRegion() {
 	        for (var i in this._controlRegions) {
 	            remove(this._controlRegions[i]);
 	        }
@@ -6066,25 +6019,22 @@
 	});
 
 	var PageControl = Control.extend({
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
 	      var className = this._className(),
 	          options = this.options;
-	      container = create$1('div', className),
-
-	      this._control  = this._createButton(this._fill(options.html || options.label), this._fill(options.label),
-	              className, container);
+	      container = create$1('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
 	    }
 	    this._bindEvents();
 
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container) {
+	  _createButton: function _createButton(html, title, className, container) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -6099,33 +6049,32 @@
 	    return link;
 	  },
 
-	  _bindEvents: function() {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
 	    disableClickPropagation(this._control);
 	    on(this._control, 'click', stop);
 	    on(this._control, 'click', this._action, this);
 
-	    this._reader.on('reopen', function(data) {
+	    this._reader.on('reopen', function (data) {
 	      // update the button text / titles
 	      var html = self.options.html || self.options.label;
 	      self._control.innerHTML = self._fill(html);
 	      self._control.setAttribute('title', self._fill(self.options.label));
 	      self._control.setAttribute('aria-label', self._fill(self.options.label));
 	    });
-
 	  },
 
-	  _unit: function() {
-	    return ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+	  _unit: function _unit() {
+	    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
 	  },
 
-	  _fill: function(s) {
+	  _fill: function _fill(s) {
 	    var unit = this._unit();
 	    return s.replace(/\$\{unit\}/g, unit);
 	  },
 
-	  _label: function() {
-	    return this.options.label + " " + ( this._reader.options.flow == 'scrolled-doc' ) ? 'Section' : 'Page';
+	  _label: function _label() {
+	    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
 	  },
 
 	  EOT: true
@@ -6139,7 +6088,7 @@
 	    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
 	  },
 
-	  _action: function(e) {
+	  _action: function _action(e) {
 	    this._reader.prev();
 	  }
 	});
@@ -6152,7 +6101,7 @@
 	    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
 	  },
 
-	  _action: function(e) {
+	  _action: function _action(e) {
 	    this._reader.next();
 	  }
 	});
@@ -6162,8 +6111,8 @@
 	    direction: 'first',
 	    label: 'First ${unit}'
 	  },
-	  _action: function(e) {
-	      this._reader.first();
+	  _action: function _action(e) {
+	    this._reader.first();
 	  }
 	});
 
@@ -6172,50 +6121,33 @@
 	    direction: 'last',
 	    label: 'Last ${unit}'
 	  },
-	  _action: function(e) {
-	      this._reader.last();
+	  _action: function _action(e) {
+	    this._reader.last();
 	  }
 	});
 
-	var pageNext = function(options) {
+	var pageNext = function pageNext(options) {
 	  return new PageNext(options);
 	};
 
-	var pagePrevious = function(options) {
+	var pagePrevious = function pagePrevious(options) {
 	  return new PagePrevious(options);
 	};
 
-	var pageFirst = function(options) {
+	var pageFirst = function pageFirst(options) {
 	  return new PageFirst(options);
 	};
 
-	var pageLast = function(options) {
+	var pageLast = function pageLast(options) {
 	  return new PageLast(options);
 	};
 
 	var activeModal;
 
 	// from https://github.com/ghosh/micromodal/blob/master/src/index.js
-	const FOCUSABLE_ELEMENTS = [
-	    'a[href]',
-	    'area[href]',
-	    'input:not([disabled]):not([type="hidden"])',
-	    'select:not([disabled])',
-	    'textarea:not([disabled])',
-	    'button:not([disabled])',
-	    'iframe',
-	    'object',
-	    'embed',
-	    '[contenteditable]',
-	    '[tabindex]:not([tabindex^="-"])'
-	  ];
+	var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 
-	const ACTIONABLE_ELEMENTS = [
-	    'a[href]',
-	    'area[href]',
-	    'input[type="submit"]:not([disabled])',
-	    'button:not([disabled])'
-	  ];
+	var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
 
 	var Modal = Class.extend({
 	  options: {
@@ -6226,44 +6158,34 @@
 	    width: null,
 	    className: {},
 	    actions: null,
-	    callbacks: { onShow: function() {}, onClose: function() {} },
+	    callbacks: { onShow: function onShow() {}, onClose: function onClose() {} },
 	    handlers: {}
 	  },
 
-	  initialize: function (options) {
+	  initialize: function initialize(options) {
 	    options = setOptions(this, options);
-	    this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
+	    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
 	    this._initializedEvents = false;
 	    this.callbacks = assign_1({}, this.options.callbacks);
 	    this.actions = this.options.actions ? assign_1({}, this.options.actions) : null;
 	    this.handlers = assign_1({}, this.options.handlers);
-	    if ( typeof(this.options.className) == 'string' ) {
+	    if (typeof this.options.className == 'string') {
 	      this.options.className = { container: this.options.className };
 	    }
 	  },
 
-	  addTo: function(reader) {
+	  addTo: function addTo(reader) {
 	    this._reader = reader;
 	    var template$$1 = this.options.template;
 
-	    var panelHTML = `<div class="cozy-modal modal-slide ${this.options.region || 'left'}" id="modal-${this._id}" aria-labelledby="modal-${this._id}-title" role="dialog" aria-describedby="modal-${this._id}-content" aria-hidden="true">
-      <div class="modal__overlay" tabindex="-1" data-modal-close>
-        <div class="modal__container ${this.options.className.container ? this.options.className.container : ''}" role="dialog" aria-modal="true" aria-labelledby="modal-${this._id}-title" aria-describedby="modal-${this._id}-content" id="modal-${this._id}-container">
-          <div role="document">
-            <header class="modal__header">
-              <h3 class="modal__title" id="modal-${this._id}-title">${this.options.title}</h3>
-              <button class="modal__close" aria-label="Close modal" aria-controls="modal-${this._id}-container" data-modal-close></button>
-            </header>
-            <main class="modal__content ${this.options.className.main ? this.options.className.main : ''}" id="modal-${this._id}-content">
-              ${template$$1}
-            </main>`;
+	    var panelHTML = '<div class="cozy-modal modal-slide ' + (this.options.region || 'left') + '" id="modal-' + this._id + '" aria-labelledby="modal-' + this._id + '-title" role="dialog" aria-describedby="modal-' + this._id + '-content" aria-hidden="true">\n      <div class="modal__overlay" tabindex="-1" data-modal-close>\n        <div class="modal__container ' + (this.options.className.container ? this.options.className.container : '') + '" role="dialog" aria-modal="true" aria-labelledby="modal-' + this._id + '-title" aria-describedby="modal-' + this._id + '-content" id="modal-' + this._id + '-container">\n          <div role="document">\n            <header class="modal__header">\n              <h3 class="modal__title" id="modal-' + this._id + '-title">' + this.options.title + '</h3>\n              <button class="modal__close" aria-label="Close modal" aria-controls="modal-' + this._id + '-container" data-modal-close></button>\n            </header>\n            <main class="modal__content ' + (this.options.className.main ? this.options.className.main : '') + '" id="modal-' + this._id + '-content">\n              ' + template$$1 + '\n            </main>';
 
-	    if ( this.options.actions ) {
+	    if (this.options.actions) {
 	      panelHTML += '<footer class="modal__footer">';
-	      for(var i in this.options.actions) {
+	      for (var i in this.options.actions) {
 	        var action = this.options.actions[i];
 	        var button_cls = action.className || 'button--default';
-	        panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
+	        panelHTML += '<button id="action-' + this._id + '-' + i + '" class="button button--lg ' + button_cls + '">' + action.label + '</button>';
 	      }
 	      panelHTML += '</footer>';
 	    }
@@ -6280,48 +6202,53 @@
 	    return this;
 	  },
 
-	  _bindEvents: function() {
+	  _bindEvents: function _bindEvents() {
+	    var _this = this;
+
 	    var self = this;
 	    this.onClick = this.onClick.bind(this);
 	    this.onKeydown = this.onKeydown.bind(this);
 	    this.onModalTransition = this.onModalTransition.bind(this);
 
-	    this.modal.addEventListener('transitionend', function() {
-	    }.bind(this));
+	    this.modal.addEventListener('transitionend', function () {}.bind(this));
 
 	    // bind any actions
-	    if ( this.actions ) {
-	      for(var i in this.actions) {
-	        let action = this.actions[i];
-	        let button_id = '#action-' + this._id + '-' + i;
-	        let button = this.modal.querySelector(button_id);
-	        if ( button ) {
-	          on(button, 'click', function(event) {
+	    if (this.actions) {
+	      var _loop = function _loop() {
+	        var action = _this.actions[i];
+	        var button_id = '#action-' + _this._id + '-' + i;
+	        var button = _this.modal.querySelector(button_id);
+	        if (button) {
+	          on(button, 'click', function (event) {
 	            event.preventDefault();
 	            action.callback(event);
-	            if ( action.close ) {
+	            if (action.close) {
 	              self.closeModal();
 	            }
 	          });
 	        }
+	      };
+
+	      for (var i in this.actions) {
+	        _loop();
 	      }
 	    }
 	  },
 
-	  deactivate: function() {
+	  deactivate: function deactivate() {
 	    this.closeModal();
 	  },
 
-	  closeModal: function() {
+	  closeModal: function closeModal() {
 	    this.modal.setAttribute('aria-hidden', 'true');
 	    this.removeEventListeners();
-	    if ( this.activeElement ) {
+	    if (this.activeElement) {
 	      this.activeElement.focus();
 	    }
 	    this.callbacks.onClose(this.modal);
 	  },
 
-	  showModal: function() {
+	  showModal: function showModal() {
 	    this.activeElement = document.activeElement;
 	    this._resize();
 	    this.modal.setAttribute('aria-hidden', 'false');
@@ -6330,14 +6257,14 @@
 	    this.callbacks.onShow(this.modal);
 	  },
 
-	  activate: function() {
+	  activate: function activate() {
 	    return this.showModal();
 	    var self = this;
 	    activeModal = this;
 	    addClass(self._reader._container, 'st-modal-activating');
 	    this._resize();
 	    addClass(this._reader._container, 'st-modal-open');
-	    setTimeout(function() {
+	    setTimeout(function () {
 	      addClass(self._container, 'active');
 	      removeClass(self._reader._container, 'st-modal-activating');
 	      self._container.setAttribute('aria-hidden', 'false');
@@ -6345,31 +6272,31 @@
 	    }, 25);
 	  },
 
-	  addEventListeners: function () {
+	  addEventListeners: function addEventListeners() {
 	    // --- do we need touch listeners?
 	    // this.modal.addEventListener('touchstart', this.onClick)
 	    // this.modal.addEventListener('touchend', this.onClick)
 	    this.modal.addEventListener('click', this.onClick);
 	    document.addEventListener('keydown', this.onKeydown);
-	    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function(event) {
+	    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
 	      this.modal.addEventListener(event, this.onModalTransition);
 	    }.bind(this));
 	  },
 
-	  removeEventListeners: function () {
+	  removeEventListeners: function removeEventListeners() {
 	    this.modal.removeEventListener('touchstart', this.onClick);
 	    this.modal.removeEventListener('click', this.onClick);
-	    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function(event) {
+	    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
 	      this.modal.removeEventListener(event, this.onModalTransition);
 	    }.bind(this));
 	    document.removeEventListener('keydown', this.onKeydown);
 	  },
 
-	  _resize: function() {
+	  _resize: function _resize() {
 	    var container = this._reader._container;
 	    this.container.style.height = container.offsetHeight + 'px';
 	    // console.log("AHOY MODAL", this.container.style.height);
-	    if ( ! this.options.className.container  ) {
+	    if (!this.options.className.container) {
 	      this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
 	    }
 
@@ -6377,39 +6304,45 @@
 	    var footer = this.container.querySelector('footer');
 	    var main = this.container.querySelector('main');
 	    var height = this.container.clientHeight - header.clientHeight;
-	    if ( footer ) {
+	    if (footer) {
 	      height -= footer.clientHeight;
 	    }
 	    main.style.height = height + 'px';
 	  },
 
-	  getFocusableNodes: function() {
-	    const nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
-	    return Object.keys(nodes).map((key) => nodes[key]);
+	  getFocusableNodes: function getFocusableNodes() {
+	    var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
+	    return Object.keys(nodes).map(function (key) {
+	      return nodes[key];
+	    });
 	  },
 
-	  setFocusToFirstNode: function() {
+	  setFocusToFirstNode: function setFocusToFirstNode() {
 	    var focusableNodes = this.getFocusableNodes();
-	    if ( focusableNodes.length ) {
+	    if (focusableNodes.length) {
 	      focusableNodes[0].focus();
 	    } else {
 	      activeModal._container.focus();
 	    }
 	  },
 
-	  getActionableNodes: function() {
-	    const nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
-	    return Object.keys(nodes).map((key) => nodes[key]);
+	  getActionableNodes: function getActionableNodes() {
+	    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
+	    return Object.keys(nodes).map(function (key) {
+	      return nodes[key];
+	    });
 	  },
 
-	  onKeydown: function(event) {
-	    if ( event.keyCode == 27 ) { this.closeModal(); }
-	    if ( event.keyCode == 9 ) {
+	  onKeydown: function onKeydown(event) {
+	    if (event.keyCode == 27) {
+	      this.closeModal();
+	    }
+	    if (event.keyCode == 9) {
 	      this.maintainFocus(event);
 	    }
 	  },
 
-	  onClick: function(event) {
+	  onClick: function onClick(event) {
 
 	    var closeAfterAction = false;
 	    var target = event.target;
@@ -6430,18 +6363,18 @@
 	    // if the target isn't an actionable type, walk the DOM until
 	    // one is found
 	    var actionableNodes = this.getActionableNodes();
-	    while ( actionableNodes.indexOf(target) < 0 && target != this.modal ) {
+	    while (actionableNodes.indexOf(target) < 0 && target != this.modal) {
 	      target = target.parentElement;
 	    }
 
 	    // no target found, punt
-	    if ( actionableNodes.indexOf(target) < 0 ) {
+	    if (actionableNodes.indexOf(target) < 0) {
 	      return;
 	    }
 
 	    if (this.handlers.click) {
-	      for(var selector in this.handlers.click) {
-	        if ( target.matches(selector) ) {
+	      for (var selector in this.handlers.click) {
+	        if (target.matches(selector)) {
 	          closeAfterAction = this.handlers.click[selector](this, target);
 	          break;
 	        }
@@ -6453,32 +6386,32 @@
 	    event.preventDefault();
 	  },
 
-	  onModalTransition: function(event) {
-	    if ( this.modal.getAttribute('aria-hidden') == 'true' ) {
+	  onModalTransition: function onModalTransition(event) {
+	    if (this.modal.getAttribute('aria-hidden') == 'true') {
 	      this._reader.fire('modal-closed');
 	    } else {
 	      this._reader.fire('modal-opened');
 	    }
 	  },
 
-	  on: function(event, selector, handler) {
-	    if (! this.handlers[event] ) {
+	  on: function on$$1(event, selector, handler) {
+	    if (!this.handlers[event]) {
 	      this.handlers[event] = {};
 	    }
-	    if (typeof(selector) == 'function') {
+	    if (typeof selector == 'function') {
 	      handler = selector;
 	      selector = '*';
 	    }
 	    this.handlers[event][selector] = handler;
 	  },
 
-	  fire: function(event) {
-	    if ( this.handlers[event] && this.handlers[event]['*'] ) {
+	  fire: function fire(event) {
+	    if (this.handlers[event] && this.handlers[event]['*']) {
 	      this.handlers[event]['*'](this);
 	    }
 	  },
 
-	  maintainFocus: function(event) {
+	  maintainFocus: function maintainFocus(event) {
 	    var focusableNodes = this.getFocusableNodes();
 	    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
 	    if (event.shiftKey && focusedItemIndex === 0) {
@@ -6492,8 +6425,8 @@
 	    }
 	  },
 
-	  update: function(options) {
-	    if ( options.title ) {
+	  update: function update(options) {
+	    if (options.title) {
 	      this.options.title = options.title;
 	      var titleEl = this.container.querySelector('.modal__title');
 	      titleEl.innerText = options.title;
@@ -6509,24 +6442,22 @@
 	});
 
 	Reader.include({
-	  modal: function (options) {
+	  modal: function modal(options) {
 	    var modal = new Modal(options);
 	    return modal.addTo(this);
 	    // return this;
 	  },
 
-	  popup: function(options) {
-	    options = assign_1({title: 'Info', fraction: 1.0}, options);
+	  popup: function popup(options) {
+	    options = assign_1({ title: 'Info', fraction: 1.0 }, options);
 
-	    if ( ! this._popupModal ) {
+	    if (!this._popupModal) {
 	      this._popupModal = this.modal({
 	        title: options.title,
 	        region: 'full',
 	        template: '<div style="height: 100%; width: 100%"></div>',
 	        fraction: options.fraction || 1.0,
-	        actions: [ 
-	            { label: 'OK', callback: function(event) { }, close: true },
-	        ]
+	        actions: [{ label: 'OK', callback: function callback(event) {}, close: true }]
 	      });
 	    } else {
 	      this._popupModal.update({ title: options.title, fraction: options.fraction });
@@ -6535,7 +6466,7 @@
 	    var iframe;
 	    var modalDiv = this._popupModal.container.querySelector('main > div');
 	    var iframe = modalDiv.querySelector('iframe');
-	    if ( iframe ) {
+	    if (iframe) {
 	      modalDiv.removeChild(iframe);
 	    }
 	    iframe = document.createElement('iframe');
@@ -6543,13 +6474,13 @@
 	    iframe.style.height = '100%';
 	    iframe = modalDiv.appendChild(iframe);
 
-	    if ( options.onLoad ) {
-	      iframe.addEventListener('load', function() {
+	    if (options.onLoad) {
+	      iframe.addEventListener('load', function () {
 	        options.onLoad(iframe.contentDocument, this._popupModal);
 	      }.bind(this));
 	    }
 
-	    if ( options.srcdoc ) {
+	    if (options.srcdoc) {
 	      if ("srcdoc" in iframe) {
 	        iframe.srcdoc = options.srcdoc;
 	      } else {
@@ -6557,12 +6488,11 @@
 	        iframe.contentDocument.write(options.srcdoc);
 	        iframe.contentDocument.close();
 	      }
-	    } else if ( options.href ) {
+	    } else if (options.href) {
 	      iframe.setAttribute('src', options.href);
 	    }
 
 	    this._popupModal.activate();
-
 	  },
 
 	  EOT: true
@@ -6570,11 +6500,11 @@
 
 	var Contents = Control.extend({
 
-	  defaultTemplate: `<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>`,
+	  defaultTemplate: '<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>',
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -6586,7 +6516,7 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
@@ -6600,12 +6530,12 @@
 	    return container;
 	  },
 
-	  _bindEvents() {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
-	    
-	    this._reader.on('updateContents', function(data) {
 
-	      on(this._control, 'click', function(event) {
+	    this._reader.on('updateContents', function (data) {
+
+	      on(this._control, 'click', function (event) {
 	        event.preventDefault();
 	        self._goto_interval = false;
 	        self._reader.tracking.action('contents/open');
@@ -6618,16 +6548,16 @@
 	        region: 'left',
 	        className: 'cozy-modal-contents',
 	        callbacks: {
-	          onShow: function() {},
-	          onClose: function (modal) {
-	          if (self._goto_interval) {
-	            self._reader.rendition.manager.container.setAttribute("tabindex", 0);
-	            self._reader.rendition.manager.container.focus();
+	          onShow: function onShow() {},
+	          onClose: function onClose(modal) {
+	            if (self._goto_interval) {
+	              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+	              self._reader.rendition.manager.container.focus();
+	            }
 	          }
-	        }
-	      }});
+	        } });
 
-	      this._modal.on('click', 'a[href]', function(modal, target) {
+	      this._modal.on('click', 'a[href]', function (modal, target) {
 	        target = target.getAttribute('data-href');
 	        this._goto_interval = true;
 	        this._reader.tracking.action('contents/go/link');
@@ -6635,7 +6565,7 @@
 	        return true;
 	      }.bind(this));
 
-	      this._modal.on('closed', function() {
+	      this._modal.on('closed', function () {
 	        self._reader.tracking.action('contents/close');
 	      });
 
@@ -6654,10 +6584,10 @@
 	      //     s.unshift([chapter_, tabindex + 1, option]);
 	      //   });
 	      // }
-	      var _process = function(items, tabindex, parent) {
-	        items.forEach(function(item) {
+	      var _process = function _process(items, tabindex, parent) {
+	        items.forEach(function (item) {
 	          var option = self._createOption(item, tabindex, parent);
-	          if ( item.subitems && item.subitems.length ) {
+	          if (item.subitems && item.subitems.length) {
 	            _process(item.subitems, tabindex + 1, option);
 	          }
 	        });
@@ -6665,12 +6595,11 @@
 	      _process(data.toc, 0, parent);
 	    }.bind(this));
 	  },
-
-	  _createOption(chapter, tabindex, parent) {
+	  _createOption: function _createOption(chapter, tabindex, parent) {
 	    var option = create$1('li');
-	    if ( chapter.href ) {
+	    if (chapter.href) {
 	      var anchor = create$1('a', null, option);
-	      if ( chapter.html ) {
+	      if (chapter.html) {
 	        anchor.innerHTML = chapter.html;
 	      } else {
 	        anchor.textContent = chapter.label;
@@ -6684,10 +6613,10 @@
 	      span.textContent = chapter.label;
 	    }
 
-	    if ( parent.tagName === 'LI' ) {
+	    if (parent.tagName === 'LI') {
 	      // need to nest
 	      var tmp = parent.querySelector('ul');
-	      if ( ! tmp ) {
+	      if (!tmp) {
 	        tmp = create$1('ul', null, parent);
 	      }
 	      parent = tmp;
@@ -6697,42 +6626,46 @@
 	    return option;
 	  },
 
-	  _setupSkipLink: function() {
-	    if ( ! this.options.skipLink ) { return; }
-	      
+
+	  _setupSkipLink: function _setupSkipLink() {
+	    if (!this.options.skipLink) {
+	      return;
+	    }
+
 	    var target = document.querySelector(this.options.skipLink);
-	    if ( ! target ) { return; }
+	    if (!target) {
+	      return;
+	    }
 
 	    var link = document.createElement('a');
 	    link.textContent = 'Skip to contents';
 	    link.setAttribute('href', '#action-' + this._id);
 
 	    var ul = target.querySelector('ul');
-	    if ( ul ) {
+	    if (ul) {
 	      // add to list
 	      target = document.createElement('li');
 	      ul.appendChild(target);
 	    }
 	    target.appendChild(link);
-	    link.addEventListener('click', function(event) {
+	    link.addEventListener('click', function (event) {
 	      event.preventDefault();
 	      event.stopPropagation();
 	      this._control.click();
 	    }.bind(this));
-
 	  },
 
 	  EOT: true
 	});
 
-	var contents = function(options) {
+	var contents = function contents(options) {
 	  return new Contents(options);
 	};
 
 	// Title + Chapter
 
 	var Title = Control.extend({
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className(),
 	        container = create$1('div', className),
@@ -6761,8 +6694,8 @@
 	    //   }
 	    // })
 
-	    this._reader.on('updateTitle', function(data) {
-	      if ( data ) {
+	    this._reader.on('updateTitle', function (data) {
+	      if (data) {
 	        self._title.textContent = data.title || data.bookTitle;
 	        setOpacity(self._section, 0);
 	        setOpacity(self._divider, 0);
@@ -6773,7 +6706,7 @@
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -6796,14 +6729,14 @@
 	  EOT: true
 	});
 
-	var title = function(options) {
+	var title = function title(options) {
 	  return new Title(options);
 	};
 
 	// Title + Chapter
 
 	var PublicationMetadata = Control.extend({
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className(),
 	        container = create$1('div', className),
@@ -6815,8 +6748,8 @@
 	    this._publisher = create$1('div', 'cozy-publisher', container);
 	    this._rights = create$1('div', 'cozy-rights', container);
 
-	    this._reader.on('updateTitle', function(data) {
-	      if ( data ) {
+	    this._reader.on('updateTitle', function (data) {
+	      if (data) {
 	        self._publisher.textContent = data.publisher;
 	        self._rights.textContent = data.rights;
 	      }
@@ -6825,7 +6758,7 @@
 	    return container;
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('a', className, container);
 	    link.innerHTML = html;
 	    link.href = '#';
@@ -6848,7 +6781,7 @@
 	  EOT: true
 	});
 
-	var publicationMetadata = function(options) {
+	var publicationMetadata = function publicationMetadata(options) {
 	  return new PublicationMetadata(options);
 	};
 
@@ -6858,20 +6791,20 @@
 	    hasThemes: false
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-preferences oi" data-toggle="open" data-glyph="cog" aria-label="Preferences and Settings"></button>`,
+	  defaultTemplate: '<button class="button--sm cozy-preferences oi" data-toggle="open" data-glyph="cog" aria-label="Preferences and Settings"></button>',
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var className = this._className();
 	    var container = create$1('div', className);
 	    var template$$1 = this.options.template || this.defaultTemplate;
 	    var body = new DOMParser().parseFromString(template$$1, "text/html").body;
-	    while ( body.children.length ) {
+	    while (body.children.length) {
 	      container.appendChild(body.children[0]);
 	    }
 
 	    this._control = container.querySelector("[data-toggle=open]");
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 	      self.activate();
 	    }, this);
@@ -6881,33 +6814,33 @@
 	      // template: '<form></form>',
 	      title: 'Preferences',
 	      className: 'cozy-modal-preferences',
-	      actions: [
-	        {
-	          label: 'Save Changes',
-	          callback: function(event) {
-	            self.updatePreferences(event);
-	          }
+	      actions: [{
+	        label: 'Save Changes',
+	        callback: function callback(event) {
+	          self.updatePreferences(event);
 	        }
-	      ],
+	      }],
 	      region: 'right'
 	    });
 
 	    return container;
 	  },
 
-	  activate: function() {
+	  activate: function activate() {
 	    var self = this;
 	    self.initializeForm();
 	    self._modal.activate();
 	  },
 
-	  _createPanel: function() {
-	    if ( this._modal._container.querySelector('form') ) { return; }
+	  _createPanel: function _createPanel() {
+	    if (this._modal._container.querySelector('form')) {
+	      return;
+	    }
 
 	    var template$$1 = '';
 
 	    var possible_fieldsets = [];
-	    if ( this._reader.metadata.layout == 'pre-paginated' ) {
+	    if (this._reader.metadata.layout == 'pre-paginated') {
 	      // different panel
 	      possible_fieldsets.push('Scale');
 	    } else {
@@ -6915,37 +6848,35 @@
 	    }
 	    possible_fieldsets.push('Display');
 
-	    if ( this._reader.rootfiles && this._reader.rootfiles.length > 1 ) {
+	    if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
 	      // this.options.hasPackagePaths = true;
 	      possible_fieldsets.push('Rendition');
 	    }
 
-	    if ( this._reader.options.themes && this._reader.options.themes.length > 0 ) {
+	    if (this._reader.options.themes && this._reader.options.themes.length > 0) {
 	      this.options.hasThemes = true;
 	      possible_fieldsets.push('Theme');
 	    }
 
 	    this._fieldsets = [];
-	    possible_fieldsets.forEach(function(cls) {
+	    possible_fieldsets.forEach(function (cls) {
 	      var fieldset = new Preferences.fieldset[cls](this);
 	      template$$1 += fieldset.template();
 	      this._fieldsets.push(fieldset);
 	    }.bind(this));
 
-	    if ( this.options.fields ) {
+	    if (this.options.fields) {
 	      this.options.hasFields = true;
-	      for(var i in this.options.fields) {
+	      for (var i in this.options.fields) {
 	        var field = this.options.fields[i];
-	        template$$1 += `<fieldset class="custom-field">
-          <legend>${field.label}</legend>
-        `;
-	        for(var j in field.inputs) {
+	        template$$1 += '<fieldset class="custom-field">\n          <legend>' + field.label + '</legend>\n        ';
+	        for (var j in field.inputs) {
 	          var input = field.inputs[j];
 	          var checked = input.value == field.value ? ' checked="checked"' : '';
-	          template$$1 += `<label><input id="preferences-custom-${i}-${j}" type="radio" name="x${field.name}" value="${input.value}" ${checked}/>${input.label}</label>`;
+	          template$$1 += '<label><input id="preferences-custom-' + i + '-' + j + '" type="radio" name="x' + field.name + '" value="' + input.value + '" ' + checked + '/>' + input.label + '</label>';
 	        }
-	        if ( field.hint ) {
-	          template$$1 += `<p class="hint" style="font-size: 90%">${field.hint}</p>`;
+	        if (field.hint) {
+	          template$$1 += '<p class="hint" style="font-size: 90%">' + field.hint + '</p>';
 	        }
 	      }
 	    }
@@ -6971,28 +6902,28 @@
 	    this._form = this._modal._container.querySelector('form');
 	  },
 
-	  initializeForm: function() {
+	  initializeForm: function initializeForm() {
 	    this._createPanel();
-	    this._fieldsets.forEach(function(fieldset) {
+	    this._fieldsets.forEach(function (fieldset) {
 	      fieldset.initializeForm(this._form);
 	    }.bind(this));
 	  },
 
-	  updatePreferences: function(event) {
+	  updatePreferences: function updatePreferences(event) {
 	    event.preventDefault();
 	    var new_options = {};
 	    var saveable_options = {};
-	    this._fieldsets.forEach(function(fieldset) {
+	    this._fieldsets.forEach(function (fieldset) {
 	      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
 	      // assign(new_options, fieldset.updateForm(this._form));
 	      fieldset.updateForm(this._form, new_options, saveable_options);
 	    }.bind(this));
 
-	    if ( this.options.hasFields ) {
-	      for(var i in this.options.fields) {
+	    if (this.options.hasFields) {
+	      for (var i in this.options.fields) {
 	        var field = this.options.fields[i];
-	        var input = this._form.querySelector(`input[name="x${field.name}"]:checked`);
-	        if ( input.value != field.value ) {
+	        var input = this._form.querySelector('input[name="x' + field.name + '"]:checked');
+	        if (input.value != field.value) {
 	          field.value = input.value;
 	          field.callback(field.value);
 	        }
@@ -7001,7 +6932,7 @@
 
 	    this._modal.deactivate();
 
-	    setTimeout(function() {
+	    setTimeout(function () {
 	      this._reader.saveOptions(saveable_options);
 	      this._reader.reopen(new_options);
 	    }.bind(this), 100);
@@ -7016,35 +6947,32 @@
 
 	  options: {},
 
-	  initialize: function (control$$1, options) {
-	      setOptions(this, options);
-	      this._control = control$$1;
-	      this._current = {};
-	      this._id = (new Date()).getTime() + '-' + parseInt(Math.random((new Date()).getTime()) * 1000, 10);
+	  initialize: function initialize(control$$1, options) {
+	    setOptions(this, options);
+	    this._control = control$$1;
+	    this._current = {};
+	    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
 	  },
 
-	  template: function() {
-
-	  },
+	  template: function template$$1() {},
 
 	  EOT: true
-
 
 	});
 
 	Preferences.fieldset.TextSize = Fieldset.extend({
 
-	  initializeForm: function(form) {
-	    if ( ! this._input ) {
-	      this._input = form.querySelector(`#x${this._id}-input`);
-	      this._output = form.querySelector(`#x${this._id}-output`);
-	      this._preview = form.querySelector(`#x${this._id}-preview`);
-	      this._actionReset = form.querySelector(`#x${this._id}-reset`);
+	  initializeForm: function initializeForm(form) {
+	    if (!this._input) {
+	      this._input = form.querySelector('#x' + this._id + '-input');
+	      this._output = form.querySelector('#x' + this._id + '-output');
+	      this._preview = form.querySelector('#x' + this._id + '-preview');
+	      this._actionReset = form.querySelector('#x' + this._id + '-reset');
 
 	      this._input.addEventListener('input', this._updatePreview.bind(this));
 	      this._input.addEventListener('change', this._updatePreview.bind(this));
 
-	      this._actionReset.addEventListener('click', function(event) {
+	      this._actionReset.addEventListener('click', function (event) {
 	        event.preventDefault();
 	        this._input.value = 100;
 	        this._updatePreview();
@@ -7052,43 +6980,30 @@
 	    }
 
 	    var text_size = this._control._reader.options.text_size || 100;
-	    if ( text_size == 'auto' ) { text_size = 100; }
+	    if (text_size == 'auto') {
+	      text_size = 100;
+	    }
 	    this._current.text_size = text_size;
 	    this._input.value = text_size;
 	    this._updatePreview();
 	  },
 
-	  updateForm: function(form, options, saveable) {
+	  updateForm: function updateForm(form, options, saveable) {
 	    // return { text_size: this._input.value };
 	    options.text_size = saveable.text_size = this._input.value;
 	    // options.text_size = this._input.value;
 	    // return ( this._input.value != this._current.text_size );
 	  },
 
-	  template: function() {
-	    return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Text Size</legend>
-        <div class="preview--text_size" id="x${this._id}-preview">
-          ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-        </div>
-        <p style="white-space: no-wrap">
-          <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />
-          <span>T+</span>
-        </p>
-        <p>
-          <span>Text Size: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
-        </p>
-      </fieldset>`;
+	  template: function template$$1() {
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Text Size</legend>\n        <div class="preview--text_size" id="x' + this._id + '-preview">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style="white-space: no-wrap">\n          <span>T-</span>\n          <input name="text_size" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
-	  _updatePreview: function() {
-	    this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
-	    this._output.innerHTML = `${this._input.value}%`;
-	    this._input.setAttribute('aria-valuenow',`${this._input.value}`);
-	    this._input.setAttribute('aria-valuetext',`${this._input.value} percent`);
+	  _updatePreview: function _updatePreview() {
+	    this._preview.style.fontSize = parseInt(this._input.value, 10) / 100 + 'em';
+	    this._output.innerHTML = this._input.value + '%';
+	    this._input.setAttribute('aria-valuenow', '' + this._input.value);
+	    this._input.setAttribute('aria-valuetext', this._input.value + ' percent');
 	  },
 
 	  EOT: true
@@ -7097,20 +7012,19 @@
 
 	Preferences.fieldset.Display = Fieldset.extend({
 
-	  initializeForm: function(form) {
+	  initializeForm: function initializeForm(form) {
 	    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
 	    // if ( flow == 'auto' ) { flow = 'paginated'; }
 
-	    var input = form.querySelector(`#x${this._id}-input-${flow}`);
+	    var input = form.querySelector('#x' + this._id + '-input-' + flow);
 	    input.checked = true;
 	    this._current.flow = flow;
-
 	  },
 
-	  updateForm: function(form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-flow"]:checked`);
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-flow"]:checked');
 	    options.flow = input.value;
-	    if ( options.flow != 'auto' ) {
+	    if (options.flow != 'auto') {
 	      saveable.flow = options.flow;
 	    }
 	    // if ( input.value == 'auto' ) {
@@ -7120,17 +7034,12 @@
 	    // return { flow: input.value };
 	  },
 
-	  template: function() {
+	  template: function template$$1() {
 	    var scrolled_help = '';
-	    if ( this._control._reader.metadata.layout != 'pre-paginated' ) {
+	    if (this._control._reader.metadata.layout != 'pre-paginated') {
 	      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
 	    }
-	    return `<fieldset>
-            <legend>Display</legend>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
-            <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-scrolled-doc" value="scrolled-doc" /> Scroll${scrolled_help}</label>
-          </fieldset>`;
+	    return '<fieldset>\n            <legend>Display</legend>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you\'re reading</small></label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-paginated" value="paginated" /> Page-by-Page</label>\n            <label><input name="x' + this._id + '-flow" type="radio" id="x' + this._id + '-input-scrolled-doc" value="scrolled-doc" /> Scroll' + scrolled_help + '</label>\n          </fieldset>';
 	  },
 
 	  EOT: true
@@ -7139,33 +7048,30 @@
 
 	Preferences.fieldset.Theme = Fieldset.extend({
 
-	  initializeForm: function(form) {
+	  initializeForm: function initializeForm(form) {
 	    var theme = this._control._reader.options.theme || 'default';
 
-	    var input = form.querySelector(`#x${this._id}-input-theme-${theme}`);
+	    var input = form.querySelector('#x' + this._id + '-input-theme-' + theme);
 	    input.checked = true;
 	    this._current.theme = theme;
 	  },
 
-	  updateForm: function(form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-theme"]:checked`);
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-theme"]:checked');
 	    options.theme = saveable.theme = input.value;
 	    // return { theme: input.value };
 	  },
 
-	  template: function() {
-	    var template$$1 = `<fieldset>
-            <legend>Theme</legend>
-            <label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-default" value="default" />Default</label>`;
+	  template: function template$$1() {
+	    var template$$1 = '<fieldset>\n            <legend>Theme</legend>\n            <label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-default" value="default" />Default</label>';
 
-	    this._control._reader.options.themes.forEach(function(theme) {
-	      template$$1 += `<label><input name="x${this._id}-theme" type="radio" id="x${this._id}-input-theme-${theme.klass}" value="${theme.klass}" />${theme.name}</label>`;
+	    this._control._reader.options.themes.forEach(function (theme) {
+	      template$$1 += '<label><input name="x' + this._id + '-theme" type="radio" id="x' + this._id + '-input-theme-' + theme.klass + '" value="' + theme.klass + '" />' + theme.name + '</label>';
 	    }.bind(this));
 
 	    template$$1 += '</fieldset>';
 
 	    return template$$1;
-
 	  },
 
 	  EOT: true
@@ -7174,36 +7080,33 @@
 
 	Preferences.fieldset.Rendition = Fieldset.extend({
 
-	  initializeForm: function(form) {
+	  initializeForm: function initializeForm(form) {
 	    var rootfiles = this._control._reader.rootfiles;
 	    var rootfilePath = this._control._reader.options.rootfilePath;
-	    var expr = rootfilePath ? `[value="${rootfilePath}"]` : ":first-child";
-	    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]${expr}`);
+	    var expr = rootfilePath ? '[value="' + rootfilePath + '"]' : ":first-child";
+	    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]' + expr);
 	    input.checked = true;
 	    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
 	  },
 
-	  updateForm: function(form, options, saveable) {
-	    var input = form.querySelector(`input[name="x${this._id}-rootfilePath"]:checked`);
-	    if ( input.value != this._current.rootfilePath ) {
+	  updateForm: function updateForm(form, options, saveable) {
+	    var input = form.querySelector('input[name="x' + this._id + '-rootfilePath"]:checked');
+	    if (input.value != this._current.rootfilePath) {
 	      options.rootfilePath = input.value;
 	      this._current.rootfilePath = input.value;
 	    }
 	  },
 
-	  template: function() {
-	    var template$$1 = `<fieldset>
-            <legend>Rendition</legend>
-    `;
+	  template: function template$$1() {
+	    var template$$1 = '<fieldset>\n            <legend>Rendition</legend>\n    ';
 
-	    this._control._reader.rootfiles.forEach(function(rootfile, i) {
-	      template$$1 += `<label><input name="x${this._id}-rootfilePath" type="radio" id="x${this._id}-input-rootfilePath-${i}" value="${rootfile.rootfilePath}" />${rootfile.label || rootfile.accessMode || rootfile.rootfilePath}</label>`;
+	    this._control._reader.rootfiles.forEach(function (rootfile, i) {
+	      template$$1 += '<label><input name="x' + this._id + '-rootfilePath" type="radio" id="x' + this._id + '-input-rootfilePath-' + i + '" value="' + rootfile.rootfilePath + '" />' + (rootfile.label || rootfile.accessMode || rootfile.rootfilePath) + '</label>';
 	    }.bind(this));
 
 	    template$$1 += '</fieldset>';
 
 	    return template$$1;
-
 	  },
 
 	  EOT: true
@@ -7212,17 +7115,17 @@
 
 	Preferences.fieldset.Scale = Fieldset.extend({
 
-	  initializeForm: function(form) {
-	    if ( ! this._input ) {
-	      this._input = form.querySelector(`#x${this._id}-input`);
-	      this._output = form.querySelector(`#x${this._id}-output`);
-	      this._preview = form.querySelector(`#x${this._id}-preview > div`);
-	      this._actionReset = form.querySelector(`#x${this._id}-reset`);
+	  initializeForm: function initializeForm(form) {
+	    if (!this._input) {
+	      this._input = form.querySelector('#x' + this._id + '-input');
+	      this._output = form.querySelector('#x' + this._id + '-output');
+	      this._preview = form.querySelector('#x' + this._id + '-preview > div');
+	      this._actionReset = form.querySelector('#x' + this._id + '-reset');
 
 	      this._input.addEventListener('input', this._updatePreview.bind(this));
 	      this._input.addEventListener('change', this._updatePreview.bind(this));
 
-	      this._actionReset.addEventListener('click', function(event) {
+	      this._actionReset.addEventListener('click', function (event) {
 	        event.preventDefault();
 	        this._input.value = 100;
 	        this._updatePreview();
@@ -7230,65 +7133,49 @@
 	    }
 
 	    var scale = this._control._reader.options.scale || 100;
-	    if ( ! scale ) { scale = 100; }
+	    if (!scale) {
+	      scale = 100;
+	    }
 	    this._current.scale = scale;
 	    this._input.value = scale;
 	    this._updatePreview();
 	  },
 
-	  updateForm: function(form, options, saveable) {
+	  updateForm: function updateForm(form, options, saveable) {
 	    // return { text_size: this._input.value };
 	    options.scale = saveable.scale = this._input.value;
 	    // options.text_size = this._input.value;
 	    // return ( this._input.value != this._current.text_size );
 	  },
 
-	  template: function() {
-	    return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Zoom In/Out</legend>
-        <div class="preview--scale" id="x${this._id}-preview" style="overflow: hidden; height: 5rem">
-          <div>
-            ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-          </div>
-        </div>
-        <p style="white-space: no-wrap">
-          <span style="font-size: 150%">⊖<span class="u-screenreader"> Zoom Out</span></span>
-          <input name="scale" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />
-          <span style="font-size: 150%">⊕<span class="u-screenreader">Zoom In </span></span>
-        </p>
-        <p>
-          <span>Scale: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
-        </p>
-      </fieldset>`;
+	  template: function template$$1() {
+	    return '<fieldset class="cozy-fieldset-text_size">\n        <legend>Zoom In/Out</legend>\n        <div class="preview--scale" id="x' + this._id + '-preview" style="overflow: hidden; height: 5rem">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style="white-space: no-wrap">\n          <span style="font-size: 150%">\u2296<span class="u-screenreader"> Zoom Out</span></span>\n          <input name="scale" type="range" id="x' + this._id + '-input" value="100" min="50" max="400" step="10" style="width: 75%; display: inline-block" />\n          <span style="font-size: 150%">\u2295<span class="u-screenreader">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id="x' + this._id + '-output">100</span>\n          <button id="x' + this._id + '-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> \n        </p>\n      </fieldset>';
 	  },
 
-	  _updatePreview: function() {
-	    this._preview.style.transform = `scale(${( parseInt(this._input.value, 10) / 100 )}) translate(0,0)`;
-	    this._output.innerHTML = `${this._input.value}%`;
+	  _updatePreview: function _updatePreview() {
+	    this._preview.style.transform = 'scale(' + parseInt(this._input.value, 10) / 100 + ') translate(0,0)';
+	    this._output.innerHTML = this._input.value + '%';
 	  },
 
 	  EOT: true
 
 	});
 
-	var preferences = function(options) {
+	var preferences = function preferences(options) {
 	  return new Preferences(options);
 	};
 
 	var Widget = Control.extend({
 
-
 	  options: {
-	      // @option region: String = 'topright'
-	      // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-	      // `'topright'`, `'bottomleft'` or `'bottomright'`
+	    // @option region: String = 'topright'
+	    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+	    // `'topright'`, `'bottomleft'` or `'bottomright'`
 	  },
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
-	    if ( container ) ; else {
+	    if (container) ; else {
 
 	      var className = this._className(),
 	          options = this.options;
@@ -7297,10 +7184,9 @@
 
 	      var template = this.options.template || this.defaultTemplate;
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
-
 	    }
 
 	    this._onAddExtra(container);
@@ -7311,15 +7197,17 @@
 	    return container;
 	  },
 
-	  _updateTemplate: function(container) {
+	  _updateTemplate: function _updateTemplate(container) {
 	    var data = this.data();
-	    for(var slot in data) {
-	      if ( data.hasOwnProperty(slot) ) {
+	    for (var slot in data) {
+	      if (data.hasOwnProperty(slot)) {
 	        var value = data[slot];
-	        if ( typeof(value) == "function" ) { value = value(); }
-	        var node = container.querySelector(`[data-slot=${slot}]`);
-	        if ( node ) {
-	          if ( node.hasAttribute('value') ) {
+	        if (typeof value == "function") {
+	          value = value();
+	        }
+	        var node = container.querySelector('[data-slot=' + slot + ']');
+	        if (node) {
+	          if (node.hasAttribute('value')) {
 	            node.setAttribute('value', value);
 	          } else {
 	            node.innerHTML = value;
@@ -7329,26 +7217,27 @@
 	    }
 	  },
 
-	  _updateClass: function(container) {
-	    if ( this.options.className ) {
+	  _updateClass: function _updateClass(container) {
+	    if (this.options.className) {
 	      addClass(container, this.options.className);
 	    }
 	  },
 
-	  _onAddExtra: function() { },
+	  _onAddExtra: function _onAddExtra() {},
 
-	  _bindEvents: function(container) {
+	  _bindEvents: function _bindEvents(container) {
 	    var control$$1 = container.querySelector("[data-toggle=button]");
-	    if ( ! control$$1 ) { return ; }
+	    if (!control$$1) {
+	      return;
+	    }
 	    disableClickPropagation(control$$1);
 	    on(control$$1, 'click', stop);
 	    on(control$$1, 'click', this._action, this);
 	  },
 
-	  _action: function() {
-	  },
+	  _action: function _action() {},
 
-	  data: function() {
+	  data: function data() {
 	    return this.options.data || {};
 	  },
 
@@ -7356,9 +7245,9 @@
 	});
 
 	Widget.Button = Widget.extend({
-	  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+	  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-	  _action: function() {
+	  _action: function _action() {
 	    this.options.onClick(this, this._reader);
 	  },
 
@@ -7366,47 +7255,50 @@
 	});
 
 	Widget.Panel = Widget.extend({
-	  defaultTemplate: `<div><span data-slot="text"></span></div>`,
-
+	  defaultTemplate: '<div><span data-slot="text"></span></div>',
 
 	  EOT: true
 	});
 
 	Widget.Toggle = Widget.extend({
-	  defaultTemplate: `<button data-toggle="button" data-slot="label"></button>`,
+	  defaultTemplate: '<button data-toggle="button" data-slot="label"></button>',
 
-	  _onAddExtra: function(container) {
+	  _onAddExtra: function _onAddExtra(container) {
 	    this.state(this.options.states[0].stateName, container);
 
 	    return container;
 	  },
 
-	  state: function(stateName, container) {
+	  state: function state(stateName, container) {
 	    container = container || this._container;
 	    this._resetState(container);
-	    this._state = this.options.states.filter(function(s) { return s.stateName == stateName })[0];
+	    this._state = this.options.states.filter(function (s) {
+	      return s.stateName == stateName;
+	    })[0];
 	    this._updateClass(container);
 	    this._updateTemplate(container);
 	  },
 
-	  _resetState: function(container) {
-	    if ( ! this._state ) { return; }
-	    if ( this._state.className ) {
+	  _resetState: function _resetState(container) {
+	    if (!this._state) {
+	      return;
+	    }
+	    if (this._state.className) {
 	      removeClass(container, this._state.className);
 	    }
 	  },
 
-	  _updateClass: function(container) {
-	    if ( this._state.className ) {
+	  _updateClass: function _updateClass(container) {
+	    if (this._state.className) {
 	      addClass(container, this._state.className);
 	    }
 	  },
 
-	  _action: function() {
+	  _action: function _action() {
 	    this._state.onClick(this, this._reader);
 	  },
 
-	  data: function() {
+	  data: function data() {
 	    return this._state.data || {};
 	  },
 
@@ -7418,9 +7310,15 @@
 	// }
 
 	var widget = {
-	  button: function(options) { return new Widget.Button(options); },
-	  panel: function(options) { return new Widget.Panel(options); },
-	  toggle: function(options) { return new Widget.Toggle(options); }
+	  button: function button(options) {
+	    return new Widget.Button(options);
+	  },
+	  panel: function panel(options) {
+	    return new Widget.Panel(options);
+	  },
+	  toggle: function toggle(options) {
+	    return new Widget.Toggle(options);
+	  }
 	};
 
 	var Citation = Control.extend({
@@ -7431,11 +7329,10 @@
 
 	  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
 
-
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -7447,18 +7344,17 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
 
-	    this._reader.on('updateContents', function(data) {
+	    this._reader.on('updateContents', function (data) {
 	      self._createPanel();
 	    });
 
-
 	    this._control = container.querySelector("[data-toggle=open]");
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 	      self._modal.activate();
 	    }, this);
@@ -7466,12 +7362,12 @@
 	    return container;
 	  },
 
-	  _action: function() {
+	  _action: function _action() {
 	    var self = this;
 	    self._modal.activate();
 	  },
 
-	  _createButton: function (html, title, className, container, fn) {
+	  _createButton: function _createButton(html, title, className, container, fn) {
 	    var link = create$1('button', className, container);
 	    link.innerHTML = html;
 	    link.title = title;
@@ -7486,50 +7382,42 @@
 	    return link;
 	  },
 
-	  _createPanel: function() {
+	  _createPanel: function _createPanel() {
 	    var self = this;
 
-	    var template = `<form>
-      <fieldset>
-        <legend>Select Citation Format</legend>
-      </fieldset>
-    </form>
-    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>
-    <div class="alert alert-info" id="message" style="display: none"></div>`;
+	    var template = '<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n      </fieldset>\n    </form>\n    <blockquote id="formatted" style="padding: 8px; border-left: 4px solid black; background-color: #fff"></blockquote>\n    <div class="alert alert-info" id="message" style="display: none"></div>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
 	      title: 'Copy Citation to Clipboard',
 	      className: 'cozy-modal-citation',
-	      actions: [
-	        {
-	          label: 'Copy Citation',
-	          callback: function(event) {
-	            document.designMode = "on";
-	            var formatted = self._modal._container.querySelector("#formatted");
+	      actions: [{
+	        label: 'Copy Citation',
+	        callback: function callback(event) {
+	          document.designMode = "on";
+	          var formatted = self._modal._container.querySelector("#formatted");
 
-	            var range = document.createRange();
-	            range.selectNode(formatted);
-	            var sel = window.getSelection();
-	            sel.removeAllRanges();
-	            sel.addRange(range);
+	          var range = document.createRange();
+	          range.selectNode(formatted);
+	          var sel = window.getSelection();
+	          sel.removeAllRanges();
+	          sel.addRange(range);
 
-	            // formatted.select();
+	          // formatted.select();
 
-	            try {
-	              var flag = document.execCommand('copy');
-	            } catch(err) {
-	              console.log("AHOY COPY FAILED", err);
-	            }
-
-	            self._message.innerHTML = 'Success! Citation copied to your clipboard.';
-	            self._message.style.display = 'block';
-	            sel.removeAllRanges();
-	            range.detach();
-	            document.designMode = "off";
+	          try {
+	            var flag = document.execCommand('copy');
+	          } catch (err) {
+	            console.log("AHOY COPY FAILED", err);
 	          }
+
+	          self._message.innerHTML = 'Success! Citation copied to your clipboard.';
+	          self._message.style.display = 'block';
+	          sel.removeAllRanges();
+	          range.detach();
+	          document.designMode = "off";
 	        }
-	      ],
+	      }],
 	      region: 'left',
 	      fraction: 1.0
 	    });
@@ -7539,13 +7427,13 @@
 
 	    var citations = this.options.citations || this._reader.metadata.citations;
 
-	    citations.forEach(function(citation, index) {
+	    citations.forEach(function (citation, index) {
 	      var label = create$1('label', null, fieldset);
 	      var input = create$1('input', null, label);
 	      input.setAttribute('name', 'format');
 	      input.setAttribute('value', citation.format);
 	      input.setAttribute('type', 'radio');
-	      if ( index == 0 ) {
+	      if (index == 0) {
 	        input.setAttribute('checked', 'checked');
 	      }
 	      var text = document.createTextNode(" " + citation.format);
@@ -7555,9 +7443,9 @@
 
 	    this._formatted = this._modal._container.querySelector("#formatted");
 	    this._message = this._modal._container.querySelector("#message");
-	    on(this._form, 'change', function(event) {
+	    on(this._form, 'change', function (event) {
 	      var target = event.target;
-	      if ( target.tagName == 'INPUT' ) {
+	      if (target.tagName == 'INPUT') {
 	        this._initializeForm();
 	      }
 	    }, this);
@@ -7565,15 +7453,15 @@
 	    this._initializeForm();
 	  },
 
-	  _initializeForm: function() {
+	  _initializeForm: function _initializeForm() {
 	    var formatted = this._formatCitation();
 	    this._formatted.innerHTML = formatted;
 	    this._message.style.display = 'none';
 	    this._message.innerHTML = '';
 	  },
 
-	  _formatCitation: function(format) {
-	    if ( format == null ) {
+	  _formatCitation: function _formatCitation(format) {
+	    if (format == null) {
 	      var selected = this._form.querySelector("input:checked");
 	      format = selected.value;
 	    }
@@ -7585,7 +7473,7 @@
 	  EOT: true
 	});
 
-	var citation = function(options) {
+	var citation = function citation(options) {
 	  return new Citation(options);
 	};
 
@@ -7595,16 +7483,12 @@
 	    html: '<span>Search</span>'
 	  },
 
-	  defaultTemplate: `<form class="search">
-    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>
-    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>
-    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
-  </form>`,
+	  defaultTemplate: '<form class="search">\n    <label class="u-screenreader" for="cozy-search-string">Search in this text</label>\n    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>\n    <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>\n  </form>',
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -7616,7 +7500,7 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
@@ -7629,53 +7513,52 @@
 	    this._processing = false;
 	    this._addLocation = false;
 
-	    this._reader.on('ready', function() {
+	    this._reader.on('ready', function () {
 
 	      this._modal = this._reader.modal({
 	        template: '<article></article>',
 	        title: 'Search Results',
 	        className: { container: 'cozy-modal-search' },
-	        region: 'left',
+	        region: 'left'
 	      });
 
-	      this._modal.callbacks.onClose = function() {
-	        if ( self._processing ) {
+	      this._modal.callbacks.onClose = function () {
+	        if (self._processing) {
 	          self._canceled = true;
 	        }
 	      };
 
 	      this._article = this._modal._container.querySelector('article');
 
-	      this._modal.on('click', 'a[href]', function(modal, target) {
+	      this._modal.on('click', 'a[href]', function (modal, target) {
 	        target = target.getAttribute('href');
 	        this._reader.tracking.action('search/go/link');
 	        this._reader.gotoPage(target);
 	        return true;
 	      }.bind(this));
 
-	      this._modal.on('closed', function() {
+	      this._modal.on('closed', function () {
 	        this._reader.tracking.action('contents/close');
 	      }.bind(this));
-
 	    }.bind(this));
 
 	    // only add locations when they've been processed
-	    this._reader.on('updateLocations', function() {
+	    this._reader.on('updateLocations', function () {
 	      this._addLocation = true;
 	    }.bind(this));
 
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 
 	      var searchString = this._container.querySelector("#cozy-search-string").value;
 	      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
 
-	      if ( ! searchString ) {
+	      if (!searchString) {
 	        // just punt
 	        return;
 	      }
 
-	      if ( searchString == this.searchString ) {
+	      if (searchString == this.searchString) {
 	        // cached results
 	        self.openModalResults();
 	      } else {
@@ -7685,14 +7568,11 @@
 	      }
 	    }, this);
 
-	    window.addEventListener('keydown', function(evt) {
-	      let cmd = (evt.ctrlKey ? 1 : 0) |
-	                (evt.altKey ? 2 : 0) |
-	                (evt.shiftKey ? 4 : 0) |
-	                (evt.metaKey ? 8 : 0);
+	    window.addEventListener('keydown', function (evt) {
+	      var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
 
 	      if (cmd === 1 || cmd === 8 || cmd === 5 || cmd === 12) {
-	        if ( evt.keyCode == '70' ) {
+	        if (evt.keyCode == '70') {
 	          // command/control-F
 	          evt.preventDefault();
 	          this._container.querySelector("#cozy-search-string").focus();
@@ -7703,7 +7583,7 @@
 	    return container;
 	  },
 
-	  openModalWaiting: function() {
+	  openModalWaiting: function openModalWaiting() {
 	    this._processing = true;
 	    this._emptyArticle();
 	    var value = this.searchString;
@@ -7711,8 +7591,8 @@
 	    this._modal.activate();
 	  },
 
-	  openModalResults: function() {
-	    if ( this._canceled ) {
+	  openModalResults: function openModalResults() {
+	    if (this._canceled) {
 	      this._canceled = false;
 	      return;
 	    }
@@ -7721,7 +7601,7 @@
 	    this._reader.tracking.action("search/open");
 	  },
 
-	  submitQuery: function() {
+	  submitQuery: function submitQuery() {
 	    var self = this;
 
 	    var url = this.options.searchUrl + encodeURIComponent(this.searchString);
@@ -7729,14 +7609,13 @@
 	    var request = new XMLHttpRequest();
 	    request.open('GET', url, true);
 
-	    request.onload = function() {
+	    request.onload = function () {
 	      if (this.status >= 200 && this.status < 400) {
 	        // Success!
 	        var data = JSON.parse(this.response);
 	        console.log("SEARCH DATA", data);
 
 	        self._data = data;
-
 	      } else {
 	        // We reached our target server, but it returned an error
 
@@ -7746,26 +7625,24 @@
 
 	      self._reader.tracking.action("search/submitQuery");
 	      self.openModalResults();
-
 	    };
 
-	    request.onerror = function() {
+	    request.onerror = function () {
 	      // There was a connection error of some sort
 	      self._data = null;
 	      self.openModalResults();
 	    };
 
 	    request.send();
-
 	  },
 
-	  _emptyArticle: function() {
+	  _emptyArticle: function _emptyArticle() {
 	    while (this._article && this._article.hasChildNodes()) {
 	      this._article.removeChild(this._article.lastChild);
 	    }
 	  },
 
-	  _buildResults: function() {
+	  _buildResults: function _buildResults() {
 	    var self = this;
 	    var content;
 
@@ -7776,22 +7653,22 @@
 	    var reader = this._reader;
 	    reader.annotations.reset();
 
-	    if ( this._data ) {
+	    if (this._data) {
 	      var highlight = true;
 	      if (this._data.highlight_off == "yes") {
 	        highlight = false;
 	      }
-	      if ( this._data.search_results.length ) {
+	      if (this._data.search_results.length) {
 	        content = create$1('ol');
 
-	        this._data.search_results.forEach(function(result) {
+	        this._data.search_results.forEach(function (result) {
 	          var option = create$1('li');
 	          var anchor = create$1('a', null, option);
 	          var cfiRange = "epubcfi(" + result.cfi + ")";
 
 	          if (result.snippet) {
 	            // results for epubs
-	            if ( self._addLocation ) {
+	            if (self._addLocation) {
 	              var loc = reader.locations.locationFromCfi(cfiRange);
 	              var locText = "Location " + loc + " • ";
 	              if (cfiRange.match(/^epubcfi\(page/)) {
@@ -7828,7 +7705,7 @@
 	  EOT: true
 	});
 
-	var search = function(options) {
+	var search = function search(options) {
 	  return new Search(options);
 	};
 
@@ -7841,12 +7718,12 @@
 	    html: '<span class="oi" data-glyph="info">Info</span>'
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open" aria-label="Bibliographic Information"> Info</button>`,
+	  defaultTemplate: '<button class="button--sm cozy-bib-info oi" data-glyph="info" data-toggle="open" aria-label="Bibliographic Information"> Info</button>',
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -7858,18 +7735,17 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
 
-	    this._reader.on('updateContents', function(data) {
+	    this._reader.on('updateContents', function (data) {
 	      self._createPanel();
 	    });
 
-
 	    this._control = container.querySelector("[data-toggle=open]");
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 	      self._modal.activate();
 	    }, this);
@@ -7877,10 +7753,9 @@
 	    return container;
 	  },
 
-	  _createPanel: function() {
+	  _createPanel: function _createPanel() {
 
-	    var template = `<dl>
-    </dl>`;
+	    var template = '<dl>\n    </dl>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
@@ -7891,27 +7766,20 @@
 
 	    var dl = this._modal._container.querySelector('dl');
 
-	    var metadata_fields = [
-	      [ 'title', 'Title' ],
-	      [ 'creator', 'Author' ],
-	      [ 'pubdate', 'Publication Date' ],
-	      [ 'modified_date', 'Modified Date' ],
-	      [ 'publisher', 'Publisher' ],
-	      [ 'rights', 'Rights' ],
-	      [ 'doi', 'DOI' ],
-	      [ 'description', 'Description' ],
-	    ];
+	    var metadata_fields = [['title', 'Title'], ['creator', 'Author'], ['pubdate', 'Publication Date'], ['modified_date', 'Modified Date'], ['publisher', 'Publisher'], ['rights', 'Rights'], ['doi', 'DOI'], ['description', 'Description']];
 
 	    var metadata = this._reader.metadata;
 
-	    for(var idx in metadata_fields) {
+	    for (var idx in metadata_fields) {
 	      var key = metadata_fields[idx][0];
 	      var label = metadata_fields[idx][1];
-	      if ( metadata[key] ) {
+	      if (metadata[key]) {
 	        var value = metadata[key];
-	        if ( key == 'pubdate' || key == 'modified_date' ) {
+	        if (key == 'pubdate' || key == 'modified_date') {
 	          value = this._formatDate(value);
-	          if ( ! value ) { continue; }
+	          if (!value) {
+	            continue;
+	          }
 	          // value = d.toISOString().slice(0,10); // for YYYY-MM-DD
 	        }
 	        var dt = create$1('dt', 'cozy-bib-info-label', dl);
@@ -7920,12 +7788,11 @@
 	        dd.innerHTML = value;
 	      }
 	    }
-
 	  },
 
-	  _formatDate: function(value) {
+	  _formatDate: function _formatDate(value) {
 	    var match = value.match(/\d{4}/);
-	    if ( match ) {
+	    if (match) {
 	      return match[0];
 	    }
 	    return null;
@@ -7934,7 +7801,7 @@
 	  EOT: true
 	});
 
-	var bibliographicInformation = function(options) {
+	var bibliographicInformation = function bibliographicInformation(options) {
 	  return new BibliographicInformation(options);
 	};
 
@@ -7944,13 +7811,12 @@
 	    html: '<span>Download Book</span>'
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>`,
+	  defaultTemplate: '<button class="button--sm cozy-download oi" data-toggle="open" data-glyph="data-transfer-download"> Download Book</button>',
 
-
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var self = this;
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -7962,18 +7828,17 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
 
-	    this._reader.on('updateContents', function(data) {
+	    this._reader.on('updateContents', function (data) {
 	      self._createPanel();
 	    });
 
-
 	    this._control = container.querySelector("[data-toggle=open]");
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 	      self._modal.activate();
 	    }, this);
@@ -7981,84 +7846,76 @@
 	    return container;
 	  },
 
-	  _createPanel: function() {
+	  _createPanel: function _createPanel() {
 	    var self = this;
 
-	    var template = `<form>
-      <fieldset>
-        <legend>Choose File Format</legend>
-      </fieldset>
-    </form>`;
+	    var template = '<form>\n      <fieldset>\n        <legend>Choose File Format</legend>\n      </fieldset>\n    </form>';
 
 	    this._modal = this._reader.modal({
 	      template: template,
 	      title: 'Download Book',
 	      className: 'cozy-modal-download',
-	      actions: [
-	        {
-	          label: 'Download',
-	          callback: function(event) {
-	            var selected = self._form.querySelector("input:checked");
-	            var href = selected.getAttribute('data-href');
-	            self._configureDownloadForm(href);
-	            self._form.submit();
-	          }
+	      actions: [{
+	        label: 'Download',
+	        callback: function callback(event) {
+	          var selected = self._form.querySelector("input:checked");
+	          var href = selected.getAttribute('data-href');
+	          self._configureDownloadForm(href);
+	          self._form.submit();
 	        }
-	      ],
+	      }],
 	      region: 'left',
 	      fraction: 1.0
 	    });
 
-	    this._form = this._modal._container.querySelector('form');    
+	    this._form = this._modal._container.querySelector('form');
 	    var fieldset = this._form.querySelector('fieldset');
-	    this._reader.options.download_links.forEach(function(link, index) {
+	    this._reader.options.download_links.forEach(function (link, index) {
 	      var label = create$1('label', null, fieldset);
 	      var input = create$1('input', null, label);
 	      input.setAttribute('name', 'format');
 	      input.setAttribute('value', link.format);
 	      input.setAttribute('data-href', link.href);
 	      input.setAttribute('type', 'radio');
-	      if ( index == 0 ) {
+	      if (index == 0) {
 	        input.setAttribute('checked', 'checked');
 	      }
 	      var text = link.format;
-	      if ( link.size ) {
+	      if (link.size) {
 	        text += " (" + link.size + ")";
 	      }
 	      var text = document.createTextNode(" " + text);
 	      label.appendChild(text);
 	    });
-
 	  },
 
-	  _configureDownloadForm: function(href) {
+	  _configureDownloadForm: function _configureDownloadForm(href) {
 	    var self = this;
 	    self._form.setAttribute('method', 'GET');
 	    self._form.setAttribute('action', href);
 	    self._form.setAttribute('target', '_blank');
 	  },
 
-
 	  EOT: true
 	});
 
-	var download = function(options) {
+	var download = function download(options) {
 	  return new Download(options);
 	};
 
 	var Navigator = Control.extend({
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
 	    var container = this._container;
-	    if ( container ) ; else {
+	    if (container) ; else {
 
 	      var className = this._className('navigator'),
 	          options = this.options;
-	      
+
 	      container = create$1('div', className);
 	    }
 	    this._setup(container);
 
-	    this._reader.on('updateLocations', function(locations) {      
+	    this._reader.on('updateLocations', function (locations) {
 	      // if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
 	      //   console.log("AHOY updateLocations NO START", this._reader.currentLocation().then);
 	      //   setTimeout(function() {
@@ -8072,9 +7929,9 @@
 	    return container;
 	  },
 
-	  _setup: function(container) {
+	  _setup: function _setup(container) {
 	    this._control = container.querySelector("input[type=range]");
-	    if ( ! this._control ) {
+	    if (!this._control) {
 	      this._createControl(container);
 	    }
 	    this._background = container.querySelector(".cozy-navigator-range__background");
@@ -8086,55 +7943,52 @@
 	    this._bindEvents();
 	  },
 
-	  _createControl: function (container) {
-	    var template = `<div class="cozy-navigator-range">
-        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>
-        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
-        <div class="cozy-navigator-range__background"></div>
-      </div>
-      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>
-    `;
+	  _createControl: function _createControl(container) {
+	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>\n    ';
 
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
-	    while ( body.children.length ) {
+	    while (body.children.length) {
 	      container.appendChild(body.children[0]);
 	    }
 
 	    this._control = container.querySelector("input[type=range]");
 	  },
 
-	  _bindEvents: function() {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
 
-	    this._control.addEventListener("input", function() {
+	    this._control.addEventListener("input", function () {
 	      self._update();
 	    }, false);
-	    this._control.addEventListener("change", function() { self._action(); }, false);
-	    this._control.addEventListener("mousedown", function(){
-	        self._mouseDown = true;
+	    this._control.addEventListener("change", function () {
+	      self._action();
 	    }, false);
-	    this._control.addEventListener("mouseup", function(){
-	        self._mouseDown = false;
-	    }, false);
-	    this._control.addEventListener("keydown", function(){
+	    this._control.addEventListener("mousedown", function () {
 	      self._mouseDown = true;
 	    }, false);
-	    this._control.addEventListener("keyup", function(){
+	    this._control.addEventListener("mouseup", function () {
+	      self._mouseDown = false;
+	    }, false);
+	    this._control.addEventListener("keydown", function () {
+	      self._mouseDown = true;
+	    }, false);
+	    this._control.addEventListener("keyup", function () {
 	      self._mouseDown = false;
 	    }, false);
 
-	    this._reader.on('relocated', function(location) {
-	      if ( ! self._initiated ) { return; }
-	      if ( ! self._mouseDown ) {
+	    this._reader.on('relocated', function (location) {
+	      if (!self._initiated) {
+	        return;
+	      }
+	      if (!self._mouseDown) {
 	        location = self._reader.currentLocation();
 	        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(self._reader.currentLocation().start.cfi) * 100);
 	        self._update();
 	      }
 	    });
-
 	  },
 
-	  _action: function() {
+	  _action: function _action() {
 	    var value = this._control.value;
 	    var locations = this._reader.locations;
 	    var cfi = locations.cfiFromPercentage(value / 100);
@@ -8142,12 +7996,12 @@
 	    this._reader.gotoPage(cfi);
 	  },
 
-	  _update: function() {
+	  _update: function _update() {
 	    var self = this;
 
 	    var current = this._reader.currentLocation();
-	    if ( ! current || ! current.start ) {
-	      setTimeout(function() {
+	    if (!current || !current.start) {
+	      setTimeout(function () {
 	        this._update();
 	      }.bind(this), 100);
 	      return;
@@ -8165,31 +8019,31 @@
 	    //   this._reader.updateLiveStatus(message);
 	    // }
 
-	    rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+	    rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
 	    self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
 	    this._spanCurrentPercentage.innerHTML = percentage + '%';
-	    if ( current && current.start ) {
+	    if (current && current.start) {
 	      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-	      this._spanCurrentLocation.innerHTML = ( current_location );
+	      this._spanCurrentLocation.innerHTML = current_location;
 
 	      range.setAttribute('aria-valuenow', value);
-	      range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
+	      range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
 
-	      if ( current_location != this._last_reported_location ) {
+	      if (current_location != this._last_reported_location) {
 	        this._last_reported_location = current_location;
-	        var message = `Location ${current_location}; ${percentage}%`;
+	        var message = 'Location ' + current_location + '; ' + percentage + '%';
 	        this._reader.updateLiveStatus(message);
 	      }
 	    }
-	    self._last_delta = self._last_value > value; self._last_value = value;
+	    self._last_delta = self._last_value > value;self._last_value = value;
 	  },
 
-	  _initializeNavigator: function(locations) {
+	  _initializeNavigator: function _initializeNavigator(locations) {
 	    console.log("AHOY updateLocations PROCESSING LOCATION");
 	    this._initiated = true;
 	    this._total = this._reader.locations.total;
-	    if ( this._reader.currentLocation() && this._reader.currentLocation().start ) {
+	    if (this._reader.currentLocation() && this._reader.currentLocation().start) {
 	      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
 	      this._last_value = this._control.value;
 	    } else {
@@ -8199,7 +8053,7 @@
 	    this._spanTotalLocations.innerHTML = this._total;
 
 	    this._update();
-	    setTimeout(function() {
+	    setTimeout(function () {
 	      addClass(this._container, 'initialized');
 	    }.bind(this), 0);
 	  },
@@ -8207,7 +8061,7 @@
 	  EOT: true
 	});
 
-	var navigator$1 = function(options) {
+	var navigator$1 = function navigator(options) {
 	  return new Navigator(options);
 	};
 
@@ -8217,12 +8071,14 @@
 	    html: '<span>View Fullscreen</span>'
 	  },
 
-	  defaultTemplate: `<button class="button--sm cozy-fullscreen oi" data-toggle="open" data-glyph="fullscreen-enter" aria-label="Enter Fullscreen"></button>`,
+	  defaultTemplate: '<button class="button--sm cozy-fullscreen oi" data-toggle="open" data-glyph="fullscreen-enter" aria-label="Enter Fullscreen"></button>',
 
-	  onAdd: function(reader) {
+	  onAdd: function onAdd(reader) {
+	    var _this = this;
+
 	    var self = this;
 	    var container = this._container;
-	    if ( container ) {
+	    if (container) {
 	      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
 	    } else {
 
@@ -8234,13 +8090,13 @@
 	      var template = this.options.template || this.defaultTemplate;
 
 	      var body = new DOMParser().parseFromString(template, "text/html").body;
-	      while ( body.children.length ) {
+	      while (body.children.length) {
 	        container.appendChild(body.children[0]);
 	      }
 	    }
 
 	    this._control = container.querySelector("[data-toggle=open]");
-	    on(this._control, 'click', function(event) {
+	    on(this._control, 'click', function (event) {
 	      event.preventDefault();
 	      self.activate();
 	    }, this);
@@ -8253,37 +8109,37 @@
 	    //   this._fullscreenchangeHandler();
 	    // });
 
-	    this._reader.on('fullscreenchange', (data) => {
-	      this._fullscreenchangeHandler(data.isFullscreen);
+	    this._reader.on('fullscreenchange', function (data) {
+	      _this._fullscreenchangeHandler(data.isFullscreen);
 	    });
 
 	    return container;
 	  },
 
-	  activate: function() {
-	    if ( ! document.fullscreenElement ) {
+	  activate: function activate() {
+	    if (!document.fullscreenElement) {
 	      this._reader.requestFullscreen();
 	    } else {
-	      if ( document.exitFullscreen ) {
+	      if (document.exitFullscreen) {
 	        document.exitFullscreen();
 	      }
 	    }
 	  },
 
-	  _fullscreenchangeHandler: function(isFullscreen) {
+	  _fullscreenchangeHandler: function _fullscreenchangeHandler(isFullscreen) {
 	    if (isFullscreen) {
 	      this._control.dataset.glyph = 'fullscreen-exit';
 	      this._control.setAttribute('aria-label', 'Exit Fullscreen');
 	    } else {
 	      this._control.dataset.glyph = 'fullscreen-enter';
 	      this._control.setAttribute('aria-label', 'Enter Fullscreen');
-	    }    
+	    }
 	  },
 
 	  EOT: true
 	});
 
-	var fullscreen = function(options) {
+	var fullscreen = function fullscreen(options) {
 	  return new Fullscreen(options);
 	};
 
@@ -8332,15 +8188,14 @@
 	Control.Fullscreen = Fullscreen;
 	control.fullscreen = fullscreen;
 
-	var Bus = Evented.extend({
-	});
+	var Bus = Evented.extend({});
 
 	var instance;
-	var bus = function() {
-	  return instance || ( instance = new Bus() );
+	var bus = function bus() {
+	  return instance || (instance = new Bus());
 	};
 
-	var Mixin = {Events: Evented.prototype};
+	var Mixin = { Events: Evented.prototype };
 
 	var isImplemented = function () {
 		var assign = Object.assign, obj;
@@ -21364,6 +21219,7 @@
 							 * @param {View} view
 							 * @memberof Rendition
 							 */
+							view.emit(EVENTS.RENDITION.RENDITION, view.section, view);
 							this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
 						});
 					} else {
@@ -24655,6 +24511,1381 @@
 
 	var path$1 = posix$1;
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var PrefabViews = function () {
+		function PrefabViews(container) {
+			_classCallCheck(this, PrefabViews);
+
+			this.container = container;
+			this._views = [];
+			this.length = 0;
+			this.hidden = false;
+		}
+
+		_createClass(PrefabViews, [{
+			key: 'all',
+			value: function all() {
+				return this._views;
+			}
+		}, {
+			key: 'first',
+			value: function first() {
+				return this._views[0];
+			}
+		}, {
+			key: 'last',
+			value: function last() {
+				return this._views[this._views.length - 1];
+			}
+		}, {
+			key: 'indexOf',
+			value: function indexOf(view) {
+				return this._views.indexOf(view);
+			}
+		}, {
+			key: 'slice',
+			value: function slice() {
+				return this._views.slice.apply(this._views, arguments);
+			}
+		}, {
+			key: 'get',
+			value: function get(i) {
+				return this._views[i];
+			}
+		}, {
+			key: 'append',
+			value: function append(view) {
+				var check = false;
+				this.forEach(function (v) {
+					if (v.section.href == view.section.href) {
+						check = true;
+					}
+				});
+				if (check) {
+					return view;
+				}
+				// if ( check ) { console.log("AHOY views.append WUT", view.section.href)}
+				this._views.push(view);
+				this._views.sort(function (a, b) {
+					return a.section.href > b.section.href ? 1 : b.section.href > a.section.href ? -1 : 0;
+				});
+				if (this.container && view.element.dataset.reused != 'true') {
+					this.container.appendChild(view.element);
+				}
+				this.length++;
+				return view;
+			}
+		}, {
+			key: 'dump',
+			value: function dump() {
+				return this._views.map(function (v) {
+					return v.section.href;
+				});
+			}
+		}, {
+			key: 'prepend',
+			value: function prepend(view) {
+				this._views.unshift(view);
+				if (this.container && view.element.dataset.reused != 'true') {
+					this.container.insertBefore(view.element, this.container.firstChild);
+				}
+				this.length++;
+				return view;
+			}
+		}, {
+			key: 'insert',
+			value: function insert(view, index) {
+				this._views.splice(index, 0, view);
+
+				if (this.container && view.element.dataset.reused != 'true') {
+					if (index < this.container.children.length) {
+						this.container.insertBefore(view.element, this.container.children[index]);
+					} else {
+						this.container.appendChild(view.element);
+					}
+				}
+
+				this.length++;
+				return view;
+			}
+		}, {
+			key: 'remove',
+			value: function remove(view) {
+				var index = this._views.indexOf(view);
+
+				if (index > -1) {
+					this._views.splice(index, 1);
+				}
+
+				this.destroy(view);
+
+				this.length--;
+			}
+		}, {
+			key: 'destroy',
+			value: function destroy(view) {
+				if (view.displayed) {
+					view.destroy();
+				}
+
+				// if(this.container && view.element.dataset.reused != 'true'){
+				// 	 this.container.removeChild(view.element);
+				// }
+				view = null;
+			}
+
+			// Iterators
+
+		}, {
+			key: 'forEach',
+			value: function forEach() {
+				return this._views.forEach.apply(this._views, arguments);
+			}
+		}, {
+			key: 'clear',
+			value: function clear() {
+				// Remove all views
+				var view;
+				var len = this.length;
+
+				if (!this.length) return;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					this.destroy(view);
+				}
+
+				this._views = [];
+				this.length = 0;
+			}
+		}, {
+			key: 'find',
+			value: function find(section) {
+
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed && view.section.index == section.index) {
+						return view;
+					}
+				}
+			}
+		}, {
+			key: 'displayed',
+			value: function displayed() {
+				var displayed = [];
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						displayed.push(view);
+					}
+				}
+				return displayed;
+			}
+		}, {
+			key: 'show',
+			value: function show() {
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.show();
+					}
+				}
+				this.hidden = false;
+			}
+		}, {
+			key: 'hide',
+			value: function hide() {
+				var view;
+				var len = this.length;
+
+				for (var i = 0; i < len; i++) {
+					view = this._views[i];
+					if (view.displayed) {
+						view.hide();
+					}
+				}
+				this.hidden = true;
+			}
+		}]);
+
+		return PrefabViews;
+	}();
+
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+	var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var PrePaginatedContinuousViewManager = function (_ContinuousViewManage) {
+	  _inherits(PrePaginatedContinuousViewManager, _ContinuousViewManage);
+
+	  function PrePaginatedContinuousViewManager(options) {
+	    _classCallCheck$1(this, PrePaginatedContinuousViewManager);
+
+	    var _this = _possibleConstructorReturn(this, (PrePaginatedContinuousViewManager.__proto__ || Object.getPrototypeOf(PrePaginatedContinuousViewManager)).call(this, options));
+
+	    _this.name = "prepaginated";
+
+	    _this._manifest = null;
+	    _this._spine = [];
+	    _this.settings.scale = _this.settings.scale || 1.0;
+	    return _this;
+	  }
+
+	  _createClass$1(PrePaginatedContinuousViewManager, [{
+	    key: "render",
+	    value: function render(element, size) {
+	      var scale = this.settings.scale;
+	      this.settings.scale = null; // we don't want the stage to scale
+	      ContinuousViewManager.prototype.render.call(this, element, size);
+	      // Views array methods
+	      // use prefab views
+	      this.settings.scale = scale;
+	      this.views = new PrefabViews(this.container);
+	    }
+	  }, {
+	    key: "onResized",
+	    value: function onResized(e) {
+	      if (this.resizeTimeout) {
+	        clearTimeout(this.resizeTimeout);
+	      }
+	      console.log("AHOY PREPAGINATED onResized queued");
+	      this.resizeTimeout = setTimeout(function () {
+	        this.resize();
+	        console.log("AHOY PREPAGINATED onResized actual");
+	        this.resizeTimeout = null;
+	      }.bind(this), 500);
+	      // this.resize();
+	    }
+	  }, {
+	    key: "resize",
+	    value: function resize(width, height) {
+
+	      ContinuousViewManager.prototype.resize.call(this, width, height);
+	      this._redrawViews();
+	    }
+	  }, {
+	    key: "_redrawViews",
+	    value: function _redrawViews() {
+	      var self = this;
+	      for (var i = 0; i < self._spine.length; i++) {
+	        var href = self._spine[i];
+	        // // console.log("AHOY DRAWING", href);
+	        var section_ = self._manifest[href];
+	        // // var r = self.container.offsetWidth / section_.viewport.width;
+	        // // var h = Math.floor(dim.height * r);
+	        // var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
+	        // var r = w / section_.viewport.width;
+	        // var h = Math.floor(section_.viewport.height * r);
+
+	        var h, w;
+
+	        var _self$sizeToViewport = self.sizeToViewport(section_);
+
+	        var _self$sizeToViewport2 = _slicedToArray(_self$sizeToViewport, 2);
+
+	        w = _self$sizeToViewport2[0];
+	        h = _self$sizeToViewport2[1];
+
+
+	        var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+	        div.style.width = w + "px";
+	        div.style.height = h + "px";
+	        div.setAttribute('original-height', h);
+	        div.setAttribute('layout-height', h);
+
+	        var view = this.views.find(section_);
+	        if (view) {
+	          view.size(w, h);
+	        }
+	      }
+	    }
+
+	    // RRE - debugging
+
+	  }, {
+	    key: "createView",
+	    value: function createView(section) {
+
+	      var view = this.views.find(section);
+	      if (view) {
+	        return view;
+	      }
+
+	      var w, h;
+
+	      var _sizeToViewport = this.sizeToViewport(section);
+
+	      var _sizeToViewport2 = _slicedToArray(_sizeToViewport, 2);
+
+	      w = _sizeToViewport2[0];
+	      h = _sizeToViewport2[1];
+
+	      var viewSettings = Object.assign({}, this.viewSettings);
+	      viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	      viewSettings.layout.height = h;
+	      viewSettings.layout.columnWidth = w;
+	      var view = new this.View(section, viewSettings);
+	      return view;
+	    }
+	  }, {
+	    key: "display",
+	    value: function display(section, target) {
+	      var self = this;
+	      var promises = [];
+
+	      this.q.clear();
+	      var display = new defer();
+	      var promises = [];
+	      this.faking = {};
+
+	      if (!this._manifest) {
+	        this.emit("building");
+	        self._manifest = {};
+	        var _buildManifest = function _buildManifest(section_) {
+	          self._manifest[section_.href] = false;
+	          if (self.settings.viewports && self.settings.viewports[section_.href]) {
+	            section_.viewport = self.settings.viewports[section_.href];
+	            self._manifest[section_.href] = section_;
+	          } else {
+	            self.q.enqueue(function () {
+	              section_.load(self.request).then(function (contents) {
+	                var meta = contents.querySelector('meta[name="viewport"]');
+	                var value = meta.getAttribute('content');
+	                var tmp = value.split(",");
+	                var key = section_.href;
+	                var idx = self._spine.indexOf(key);
+	                self.emit("building", { index: idx + 1, total: self._spine.length });
+	                section_.viewport = {};
+	                self._manifest[key] = section_;
+	                // self._manifest[key] = { viewport : {} };
+	                // self._manifest[key].index = section_.index;
+	                // self._manifest[key].href = section_.href;
+	                var viewport_width = tmp[0].replace('width=', '');
+	                var viewport_height = tmp[1].replace('height=', '');
+	                if (!viewport_height.match(/^\d+$/)) {
+	                  viewport_width = viewport_height = 'auto';
+	                } else {
+	                  viewport_width = parseInt(viewport_width, 10);
+	                  viewport_height = parseInt(viewport_height, 10);
+	                }
+	                self._manifest[key].viewport.width = viewport_width;
+	                self._manifest[key].viewport.height = viewport_height;
+	                self.faking[key] = self._manifest[key].viewport;
+	              });
+	            });
+	          }
+	        };
+
+	        // can we build a manifest here?
+	        var prev_ = section.prev();
+	        while (prev_) {
+	          self._spine.unshift(prev_.href);
+	          _buildManifest(prev_);
+	          prev_ = prev_.prev();
+	        }
+
+	        self._spine.push(section.href);
+	        _buildManifest(section);
+
+	        var next_ = section.next();
+	        while (next_) {
+	          self._spine.push(next_.href);
+	          _buildManifest(next_);
+	          next_ = next_.next();
+	        }
+
+	        console.log("AHOY PRE-PAGINATED", promises.length);
+	      }
+
+	      var _display = function () {
+
+	        var check = document.querySelector('.epub-view');
+	        if (!check) {
+	          self._max_height = self._max_viewport_height = 0;
+	          self._max_width = self._max_viewport_width = 0;
+	          console.log("AHOY DRAWING", self._spine.length);
+	          for (var i = 0; i < self._spine.length; i++) {
+	            var href = self._spine[i];
+	            var section_ = self._manifest[href];
+	            var w, h;
+
+	            var _self$sizeToViewport3 = self.sizeToViewport(section_);
+
+	            var _self$sizeToViewport4 = _slicedToArray(_self$sizeToViewport3, 2);
+
+	            w = _self$sizeToViewport4[0];
+	            h = _self$sizeToViewport4[1];
+
+
+	            self.container.innerHTML += "<div class=\"epub-view\" ref=\"" + section_.index + "\" data-href=\"" + section_.href + "\" style=\"width: " + w + "px; height: " + h + "px; text-align: center; margin-left: auto; margin-right: auto\"></div>";
+	            var div = self.container.querySelector("div.epub-view[ref=\"" + section_.index + "\"]");
+	            // div.setAttribute('use-')
+	            div.setAttribute('original-height', h);
+	            div.setAttribute('layout-height', h);
+
+	            if (window.debugManager) {
+	              div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e" + section_.href + "%3c/text%3e%3c/svg%3e\")";
+	              var colorR = Math.floor(Math.random() * 100).toString();
+	              var colorG = Math.floor(Math.random() * 100).toString();
+	              var colorB = Math.floor(Math.random() * 100).toString();
+	              div.style.backgroundColor = "#" + colorR + colorG + colorB;
+	            }
+	          }
+	        }
+
+	        // find the <div> with this section
+	        // console.log("AHOY continuous.display START", section.href);
+	        var div = self.container.querySelector("div.epub-view[ref=\"" + section.index + "\"]");
+	        div.scrollIntoView();
+
+	        // this.q.clear();
+	        // return check ? this.update() : this.check();
+	        // var retval = check ? this.update() : this.check();
+	        var retval = this.check();
+	        console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
+	        retval.then(function () {
+	          this.q.clear();
+	          console.log("AHOY MANAGER BUILT");
+	          this.emit("built");
+	          return display.resolve();
+	        }.bind(this));
+
+	        // return DefaultViewManager.prototype.display.call(this, section, target)
+	        //  .then(function () {
+	        //    return this.fill();
+	        //  }.bind(this));
+
+	        return retval;
+	      }.bind(this);
+
+	      // // promises.push(_display);
+	      // while(promises.length) {
+	      //  this.q.enqueue(promises.shift);
+	      // }
+
+	      // console.log("AHOY PREPAGINATED", this.q._q.length);
+	      // this.q.enqueue().then((result) => {
+	      //  display.resolve();
+	      // })
+
+	      var q = function () {
+	        return this.q.enqueue(function (result) {
+	          var waiting = 0;
+	          for (var i = 0; i < self._spine.length; i++) {
+	            var href = self._spine[i];
+	            var has_section = self._manifest[href];
+	            if (has_section == false) {
+	              waiting += 1;
+	            }
+	          }
+	          // console.log("AHOY PRE-PAGINATED WAITING", waiting);
+	          if (waiting == 0) {
+	            return _display();
+	          } else {
+	            q();
+	          }
+	        });
+	      }.bind(this);
+
+	      return q();
+
+	      return display.promise;
+	    }
+	  }, {
+	    key: "_checkStillLoading",
+	    value: function _checkStillLoading() {
+	      this.q.enqueue(function (result) {
+	        var waiting = 0;
+	        for (var i = 0; i < self._spine.length; i++) {
+	          var href = self._spine[i];
+	          var has_section = self._manifest[href];
+	          if (has_section == false) {
+	            waiting += 1;
+	          }
+	        }
+	        console.log("AHOY PRE-PAGINATED WAITING", waiting);
+	        if (waiting == 0) {
+	          return _display();
+	        } else {
+	          q();
+	        }
+	      });
+	    }
+	  }, {
+	    key: "fill",
+	    value: function fill(_full) {
+	      var _this2 = this;
+
+	      var full = _full || new defer();
+
+	      this.q.enqueue(function () {
+	        return _this2._checkStillLoading();
+	      }).then(function (result) {
+	        if (result) {
+	          _this2.fill(full);
+	        } else {
+	          full.resolve();
+	        }
+	      });
+
+	      return full.promise;
+	    }
+	  }, {
+	    key: "fillXX",
+	    value: function fillXX(_full) {
+	      var _this3 = this;
+
+	      var full = _full || new defer();
+
+	      this.q.enqueue(function () {
+	        return _this3.check();
+	      }).then(function (result) {
+	        if (result) {
+	          _this3.fill(full);
+	        } else {
+	          full.resolve();
+	        }
+	      });
+
+	      return full.promise;
+	    }
+	  }, {
+	    key: "moveTo",
+	    value: function moveTo(offset) {
+	      // var bounds = this.stage.bounds();
+	      // var dist = Math.floor(offset.top / bounds.height) * bounds.height;
+	      var distX = 0,
+	          distY = 0;
+
+	      var offsetX = 0,
+	          offsetY = 0;
+
+	      if (!this.isPaginated) {
+	        distY = offset.top;
+	        offsetY = offset.top + this.settings.offset;
+	      } else {
+	        distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
+	        offsetX = distX + this.settings.offset;
+	      }
+
+	      if (distX > 0 || distY > 0) {
+	        this.scrollBy(distX, distY, true);
+	      }
+	    }
+	  }, {
+	    key: "afterResized",
+	    value: function afterResized(view) {
+	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	    }
+
+	    // Remove Previous Listeners if present
+
+	  }, {
+	    key: "removeShownListeners",
+	    value: function removeShownListeners(view) {
+
+	      // view.off("shown", this.afterDisplayed);
+	      // view.off("shown", this.afterDisplayedAbove);
+	      view.onDisplayed = function () {};
+	    }
+	  }, {
+	    key: "add",
+	    value: function add(section) {
+	      var _this4 = this;
+
+	      var view = this.createView(section);
+
+	      this.views.append(view);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        view.expanded = true;
+	      });
+
+	      view.on(EVENTS.VIEWS.AXIS, function (axis) {
+	        _this4.updateAxis(axis);
+	      });
+
+	      // view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+	      view.onResize = this.afterResized.bind(this);
+
+	      return view.display(this.request);
+	    }
+	  }, {
+	    key: "append",
+	    value: function append(section) {
+
+	      var view = this.createView(section);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        view.expanded = true;
+	        // do not do this
+	        // this.counter(bounds); // RRE
+	      });
+
+	      /*
+	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+	        this.updateAxis(axis);
+	      });
+	      */
+
+	      this.views.append(view);
+
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+
+	      return view;
+	    }
+	  }, {
+	    key: "prepend",
+	    value: function prepend(section) {
+	      var _this5 = this;
+
+	      var view = this.createView(section);
+
+	      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
+	        _this5.counter(bounds);
+	        view.expanded = true;
+	      });
+
+	      /*
+	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
+	        this.updateAxis(axis);
+	      });
+	      */
+
+	      this.views.prepend(view);
+
+	      view.onDisplayed = this.afterDisplayed.bind(this);
+
+	      return view;
+	    }
+	  }, {
+	    key: "counter",
+	    value: function counter(bounds) {
+	      // return;
+	      if (this.settings.axis === "vertical") {
+	        // if ( ! this._timer ) {
+	        //  this._timer = setTimeout(function() {
+	        //    this._timer = null;
+	        //    console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        //    this.scrollBy(0, bounds.heightDelta, true);
+	        //    this.x1(`COUNTER ${bounds.heightDelta}`);
+	        //  }.bind(this), 500);
+	        // } else {
+	        //  console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        // }
+	        // console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
+	        this.scrollBy(0, bounds.heightDelta, true);
+	      } else {
+	        this.scrollBy(bounds.widthDelta, 0, true);
+	      }
+	    }
+	  }, {
+	    key: "updateXXX",
+	    value: function updateXXX(_offset) {
+	      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+	      var visibleLength = horizontal ? bounds.width : bounds.height;
+	      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+	      var divs = document.querySelectorAll('.epub-view');
+	      for (var i = 0; i < divs.length; i++) {
+	        var div = divs[i];
+	        var rect = div.getBoundingClientRect();
+	        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+	        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+	        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+	          var section = this._manifest[div.dataset.href];
+	          // if ( ! div.querySelector('iframe') ) {
+	          //  newViews.push(this.append(section))
+	          // }
+	          // var idx = this._spine.indexOf(section.href);
+	          // if ( idx > 0 ) {
+	          //  visible.push(this._manifest[this._spine[idx - 1]]);
+	          // }
+	          // if ( idx < this._spine.length - 1 ) {
+	          //  visible.push(this._manifest[this._spine[idx + 1]]);
+	          // }
+	        }
+	        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+	      }
+	    }
+	  }, {
+	    key: "update",
+	    value: function update(_offset) {
+	      var container = this.bounds();
+	      var views = this.views.all();
+	      var viewsLength = views.length;
+	      var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
+	      var isVisible;
+	      var view;
+
+	      var updating = new defer();
+	      var promises = [];
+	      var queued = {};
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+
+	        isVisible = this.isVisible(view, offset, offset, container);
+	        if (isVisible === true) {
+	          queued[i] = true;
+	        }
+	      }
+
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+	        var isVisible = queued[i];
+	        if (isVisible === true) {
+	          // console.log("visible " + view.index);
+
+	          if (!view.displayed) {
+	            // console.log("AHOY continuous.update !displayed", view.section.href);
+	            var displayed = view.display(this.request).then(function (view) {
+	              view.show();
+	            }, function (err) {
+	              // console.log("AHOY continuous.update ERROR", err);
+	              view.hide();
+	            });
+	            promises.push(displayed);
+	          } else {
+	            // console.log("AHOY continuous.update show", view.section.href);
+	            view.show();
+	          }
+	        } else {
+	          this.q.enqueue(view.destroy.bind(view));
+	          // console.log("hidden " + view.index);
+
+	          clearTimeout(this.trimTimeout);
+	          this.trimTimeout = setTimeout(function () {
+	            this.q.enqueue(this.trim.bind(this));
+	          }.bind(this), 250);
+	        }
+	      }
+
+	      if (promises.length) {
+	        return Promise.all(promises).catch(function (err) {
+	          updating.reject(err);
+	        });
+	      } else {
+	        updating.resolve();
+	        return updating.promise;
+	      }
+	    }
+	  }, {
+	    key: "check",
+	    value: function check(_offsetLeft, _offsetTop) {
+	      var _this6 = this;
+
+	      var checking = new defer();
+	      var newViews = [];
+
+	      var horizontal = this.settings.axis === "horizontal";
+	      var delta = this.settings.offset || 0;
+
+	      if (_offsetLeft && horizontal) {
+	        delta = _offsetLeft;
+	      }
+
+	      if (_offsetTop && !horizontal) {
+	        delta = _offsetTop;
+	      }
+
+	      var bounds = this._bounds; // bounds saved this until resize
+
+	      var rtl = this.settings.direction === "rtl";
+	      var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
+
+	      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
+	      var visibleLength = horizontal ? bounds.width : bounds.height;
+	      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
+
+	      var prePaginated = this.layout.props.name == 'pre-paginated';
+
+	      var adjusted_top = offset - bounds.height * 8;
+	      var adjusted_end = offset + bounds.height * 8;
+	      // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
+
+	      // need to figure out which divs are viewable
+	      var divs = document.querySelectorAll('.epub-view');
+	      var visible = [];
+	      for (var i = 0; i < divs.length; i++) {
+	        var div = divs[i];
+	        var rect = div.getBoundingClientRect();
+	        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
+	        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
+	        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
+	          var section = this._manifest[div.dataset.href];
+	          visible.push(section);
+	          // if ( ! div.querySelector('iframe') ) {
+	          //  newViews.push(this.append(section))
+	          // }
+	          // var idx = this._spine.indexOf(section.href);
+	          // if ( idx > 0 ) {
+	          //  visible.push(this._manifest[this._spine[idx - 1]]);
+	          // }
+	          // if ( idx < this._spine.length - 1 ) {
+	          //  visible.push(this._manifest[this._spine[idx + 1]]);
+	          // }
+	        }
+	        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
+	      }
+
+	      this.__check_visible = visible;
+
+	      var section = visible[0];
+	      if (section && section.index > 0) {
+	        visible.unshift(this._manifest[this._spine[section.index - 1]]);
+	      }
+	      if (section) {
+	        var tmp = this._spine[section.index + 1];
+	        if (tmp) {
+	          visible.push(this._manifest[tmp]);
+	        }
+	      }
+	      // if ( section && section.prev() ) {
+	      //  visible.unshift(section.prev());
+	      // }
+	      // section = visible[visible.length - 1];
+	      // if (section && section.next() ) {
+	      //  visible.push(section.next());
+	      // }
+
+	      for (var i = 0; i < visible.length; i++) {
+	        var section = visible[i];
+	        // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
+	        // if ( div.querySelector('iframe') ) {
+	        //  continue;
+	        // }
+	        newViews.push(this.append(section));
+	      }
+
+	      // let promises = newViews.map((view) => {
+	      //  return view.displayed;
+	      // });
+
+	      var promises = [];
+	      for (var i = 0; i < newViews.length; i++) {
+	        if (newViews[i]) {
+	          promises.push(newViews[i]);
+	        }
+	      }
+
+	      if (newViews.length) {
+	        return Promise.all(promises).then(function () {
+	          // return this.check();
+	          // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
+	          //   // console.log("AHOY check again");
+	          //   return this.check();
+	          // }
+	        }).then(function () {
+	          // Check to see if anything new is on screen after rendering
+	          // console.log("AHOY update again");
+	          return _this6.update(delta);
+	        }, function (err) {
+	          return err;
+	        });
+	      } else {
+	        this.q.enqueue(function () {
+	          this.update();
+	        }.bind(this));
+	        checking.resolve(false);
+	        return checking.promise;
+	      }
+	    }
+	  }, {
+	    key: "trim",
+	    value: function trim() {
+	      var task = new defer();
+	      var displayed = this.views.displayed();
+	      var first = displayed[0];
+	      var last = displayed[displayed.length - 1];
+	      var firstIndex = this.views.indexOf(first);
+	      var lastIndex = this.views.indexOf(last);
+	      var above = this.views.slice(0, firstIndex);
+	      var below = this.views.slice(lastIndex + 1);
+
+	      // Erase all but last above
+	      for (var i = 0; i < above.length - 3; i++) {
+	        if (above[i]) {
+	          // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
+	          this.erase(above[i], above);
+	        }
+	      }
+
+	      // Erase all except first below
+	      for (var j = 3; j < below.length; j++) {
+	        if (below[j]) {
+	          // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
+	          this.erase(below[j]);
+	        }
+	      }
+
+	      task.resolve();
+	      return task.promise;
+	    }
+	  }, {
+	    key: "erase",
+	    value: function erase(view, above) {
+	      //Trim
+
+	      var prevTop;
+	      var prevLeft;
+
+	      if (this.settings.height) {
+	        prevTop = this.container.scrollTop;
+	        prevLeft = this.container.scrollLeft;
+	      } else {
+	        prevTop = window.scrollY;
+	        prevLeft = window.scrollX;
+	      }
+
+	      var bounds = view.bounds();
+
+	      // console.log("AHOY erase", view.section.href, above);
+	      this.views.remove(view);
+
+	      if (above) {
+	        if (this.settings.axis === "vertical") ; else {
+	          this.scrollTo(prevLeft - bounds.width, 0, true);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "addEventListeners",
+	    value: function addEventListeners(stage) {
+
+	      window.addEventListener("unload", function (e) {
+	        this.ignore = true;
+	        // this.scrollTo(0,0);
+	        this.destroy();
+	      }.bind(this));
+
+	      this.addScrollListeners();
+	    }
+	  }, {
+	    key: "addScrollListeners",
+	    value: function addScrollListeners() {
+	      var scroller;
+
+	      this.tick = requestAnimationFrame$1;
+
+	      if (this.settings.height) {
+	        this.prevScrollTop = this.container.scrollTop;
+	        this.prevScrollLeft = this.container.scrollLeft;
+	      } else {
+	        this.prevScrollTop = window.scrollY;
+	        this.prevScrollLeft = window.scrollX;
+	      }
+
+	      this.scrollDeltaVert = 0;
+	      this.scrollDeltaHorz = 0;
+
+	      if (this.settings.height) {
+	        scroller = this.container;
+	        this.scrollTop = this.container.scrollTop;
+	        this.scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scroller = window;
+	        this.scrollTop = window.scrollY;
+	        this.scrollLeft = window.scrollX;
+	      }
+
+	      scroller.addEventListener("scroll", this.onScroll.bind(this));
+	      this._scrolled = debounce_1(this.scrolled.bind(this), 30);
+	      // this.tick.call(window, this.onScroll.bind(this));
+
+	      this.didScroll = false;
+	    }
+	  }, {
+	    key: "removeEventListeners",
+	    value: function removeEventListeners() {
+	      var scroller;
+
+	      if (this.settings.height) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      scroller.removeEventListener("scroll", this.onScroll.bind(this));
+	    }
+	  }, {
+	    key: "onScroll",
+	    value: function onScroll() {
+	      var scrollTop = void 0;
+	      var scrollLeft = void 0;
+	      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+	      if (this.settings.height) {
+	        scrollTop = this.container.scrollTop;
+	        scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scrollTop = window.scrollY * dir;
+	        scrollLeft = window.scrollX * dir;
+	      }
+
+	      this.scrollTop = scrollTop;
+	      this.scrollLeft = scrollLeft;
+
+	      if (!this.ignore) {
+
+	        this._scrolled();
+	      } else {
+	        this.ignore = false;
+	      }
+
+	      this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
+	      this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
+
+	      this.prevScrollTop = scrollTop;
+	      this.prevScrollLeft = scrollLeft;
+
+	      clearTimeout(this.scrollTimeout);
+	      this.scrollTimeout = setTimeout(function () {
+	        this.scrollDeltaVert = 0;
+	        this.scrollDeltaHorz = 0;
+	      }.bind(this), 150);
+
+	      this.didScroll = false;
+	    }
+	  }, {
+	    key: "scrolled",
+	    value: function scrolled() {
+	      this.q.enqueue(function () {
+	        this.check();
+	        this.recenter();
+	        setTimeout(function () {
+	          this.emit(EVENTS.MANAGERS.SCROLLED, {
+	            top: this.scrollTop,
+	            left: this.scrollLeft
+	          });
+	        }.bind(this), 500);
+	      }.bind(this));
+
+	      this.emit(EVENTS.MANAGERS.SCROLL, {
+	        top: this.scrollTop,
+	        left: this.scrollLeft
+	      });
+
+	      clearTimeout(this.afterScrolled);
+	      this.afterScrolled = setTimeout(function () {
+	        this.emit(EVENTS.MANAGERS.SCROLLED, {
+	          top: this.scrollTop,
+	          left: this.scrollLeft
+	        });
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "next",
+	    value: function next() {
+
+	      var dir = this.settings.direction;
+	      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+	      delta = this.container.offsetHeight / this.settings.scale;
+
+	      if (!this.views.length) return;
+
+	      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+	        this.scrollBy(delta, 0, true);
+	      } else {
+
+	        // this.scrollBy(0, this.layout.height, true);
+	        this.scrollBy(0, delta, true);
+	      }
+
+	      this.q.enqueue(function () {
+	        this.check();
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "prev",
+	    value: function prev() {
+
+	      var dir = this.settings.direction;
+	      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
+
+	      if (!this.views.length) return;
+
+	      if (this.isPaginated && this.settings.axis === "horizontal") {
+
+	        this.scrollBy(-delta, 0, true);
+	      } else {
+
+	        this.scrollBy(0, -this.layout.height, true);
+	      }
+
+	      this.q.enqueue(function () {
+	        this.check();
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "updateAxis",
+	    value: function updateAxis(axis, forceUpdate) {
+
+	      if (!this.isPaginated) {
+	        axis = "vertical";
+	      }
+
+	      if (!forceUpdate && axis === this.settings.axis) {
+	        return;
+	      }
+
+	      this.settings.axis = axis;
+
+	      this.stage && this.stage.axis(axis);
+
+	      this.viewSettings.axis = axis;
+
+	      if (this.mapping) {
+	        this.mapping.axis(axis);
+	      }
+
+	      if (this.layout) {
+	        if (axis === "vertical") {
+	          this.layout.spread("none");
+	        } else {
+	          this.layout.spread(this.layout.settings.spread);
+	        }
+	      }
+
+	      if (axis === "vertical") {
+	        this.settings.infinite = true;
+	      } else {
+	        this.settings.infinite = false;
+	      }
+	    }
+	  }, {
+	    key: "recenter",
+	    value: function recenter() {
+	      var wrapper = this.container.parentElement;
+	      var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
+	      wrapper.scrollLeft = w3;
+	    }
+	  }, {
+	    key: "sizeToViewport",
+	    value: function sizeToViewport(section) {
+	      var h = this.layout.height;
+	      // reduce to 80% to avoid hacking epubjs/layout.js
+	      var w = this.layout.columnWidth * 0.8 * this.settings.scale;
+	      if (section.viewport.height != 'auto') {
+	        if (this.layout.columnWidth > section.viewport.width) {
+	          w = section.viewport.width * this.settings.scale;
+	        }
+	        var r = w / section.viewport.width;
+	        h = Math.floor(section.viewport.height * r);
+	      }
+	      return [w, h];
+	    }
+	  }, {
+	    key: "sizeToViewport_X",
+	    value: function sizeToViewport_X(section) {
+	      var h = this.layout.height;
+	      var w = this.layout.columnWidth * 0.80;
+
+	      if (section.viewport.height != 'auto') {
+
+	        var r = w / section.viewport.width;
+	        h = section.viewport.height * r;
+	        var f = 1 / 0.60;
+	        var m = Math.min(f * this.layout.height / h, 1.0);
+	        console.log("AHOY SHRINKING", "( " + f + " * " + this.layout.height + " ) / " + h + " = " + m + " :: " + h * m);
+	        h *= m;
+
+	        h *= this.settings.scale;
+	        if (h > section.viewport.height) {
+	          h = section.viewport.height;
+	        }
+
+	        r = h / section.viewport.height;
+	        w = section.viewport.width * r;
+
+	        h = Math.floor(h);
+	        w = Math.floor(w);
+	      }
+	      return [w, h];
+	    }
+	  }, {
+	    key: "scale",
+	    value: function scale(_scale) {
+	      var self = this;
+	      this.settings.scale = _scale;
+	      var current = this.currentLocation();
+	      var index = -1;
+	      if (current[0]) {
+	        index = current[0].index;
+	      }
+
+	      this.views.hide();
+	      this.views.clear();
+	      this._redrawViews();
+	      this.views.show();
+	      setTimeout(function () {
+	        console.log("AHOY JUMPING TO", index);
+	        if (index > -1) {
+	          var div = self.container.querySelector("div.epub-view[ref=\"" + index + "\"]");
+	          div.scrollIntoView(true);
+	        }
+	        this.check().then(function () {
+	          this.onScroll();
+	        }.bind(this));
+	      }.bind(this), 0);
+	    }
+	  }, {
+	    key: "resetScale",
+	    value: function resetScale() {
+	      // NOOP
+	    }
+	  }]);
+
+	  return PrePaginatedContinuousViewManager;
+	}(ContinuousViewManager);
+
+	PrePaginatedContinuousViewManager.toString = function () {
+	  return 'prepaginated';
+	};
+
+	var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn$1(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits$1(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ReusableIframeView = function (_IframeView) {
+	    _inherits$1(ReusableIframeView, _IframeView);
+
+	    function ReusableIframeView(section, options) {
+	        _classCallCheck$2(this, ReusableIframeView);
+
+	        return _possibleConstructorReturn$1(this, (ReusableIframeView.__proto__ || Object.getPrototypeOf(ReusableIframeView)).call(this, section, options));
+	        // this._layout.height = null;
+	    }
+
+	    _createClass$2(ReusableIframeView, [{
+	        key: "container",
+	        value: function container(axis) {
+	            var check = document.querySelector("div[ref='" + this.index + "']");
+	            if (check) {
+	                check.dataset.reused = 'true';
+	                return check;
+	            }
+
+	            var element = document.createElement("div");
+
+	            element.classList.add("epub-view");
+
+	            // this.element.style.minHeight = "100px";
+	            element.style.height = "0px";
+	            element.style.width = "0px";
+	            element.style.overflow = "hidden";
+	            element.style.position = "relative";
+	            element.style.display = "block";
+
+	            if (axis && axis == "horizontal") {
+	                element.style.flex = "none";
+	            } else {
+	                element.style.flex = "initial";
+	            }
+
+	            return element;
+	        }
+	    }, {
+	        key: "create",
+	        value: function create() {
+
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
+
+	            if (!this.element) {
+	                this.element = this.createContainer();
+	            }
+
+	            if (this.element.hasAttribute('layout-height')) {
+	                var height = parseInt(this.element.getAttribute('layout-height'), 10);
+	                this._layout_height = height;
+	            }
+
+	            this.iframe = this.element.querySelector("iframe");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
+
+	            this.iframe = document.createElement("iframe");
+	            this.iframe.id = this.id;
+	            this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
+	            this.iframe.style.overflow = "hidden";
+	            this.iframe.seamless = "seamless";
+	            // Back up if seamless isn't supported
+	            this.iframe.style.border = "none";
+
+	            this.iframe.setAttribute("enable-annotation", "true");
+
+	            this.resizing = true;
+
+	            // this.iframe.style.display = "none";
+	            this.element.style.visibility = "hidden";
+	            this.iframe.style.visibility = "hidden";
+
+	            this.iframe.style.width = "0";
+	            this.iframe.style.height = "0";
+	            this._width = 0;
+	            this._height = 0;
+
+	            this.element.setAttribute("ref", this.index);
+	            this.element.setAttribute("data-href", this.section.href);
+
+	            // this.element.appendChild(this.iframe);
+	            this.added = true;
+
+	            this.elementBounds = bounds$1(this.element);
+
+	            // if(width || height){
+	            //   this.resize(width, height);
+	            // } else if(this.width && this.height){
+	            //   this.resize(this.width, this.height);
+	            // } else {
+	            //   this.iframeBounds = bounds(this.iframe);
+	            // }
+
+
+	            if ("srcdoc" in this.iframe) {
+	                this.supportsSrcdoc = true;
+	            } else {
+	                this.supportsSrcdoc = false;
+	            }
+
+	            if (!this.settings.method) {
+	                this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+	            }
+
+	            return this.iframe;
+	        }
+	    }]);
+
+	    return ReusableIframeView;
+	}(IframeView);
+
 	var isImplemented$3 = function () {
 		var assign = Object.assign, obj;
 		if (typeof assign !== 'function') return false;
@@ -24940,10 +26171,17 @@
 	});
 	var eventEmitter_1$1 = eventEmitter$1.methods;
 
+	var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	window.inVp = inVp;
 
-	class Views$1 {
-	    constructor(container, preloading=false) {
+	var Views$1 = function () {
+	    function Views(container) {
+	        var preloading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+	        _classCallCheck$3(this, Views);
+
 	        this.container = container;
 	        this._views = [];
 	        this.length = 0;
@@ -24956,268 +26194,309 @@
 	        });
 	    }
 
-	    all() {
-	        return this._views;
-	    }
-
-	    first() {
-	        // return this._views[0];
-	        return this.displayed()[0];
-	    }
-
-	    last() {
-	        var d = this.displayed();
-	        return d[d.length - 1];
-	        // return this._views[this._views.length-1];
-	    }
-
-	    prev(view) {
-	        var index = this.indexOf(view);
-	        return this.get(index - 1);
-	    }
-
-	    next(view) {
-	        var index = this.indexOf(view);
-	        return this.get(index + 1);
-	    }
-
-	    indexOf(view) {
-	        return this._views.indexOf(view);
-	    }
-
-	    slice() {
-	        return this._views.slice.apply(this._views, arguments);
-	    }
-
-	    get(i) {
-	        return i < 0 ? null : this._views[i];
-	    }
-
-	    append(view){
-	        this._views.push(view);
-	        if(this.container){
-	            this.container.appendChild(view.element);
-	            var h = this.container.offsetHeight;
-	            // view.observer = ElementObserver(view.element, {
-	            //     container: this.container,
-	            //     onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
-	            //     onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
-	            //     offset: 0, // offset from the edges of the viewport in pixels
-	            //     once: false, // if true, observer is detroyed after first callback is triggered
-	            //     observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
-	            // })
-	            // const { fully, partially, edges } = inVp(view.element, threshold, this.container);
-	            // if ( edges.percentage > 0 ) {
-	            //     this.onEnter(view);
-	            // }
-
-	            this.observer.observe(view.element);
+	    _createClass$3(Views, [{
+	        key: 'all',
+	        value: function all() {
+	            return this._views;
 	        }
-	        this.length++;
-	        return view;
-	    }
+	    }, {
+	        key: 'first',
+	        value: function first() {
+	            // return this._views[0];
+	            return this.displayed()[0];
+	        }
+	    }, {
+	        key: 'last',
+	        value: function last() {
+	            var d = this.displayed();
+	            return d[d.length - 1];
+	            // return this._views[this._views.length-1];
+	        }
+	    }, {
+	        key: 'prev',
+	        value: function prev(view) {
+	            var index = this.indexOf(view);
+	            return this.get(index - 1);
+	        }
+	    }, {
+	        key: 'next',
+	        value: function next(view) {
+	            var index = this.indexOf(view);
+	            return this.get(index + 1);
+	        }
+	    }, {
+	        key: 'indexOf',
+	        value: function indexOf$$1(view) {
+	            return this._views.indexOf(view);
+	        }
+	    }, {
+	        key: 'slice',
+	        value: function slice() {
+	            return this._views.slice.apply(this._views, arguments);
+	        }
+	    }, {
+	        key: 'get',
+	        value: function get(i) {
+	            return i < 0 ? null : this._views[i];
+	        }
+	    }, {
+	        key: 'append',
+	        value: function append(view) {
+	            this._views.push(view);
+	            if (this.container) {
+	                this.container.appendChild(view.element);
+	                var h = this.container.offsetHeight;
+	                // view.observer = ElementObserver(view.element, {
+	                //     container: this.container,
+	                //     onEnter: this.onEnter.bind(this, view), // callback when the element enters the viewport
+	                //     onExit: this.onExit.bind(this, view), // callback when the element exits the viewport
+	                //     offset: 0, // offset from the edges of the viewport in pixels
+	                //     once: false, // if true, observer is detroyed after first callback is triggered
+	                //     observerCollection: null // new ObserverCollection() // Advanced: Used for grouping custom viewport handling
+	                // })
+	                // const { fully, partially, edges } = inVp(view.element, threshold, this.container);
+	                // if ( edges.percentage > 0 ) {
+	                //     this.onEnter(view);
+	                // }
 
-	    handleObserver(entries, observer) {
-	        entries.forEach(entry => {
-	            var div = entry.target;
-	            var index = div.getAttribute('ref');
-	            var view = this.get(index);
-	            if ( entry.isIntersecting && entry.intersectionRatio > 0.0  ) {
-	                if ( ! view.displayed ) {
-	                    console.log("AHOY OBSERVING", entries.length, index, 'onEnter');
-	                    this.onEnter(view);
+	                this.observer.observe(view.element);
+	            }
+	            this.length++;
+	            return view;
+	        }
+	    }, {
+	        key: 'handleObserver',
+	        value: function handleObserver(entries, observer) {
+	            var _this = this;
+
+	            entries.forEach(function (entry) {
+	                var div = entry.target;
+	                var index = div.getAttribute('ref');
+	                var view = _this.get(index);
+	                if (entry.isIntersecting && entry.intersectionRatio > 0.0) {
+	                    if (!view.displayed) {
+	                        console.log("AHOY OBSERVING", entries.length, index, 'onEnter');
+	                        _this.onEnter(view);
+	                    }
+	                } else if (view && view.displayed) {
+	                    console.log("AHOY OBSERVING", entries.length, index, 'onExit');
+	                    _this.onExit(view);
 	                }
-	            } else if ( view && view.displayed ) {
-	                console.log("AHOY OBSERVING", entries.length, index, 'onExit');
-	                this.onExit(view);
-	            }
-	        });
-	    }
-
-	    prepend(view){
-	        this._views.unshift(view);
-	        if(this.container){
-	            this.container.insertBefore(view.element, this.container.firstChild);
+	            });
 	        }
-	        this.length++;
-	        return view;
-	    }
+	    }, {
+	        key: 'prepend',
+	        value: function prepend(view) {
+	            this._views.unshift(view);
+	            if (this.container) {
+	                this.container.insertBefore(view.element, this.container.firstChild);
+	            }
+	            this.length++;
+	            return view;
+	        }
 
-	    // insert(view, index) {
-	    //     this._views.splice(index, 0, view);
+	        // insert(view, index) {
+	        //     this._views.splice(index, 0, view);
 
-	    //     if(this.container){
-	    //         if(index < this.container.children.length){
-	    //             this.container.insertBefore(view.element, this.container.children[index]);
-	    //         } else {
-	    //             this.container.appendChild(view.element);
-	    //         }
-	    //     }
+	        //     if(this.container){
+	        //         if(index < this.container.children.length){
+	        //             this.container.insertBefore(view.element, this.container.children[index]);
+	        //         } else {
+	        //             this.container.appendChild(view.element);
+	        //         }
+	        //     }
 
-	    //     this.length++;
-	    //     return view;
-	    // }
-
-	    // remove(view) {
-	    //     var index = this._views.indexOf(view);
-
-	    //     if(index > -1) {
-	    //         this._views.splice(index, 1);
-	    //     }
-
-
-	    //     this.destroy(view);
-
-	    //     this.length--;
-	    // }
-
-	    destroy(view) {
-	        // if(view.displayed){
-	        //     view.destroy();
+	        //     this.length++;
+	        //     return view;
 	        // }
-	        this.observer.unobserve(view.element);
-	        view.destroy();
 
-	        if(this.container){
-	             this.container.removeChild(view.element);
-	        }
-	        view = null;
-	    }
+	        // remove(view) {
+	        //     var index = this._views.indexOf(view);
 
-	    // Iterators
+	        //     if(index > -1) {
+	        //         this._views.splice(index, 1);
+	        //     }
 
-	    forEach() {
-	        // return this._views.forEach.apply(this._views, arguments);
-	        return this.displayed().forEach.apply(this._views, arguments);
-	    }
 
-	    clear(){
-	        // Remove all views
-	        var view;
-	        var len = this.length;
+	        //     this.destroy(view);
 
-	        if(!this.length) return;
+	        //     this.length--;
+	        // }
 
-	        for (var i = 0; i < len; i++) {
-	            view = this._views[i];
-	            this.destroy(view);
-	        }
-
-	        this._views = [];
-	        this.length = 0;
-	        this.observer.disconnect();
-	    }
-
-	    updateLayout(options) {
-	        var width = options.width;
-	        var height = options.height;
-	        this._views.forEach(function(view) {
-	            view.size(width, height);
-	            if ( view.contents ) {
-	                view.contents.size(width, height);
-	            }
-	        });
-	    }
-
-	    find(section){
-
-	        var view;
-	        var len = this.length;
-
-	        for (var i = 0; i < len; i++) {
-	            view = this._views[i];
-	            // view.displayed
-	            if(view.section.index == section.index) {
-	                return view;
-	            }
-	        }
-
-	    }
-
-	    displayed(){
-	        var displayed = [];
-	        var view;
-	        var len = this.length;
-
-	        for (var i = 0; i < len; i++) {
-	            view = this._views[i];
-	            const { fully, partially, edges } = inVp(view.element, this.container);
-	            if ( ( fully || partially ) && edges.percentage > 0 && view.displayed ) {
-	                displayed.push(view);
-	            }
+	    }, {
+	        key: 'destroy',
+	        value: function destroy(view) {
 	            // if(view.displayed){
-	            //     displayed.push(view);
+	            //     view.destroy();
 	            // }
+	            this.observer.unobserve(view.element);
+	            view.destroy();
+
+	            if (this.container) {
+	                this.container.removeChild(view.element);
+	            }
+	            view = null;
 	        }
-	        return displayed;
-	    }
 
-	    show(){
-	        var view;
-	        var len = this.length;
+	        // Iterators
 
-	        for (var i = 0; i < len; i++) {
-	            view = this._views[i];
-	            if(view.displayed){
-	                view.show();
+	    }, {
+	        key: 'forEach',
+	        value: function forEach() {
+	            // return this._views.forEach.apply(this._views, arguments);
+	            return this.displayed().forEach.apply(this._views, arguments);
+	        }
+	    }, {
+	        key: 'clear',
+	        value: function clear() {
+	            // Remove all views
+	            var view;
+	            var len = this.length;
+
+	            if (!this.length) return;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                this.destroy(view);
+	            }
+
+	            this._views = [];
+	            this.length = 0;
+	            this.observer.disconnect();
+	        }
+	    }, {
+	        key: 'updateLayout',
+	        value: function updateLayout(options) {
+	            var width = options.width;
+	            var height = options.height;
+	            this._views.forEach(function (view) {
+	                view.size(width, height);
+	                if (view.contents) {
+	                    view.contents.size(width, height);
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'find',
+	        value: function find(section) {
+
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                // view.displayed
+	                if (view.section.index == section.index) {
+	                    return view;
+	                }
 	            }
 	        }
-	        this.hidden = false;
-	    }
+	    }, {
+	        key: 'displayed',
+	        value: function displayed() {
+	            var displayed = [];
+	            var view;
+	            var len = this.length;
 
-	    hide(){
-	        var view;
-	        var len = this.length;
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
 
-	        for (var i = 0; i < len; i++) {
-	            view = this._views[i];
-	            if(view.displayed){
-	                // console.log("AHOY VIEWS hide", view.index);
-	                view.hide();
+	                var _inVp = inVp(view.element, this.container),
+	                    fully = _inVp.fully,
+	                    partially = _inVp.partially,
+	                    edges = _inVp.edges;
+
+	                if ((fully || partially) && edges.percentage > 0 && view.displayed) {
+	                    displayed.push(view);
+	                }
+	                // if(view.displayed){
+	                //     displayed.push(view);
+	                // }
+	            }
+	            return displayed;
+	        }
+	    }, {
+	        key: 'show',
+	        value: function show() {
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                if (view.displayed) {
+	                    view.show();
+	                }
+	            }
+	            this.hidden = false;
+	        }
+	    }, {
+	        key: 'hide',
+	        value: function hide() {
+	            var view;
+	            var len = this.length;
+
+	            for (var i = 0; i < len; i++) {
+	                view = this._views[i];
+	                if (view.displayed) {
+	                    // console.log("AHOY VIEWS hide", view.index);
+	                    view.hide();
+	                }
+	            }
+	            this.hidden = true;
+	        }
+	    }, {
+	        key: 'onEnter',
+	        value: function onEnter(view, el, viewportState) {
+	            // console.log("AHOY VIEWS onEnter", view.index, view.preloaded, view.displayed);
+	            var preload = !view.displayed || view.preloaded;
+	            if (!view.displayed) {
+	                // console.log("AHOY SHOULD BE SHOWING", view);
+	                this.emit("view.display", { view: view, viewportState: viewportState });
+	            }
+	            if (this.preloading && preload) {
+	                // can we grab the next one?
+	                this.preload(this.next(view), view.index);
+	                this.preload(this.prev(view), view.index);
+	            }
+	            if (!view.displayed && view.preloaded) {
+	                // console.log("AHOY VIEWS onEnter TOGGLE", view.index, view.preloaded, view.displayed);
+	                view.preloaded = false;
 	            }
 	        }
-	        this.hidden = true;
-	    }
+	    }, {
+	        key: 'preload',
+	        value: function preload(view, index) {
+	            if (view) {
+	                view.preloaded = true;
+	                // console.log("AHOY VIEWS preload", index, ">", view.index);
+	                this.emit("view.preload", { view: view });
+	            }
+	        }
+	    }, {
+	        key: 'onExit',
+	        value: function onExit(view, el, viewportState) {
+	            // console.log("AHOY VIEWS onExit", view.index, view.preloaded);
+	            if (view.preloaded) {
+	                return;
+	            }
+	            view.unload();
+	        }
+	    }]);
 
-	    onEnter(view, el, viewportState) {
-	        // console.log("AHOY VIEWS onEnter", view.index, view.preloaded, view.displayed);
-	        var preload = ! view.displayed || view.preloaded;
-	        if ( ! view.displayed ) {
-	            // console.log("AHOY SHOULD BE SHOWING", view);
-	            this.emit("view.display", { view: view, viewportState: viewportState });
-	        }
-	        if ( this.preloading && preload ) {
-	            // can we grab the next one?
-	            this.preload(this.next(view), view.index);
-	            this.preload(this.prev(view), view.index);
-	        }
-	        if ( ! view.displayed && view.preloaded ) {
-	            // console.log("AHOY VIEWS onEnter TOGGLE", view.index, view.preloaded, view.displayed);
-	            view.preloaded = false;
-	        }
-	    }
-
-	    preload(view, index) {
-	        if ( view ) {
-	            view.preloaded = true;
-	            // console.log("AHOY VIEWS preload", index, ">", view.index);
-	            this.emit("view.preload", { view: view });
-	        }
-	    }
-
-	    onExit(view, el, viewportState) {
-	        // console.log("AHOY VIEWS onExit", view.index, view.preloaded);
-	        if ( view.preloaded ) { return ; }
-	        view.unload();
-	    }
-	}
+	    return Views;
+	}();
 
 	eventEmitter$1(Views$1.prototype);
 
+	var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 	// import inVp from "in-vp";
 
-	class ScrollingContinuousViewManager {
-	  constructor(options) {
+	var ScrollingContinuousViewManager = function () {
+	  function ScrollingContinuousViewManager(options) {
+	    _classCallCheck$4(this, ScrollingContinuousViewManager);
 
 	    this.name = "scrolling";
 	    this.optsSettings = options.settings;
@@ -25259,1111 +26538,1191 @@
 	    // this.settings.maxWidth = 1024;
 	  }
 
-	  render(element, size){
-	    let tag = element.tagName;
+	  _createClass$4(ScrollingContinuousViewManager, [{
+	    key: "render",
+	    value: function render(element, size) {
+	      var tag = element.tagName;
 
-	    if (typeof this.settings.fullsize === "undefined" &&
-	        tag && (tag.toLowerCase() == "body" ||
-	        tag.toLowerCase() == "html")) {
+	      if (typeof this.settings.fullsize === "undefined" && tag && (tag.toLowerCase() == "body" || tag.toLowerCase() == "html")) {
 	        this.settings.fullsize = true;
-	    }
-
-	    if (this.settings.fullsize) {
-	      this.settings.overflow = "visible";
-	      this.overflow = this.settings.overflow;
-	    }
-
-	    this.settings.size = size;
-
-	    // Save the stage
-	    this.stage = new Stage({
-	      width: size.width,
-	      height: size.height,
-	      overflow: this.overflow,
-	      hidden: this.settings.hidden,
-	      axis: this.settings.axis,
-	      fullsize: this.settings.fullsize,
-	      direction: this.settings.direction,
-	      scale: 1.0 // this.settings.scale --- scrolling scales different
-	    });
-
-	    this.stage.attachTo(element);
-
-	    // Get this stage container div
-	    this.container = this.stage.getContainer();
-
-	    // Views array methods
-	    this.views = new Views$1(this.container, this.layout.name == 'pre-paginated');
-
-	    // Calculate Stage Size
-	    this._bounds = this.bounds();
-	    this._stageSize = this.stage.size();
-
-	    var ar = this._stageSize.width / this._stageSize.height;
-	    console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
-
-	    // Set the dimensions for views
-	    this.viewSettings.width = this._stageSize.width;
-	    this.viewSettings.height = this._stageSize.height;
-
-	    // Function to handle a resize event.
-	    // Will only attach if width and height are both fixed.
-	    this.stage.onResize(this.onResized.bind(this));
-
-	    this.stage.onOrientationChange(this.onOrientationChange.bind(this));
-
-	    // Add Event Listeners
-	    this.addEventListeners();
-
-	    // Add Layout method
-	    // this.applyLayoutMethod();
-	    if (this.layout) {
-	      this.updateLayout();
-	    }
-
-	    this.rendered = true;
-	    this._spine = [];
-
-	    this.views.on("view.preload", function({view}) {
-	      view.display(this.request).then(function() {
-	        view.show();
-	      });
-	    }.bind(this));
-
-	    this.views.on("view.display", function({ view, viewportState }) {
-	      // console.log("AHOY VIEWS scrolling.view.display", view.index);
-	      view.display(this.request).then(function() {
-	        view.show();
-	        this.gotoTarget(view);
-	        {
-	          this.emit(EVENTS.MANAGERS.SCROLLED, {
-	            top: this.scrollTop,
-	            left: this.scrollLeft
-	          });
-	          this._forceLocationEvent = false;
-	        }
-	      }.bind(this));
-	    }.bind(this));
-	  }
-
-	  display(section, target) {
-	    var displaying = new defer();
-	    var displayed = displaying.promise;
-
-	    if ( ! this.views.length ) {
-	      this.initializeViews(section);
-	    }
-
-	    // Check if moving to target is needed
-	    if (target === section.href || isNumber(target)) {
-	      target = undefined;
-	    }
-
-	    var current = this.current();
-
-	    this.ignore = false;
-	    var visible = this.views.find(section);
-
-	    // console.log("AHOY scrolling display", section, visible, current, current == visible);
-
-	    if(target) {
-	      this._target = [ visible, target ];
-	    }
-
-	    visible.element.scrollIntoView();
-
-	    if ( visible == current ) {
-	      this.gotoTarget(visible);
-	    }
-
-	    displaying.resolve();
-	    return displayed;
-	  }
-
-	  gotoTarget(view) {
-	    if ( this._target && this._target[0] == view ) {
-	      let offset = view.locationOf(this._target[1]);
-
-	      // -- this does not work; top varies.
-	      // offset.top += view.element.getBoundingClientRect().top;
-
-	      setTimeout(function() {
-	        offset.top += this.container.scrollTop;
-	        this.moveTo(offset);
-	        this._target = null;
-	      }.bind(this), 10);
-
-	      // var prev; var style;
-	      // for(var i = 0; i < view.index; i++) {
-	      //   prev = this.views.get(i);
-	      //   style = window.getComputedStyle(prev.element);
-	      //   offset.top += ( parseInt(style.height) / this.settings.scale ) + parseInt(style.marginBottom) + parseInt(style.marginTop);
-	      //   // offset.top += prev.height() || prev.element.offsetHeight;
-	      // }
-	      // this.moveTo(offset);
-	      // this._target = null;
-	    }
-	  }
-
-	  afterDisplayed(view){
-	    // if ( this._target && this._target[0] == view ) {
-	    //   let offset = view.locationOf(this._target[1]);
-	    //   this.moveTo(offset);
-	    //   this._target = null;
-	    // }
-	    this.emit(EVENTS.MANAGERS.ADDED, view);
-	  }
-
-	  afterResized(view){
-
-	    var bounds = this.container.getBoundingClientRect();
-	    var rect = view.element.getBoundingClientRect();
-
-	    this.ignore = true;
-
-	    // view.element.dataset.resizable = "true"
-	    view.reframeElement();
-
-	    var delta;
-	    if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
-	      delta = view.element.getBoundingClientRect().height - rect.height;
-	      // delta /= this.settings.scale;
-	      // console.log("AHOY afterResized", view.index, this.container.scrollTop, view.element.getBoundingClientRect().height, rect.height, delta / this.settings.scale);
-	      this.container.scrollTop += Math.ceil(delta);
-	    }
-
-	    // console.log("AHOY AFTER RESIZED", view, delta);
-	    this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-	  }
-
-	  moveTo(offset) {
-	    var distX = 0, distY = 0;
-	    distY = offset.top;
-	    // this.scrollTo(distX, this.container.scrollTop + distY, true);
-	    this.scrollTo(distX, distY, false);
-	  }
-
-	  initializeViews(section) {
-
-	    this.ignore = true;
-
-	    // if ( self._spine.length == 0 ) {
-	    //   console.time("AHOY initializeViews CRAWL");
-	    //   // can we build a manifest here?
-	    //   var prev_ = section.prev();
-	    //   while ( prev_ ) {
-	    //     // self._spine.unshift(prev_.href);
-	    //     self._spine.unshift(prev_);
-	    //     prev_ = prev_.prev();
-	    //   }
-
-	    //   self._spine.push(section);
-
-	    //   var next_ = section.next();
-	    //   while ( next_ ) {
-	    //     // self._spine.push(next_.href);
-	    //     self._spine.push(next_);
-	    //     next_ = next_.next();
-	    //   }
-
-	    //   console.timeEnd("AHOY initializeViews CRAWL");
-	    // }
-
-	    // this._spine.forEach(function (section) {
-
-	   this.settings.spine.each(function (section) {
-
-	      // if ( this.layout.name == 'pre-paginated' ) {
-	      //   // do something
-	      //   // viewSettings.layout.height = h;
-	      //   // viewSettings.layout.columnWidth = w;
-
-	      //   var r = this.layout.height / this.layout.columnWidth;
-
-	      //   viewSettings.layout.columnWidth = this.layout.columnWidth * 0.8;
-	      //   viewSettings.layout.height = this.layout.height * ( this.layout.columnWidth)
-
-	      // }
-	      var viewSettings = Object.assign({}, this.viewSettings);
-	      viewSettings.layout = Object.assign( Object.create( Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-	      if ( this.layout.name == 'pre-paginated' ) {
-	        viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
-	        viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
-	        viewSettings.minHeight *= this.settings.xscale;
-	        viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
-	        viewSettings.height = viewSettings.height * this.settings.xscale;
-	        viewSettings.layout.height = viewSettings.height;
-	        // console.log("AHOY new view", section.index, viewSettings.height);
 	      }
 
-	      var view = new this.View(section, viewSettings);
-	      view.onDisplayed = this.afterDisplayed.bind(this);
-	      view.onResize = this.afterResized.bind(this);
-	      view.on(EVENTS.VIEWS.AXIS, (axis) => {
-	        this.updateAxis(axis);
-	      });
-	      this.views.append(view);
-	    }.bind(this));
-
-	    this.ignore = false;
-	  }
-
-	  direction(dir="ltr") {
-	    this.settings.direction = dir;
-
-	    this.stage && this.stage.direction(dir);
-
-	    this.viewSettings.direction = dir;
-
-	    this.updateLayout();
-	  }
-
-	  onOrientationChange(e) {
-
-	  }
-
-	  onResized(e) {
-	    // if ( this.resizeTimeout ) {
-	    //   clearTimeout(this.resizeTimeout);
-	    // } else {
-	    //   // this._current = this.current() && this.current().section;
-	    //   // this._current = { view: this.current(), location: this.currentLocation() };
-	    // }
-	    // this.resizeTimeout = setTimeout(this.resize.bind(this), 100);
-	    this.resize();
-	  }
-
-	  resize(width, height){
-	    let stageSize = this.stage.size(width, height);
-	    if ( this.resizeTimeout ) {
-	      clearTimeout(this.resizeTimeout);
-	      this.resizeTimeout = null;
-	    }
-
-	    this.ignore = true;
-
-	    // For Safari, wait for orientation to catch up
-	    // if the window is a square
-	    this.winBounds = windowBounds();
-	    if (this.orientationTimeout &&
-	        this.winBounds.width === this.winBounds.height) {
-	      // reset the stage size for next resize
-	      this._stageSize = undefined;
-	      return;
-	    }
-
-	    if (this._stageSize &&
-	        this._stageSize.width === stageSize.width &&
-	        this._stageSize.height === stageSize.height ) {
-	      // Size is the same, no need to resize
-	      return;
-	    }
-
-	    this._stageSize = stageSize;
-
-	    this._bounds = this.bounds();
-
-	    // if ( ! this._resizeTarget ) {
-	    //   var current = this.current();
-	    //   if ( current ) {
-	    //     this._resizeTarget = current.section;
-	    //   }
-	    // }
-
-	    this.clear();
-
-	    // Update for new views
-	    this.viewSettings.width = this._stageSize.width;
-	    this.viewSettings.height = this._stageSize.height;
-
-	    this.updateLayout();
-
-	    // var section; var target;
-	    // if ( this._current ) {
-	    //   section = this._current.view.section;
-	    //   target = this._current.location[0].mapping.start;
-	    //   this._current = null;
-	    // } else {
-	    //   section = this._spine[0];
-	    // }
-	    // this.initializeViews(section);
-	    // this.display(section, target);
-
-	    // this.views.updateLayout(this.viewSettings);
-
-	    this.emit(EVENTS.MANAGERS.RESIZED, {
-	      width: this._stageSize.width,
-	      height: this._stageSize.height
-	    });
-	  }
-
-	  updateAxis(axis, forceUpdate) {
-	    if (!this.isPaginated) {
-	      axis = "vertical";
-	    }
-
-	    if (!forceUpdate && axis === this.settings.axis) {
-	      return;
-	    }
-
-	    this.settings.axis = axis;
-
-	    this.stage && this.stage.axis(axis);
-
-	    this.viewSettings.axis = axis;
-
-	    if (this.mapping) {
-	      this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
-	    }
-
-	    if (this.layout) {
-	      this.layout.spread("none");
-	    }
-
-	  }
-
-	  updateFlow(flow) {
-	    this.isPaginated = false;
-	    this.updateAxis("vertical");
-
-	    this.viewSettings.flow = flow;
-
-	    if (!this.settings.overflow) {
-	      this.overflow = this.isPaginated ? "hidden" : "auto";
-	    } else {
-	      this.overflow = this.settings.overflow;
-	    }
-
-	    this.stage && this.stage.overflow(this.overflow);
-
-	    this.updateLayout();
-	  }
-
-	  getContents() {
-	    var contents = [];
-	    if (!this.views) {
-	      return contents;
-	    }
-	    this.views.forEach(function(view){
-	      const viewContents = view && view.contents;
-	      if (viewContents) {
-	        contents.push(viewContents);
+	      if (this.settings.fullsize) {
+	        this.settings.overflow = "visible";
+	        this.overflow = this.settings.overflow;
 	      }
-	    });
-	    return contents;
-	  }
 
-	  current(){
-	    var visible = this.visible();
-	    var view;
-	    if(visible.length){
-	      // Current is the last visible view
-	      var current = null;
-	      for(var i = 0; i < visible.length; i++) {
-	        view = visible[i];
-	        const { fully, partially, edges } = inVp(view.element, this.container);
-	        if ( ! current ) { current = view; current.percentage = edges.percentage; }
-	        else if ( edges.percentage > current.percentage ) {
-	          current = view;
-	          current.percentage = edges.percentage;
-	        }
-	      }
-	      if ( current ) { return current; }
-	      return visible[visible.length-1];
-	    }
-	    return null;
-	  }
+	      this.settings.size = size;
 
-	  visible() {
-	    var visible = [];
-	    var views = this.views.displayed();
-	    var viewsLength = views.length;
-	    var visible = [];
-	    var view;
-
-	    return this.views.displayed();
-
-	    for(var i = 0; i < viewsLength; i++) {
-	      view = views[i];
-	      if ( view.displayed ) {
-	        visible.push(view);
-	      }
-	    }
-
-	    return visible;
-	  }
-
-	  scrollBy(x, y, silent){
-	    let dir = this.settings.direction === "rtl" ? -1 : 1;
-
-	    if(silent) {
-	      this.ignore = true;
-	    }
-
-	    if(!this.settings.fullsize) {
-	      if(x) this.container.scrollLeft += x * dir;
-	      if(y) this.container.scrollTop += y;
-	    } else {
-	      window.scrollBy(x * dir, y * dir);
-	    }
-	    this.scrolled = true;
-	  }
-
-	  scrollTo(x, y, silent) {
-	    if(silent) {
-	      this.ignore = true;
-	    }
-
-	    if(!this.settings.fullsize) {
-	      this.container.scrollLeft = x;
-	      this.container.scrollTop = y;
-	    } else {
-	      window.scrollTo(x,y);
-	    }
-	    this.scrolled = true;
-	  }
-
-	  onScroll() {
-	    let scrollTop;
-	    let scrollLeft;
-
-	    if(!this.settings.fullsize) {
-	      scrollTop = this.container.scrollTop;
-	      scrollLeft = this.container.scrollLeft;
-	    } else {
-	      scrollTop = window.scrollY;
-	      scrollLeft = window.scrollX;
-	    }
-
-	    this.scrollTop = scrollTop;
-	    this.scrollLeft = scrollLeft;
-
-	    if(!this.ignore) {
-	      this.emit(EVENTS.MANAGERS.SCROLL, {
-	        top: scrollTop,
-	        left: scrollLeft
+	      // Save the stage
+	      this.stage = new Stage({
+	        width: size.width,
+	        height: size.height,
+	        overflow: this.overflow,
+	        hidden: this.settings.hidden,
+	        axis: this.settings.axis,
+	        fullsize: this.settings.fullsize,
+	        direction: this.settings.direction,
+	        scale: 1.0 // this.settings.scale --- scrolling scales different
 	      });
 
-	      clearTimeout(this.afterScrolled);
-	      this.afterScrolled = setTimeout(function () {
-	        this.emit(EVENTS.MANAGERS.SCROLLED, {
-	          top: this.scrollTop,
-	          left: this.scrollLeft
+	      this.stage.attachTo(element);
+
+	      // Get this stage container div
+	      this.container = this.stage.getContainer();
+
+	      // Views array methods
+	      this.views = new Views$1(this.container, this.layout.name == 'pre-paginated');
+
+	      // Calculate Stage Size
+	      this._bounds = this.bounds();
+	      this._stageSize = this.stage.size();
+
+	      var ar = this._stageSize.width / this._stageSize.height;
+	      console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
+
+	      // Set the dimensions for views
+	      this.viewSettings.width = this._stageSize.width;
+	      this.viewSettings.height = this._stageSize.height;
+
+	      // Function to handle a resize event.
+	      // Will only attach if width and height are both fixed.
+	      this.stage.onResize(this.onResized.bind(this));
+
+	      this.stage.onOrientationChange(this.onOrientationChange.bind(this));
+
+	      // Add Event Listeners
+	      this.addEventListeners();
+
+	      // Add Layout method
+	      // this.applyLayoutMethod();
+	      if (this.layout) {
+	        this.updateLayout();
+	      }
+
+	      this.rendered = true;
+	      this._spine = [];
+
+	      this.views.on("view.preload", function (_ref) {
+	        var view = _ref.view;
+
+	        view.display(this.request).then(function () {
+	          view.show();
 	        });
-	      }.bind(this), 20);
+	      }.bind(this));
 
-	    } else {
+	      this.views.on("view.display", function (_ref2) {
+	        var view = _ref2.view,
+	            viewportState = _ref2.viewportState;
+
+	        // console.log("AHOY VIEWS scrolling.view.display", view.index);
+	        view.display(this.request).then(function () {
+	          view.show();
+	          this.gotoTarget(view);
+	          {
+	            this.emit(EVENTS.MANAGERS.SCROLLED, {
+	              top: this.scrollTop,
+	              left: this.scrollLeft
+	            });
+	            this._forceLocationEvent = false;
+	          }
+	        }.bind(this));
+	      }.bind(this));
+	    }
+	  }, {
+	    key: "display",
+	    value: function display(section, target) {
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      if (!this.views.length) {
+	        this.initializeViews(section);
+	      }
+
+	      // Check if moving to target is needed
+	      if (target === section.href || isNumber(target)) {
+	        target = undefined;
+	      }
+
+	      var current = this.current();
+
 	      this.ignore = false;
+	      var visible = this.views.find(section);
+
+	      // console.log("AHOY scrolling display", section, visible, current, current == visible);
+
+	      if (target) {
+	        this._target = [visible, target];
+	      }
+
+	      visible.element.scrollIntoView();
+
+	      if (visible == current) {
+	        this.gotoTarget(visible);
+	      }
+
+	      displaying.resolve();
+	      return displayed;
 	    }
-	  }
+	  }, {
+	    key: "gotoTarget",
+	    value: function gotoTarget(view) {
+	      if (this._target && this._target[0] == view) {
+	        var offset = view.locationOf(this._target[1]);
 
-	  bounds() {
-	    var bounds;
+	        // -- this does not work; top varies.
+	        // offset.top += view.element.getBoundingClientRect().top;
 
-	    bounds = this.stage.bounds();
+	        setTimeout(function () {
+	          offset.top += this.container.scrollTop;
+	          this.moveTo(offset);
+	          this._target = null;
+	        }.bind(this), 10);
 
-	    return bounds;
-	  }
-
-	  applyLayout(layout) {
-	    this.layout = layout;
-	    this.updateLayout();
-	  }
-
-	  updateLayout() {
-	    if (!this.stage) {
-	      return;
+	        // var prev; var style;
+	        // for(var i = 0; i < view.index; i++) {
+	        //   prev = this.views.get(i);
+	        //   style = window.getComputedStyle(prev.element);
+	        //   offset.top += ( parseInt(style.height) / this.settings.scale ) + parseInt(style.marginBottom) + parseInt(style.marginTop);
+	        //   // offset.top += prev.height() || prev.element.offsetHeight;
+	        // }
+	        // this.moveTo(offset);
+	        // this._target = null;
+	      }
 	    }
+	  }, {
+	    key: "afterDisplayed",
+	    value: function afterDisplayed(view) {
+	      // if ( this._target && this._target[0] == view ) {
+	      //   let offset = view.locationOf(this._target[1]);
+	      //   this.moveTo(offset);
+	      //   this._target = null;
+	      // }
+	      this.emit(EVENTS.MANAGERS.ADDED, view);
+	    }
+	  }, {
+	    key: "afterResized",
+	    value: function afterResized(view) {
 
-	    this._stageSize = this.stage.size();
-	    this.layout.calculate(this._stageSize.width, this._stageSize.height);
-	    // this.layout.width = this.container.offsetWidth * 0.80;
+	      var bounds = this.container.getBoundingClientRect();
+	      var rect = view.element.getBoundingClientRect();
 
-	    // Set the dimensions for views
-	    this.viewSettings.width = this.layout.width; //  * this.settings.scale;
-	    this.viewSettings.height = this.calculateHeight(this.layout.height);
-	    this.viewSettings.minHeight = this.viewSettings.height; // * this.settings.scale;
+	      this.ignore = true;
 
-	    this.setLayout(this.layout);
-	  }
+	      // view.element.dataset.resizable = "true"
+	      view.reframeElement();
 
-	  setLayout(layout){
+	      var delta;
+	      if (rect.bottom <= bounds.bottom && rect.top < 0) {
+	        delta = view.element.getBoundingClientRect().height - rect.height;
+	        // delta /= this.settings.scale;
+	        // console.log("AHOY afterResized", view.index, this.container.scrollTop, view.element.getBoundingClientRect().height, rect.height, delta / this.settings.scale);
+	        this.container.scrollTop += Math.ceil(delta);
+	      }
 
-	    this.viewSettings.layout = layout;
+	      // console.log("AHOY AFTER RESIZED", view, delta);
+	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	    }
+	  }, {
+	    key: "moveTo",
+	    value: function moveTo(offset) {
+	      var distX = 0,
+	          distY = 0;
+	      distY = offset.top;
+	      // this.scrollTo(distX, this.container.scrollTop + distY, true);
+	      this.scrollTo(distX, distY, false);
+	    }
+	  }, {
+	    key: "initializeViews",
+	    value: function initializeViews(section) {
 
-	    this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
+	      this.ignore = true;
 
-	    if(this.views) {
+	      // if ( self._spine.length == 0 ) {
+	      //   console.time("AHOY initializeViews CRAWL");
+	      //   // can we build a manifest here?
+	      //   var prev_ = section.prev();
+	      //   while ( prev_ ) {
+	      //     // self._spine.unshift(prev_.href);
+	      //     self._spine.unshift(prev_);
+	      //     prev_ = prev_.prev();
+	      //   }
 
-	     this.views._views.forEach(function(view) {
+	      //   self._spine.push(section);
+
+	      //   var next_ = section.next();
+	      //   while ( next_ ) {
+	      //     // self._spine.push(next_.href);
+	      //     self._spine.push(next_);
+	      //     next_ = next_.next();
+	      //   }
+
+	      //   console.timeEnd("AHOY initializeViews CRAWL");
+	      // }
+
+	      // this._spine.forEach(function (section) {
+
+	      this.settings.spine.each(function (section) {
+	        var _this = this;
+
+	        // if ( this.layout.name == 'pre-paginated' ) {
+	        //   // do something
+	        //   // viewSettings.layout.height = h;
+	        //   // viewSettings.layout.columnWidth = w;
+
+	        //   var r = this.layout.height / this.layout.columnWidth;
+
+	        //   viewSettings.layout.columnWidth = this.layout.columnWidth * 0.8;
+	        //   viewSettings.layout.height = this.layout.height * ( this.layout.columnWidth)
+
+	        // }
 	        var viewSettings = Object.assign({}, this.viewSettings);
-	        viewSettings.layout = Object.assign( Object.create( Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-	        if ( this.layout.name == 'pre-paginated' ) {
+	        viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	        if (this.layout.name == 'pre-paginated') {
 	          viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
 	          viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
 	          viewSettings.minHeight *= this.settings.xscale;
 	          viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
 	          viewSettings.height = viewSettings.height * this.settings.xscale;
 	          viewSettings.layout.height = viewSettings.height;
+	          // console.log("AHOY new view", section.index, viewSettings.height);
 	        }
 
-	        view.size(viewSettings.layout.width, viewSettings.layout.height);
-	        view.reframe(viewSettings.layout.width, viewSettings.layout.height);
-	        view.setLayout(viewSettings.layout);
+	        var view = new this.View(section, viewSettings);
+	        view.onDisplayed = this.afterDisplayed.bind(this);
+	        view.onResize = this.afterResized.bind(this);
+	        view.on(EVENTS.VIEWS.AXIS, function (axis) {
+	          _this.updateAxis(axis);
+	        });
+	        this.views.append(view);
+	      }.bind(this));
+
+	      this.ignore = false;
+	    }
+	  }, {
+	    key: "direction",
+	    value: function direction() {
+	      var dir = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ltr";
+
+	      this.settings.direction = dir;
+
+	      this.stage && this.stage.direction(dir);
+
+	      this.viewSettings.direction = dir;
+
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "onOrientationChange",
+	    value: function onOrientationChange(e) {}
+	  }, {
+	    key: "onResized",
+	    value: function onResized(e) {
+	      // if ( this.resizeTimeout ) {
+	      //   clearTimeout(this.resizeTimeout);
+	      // } else {
+	      //   // this._current = this.current() && this.current().section;
+	      //   // this._current = { view: this.current(), location: this.currentLocation() };
+	      // }
+	      // this.resizeTimeout = setTimeout(this.resize.bind(this), 100);
+	      this.resize();
+	    }
+	  }, {
+	    key: "resize",
+	    value: function resize(width, height) {
+	      var stageSize = this.stage.size(width, height);
+	      if (this.resizeTimeout) {
+	        clearTimeout(this.resizeTimeout);
+	        this.resizeTimeout = null;
+	      }
+
+	      this.ignore = true;
+
+	      // For Safari, wait for orientation to catch up
+	      // if the window is a square
+	      this.winBounds = windowBounds();
+	      if (this.orientationTimeout && this.winBounds.width === this.winBounds.height) {
+	        // reset the stage size for next resize
+	        this._stageSize = undefined;
+	        return;
+	      }
+
+	      if (this._stageSize && this._stageSize.width === stageSize.width && this._stageSize.height === stageSize.height) {
+	        // Size is the same, no need to resize
+	        return;
+	      }
+
+	      this._stageSize = stageSize;
+
+	      this._bounds = this.bounds();
+
+	      // if ( ! this._resizeTarget ) {
+	      //   var current = this.current();
+	      //   if ( current ) {
+	      //     this._resizeTarget = current.section;
+	      //   }
+	      // }
+
+	      this.clear();
+
+	      // Update for new views
+	      this.viewSettings.width = this._stageSize.width;
+	      this.viewSettings.height = this._stageSize.height;
+
+	      this.updateLayout();
+
+	      // var section; var target;
+	      // if ( this._current ) {
+	      //   section = this._current.view.section;
+	      //   target = this._current.location[0].mapping.start;
+	      //   this._current = null;
+	      // } else {
+	      //   section = this._spine[0];
+	      // }
+	      // this.initializeViews(section);
+	      // this.display(section, target);
+
+	      // this.views.updateLayout(this.viewSettings);
+
+	      this.emit(EVENTS.MANAGERS.RESIZED, {
+	        width: this._stageSize.width,
+	        height: this._stageSize.height
+	      });
+	    }
+	  }, {
+	    key: "updateAxis",
+	    value: function updateAxis(axis, forceUpdate) {
+	      if (!this.isPaginated) {
+	        axis = "vertical";
+	      }
+
+	      if (!forceUpdate && axis === this.settings.axis) {
+	        return;
+	      }
+
+	      this.settings.axis = axis;
+
+	      this.stage && this.stage.axis(axis);
+
+	      this.viewSettings.axis = axis;
+
+	      if (this.mapping) {
+	        this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
+	      }
+
+	      if (this.layout) {
+	        this.layout.spread("none");
+	      }
+	    }
+	  }, {
+	    key: "updateFlow",
+	    value: function updateFlow(flow) {
+	      this.isPaginated = false;
+	      this.updateAxis("vertical");
+
+	      this.viewSettings.flow = flow;
+
+	      if (!this.settings.overflow) {
+	        this.overflow = this.isPaginated ? "hidden" : "auto";
+	      } else {
+	        this.overflow = this.settings.overflow;
+	      }
+
+	      this.stage && this.stage.overflow(this.overflow);
+
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "getContents",
+	    value: function getContents() {
+	      var contents = [];
+	      if (!this.views) {
+	        return contents;
+	      }
+	      this.views.forEach(function (view) {
+	        var viewContents = view && view.contents;
+	        if (viewContents) {
+	          contents.push(viewContents);
+	        }
+	      });
+	      return contents;
+	    }
+	  }, {
+	    key: "current",
+	    value: function current() {
+	      var visible = this.visible();
+	      var view;
+	      if (visible.length) {
+	        // Current is the last visible view
+	        var current = null;
+	        for (var i = 0; i < visible.length; i++) {
+	          view = visible[i];
+
+	          var _inVp = inVp(view.element, this.container),
+	              edges = _inVp.edges;
+
+	          if (!current) {
+	            current = view;current.percentage = edges.percentage;
+	          } else if (edges.percentage > current.percentage) {
+	            current = view;
+	            current.percentage = edges.percentage;
+	          }
+	        }
+	        if (current) {
+	          return current;
+	        }
+	        return visible[visible.length - 1];
+	      }
+	      return null;
+	    }
+	  }, {
+	    key: "visible",
+	    value: function visible() {
+	      var visible = [];
+	      var views = this.views.displayed();
+	      var viewsLength = views.length;
+	      var visible = [];
+	      var view;
+
+	      return this.views.displayed();
+
+	      for (var i = 0; i < viewsLength; i++) {
+	        view = views[i];
+	        if (view.displayed) {
+	          visible.push(view);
+	        }
+	      }
+
+	      return visible;
+	    }
+	  }, {
+	    key: "scrollBy",
+	    value: function scrollBy(x, y, silent) {
+	      var dir = this.settings.direction === "rtl" ? -1 : 1;
+
+	      if (silent) {
+	        this.ignore = true;
+	      }
+
+	      if (!this.settings.fullsize) {
+	        if (x) this.container.scrollLeft += x * dir;
+	        if (y) this.container.scrollTop += y;
+	      } else {
+	        window.scrollBy(x * dir, y * dir);
+	      }
+	      this.scrolled = true;
+	    }
+	  }, {
+	    key: "scrollTo",
+	    value: function scrollTo(x, y, silent) {
+	      if (silent) {
+	        this.ignore = true;
+	      }
+
+	      if (!this.settings.fullsize) {
+	        this.container.scrollLeft = x;
+	        this.container.scrollTop = y;
+	      } else {
+	        window.scrollTo(x, y);
+	      }
+	      this.scrolled = true;
+	    }
+	  }, {
+	    key: "onScroll",
+	    value: function onScroll() {
+	      var scrollTop = void 0;
+	      var scrollLeft = void 0;
+
+	      if (!this.settings.fullsize) {
+	        scrollTop = this.container.scrollTop;
+	        scrollLeft = this.container.scrollLeft;
+	      } else {
+	        scrollTop = window.scrollY;
+	        scrollLeft = window.scrollX;
+	      }
+
+	      this.scrollTop = scrollTop;
+	      this.scrollLeft = scrollLeft;
+
+	      if (!this.ignore) {
+	        this.emit(EVENTS.MANAGERS.SCROLL, {
+	          top: scrollTop,
+	          left: scrollLeft
+	        });
+
+	        clearTimeout(this.afterScrolled);
+	        this.afterScrolled = setTimeout(function () {
+	          this.emit(EVENTS.MANAGERS.SCROLLED, {
+	            top: this.scrollTop,
+	            left: this.scrollLeft
+	          });
+	        }.bind(this), 20);
+	      } else {
+	        this.ignore = false;
+	      }
+	    }
+	  }, {
+	    key: "bounds",
+	    value: function bounds() {
+	      var bounds;
+
+	      bounds = this.stage.bounds();
+
+	      return bounds;
+	    }
+	  }, {
+	    key: "applyLayout",
+	    value: function applyLayout(layout) {
+	      this.layout = layout;
+	      this.updateLayout();
+	    }
+	  }, {
+	    key: "updateLayout",
+	    value: function updateLayout() {
+	      if (!this.stage) {
+	        return;
+	      }
+
+	      this._stageSize = this.stage.size();
+	      this.layout.calculate(this._stageSize.width, this._stageSize.height);
+	      // this.layout.width = this.container.offsetWidth * 0.80;
+
+	      // Set the dimensions for views
+	      this.viewSettings.width = this.layout.width; //  * this.settings.scale;
+	      this.viewSettings.height = this.calculateHeight(this.layout.height);
+	      this.viewSettings.minHeight = this.viewSettings.height; // * this.settings.scale;
+
+	      this.setLayout(this.layout);
+	    }
+	  }, {
+	    key: "setLayout",
+	    value: function setLayout(layout) {
+
+	      this.viewSettings.layout = layout;
+
+	      this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
+
+	      if (this.views) {
+
+	        this.views._views.forEach(function (view) {
+	          var viewSettings = Object.assign({}, this.viewSettings);
+	          viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
+	          if (this.layout.name == 'pre-paginated') {
+	            viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
+	            viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
+	            viewSettings.minHeight *= this.settings.xscale;
+	            viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
+	            viewSettings.height = viewSettings.height * this.settings.xscale;
+	            viewSettings.layout.height = viewSettings.height;
+	          }
+
+	          view.size(viewSettings.layout.width, viewSettings.layout.height);
+	          view.reframe(viewSettings.layout.width, viewSettings.layout.height);
+	          view.setLayout(viewSettings.layout);
+	        });
+
+	        // this.views.forEach(function(view){
+	        //   if (view) {
+	        //     view.reframe(layout.width, layout.height);
+	        //     view.setLayout(layout);
+	        //   }
+	        // });
+	      }
+	    }
+	  }, {
+	    key: "addEventListeners",
+	    value: function addEventListeners() {
+	      var scroller;
+
+	      window.addEventListener("unload", function (e) {
+	        this.destroy();
+	      }.bind(this));
+
+	      if (!this.settings.fullsize) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      this._onScroll = this.onScroll.bind(this);
+	      scroller.addEventListener("scroll", this._onScroll);
+	    }
+	  }, {
+	    key: "removeEventListeners",
+	    value: function removeEventListeners() {
+	      var scroller;
+
+	      if (!this.settings.fullsize) {
+	        scroller = this.container;
+	      } else {
+	        scroller = window;
+	      }
+
+	      scroller.removeEventListener("scroll", this._onScroll);
+	      this._onScroll = undefined;
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      clearTimeout(this.orientationTimeout);
+	      clearTimeout(this.resizeTimeout);
+	      clearTimeout(this.afterScrolled);
+
+	      this.clear();
+
+	      this.removeEventListeners();
+
+	      this.stage.destroy();
+
+	      this.rendered = false;
+
+	      /*
+	         clearTimeout(this.trimTimeout);
+	        if(this.settings.hidden) {
+	          this.element.removeChild(this.wrapper);
+	        } else {
+	          this.element.removeChild(this.container);
+	        }
+	      */
+	    }
+	  }, {
+	    key: "next",
+	    value: function next() {
+
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      var dir = this.settings.direction;
+
+	      if (!this.views.length) return;
+
+	      this.scrollTop = this.container.scrollTop;
+
+	      var top = this.container.scrollTop + this.container.offsetHeight;
+
+	      this.scrollBy(0, this.layout.height, false);
+
+	      this.q.enqueue(function () {
+	        displaying.resolve();
+	        return displayed;
+	      });
+	    }
+	  }, {
+	    key: "prev",
+	    value: function prev() {
+
+	      var displaying = new defer();
+	      var displayed = displaying.promise;
+
+	      var dir = this.settings.direction;
+
+	      if (!this.views.length) return;
+
+	      this.scrollTop = this.container.scrollTop;
+
+	      var top = this.container.scrollTop - this.container.offsetHeight;
+	      this.scrollBy(0, -this.layout.height, false);
+
+	      this.q.enqueue(function () {
+	        displaying.resolve();
+	        return displayed;
+	      });
+	    }
+	  }, {
+	    key: "clear",
+	    value: function clear() {
+
+	      // // this.q.clear();
+
+	      if (this.views) {
+	        this.views.hide();
+	        this.scrollTo(0, 0, true);
+	        this.views.clear();
+	      }
+	    }
+	  }, {
+	    key: "currentLocation",
+	    value: function currentLocation() {
+	      var _this2 = this;
+
+	      var visible = this.visible();
+	      var container = this.container.getBoundingClientRect();
+	      var pageHeight = container.height < window.innerHeight ? container.height : window.innerHeight;
+
+	      var offset = 0;
+	      var used = 0;
+
+	      if (this.settings.fullsize) {
+	        offset = window.scrollY;
+	      }
+
+	      var sections = visible.map(function (view) {
+	        var _view$section = view.section,
+	            index = _view$section.index,
+	            href = _view$section.href;
+
+	        var position = view.position();
+	        var height = view.height();
+
+	        var startPos = offset + container.top - position.top + used;
+	        var endPos = startPos + pageHeight - used;
+	        if (endPos > height) {
+	          endPos = height;
+	          used = endPos - startPos;
+	        }
+
+	        var totalPages = _this2.layout.count(height, pageHeight).pages;
+
+	        var currPage = Math.ceil(startPos / pageHeight);
+	        var pages = [];
+	        var endPage = Math.ceil(endPos / pageHeight);
+
+	        pages = [];
+	        for (var i = currPage; i <= endPage; i++) {
+	          var pg = i + 1;
+	          pages.push(pg);
+	        }
+
+	        totalPages = pages.length;
+
+	        var mapping = _this2.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
+
+	        return {
+	          index: index,
+	          href: href,
+	          pages: pages,
+	          totalPages: totalPages,
+	          mapping: mapping
+	        };
 	      });
 
-	      // this.views.forEach(function(view){
-	      //   if (view) {
-	      //     view.reframe(layout.width, layout.height);
-	      //     view.setLayout(layout);
-	      //   }
-	      // });
-
-	    }
-
-	  }
-
-	  addEventListeners() {
-	    var scroller;
-
-	    window.addEventListener("unload", function(e){
-	      this.destroy();
-	    }.bind(this));
-
-	    if(!this.settings.fullsize) {
-	      scroller = this.container;
-	    } else {
-	      scroller = window;
-	    }
-
-	    this._onScroll = this.onScroll.bind(this);
-	    scroller.addEventListener("scroll", this._onScroll);
-
-	  }
-
-	  removeEventListeners(){
-	    var scroller;
-
-	    if(!this.settings.fullsize) {
-	      scroller = this.container;
-	    } else {
-	      scroller = window;
-	    }
-
-	    scroller.removeEventListener("scroll", this._onScroll);
-	    this._onScroll = undefined;
-	  }
-
-	  destroy(){
-	    clearTimeout(this.orientationTimeout);
-	    clearTimeout(this.resizeTimeout);
-	    clearTimeout(this.afterScrolled);
-
-	    this.clear();
-
-	    this.removeEventListeners();
-
-	    this.stage.destroy();
-
-	    this.rendered = false;
-
-	    /*
-
-	      clearTimeout(this.trimTimeout);
-	      if(this.settings.hidden) {
-	        this.element.removeChild(this.wrapper);
-	      } else {
-	        this.element.removeChild(this.container);
-	      }
-	    */
-	  }
-
-	  next() {
-
-	    var displaying = new defer();
-	    var displayed = displaying.promise;
-
-	    let dir = this.settings.direction;
-
-	    if(!this.views.length) return;
-
-	    this.scrollTop = this.container.scrollTop;
-
-	    let top  = this.container.scrollTop + this.container.offsetHeight;
-
-	    this.scrollBy(0, this.layout.height, false);
-
-	    this.q.enqueue(function() {
-	      displaying.resolve();
-	      return displayed;
-	    });
-	  }
-
-	  prev() {
-
-	    var displaying = new defer();
-	    var displayed = displaying.promise;
-
-	    let dir = this.settings.direction;
-
-	    if(!this.views.length) return;
-
-	    this.scrollTop = this.container.scrollTop;
-
-	    let top  = this.container.scrollTop - this.container.offsetHeight;
-	    this.scrollBy(0, -this.layout.height, false);
-
-	    this.q.enqueue(function() {
-	      displaying.resolve();
-	      return displayed;
-	    });
-	  }
-
-	  clear () {
-
-	    // // this.q.clear();
-
-	    if (this.views) {
-	      this.views.hide();
-	      this.scrollTo(0,0, true);
-	      this.views.clear();
-	    }
-	  }
-
-	  currentLocation() {
-	    let visible = this.visible();
-	    let container = this.container.getBoundingClientRect();
-	    let pageHeight = (container.height < window.innerHeight) ? container.height : window.innerHeight;
-
-	    let offset = 0;
-	    let used = 0;
-
-	    if(this.settings.fullsize) {
-	      offset = window.scrollY;
-	    }
-
-	    let sections = visible.map((view) => {
-	      let {index, href} = view.section;
-	      let position = view.position();
-	      let height = view.height();
-
-	      let startPos = offset + container.top - position.top + used;
-	      let endPos = startPos + pageHeight - used;
-	      if (endPos > height) {
-	        endPos = height;
-	        used = (endPos - startPos);
+	      if (sections.length == 0) {
+	        self._forceLocationEvent = true;
 	      }
 
-	      let totalPages = this.layout.count(height, pageHeight).pages;
-
-	      let currPage = Math.ceil(startPos / pageHeight);
-	      let pages = [];
-	      let endPage = Math.ceil(endPos / pageHeight);
-
-	      pages = [];
-	      for (var i = currPage; i <= endPage; i++) {
-	        let pg = i + 1;
-	        pages.push(pg);
-	      }
-
-	      totalPages = pages.length;
-
-	      let mapping = this.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
-
-	      return {
-	        index,
-	        href,
-	        pages,
-	        totalPages,
-	        mapping
-	      };
-	    });
-
-	    if ( sections.length == 0 ) {
-	      self._forceLocationEvent = true;
+	      return sections;
 	    }
+	  }, {
+	    key: "isRendered",
+	    value: function isRendered() {
+	      return this.rendered;
+	    }
+	  }, {
+	    key: "scale",
+	    value: function scale(s) {
+	      if (s == null) {
+	        s = 1.0;
+	      }
+	      this.settings.scale = this.settings.xscale = s;
 
-	    return sections;
-	  }
+	      // if (this.stage) {
+	      //   this.stage.scale(s);
+	      // }
 
-	  isRendered() {
-	    return this.rendered;
-	  }
+	      this.clear();
+	      this.updateLayout();
+	      this.emit(EVENTS.MANAGERS.RESIZED, {
+	        width: this._stageSize.width,
+	        height: this._stageSize.height
+	      });
+	    }
+	  }, {
+	    key: "calcuateWidth",
+	    value: function calcuateWidth(width) {
+	      var retval = width * this.fraction * this.settings.xscale;
+	      // if ( retval > this.settings.maxWidth * this.settings.xscale ) {
+	      //   retval = this.settings.maxWidth * this.settings.xscale;
+	      // }
+	      return retval;
+	    }
+	  }, {
+	    key: "calculateHeight",
+	    value: function calculateHeight(height) {
+	      var minHeight = this.layout.name == 'xxpre-paginated' ? 0 : this.settings.minHeight;
+	      return height > minHeight ? this.layout.height : this.settings.minHeight;
+	    }
+	  }]);
 
-	  scale(s) {
-	    if ( s == null ) { s = 1.0; }
-	    this.settings.scale = this.settings.xscale = s;
+	  return ScrollingContinuousViewManager;
+	}();
 
-	    // if (this.stage) {
-	    //   this.stage.scale(s);
-	    // }
-
-	    this.clear();
-	    this.updateLayout();
-	    this.emit(EVENTS.MANAGERS.RESIZED, {
-	      width: this._stageSize.width,
-	      height: this._stageSize.height
-	    });
-	  }
-
-	  calcuateWidth(width) {
-	    var retval = width * this.fraction * this.settings.xscale;
-	    // if ( retval > this.settings.maxWidth * this.settings.xscale ) {
-	    //   retval = this.settings.maxWidth * this.settings.xscale;
-	    // }
-	    return retval;
-	  }
-
-	  calculateHeight(height) {
-	    var minHeight = this.layout.name == 'xxpre-paginated' ? 0 : this.settings.minHeight;
-	    return height > minHeight ? this.layout.height : this.settings.minHeight;
-	  }
-
-	}
-
-	ScrollingContinuousViewManager.toString = function() { return 'continuous'; };
+	ScrollingContinuousViewManager.toString = function () {
+	  return 'continuous';
+	};
 
 	//-- Enable binding events to Manager
 	eventEmitter$1(ScrollingContinuousViewManager.prototype);
 
-	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};//# sourceMappingURL=viewprt.esm.js.map
+	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};
 
-	class StickyIframeView extends IframeView {
-	    constructor(section, options) {
-	        super(section, options);
+	var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	        this.element.style.height = `${this.layout.height}px`;
-	        this.element.style.width = `${this.layout.width}px`;
-	        this.element.style.visibility = "hidden";
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+	function _classCallCheck$5(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn$2(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits$2(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var StickyIframeView = function (_IframeView) {
+	    _inherits$2(StickyIframeView, _IframeView);
+
+	    function StickyIframeView(section, options) {
+	        _classCallCheck$5(this, StickyIframeView);
+
+	        var _this = _possibleConstructorReturn$2(this, (StickyIframeView.__proto__ || Object.getPrototypeOf(StickyIframeView)).call(this, section, options));
+
+	        _this.element.style.height = _this.layout.height + "px";
+	        _this.element.style.width = _this.layout.width + "px";
+	        _this.element.style.visibility = "hidden";
 
 	        // console.log("AHOY sticky NEW", this.layout.height);
+	        return _this;
 	    }
 
-	    container(axis) {
-	        var check = document.querySelector(`div[ref='${this.index}']`);
-	        if ( check ) {
-	            check.dataset.reused = 'true';
-	            return check;
+	    _createClass$5(StickyIframeView, [{
+	        key: "container",
+	        value: function container(axis) {
+	            var check = document.querySelector("div[ref='" + this.index + "']");
+	            if (check) {
+	                check.dataset.reused = 'true';
+	                return check;
+	            }
+
+	            var element = document.createElement("div");
+
+	            element.classList.add("epub-view");
+
+	            // this.element.style.minHeight = "100px";
+	            element.style.height = "0px";
+	            element.style.width = "0px";
+	            element.style.overflow = "hidden";
+	            element.style.position = "relative";
+	            element.style.display = "block";
+
+	            element.setAttribute('ref', this.index);
+
+	            if (axis && axis == "horizontal") {
+	                element.style.flex = "none";
+	            } else {
+	                element.style.flex = "initial";
+	            }
+
+	            return element;
 	        }
+	    }, {
+	        key: "create",
+	        value: function create() {
 
-	        var element = document.createElement("div");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
 
-	        element.classList.add("epub-view");
+	            if (!this.element) {
+	                this.element = this.createContainer();
+	            }
 
-	        // this.element.style.minHeight = "100px";
-	        element.style.height = "0px";
-	        element.style.width = "0px";
-	        element.style.overflow = "hidden";
-	        element.style.position = "relative";
-	        element.style.display = "block";
+	            if (this.element.hasAttribute('layout-height')) {
+	                var height = parseInt(this.element.getAttribute('layout-height'), 10);
+	                this._layout_height = height;
+	            }
 
-	        element.setAttribute('ref', this.index);
+	            this.iframe = this.element.querySelector("iframe");
+	            if (this.iframe) {
+	                return this.iframe;
+	            }
 
-	        if(axis && axis == "horizontal"){
-	            element.style.flex = "none";
-	        } else {
-	            element.style.flex = "initial";
-	        }
+	            this.iframe = document.createElement("iframe");
+	            this.iframe.id = this.id;
+	            this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
+	            this.iframe.style.overflow = "hidden";
+	            this.iframe.seamless = "seamless";
+	            // Back up if seamless isn't supported
+	            this.iframe.style.border = "none";
 
-	        return element;
-	    }
+	            this.iframe.setAttribute("enable-annotation", "true");
 
-	    create() {
+	            this.resizing = true;
 
-	        if(this.iframe) {
+	            // this.iframe.style.display = "none";
+	            this.element.style.visibility = "hidden";
+	            this.iframe.style.visibility = "hidden";
+	            this.element.classList.add('epub-view---loading');
+
+	            this.iframe.style.width = "0";
+	            this.iframe.style.height = "0";
+	            this._width = 0;
+	            this._height = 0;
+
+	            this.element.setAttribute("ref", this.index);
+	            this.element.setAttribute("data-href", this.section.href);
+
+	            // this.element.appendChild(this.iframe);
+	            this.added = true;
+
+	            this.elementBounds = bounds$1(this.element);
+
+	            // if(width || height){
+	            //   this.resize(width, height);
+	            // } else if(this.width && this.height){
+	            //   this.resize(this.width, this.height);
+	            // } else {
+	            //   this.iframeBounds = bounds(this.iframe);
+	            // }
+
+
+	            if ("srcdoc" in this.iframe) {
+	                this.supportsSrcdoc = true;
+	            } else {
+	                this.supportsSrcdoc = false;
+	            }
+
+	            if (!this.settings.method) {
+	                this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
+	            }
+
 	            return this.iframe;
 	        }
+	    }, {
+	        key: "reframe",
+	        value: function reframe(width, height) {
+	            var _this2 = this;
 
-	        if(!this.element) {
-	            this.element = this.createContainer();
-	        }
+	            var size;
 
-	        if ( this.element.hasAttribute('layout-height') ) {
-	            var height = parseInt(this.element.getAttribute('layout-height'), 10);
-	            this._layout_height = height;
-	        }
+	            var minHeight = this.settings.minHeight || 0;
+	            var maxHeight = this.settings.maxHeight || -1;
 
-	        this.iframe = this.element.querySelector("iframe");
-	        if ( this.iframe ) {
-	            return this.iframe;
-	        }
+	            // console.log("AHOY AHOY reframe", this.index, width, height);
 
-	        this.iframe = document.createElement("iframe");
-	        this.iframe.id = this.id;
-	        this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
-	        this.iframe.style.overflow = "hidden";
-	        this.iframe.seamless = "seamless";
-	        // Back up if seamless isn't supported
-	        this.iframe.style.border = "none";
-
-	        this.iframe.setAttribute("enable-annotation", "true");
-
-	        this.resizing = true;
-
-	        // this.iframe.style.display = "none";
-	        this.element.style.visibility = "hidden";
-	        this.iframe.style.visibility = "hidden";
-	        this.element.classList.add('epub-view---loading');
-
-	        this.iframe.style.width = "0";
-	        this.iframe.style.height = "0";
-	        this._width = 0;
-	        this._height = 0;
-
-	        this.element.setAttribute("ref", this.index);
-	        this.element.setAttribute("data-href", this.section.href);
-
-	        // this.element.appendChild(this.iframe);
-	        this.added = true;
-
-	        this.elementBounds = bounds$1(this.element);
-
-	        // if(width || height){
-	        //   this.resize(width, height);
-	        // } else if(this.width && this.height){
-	        //   this.resize(this.width, this.height);
-	        // } else {
-	        //   this.iframeBounds = bounds(this.iframe);
-	        // }
-
-
-	        if(("srcdoc" in this.iframe)) {
-	            this.supportsSrcdoc = true;
-	        } else {
-	            this.supportsSrcdoc = false;
-	        }
-
-	        if (!this.settings.method) {
-	            this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
-	        }
-
-	        return this.iframe;
-	    }
-
-	    reframe(width, height) {
-	        var size;
-
-	        var minHeight = this.settings.minHeight || 0;
-	        var maxHeight = this.settings.maxHeight || -1;
-
-	        // console.log("AHOY AHOY reframe", this.index, width, height);
-
-	        if(isNumber(width)){
-	            this.element.style.width = width + "px";
-	            if ( this.iframe ) {
-	                this.iframe.style.width = width + "px";
-	            }
-	            this._width = width;
-	        }
-
-	        if(isNumber(height)){
-	            var checkMinHeight = false; // not doing this
-	            if ( isNumber(width) && width > height ) { checkMinHeight = false; }
-	            height = checkMinHeight && ( height <= minHeight ) ? minHeight : height;
-
-	            var styles = window.getComputedStyle(this.element);
-	            // setting the element height is delayed
-	            if ( this.iframe ) {
-	                this.iframe.style.height = height + "px";
-	            }
-	            // console.log("AHOY VIEW DISPLAY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
-	            this._height = height;
-	        }
-
-	        let widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
-	        let heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
-
-	        size = {
-	            width: width,
-	            height: height,
-	            widthDelta: widthDelta,
-	            heightDelta: heightDelta,
-	        };
-
-	        this.pane && this.pane.render();
-
-	        requestAnimationFrame(() => {
-	            let mark;
-	            for (let m in this.marks) {
-	                if (this.marks.hasOwnProperty(m)) {
-	                    mark = this.marks[m];
-	                    this.placeMark(mark.element, mark.range);
+	            if (isNumber(width)) {
+	                this.element.style.width = width + "px";
+	                if (this.iframe) {
+	                    this.iframe.style.width = width + "px";
 	                }
+	                this._width = width;
 	            }
-	        });
 
-	        this.onResize(this, size);
+	            if (isNumber(height)) {
+	                var checkMinHeight = false; // not doing this
+	                if (isNumber(width) && width > height) {
+	                    checkMinHeight = false;
+	                }
+	                height = checkMinHeight && height <= minHeight ? minHeight : height;
 
-	        this.emit(EVENTS.VIEWS.RESIZED, size);
+	                var styles = window.getComputedStyle(this.element);
+	                // setting the element height is delayed
+	                if (this.iframe) {
+	                    this.iframe.style.height = height + "px";
+	                }
+	                // console.log("AHOY VIEW DISPLAY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
+	                this._height = height;
+	            }
 
-	        this.prevBounds = size;
+	            var widthDelta = this.prevBounds ? width - this.prevBounds.width : width;
+	            var heightDelta = this.prevBounds ? height - this.prevBounds.height : height;
 
-	        this.elementBounds = bounds$1(this.element);
+	            size = {
+	                width: width,
+	                height: height,
+	                widthDelta: widthDelta,
+	                heightDelta: heightDelta
+	            };
 
-	    }
+	            this.pane && this.pane.render();
 
-	    reframeElement() {
-	        if ( ! this.iframe ) { return; }
-	        // var height = this.iframe.contentDocument.body.offsetHeight;
-	        var height = this.iframe.offsetHeight;
-	        var styles = window.getComputedStyle(this.element);
-	        var new_height = ( height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom) );
-	        this.element.style.height = `${new_height}px`;
-	        // console.log("AHOY AFTER RESIZED ELEMENT", this.index, height, new_height, styles.paddingTop, styles.paddingBottom);
-	    }
+	            requestAnimationFrame(function () {
+	                var mark = void 0;
+	                for (var m in _this2.marks) {
+	                    if (_this2.marks.hasOwnProperty(m)) {
+	                        mark = _this2.marks[m];
+	                        _this2.placeMark(mark.element, mark.range);
+	                    }
+	                }
+	            });
 
-	    display(request) {
-	        var displayed = new defer();
+	            this.onResize(this, size);
 
-	        if (!this.displayed) {
+	            this.emit(EVENTS.VIEWS.RESIZED, size);
 
-	            this.render(request)
-	                .then(function () {
+	            this.prevBounds = size;
+
+	            this.elementBounds = bounds$1(this.element);
+	        }
+	    }, {
+	        key: "reframeElement",
+	        value: function reframeElement() {
+	            if (!this.iframe) {
+	                return;
+	            }
+	            // var height = this.iframe.contentDocument.body.offsetHeight;
+	            var height = this.iframe.offsetHeight;
+	            var styles = window.getComputedStyle(this.element);
+	            var new_height = height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
+	            this.element.style.height = new_height + "px";
+	            // console.log("AHOY AFTER RESIZED ELEMENT", this.index, height, new_height, styles.paddingTop, styles.paddingBottom);
+	        }
+	    }, {
+	        key: "display",
+	        value: function display(request) {
+	            var displayed = new defer();
+
+	            if (!this.displayed) {
+
+	                this.render(request).then(function () {
 
 	                    this.emit(EVENTS.VIEWS.DISPLAYED, this);
 	                    this.onDisplayed(this);
 
 	                    this.displayed = true;
 	                    displayed.resolve(this);
-
 	                }.bind(this), function (err) {
 	                    displayed.reject(err, this);
 	                });
+	            } else {
+	                displayed.resolve(this);
+	            }
 
-	        } else {
-	            displayed.resolve(this);
+	            return displayed.promise;
+	        }
+	    }, {
+	        key: "show",
+	        value: function show() {
+	            _get(StickyIframeView.prototype.__proto__ || Object.getPrototypeOf(StickyIframeView.prototype), "show", this).call(this);
+	            this.element.classList.remove('epub-view---loading');
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            _get(StickyIframeView.prototype.__proto__ || Object.getPrototypeOf(StickyIframeView.prototype), "hide", this).call(this);
+	        }
+	    }, {
+	        key: "onLoad",
+	        value: function onLoad(event, promise) {
+	            var _this3 = this;
+
+	            this.window = this.iframe.contentWindow;
+	            this.document = this.iframe.contentDocument;
+
+	            this.contents = new Contents$1(this.document, this.document.body, this.section.cfiBase, this.section.index);
+	            this.contents.axis = this.settings.axis;
+
+	            this.rendering = false;
+
+	            var link = this.document.querySelector("link[rel='canonical']");
+	            if (link) {
+	                link.setAttribute("href", this.section.canonical);
+	            } else {
+	                link = this.document.createElement("link");
+	                link.setAttribute("rel", "canonical");
+	                link.setAttribute("href", this.section.canonical);
+	                this.document.querySelector("head").appendChild(link);
+	            }
+
+	            this.contents.on(EVENTS.CONTENTS.EXPAND, function () {
+	                if (_this3.displayed && _this3.iframe) {
+	                    _this3.expand();
+	                    if (_this3.contents) {
+	                        // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
+	                        _this3.layout.format(_this3.contents);
+	                    }
+	                }
+	            });
+
+	            this.contents.on(EVENTS.CONTENTS.RESIZE, function (e) {
+	                if (_this3.displayed && _this3.iframe) {
+	                    _this3.expand();
+	                    if (_this3.contents) {
+	                        // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
+	                        _this3.layout.format(_this3.contents);
+	                    }
+	                }
+	            });
+
+	            promise.resolve(this.contents);
+	        }
+	    }, {
+	        key: "unload",
+	        value: function unload() {
+
+	            for (var cfiRange in this.highlights) {
+	                this.unhighlight(cfiRange);
+	            }
+
+	            for (var _cfiRange in this.underlines) {
+	                this.ununderline(_cfiRange);
+	            }
+
+	            for (var _cfiRange2 in this.marks) {
+	                this.unmark(_cfiRange2);
+	            }
+
+	            if (this.pane) {
+	                this.element.removeChild(this.pane.element);
+	                this.pane = undefined;
+	            }
+
+	            if (this.blobUrl) {
+	                revokeBlobUrl(this.blobUrl);
+	            }
+
+	            if (this.displayed) {
+	                this.displayed = false;
+
+	                this.removeListeners();
+
+	                this.stopExpanding = true;
+	                this.element.removeChild(this.iframe);
+	                this.element.style.visibility = "hidden";
+
+	                this.iframe = undefined;
+	                this.contents = undefined;
+
+	                // this._textWidth = null;
+	                // this._textHeight = null;
+	                // this._width = null;
+	                // this._height = null;
+	            }
+
+	            // this.element.style.height = "0px";
+	            // this.element.style.width = "0px";
 	        }
 
+	        // setLayout(layout) {
 
-	        return displayed.promise;
-	    }
+	        // }
 
-	    show() {
-	        super.show();
-	        this.element.classList.remove('epub-view---loading');
-	    }
+	    }]);
 
-	    hide() {
-	        super.hide();
-	    }
-
-	    onLoad(event, promise) {
-
-	      this.window = this.iframe.contentWindow;
-	      this.document = this.iframe.contentDocument;
-
-	      this.contents = new Contents$1(this.document, this.document.body, this.section.cfiBase, this.section.index);
-	      this.contents.axis = this.settings.axis;
-
-	      this.rendering = false;
-
-	      var link = this.document.querySelector("link[rel='canonical']");
-	      if (link) {
-	        link.setAttribute("href", this.section.canonical);
-	      } else {
-	        link = this.document.createElement("link");
-	        link.setAttribute("rel", "canonical");
-	        link.setAttribute("href", this.section.canonical);
-	        this.document.querySelector("head").appendChild(link);
-	      }
-
-	      this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
-	        if(this.displayed && this.iframe) {
-	          this.expand();
-	          if (this.contents) {
-	            // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
-	            this.layout.format(this.contents);
-	          }
-	        }
-	      });
-
-	      this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
-	        if(this.displayed && this.iframe) {
-	          this.expand();
-	          if (this.contents) {
-	            // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
-	            this.layout.format(this.contents);
-	          }
-	        }
-	      });
-
-	      promise.resolve(this.contents);
-	    }
-
-	    unload() {
-
-	        for (let cfiRange in this.highlights) {
-	            this.unhighlight(cfiRange);
-	        }
-
-	        for (let cfiRange in this.underlines) {
-	            this.ununderline(cfiRange);
-	        }
-
-	        for (let cfiRange in this.marks) {
-	            this.unmark(cfiRange);
-	        }
-
-	        if (this.pane) {
-	            this.element.removeChild(this.pane.element);
-	            this.pane = undefined;
-	        }
-
-	        if (this.blobUrl) {
-	            revokeBlobUrl(this.blobUrl);
-	        }
-
-	        if(this.displayed){
-	            this.displayed = false;
-
-	            this.removeListeners();
-
-	            this.stopExpanding = true;
-	            this.element.removeChild(this.iframe);
-	            this.element.style.visibility = "hidden";
-
-	            this.iframe = undefined;
-	            this.contents = undefined;
-
-	            // this._textWidth = null;
-	            // this._textHeight = null;
-	            // this._width = null;
-	            // this._height = null;
-	        }
-
-	        // this.element.style.height = "0px";
-	        // this.element.style.width = "0px";
-	    }
-
-	    // setLayout(layout) {
-	        
-	    // }
-
-	}
+	    return StickyIframeView;
+	}(IframeView);
 
 	function popupTables(reader, contents) {
 	  var tables = contents.document.querySelectorAll('table');
 	  var h = reader._rendition.manager.layout.height;
 	  var clipped_tables = [];
-	  for(var i = 0; i < tables.length; i++) {
+	  for (var i = 0; i < tables.length; i++) {
 	    var table = tables[i];
-	    if ( table.offsetHeight >= ( h * 0.75 ) ) {
+	    if (table.offsetHeight >= h * 0.75) {
 	      clipped_tables.push(table);
 	    }
 	  }
 
-	  if ( ! clipped_tables.length ) { return ; }
+	  if (!clipped_tables.length) {
+	    return;
+	  }
 
 	  contents._originalHTML = contents.document.documentElement.outerHTML;
 
 	  contents.addStylesheetRules({
 	    'table.clipped': {
 	      'break-inside': 'avoid',
-	      'width': `${reader._rendition.manager.layout.columnWidth * 0.95}px !important`,
+	      'width': reader._rendition.manager.layout.columnWidth * 0.95 + 'px !important',
 	      'table-layout': 'fixed'
 	    },
 	    'table.clipped tbody': {
-	      'height': `${h * 0.25}px !important`,
+	      'height': h * 0.25 + 'px !important',
 	      overflow: 'scroll !important',
 	      display: 'block !important',
 	      position: 'relative !important',
@@ -26411,26 +27770,26 @@
 
 	  reader._originalHTML = reader._originalHTML || {};
 
-	  clipped_tables.forEach((table) => {
+	  clipped_tables.forEach(function (table) {
 	    // find a dang background color
 	    var element = table;
 	    var styles;
 	    var bgcolor;
-	    while ( bgcolor === undefined && element instanceof HTMLElement ) {
+	    while (bgcolor === undefined && element instanceof HTMLElement) {
 	      styles = window.getComputedStyle(element);
-	      if ( styles.backgroundColor != 'rgba(0, 0, 0, 0)' && styles.backgroundColor != 'transparent' ) {
+	      if (styles.backgroundColor != 'rgba(0, 0, 0, 0)' && styles.backgroundColor != 'transparent') {
 	        bgcolor = styles.backgroundColor;
 	        break;
 	      }
 	      element = element.parentNode;
 	    }
 
-	    if ( ! bgcolor ) {
+	    if (!bgcolor) {
 	      // no background color defined in the EPUB, so what is cozy-sun-bear using?
 	      element = reader._panes['epub'];
-	      while ( bgcolor === undefined && element instanceof HTMLElement ) {
+	      while (bgcolor === undefined && element instanceof HTMLElement) {
 	        styles = window.getComputedStyle(element);
-	        if ( styles.backgroundColor != 'rgba(0, 0, 0, 0)' && styles.backgroundColor != 'transparent' ) {
+	        if (styles.backgroundColor != 'rgba(0, 0, 0, 0)' && styles.backgroundColor != 'transparent') {
 	          bgcolor = styles.backgroundColor;
 	          break;
 	        }
@@ -26438,7 +27797,9 @@
 	      }
 	    }
 
-	    if ( ! bgcolor ) { bgcolor = '#fff'; }
+	    if (!bgcolor) {
+	      bgcolor = '#fff';
+	    }
 
 	    var tableHTML = table.outerHTML;
 
@@ -26452,56 +27813,54 @@
 	    button.innerText = 'Open table';
 
 	    var tableId = table.getAttribute('data-id');
-	    if ( ! tableId ) { 
-	      var ts = ( new Date() ).getTime();
+	    if (!tableId) {
+	      var ts = new Date().getTime();
 	      tableId = "table" + ts + Math.random(ts);
 	      table.setAttribute('data-id', tableId);
 	    }
 
 	    reader._originalHTML[tableId] = tableHTML;
 	    // button.dataset.tableHTML = tableHTML;
-	    button.addEventListener('click', function(event) {
+	    button.addEventListener('click', function (event) {
 	      event.preventDefault();
 
 	      var regex = /<body[^>]+>/;
 	      var index0 = contents._originalHTML.search(regex);
 	      var tableHTML = reader._originalHTML[tableId];
-	      var newHTML = contents._originalHTML.substr(0, index0) + `<body style="padding: 1.5rem; background: ${bgcolor}"><section>${tableHTML}</section></body></html>`;
+	      var newHTML = contents._originalHTML.substr(0, index0) + ('<body style="padding: 1.5rem; background: ' + bgcolor + '"><section>' + tableHTML + '</section></body></html>');
 
 	      reader.popup({
 	        title: 'View Table',
 	        srcdoc: newHTML,
-	        onLoad: function(contentDocument, modal) {
+	        onLoad: function onLoad(contentDocument, modal) {
 	          // adpated from epub.js#replaceLinks --- need to catch _any_ link
 	          // to close the modal
 	          var base = contentDocument.querySelector("base");
 	          var location = base ? base.getAttribute("href") : undefined;
 
 	          var links = contentDocument.querySelectorAll('a[href]');
-	          for(var i = 0; i < links.length; i++) {
+	          for (var i = 0; i < links.length; i++) {
 	            var link = links[i];
 	            var href = link.getAttribute('href');
-	            link.addEventListener('click', function(event) {
+	            link.addEventListener('click', function (event) {
 	              modal.closeModal();
-	              var absolute = (href.indexOf('://') > -1);
-	              if ( absolute ) {
+	              var absolute = href.indexOf('://') > -1;
+	              if (absolute) {
 	                link.setAttribute('target', '_blank');
 	              } else {
 	                var linkUrl = new Url(href, location);
 	                if (linkUrl) {
 	                  event.preventDefault();
-	                  reader.gotoPage(linkUrl.Path.path + ( linkUrl.hash ? linkUrl.hash : '' ));
+	                  reader.gotoPage(linkUrl.Path.path + (linkUrl.hash ? linkUrl.hash : ''));
 	                }
 	              }
 	            });
-	          } 
+	          }
 	        }
 	      });
-
 	    });
 
 	    div.appendChild(button);
-
 	  });
 	}
 
@@ -26514,9 +27873,11 @@
 	var installedResizeHandler = false;
 
 	function isInteractive(node) {
-	  if ( INTERACTIVE[node.nodeName] ) {
+	  if (INTERACTIVE[node.nodeName]) {
 	    // possibly...
-	    if ( node.nodeName == 'A' ) { return node.hasAttribute('href'); }
+	    if (node.nodeName == 'A') {
+	      return node.hasAttribute('href');
+	    }
 	    return true;
 	  }
 	  return false;
@@ -26524,8 +27885,8 @@
 
 	function hideEverythingInContents(contents) {
 	  var elements = contents.document.querySelectorAll('body *');
-	  for(var i = 0; i < elements.length; i++) {
-	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	  for (var i = 0; i < elements.length; i++) {
+	    if (elements[i].nodeType == Node.ELEMENT_NODE) {
 	      var element = elements[i];
 	      element.setAttribute('aria-hidden', true);
 	      element.setAttribute('tabindex', '-1');
@@ -26535,10 +27896,10 @@
 
 	function hideEverythingVisible(contents) {
 	  var elements = contents.document.querySelectorAll('[aria-hidden="false"]');
-	  for(var i = 0; i < elements.length; i++) {
-	    if ( elements[i].nodeType == Node.ELEMENT_NODE ) {
+	  for (var i = 0; i < elements.length; i++) {
+	    if (elements[i].nodeType == Node.ELEMENT_NODE) {
 	      elements[i].setAttribute('aria-hidden', true);
-	      if ( INTERACTIVE[elements[i].nodeName] ) {
+	      if (INTERACTIVE[elements[i].nodeName]) {
 	        elements[i].setAttribute('tabindex', '-1');
 	      }
 	    }
@@ -26546,20 +27907,45 @@
 	}
 
 	function findMatchingContents(contents, cfi) {
-	  for(var content of contents) {
-	    if ( cfi.indexOf(content.cfiBase) > -1 ) {
-	      return content;
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+
+	  try {
+	    for (var _iterator2 = contents[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator2.next()).done); _iteratorNormalCompletion = true) {
+	      var content = _step.value;
+
+	      if (cfi.indexOf(content.cfiBase) > -1) {
+	        return content;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator2.return) {
+	        _iterator2.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
 	    }
 	  }
+
 	  return null; // ???
 	}
 
 	function updateFocus(reader, location) {
-	  if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
-	  if ( reader.options.disableFocusHandling ) { return ; }
-	  setTimeout(() => {
-	    if ( location.start.cfi == reader._last_location_start_cfi && 
-	         location.end.cfi == reader._last_location_end_cfi ) {
+	  if (reader.settings.flow == 'scrolled-doc') {
+	    return;
+	  }
+	  if (reader.options.disableFocusHandling) {
+	    return;
+	  }
+	  setTimeout(function () {
+	    if (location.start.cfi == reader._last_location_start_cfi && location.end.cfi == reader._last_location_end_cfi) {
 	      return;
 	    }
 	    reader._last_location_start_cfi = location.start.cfi;
@@ -26571,21 +27957,21 @@
 	}
 
 	var elemsWithBoundingRects = [];
-	var getBoundingClientRect = function(element) {
-	  if ( ! element._boundingClientRect ) {
+	var getBoundingClientRect = function getBoundingClientRect(element) {
+	  if (!element._boundingClientRect) {
 
 	    // If not, get it then store it for future use.
 	    element._boundingClientRect = element.getBoundingClientRect();
-	    elemsWithBoundingRects.push( element );
+	    elemsWithBoundingRects.push(element);
 	  }
 	  return element._boundingClientRect;
 	};
 
-	var clearClientRects = function() {
+	var clearClientRects = function clearClientRects() {
 	  var i;
-	  for ( i = 0; i < elemsWithBoundingRects.length; i++ ) {
-	    if ( elemsWithBoundingRects[ i ] ) {
-	      elemsWithBoundingRects[ i ]._boundingClientRect = null;
+	  for (i = 0; i < elemsWithBoundingRects.length; i++) {
+	    if (elemsWithBoundingRects[i]) {
+	      elemsWithBoundingRects[i]._boundingClientRect = null;
 	    }
 	  }
 	  elemsWithBoundingRects = [];
@@ -26594,8 +27980,8 @@
 	function __updateFocus(reader, location) {
 	  // don't use location
 
-	  var selfOrElement = function(node) {
-	    return ( node.nodeType == Node.TEXT_NODE ) ? node.parentNode : node;
+	  var selfOrElement = function selfOrElement(node) {
+	    return node.nodeType == Node.TEXT_NODE ? node.parentNode : node;
 	  };
 
 	  var container = reader._rendition.manager.container;
@@ -26605,31 +27991,58 @@
 	  var containerX = container.scrollLeft;
 	  var containerX2 = container.scrollLeft + container.offsetWidth;
 
-	  var _showThisNode = function(node) {
+	  var _showThisNode = function _showThisNode(node) {
 	    var bounds = getBoundingClientRect(node); // node.getBoundingClientRect();
 	    var x = bounds.left;
 	    var x2 = bounds.left + bounds.width;
 
 	    var isVisible = false;
-	    if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
-	    else if ( x >= containerX && x < containerX2 ) { isVisible = true; }
-	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+	    if (x <= containerX && x2 >= containerX2) {
+	      isVisible = true;
+	    } else if (x >= containerX && x < containerX2) {
+	      isVisible = true;
+	    } else if (x2 > containerX && x2 <= containerX2) {
+	      isVisible = true;
+	    }
 	    // else if ( x <= containerX && x2 <= containerX2 ) { isVisible = true; }
 	    // else if ( x >= containerX && x2 <= containerX2 ) { isVisible = true; }
 	    // else if ( x >= containerX && x2 > containerX2 ) { isVisible = true; }
 
-	    if ( isVisible ) {
+	    if (isVisible) {
 	      // console.log("AHOY", isVisible, node, bounds, containerX, containerX2);
 	      node.setAttribute('aria-hidden', 'false');
-	      if ( isInteractive(node) ) {
+	      if (isInteractive(node)) {
 	        node.setAttribute('tabindex', '0');
 	      }
 	      var hasSeenVisibleChild = false;
-	      for(var child of node.children) {
-	        var retval = _showThisNode(child);
-	        if ( retval ) { hasSeenVisibleChild = true; }
-	        if ( ! retval && hasSeenVisibleChild ) {
-	          break;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+
+	      try {
+	        for (var _iterator5 = node.children[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator5.next()).done); _iteratorNormalCompletion4 = true) {
+	          var child = _step4.value;
+
+	          var retval = _showThisNode(child);
+	          if (retval) {
+	            hasSeenVisibleChild = true;
+	          }
+	          if (!retval && hasSeenVisibleChild) {
+	            break;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator5.return) {
+	            _iterator5.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
+	          }
 	        }
 	      }
 	    }
@@ -26640,27 +28053,29 @@
 	  var startRange = new ePub.CFI(location.start.cfi).toRange(contents.document);
 	  var startNode = selfOrElement(startRange.startContainer);
 	  var checkNode = startNode;
-	  while ( checkNode != contents.document.body ) {
+	  while (checkNode != contents.document.body) {
 	    var bounds = getBoundingClientRect(checkNode); // checkNode.getBoundingClientRect();
 	    var x = bounds.left;
 	    var x2 = bounds.left + bounds.width;
 
 	    var isVisible = false;
 	    // if ( x <= containerX && x2 >= containerX2 ) { isVisible = true; }
-	    if ( x >= containerX && x < containerX2 ) { isVisible = true; }
-	    else if ( x2 > containerX && x2 <= containerX2 ) { isVisible = true; }
+	    if (x >= containerX && x < containerX2) {
+	      isVisible = true;
+	    } else if (x2 > containerX && x2 <= containerX2) {
+	      isVisible = true;
+	    }
 
-	    if ( isVisible ) {
+	    if (isVisible) {
 	      startNode = checkNode;
 	      checkNode = checkNode.parentNode;
 	    } else {
 	      break;
 	    }
-
 	  }
 
 	  var parentNode = startNode; // .parentNode;
-	  while ( parentNode != contents.document.body ) {
+	  while (parentNode != contents.document.body) {
 	    parentNode.setAttribute('aria-hidden', false);
 	    parentNode = parentNode.parentNode;
 	  }
@@ -26669,28 +28084,52 @@
 
 	  var children = startNode.parentNode.children;
 	  var doProcess = false;
-	  for (var nextNode of children) {
-	    if ( nextNode == startNode ) { doProcess = true; }
-	    else if ( doProcess ) {
-	      var isVisible = _showThisNode(nextNode);
-	      if ( ! isVisible ) { break; }
+	  var _iteratorNormalCompletion5 = true;
+	  var _didIteratorError5 = false;
+	  var _iteratorError5 = undefined;
+
+	  try {
+	    for (var _iterator6 = children[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator6.next()).done); _iteratorNormalCompletion5 = true) {
+	      var nextNode = _step5.value;
+
+	      if (nextNode == startNode) {
+	        doProcess = true;
+	      } else if (doProcess) {
+	        var isVisible = _showThisNode(nextNode);
+	        if (!isVisible) {
+	          break;
+	        }
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError5 = true;
+	    _iteratorError5 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion5 && _iterator6.return) {
+	        _iterator6.return();
+	      }
+	    } finally {
+	      if (_didIteratorError5) {
+	        throw _iteratorError5;
+	      }
 	    }
 	  }
 	}
 
 	function setupFocusRules(reader) {
 
-	  if ( ! installedResizeHandler ) {
+	  if (!installedResizeHandler) {
 	    installedResizeHandler = true;
-	    reader.on('resize', () => {
+	    reader.on('resize', function () {
 	      clearClientRects();
 	    });
 	  }
 
 	  var contents = reader._rendition.getContents();
-	  contents.forEach( (content) => {
-	  
-	    if ( reader.options.debugFocusHandling ) {
+	  contents.forEach(function (content) {
+
+	    if (reader.options.debugFocusHandling) {
 	      content.addStylesheetRules({
 	        '[aria-hidden="true"]': {
 	          'opacity': '0.25 !important'
@@ -26706,11 +28145,11 @@
 	    hideEverythingInContents(content);
 
 	    // --- attempts to heal safari/edge
-	    content.document.addEventListener('keydown', function(event) {
-	      if ( event.keyCode == 9 ) {
+	    content.document.addEventListener('keydown', function (event) {
+	      if (event.keyCode == 9) {
 
 	        var activeElement = content.document.activeElement;
-	        if ( activeElement ) {
+	        if (activeElement) {
 	          reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
 	        } else {
 	          reader._manager.container.dataset.scrollLeft = 0;
@@ -26719,30 +28158,33 @@
 	    });
 	  });
 
-	  reader.on('keyDown', function(data) {
-	    if ( data.keyName == 'Tab' ) {
+	  reader.on('keyDown', function (data) {
+	    if (data.keyName == 'Tab') {
 	      reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
 	    }
 
-	    if ( data.keyName == 'Tab' && data.inner ) {
+	    if (data.keyName == 'Tab' && data.inner) {
 	      var container = reader._rendition.manager.container;
 	      // container.dataset.scrollLeft = 0;
 
 	      var mod;
 	      var delta;
-	      var x; var xyz;
-	      setTimeout(function() {
+	      var x;var xyz;
+	      setTimeout(function () {
 	        var scrollLeft = container.scrollLeft;
 	        mod = scrollLeft % parseInt(reader._rendition.manager.layout.delta, 10);
-	        if ( mod > 0 && ( mod / reader._rendition.manager.layout.delta ) < 0.99 ) {
+	        if (mod > 0 && mod / reader._rendition.manager.layout.delta < 0.99) {
 	          // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
 	          // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
 	          x = Math.floor(container.scrollLeft / parseInt(reader._rendition.manager.layout.delta, 10));
-	          if ( data.shiftKey ) { x -= 0 ; }
-	          else { x += 1; }
+	          if (data.shiftKey) {
+	            x -= 0;
+	          } else {
+	            x += 1;
+	          }
 	          var y = container.scrollLeft;
-	          delta = ( x * self._rendition.manager.layout.delta ) - y;
-	          xyz = ( x * reader._rendition.manager.layout.delta );
+	          delta = x * self._rendition.manager.layout.delta - y;
+	          xyz = x * reader._rendition.manager.layout.delta;
 	          // if ( data.shiftKey ) { delta *= -1 ; }
 	          {
 	            reader._rendition.manager.scrollBy(delta);
@@ -26757,20 +28199,20 @@
 
 	Reader.EpubJS = Reader.extend({
 
-	  initialize: function(id, options) {
+	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
 	    this._epubjs_ready = false;
 	    window.xpath = path$1;
 	  },
 
-	  open: function(target, callback) {
+	  open: function open(target, callback) {
 	    var self = this;
-	    if ( typeof(target) == 'function' ) {
+	    if (typeof target == 'function') {
 	      callback = target;
 	      target = undefined;
 	    }
-	    if ( callback == null ) {
-	      callback = function() { };
+	    if (callback == null) {
+	      callback = function callback() {};
 	    }
 
 	    self.rootfiles = [];
@@ -26779,38 +28221,38 @@
 
 	    var book_href = this.options.href;
 	    var book_options = { packagePath: this.options.rootfilePath };
-	    if ( this.options.useArchive ) {
+	    if (this.options.useArchive) {
 	      book_href = book_href.replace(/\/(\w+)\/$/, '/$1/$1.sm.epub');
 	      book_options.openAs = 'epub';
 	    }
 	    this._book = ePub$1(book_href, book_options);
 	    sessionStorage.removeItem('rootfilePath');
 
-	    this._book.loaded.navigation.then(function(toc) {
+	    this._book.loaded.navigation.then(function (toc) {
 	      self._contents = toc;
 	      self.metadata = self._book.packaging.metadata;
 
 	      self.fire('updateContents', toc);
 	      self.fire('updateTitle', self._book.packaging.metadata);
 	    });
-	    this._book.ready.then(function() {
+	    this._book.ready.then(function () {
 	      self.parseRootfiles();
 
 	      self.draw(target, callback);
 
-	      if ( self.metadata.layout == 'pre-paginated' ) {
+	      if (self.metadata.layout == 'pre-paginated') {
 	        // fake it with the spine
 	        var locations = [];
-	        self._book.spine.each(function(item) {
-	          locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
-	          self.locations._locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
+	        self._book.spine.each(function (item) {
+	          locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
+	          self.locations._locations.push('epubcfi(' + item.cfiBase + '!/4/2)');
 	        });
 	        self.locations.total = locations.length;
 	        var t;
-	        var f = function() {
-	          if ( self._rendition && self._rendition.manager && self._rendition.manager.stage ) {
+	        var f = function f() {
+	          if (self._rendition && self._rendition.manager && self._rendition.manager.stage) {
 	            var location = self._rendition.currentLocation();
-	            if ( location && location.start) {
+	            if (location && location.start) {
 	              self.fire('updateLocations', locations);
 	              clearTimeout(t);
 	              return;
@@ -26821,7 +28263,7 @@
 
 	        t = setTimeout(f, 100);
 	      } else {
-	        self._book.locations.generate(1600).then(function(locations) {
+	        self._book.locations.generate(1600).then(function (locations) {
 	          self.fire('updateLocations', locations);
 	        });
 	      }
@@ -26829,51 +28271,50 @@
 	    // .then(callback);
 	  },
 
-	  parseRootfiles: function() {
+	  parseRootfiles: function parseRootfiles() {
 	    var self = this;
-	    self._book.load(self._book.url.resolve("META-INF/container.xml")).then(function(containerDoc) {
-	        var rootfiles = containerDoc.querySelectorAll("rootfile");
-	        if ( rootfiles.length > 1 ) {
-	          for(var i = 0; i < rootfiles.length; i++) {
-	            var rootfile = rootfiles[i];
-	            var rootfilePath = rootfile.getAttribute('full-path');
-	            var label = rootfile.getAttribute('rendition:label');
-	            var layout = rootfile.getAttribute('rendition:layout');
-	            self.rootfiles.push({
-	              rootfilePath: rootfilePath,
-	              label: label,
-	              layout: layout
-	            });
-	          }
+	    self._book.load(self._book.url.resolve("META-INF/container.xml")).then(function (containerDoc) {
+	      var rootfiles = containerDoc.querySelectorAll("rootfile");
+	      if (rootfiles.length > 1) {
+	        for (var i = 0; i < rootfiles.length; i++) {
+	          var rootfile = rootfiles[i];
+	          var rootfilePath = rootfile.getAttribute('full-path');
+	          var label = rootfile.getAttribute('rendition:label');
+	          var layout = rootfile.getAttribute('rendition:layout');
+	          self.rootfiles.push({
+	            rootfilePath: rootfilePath,
+	            label: label,
+	            layout: layout
+	          });
 	        }
+	      }
 	    });
 	  },
 
-	  draw: function(target, callback) {
+	  draw: function draw(target, callback) {
 	    var self = this;
 
-	    if ( self._rendition && ! self._rendition.draft ) {
+	    if (self._rendition && !self._rendition.draft) {
 	      // self._unbindEvents();
 	      var container = self._rendition.manager.container;
-	      Object.keys(self._rendition.hooks).forEach(function(key) {
+	      Object.keys(self._rendition.hooks).forEach(function (key) {
 	        self._rendition.hooks[key].clear();
 	      });
 	      self._rendition.destroy();
 	      self._rendition = null;
 	    }
 
-
 	    var key = self.metadata.layout || 'reflowable';
 	    var flow = this.options.flow;
-	    if ( self._cozyOptions[key] && self._cozyOptions[key].flow ) {
+	    if (self._cozyOptions[key] && self._cozyOptions[key].flow) {
 	      flow = self._cozyOptions[key].flow;
 	    }
 
-	    if ( flow == 'auto' ) {
-	      if ( this.metadata.layout == 'pre-paginated' ) {
-	          if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ){
-	            flow = 'scrolled-doc';
-	          }
+	    if (flow == 'auto') {
+	      if (this.metadata.layout == 'pre-paginated') {
+	        if (this._container.offsetHeight <= this.options.forceScrolledDocHeight) {
+	          flow = 'scrolled-doc';
+	        }
 	      } else {
 	        // flow = 'paginated';
 	        flow = this.metadata.flow || 'auto';
@@ -26887,11 +28328,11 @@
 	    // }
 
 	    // var key = `${flow}/${self.metadata.layout}`;
-	    if ( self._cozyOptions[key] ) {
-	      if ( self._cozyOptions[key].text_size ) {
+	    if (self._cozyOptions[key]) {
+	      if (self._cozyOptions[key].text_size) {
 	        self.options.text_size = self._cozyOptions[key].text_size;
 	      }
-	      if ( self._cozyOptions[key].scale ) {
+	      if (self._cozyOptions[key].scale) {
 	        self.options.scale = self._cozyOptions[key].scale;
 	      }
 	    }
@@ -26915,12 +28356,12 @@
 	    //   }
 	    // }
 
-	    if ( this.settings.flow == 'auto' || this.settings.flow == 'paginated' ) {
+	    if (this.settings.flow == 'auto' || this.settings.flow == 'paginated') {
 	      this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
 	      this.settings.manager = 'default';
 	    } else {
 	      this._panes['epub'].style.overflow = 'auto';
-	      if ( this.settings.manager == 'default' ) {
+	      if (this.settings.manager == 'default') {
 	        // this.settings.manager = 'continuous';
 	        this.settings.manager = ScrollingContinuousViewManager;
 	        this.settings.view = StickyIframeView;
@@ -26929,40 +28370,40 @@
 	      }
 	    }
 
-	    if ( ! callback ) {
-	      callback = function() { };
+	    if (!callback) {
+	      callback = function callback() {};
 	    }
 
 	    self.settings.height = '100%';
 	    self.settings.width = '100%';
 	    self.settings['ignoreClass'] = 'annotator-hl';
 
-	    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
-	        // this.settings.manager = 'prepaginated';
-	        // this.settings.manager = PrePaginatedContinuousViewManager;
-	        // this.settings.view = ReusableIframeView;
-	        this.settings.manager = ScrollingContinuousViewManager;
-	        this.settings.view = StickyIframeView;
-	        this.settings.spread = 'none';
+	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
+	      // this.settings.manager = 'prepaginated';
+	      // this.settings.manager = PrePaginatedContinuousViewManager;
+	      // this.settings.view = ReusableIframeView;
+	      this.settings.manager = ScrollingContinuousViewManager;
+	      this.settings.view = StickyIframeView;
+	      this.settings.spread = 'none';
 	    }
 
-	    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager ) {
-	      if ( this.options.minHeight ) {
+	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager) {
+	      if (this.options.minHeight) {
 	        this.settings.minHeight = this.options.minHeight;
 	      }
 	    }
 
-	    if ( self.options.scale != '100' ) {
+	    if (self.options.scale != '100') {
 	      self.settings.scale = parseInt(self.options.scale, 10) / 100;
 	    }
 
-	    self._panes['book'].dataset.manager = this.settings.manager + ( this.settings.spread ? `-${this.settings.spread}` : '');
+	    self._panes['book'].dataset.manager = this.settings.manager + (this.settings.spread ? '-' + this.settings.spread : '');
 	    self._panes['book'].dataset.layout = this.metadata.layout || 'reflowable';
 
 	    self._drawRendition(target, callback);
 	  },
 
-	  _drawRendition: function(target, callback) {
+	  _drawRendition: function _drawRendition(target, callback) {
 	    var self = this;
 
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
@@ -26974,9 +28415,11 @@
 	    self._bindEvents();
 	    self._drawn = true;
 
-	    if ( target && target.start ) { target = target.start; }
-	    if ( ! target && window.location.hash ) {
-	      if ( window.location.hash.substr(1, 3) == '/6/' ) {
+	    if (target && target.start) {
+	      target = target.start;
+	    }
+	    if (!target && window.location.hash) {
+	      if (window.location.hash.substr(1, 3) == '/6/') {
 	        var original_target = window.location.hash.substr(1);
 	        target = decodeURIComponent(window.location.hash.substr(1));
 	        target = "epubcfi(" + target + ")";
@@ -26987,43 +28430,44 @@
 	    }
 
 	    var status_index = 0;
-	    self._rendition.on('started', function() {
+	    self._rendition.on('started', function () {
 	      self._manager = self._rendition.manager;
 
-	      self._rendition.manager.on("building", function(status) {
-	        if ( status ) {
+	      self._rendition.manager.on("building", function (status) {
+	        if (status) {
 	          status_index += 1;
-	          self._panes['loader-status'].innerHTML = `<span>${Math.round((status_index / status.total) * 100.0)}%</span>`;
+	          self._panes['loader-status'].innerHTML = '<span>' + Math.round(status_index / status.total * 100.0) + '%</span>';
 	        } else {
 	          self._enableBookLoader(-1);
 	        }
 	      });
-	      self._rendition.manager.on("built", function() {
+	      self._rendition.manager.on("built", function () {
 	        self._disableBookLoader(true);
 	      });
 	    });
 
-	    self._rendition.hooks.content.register(function(contents) {
+	    self._rendition.hooks.content.register(function (contents) {
 	      self.fire('ready:contents', contents);
 	      self.fire('readyContents', contents);
 
 	      // check for tables + columns
-	      if ( self._rendition.manager.layout.name == 'reflowable' && ! ( ie || edge ) ) {
+	      if (self._rendition.manager.layout.name == 'reflowable' && !(ie || edge)) {
 	        popupTables(self, contents);
 	      }
-
 	    });
 
-	    self.gotoPage(target, function() {
+	    self.gotoPage(target, function () {
 	      window._loaded = true;
 	      self._initializeReaderStyles();
 
-	      if ( callback ) { callback(); }
+	      if (callback) {
+	        callback();
+	      }
 
 	      self._epubjs_ready = true;
 
-	      self.gotoPage(target, function() {
-	        setTimeout(function() {
+	      self.gotoPage(target, function () {
+	        setTimeout(function () {
 	          self.fire('opened');
 	          self.fire('ready');
 	          self._disableBookLoader();
@@ -27035,24 +28479,23 @@
 	          });
 	        }, 100);
 	      });
-
 	    });
 	  },
 
-	  _scroll: function(delta) {
+	  _scroll: function _scroll(delta) {
 	    var self = this;
-	    if ( self.options.flow == 'XXscrolled-doc' ) {
+	    if (self.options.flow == 'XXscrolled-doc') {
 	      var container = self._rendition.manager.container;
 	      var rect = container.getBoundingClientRect();
 	      var scrollTop = container.scrollTop;
 	      var newScrollTop = scrollTop;
-	      var scrollBy = ( rect.height * 0.98 );
-	      switch(delta) {
+	      var scrollBy = rect.height * 0.98;
+	      switch (delta) {
 	        case 'PREV':
-	          newScrollTop = -( scrollTop + scrollBy );
+	          newScrollTop = -(scrollTop + scrollBy);
 	          break;
 	        case 'NEXT':
-	          newScrollTop = ( scrollTop + scrollBy );
+	          newScrollTop = scrollTop + scrollBy;
 	          break;
 	        case 'HOME':
 	          newScrollTop = 0;
@@ -27062,86 +28505,90 @@
 	          break;
 	      }
 	      container.scrollTop = newScrollTop;
-	      return ( Math.floor(container.scrollTop) != Math.floor(scrollTop) );
+	      return Math.floor(container.scrollTop) != Math.floor(scrollTop);
 	    }
 	    return false;
 	  },
 
-	  _navigate: function(promise, callback) {
+	  _navigate: function _navigate(promise, callback) {
 	    var self = this;
 	    self._enableBookLoader(100);
-	    promise.then(function() {
+	    promise.then(function () {
 	      self._disableBookLoader();
-	      if ( callback ) { callback(); }
-	    }).catch(function(e) {
+	      if (callback) {
+	        callback();
+	      }
+	    }).catch(function (e) {
 	      self._disableBookLoader();
-	      if ( callback ) { callback(); }
+	      if (callback) {
+	        callback();
+	      }
 	      console.log("AHOY NAVIGATE ERROR", e);
-	      throw(e);
+	      throw e;
 	    });
 	  },
 
-	  next: function() {
+	  next: function next() {
 	    var self = this;
 	    this.tracking.action('reader/go/next');
 	    self._scroll('NEXT') || self._navigate(this._rendition.next());
 	  },
 
-	  prev: function() {
+	  prev: function prev() {
 	    this.tracking.action('reader/go/previous');
 	    this._scroll('PREV') || this._navigate(this._rendition.prev());
 	  },
 
-	  first: function() {
+	  first: function first() {
 	    this.tracking.action('reader/go/first');
 	    this._navigate(this._rendition.display(0), undefined);
 	  },
 
-	  last: function() {
+	  last: function last() {
 	    this.tracking.action('reader/go/last');
 	    var target = this._book.spine.length - 1;
 	    this._navigate(this._rendition.display(target), undefined);
 	  },
 
-	  gotoPage: function(target, callback) {
+	  gotoPage: function gotoPage(target, callback) {
 	    var self = this;
 
 	    var hash;
-	    if ( target != null ) {
+	    if (target != null) {
 	      var section = this._book.spine.get(target);
-	      if ( ! section) {
+	      if (!section) {
 	        // maybe it needs to be resolved
 	        var guessed = target;
-	        if ( guessed.indexOf("://") < 0 ) {
+	        if (guessed.indexOf("://") < 0) {
 	          var path1 = path$1.resolve(this._book.path.directory, this._book.packaging.navPath);
 	          var path2 = path$1.resolve(path$1.dirname(path1), target);
 	          guessed = this._book.canonical(path2);
 	        }
-	        if ( guessed.indexOf("#") !== 0 ) {
+	        if (guessed.indexOf("#") !== 0) {
 	          hash = guessed.split('#')[1];
 	          guessed = guessed.split('#')[0];
 	        }
 
-	        this._book.spine.each(function(item) {
-	          if ( item.canonical == guessed ) {
+	        this._book.spine.each(function (item) {
+	          if (item.canonical == guessed) {
 	            section = item;
 	            target = section.href;
 	            return;
 	          }
 	        });
 
-	        if ( hash ) {
+	        if (hash) {
 	          target = target + '#' + hash;
 	        }
 
 	        // console.log("AHOY GUESSED", target);
-	      } else if ( target.toString().match(/^\d+$/) ) {
+	      } else if (target.toString().match(/^\d+$/)) {
 	        // console.log("AHOY USING", section.href);
 	        target = section.href;
 	      }
 
-	      if ( ! section ) {
-	        if ( ! this._epubjs_ready ) {
+	      if (!section) {
+	        if (!this._epubjs_ready) {
 	          target = 0;
 	        } else {
 	          return;
@@ -27150,55 +28597,61 @@
 	    }
 
 	    self.tracking.reset();
-	    var navigating = this._rendition.display(target).then(function() {
+	    var navigating = this._rendition.display(target).then(function () {
 	      this._rendition.display(target);
 	    }.bind(this));
 	    this._navigate(navigating, callback);
 	  },
 
-	  percentageFromCfi: function(cfi) {
+	  percentageFromCfi: function percentageFromCfi(cfi) {
 	    return this._book.percentageFromCfi(cfi);
 	  },
 
-	  destroy: function() {
-	    if ( this._rendition ) {
+	  destroy: function destroy() {
+	    if (this._rendition) {
 	      try {
 	        this._rendition.destroy();
-	      } catch(e) {}
+	      } catch (e) {}
 	    }
 	    this._rendition = null;
 	    this._drawn = false;
 	  },
 
-	  reopen: function(options, target) {
+	  reopen: function reopen(options, target) {
 	    // different per reader?
 	    var target = target || this.currentLocation();
-	    if( target.start ) { target = target.start ; }
-	    if ( target.cfi ) { target = target.cfi ; }
+	    if (target.start) {
+	      target = target.start;
+	    }
+	    if (target.cfi) {
+	      target = target.cfi;
+	    }
 
 	    var doUpdate = false;
-	    if ( options === true ) { doUpdate = true; options = {}; }
+	    if (options === true) {
+	      doUpdate = true;options = {};
+	    }
 	    var changed = {};
-	    Object.keys(options).forEach(function(key) {
-	      if ( options[key] != this.options[key] ) {
+	    Object.keys(options).forEach(function (key) {
+	      if (options[key] != this.options[key]) {
 	        doUpdate = true;
 	        changed[key] = true;
 	      }
 	      // doUpdate = doUpdate || ( options[key] != this.options[key] );
 	    }.bind(this));
 
-	    if ( ! doUpdate ) {
+	    if (!doUpdate) {
 	      return;
 	    }
 
 	    // performance hack
-	    if ( Object.keys(changed).length == 1 && changed.scale ) {
+	    if (Object.keys(changed).length == 1 && changed.scale) {
 	      reader.options.scale = options.scale;
 	      this._updateScale();
 	      return;
 	    }
 
-	    if ( options.rootfilePath && options.rootfilePath != this.options.rootfilePath ) {
+	    if (options.rootfilePath && options.rootfilePath != this.options.rootfilePath) {
 	      // we need to REOPEN THE DANG BOOK
 	      sessionStorage.setItem('rootfilePath', options.rootfilePath);
 	      location.reload();
@@ -27207,7 +28660,7 @@
 
 	    extend(this.options, options);
 
-	    this.draw(target, function() {
+	    this.draw(target, function () {
 	      // this._updateFontSize();
 	      this._updateScale();
 	      this._updateTheme();
@@ -27215,32 +28668,32 @@
 	    }.bind(this));
 	  },
 
-	  currentLocation: function() {
-	    if ( this._rendition && this._rendition.manager ) {
+	  currentLocation: function currentLocation() {
+	    if (this._rendition && this._rendition.manager) {
 	      this._cached_location = this._rendition.currentLocation();
 	    }
 	    return this._cached_location;
 	  },
 
-	  _bindEvents: function() {
+	  _bindEvents: function _bindEvents() {
 	    var self = this;
-	    if ( this._book.packaging.metadata.layout == 'pre-paginated' ) ; else if ( this.options.flow == 'auto' || this.options.flow == 'paginated' ) ;
+	    if (this._book.packaging.metadata.layout == 'pre-paginated') ; else if (this.options.flow == 'auto' || this.options.flow == 'paginated') ;
 
 	    var custom_stylesheet_rules = [];
 
 	    // force 90% height instead of default 60%
-	    if ( this.metadata.layout != 'pre-paginated' ) {
-	      this._rendition.hooks.content.register(function(contents) {
+	    if (this.metadata.layout != 'pre-paginated') {
+	      this._rendition.hooks.content.register(function (contents) {
 	        contents.addStylesheetRules({
-	          "img" : {
+	          "img": {
 	            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-	            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+	            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
 	            "object-fit": "contain",
 	            "page-break-inside": "avoid"
 	          },
-	          "svg" : {
+	          "svg": {
 	            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-	            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+	            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
 	            "page-break-inside": "avoid"
 	          },
 	          "body": {
@@ -27250,9 +28703,9 @@
 	        });
 	      }.bind(this._rendition));
 	    } else {
-	      this._rendition.hooks.content.register(function(contents) {
+	      this._rendition.hooks.content.register(function (contents) {
 	        contents.addStylesheetRules({
-	          "img" : {
+	          "img": {
 	            // "border": "64px solid black !important",
 	            "box-sizing": "border-box !important"
 	          },
@@ -27270,41 +28723,43 @@
 
 	    this._updateFontSize();
 
-	    if ( custom_stylesheet_rules.length ) {
-	      this._rendition.hooks.content.register(function(view) {
+	    if (custom_stylesheet_rules.length) {
+	      this._rendition.hooks.content.register(function (view) {
 	        view.addStylesheetRules(custom_stylesheet_rules);
 	      });
 	    }
 
-	    this._rendition.on('resized', function(box) {
+	    this._rendition.on('resized', function (box) {
 	      self.fire('resized', box);
 	    });
 
-	    this._rendition.on('click', function(event, contents) {
-	      if ( event.isTrusted ) {
+	    this._rendition.on('click', function (event, contents) {
+	      if (event.isTrusted) {
 	        this.tracking.action("inline/go/link");
 	      }
 	    }.bind(this));
 
-	    this._rendition.on('keydown', function(event, contents) {
+	    this._rendition.on('keydown', function (event, contents) {
 	      var target = event.target;
-	      var IGNORE_TARGETS = [ 'input', 'textarea' ];
-	      if ( IGNORE_TARGETS.indexOf(target.localName) >= 0 ) {
+	      var IGNORE_TARGETS = ['input', 'textarea'];
+	      if (IGNORE_TARGETS.indexOf(target.localName) >= 0) {
 	        return;
 	      }
 	      this.fire('keyDown', { keyName: event.key, shiftKey: event.shiftKey, inner: true });
 	    }.bind(this));
 
-	    var relocated_handler = debounce_1(function(location) {
-	      if ( self._fired ) { self._fired = false; return ; }
+	    var relocated_handler = debounce_1(function (location) {
+	      if (self._fired) {
+	        self._fired = false;return;
+	      }
 	      self.fire('relocated', location);
 
 	      // hideEverything/showEverything
 	      updateFocus(self, location);
 
-	      if ( safari && self._last_location_start && self._last_location_start != location.start.href ) {
+	      if (safari && self._last_location_start && self._last_location_start != location.start.href) {
 	        self._fired = true;
-	        setTimeout(function() {
+	        setTimeout(function () {
 	          // self._rendition.display(location.start.cfi);
 	        }, 0);
 	      }
@@ -27312,11 +28767,11 @@
 
 	    this._rendition.on('relocated', relocated_handler);
 
-	    this._rendition.on('displayerror', function(err) {
+	    this._rendition.on('displayerror', function (err) {
 	      console.log("AHOY RENDITION DISPLAY ERROR", err);
 	    });
 
-	    var locationChanged_handler = debounce_1(function(location) {
+	    var locationChanged_handler = debounce_1(function (location) {
 	      var view = this.manager.current();
 	      var section = view.section;
 	      var current = this.book.navigation.get(section.href);
@@ -27327,30 +28782,31 @@
 
 	    this._rendition.on("locationChanged", locationChanged_handler);
 
-	    this.on('updateLocations', function() {
+	    this.on('updateLocations', function () {
 	      // trigger this when all the locations have been loaded from the spine
 	      this._rendition.emit('relocated', this._rendition.currentLocation());
 	    });
 
-	    this._rendition.on("rendered", function(section, view) {
+	    this._rendition.on("rendered", function (section, view) {
 	      self._updateFrameTitle(section, view);
 	    });
 
-	    this._rendition.on("rendered", function(section, view) {
+	    this._rendition.on("rendered", function (section, view) {
 
-	      if ( self.settings.flow == 'scrolled-doc' ) { return ; }
+	      if (self.settings.flow == 'scrolled-doc') {
+	        return;
+	      }
 
 	      // add focus rules
 	      setupFocusRules(self);
-
 	    });
 	  },
 
-	  _initializeReaderStyles: function() {
+	  _initializeReaderStyles: function _initializeReaderStyles() {
 	    var self = this;
 	    var themes = this.options.themes;
-	    if ( themes ) {
-	      themes.forEach(function(theme) {
+	    if (themes) {
+	      themes.forEach(function (theme) {
 	        self._rendition.themes.register(theme['klass'], theme.href ? theme.href : theme.rules);
 	      });
 	    }
@@ -27359,79 +28815,83 @@
 	    // this._rendition.themes.override('.epubjs-hl', "fill: yellow; fill-opacity: 0.3; mix-blend-mode: multiply;");
 	  },
 
-	  _selectTheme: function(refresh) {
+	  _selectTheme: function _selectTheme(refresh) {
 	    var theme = this.options.theme || 'default';
 	    this._rendition.themes.select(theme);
 	  },
 
-	  _updateFontSize: function() {
+	  _updateFontSize: function _updateFontSize() {
 
 	    var text_size = this.options.text_size || 100; // this.options.modes[this.flow].text_size; // this.options.text_size == 'auto' ? 100 : this.options.text_size;
-	    this._rendition.themes.fontSize(`${text_size}%`);
+	    this._rendition.themes.fontSize(text_size + '%');
 	  },
 
-	  _updateScale: function() {
-	    if ( this.metadata.layout != 'pre-paginated') {
+	  _updateScale: function _updateScale() {
+	    if (this.metadata.layout != 'pre-paginated') {
 	      // we're not scaling for reflowable
 	      return;
 	    }
 	    // var scale = this.options.modes[this.flow].scale;
 	    var scale = this.options.scale;
-	    if ( scale ) {
+	    if (scale) {
 	      this.settings.scale = parseInt(scale, 10) / 100.0;
 	      this._queueScale();
 	    }
 	  },
 
-	  _queueScale: function(scale) {
-	    this._queueTimeout = setTimeout(function() {
-	      if ( this._rendition.manager && this._rendition.manager.stage ) {
+	  _queueScale: function _queueScale(scale) {
+	    this._queueTimeout = setTimeout(function () {
+	      if (this._rendition.manager && this._rendition.manager.stage) {
 	        this._rendition.scale(this.settings.scale);
 	        var text_size = this.settings.scale == 1.0 ? 100 : this.settings.scale * 100.0;
-	        this._rendition.themes.fontSize(`${text_size}%`);
+	        this._rendition.themes.fontSize(text_size + '%');
 	      } else {
 	        this._queueScale();
 	      }
 	    }.bind(this), 100);
 	  },
 
-	  _updateFrameTitle: function(section, view) {
+	  _updateFrameTitle: function _updateFrameTitle(section, view) {
 	    var self = this;
 
-	    var title = `Section ${section.index + 1}`;
+	    var title = 'Section ' + (section.index + 1);
 	    var current = self._book.navigation && self._book.navigation.get(section.href);
-	    if ( ! current ) {
+	    if (!current) {
 	      var subtitle;
-	      for(var tag of [ 'h1', 'h2' ]) {
+	      var _arr = ['h1', 'h2'];
+	      for (var _i = 0; _i < _arr.length; _i++) {
+	        var tag = _arr[_i];
 	        var tmp = view.document.querySelectorAll(tag);
-	        if ( tmp ) {
+	        if (tmp) {
 	          var buffer = [];
-	          for(var i = 0; i < tmp.length; i++) {
+	          for (var i = 0; i < tmp.length; i++) {
 	            buffer.push(tmp[i].innerText);
-	            if ( tag == 'h2' ) { break; } // only one of these
+	            if (tag == 'h2') {
+	              break;
+	            } // only one of these
 	          }
 	          subtitle = buffer.join(' - ');
 	          break;
 	        }
 	      }
-	      if ( ! subtitle ) {
-	        for(var i = section.index; i >= 0; i--) {
+	      if (!subtitle) {
+	        for (var i = section.index; i >= 0; i--) {
 	          var previousSection = self._book.spine.get(i);
 	          var previous = self._book.navigation.get(previousSection.href);
-	          if ( previous ) {
+	          if (previous) {
 	            subtitle = previous.label;
 	            break;
 	          }
 	        }
 	      }
-	      if ( subtitle ) {
+	      if (subtitle) {
 	        title += ': ' + subtitle;
 	      }
 	    } else {
 	      title += ': ' + current.label;
 	    }
-	    if ( title ) {
-	      view.iframe.title = `Contents: ${title}` ;
+	    if (title && view.iframe) {
+	      view.iframe.title = 'Contents: ' + title;
 	    }
 	  },
 
@@ -27440,30 +28900,30 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'metadata', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function(data) {
+	  set: function set(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'annotations', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
-	    if ( ie ) {
+	    if (ie) {
 	      return {
-	        reset: function() { /* NOOP */ },
-	        highlight: function(cfiRange) { /* NOOP */ }
-	      }
+	        reset: function reset() {/* NOOP */},
+	        highlight: function highlight(cfiRange) {/* NOOP */}
+	      };
 	    }
-	    if ( ! this._rendition.annotations.reset ) {
-	      this._rendition.annotations.reset = function(){
-	        for(var hash in this._annotations) {
-	            var cfiRange = decodeURI(hash);
-	            this.remove(cfiRange);
+	    if (!this._rendition.annotations.reset) {
+	      this._rendition.annotations.reset = function () {
+	        for (var hash in this._annotations) {
+	          var cfiRange = decodeURI(hash);
+	          this.remove(cfiRange);
 	        }
 	        this._annotationsBySectionIndex = {};
 	      }.bind(this._rendition.annotations);
@@ -27473,15 +28933,15 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._book.locations;
 	  }
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'rendition', {
-	  get: function() {
-	    if ( ! this._rendition ) {
+	  get: function get$$1() {
+	    if (!this._rendition) {
 	      this._rendition = { draft: true };
 	      this._rendition.hooks = {};
 	      this._rendition.hooks.content = new Hook(this);
@@ -27489,10 +28949,10 @@
 	    return this._rendition;
 	  },
 
-	  set: function(rendition) {
-	    if ( this._rendition && this._rendition.draft ) {
+	  set: function set(rendition) {
+	    if (this._rendition && this._rendition.draft) {
 	      var hook = this._rendition.hooks.content;
-	      hook.hooks.forEach(function(fn) {
+	      hook.hooks.forEach(function (fn) {
 	        rendition.hooks.content.register(fn);
 	      });
 	    }
@@ -27501,7 +28961,7 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
-	  get: function() {
+	  get: function get$$1() {
 	    return ePub$1.CFI;
 	  }
 	});
@@ -27514,11 +28974,11 @@
 
 	Reader.Mock = Reader.extend({
 
-	  initialize: function(id, options) {
+	  initialize: function initialize(id, options) {
 	    Reader.prototype.initialize.apply(this, arguments);
 	  },
 
-	  open: function(target, callback) {
+	  open: function open(target, callback) {
 	    this._book = {
 	      metadata: {
 	        title: 'The Mock Life',
@@ -27528,32 +28988,11 @@
 	        pubdate: '2017-05-23'
 	      },
 	      contents: {
-	        toc: [
-	          {id: 1, href: "/epubs/mock/ops/xhtml/TitlePage.xhtml", label: "Title", parent: null},
-	          {id: 2, href: "/epubs/mock/ops/xhtml/Chapter01.xhtml", label: "Chapter 1", parent: null},
-	          {id: 3, href: "/epubs/mock/ops/xhtml/Chapter02.xhtml", label: "Chapter 2", parent: null},
-	          {id: 4, href: "/epubs/mock/ops/xhtml/Chapter03.xhtml", label: "Chapter 3", parent: null},
-	          {id: 5, href: "/epubs/mock/ops/xhtml/Chapter04.xhtml", label: "Chapter 4", parent: null},
-	          {id: 6, href: "/epubs/mock/ops/xhtml/Chapter05.xhtml", label: "Chapter 5", parent: null},
-	          {id: 7, href: "/epubs/mock/ops/xhtml/Chapter06.xhtml", label: "Chapter 6", parent: null},
-	          {id: 8, href: "/epubs/mock/ops/xhtml/Chapter07.xhtml", label: "Chapter 7", parent: null},
-	          {id: 9, href: "/epubs/mock/ops/xhtml/Index.xhtml", label: "Index", parent: null},
-	        ]
+	        toc: [{ id: 1, href: "/epubs/mock/ops/xhtml/TitlePage.xhtml", label: "Title", parent: null }, { id: 2, href: "/epubs/mock/ops/xhtml/Chapter01.xhtml", label: "Chapter 1", parent: null }, { id: 3, href: "/epubs/mock/ops/xhtml/Chapter02.xhtml", label: "Chapter 2", parent: null }, { id: 4, href: "/epubs/mock/ops/xhtml/Chapter03.xhtml", label: "Chapter 3", parent: null }, { id: 5, href: "/epubs/mock/ops/xhtml/Chapter04.xhtml", label: "Chapter 4", parent: null }, { id: 6, href: "/epubs/mock/ops/xhtml/Chapter05.xhtml", label: "Chapter 5", parent: null }, { id: 7, href: "/epubs/mock/ops/xhtml/Chapter06.xhtml", label: "Chapter 6", parent: null }, { id: 8, href: "/epubs/mock/ops/xhtml/Chapter07.xhtml", label: "Chapter 7", parent: null }, { id: 9, href: "/epubs/mock/ops/xhtml/Index.xhtml", label: "Index", parent: null }]
 	      }
 	    };
 
-	    this._locations = [
-	      'epubcfi(/6/4[TitlePage.xhtml])',
-	      'epubcfi(/6/4[Chapter01.xhtml])',
-	      'epubcfi(/6/4[Chapter02.xhtml])',
-	      'epubcfi(/6/4[Chapter03.xhtml])',
-	      'epubcfi(/6/4[Chapter04.xhtml])',
-	      'epubcfi(/6/4[Chapter05.xhtml])',
-	      'epubcfi(/6/4[Chapter06.xhtml])',
-	      'epubcfi(/6/4[Chapter07.xhtml])',
-	      'epubcfi(/6/4[Chapter08.xhtml])',
-	      'epubcfi(/6/4[Index.xhtml])',
-	    ];
+	    this._locations = ['epubcfi(/6/4[TitlePage.xhtml])', 'epubcfi(/6/4[Chapter01.xhtml])', 'epubcfi(/6/4[Chapter02.xhtml])', 'epubcfi(/6/4[Chapter03.xhtml])', 'epubcfi(/6/4[Chapter04.xhtml])', 'epubcfi(/6/4[Chapter05.xhtml])', 'epubcfi(/6/4[Chapter06.xhtml])', 'epubcfi(/6/4[Chapter07.xhtml])', 'epubcfi(/6/4[Chapter08.xhtml])', 'epubcfi(/6/4[Index.xhtml])'];
 
 	    this.__currentIndex = 0;
 
@@ -27564,18 +29003,18 @@
 	    this.draw(target, callback);
 	  },
 
-	  draw: function(target, callback) {
+	  draw: function draw(target, callback) {
 	    var self = this;
 	    this.settings = { flow: this.options.flow };
 	    this.settings.height = '100%';
 	    this.settings.width = '99%';
 	    // this.settings.width = '100%';
-	    if ( this.options.flow == 'auto' ) {
+	    if (this.options.flow == 'auto') {
 	      this._panes['book'].style.overflow = 'hidden';
 	    } else {
 	      this._panes['book'].style.overflow = 'auto';
 	    }
-	    if ( typeof(target) == 'function' && cb === undefined ) {
+	    if (typeof target == 'function' && cb === undefined) {
 	      callback = target;
 	      target = undefined;
 	    }
@@ -27583,23 +29022,22 @@
 	    self.fire('ready');
 	  },
 
-	  next: function() {
+	  next: function next() {
 	    // this._rendition.next();
 	  },
 
-	  prev: function() {
+	  prev: function prev() {
 	    // this._rendition.prev();
 	  },
 
-	  first: function() {
+	  first: function first() {
 	    // this._rendition.display(0);
 	  },
 
-	  last: function() {
-	  },
+	  last: function last() {},
 
-	  gotoPage: function(target) {
-	    if ( typeof(target) == "string" ) {
+	  gotoPage: function gotoPage(target) {
+	    if (typeof target == "string") {
 	      this.__currentIndex = this._locations.indexOf(target);
 	    } else {
 	      this.__currentIndex = target;
@@ -27607,71 +29045,68 @@
 	    this.fire("relocated", this.currentLocation());
 	  },
 
-	  destroy: function() {
+	  destroy: function destroy() {
 	    // if ( this._rendition ) {
 	    //   this._rendition.destroy();
 	    // }
 	    // this._rendition = null;
 	  },
 
-	  currentLocation: function() {
+	  currentLocation: function currentLocation() {
 	    var cfi = this._locations[this.__currentIndex];
 	    return {
 	      start: { cfi: cfi, href: cfi },
 	      end: { cfi: cfi, href: cfi }
-	    }
+	    };
 	  },
 
-	  _bindEvents: function() {
-
+	  _bindEvents: function _bindEvents() {
 	  },
 
-	  _updateTheme: function() {
-
-	  },
+	  _updateTheme: function _updateTheme() {},
 
 	  EOT: true
 
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'metadata', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    return this._metadata;
 	  },
 
-	  set: function(data) {
+	  set: function set(data) {
 	    this._metadata = extend({}, data, this.options.metadata);
 	  }
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'locations', {
-	  get: function() {
+	  get: function get$$1() {
 	    // return the combined metadata of configured + book metadata
 	    var self = this;
 	    return {
 	      total: self._locations.length,
-	      locationFromCfi: function(cfi) {
+	      locationFromCfi: function locationFromCfi(cfi) {
 	        return self._locations.indexOf(cfi);
 	      },
-	      percentageFromCfi: function(cfi) {
+	      percentageFromCfi: function percentageFromCfi(cfi) {
 	        var index = self.locations.locationFromCfi(cfi);
-	        return ( index / self.locations.total );
+	        return index / self.locations.total;
 	      },
-	      cfiFromPercentage: function(percentage) {
+	      cfiFromPercentage: function cfiFromPercentage(percentage) {
 	        var index = Math.ceil(percentage * 10);
 	        return self._locations[index];
 	      }
-	    }
+	    };
 	  }
 	});
 
 	Object.defineProperty(Reader.Mock.prototype, 'annotations', {
-	  get: function() {
+	  get: function get$$1() {
 	    return {
-	      reset: function() {},
-	      highlight: function() {}
-	    }
+	      reset: function reset() {},
+	      highlight: function highlight() {}
+	    };
 	  }
 	});
 
@@ -27684,7 +29119,7 @@
 	  mock: createReader$2
 	};
 
-	var reader$1 = function(id, options) {
+	var reader$1 = function reader(id, options) {
 	  options = options || {};
 	  var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
 	  var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
