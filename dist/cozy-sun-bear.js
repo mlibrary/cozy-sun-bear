@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 =======
 =======
@@ -15,6 +16,9 @@
 =======
  * Cozy Sun Bear 1.0.06d233c3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
 >>>>>>> 20471e8... IE11 support
+=======
+ * Cozy Sun Bear 1.0.020471e8, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> b898331... build
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -29072,7 +29076,6 @@
 
 	    var div = document.createElement('div');
 	    div.classList.add('clipped');
-	    console.log("AHOY TABLE CLIPPING");
 	    table.querySelector('tbody').appendChild(div);
 
 	    var button = document.createElement('button');
