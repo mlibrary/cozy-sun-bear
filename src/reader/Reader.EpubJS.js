@@ -85,7 +85,7 @@ Reader.EpubJS = Reader.extend({
         }
 
         t = setTimeout(f, 100);
-      } else if ( self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
+      } else if (self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
         self._book.locations.generateFromPageList(self._book.pageList).then(function(locations) {
           console.log("AHOY WUT", locations);
           self.fire('updateLocations', locations);
@@ -623,6 +623,7 @@ Reader.EpubJS = Reader.extend({
     this._rendition.on("rendered", function(section, view) {
 
       if ( self.settings.flow == 'scrolled-doc' ) { return ; }
+      if ( Browser.ie ) { self.options.disableFocusHandling = true; return ; }
 
       // add focus rules
       focus.setupFocusRules(self);

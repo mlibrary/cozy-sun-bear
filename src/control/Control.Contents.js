@@ -130,7 +130,7 @@ export var Contents = Control.extend({
       }
 
       if ( self._reader.pageList ) {
-        parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
+        var parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
         for(var i = 0; i < self._reader.pageList.pages.length; i++) {
           var pg = self._reader.pageList.pages[i];
           var info = self._reader.pageList.pageList[i];

@@ -85,8 +85,10 @@ export var Navigator = Control.extend({
     this._reader.on('relocated', function(location) {
       if ( ! self._initiated ) { return; }
       if ( ! self._mouseDown ) {
-        location = self._reader.currentLocation();
-        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(self._reader.currentLocation().start.cfi) * 100);
+        var a = location;
+        // location = self._reader.currentLocation();
+        // console.log("AHOY RELOCATED", a, location);
+        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(location.start.cfi) * 100);
         self._update();
       }
     })
