@@ -48,7 +48,7 @@ export var Navigator = Control.extend({
   _createControl: function (container) {
     var template = `<div class="cozy-navigator-range">
         <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>
-        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
+        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
         <div class="cozy-navigator-range__background"></div>
       </div>
       <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>
@@ -76,13 +76,27 @@ export var Navigator = Control.extend({
         self._mouseDown = false;
     }, false);
     this._control.addEventListener("keydown", function(){
-      self._mouseDown = true;
+      // console.log("AHOY NAVIGATOR keydown", event);
+      // self._mouseDown = true;
     }, false);
     this._control.addEventListener("keyup", function(){
-      self._mouseDown = false;
+      // console.log("AHOY NAVIGATOR keyup", event);
+      // self._mouseDown = false;
     }, false);
 
     this._reader.on('relocated', function(location) {
+      if ( ! self._initiated ) { return ; }
+      if ( ! ( location && location.start && location.start.cfi ) ) { return ; }
+      var value = Math.ceil(self._reader.locations.percentageFromCfi(location.start.cfi) * 10000) / 100.0;
+      console.log("AHOY NAVIGATOR relocated", location, value, self._control.value);
+      if ( true || value != self._control.value ) {
+        self._control.value = value;
+        self._update(location);
+      }
+    })
+
+    this._reader.on('xxrelocated', function(location) {
+      console.log("AHOY NAVIGATOR relocated", location, self._initiated, self._mouseDown);
       if ( ! self._initiated ) { return; }
       if ( ! self._mouseDown ) {
         var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
@@ -101,10 +115,10 @@ export var Navigator = Control.extend({
     this._reader.display(cfi);
   },
 
-  _update: function() {
+  _update: function(current) {
     var self = this;
 
-    var current = this._reader.currentLocation();
+    if ( ! current ) { current = this._reader.currentLocation(); }
     if ( ! current || ! current.start ) {
       setTimeout(function() {
         this._update();
@@ -112,25 +126,26 @@ export var Navigator = Control.extend({
       return;
     }
 
+    console.log("AHOY NAVIGATOR update", current.start.cfi);
+
+    // check this early to avoid emitting events
+    var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
+    if ( current_location == this._last_reported_location ) {
+      return;
+    }
+    this._last_reported_location = current_location;
+
     var rangeBg = this._background;
     var range = self._control;
 
-    var value = parseInt(range.value, 10);
+    var value = parseFloat(range.value, 10);
     var percentage = value;
-
-    // if ( current.start.location != this._last_reported_location ) {
-    //   this._last_reported_location = current.start.location;
-    //   var message = `Location ${current.start.location}; ${percentage}%`;
-    //   this._reader.updateLiveStatus(message);
-    // }
 
     rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
     self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
     this._spanCurrentPercentage.innerHTML = percentage + '%';
-    if ( current && current.start ) {
-      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-      this._spanCurrentLocation.innerHTML = ( current_location );
+    this._spanCurrentLocation.innerHTML = ( current_location );
 
       if ( this._reader.pageList ) {
         var pages = this._reader.pageList.pagesFromLocation(current);
@@ -155,12 +170,9 @@ export var Navigator = Control.extend({
       range.setAttribute('aria-valuenow', value);
       range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
 
-      if ( current_location != this._last_reported_location ) {
-        this._last_reported_location = current_location;
-        var message = `Location ${current_location}; ${percentage}%`;
-        this._reader.updateLiveStatus(message);
-      }
-    }
+    var message = `Location ${current_location}; ${percentage}%`;
+    this._reader.updateLiveStatus(message);
+
     self._last_delta = self._last_value > value; self._last_value = value;
   },
 
