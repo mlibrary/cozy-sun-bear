@@ -1,5 +1,13 @@
 /*
+<<<<<<< HEAD
  * Cozy Sun Bear 1.0.00024ede, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+<<<<<<< HEAD
+ * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+=======
+ * Cozy Sun Bear 1.0.0cc5025c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+>>>>>>> a437d5f... build
+>>>>>>> 1da47cc... build
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7940,6 +7948,8 @@
 	  return new Download(options);
 	};
 
+	var _typeof$4 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var Navigator = Control.extend({
 	  onAdd: function onAdd(reader) {
 	    var container = this._container;
@@ -7953,13 +7963,6 @@
 	    this._setup(container);
 
 	    this._reader.on('updateLocations', function (locations) {
-	      // if ( ! this._reader.currentLocation() || ! this._reader.currentLocation().start ) {
-	      //   console.log("AHOY updateLocations NO START", this._reader.currentLocation().then);
-	      //   setTimeout(function() {
-	      //     this._initializeNavigator(locations);
-	      //   }.bind(this), 100);
-	      //   return;
-	      // }
 	      this._initializeNavigator(locations);
 	    }.bind(this));
 
@@ -7982,7 +7985,11 @@
 	  },
 
 	  _createControl: function _createControl(container) {
+<<<<<<< HEAD
 	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>\n    ';
+=======
+	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>\n    ';
+>>>>>>> 1da47cc... build
 
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while (body.children.length) {
@@ -7998,73 +8005,117 @@
 	    this._control.addEventListener("input", function () {
 	      self._update();
 	    }, false);
+<<<<<<< HEAD
 	    this._control.addEventListener("change", function (e) {
 	      self._action();
+=======
+	    this._control.addEventListener("change", function (event) {
+	      console.log("AHOY NAVIGATOR change", event);self._action();
+>>>>>>> 1da47cc... build
 	    }, false);
-	    this._control.addEventListener("mousedown", function () {
+	    this._control.addEventListener("mousedown", function (event) {
 	      self._mouseDown = true;
 	    }, false);
 	    this._control.addEventListener("mouseup", function () {
 	      self._mouseDown = false;
 	    }, false);
 	    this._control.addEventListener("keydown", function () {
-	      self._mouseDown = true;
+	      // console.log("AHOY NAVIGATOR keydown", event);
+	      // self._mouseDown = true;
 	    }, false);
 	    this._control.addEventListener("keyup", function () {
-	      self._mouseDown = false;
+	      // console.log("AHOY NAVIGATOR keyup", event);
+	      // self._mouseDown = false;
 	    }, false);
 
 	    this._reader.on('relocated', function (location) {
-	      if (!self._initiated) {
+	      var value;      if (!self._initiated) {
 	        return;
 	      }
+	      if (self._ignore) {
+	        self._ignore = false;console.log("AHOY IGNORING", self._ignore);return;
+	      }
+	      if (!(location && location.start)) {
+	        return;
+	      }
+<<<<<<< HEAD
 	      if (!self._mouseDown) {
 	        var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
 	        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(cfi) * 100);
 	        self._update();
+=======
+
+	      var value;
+	      if (location.start && location.end) {
+	        // EPUB
+	        value = parseInt(self._control.value, 10);
+	        var start = parseInt(location.start.location, 10);
+	        var end = parseInt(location.end.location, 10);
+	        console.log("AHOY NAVIGATOR relocated", value, start, end, value < start, value > end);
+	        if (value < start || value > end) {
+	          self._last_value = value;
+	          self._control.value = value < start ? start : end;
+	        }
+	      } else {
+	        value = self._parseLocation(location);
+	        self._last_value = value;
+	        self._control.value = value;
+>>>>>>> 1da47cc... build
 	      }
+
+	      self._update(location);
 	    });
 	  },
 
 	  _action: function _action() {
-	    var value = this._control.value;
+	    var value = parseInt(this._control.value, 10);
+	    var cfi;
 	    var locations = this._reader.locations;
-	    var cfi = locations.cfiFromPercentage(value / 100);
+	    if (locations.cfiFromLocation) {
+	      cfi = locations.cfiFromLocation(value);
+	    } else {
+	      // hopefully short-term compatibility
+	      var percent = value / this._total;
+	      cfi = locations.cfiFromPercentage(percent);
+	    }
 	    this._reader.tracking.action("navigator/go");
+<<<<<<< HEAD
 	    this._reader.display(cfi);
+=======
+	    this._ignore = true;
+	    this._reader.gotoPage(cfi);
+>>>>>>> 1da47cc... build
 	  },
 
-	  _update: function _update() {
+	  _update: function _update(current) {
 	    var self = this;
 
-	    var current = this._reader.currentLocation();
-	    if (!current || !current.start) {
-	      setTimeout(function () {
-	        this._update();
-	      }.bind(this), 100);
+	    if (!this._initiated) {
 	      return;
 	    }
 
 	    var rangeBg = this._background;
 	    var range = self._control;
 
-	    var value = parseInt(range.value, 10);
-	    var percentage = value;
+	    var value = parseFloat(range.value, 10);
+	    var current_location = value;
 
-	    // if ( current.start.location != this._last_reported_location ) {
-	    //   this._last_reported_location = current.start.location;
-	    //   var message = `Location ${current.start.location}; ${percentage}%`;
-	    //   this._reader.updateLiveStatus(message);
-	    // }
+	    if (current_location == this._last_reported_location) {
+	      return;
+	    }
+	    this._last_reported_location = current_location;
+
+	    var max = parseFloat(range.max, 10);
+	    var percentage = value / max * 100.0;
 
 	    rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
-	    self._control.setAttribute('data-background-position', Math.ceil(percentage));
 
+	    percentage = Math.ceil(percentage);
+	    self._control.setAttribute('data-background-position', percentage);
 	    this._spanCurrentPercentage.innerHTML = percentage + '%';
-	    if (current && current.start) {
-	      var current_location = this._reader.locations.locationFromCfi(current.start.cfi);
-	      this._spanCurrentLocation.innerHTML = current_location;
+	    this._spanCurrentLocation.innerHTML = current_location;
 
+<<<<<<< HEAD
 	      if (this._reader.pageList) {
 	        var pages = this._reader.pageList.pagesFromLocation(current);
 	        var pageLabels = [];
@@ -8087,18 +8138,16 @@
 
 	      range.setAttribute('aria-valuenow', value);
 	      range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
+=======
+	    range.setAttribute('aria-valuenow', value);
+	    range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
+>>>>>>> 1da47cc... build
 
-	      if (current_location != this._last_reported_location) {
-	        this._last_reported_location = current_location;
-	        var message = 'Location ' + current_location + '; ' + percentage + '%';
-	        this._reader.updateLiveStatus(message);
-	      }
-	    }
-	    self._last_delta = self._last_value > value;self._last_value = value;
+	    var message = 'Location ' + current_location + '; ' + percentage + '%';
+	    this._reader.updateLiveStatus(message);
 	  },
 
 	  _initializeNavigator: function _initializeNavigator(locations) {
-	    console.log("AHOY updateLocations PROCESSING LOCATION");
 	    this._initiated = true;
 
 	    if (!this._reader.pageList) {
@@ -8106,19 +8155,42 @@
 	    }
 
 	    this._total = this._reader.locations.total;
-	    if (this._reader.currentLocation() && this._reader.currentLocation().start) {
-	      this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-	      this._last_value = this._control.value;
-	    } else {
-	      this._last_value = this._control.value;
+	    var max = this._total;var min = 1;
+	    if (this._reader.locations.spine) {
+	      max -= 1;min -= 1;
 	    }
+	    this._control.max = max; // setAttribute('max', max);
+	    this._control.min = min; // setAttribute('min', min);
+
+	    var value = this._parseLocation(this._reader.currentLocation());
+	    this._control.value = value;
+	    this._last_value = this._control.value;
+	    this._update();
 
 	    this._spanTotalLocations.innerHTML = this._total;
 
-	    this._update();
 	    setTimeout(function () {
 	      addClass(this._container, 'initialized');
 	    }.bind(this), 0);
+	  },
+
+	  _parseLocation: function _parseLocation(location) {
+	    var self = this;
+	    var value;
+
+	    if (_typeof$4(location.start) == 'object') {
+	      if (location.start.location != null) {
+	        value = location.start.location;
+	      } else {
+	        var percentage = self._reader.locations.percentageFromCfi(location.start.cfi);
+	        value = Math.ceil(self._total * percentage);
+	      }
+	    } else {
+	      // PDF bug
+	      value = parseInt(location.start, 10);
+	    }
+
+	    return value;
 	  },
 
 	  EOT: true
@@ -9492,7 +9564,7 @@
 		RangeObject: RangeObject
 	});
 
-	var _typeof$4 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	if (!process$1) {
 	  var process$1 = {
@@ -9870,8 +9942,8 @@
 	  },
 
 	  format: function format(pathObject) {
-	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$4(pathObject)) !== 'object') {
-	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$4(pathObject)));
+	    if (pathObject === null || (typeof pathObject === 'undefined' ? 'undefined' : _typeof$5(pathObject)) !== 'object') {
+	      throw new TypeError('Parameter "pathObject" must be an object, not ' + (typeof pathObject === 'undefined' ? 'undefined' : _typeof$5(pathObject)));
 	    }
 	    return _format('/', pathObject);
 	  },
@@ -10211,7 +10283,7 @@
 		return Url;
 	}();
 
-	var _typeof$5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$6 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -10263,7 +10335,7 @@
 
 			if (typeof base === "string") {
 				this.base = this.parseComponent(base);
-			} else if ((typeof base === "undefined" ? "undefined" : _typeof$5(base)) === "object" && base.steps) {
+			} else if ((typeof base === "undefined" ? "undefined" : _typeof$6(base)) === "object" && base.steps) {
 				this.base = base;
 			}
 
@@ -10298,12 +10370,12 @@
 				if (this.isCfiString(cfi)) {
 					return "string";
 					// Is a range object
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$5(cfi)) === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$6(cfi)) === "object" && (type(cfi) === "Range" || typeof cfi.startContainer != "undefined")) {
 					return "range";
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$5(cfi)) === "object" && typeof cfi.nodeType != "undefined") {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$6(cfi)) === "object" && typeof cfi.nodeType != "undefined") {
 					// || typeof cfi === "function"
 					return "node";
-				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$5(cfi)) === "object" && cfi instanceof EpubCFI) {
+				} else if (cfi && (typeof cfi === "undefined" ? "undefined" : _typeof$6(cfi)) === "object" && cfi instanceof EpubCFI) {
 					return "EpubCFI";
 				} else {
 					return false;
@@ -10762,7 +10834,7 @@
 				if (typeof base === "string") {
 					cfi.base = this.parseComponent(base);
 					cfi.spinePos = cfi.base.steps[1].index;
-				} else if ((typeof base === "undefined" ? "undefined" : _typeof$5(base)) === "object") {
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$6(base)) === "object") {
 					cfi.base = base;
 				}
 
@@ -10844,7 +10916,7 @@
 				if (typeof base === "string") {
 					cfi.base = this.parseComponent(base);
 					cfi.spinePos = cfi.base.steps[1].index;
-				} else if ((typeof base === "undefined" ? "undefined" : _typeof$5(base)) === "object") {
+				} else if ((typeof base === "undefined" ? "undefined" : _typeof$6(base)) === "object") {
 					cfi.base = base;
 				}
 
@@ -14833,7 +14905,7 @@
 
 	eventEmitter(Layout.prototype);
 
-	var _typeof$6 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$f = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -14879,7 +14951,7 @@
 				if (arguments.length === 0) {
 					return;
 				}
-				if (arguments.length === 1 && _typeof$6(arguments[0]) === "object") {
+				if (arguments.length === 1 && _typeof$7(arguments[0]) === "object") {
 					return this.registerThemes(arguments[0]);
 				}
 				if (arguments.length === 1 && typeof arguments[0] === "string") {
@@ -14888,7 +14960,7 @@
 				if (arguments.length === 2 && typeof arguments[1] === "string") {
 					return this.registerUrl(arguments[0], arguments[1]);
 				}
-				if (arguments.length === 2 && _typeof$6(arguments[1]) === "object") {
+				if (arguments.length === 2 && _typeof$7(arguments[1]) === "object") {
 					return this.registerRules(arguments[0], arguments[1]);
 				}
 			}
@@ -14909,7 +14981,7 @@
 				if (typeof theme === "string") {
 					return this.registerUrl("default", theme);
 				}
-				if ((typeof theme === "undefined" ? "undefined" : _typeof$6(theme)) === "object") {
+				if ((typeof theme === "undefined" ? "undefined" : _typeof$7(theme)) === "object") {
 					return this.registerRules("default", theme);
 				}
 			}
@@ -18732,7 +18804,7 @@
 
 	eventEmitter(IframeView.prototype);
 
-	var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is the
@@ -18760,25 +18832,25 @@
 	 * // => false
 	 */
 	function isObject$1(value) {
-	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$7(value);
+	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$8(value);
 	  return value != null && (type == 'object' || type == 'function');
 	}
 
 	var isObject_1$1 = isObject$1;
 
-	var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/** Detect free variable `global` from Node.js. */
-	var freeGlobal$1 = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$8(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+	var freeGlobal$1 = (typeof commonjsGlobal === 'undefined' ? 'undefined' : _typeof$9(commonjsGlobal)) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 	var _freeGlobal$1 = freeGlobal$1;
 
-	var _typeof$9 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$a = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
 
 	/** Detect free variable `self`. */
-	var freeSelf$1 = (typeof self === 'undefined' ? 'undefined' : _typeof$9(self)) == 'object' && self && self.Object === Object && self;
+	var freeSelf$1 = (typeof self === 'undefined' ? 'undefined' : _typeof$a(self)) == 'object' && self && self.Object === Object && self;
 
 	/** Used as a reference to the global object. */
 	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
@@ -18902,7 +18974,7 @@
 
 	var _baseGetTag$1 = baseGetTag$1;
 
-	var _typeof$a = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$b = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/**
 	 * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -18929,12 +19001,12 @@
 	 * // => false
 	 */
 	function isObjectLike$1(value) {
-	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$a(value)) == 'object';
+	  return value != null && (typeof value === 'undefined' ? 'undefined' : _typeof$b(value)) == 'object';
 	}
 
 	var isObjectLike_1$1 = isObjectLike$1;
 
-	var _typeof$b = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$c = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
 
@@ -18959,7 +19031,7 @@
 	 * // => false
 	 */
 	function isSymbol$1(value) {
-	    return (typeof value === 'undefined' ? 'undefined' : _typeof$b(value)) == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
+	    return (typeof value === 'undefined' ? 'undefined' : _typeof$c(value)) == 'symbol' || isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1;
 	}
 
 	var isSymbol_1$1 = isSymbol$1;
@@ -21218,7 +21290,7 @@
 
 	eventEmitter(Snap.prototype);
 
-	var _typeof$c = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$d = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$p = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -21616,7 +21688,7 @@
 				this.addScrollListeners();
 
 				if (this.isPaginated && this.settings.snap) {
-					this.snapper = new Snap(this, this.settings.snap && _typeof$c(this.settings.snap) === "object" && this.settings.snap);
+					this.snapper = new Snap(this, this.settings.snap && _typeof$d(this.settings.snap) === "object" && this.settings.snap);
 				}
 			}
 		}, {
@@ -21801,7 +21873,7 @@
 				_get$1(ContinuousViewManager.prototype.__proto__ || Object.getPrototypeOf(ContinuousViewManager.prototype), "updateFlow", this).call(this, flow);
 
 				if (this.rendered && this.isPaginated && this.settings.snap) {
-					this.snapper = new Snap(this, this.settings.snap && _typeof$c(this.settings.snap) === "object" && this.settings.snap);
+					this.snapper = new Snap(this, this.settings.snap && _typeof$d(this.settings.snap) === "object" && this.settings.snap);
 				}
 			}
 		}, {
@@ -21818,7 +21890,7 @@
 		return ContinuousViewManager;
 	}(DefaultViewManager);
 
-	var _typeof$d = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	var _typeof$e = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _createClass$q = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -21867,7 +21939,7 @@
 
 			extend$1(this.settings, options);
 
-			if (_typeof$d(this.settings.manager) === "object") {
+			if (_typeof$e(this.settings.manager) === "object") {
 				this.manager = this.settings.manager;
 			}
 
@@ -28593,7 +28665,7 @@
 	//-- Enable binding events to Manager
 	eventEmitter$1(ScrollingContinuousViewManager.prototype);
 
-	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};
+	function Viewport(t,e){var i=this;this.container=t,this.observers=[],this.lastX=0,this.lastY=0;var o=!1,n=function(){o||(o=!0,requestAnimationFrame(function(){for(var t=i.observers,e=i.getState(),n=t.length;n--;)t[n].check(e);i.lastX=e.positionX,i.lastY=e.positionY,o=!1;}));},r=e.handleScrollResize,s=this.handler=r?r(n):n;addEventListener("scroll",s,!0),addEventListener("resize",s,!0),addEventListener("DOMContentLoaded",function(){(i.mutationObserver=new MutationObserver(n)).observe(document,{attributes:!0,childList:!0,subtree:!0});});}function Observer(t){return this.offset=~~t.offset||0,this.container=t.container||document.body,this.once=Boolean(t.once),this.observerCollection=t.observerCollection||defaultObserverCollection,this.activate()}function ObserverCollection(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof ObserverCollection))return new(Function.prototype.bind.apply(ObserverCollection,[null].concat(i)));this.viewports=new Map,this.handleScrollResize=t.handleScrollResize;}Viewport.prototype={getState:function(){var t,e,i,o,n=this.container,r=this.lastX,s=this.lastY;return n===document.body?(t=window.innerWidth,e=window.innerHeight,i=window.pageXOffset,o=window.pageYOffset):(t=n.offsetWidth,e=n.offsetHeight,i=n.scrollLeft,o=n.scrollTop),{width:t,height:e,positionX:i,positionY:o,directionX:r<i?"right":r>i?"left":"none",directionY:s<o?"down":s>o?"up":"none"}},destroy:function(){var t=this.handler,e=this.mutationObserver;removeEventListener("scroll",t),removeEventListener("resize",t),e&&e.disconnect();}},Observer.prototype={activate:function(){var t=this.container,e=this.observerCollection,i=e.viewports,o=i.get(t);o||(o=new Viewport(t,e),i.set(t,o));var n=o.observers;return n.indexOf(this)<0&&n.push(this),o},destroy:function(){var t=this.container,e=this.observerCollection.viewports,i=e.get(t);if(i){var o=i.observers,n=o.indexOf(this);n>-1&&o.splice(n,1),o.length||(i.destroy(),e.delete(t));}}};var defaultObserverCollection=new ObserverCollection;function PositionObserver(t){for(var e=arguments.length,i=Array(e);e--;)i[e]=arguments[e];if(void 0===t&&(t={}),!(this instanceof PositionObserver))return new(Function.prototype.bind.apply(PositionObserver,[null].concat(i)));this.onTop=t.onTop,this.onBottom=t.onBottom,this.onLeft=t.onLeft,this.onRight=t.onRight,this.onMaximized=t.onMaximized,this._wasTop=!0,this._wasBottom=!1,this._wasLeft=!0,this._wasRight=!1;var o=Observer.call(this,t);this.check(o.getState());}function ElementObserver(t,e){for(var i=arguments.length,o=Array(i);i--;)o[i]=arguments[i];if(void 0===e&&(e={}),!(this instanceof ElementObserver))return new(Function.prototype.bind.apply(ElementObserver,[null].concat(o)));this.element=t,this.onEnter=e.onEnter,this.onExit=e.onExit,this._didEnter=!1;var n=Observer.call(this,e);isElementInDOM(t)&&this.check(n.getState());}function isElementInViewport(t,e,i,o){var n,r,s,h,l=t.getBoundingClientRect();if(!l.width||!l.height)return !1;var a=window.innerWidth,c=window.innerHeight,v=a;if(o===document.body)n=c,r=0,s=v,h=0;else{if(!(l.top<c&&l.bottom>0&&l.left<v&&l.right>0))return !1;var d=o.getBoundingClientRect();n=d.bottom,r=d.top,s=d.right,h=d.left;}return l.top<n+e&&l.bottom>r-e&&l.left<s+e&&l.right>h-e}function isElementInDOM(t){return t&&t.parentNode}PositionObserver.prototype=Object.create(Observer.prototype),PositionObserver.prototype.constructor=PositionObserver,PositionObserver.prototype.check=function(t){var e=this,i=e.onTop,o=e.onBottom,n=e.onLeft,r=e.onRight,s=e.onMaximized,h=e._wasTop,l=e._wasBottom,a=e._wasLeft,c=e._wasRight,v=e.container,d=e.offset,p=e.once,f=v.scrollHeight,b=v.scrollWidth,u=t.width,w=t.height,O=t.positionX,m=t.positionY,g=m-d<=0,y=f>w&&w+m+d>=f,E=O-d<=0,_=b>u&&u+O+d>=b,C=!1;o&&!l&&y?o.call(this,v,t):i&&!h&&g?i.call(this,v,t):r&&!c&&_?r.call(this,v,t):n&&!a&&E?n.call(this,v,t):s&&f===w?s.call(this,v,t):C=!0,p&&!C&&this.destroy(),this._wasTop=g,this._wasBottom=y,this._wasLeft=E,this._wasRight=_;},ElementObserver.prototype=Object.create(Observer.prototype),ElementObserver.prototype.constructor=ElementObserver,ElementObserver.prototype.check=function(t){var e=this.container,i=this.onEnter,o=this.onExit,n=this.element,r=this.offset,s=this.once,h=this._didEnter;if(!isElementInDOM(n))return this.destroy();var l=isElementInViewport(n,r,t,e);!h&&l?(this._didEnter=!0,i&&(i.call(this,n,t),s&&this.destroy())):h&&!l&&(this._didEnter=!1,o&&(o.call(this,n,t),s&&this.destroy()));};//# sourceMappingURL=viewprt.esm.js.map
 
 	var _createClass$z = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
