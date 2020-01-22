@@ -105,30 +105,8 @@ export var Navigator = Control.extend({
         self._control.value = value;
       }
 
-<<<<<<< HEAD
-    this._reader.on('xxrelocated', function(location) {
-      console.log("AHOY NAVIGATOR relocated", location, self._initiated, self._mouseDown);
-      if ( ! self._initiated ) { return; }
-      if ( ! self._mouseDown ) {
-        var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
-        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(cfi) * 100);
-        self._update();
-      }
-=======
       self._update(location);
->>>>>>> 8340f58... some bits handling significant navigation
     })
-
-    // this._reader.on('xxrelocated', function(location) {
-    //   console.log("AHOY NAVIGATOR relocated", location, self._initiated, self._mouseDown);
-    //   if ( ! self._initiated ) { return; }
-    //   if ( ! self._mouseDown ) {
-    //     location = self._reader.currentLocation();
-    //     self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(self._reader.currentLocation().start.cfi) * 100);
-    //     self._update();
-    //   }
-    // })
-
   },
 
   _action: function() {
@@ -145,17 +123,6 @@ export var Navigator = Control.extend({
     this._reader.tracking.action("navigator/go");
     this._ignore = true;
     this._reader.gotoPage(cfi);
-  },
-
-  _actionXX: function() {
-    var value = parseInt(this._control.value, 10);
-    var fragment = this._reader.nextFragment(value, value >= this._last_value);
-
-    this._reader.tracking.action("navigator/go");
-    this._control.value = fragment.location;
-    console.log("AHOY NAVIGATOR action", value, this._last_value, fragment.location, fragment.cfi);
-    this._last_value = this._control.value;
-    this._reader.gotoPage(fragment.cfi);
   },
 
   _update: function(current) {
@@ -191,70 +158,6 @@ export var Navigator = Control.extend({
     this._reader.updateLiveStatus(message);
   },
 
-  _updateXXX: function(current) {
-    var self = this;
-
-    if ( ! current ) { current = this._reader.currentLocation(); }
-    if ( ! current || ! current.start ) {
-      setTimeout(function() {
-        this._update();
-      }.bind(this), 100);
-      return;
-    }
-
-    var current_location = self._parseLocation(current);
-    console.log("AHOY NAVIGATOR update", current.start, current_location);
-
-    // check this early to avoid emitting events
-    if ( current_location == this._last_reported_location ) {
-      return;
-    }
-    this._last_reported_location = current_location;
-
-    var rangeBg = this._background;
-    var range = self._control;
-
-    var value = parseFloat(current_location, 10);
-    var max = parseFloat(range.max, 10);
-    var percentage = (( value / max ) * 100.0)
-    console.log("AHOY NAVIGATOR percentage", value, max, percentage);
-
-    rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
-    self._control.setAttribute('data-background-position', Math.ceil(percentage));
-    percentage = Math.ceil(percentage);
-
-    this._spanCurrentPercentage.innerHTML = percentage + '%';
-    this._spanCurrentLocation.innerHTML = ( current_location );
-
-      if ( this._reader.pageList ) {
-        var pages = this._reader.pageList.pagesFromLocation(current);
-        var pageLabels = [];
-        var label = 'p.';
-        if ( pages.length ) {
-          var p1 = pages.shift();
-          pageLabels.push(this._reader.pageList.pageLabel(p1));
-          if ( pages.length ) {
-            var p2 = pages.pop();
-            pageLabels.push(this._reader.pageList.pageLabel(p2));
-            label = 'pp.';
-          }
-        }
-        var span = '';
-        if ( pageLabels.length ) {
-          span = ` (${label} ${pageLabels.join('-')})`;
-        }
-        this._spanCurrentPageLabel.innerHTML = span;
-      }
-
-      range.setAttribute('aria-valuenow', value);
-      range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
-
-    var message = `Location ${current_location}; ${percentage}%`;
-    this._reader.updateLiveStatus(message);
-
-    self._last_delta = self._last_value > value; self._last_value = value;
-  },
-
   _initializeNavigator: function(locations) {
     this._initiated = true;
 
@@ -272,29 +175,6 @@ export var Navigator = Control.extend({
     this._control.value = value;
     this._last_value = this._control.value
     this._update();
-
-    // var current = this._reader.currentLocation();
-    // if ( current && current.start ) {
-    //   console.log("AHOY updateLocations PROCESSING LOCATION", current);
-    //   // this._control.value = Math.ceil(this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi) * 100);
-    //   if ( typeof(current.start) == 'object' ) {
-    //     if ( current.start.location != null ) {
-    //       this._control.value = current.start.location;
-    //     } else {
-    //       var percentage = this._reader.locations.percentageFromCfi(this._reader.currentLocation().start.cfi);
-    //       this._control.value = Math.ceil(this._total * percentage);
-    //       console.log("AHOY NAVIGATOR initialized", Math.ceil(this._total * percentage), this._control.value);
-    //     }
-    //   } else {
-    //     this._control.value = current.start;
-    //   }
-    //   this._last_value = this._control.value;
-    //   this._update(current);
-
-    // } else {
-    //   this._last_value = this._control.value;
-    //   this._update();
-    // }
 
     this._spanTotalLocations.innerHTML = this._total;
 
