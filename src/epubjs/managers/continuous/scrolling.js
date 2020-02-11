@@ -93,7 +93,7 @@ class ScrollingContinuousViewManager {
     this._stageSize = this.stage.size();
 
     var ar = this._stageSize.width / this._stageSize.height;
-    console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
+    // console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
 
     // Set the dimensions for views
     this.viewSettings.width = this._stageSize.width;
@@ -219,14 +219,18 @@ class ScrollingContinuousViewManager {
 
     var delta;
     if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
-      delta = view.element.getBoundingClientRect().height - rect.height;
-      // delta /= this.settings.scale;
-      // console.log("AHOY afterResized", view.index, this.container.scrollTop, view.element.getBoundingClientRect().height, rect.height, delta / this.settings.scale);
-      this.container.scrollTop += Math.ceil(delta);
+      requestAnimationFrame(function afterDisplayedAfterRAF() {
+        delta = view.element.getBoundingClientRect().height - rect.height;
+        // console.log("AHOY afterResized", view.index, view.element.getBoundingClientRect().height, rect.height, delta);
+        this.container.scrollTop += Math.ceil(delta);        
+      }.bind(this));
     }
 
-    // console.log("AHOY AFTER RESIZED", view, delta);
-    this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+    // the default manager emits EVENTS.MANAGERS.RESIZE when the view is resized
+    // which causes the rendition to scroll to display the current location
+    // since we've (in theory) adjusted that during the paint frame
+    // don't emit
+    // -- this.emit(EVENTS.MANAGERS.RESIZE, view.section);
   }
 
   moveTo(offset) {
@@ -296,6 +300,9 @@ class ScrollingContinuousViewManager {
       view.on(EVENTS.VIEWS.AXIS, (axis) => {
         this.updateAxis(axis);
       });
+      // view.on('BAMBOOZLE', (e) => {
+      //   this.afterResizedBamboozled(view);
+      // })
       this.views.append(view);
     }.bind(this));
 

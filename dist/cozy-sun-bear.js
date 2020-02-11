@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.0747fe65, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -5218,6 +5218,10 @@
 
 	  saveOptions: function saveOptions(options) {
 	    var saved_options = {};
+	    if (localStorage.getItem('cozy.options')) {
+	      saved_options = JSON.parse(localStorage.getItem('cozy.options'));
+	    }
+
 	    assign_1(saved_options, options);
 	    var key = this.metadata.layout || 'reflowable';
 	    var flow = saved_options.flow;
@@ -27750,7 +27754,7 @@
 	      this._stageSize = this.stage.size();
 
 	      var ar = this._stageSize.width / this._stageSize.height;
-	      console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
+	      // console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
 
 	      // Set the dimensions for views
 	      this.viewSettings.width = this._stageSize.width;
@@ -27885,14 +27889,18 @@
 
 	      var delta;
 	      if (rect.bottom <= bounds.bottom && rect.top < 0) {
-	        delta = view.element.getBoundingClientRect().height - rect.height;
-	        // delta /= this.settings.scale;
-	        // console.log("AHOY afterResized", view.index, this.container.scrollTop, view.element.getBoundingClientRect().height, rect.height, delta / this.settings.scale);
-	        this.container.scrollTop += Math.ceil(delta);
+	        requestAnimationFrame$1(function afterDisplayedAfterRAF() {
+	          delta = view.element.getBoundingClientRect().height - rect.height;
+	          // console.log("AHOY afterResized", view.index, view.element.getBoundingClientRect().height, rect.height, delta);
+	          this.container.scrollTop += Math.ceil(delta);
+	        }.bind(this));
 	      }
 
-	      // console.log("AHOY AFTER RESIZED", view, delta);
-	      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+	      // the default manager emits EVENTS.MANAGERS.RESIZE when the view is resized
+	      // which causes the rendition to scroll to display the current location
+	      // since we've (in theory) adjusted that during the paint frame
+	      // don't emit
+	      // -- this.emit(EVENTS.MANAGERS.RESIZE, view.section);
 	    }
 	  }, {
 	    key: "moveTo",
@@ -27965,6 +27973,9 @@
 	        view.on(EVENTS.VIEWS.AXIS, function (axis) {
 	          _this.updateAxis(axis);
 	        });
+	        // view.on('BAMBOOZLE', (e) => {
+	        //   this.afterResizedBamboozled(view);
+	        // })
 	        this.views.append(view);
 	      }.bind(this));
 
@@ -28722,17 +28733,30 @@
 	            this.elementBounds = bounds$1(this.element);
 	        }
 	    }, {
+	        key: "queryReframeElement",
+	        value: function queryReframeElement() {
+	            if (!this.iframe) {
+	                return -1;
+	            }
+	            var height = this.iframe.offsetHeight;
+	            var styles = window.getComputedStyle(this.element);
+	            var new_height = height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
+	            return new_height;
+	        }
+	    }, {
 	        key: "reframeElement",
 	        value: function reframeElement() {
 	            if (!this.iframe) {
 	                return;
 	            }
-	            // var height = this.iframe.contentDocument.body.offsetHeight;
 	            var height = this.iframe.offsetHeight;
 	            var styles = window.getComputedStyle(this.element);
-	            var new_height = height + parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
+	            var new_height = height + parseInt(styles.paddingTop, 10) + parseInt(styles.paddingBottom, 10) + parseInt(styles.borderTopWidth, 10) + parseInt(styles.borderBottomWidth, 10);
+	            var current_height = this.element.offsetHeight;
+	            if (new_height < current_height) {
+	                return;
+	            }
 	            this.element.style.height = new_height + "px";
-	            // console.log("AHOY AFTER RESIZED ELEMENT", this.index, height, new_height, styles.paddingTop, styles.paddingBottom);
 	        }
 	    }, {
 	        key: "display",
@@ -29479,6 +29503,7 @@
 	    var flow = this.options.flow;
 	    if (self._cozyOptions[key] && self._cozyOptions[key].flow) {
 	      flow = self._cozyOptions[key].flow;
+	      this.options.flow = flow; // restore from stored preferences
 	    }
 
 	    if (flow == 'auto') {
@@ -29944,6 +29969,9 @@
 
 	    var locationChanged_handler = debounce_1(function (location) {
 	      var view = this.manager.current();
+	      if (!view) {
+	        return;
+	      }
 	      var section = view.section;
 	      var current = this.book.navigation.get(section.href);
 
