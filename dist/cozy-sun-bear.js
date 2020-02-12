@@ -22241,7 +22241,6 @@
 	       * @param {View} view
 	       * @memberof Rendition
 	       */
-							view.emit(EVENTS.RENDITION.RENDITION, view.section, view);
 							_this2.emit(EVENTS.RENDITION.RENDERED, view.section, view);
 						});
 					} else {
