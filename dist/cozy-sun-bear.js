@@ -1,39 +1,6 @@
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
-=======
->>>>>>> 7e3a868... build
-=======
->>>>>>> 6d233c3... add pagelist to contents widget
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.0747fe65, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> c331f8f... generate locations with a pagelist
-=======
- * Cozy Sun Bear 1.0.06d233c3, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 20471e8... IE11 support
-=======
- * Cozy Sun Bear 1.0.020471e8, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> b898331... build
+ * Cozy Sun Bear 1.0.0d4612f4, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
-=======
- * Cozy Sun Bear 1.0.0fc88a5f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
- * (c) 2019 Regents of the University of Michigan
->>>>>>> 3352dcc... generate locations with a pagelist
-=======
- * Cozy Sun Bear 1.0.03352dcc, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
- * Cozy Sun Bear 1.0.022ff869, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 77e34ee... add pagelist to contents widget
- * (c) 2020 Regents of the University of Michigan
->>>>>>> 22ff869... build
  */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -5308,8 +5275,10 @@
 	    // NOOP
 	  },
 
-	  display: function display(index) {
+	  display: function display(target) {
+	    // backwards compatibility
 	    // NOOP
+	    return this.gotoPage(target);
 	  },
 
 	  gotoPage: function gotoPage(target) {
@@ -5532,7 +5501,6 @@
 	        }
 	        self.__last_state_cfi = event.state.cfi;
 	        if (event.state == null || event.state.cfi == null) {
-	          $log.innerHTML += '<li>NULL</li>';
 	          event.preventDefault();
 	          return;
 	        }
@@ -6583,23 +6551,7 @@
 	      }, this);
 
 	      this._modal = this._reader.modal({
-<<<<<<< HEAD
 	        template: '\n<div class="cozy-contents-toolbar button-group" aria-hidden="true">\n  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>\n  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>\n</div>\n<div class="cozy-contents-main">\n  <div class="cozy-contents-contentlist">\n    <ul></ul>\n  </div>\n  <div class="cozy-contents-pagelist" style="display: none">\n    <ul></ul>\n  </div>\n</div>'.trim(),
-=======
-	        template: `
-<div class="cozy-contents-toolbar button-group" aria-hidden="true">
-  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>
-  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>
-</div>
-<div class="cozy-contents-main">
-  <div class="cozy-contents-contentlist">
-    <ul></ul>
-  </div>
-  <div class="cozy-contents-pagelist" style="display: none">
-    <ul></ul>
-  </div>
-</div>`.trim(),
->>>>>>> 77e34ee... add pagelist to contents widget
 	        title: 'Contents',
 	        region: 'left',
 	        className: 'cozy-modal-contents',
@@ -6632,30 +6584,7 @@
 	        }
 	      });
 
-<<<<<<< HEAD
 	      this._modal.on('click', 'a[href]', function (modal, target) {
-=======
-	      this._display = {};
-	      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
-	      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
-	      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
-
-	      this._toolbar.addEventListener('click', (event) => {
-	        if ( event.target.dataset.toggle ) {
-	          var target = event.target.dataset.toggle;
-	          var current = this._toolbar.querySelector('[data-toggle].toggled');
-	          if ( current ) {
-	            current.classList.remove('toggled');
-	            this._display[current.dataset.toggle].style.display = 'none';
-	          }
-	          event.target.classList.add('toggled');
-	          this._display[event.target.dataset.toggle].style.display = 'block';
-	          this._reader.updateLiveStatus(`Displaying ${event.target.innerText}`);
-	        }
-	      });
-
-	      this._modal.on('click', 'a[href]', function(modal, target) {
->>>>>>> 77e34ee... add pagelist to contents widget
 	        target = target.getAttribute('data-href');
 	        this._goto_interval = true;
 	        this._reader.tracking.action('contents/go/link');
@@ -6670,13 +6599,8 @@
 	      this._setupSkipLink();
 
 	      var parent = self._modal._container.querySelector('.cozy-contents-contentlist ul');
-<<<<<<< HEAD
 	      var _process = function _process(items, tabindex, parent) {
 	        items.forEach(function (item) {
-=======
-	      var _process = function(items, tabindex, parent) {
-	        items.forEach(function(item) {
->>>>>>> 77e34ee... add pagelist to contents widget
 	          var option = self._createOption(item, tabindex, parent);
 	          if (item.subitems && item.subitems.length) {
 	            _process(item.subitems, tabindex + 1, option);
@@ -6684,34 +6608,7 @@
 	        });
 	      };
 	      _process(data.toc, 0, parent);
-
 	    }.bind(this));
-<<<<<<< HEAD
-=======
-
-	    this._reader.on('updateLocations', (data) => {
-
-	      if ( this._reader.pageList ) {
-	        // this._toolbar.style.display = 'flex';
-	        this._toolbar.setAttribute('aria-hidden', 'false');
-	      }
-
-	      if ( self._reader.pageList ) {
-	        parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
-	        for(var i = 0; i < self._reader.pageList.pages.length; i++) {
-	          var pg = self._reader.pageList.pages[i];
-	          var info = self._reader.pageList.pageList[i];
-	          var cfi = self._reader.pageList.locations[i];
-	          var item = { 
-	            label: ( info.pageLabel || info.page ),
-	            href: cfi
-	          };
-	          var option = self._createOption(item, 0, parent);
-	        }
-	      }
-	    });
-	  },
->>>>>>> 77e34ee... add pagelist to contents widget
 
 	    this._reader.on('updateLocations', function (data) {
 
@@ -8084,19 +7981,8 @@
 	    this._bindEvents();
 	  },
 
-<<<<<<< HEAD
 	  _createControl: function _createControl(container) {
 	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>\n    ';
-=======
-	  _createControl: function (container) {
-	    var template = `<div class="cozy-navigator-range">
-        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>
-        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
-        <div class="cozy-navigator-range__background"></div>
-      </div>
-      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>
-    `;
->>>>>>> 22ff869... build
 
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while (body.children.length) {
@@ -8112,7 +7998,7 @@
 	    this._control.addEventListener("input", function () {
 	      self._update();
 	    }, false);
-	    this._control.addEventListener("change", function () {
+	    this._control.addEventListener("change", function (e) {
 	      self._action();
 	    }, false);
 	    this._control.addEventListener("mousedown", function () {
@@ -8133,9 +8019,8 @@
 	        return;
 	      }
 	      if (!self._mouseDown) {
-	        // location = self._reader.currentLocation();
-	        // console.log("AHOY RELOCATED", a, location);
-	        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(location.start.cfi) * 100);
+	        var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
+	        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(cfi) * 100);
 	        self._update();
 	      }
 	    });
@@ -8196,22 +8081,6 @@
 	        this._spanCurrentPageLabel.innerHTML = ' (' + label + ' ' + pageLabels.join('-') + ')';
 	      }
 
-	      if ( this._reader.pageList ) {
-	        var pages = this._reader.pageList.pagesFromLocation(current);
-	        var pageLabels = [];
-	        var label = 'p.';
-	        if ( pages.length ) {
-	          var p1 = pages.shift();
-	          pageLabels.push(this._reader.pageList.pageLabel(p1));
-	          if ( pages.length ) {
-	            var p2 = pages.pop();
-	            pageLabels.push(this._reader.pageList.pageLabel(p2));
-	            label = 'pp.';
-	          }
-	        }
-	        this._spanCurrentPageLabel.innerHTML = ` (${label} ${pageLabels.join('-')})`;
-	      }
-
 	      range.setAttribute('aria-valuenow', value);
 	      range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
 
@@ -8228,12 +8097,8 @@
 	    console.log("AHOY updateLocations PROCESSING LOCATION");
 	    this._initiated = true;
 
-<<<<<<< HEAD
 	    if (!this._reader.pageList) {
-=======
-	    if ( ! this._reader.pageList ) {
->>>>>>> 22ff869... build
-	      this._spanCurrentLocation.style.display = 'none';
+	      this._spanCurrentPageLabel.style.display = 'none';
 	    }
 
 	    this._total = this._reader.locations.total;
@@ -8385,19 +8250,11 @@
 	var Bus = Evented.extend({});
 
 	var instance;
-<<<<<<< HEAD
 	var bus = function bus() {
 	  return instance || (instance = new Bus());
 	};
 
 	var Mixin = { Events: Evented.prototype };
-=======
-	var bus = function() {
-	  return instance || ( instance = new Bus() );
-	};
-
-	var Mixin = {Events: Evented.prototype};
->>>>>>> 3352dcc... generate locations with a pagelist
 
 	var isImplemented = function () {
 		var assign = Object.assign,
@@ -8405,15 +8262,15 @@
 		if (typeof assign !== "function") return false;
 		obj = { foo: "raz" };
 		assign(obj, { bar: "dwa" }, { trzy: "trzy" });
-		return (obj.foo + obj.bar + obj.trzy) === "razdwatrzy";
+		return obj.foo + obj.bar + obj.trzy === "razdwatrzy";
 	};
 
 	var isImplemented$1 = function () {
 		try {
 			return true;
 		} catch (e) {
-	 return false;
-	}
+			return false;
+		}
 	};
 
 	// eslint-disable-next-line no-empty-function
@@ -8423,11 +8280,7 @@
 	var _undefined = noop(); // Support ES3 engines
 
 	var isValue = function (val) {
-<<<<<<< HEAD
 	  return val !== _undefined && val !== null;
-=======
-	 return (val !== _undefined) && (val !== null);
->>>>>>> 3352dcc... generate locations with a pagelist
 	};
 
 	var keys$1 = Object.keys;
@@ -8436,9 +8289,7 @@
 		return keys$1(isValue(object) ? Object(object) : object);
 	};
 
-	var keys$2 = isImplemented$1()
-		? Object.keys
-		: shim;
+	var keys$2 = isImplemented$1() ? Object.keys : shim;
 
 	var validValue = function (value) {
 		if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
@@ -8448,14 +8299,10 @@
 	var max = Math.max;
 
 	var shim$1 = function (dest, src /*, …srcn*/) {
-<<<<<<< HEAD
 		var error,
 		    i,
 		    length = max(arguments.length, 2),
 		    assign;
-=======
-		var error, i, length = max(arguments.length, 2), assign;
->>>>>>> 3352dcc... generate locations with a pagelist
 		dest = Object(validValue(dest));
 		assign = function assign(key) {
 			try {
@@ -8472,9 +8319,7 @@
 		return dest;
 	};
 
-	var assign$1 = isImplemented()
-		? Object.assign
-		: shim$1;
+	var assign$1 = isImplemented() ? Object.assign : shim$1;
 
 	var forEach = Array.prototype.forEach,
 	    create$2 = Object.create;
@@ -8499,18 +8344,14 @@
 	// Deprecated
 
 	var isCallable = function (obj) {
-<<<<<<< HEAD
 	  return typeof obj === "function";
-=======
-	 return typeof obj === "function";
->>>>>>> 3352dcc... generate locations with a pagelist
 	};
 
 	var str = "razdwatrzy";
 
 	var isImplemented$2 = function () {
 		if (typeof str.contains !== "function") return false;
-		return (str.contains("dwa") === true) && (str.contains("foo") === false);
+		return str.contains("dwa") === true && str.contains("foo") === false;
 	};
 
 	var indexOf$1 = String.prototype.indexOf;
@@ -8519,23 +8360,15 @@
 		return indexOf$1.call(this, searchString, arguments[1]) > -1;
 	};
 
-	var contains = isImplemented$2()
-		? String.prototype.contains
-		: shim$2;
+	var contains = isImplemented$2() ? String.prototype.contains : shim$2;
 
 	var d_1 = createCommonjsModule(function (module) {
 
 	var d;
 
-<<<<<<< HEAD
 	d = module.exports = function (dscr, value /*, options*/) {
 		var c, e, w, options, desc;
 		if (arguments.length < 2 || typeof dscr !== 'string') {
-=======
-	d = module.exports = function (dscr, value/*, options*/) {
-		var c, e, w, options, desc;
-		if ((arguments.length < 2) || (typeof dscr !== 'string')) {
->>>>>>> 3352dcc... generate locations with a pagelist
 			options = value;
 			value = dscr;
 			dscr = null;
@@ -10679,7 +10512,6 @@
 			value: function segmentString(segment) {
 				var segmentString = "/";
 
-<<<<<<< HEAD
 				segmentString += this.joinSteps(segment.steps);
 
 				if (segment.terminal && segment.terminal.offset != null) {
@@ -10691,33 +10523,6 @@
 				}
 
 				return segmentString;
-=======
-			return segmentString;
-		}
-
-		/**
-		 * Convert CFI to a epubcfi(...) string
-		 * @returns {string} epubcfi
-		 */
-		toString(cfi) {
-			if ( ! cfi ) { cfi = this; }
-			var cfiString = "epubcfi(";
-
-			cfiString += this.segmentString(cfi.base);
-
-			cfiString += "!";
-			cfiString += this.segmentString(cfi.path);
-
-			// Add Range, if present
-			if(cfi.range && cfi.start) {
-				cfiString += ",";
-				cfiString += this.segmentString(cfi.start);
-			}
-
-			if(cfi.range && cfi.end) {
-				cfiString += ",";
-				cfiString += this.segmentString(cfi.end);
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 
 			/**
@@ -12151,56 +11956,12 @@
 
 				this.spineItems.push(section);
 
-<<<<<<< HEAD
 				// Encode and Decode href lookups
 				// see pr for details: https://github.com/futurepress/epub.js/pull/358
 				this.spineByHref[decodeURI(section.href)] = index;
 				this.spineByHref[encodeURI(section.href)] = index;
 				this.spineByHref[section.href.substring(section.href.lastIndexOf('/') + 1)] = index;
 				this.spineByHref[section.href] = index;
-=======
-		/**
-		 * Get an item from the spine
-		 * @param  {string|number} [target]
-		 * @return {Section} section
-		 * @example spine.get();
-		 * @example spine.get(1);
-		 * @example spine.get("chap1.html");
-		 * @example spine.get("#id1234");
-		 */
-		get(target) {
-			var index = 0;
-
-			if (typeof target === "undefined") {
-				while (index < this.spineItems.length) {
-					let next = this.spineItems[index];
-					if (next && next.linear) {
-						break;
-					}
-					index += 1;
-				}
-			} else if(this.epubcfi.isCfiString(target)) {
-				let cfi = new EpubCFI(target);
-				index = cfi.spinePos;
-			} else if(typeof target === "number" || isNaN(target) === false){
-				index = target;
-			} else if(typeof target === "string" && target.indexOf("#") === 0) {
-				index = this.spineById[target.substring(1)];
-			} else if(typeof target === "string") {
-				// Remove fragments
-				target = target.split("#")[0];
-				index = this.spineByAbsoluteHref[target] || this.spineByAbsoluteHref[encodeURI(target)] || this.spineByHref[target] || this.spineByHref[encodeURI(target)];
-				if ( ! index ) {
-					// check for relative paths
-					for(var i = 0; i < this.spineItems.length; i++)	{
-						if ( this.spineItems[i].href.indexOf('/' + target) > -1 ) {
-							index = i;
-							break;
-						}
-					}
-				}
-			}
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				this.spineById[section.idref] = index;
 
@@ -12209,7 +11970,6 @@
 				return index;
 			}
 
-<<<<<<< HEAD
 			/**
 	   * Prepend a Section to the Spine
 	   * @private
@@ -12227,28 +11987,13 @@
 				this.spineItems.forEach(function (item, index) {
 					item.index = index;
 				});
-=======
-			// Encode and Decode href lookups
-			// see pr for details: https://github.com/futurepress/epub.js/pull/358
-			this.spineByHref[decodeURI(section.href)] = index;
-			this.spineByHref[encodeURI(section.href)] = index;
-			this.spineByHref[section.href.substring(section.href.lastIndexOf('/')+1)] = index;
-			this.spineByHref[section.href] = index;
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				return 0;
 			}
 
-<<<<<<< HEAD
 			// insert(section, index) {
 			//
 			// };
-=======
-			this.spineByAbsoluteHref[section.url] = index;
-
-			return index;
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
 
 			/**
 	   * Remove a Section from the Spine
@@ -12671,8 +12416,6 @@
 			this.processingTimeout = undefined;
 		}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 		_createClass$8(Locations, [{
 			key: "generateFromPageList",
 			value: function generateFromPageList(pageList) {
@@ -12694,79 +12437,6 @@
 					if (this._currentCfi) {
 						this.currentLocation = this._currentCfi;
 					}
-=======
-		generateFromPageListIncomplete(pageList) {
-
-			this.q.pause();
-
-			pageList.pageList.forEach((page) => {
-	      var parts = page.href.split('#');
-	      var href = parts[0];
-	      var target = parts[1];
-	      if ( target ) {
-	      	target = '#' + target;
-	      } else {
-	      	target = 'body';
-	      }
-
-	      var section = this.spine.get(href); // reliable?
-	      this.q.enqueue(function(section) {
-	      	section.load(this.request)
-	      	  .then(function(contents) {
-	      	    var node = contents.ownerDocument.querySelector(target);
-	      	    // var cfiObject = self._book.spine.epubcfi.fromNode(node, section.cfiBase);
-	      	    var cfi = section.cfiFromElement(node);
-	      	    console.log("AHOY", node, cfi);
-	      	    // self._book.pageList.locations[page.page] = self._book.spine.epubcfi.toString(cfi);
-	      	    pageList.locations[page.page] = cfi;
-	      	    this._locations[page.page - 0] = cfi;
-	      	  }.bind(this));
-	      }.bind(this), section);
-	    });
-
-	    return this.q.run().then(() => {
-	    	this.total = this._locations.length - 1;
-	    	if (this._currentCfi) {
-	    		this.currentLocation = this._currentCfi;
-	    	}
-
-	    	return this._locations;
-	    });
-		}
-
-=======
->>>>>>> 22ff869... build
-		generateFromPageList(pageList) {
-
-			this.break = 1600;
-			this.q.pause();
-
-			this._pageList = pageList;
-
-			this.spine.each(function(section) {
-				if (section.linear) {
-					this.q.enqueue(this.process.bind(this), section);
-				}
-			}.bind(this));
-
-			return this.q.run().then(function() {
-				this.total = this._locations.length - 1;
-
-				if (this._currentCfi) {
-					this.currentLocation = this._currentCfi;
-				}
-
-				return this._locations;
-			}.bind(this));
-		}
-
-		/**
-		 * Load all of sections in the book to generate locations
-		 * @param  {int} chars how many chars to split on
-		 * @return {object} locations
-		 */
-		generate(chars) {
->>>>>>> 3352dcc... generate locations with a pagelist
 
 					return this._locations;
 				}.bind(this));
@@ -12826,45 +12496,19 @@
 					var locations = this.parse(contents, section.cfiBase);
 					this._locations = this._locations.concat(locations);
 
-<<<<<<< HEAD
 					if (this._pageList) {
 
 						var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
 
 						pages.forEach(function (page) {
 							var item = _this._pageList.pageList[page - 1];
-=======
-					if ( this._pageList ) {
-
-						var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
-
-						pages.forEach((page) => {
-							var item = this._pageList.pageList[page - 1];
->>>>>>> 3352dcc... generate locations with a pagelist
 
 							var parts = item.href.split('#');
 							var target = parts[1] ? '#' + parts[1] : 'body';
 							var node = contents.ownerDocument.querySelector(target);
 							var cfi = section.cfiFromElement(node);
-<<<<<<< HEAD
 							_this._pageList.locations[page - 1] = cfi;
 						});
-=======
-							this._pageList.locations[page - 1] = cfi;
-						});
-<<<<<<< HEAD
-
-						// if ( page ) {
-						// 	var parts = page.href.split('#');
-						// 	var target = parts[1] ? '#' + parts[1] : 'body';
-						// 	var node = contents.ownerDocument.querySelector(target);
-						// 	var cfi = section.cfiFromElement(node);
-						// 	this._pageList.locations[page.page - 1] = cfi;
-						// 	console.log("AHOY UPDATING PAGE LIST", page.page, this._pageList.locations[page.page - 1]);
-						// }
->>>>>>> 3352dcc... generate locations with a pagelist
-=======
->>>>>>> 22ff869... build
 					}
 
 					section.unload();
@@ -13662,16 +13306,11 @@
 	 * Navigation Parser
 	 * @param {document} xml navigation html / xhtml / ncx
 	 */
-<<<<<<< HEAD
 
 	var Navigation = function () {
 		function Navigation(xml, path, canonical) {
 			_classCallCheck$b(this, Navigation);
 
-=======
-	class Navigation {
-		constructor(xml, path, canonical) {
->>>>>>> 3352dcc... generate locations with a pagelist
 			this.toc = [];
 			this.tocByHref = {};
 			this.tocById = {};
@@ -13796,7 +13435,6 @@
 				return this.landmarks[index];
 			}
 
-<<<<<<< HEAD
 			/**
 	   * Parse toc from a Epub > 3.0 Nav
 	   * @private
@@ -13829,20 +13467,6 @@
 						}
 					}
 				}
-=======
-			var path = this.path.resolve(src);
-
-			return {
-				"id": id,
-				"href": src,
-				"canonical": this.canonical(path),
-				"label": text,
-				"html": html,
-				"subitems" : subitems,
-				"parent" : parent
-			};
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				return list;
 			}
@@ -14588,16 +14212,11 @@
 	 * Page List Parser
 	 * @param {document} [xml]
 	 */
-<<<<<<< HEAD
 
 	var PageList = function () {
 		function PageList(xml, path, canonical) {
 			_classCallCheck$d(this, PageList);
 
-=======
-	class PageList {
-		constructor(xml, path, canonical) {
->>>>>>> 3352dcc... generate locations with a pagelist
 			this.pages = [];
 			this.locations = [];
 			this.epubcfi = new EpubCFI();
@@ -14629,7 +14248,6 @@
 	  */
 
 
-<<<<<<< HEAD
 		_createClass$d(PageList, [{
 			key: "parse",
 			value: function parse$$1(xml) {
@@ -14643,66 +14261,6 @@
 					// return this.parseNcx(xml);
 					return;
 				}
-=======
-		/**
-		 * Parse a Nav PageList
-		 * @private
-		 * @param  {node} navHtml
-		 * @return {PageList.item[]} list
-		 */
-		parseNav(navHtml){
-			var navElement = querySelectorByType(navHtml, "nav", "page-list");
-			var navItems = navElement ? qsa(navElement, "li") : [];
-			var length = navItems.length;
-			var i;
-			var list = [];
-			var item;
-
-			if(!navItems || length === 0) return list;
-
-			for (i = 0; i < length; ++i) {
-				item = this.item(navItems[i], i);
-				list.push(item);
-			}
-
-			return list;
-		}
-
-		/**
-		 * Page List Item
-		 * @private
-		 * @param  {node} item
-		 * @return {object} pageListItem
-		 */
-		item(item, i){
-			var content = qs(item, "a"),
-					href = content.getAttribute("href") || "",
-					text = content.textContent || "",
-					pageLabel = text,
-					page = i + 1, 
-					isCfi = href.indexOf("epubcfi"),
-					split,
-					packageUrl,
-					cfi;
-
-			if(isCfi != -1) {
-				split = href.split("#");
-				packageUrl = split[0];
-				cfi = split.length > 1 ? split[1] : false;
-				return {
-					"cfi" : cfi,
-					"href" : href,
-					"packageUrl" : packageUrl,
-					"page" : page,
-					"pageLabel": pageLabel
-				};
-			} else {
-				return {
-					"href" : href,
-					"page" : page,
-					"pageLabel": pageLabel
-				};
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 
 			/**
@@ -14728,23 +14286,6 @@
 					item = this.item(navItems[i], i);
 					list.push(item);
 				}
-<<<<<<< HEAD
-=======
-				if ( item.href ) {
-					var href = (item.href.split('#'))[0];
-					var path = this.path.resolve(href);
-					var absolute = this.canonical(path);
-					if ( this.pagesByAbsolutePath[absolute] == null ) {
-						this.pagesByAbsolutePath[absolute] = [];
-					}
-					this.pagesByAbsolutePath[absolute].push(item.page);
-				}
-			}, this);
-			this.firstPage = parseInt(this.pages[0]);
-			this.lastPage = parseInt(this.pages[this.pages.length-1]);
-			this.totalPages = this.lastPage - this.firstPage;
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				return list;
 			}
@@ -14818,8 +14359,6 @@
 				this.totalPages = this.lastPage - this.firstPage;
 			}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 			/**
 	   * Get a PageList result from a EpubCFI
 	   * @param  {string} cfi EpubCFI String
@@ -14835,63 +14374,7 @@
 				if (this.locations.length === 0) {
 					return -1;
 				}
-=======
-=======
-		pagesFromLocation(location) {
-			var pgs = [];
 
-			// Check if the pageList has not been set yet
-			if(this.locations.length === 0) {
-				return [];
-			}
-
-			var pg = this.pageFromCfi(location.start.cfi);
-			if ( pg == -1 ) {
-				return [];
-			}
-
-			pgs.push(pg);
-			pg = this.pageFromCfi(location.end.cfi);
-			if ( pg != pgs[0] ) {
-				pgs.push(pg);
-			}
-
-			return pgs;
-		}
-
->>>>>>> 22ff869... build
-		pageLabel(page) {
-			var item = this.pageList[page];
-			if ( item ) {
-				return item.pageLabel || `#${page}`;
-			}
-			return -1;
-		}
-
-		/**
-		 * Get an EpubCFI from a Page List Item
-		 * @param  {string | number} pg
-		 * @return {string} cfi
-		 */
-		cfiFromPage(pg){
-			var cfi = -1;
-			// check that pg is an int
-			if(typeof pg != "number"){
-				pg = parseInt(pg);
-			}
-
-			// check if the cfi is in the page list
-			// Pages could be unsorted.
-			var index = this.pages.indexOf(pg);
-			if(index != -1) {
-				cfi = this.locations[index];
-			}
-			// TODO: handle pages not in the list
-			return cfi;
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
-
-<<<<<<< HEAD
 				// TODO: check if CFI is valid?
 
 				// check if the cfi is in the location list
@@ -14916,45 +14399,6 @@
 			key: "pagesFromLocation",
 			value: function pagesFromLocation(location) {
 				var pgs = [];
-=======
-		cfiFromPageLabel(pageLabel) {
-			var item = this.pageList.find(item => item.pageLabel == pageLabel);
-			if ( item ) {
-				return this.cfiFromPage(item.page);
-			}
-			return -1;
-		}
-
-		/**
-		 * Get a Page from Book percentage
-		 * @param  {number} percent
-		 * @return {number} page
-		 */
-		pageFromPercentage(percent){
-			var pg = Math.round(this.totalPages * percent);
-			return pg;
-		}
-
-		itemFromPercentage(percent) {
-			var pg = this.pageFromPercentage(percent);
-			return this.pageList[pg - 1];
-		}
-
-		itemFromCfi(cfi) {
-			var pg = this.pageFromCfi(cfi);
-			return this.pageList[pg - 1];
-		}
-
-		/**
-		 * Returns a value between 0 - 1 corresponding to the location of a page
-		 * @param  {number} pg the page
-		 * @return {number} percentage
-		 */
-		percentageFromPage(pg){
-			var percentage = (pg - this.firstPage) / this.totalPages;
-			return Math.round(percentage * 1000) / 1000;
-		}
->>>>>>> 22ff869... build
 
 				// Check if the pageList has not been set yet
 				if (this.locations.length === 0) {
@@ -19284,11 +18728,8 @@
 
 	eventEmitter(IframeView.prototype);
 
-<<<<<<< HEAD
 	var _typeof$7 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-=======
->>>>>>> 3352dcc... generate locations with a pagelist
 	/**
 	 * Checks if `value` is the
 	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -19315,17 +18756,12 @@
 	 * // => false
 	 */
 	function isObject$1(value) {
-<<<<<<< HEAD
 	  var type = typeof value === 'undefined' ? 'undefined' : _typeof$7(value);
-=======
-	  var type = typeof value;
->>>>>>> 3352dcc... generate locations with a pagelist
 	  return value != null && (type == 'object' || type == 'function');
 	}
 
 	var isObject_1$1 = isObject$1;
 
-<<<<<<< HEAD
 	var _typeof$8 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	/** Detect free variable `global` from Node.js. */
@@ -19874,656 +19310,11 @@
 				if (options.height && isNumber(options.height)) {
 					height = options.height + "px";
 				}
-=======
-	/** Detect free variable `global` from Node.js. */
-	var freeGlobal$1 = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
-
-	var _freeGlobal$1 = freeGlobal$1;
-
-	/** Detect free variable `self`. */
-	var freeSelf$1 = typeof self == 'object' && self && self.Object === Object && self;
-
-	/** Used as a reference to the global object. */
-	var root$1 = _freeGlobal$1 || freeSelf$1 || Function('return this')();
-
-	var _root$1 = root$1;
-
-	/**
-	 * Gets the timestamp of the number of milliseconds that have elapsed since
-	 * the Unix epoch (1 January 1970 00:00:00 UTC).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 2.4.0
-	 * @category Date
-	 * @returns {number} Returns the timestamp.
-	 * @example
-	 *
-	 * _.defer(function(stamp) {
-	 *   console.log(_.now() - stamp);
-	 * }, _.now());
-	 * // => Logs the number of milliseconds it took for the deferred invocation.
-	 */
-	var now$1 = function() {
-	  return _root$1.Date.now();
-	};
-
-	var now_1$1 = now$1;
-
-	/** Built-in value references. */
-	var Symbol$2 = _root$1.Symbol;
-
-	var _Symbol$1 = Symbol$2;
-
-	/** Used for built-in method references. */
-	var objectProto$9 = Object.prototype;
-
-	/** Used to check objects for own properties. */
-	var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var nativeObjectToString$2 = objectProto$9.toString;
-
-	/** Built-in value references. */
-	var symToStringTag$2 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
-
-	/**
-	 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the raw `toStringTag`.
-	 */
-	function getRawTag$1(value) {
-	  var isOwn = hasOwnProperty$7.call(value, symToStringTag$2),
-	      tag = value[symToStringTag$2];
-
-	  try {
-	    value[symToStringTag$2] = undefined;
-	  } catch (e) {}
-
-	  var result = nativeObjectToString$2.call(value);
-	  {
-	    if (isOwn) {
-	      value[symToStringTag$2] = tag;
-	    } else {
-	      delete value[symToStringTag$2];
-	    }
-	  }
-	  return result;
-	}
-
-	var _getRawTag$1 = getRawTag$1;
-
-	/** Used for built-in method references. */
-	var objectProto$a = Object.prototype;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var nativeObjectToString$3 = objectProto$a.toString;
-
-	/**
-	 * Converts `value` to a string using `Object.prototype.toString`.
-	 *
-	 * @private
-	 * @param {*} value The value to convert.
-	 * @returns {string} Returns the converted string.
-	 */
-	function objectToString$1(value) {
-	  return nativeObjectToString$3.call(value);
-	}
-
-	var _objectToString$1 = objectToString$1;
-
-	/** `Object#toString` result references. */
-	var nullTag$1 = '[object Null]',
-	    undefinedTag$1 = '[object Undefined]';
-
-	/** Built-in value references. */
-	var symToStringTag$3 = _Symbol$1 ? _Symbol$1.toStringTag : undefined;
-
-	/**
-	 * The base implementation of `getTag` without fallbacks for buggy environments.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @returns {string} Returns the `toStringTag`.
-	 */
-	function baseGetTag$1(value) {
-	  if (value == null) {
-	    return value === undefined ? undefinedTag$1 : nullTag$1;
-	  }
-	  return (symToStringTag$3 && symToStringTag$3 in Object(value))
-	    ? _getRawTag$1(value)
-	    : _objectToString$1(value);
-	}
-
-	var _baseGetTag$1 = baseGetTag$1;
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike$1(value) {
-	  return value != null && typeof value == 'object';
-	}
-
-	var isObjectLike_1$1 = isObjectLike$1;
-
-	/** `Object#toString` result references. */
-	var symbolTag$1 = '[object Symbol]';
-
-	/**
-	 * Checks if `value` is classified as a `Symbol` primitive or object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-	 * @example
-	 *
-	 * _.isSymbol(Symbol.iterator);
-	 * // => true
-	 *
-	 * _.isSymbol('abc');
-	 * // => false
-	 */
-	function isSymbol$1(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike_1$1(value) && _baseGetTag$1(value) == symbolTag$1);
-	}
-
-	var isSymbol_1$1 = isSymbol$1;
-
-	/** Used as references for various `Number` constants. */
-	var NAN$1 = 0 / 0;
-
-	/** Used to match leading and trailing whitespace. */
-	var reTrim$1 = /^\s+|\s+$/g;
-
-	/** Used to detect bad signed hexadecimal string values. */
-	var reIsBadHex$1 = /^[-+]0x[0-9a-f]+$/i;
-
-	/** Used to detect binary string values. */
-	var reIsBinary$1 = /^0b[01]+$/i;
-
-	/** Used to detect octal string values. */
-	var reIsOctal$1 = /^0o[0-7]+$/i;
-
-	/** Built-in method references without a dependency on `root`. */
-	var freeParseInt$1 = parseInt;
-
-	/**
-	 * Converts `value` to a number.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to process.
-	 * @returns {number} Returns the number.
-	 * @example
-	 *
-	 * _.toNumber(3.2);
-	 * // => 3.2
-	 *
-	 * _.toNumber(Number.MIN_VALUE);
-	 * // => 5e-324
-	 *
-	 * _.toNumber(Infinity);
-	 * // => Infinity
-	 *
-	 * _.toNumber('3.2');
-	 * // => 3.2
-	 */
-	function toNumber$1(value) {
-	  if (typeof value == 'number') {
-	    return value;
-	  }
-	  if (isSymbol_1$1(value)) {
-	    return NAN$1;
-	  }
-	  if (isObject_1$1(value)) {
-	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-	    value = isObject_1$1(other) ? (other + '') : other;
-	  }
-	  if (typeof value != 'string') {
-	    return value === 0 ? value : +value;
-	  }
-	  value = value.replace(reTrim$1, '');
-	  var isBinary = reIsBinary$1.test(value);
-	  return (isBinary || reIsOctal$1.test(value))
-	    ? freeParseInt$1(value.slice(2), isBinary ? 2 : 8)
-	    : (reIsBadHex$1.test(value) ? NAN$1 : +value);
-	}
-
-	var toNumber_1$1 = toNumber$1;
-
-	/** Error message constants. */
-	var FUNC_ERROR_TEXT$1 = 'Expected a function';
-
-	/* Built-in method references for those with the same name as other `lodash` methods. */
-	var nativeMax$2 = Math.max,
-	    nativeMin$1 = Math.min;
-
-	/**
-	 * Creates a debounced function that delays invoking `func` until after `wait`
-	 * milliseconds have elapsed since the last time the debounced function was
-	 * invoked. The debounced function comes with a `cancel` method to cancel
-	 * delayed `func` invocations and a `flush` method to immediately invoke them.
-	 * Provide `options` to indicate whether `func` should be invoked on the
-	 * leading and/or trailing edge of the `wait` timeout. The `func` is invoked
-	 * with the last arguments provided to the debounced function. Subsequent
-	 * calls to the debounced function return the result of the last `func`
-	 * invocation.
-	 *
-	 * **Note:** If `leading` and `trailing` options are `true`, `func` is
-	 * invoked on the trailing edge of the timeout only if the debounced function
-	 * is invoked more than once during the `wait` timeout.
-	 *
-	 * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-	 * until to the next tick, similar to `setTimeout` with a timeout of `0`.
-	 *
-	 * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-	 * for details over the differences between `_.debounce` and `_.throttle`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to debounce.
-	 * @param {number} [wait=0] The number of milliseconds to delay.
-	 * @param {Object} [options={}] The options object.
-	 * @param {boolean} [options.leading=false]
-	 *  Specify invoking on the leading edge of the timeout.
-	 * @param {number} [options.maxWait]
-	 *  The maximum time `func` is allowed to be delayed before it's invoked.
-	 * @param {boolean} [options.trailing=true]
-	 *  Specify invoking on the trailing edge of the timeout.
-	 * @returns {Function} Returns the new debounced function.
-	 * @example
-	 *
-	 * // Avoid costly calculations while the window size is in flux.
-	 * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
-	 *
-	 * // Invoke `sendMail` when clicked, debouncing subsequent calls.
-	 * jQuery(element).on('click', _.debounce(sendMail, 300, {
-	 *   'leading': true,
-	 *   'trailing': false
-	 * }));
-	 *
-	 * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
-	 * var debounced = _.debounce(batchLog, 250, { 'maxWait': 1000 });
-	 * var source = new EventSource('/stream');
-	 * jQuery(source).on('message', debounced);
-	 *
-	 * // Cancel the trailing debounced invocation.
-	 * jQuery(window).on('popstate', debounced.cancel);
-	 */
-	function debounce$1(func, wait, options) {
-	  var lastArgs,
-	      lastThis,
-	      maxWait,
-	      result,
-	      timerId,
-	      lastCallTime,
-	      lastInvokeTime = 0,
-	      leading = false,
-	      maxing = false,
-	      trailing = true;
-
-	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT$1);
-	  }
-	  wait = toNumber_1$1(wait) || 0;
-	  if (isObject_1$1(options)) {
-	    leading = !!options.leading;
-	    maxing = 'maxWait' in options;
-	    maxWait = maxing ? nativeMax$2(toNumber_1$1(options.maxWait) || 0, wait) : maxWait;
-	    trailing = 'trailing' in options ? !!options.trailing : trailing;
-	  }
-
-	  function invokeFunc(time) {
-	    var args = lastArgs,
-	        thisArg = lastThis;
-
-	    lastArgs = lastThis = undefined;
-	    lastInvokeTime = time;
-	    result = func.apply(thisArg, args);
-	    return result;
-	  }
-
-	  function leadingEdge(time) {
-	    // Reset any `maxWait` timer.
-	    lastInvokeTime = time;
-	    // Start the timer for the trailing edge.
-	    timerId = setTimeout(timerExpired, wait);
-	    // Invoke the leading edge.
-	    return leading ? invokeFunc(time) : result;
-	  }
-
-	  function remainingWait(time) {
-	    var timeSinceLastCall = time - lastCallTime,
-	        timeSinceLastInvoke = time - lastInvokeTime,
-	        timeWaiting = wait - timeSinceLastCall;
-
-	    return maxing
-	      ? nativeMin$1(timeWaiting, maxWait - timeSinceLastInvoke)
-	      : timeWaiting;
-	  }
-
-	  function shouldInvoke(time) {
-	    var timeSinceLastCall = time - lastCallTime,
-	        timeSinceLastInvoke = time - lastInvokeTime;
-
-	    // Either this is the first call, activity has stopped and we're at the
-	    // trailing edge, the system time has gone backwards and we're treating
-	    // it as the trailing edge, or we've hit the `maxWait` limit.
-	    return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
-	      (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
-	  }
-
-	  function timerExpired() {
-	    var time = now_1$1();
-	    if (shouldInvoke(time)) {
-	      return trailingEdge(time);
-	    }
-	    // Restart the timer.
-	    timerId = setTimeout(timerExpired, remainingWait(time));
-	  }
-
-	  function trailingEdge(time) {
-	    timerId = undefined;
-
-	    // Only invoke if we have `lastArgs` which means `func` has been
-	    // debounced at least once.
-	    if (trailing && lastArgs) {
-	      return invokeFunc(time);
-	    }
-	    lastArgs = lastThis = undefined;
-	    return result;
-	  }
-
-	  function cancel() {
-	    if (timerId !== undefined) {
-	      clearTimeout(timerId);
-	    }
-	    lastInvokeTime = 0;
-	    lastArgs = lastCallTime = lastThis = timerId = undefined;
-	  }
-
-	  function flush() {
-	    return timerId === undefined ? result : trailingEdge(now_1$1());
-	  }
-
-	  function debounced() {
-	    var time = now_1$1(),
-	        isInvoking = shouldInvoke(time);
-
-	    lastArgs = arguments;
-	    lastThis = this;
-	    lastCallTime = time;
-
-	    if (isInvoking) {
-	      if (timerId === undefined) {
-	        return leadingEdge(lastCallTime);
-	      }
-	      if (maxing) {
-	        // Handle invocations in a tight loop.
-	        timerId = setTimeout(timerExpired, wait);
-	        return invokeFunc(lastCallTime);
-	      }
-	    }
-	    if (timerId === undefined) {
-	      timerId = setTimeout(timerExpired, wait);
-	    }
-	    return result;
-	  }
-	  debounced.cancel = cancel;
-	  debounced.flush = flush;
-	  return debounced;
-	}
-
-	var debounce_1$1 = debounce$1;
-
-	/** Error message constants. */
-	var FUNC_ERROR_TEXT$2 = 'Expected a function';
-
-	/**
-	 * Creates a throttled function that only invokes `func` at most once per
-	 * every `wait` milliseconds. The throttled function comes with a `cancel`
-	 * method to cancel delayed `func` invocations and a `flush` method to
-	 * immediately invoke them. Provide `options` to indicate whether `func`
-	 * should be invoked on the leading and/or trailing edge of the `wait`
-	 * timeout. The `func` is invoked with the last arguments provided to the
-	 * throttled function. Subsequent calls to the throttled function return the
-	 * result of the last `func` invocation.
-	 *
-	 * **Note:** If `leading` and `trailing` options are `true`, `func` is
-	 * invoked on the trailing edge of the timeout only if the throttled function
-	 * is invoked more than once during the `wait` timeout.
-	 *
-	 * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-	 * until to the next tick, similar to `setTimeout` with a timeout of `0`.
-	 *
-	 * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-	 * for details over the differences between `_.throttle` and `_.debounce`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to throttle.
-	 * @param {number} [wait=0] The number of milliseconds to throttle invocations to.
-	 * @param {Object} [options={}] The options object.
-	 * @param {boolean} [options.leading=true]
-	 *  Specify invoking on the leading edge of the timeout.
-	 * @param {boolean} [options.trailing=true]
-	 *  Specify invoking on the trailing edge of the timeout.
-	 * @returns {Function} Returns the new throttled function.
-	 * @example
-	 *
-	 * // Avoid excessively updating the position while scrolling.
-	 * jQuery(window).on('scroll', _.throttle(updatePosition, 100));
-	 *
-	 * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
-	 * var throttled = _.throttle(renewToken, 300000, { 'trailing': false });
-	 * jQuery(element).on('click', throttled);
-	 *
-	 * // Cancel the trailing throttled invocation.
-	 * jQuery(window).on('popstate', throttled.cancel);
-	 */
-	function throttle$1(func, wait, options) {
-	  var leading = true,
-	      trailing = true;
-
-	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT$2);
-	  }
-	  if (isObject_1$1(options)) {
-	    leading = 'leading' in options ? !!options.leading : leading;
-	    trailing = 'trailing' in options ? !!options.trailing : trailing;
-	  }
-	  return debounce_1$1(func, wait, {
-	    'leading': leading,
-	    'maxWait': wait,
-	    'trailing': trailing
-	  });
-	}
-
-	var throttle_1 = throttle$1;
-
-	class Stage {
-		constructor(_options) {
-			this.settings = _options || {};
-			this.id = "epubjs-container-" + uuid();
-
-			this.container = this.create(this.settings);
-
-			if(this.settings.hidden) {
-				this.wrapper = this.wrap(this.container);
-			}
-
-		}
-
-		/*
-		* Creates an element to render to.
-		* Resizes to passed width and height or to the elements size
-		*/
-		create(options){
-			let height  = options.height;// !== false ? options.height : "100%";
-			let width   = options.width;// !== false ? options.width : "100%";
-			let overflow  = options.overflow || false;
-			let axis = options.axis || "vertical";
-			let direction = options.direction;
-			let scale = options.scale || 1.0;
-
-			if(options.height && isNumber(options.height)) {
-				height = options.height + "px";
-			}
-
-			if(options.width && isNumber(options.width)) {
-				width = options.width + "px";
-			}
-
-			// Create new container element
-			let container = document.createElement("div");
-
-			container.id = this.id;
-			container.classList.add("epub-container");
-
-			// Style Element
-			// container.style.fontSize = "0";
-			container.style.wordSpacing = "0";
-			container.style.lineHeight = "0";
-			container.style.verticalAlign = "top";
-			container.style.position = "relative";
-
-			if(axis === "horizontal") {
-				// container.style.whiteSpace = "nowrap";
-				container.style.display = "flex";
-				container.style.flexDirection = "row";
-				container.style.flexWrap = "nowrap";
-			}
-
-			if(width){
-				container.style.width = width;
-			}
-
-			if(height){
-				container.style.height = height;
-			}
-
-			if (overflow) {
-				container.style.overflow = overflow;
-			}
-
-			if (direction) {
-				container.dir = direction;
-				container.style["direction"] = direction;
-			}
-
-			if (direction && this.settings.fullsize) {
-				document.body.style["direction"] = direction;
-			}
-
-			if (scale && scale != 1.0) {
-				container.style["transform-origin"] = "top left";
-				container.style["transform"] = "scale(" + scale + ")";
-				container.style.overflow = "auto"; // "visible" breaks something?
-			} else {
-				container.style["transform-origin"] = null;
-				container.style["transform"] = null;
-			}
-
-			return container;
-		}
-
-		wrap(container) {
-			var wrapper = document.createElement("div");
-
-			wrapper.style.visibility = "hidden";
-			wrapper.style.overflow = "hidden";
-			wrapper.style.width = "0";
-			wrapper.style.height = "0";
-
-			wrapper.appendChild(container);
-			return wrapper;
-		}
-
-
-		getElement(_element){
-			var element;
-
-			if(isElement(_element)) {
-				element = _element;
-			} else if (typeof _element === "string") {
-				element = document.getElementById(_element);
-			}
-
-			if(!element){
-				throw new Error("Not an Element");
-			}
-
-			return element;
-		}
-
-		attachTo(what){
-
-			var element = this.getElement(what);
-			var base;
-
-			if(!element){
-				return;
-			}
-
-			if(this.settings.hidden) {
-				base = this.wrapper;
-			} else {
-				base = this.container;
-			}
-
-			element.appendChild(base);
-
-			this.element = element;
-
-			return element;
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				if (options.width && isNumber(options.width)) {
 					width = options.width + "px";
 				}
 
-<<<<<<< HEAD
 				// Create new container element
 				var container = document.createElement("div");
 
@@ -20605,92 +19396,11 @@
 				}
 
 				return element;
-=======
-		getContainer() {
-			return this.container;
-		}
-
-		onResize(func){
-			// Only listen to window for resize event if width and height are not fixed.
-			// This applies if it is set to a percent or auto.
-			if(!isNumber(this.settings.width) ||
-				 !isNumber(this.settings.height) ) {
-				this.resizeFunc = throttle_1(func, 50);
-				window.addEventListener("resize", this.resizeFunc, false);
-			}
-
-		}
-
-		onOrientationChange(func){
-			this.orientationChangeFunc = func;
-			window.addEventListener("orientationchange", this.orientationChangeFunc, false);
-		}
-
-		size(width, height){
-			var bounds;
-			let _width = width || this.settings.width;
-			let _height = height || this.settings.height;
-
-			// If width or height are set to false, inherit them from containing element
-			if(width === null) {
-				bounds = this.element.getBoundingClientRect();
-
-				if(bounds.width) {
-					width = Math.floor(bounds.width);
-					this.container.style.width = width + "px";
-				}
-			} else {
-				if (isNumber(width)) {
-					this.container.style.width = width + "px";
-				} else {
-					this.container.style.width = width;
-				}
-			}
-
-			if(height === null) {
-				bounds = bounds || this.element.getBoundingClientRect();
-
-				if(bounds.height) {
-					height = bounds.height;
-					this.container.style.height = height + "px";
-				}
-
-			} else {
-				if (isNumber(height)) {
-					this.container.style.height = height + "px";
-				} else {
-					this.container.style.height = height;
-				}
-			}
-
-			var _round = function(value) {
-				return Math.round(value);
-
-				// -- this calculates the closest even number to value
-				var retval = 2 * Math.round(value / 2);
-				if ( retval > value ) {
-					retval -= 2;
-				}
-				return retval;
-			};
-
-			if(!isNumber(width)) {
-				bounds = this.container.getBoundingClientRect();
-				width = _round(bounds.width); // Math.floor(bounds.width);
-				//height = bounds.height;
-			}
-
-			if(!isNumber(height)) {
-				bounds = bounds || this.container.getBoundingClientRect();
-				//width = bounds.width;
-				height = _round(bounds.height); // bounds.height;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "attachTo",
 			value: function attachTo(what) {
 
-<<<<<<< HEAD
 				var element = this.getElement(what);
 				var base;
 
@@ -20791,57 +19501,9 @@
 					//width = bounds.width;
 					height = _round(bounds.height); // bounds.height;
 				}
-=======
-
-			this.containerStyles = window.getComputedStyle(this.container);
-
-			this.containerPadding = {
-				left: parseFloat(this.containerStyles["padding-left"]) || 0,
-				right: parseFloat(this.containerStyles["padding-right"]) || 0,
-				top: parseFloat(this.containerStyles["padding-top"]) || 0,
-				bottom: parseFloat(this.containerStyles["padding-bottom"]) || 0
-			};
-
-			// Bounds not set, get them from window
-			let _windowBounds = windowBounds();
-			let bodyStyles = window.getComputedStyle(document.body);
-			let bodyPadding = {
-				left: parseFloat(bodyStyles["padding-left"]) || 0,
-				right: parseFloat(bodyStyles["padding-right"]) || 0,
-				top: parseFloat(bodyStyles["padding-top"]) || 0,
-				bottom: parseFloat(bodyStyles["padding-bottom"]) || 0
-			};
-
-			if (!_width) {
-				width = _windowBounds.width -
-									bodyPadding.left -
-									bodyPadding.right;
-			}
-
-			if ((this.settings.fullsize && !_height) || !_height) {
-				height = _windowBounds.height -
-									bodyPadding.top -
-									bodyPadding.bottom;
-			}
-
-			if ( this.settings.scale ) {
-				width /= this.settings.scale;
-				height /= this.settings.scale;
-			}
-
-			return {
-				width: width -
-								this.containerPadding.left -
-								this.containerPadding.right,
-				height: height -
-								this.containerPadding.top -
-								this.containerPadding.bottom
-			};
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				this.containerStyles = window.getComputedStyle(this.container);
 
-<<<<<<< HEAD
 				this.containerPadding = {
 					left: parseFloat(this.containerStyles["padding-left"]) || 0,
 					right: parseFloat(this.containerStyles["padding-right"]) || 0,
@@ -20876,39 +19538,6 @@
 					width: width - this.containerPadding.left - this.containerPadding.right,
 					height: height - this.containerPadding.top - this.containerPadding.bottom
 				};
-=======
-		bounds(){
-			let box;
-			if (this.container.style.overflow !== "visible") {
-				box = this.container && this.container.getBoundingClientRect();
-			}
-
-			if(!box || !box.width || !box.height) {
-				return windowBounds();
-			} else {
-				return box;
-			}
-
-		}
-
-		getSheet(){
-			var style = document.createElement("style");
-
-			// WebKit hack --> https://davidwalsh.name/add-rules-stylesheets
-			style.appendChild(document.createTextNode(""));
-
-			document.head.appendChild(style);
-
-			return style.sheet;
-		}
-
-		addStyleRules(selector, rulesArray){
-			var scope = "#" + this.id + " ";
-			var rules = "";
-
-			if(!this.sheet){
-				this.sheet = this.getSheet();
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "bounds",
@@ -20918,7 +19547,6 @@
 					box = this.container && this.container.getBoundingClientRect();
 				}
 
-<<<<<<< HEAD
 				if (!box || !box.width || !box.height) {
 					return windowBounds();
 				} else {
@@ -20967,95 +19595,8 @@
 				} else {
 					this.container.style.display = "block";
 				}
-=======
-			rulesArray.forEach(function(set) {
-				for (var prop in set) {
-					if(set.hasOwnProperty(prop)) {
-						rules += prop + ":" + set[prop] + ";";
-					}
-				}
-			});
-
-			this.sheet.insertRule(scope + selector + " {" + rules + "}", 0);
-		}
-
-		axis(axis) {
-			if(axis === "horizontal") {
-				this.container.style.display = "flex";
-				this.container.style.flexDirection = "row";
-				this.container.style.flexWrap = "nowrap";
-			} else {
-				this.container.style.display = "block";
-			}
-		}
-
-		// orientation(orientation) {
-		// 	if (orientation === "landscape") {
-		//
-		// 	} else {
-		//
-		// 	}
-		//
-		// 	this.orientation = orientation;
-		// }
-
-		direction(dir) {
-			if (this.container) {
-				this.container.dir = dir;
-				this.container.style["direction"] = dir;
 			}
 
-			if (this.settings.fullsize) {
-				document.body.style["direction"] = dir;
-			}
-		}
-
-		overflow(overflow) {
-			if (this.container) {
-				this.container.style["overflow"] = overflow;
-			}
-		}
-
-		scale(s) {
-			if (this.container) {
-				if ( s != 1.0 ) {
-					this._originalOverflow = this.container.style.overflow;
-					this.container.style["transform-origin"] = "top left";
-					this.container.style["transform"] = "scale(" + s + ")";
-					this.container.style.overflow = "auto"; // "visible"
-				} else {
-					this.container.style.overflow = this._originalOverflow;
-					this.container.style["transform-origin"] = null;
-					this.container.style["transform"] = null;
-				}
-				this.settings.scale = s;
-			}
-		}
-
-		destroy() {
-			var base;
-
-			if (this.element) {
-
-				if(this.settings.hidden) {
-					base = this.wrapper;
-				} else {
-					base = this.container;
-				}
-
-				if(this.element.contains(this.container)) {
-					this.element.removeChild(this.container);
-				}
-
-				window.removeEventListener("resize", this.resizeFunc);
-				window.removeEventListener("orientationChange", this.orientationChangeFunc);
-
->>>>>>> 3352dcc... generate locations with a pagelist
-			}
-		}
-	}
-
-<<<<<<< HEAD
 			// orientation(orientation) {
 			// 	if (orientation === "landscape") {
 			//
@@ -21240,113 +19781,6 @@
 			key: "forEach",
 			value: function forEach() {
 				return this._views.forEach.apply(this._views, arguments);
-=======
-	class Views {
-		constructor(container) {
-			this.container = container;
-			this._views = [];
-			this.length = 0;
-			this.hidden = false;
-		}
-
-		all() {
-			return this._views;
-		}
-
-		first() {
-			return this._views[0];
-		}
-
-		last() {
-			return this._views[this._views.length-1];
-		}
-
-		indexOf(view) {
-			return this._views.indexOf(view);
-		}
-
-		slice() {
-			return this._views.slice.apply(this._views, arguments);
-		}
-
-		get(i) {
-			return this._views[i];
-		}
-
-		append(view){
-			this._views.push(view);
-			if(this.container){
-				this.container.appendChild(view.element);
-			}
-			this.length++;
-			return view;
-		}
-
-		prepend(view){
-			this._views.unshift(view);
-			if(this.container){
-				this.container.insertBefore(view.element, this.container.firstChild);
-			}
-			this.length++;
-			return view;
-		}
-
-		insert(view, index) {
-			this._views.splice(index, 0, view);
-
-			if(this.container){
-				if(index < this.container.children.length){
-					this.container.insertBefore(view.element, this.container.children[index]);
-				} else {
-					this.container.appendChild(view.element);
-				}
-			}
-
-			this.length++;
-			return view;
-		}
-
-		remove(view) {
-			var index = this._views.indexOf(view);
-
-			if(index > -1) {
-				this._views.splice(index, 1);
-			}
-
-
-			this.destroy(view);
-
-			this.length--;
-		}
-
-		destroy(view) {
-			if(view.displayed){
-				view.destroy();
-			}
-
-			if(this.container){
-				 this.container.removeChild(view.element);
-			}
-			view = null;
-		}
-
-		// Iterators
-
-		forEach() {
-			return this._views.forEach.apply(this._views, arguments);
-		}
-
-		clear(){
-			// Remove all views
-			var view;
-			var len = this.length;
-
-			if(!this.length) return;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				this.destroy(view);
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "clear",
@@ -21355,7 +19789,6 @@
 				var view;
 				var len = this.length;
 
-<<<<<<< HEAD
 				if (!this.length) return;
 
 				for (var i = 0; i < len; i++) {
@@ -21468,68 +19901,8 @@
 			};
 
 			this.rendered = false;
-=======
-			this._views = [];
-			this.length = 0;
 		}
 
-		find(section){
-
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if(view.displayed && view.section.index == section.index) {
-					return view;
-				}
-			}
-
-		}
-
-		displayed(){
-			var displayed = [];
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if(view.displayed){
-					displayed.push(view);
-				}
-			}
-			return displayed;
-		}
-
-		show(){
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if(view.displayed){
-					view.show();
-				}
-			}
-			this.hidden = false;
-		}
-
-		hide(){
-			var view;
-			var len = this.length;
-
-			for (var i = 0; i < len; i++) {
-				view = this._views[i];
-				if(view.displayed){
-					view.hide();
-				}
-			}
-			this.hidden = true;
->>>>>>> 3352dcc... generate locations with a pagelist
-		}
-	}
-
-<<<<<<< HEAD
 		_createClass$n(DefaultViewManager, [{
 			key: "render",
 			value: function render(element, size) {
@@ -21960,133 +20333,6 @@
 						this.views.show();
 					}.bind(this));
 				}
-=======
-	class DefaultViewManager {
-		constructor(options) {
-
-			this.name = "default";
-			this.optsSettings = options.settings;
-			this.View = options.view;
-			this.request = options.request;
-			this.renditionQueue = options.queue;
-			this.q = new Queue(this);
-
-			this.settings = extend$1(this.settings || {}, {
-				infinite: true,
-				hidden: false,
-				width: undefined,
-				height: undefined,
-				axis: undefined,
-				flow: "scrolled",
-				ignoreClass: "",
-				fullsize: undefined
-			});
-
-			extend$1(this.settings, options.settings || {});
-
-			this.viewSettings = {
-				ignoreClass: this.settings.ignoreClass,
-				axis: this.settings.axis,
-				flow: this.settings.flow,
-				layout: this.layout,
-				method: this.settings.method, // srcdoc, blobUrl, write
-				width: 0,
-				height: 0,
-				forceEvenPages: true
-			};
-
-			this.rendered = false;
-
-		}
-
-		render(element, size){
-			let tag = element.tagName;
-
-			if (typeof this.settings.fullsize === "undefined" &&
-					tag && (tag.toLowerCase() == "body" ||
-					tag.toLowerCase() == "html")) {
-					this.settings.fullsize = true;
-			}
-
-			if (this.settings.fullsize) {
-				this.settings.overflow = "visible";
-				this.overflow = this.settings.overflow;
-			}
-
-			this.settings.size = size;
-
-			// Save the stage
-			this.stage = new Stage({
-				width: size.width,
-				height: size.height,
-				overflow: this.overflow,
-				hidden: this.settings.hidden,
-				axis: this.settings.axis,
-				fullsize: this.settings.fullsize,
-				direction: this.settings.direction,
-				scale: this.settings.scale
-			});
-
-			this.stage.attachTo(element);
-
-			// Get this stage container div
-			this.container = this.stage.getContainer();
-
-			// Views array methods
-			this.views = new Views(this.container);
-
-			// Calculate Stage Size
-			this._bounds = this.bounds();
-			this._stageSize = this.stage.size();
-
-			// Set the dimensions for views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			// Function to handle a resize event.
-			// Will only attach if width and height are both fixed.
-			this.stage.onResize(this.onResized.bind(this));
-
-			this.stage.onOrientationChange(this.onOrientationChange.bind(this));
-
-			// Add Event Listeners
-			this.addEventListeners();
-
-			// Add Layout method
-			// this.applyLayoutMethod();
-			if (this.layout) {
-				this.updateLayout();
-			}
-
-			this.rendered = true;
-
-		}
-
-		addEventListeners(){
-			var scroller;
-
-			window.addEventListener("unload", function(e){
-				this.destroy();
-			}.bind(this));
-
-			if(!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			this._onScroll = this.onScroll.bind(this);
-			scroller.addEventListener("scroll", this._onScroll);
-		}
-
-		removeEventListeners(){
-			var scroller;
-
-			if(!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "prev",
@@ -22095,7 +20341,6 @@
 				var left;
 				var dir = this.settings.direction;
 
-<<<<<<< HEAD
 				if (!this.views.length) return;
 
 				if (this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
@@ -22514,348 +20759,12 @@
 						this.layout.spread(this.layout.settings.spread);
 					}
 				}
-=======
-			scroller.removeEventListener("scroll", this._onScroll);
-			this._onScroll = undefined;
-		}
-
-		destroy(){
-			clearTimeout(this.orientationTimeout);
-			clearTimeout(this.resizeTimeout);
-			clearTimeout(this.afterScrolled);
-
-			this.clear();
-
-			this.removeEventListeners();
-
-			this.stage.destroy();
-
-			this.rendered = false;
-
-			/*
-
-				clearTimeout(this.trimTimeout);
-				if(this.settings.hidden) {
-					this.element.removeChild(this.wrapper);
-				} else {
-					this.element.removeChild(this.container);
-				}
-			*/
-		}
-
-		onOrientationChange(e) {
-			let {orientation} = window;
-
-			if(this.optsSettings.resizeOnOrientationChange) {
-				this.resize();
-			}
-
-			// Per ampproject:
-			// In IOS 10.3, the measured size of an element is incorrect if the
-			// element size depends on window size directly and the measurement
-			// happens in window.resize event. Adding a timeout for correct
-			// measurement. See https://github.com/ampproject/amphtml/issues/8479
-			clearTimeout(this.orientationTimeout);
-			this.orientationTimeout = setTimeout(function(){
-				this.orientationTimeout = undefined;
-
-				if(this.optsSettings.resizeOnOrientationChange) {
-					this.resize();
-				}
-
-				this.emit(EVENTS.MANAGERS.ORIENTATION_CHANGE, orientation);
-			}.bind(this), 500);
-
-		}
-
-		onResized(e) {
-			this.resize();
-		}
-
-		resize(width, height){
-			let stageSize = this.stage.size(width, height);
-
-			// For Safari, wait for orientation to catch up
-			// if the window is a square
-			this.winBounds = windowBounds();
-			if (this.orientationTimeout &&
-					this.winBounds.width === this.winBounds.height) {
-				// reset the stage size for next resize
-				this._stageSize = undefined;
-				return;
-			}
-
-			if (this._stageSize &&
-					this._stageSize.width === stageSize.width &&
-					this._stageSize.height === stageSize.height ) {
-				// Size is the same, no need to resize
-				return;
-			}
-
-			this._stageSize = stageSize;
-
-			this._bounds = this.bounds();
-
-			// Clear current views
-			this.clear();
-
-			// Update for new views
-			this.viewSettings.width = this._stageSize.width;
-			this.viewSettings.height = this._stageSize.height;
-
-			this.updateLayout();
-
-			this.emit(EVENTS.MANAGERS.RESIZED, {
-				width: this._stageSize.width,
-				height: this._stageSize.height
-			});
-		}
-
-		createView(section) {
-			return new this.View(section, this.viewSettings);
-		}
-
-		display(section, target){
-
-			var displaying = new defer();
-			var displayed = displaying.promise;
-
-			// Check if moving to target is needed
-			if (target === section.href || isNumber(target)) {
-				target = undefined;
-			}
-
-			// Check to make sure the section we want isn't already shown
-			var visible = this.views.find(section);
-
-			// View is already shown, just move to correct location in view
-			if(visible && section) {
-				let offset = visible.offset();
-
-				if (this.settings.direction === "ltr") {
-					this.scrollTo(offset.left, offset.top, true);
-				} else {
-					let width = visible.width();
-					this.scrollTo(offset.left + width, offset.top, true);
-				}
-
-				if(target) {
-					let offset = visible.locationOf(target);
-					this.moveTo(offset);
-				}
-
-				displaying.resolve();
-				return displayed;
-			}
-
-			// Hide all current views
-			this.clear();
-
-			this.add(section)
-				.then(function(view){
-
-					// Move to correct place within the section, if needed
-					if(target) {
-						let offset = view.locationOf(target);
-						this.moveTo(offset);
-					}
-
-				}.bind(this), (err) => {
-					displaying.reject(err);
-				})
-				.then(function(){
-					var next;
-					if (this.layout.name === "pre-paginated" &&
-							this.layout.divisor > 1 && section.index > 0) {
-						// First page (cover) should stand alone for pre-paginated books
-						next = section.next();
-						if (next) {
-							return this.add(next);
-						}
-					}
-				}.bind(this))
-				.then(function(){
-
-					this.views.show();
-
-					displaying.resolve();
-
-				}.bind(this));
-			// .then(function(){
-			// 	return this.hooks.display.trigger(view);
-			// }.bind(this))
-			// .then(function(){
-			// 	this.views.show();
-			// }.bind(this));
-			return displayed;
-		}
-
-		afterDisplayed(view){
-			this.emit(EVENTS.MANAGERS.ADDED, view);
-		}
-
-		afterResized(view){
-			this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-		}
-
-		moveTo(offset){
-			var distX = 0,
-				  distY = 0;
-
-			if(!this.isPaginated) {
-				distY = offset.top;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-
-				if (distX + this.layout.delta > this.container.scrollWidth) {
-					distX = this.container.scrollWidth - this.layout.delta;
-				}
-			}
-			this.scrollTo(distX, distY, true);
-		}
-
-		add(section){
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-
-		}
-
-		append(section){
-			var view = this.createView(section);
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-
-		prepend(section){
-			var view = this.createView(section);
-
-			view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
-				this.counter(bounds);
-			});
-
-			this.views.prepend(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-			return view.display(this.request);
-		}
-
-		counter(bounds){
-			if(this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
-			}
-
-		}
-
-		// resizeView(view) {
-		//
-		// 	if(this.settings.globalLayoutProperties.layout === "pre-paginated") {
-		// 		view.lock("both", this.bounds.width, this.bounds.height);
-		// 	} else {
-		// 		view.lock("width", this.bounds.width, this.bounds.height);
-		// 	}
-		//
-		// };
-
-		next(){
-			var next;
-			var left;
-
-			let dir = this.settings.direction;
-
-			if(!this.views.length) return;
-
-			if(this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if(left <= this.container.scrollWidth) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft;
-
-				if(left > 0) {
-					this.scrollBy(this.layout.delta, 0, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				let top  = this.container.scrollTop + this.container.offsetHeight;
-
-				if(top < this.container.scrollHeight) {
-					this.scrollBy(0, this.layout.height, true);
-				} else {
-					next = this.views.last().section.next();
-				}
-
-			} else {
-				next = this.views.last().section.next();
-			}
-
-			if(next) {
-				this.clear();
-
-				return this.append(next)
-					.then(function(){
-						var right;
-						if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-							right = next.next();
-							if (right) {
-								return this.append(right);
-							}
-						}
-					}.bind(this), (err) => {
-						return err;
-					})
-					.then(function(){
-						this.views.show();
-					}.bind(this));
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "updateFlow",
 			value: function updateFlow(flow) {
 				var isPaginated = flow === "paginated" || flow === "auto";
 
-<<<<<<< HEAD
 				this.isPaginated = isPaginated;
 
 				if (flow === "scrolled-doc" || flow === "scrolled-continuous" || flow === "scrolled") {
@@ -22958,145 +20867,21 @@
 	var Snap = function () {
 		function Snap(manager, options) {
 			_classCallCheck$o(this, Snap);
-=======
 
-		}
+			this.settings = extend$1({
+				duration: 80,
+				minVelocity: 0.2,
+				minDistance: 10,
+				easing: EASING_EQUATIONS['easeInCubic']
+			}, options || {});
 
-		prev(){
-			var prev;
-			var left;
-			let dir = this.settings.direction;
+			this.supportsTouch = this.supportsTouch();
 
-			if(!this.views.length) return;
-
-			if(this.isPaginated && this.settings.axis === "horizontal" && (!dir || dir === "ltr")) {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft;
-
-				if(left > 0) {
-					this.scrollBy(-this.layout.delta, 0, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-
-			} else if (this.isPaginated && this.settings.axis === "horizontal" && dir === "rtl") {
-
-				this.scrollLeft = this.container.scrollLeft;
-
-				left = this.container.scrollLeft + this.container.offsetWidth + this.layout.delta;
-
-				if(left <= this.container.scrollWidth) {
-					this.scrollBy(-this.layout.delta, 0, true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-
-			} else if (this.isPaginated && this.settings.axis === "vertical") {
-
-				this.scrollTop = this.container.scrollTop;
-
-				let top = this.container.scrollTop;
-
-				if(top > 0) {
-					this.scrollBy(0, -(this.layout.height), true);
-				} else {
-					prev = this.views.first().section.prev();
-				}
-
-			} else {
-
-				prev = this.views.first().section.prev();
-
-			}
-
-			if(prev) {
-				this.clear();
-
-				return this.prepend(prev)
-					.then(function(){
-						var left;
-						if (this.layout.name === "pre-paginated" && this.layout.divisor > 1) {
-							left = prev.prev();
-							if (left) {
-								return this.prepend(left);
-							}
-						}
-					}.bind(this), (err) => {
-						return err;
-					})
-					.then(function(){
-						if(this.isPaginated && this.settings.axis === "horizontal") {
-							if (this.settings.direction === "rtl") {
-								this.scrollTo(0, 0, true);
-							} else {
-								this.scrollTo(this.container.scrollWidth - this.layout.delta, 0, true);
-							}
-						}
-						this.views.show();
-					}.bind(this));
+			if (this.supportsTouch) {
+				this.setup(manager);
 			}
 		}
 
-		current(){
-			var visible = this.visible();
-			if(visible.length){
-				// Current is the last visible view
-				return visible[visible.length-1];
-			}
-			return null;
-		}
-
-		clear () {
-
-			// this.q.clear();
-
-			if (this.views) {
-				this.views.hide();
-				this.scrollTo(0,0, true);
-				this.views.clear();
-			}
-		}
-
-		currentLocation(){
-
-			if (this.settings.axis === "vertical") {
-				this.location = this.scrolledLocation();
-			} else {
-				this.location = this.paginatedLocation();
-			}
-			return this.location;
-		}
-
-		scrolledLocation() {
-			let visible = this.visible();
-			let container = this.container.getBoundingClientRect();
-			let pageHeight = (container.height < window.innerHeight) ? container.height : window.innerHeight;
-
-			let offset = 0;
-			let used = 0;
-
-			if(this.settings.fullsize) {
-				offset = window.scrollY;
-			}
->>>>>>> 3352dcc... generate locations with a pagelist
-
-			let sections = visible.map((view) => {
-				let {index, href} = view.section;
-				let position = view.position();
-				let height = view.height();
-
-				let startPos = offset + container.top - position.top + used;
-				let endPos = startPos + pageHeight - used;
-				if (endPos > height) {
-					endPos = height;
-					used = (endPos - startPos);
-				}
-
-				let totalPages = this.layout.count(height, pageHeight).pages;
-
-<<<<<<< HEAD
 		_createClass$o(Snap, [{
 			key: "setup",
 			value: function setup(manager) {
@@ -23334,220 +21119,21 @@
 				var left = this.scrollLeft;
 				var snapWidth = this.layout.pageWidth * this.layout.divisor;
 				return left % snapWidth !== 0;
-=======
-				let currPage = Math.ceil(startPos / pageHeight);
-				let pages = [];
-				let endPage = Math.ceil(endPos / pageHeight);
-
-				pages = [];
-				for (var i = currPage; i <= endPage; i++) {
-					let pg = i + 1;
-					pages.push(pg);
-				}
-
-				let mapping = this.mapping.page(view.contents, view.section.cfiBase, startPos, endPos);
-
-				return {
-					index,
-					href,
-					pages,
-					totalPages,
-					mapping
-				};
-			});
-
-			return sections;
-		}
-
-		paginatedLocation(){
-			let visible = this.visible();
-			let container = this.container.getBoundingClientRect();
-
-			let left = 0;
-			let used = 0;
-
-			if(this.settings.fullsize) {
-				left = window.scrollX;
-			}
-
-			let sections = visible.map((view) => {
-				let {index, href} = view.section;
-				let offset = view.offset().left;
-				let position = view.position().left;
-				let width = view.width();
-
-				// Find mapping
-				let start = left + container.left - position + used;
-				let end = start + this.layout.width - used;
-
-				let mapping = this.mapping.page(view.contents, view.section.cfiBase, start, end);
-
-				// Find displayed pages
-				//console.log("pre", end, offset + width);
-				// if (end > offset + width) {
-				// 	end = offset + width;
-				// 	used = this.layout.pageWidth;
-				// }
-				// console.log("post", end);
-
-				let totalPages = this.layout.count(width).pages;
-				let startPage = Math.floor(start / this.layout.pageWidth);
-				let pages = [];
-				let endPage = Math.floor(end / this.layout.pageWidth);
-
-				// start page should not be negative
-				if (startPage < 0) {
-					startPage = 0;
-					endPage = endPage + 1;
-				}
-
-				// Reverse page counts for rtl
-				if (this.settings.direction === "rtl") {
-					let tempStartPage = startPage;
-					startPage = totalPages - endPage;
-					endPage = totalPages - tempStartPage;
-				}
-
-
-				for (var i = startPage + 1; i <= endPage; i++) {
-					let pg = i;
-					pages.push(pg);
-				}
-
-				return {
-					index,
-					href,
-					pages,
-					totalPages,
-					mapping
-				};
-			});
-
-			return sections;
-		}
-
-		isVisible(view, offsetPrev, offsetNext, _container){
-			var position = view.position();
-			var container = _container || this.bounds();
-
-			if(this.settings.axis === "horizontal" &&
-				position.right > container.left - offsetPrev &&
-				position.left < container.right + offsetNext) {
-
-				return true;
-
-			} else if(this.settings.axis === "vertical" &&
-				position.bottom > container.top - offsetPrev &&
-				position.top < container.bottom + offsetNext) {
-
-				return true;
-			}
-
-			return false;
-
-		}
-
-		visible(){
-			var container = this.bounds();
-			var views = this.views.displayed();
-			var viewsLength = views.length;
-			var visible = [];
-			var isVisible;
-			var view;
-
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-				isVisible = this.isVisible(view, 0, 0, container);
-
-				if(isVisible === true) {
-					visible.push(view);
-				}
-
-			}
-			return visible;
-		}
-
-		scrollBy(x, y, silent){
-			let dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if(silent) {
-				this.ignore = true;
-			}
-
-			if(!this.settings.fullsize) {
-				if(x) this.container.scrollLeft += x * dir;
-				if(y) this.container.scrollTop += y;
-			} else {
-				window.scrollBy(x * dir, y * dir);
-			}
-			this.scrolled = true;
-		}
-
-		scrollTo(x, y, silent){
-			if(silent) {
-				this.ignore = true;
-			}
-
-			if(!this.settings.fullsize) {
-				this.container.scrollLeft = x;
-				this.container.scrollTop = y;
-			} else {
-				window.scrollTo(x,y);
-			}
-			this.scrolled = true;
-		}
-
-		onScroll(){
-			let scrollTop;
-			let scrollLeft;
-
-			if(!this.settings.fullsize) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY;
-				scrollLeft = window.scrollX;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "snap",
 			value: function snap() {
 				var howMany = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-<<<<<<< HEAD
 				var left = this.scrollLeft;
 				var snapWidth = this.layout.pageWidth * this.layout.divisor;
 				var snapTo = Math.round(left / snapWidth) * snapWidth;
-=======
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if(!this.ignore) {
-				this.emit(EVENTS.MANAGERS.SCROLL, {
-					top: scrollTop,
-					left: scrollLeft
-				});
-
-				clearTimeout(this.afterScrolled);
-				this.afterScrolled = setTimeout(function () {
-					this.emit(EVENTS.MANAGERS.SCROLLED, {
-						top: this.scrollTop,
-						left: this.scrollLeft
-					});
-				}.bind(this), 20);
->>>>>>> 3352dcc... generate locations with a pagelist
 
 				if (howMany) {
 					snapTo += howMany * snapWidth;
 				}
 
-<<<<<<< HEAD
 				return this.smoothScrollTo(snapTo);
-=======
-
-			} else {
-				this.ignore = false;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "smoothScrollTo",
@@ -23556,7 +21142,6 @@
 				var start = this.scrollLeft;
 				var startTime = this.now();
 
-<<<<<<< HEAD
 				var duration = this.settings.duration;
 				var easing = this.settings.easing;
 
@@ -23588,29 +21173,6 @@
 				tick.call(this);
 
 				return deferred.promise;
-=======
-		}
-
-		bounds() {
-			var bounds;
-
-			bounds = this.stage.bounds();
-
-			return bounds;
-		}
-
-		applyLayout(layout) {
-
-			this.layout = layout;
-			this.updateLayout();
-			 // this.manager.layout(this.layout.format);
-		}
-
-		updateLayout() {
-
-			if (!this.stage) {
-				return;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "scrollTo",
@@ -23618,7 +21180,6 @@
 				var left = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 				var top = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-<<<<<<< HEAD
 				if (this.fullsize) {
 					window.scroll(left, top);
 				} else {
@@ -23645,51 +21206,9 @@
 				this.removeListeners();
 
 				this.scroller = undefined;
-=======
-			this._stageSize = this.stage.size();
-
-			if(!this.isPaginated) {
-				this.layout.calculate(this._stageSize.width, this._stageSize.height);
-			} else {
-				this.layout.calculate(
-					this._stageSize.width,
-					this._stageSize.height,
-					this.settings.gap
-				);
-
-				// Set the look ahead offset for what is visible
-				this.settings.offset = this.layout.delta;
-
-				// this.stage.addStyleRules("iframe", [{"margin-right" : this.layout.gap + "px"}]);
-
-			}
-
-			// Set the dimensions for views
-			this.viewSettings.width = this.layout.width;
-			this.viewSettings.height = this.layout.height;
-
-			this.setLayout(this.layout);
-		}
-
-		setLayout(layout){
-
-			this.viewSettings.layout = layout;
-
-			this.mapping = new Mapping(layout.props, this.settings.direction, this.settings.axis);
-
-			if(this.views) {
-
-				this.views.forEach(function(view){
-					if (view) {
-						view.setLayout(layout);
-					}
-				});
-
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}]);
 
-<<<<<<< HEAD
 		return Snap;
 	}();
 
@@ -23882,194 +21401,6 @@
 				view.onDisplayed = this.afterDisplayed.bind(this);
 
 				return view;
-=======
-		}
-
-		updateAxis(axis, forceUpdate){
-
-			if (!this.isPaginated) {
-				axis = "vertical";
-			}
-
-			if (!forceUpdate && axis === this.settings.axis) {
-				return;
-			}
-
-			this.settings.axis = axis;
-
-			this.stage && this.stage.axis(axis);
-
-			this.viewSettings.axis = axis;
-
-			if (this.mapping) {
-				this.mapping = new Mapping(this.layout.props, this.settings.direction, this.settings.axis);
-			}
-
-			if (this.layout) {
-				if (axis === "vertical") {
-					this.layout.spread("none");
-				} else {
-					this.layout.spread(this.layout.settings.spread);
-				}
-			}
-		}
-
-		updateFlow(flow){
-			let isPaginated = (flow === "paginated" || flow === "auto");
-
-			this.isPaginated = isPaginated;
-
-			if (flow === "scrolled-doc" ||
-					flow === "scrolled-continuous" ||
-					flow === "scrolled") {
-				this.updateAxis("vertical");
-			} else {
-				this.updateAxis("horizontal");
-			}
-
-			this.viewSettings.flow = flow;
-
-			if (!this.settings.overflow) {
-				this.overflow = isPaginated ? "hidden" : "auto";
-			} else {
-				this.overflow = this.settings.overflow;
-			}
-
-			this.stage && this.stage.overflow(this.overflow);
-
-			this.updateLayout();
-
-		}
-
-		getContents(){
-			var contents = [];
-			if (!this.views) {
-				return contents;
-			}
-			this.views.forEach(function(view){
-				const viewContents = view && view.contents;
-				if (viewContents) {
-					contents.push(viewContents);
-				}
-			});
-			return contents;
-		}
-
-		direction(dir="ltr") {
-			this.settings.direction = dir;
-
-			this.stage && this.stage.direction(dir);
-
-			this.viewSettings.direction = dir;
-
-			this.updateLayout();
-		}
-
-		isRendered() {
-			return this.rendered;
-		}
-
-		scale(s) {
-			if ( s == null ) { s = 1.0; }
-			this.settings.scale = s;
-
-			if (this.stage) {
-				this.stage.scale(s);
-			}
-		}
-	}
-
-	//-- Enable binding events to Manager
-	eventEmitter(DefaultViewManager.prototype);
-
-	// easing equations from https://github.com/danro/easing-js/blob/master/easing.js
-	const PI_D2 = (Math.PI / 2);
-	const EASING_EQUATIONS = {
-			easeOutSine: function (pos) {
-					return Math.sin(pos * PI_D2);
-			},
-			easeInOutSine: function (pos) {
-					return (-0.5 * (Math.cos(Math.PI * pos) - 1));
-			},
-			easeInOutQuint: function (pos) {
-					if ((pos /= 0.5) < 1) {
-							return 0.5 * Math.pow(pos, 5);
-					}
-					return 0.5 * (Math.pow((pos - 2), 5) + 2);
-			},
-			easeInCubic: function(pos) {
-				return Math.pow(pos, 3);
-	  	}
-	};
-
-	class Snap {
-		constructor(manager, options) {
-
-			this.settings = extend$1({
-				duration: 80,
-				minVelocity: 0.2,
-				minDistance: 10,
-				easing: EASING_EQUATIONS['easeInCubic']
-			}, options || {});
-
-			this.supportsTouch = this.supportsTouch();
-
-			if (this.supportsTouch) {
-				this.setup(manager);
-			}
-		}
-
-		setup(manager) {
-			this.manager = manager;
-
-			this.layout = this.manager.layout;
-
-			this.fullsize = this.manager.settings.fullsize;
-			if (this.fullsize) {
-				this.element = this.manager.stage.element;
-				this.scroller = window;
-				this.disableScroll();
-			} else {
-				this.element = this.manager.stage.container;
-				this.scroller = this.element;
-				this.element.style["WebkitOverflowScrolling"] = "touch";
-			}
-
-			// this.overflow = this.manager.overflow;
-
-			// set lookahead offset to page width
-			this.manager.settings.offset = this.layout.width;
-			this.manager.settings.afterScrolledTimeout = this.settings.duration * 2;
-
-			this.isVertical = this.manager.settings.axis === "vertical";
-
-			// disable snapping if not paginated or axis in not horizontal
-			if (!this.manager.isPaginated || this.isVertical) {
-				return;
-			}
-
-			this.touchCanceler = false;
-			this.resizeCanceler = false;
-			this.snapping = false;
-
-
-			this.scrollLeft;
-			this.scrollTop;
-
-			this.startTouchX = undefined;
-			this.startTouchY = undefined;
-			this.startTime = undefined;
-			this.endTouchX = undefined;
-			this.endTouchY = undefined;
-			this.endTime = undefined;
-
-			this.addListeners();
-		}
-
-		supportsTouch() {
-			if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
-				return true;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "counter",
@@ -24090,7 +21421,6 @@
 				var isVisible;
 				var view;
 
-<<<<<<< HEAD
 				var updating = new defer();
 				var promises = [];
 				for (var i = 0; i < viewsLength; i++) {
@@ -24215,98 +21545,6 @@
 					checking.resolve(false);
 					return checking.promise;
 				}
-=======
-			return false;
-		}
-
-		disableScroll() {
-			this.element.style.overflow = "hidden";
-		}
-
-		enableScroll() {
-			this.element.style.overflow = "";
-		}
-
-		addListeners() {
-			this._onResize = this.onResize.bind(this);
-			window.addEventListener('resize', this._onResize);
-
-			this._onScroll = this.onScroll.bind(this);
-			this.scroller.addEventListener('scroll', this._onScroll);
-
-			this._onTouchStart = this.onTouchStart.bind(this);
-			this.scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });
-			this.on('touchstart', this._onTouchStart);
-
-			this._onTouchMove = this.onTouchMove.bind(this);
-			this.scroller.addEventListener('touchmove', this._onTouchMove, { passive: true });
-			this.on('touchmove', this._onTouchMove);
-
-			this._onTouchEnd = this.onTouchEnd.bind(this);
-			this.scroller.addEventListener('touchend', this._onTouchEnd, { passive: true });
-			this.on('touchend', this._onTouchEnd);
-
-			this._afterDisplayed = this.afterDisplayed.bind(this);
-			this.manager.on(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
-		}
-
-		removeListeners() {
-			window.removeEventListener('resize', this._onResize);
-			this._onResize = undefined;
-
-			this.scroller.removeEventListener('scroll', this._onScroll);
-			this._onScroll = undefined;
-
-			this.scroller.removeEventListener('touchstart', this._onTouchStart, { passive: true });
-			this.off('touchstart', this._onTouchStart);
-			this._onTouchStart = undefined;
-
-			this.scroller.removeEventListener('touchmove', this._onTouchMove, { passive: true });
-			this.off('touchmove', this._onTouchMove);
-			this._onTouchMove = undefined;
-
-			this.scroller.removeEventListener('touchend', this._onTouchEnd, { passive: true });
-			this.off('touchend', this._onTouchEnd);
-			this._onTouchEnd = undefined;
-
-			this.manager.off(EVENTS.MANAGERS.ADDED, this._afterDisplayed);
-			this._afterDisplayed = undefined;
-		}
-
-		afterDisplayed(view) {
-			let contents = view.contents;
-			["touchstart", "touchmove", "touchend"].forEach((e) => {
-				contents.on(e, (ev) => this.triggerViewEvent(ev, contents));
-			});
-		}
-
-		triggerViewEvent(e, contents){
-			this.emit(e.type, e, contents);
-		}
-
-		onScroll(e) {
-			this.scrollLeft = this.fullsize ? window.scrollX : this.scroller.scrollLeft;
-			this.scrollTop = this.fullsize ? window.scrollY : this.scroller.scrollTop;
-		}
-
-		onResize(e) {
-			this.resizeCanceler = true;
-		}
-
-		onTouchStart(e) {
-			let { screenX, screenY } = e.touches[0];
-
-			if (this.fullsize) {
-				this.enableScroll();
-			}
-
-			this.touchCanceler = true;
-
-			if (!this.startTouchX) {
-				this.startTouchX = screenX;
-				this.startTouchY = screenY;
-				this.startTime = this.now();
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "trim",
@@ -24325,7 +21563,6 @@
 					this.erase(above[i], above);
 				}
 
-<<<<<<< HEAD
 				// Erase all except first below
 				for (var j = 1; j < below.length; j++) {
 					this.erase(below[j]);
@@ -24333,49 +21570,12 @@
 
 				task.resolve();
 				return task.promise;
-=======
-			this.endTouchX = screenX;
-			this.endTouchY = screenY;
-			this.endTime = this.now();
-		}
-
-		onTouchMove(e) {
-			let { screenX, screenY } = e.touches[0];
-			let deltaY = Math.abs(screenY - this.endTouchY);
-
-			this.touchCanceler = true;
-
-
-			if (!this.fullsize && deltaY < 10) {
-				this.element.scrollLeft -= screenX - this.endTouchX;
-			}
-
-			this.endTouchX = screenX;
-			this.endTouchY = screenY;
-			this.endTime = this.now();
-		}
-
-		onTouchEnd(e) {
-			if (this.fullsize) {
-				this.disableScroll();
-			}
-
-			this.touchCanceler = false;
-
-			let swipped = this.wasSwiped();
-
-			if (swipped !== 0) {
-				this.snap(swipped);
-			} else {
-				this.snap();
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "erase",
 			value: function erase(view, above) {
 				//Trim
 
-<<<<<<< HEAD
 				var prevTop;
 				var prevLeft;
 
@@ -24449,117 +21649,12 @@
 				// this.tick.call(window, this.onScroll.bind(this));
 
 				this.didScroll = false;
-=======
-			this.startTouchX = undefined;
-			this.startTouchY = undefined;
-			this.startTime = undefined;
-			this.endTouchX = undefined;
-			this.endTouchY = undefined;
-			this.endTime = undefined;
-		}
-
-		wasSwiped() {
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			let distance = (this.endTouchX - this.startTouchX);
-			let absolute = Math.abs(distance);
-			let time = this.endTime - this.startTime;
-			let velocity = (distance / time);
-			let minVelocity = this.settings.minVelocity;
-
-			if (absolute <= this.settings.minDistance || absolute >= snapWidth) {
-				return 0;
-			}
-
-			if (velocity > minVelocity) {
-				// previous
-				return -1;
-			} else if (velocity < -minVelocity) {
-				// next
-				return 1;
-			}
-		}
-
-		needsSnap() {
-			let left = this.scrollLeft;
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			return (left % snapWidth) !== 0;
-		}
-
-		snap(howMany=0) {
-			let left = this.scrollLeft;
-			let snapWidth = this.layout.pageWidth * this.layout.divisor;
-			let snapTo = Math.round(left / snapWidth) * snapWidth;
-
-			if (howMany) {
-				snapTo += (howMany * snapWidth);
-			}
-
-			return this.smoothScrollTo(snapTo);
-		}
-
-		smoothScrollTo(destination) {
-			const deferred = new defer();
-			const start = this.scrollLeft;
-			const startTime = this.now();
-
-			const duration = this.settings.duration;
-			const easing = this.settings.easing;
-
-			this.snapping = true;
-
-			// add animation loop
-			function tick() {
-				const now = this.now();
-				const time = Math.min(1, ((now - startTime) / duration));
-				const timeFunction = easing(time);
-
-
-				if (this.touchCanceler || this.resizeCanceler) {
-					this.resizeCanceler = false;
-					this.snapping = false;
-					deferred.resolve();
-					return;
-				}
-
-				if (time < 1) {
-						window.requestAnimationFrame(tick.bind(this));
-						this.scrollTo(start + ((destination - start) * time), 0);
-				} else {
-						this.scrollTo(destination, 0);
-						this.snapping = false;
-						deferred.resolve();
-				}
-			}
-
-			tick.call(this);
-
-			return deferred.promise;
-		}
-
-		scrollTo(left=0, top=0) {
-			if (this.fullsize) {
-				window.scroll(left, top);
-			} else {
-				this.scroller.scrollLeft = left;
-				this.scroller.scrollTop = top;
-			}
-		}
-
-		now() {
-			return ('now' in window.performance) ? performance.now() : new Date().getTime();
-		}
-
-		destroy() {
-			if (!this.scroller) {
-				return;
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}, {
 			key: "removeEventListeners",
 			value: function removeEventListeners() {
 				var scroller;
 
-<<<<<<< HEAD
 				if (!this.settings.fullsize) {
 					scroller = this.container;
 				} else {
@@ -24749,179 +21844,31 @@
 	var Rendition = function () {
 		function Rendition(book, options) {
 			_classCallCheck$q(this, Rendition);
-=======
-			if (this.fullsize) {
-				this.enableScroll();
-			}
-
-			this.removeListeners();
-
-			this.scroller = undefined;
-		}
-	}
-
-	eventEmitter(Snap.prototype);
-
-	class ContinuousViewManager extends DefaultViewManager {
-		constructor(options) {
-			super(options);
-
-			this.name = "continuous";
 
 			this.settings = extend$1(this.settings || {}, {
-				infinite: true,
-				overflow: undefined,
-				axis: undefined,
-				flow: "scrolled",
-				offset: 500,
-				offsetDelta: 250,
-				width: undefined,
-				height: undefined,
-				snap: false,
-				afterScrolledTimeout: 10
+				width: null,
+				height: null,
+				ignoreClass: "",
+				manager: "default",
+				view: "iframe",
+				flow: null,
+				layout: null,
+				spread: null,
+				minSpreadWidth: 800,
+				stylesheet: null,
+				resizeOnOrientationChange: true,
+				script: null,
+				snap: false
 			});
 
-			extend$1(this.settings, options.settings || {});
+			extend$1(this.settings, options);
 
-			// Gap can be 0, but defaults doesn't handle that
-			if (options.settings.gap != "undefined" && options.settings.gap === 0) {
-				this.settings.gap = options.settings.gap;
-			}
-
-			this.viewSettings = {
-				ignoreClass: this.settings.ignoreClass,
-				axis: this.settings.axis,
-				flow: this.settings.flow,
-				layout: this.layout,
-				width: 0,
-				height: 0,
-				forceEvenPages: false
-			};
-
-			this.scrollTop = 0;
-			this.scrollLeft = 0;
-		}
-
-		display(section, target){
-			return DefaultViewManager.prototype.display.call(this, section, target)
-				.then(function () {
-					return this.fill();
-				}.bind(this));
-		}
-
-		fill(_full){
-			var full = _full || new defer();
-
-			this.q.enqueue(() => {
-				return this.check();
-			}).then((result) => {
-				if (result) {
-					this.fill(full);
-				} else {
-					full.resolve();
-				}
-			});
-
-			return full.promise;
-		}
-
-		moveTo(offset){
-			// var bounds = this.stage.bounds();
-			// var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-			var distX = 0,
-					distY = 0;
-
-			var offsetX = 0,
-					offsetY = 0;
-
-			if(!this.isPaginated) {
-				distY = offset.top;
-				offsetY = offset.top+this.settings.offsetDelta;
-			} else {
-				distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-				offsetX = distX+this.settings.offsetDelta;
-			}
-
-			if (distX > 0 || distY > 0) {
-				this.scrollBy(distX, distY, true);
-			}
-		}
-
-		afterResized(view){
-			this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-		}
-
-		// Remove Previous Listeners if present
-		removeShownListeners(view){
-
-			// view.off("shown", this.afterDisplayed);
-			// view.off("shown", this.afterDisplayedAbove);
-			view.onDisplayed = function(){};
-
-		}
-
-		add(section){
-			var view = this.createView(section);
-
-			this.views.append(view);
-
-			view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-			// view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-			view.onDisplayed = this.afterDisplayed.bind(this);
-			view.onResize = this.afterResized.bind(this);
-
-			return view.display(this.request);
-		}
-
-		append(section){
-			var view = this.createView(section);
-
-			view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-			this.views.append(view);
-
-			view.onDisplayed = this.afterDisplayed.bind(this);
-
-			return view;
-		}
-
-		prepend(section){
-			var view = this.createView(section);
->>>>>>> 3352dcc... generate locations with a pagelist
-
-			view.on(EVENTS.VIEWS.RESIZED, (bounds) => {
-				this.counter(bounds);
-				view.expanded = true;
-			});
-
-			view.on(EVENTS.VIEWS.AXIS, (axis) => {
-				this.updateAxis(axis);
-			});
-
-<<<<<<< HEAD
 			if (_typeof$d(this.settings.manager) === "object") {
 				this.manager = this.settings.manager;
 			}
-=======
-			this.views.prepend(view);
->>>>>>> 3352dcc... generate locations with a pagelist
 
-			view.onDisplayed = this.afterDisplayed.bind(this);
+			this.book = book;
 
-<<<<<<< HEAD
 			/**
 	   * Adds Hook methods to the Rendition prototype
 	   * @member {object} hooks
@@ -24936,34 +21883,25 @@
 			this.hooks.layout = new Hook(this);
 			this.hooks.render = new Hook(this);
 			this.hooks.show = new Hook(this);
-=======
-			return view;
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
 
-		counter(bounds){
-			if(this.settings.axis === "vertical") {
-				this.scrollBy(0, bounds.heightDelta, true);
-			} else {
-				this.scrollBy(bounds.widthDelta, 0, true);
+			this.hooks.content.register(this.handleLinks.bind(this));
+			this.hooks.content.register(this.passEvents.bind(this));
+			this.hooks.content.register(this.adjustImages.bind(this));
+
+			this.injected = {};
+			this.injected['identifier'] = this.injectIdentifier.bind(this);
+			this.book.spine.hooks.content.register(this.injected['identifier']);
+
+			if (this.settings.stylesheet) {
+				this.injected['stylesheet'] = this.injectStylesheet.bind(this);
+				this.book.spine.hooks.content.register(this.injected['stylesheet']);
 			}
 
-		}
+			if (this.settings.script) {
+				this.injected['script'] = this.injectScript.bind(this);
+				this.book.spine.hooks.content.register(this.injected['script']);
+			}
 
-		update(_offset){
-			var container = this.bounds();
-			var views = this.views.all();
-			var viewsLength = views.length;
-			var offset = typeof _offset != "undefined" ? _offset : (this.settings.offset || 0);
-			var isVisible;
-			var view;
-
-			var updating = new defer();
-			var promises = [];
-			for (var i = 0; i < viewsLength; i++) {
-				view = views[i];
-
-<<<<<<< HEAD
 			/**
 	   * @member {Themes} themes
 	   * @memberof Rendition
@@ -24975,35 +21913,11 @@
 	   * @memberof Rendition
 	   */
 			this.annotations = new Annotations(this);
-=======
-				isVisible = this.isVisible(view, offset, offset, container);
 
-				if(isVisible === true) {
-					// console.log("visible " + view.index);
->>>>>>> 3352dcc... generate locations with a pagelist
+			this.epubcfi = new EpubCFI();
 
-					if (!view.displayed) {
-						let displayed = view.display(this.request)
-							.then(function (view) {
-								view.show();
-							}, (err) => {
-								view.hide();
-							});
-						promises.push(displayed);
-					} else {
-						view.show();
-					}
-				} else {
-					this.q.enqueue(view.destroy.bind(view));
-					// console.log("hidden " + view.index);
+			this.q = new Queue(this);
 
-					clearTimeout(this.trimTimeout);
-					this.trimTimeout = setTimeout(function(){
-						this.q.enqueue(this.trim.bind(this));
-					}.bind(this), 250);
-				}
-
-<<<<<<< HEAD
 			/**
 	   * A Rendered Location Range
 	   * @typedef location
@@ -25031,21 +21945,10 @@
 	   * @memberof Rendition
 	   */
 			this.location = undefined;
-=======
-			}
->>>>>>> 3352dcc... generate locations with a pagelist
 
-			if(promises.length){
-				return Promise.all(promises)
-					.catch((err) => {
-						updating.reject(err);
-					});
-			} else {
-				updating.resolve();
-				return updating.promise;
-			}
+			// Hold queue until book is opened
+			this.q.enqueue(this.book.opened);
 
-<<<<<<< HEAD
 			this.starting = new defer();
 			/**
 	   * @member {promise} started returns after the rendition has started
@@ -26075,599 +22978,33 @@
 	function request(url, type$$1, withCredentials, headers) {
 		var supportsURL = typeof window != "undefined" ? window.URL : false; // TODO: fallback for url if window isn't defined
 		var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
-=======
-		}
 
-		check(_offsetLeft, _offsetTop){
-			var checking = new defer();
-			var newViews = [];
+		var deferred = new defer();
 
-			var horizontal = (this.settings.axis === "horizontal");
-			var delta = this.settings.offset || 0;
+		var xhr = new XMLHttpRequest();
 
-			if (_offsetLeft && horizontal) {
-				delta = _offsetLeft;
-			}
+		//-- Check from PDF.js:
+		//   https://github.com/mozilla/pdf.js/blob/master/web/compatibility.js
+		var xhrPrototype = XMLHttpRequest.prototype;
 
-			if (_offsetTop && !horizontal) {
-				delta = _offsetTop;
-			}
+		var header;
 
-			var bounds = this._bounds; // bounds saved this until resize
-
-			let rtl = this.settings.direction === "rtl";
-			let dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-			var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-			var visibleLength = horizontal ? Math.floor(bounds.width) : bounds.height;
-			var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-
-			let prepend = () => {
-				let first = this.views.first();
-				let prev = first && first.section.prev();
-
-				if(prev) {
-					newViews.push(this.prepend(prev));
-				}
-			};
-
-			let append = () => {
-				let last = this.views.last();
-				let next = last && last.section.next();
-
-				if(next) {
-					newViews.push(this.append(next));
-				}
-
-			};
-
-			if (offset + visibleLength + delta >= contentLength) {
-				if (horizontal && rtl) {
-					prepend();
-				} else {
-					append();
-				}
-			}
-
-			if (offset - delta < 0 ) {
-				if (horizontal && rtl) {
-					append();
-				} else {
-					prepend();
-				}
-			}
-
-			let promises = newViews.map((view) => {
-				return view.displayed;
+		if (!("overrideMimeType" in xhrPrototype)) {
+			// IE10 might have response, but not overrideMimeType
+			Object.defineProperty(xhrPrototype, "overrideMimeType", {
+				value: function xmlHttpRequestOverrideMimeType() {}
 			});
-
-			if(newViews.length){
-				return Promise.all(promises)
-					.then(() => {
-						if (this.layout.name === "pre-paginated" && this.layout.props.spread) {
-							return this.check();
-						}
-					})
-					.then(() => {
-						// Check to see if anything new is on screen after rendering
-						return this.update(delta);
-					}, (err) => {
-						return err;
-					});
-			} else {
-				this.q.enqueue(function(){
-					this.update();
-				}.bind(this));
-				checking.resolve(false);
-				return checking.promise;
-			}
-
-
 		}
 
-		trim(){
-			var task = new defer();
-			var displayed = this.views.displayed();
-			var first = displayed[0];
-			var last = displayed[displayed.length-1];
-			var firstIndex = this.views.indexOf(first);
-			var lastIndex = this.views.indexOf(last);
-			var above = this.views.slice(0, firstIndex);
-			var below = this.views.slice(lastIndex+1);
-
-			// Erase all but last above
-			for (var i = 0; i < above.length-1; i++) {
-				this.erase(above[i], above);
-			}
-
-			// Erase all except first below
-			for (var j = 1; j < below.length; j++) {
-				this.erase(below[j]);
-			}
-
-			task.resolve();
-			return task.promise;
-		}
-
-		erase(view, above){ //Trim
-
-			var prevTop;
-			var prevLeft;
-
-			if(!this.settings.fullsize) {
-				prevTop = this.container.scrollTop;
-				prevLeft = this.container.scrollLeft;
-			} else {
-				prevTop = window.scrollY;
-				prevLeft = window.scrollX;
-			}
-
-			var bounds = view.bounds();
-
-			this.views.remove(view);
-
-			if(above) {
-				if(this.settings.axis === "vertical") {
-					this.scrollTo(0, prevTop - bounds.height, true);
-				} else {
-					this.scrollTo(prevLeft - Math.floor(bounds.width), 0, true);
-				}
-			}
-
-		}
-
-		addEventListeners(stage){
-
-			window.addEventListener("unload", function(e){
-				this.ignore = true;
-				// this.scrollTo(0,0);
-				this.destroy();
-			}.bind(this));
-
-			this.addScrollListeners();
-
-			if (this.isPaginated && this.settings.snap) {
-				this.snapper = new Snap(this, this.settings.snap && (typeof this.settings.snap === "object") && this.settings.snap);
-			}
-		}
-
-		addScrollListeners() {
-			var scroller;
-
-			this.tick = requestAnimationFrame$1;
-
-			if(!this.settings.fullsize) {
-				this.prevScrollTop = this.container.scrollTop;
-				this.prevScrollLeft = this.container.scrollLeft;
-			} else {
-				this.prevScrollTop = window.scrollY;
-				this.prevScrollLeft = window.scrollX;
-			}
-
-			this.scrollDeltaVert = 0;
-			this.scrollDeltaHorz = 0;
-
-			if(!this.settings.fullsize) {
-				scroller = this.container;
-				this.scrollTop = this.container.scrollTop;
-				this.scrollLeft = this.container.scrollLeft;
-			} else {
-				scroller = window;
-				this.scrollTop = window.scrollY;
-				this.scrollLeft = window.scrollX;
-			}
-
-			this._onScroll = this.onScroll.bind(this);
-			scroller.addEventListener("scroll", this._onScroll);
-			this._scrolled = debounce_1$1(this.scrolled.bind(this), 30);
-			// this.tick.call(window, this.onScroll.bind(this));
-
-			this.didScroll = false;
-
-		}
-
-		removeEventListeners(){
-			var scroller;
-
-			if(!this.settings.fullsize) {
-				scroller = this.container;
-			} else {
-				scroller = window;
-			}
-
-			scroller.removeEventListener("scroll", this._onScroll);
-			this._onScroll = undefined;
-		}
-
-		onScroll(){
-			let scrollTop;
-			let scrollLeft;
-			let dir = this.settings.direction === "rtl" ? -1 : 1;
-
-			if(!this.settings.fullsize) {
-				scrollTop = this.container.scrollTop;
-				scrollLeft = this.container.scrollLeft;
-			} else {
-				scrollTop = window.scrollY * dir;
-				scrollLeft = window.scrollX * dir;
-			}
-
-			this.scrollTop = scrollTop;
-			this.scrollLeft = scrollLeft;
-
-			if(!this.ignore) {
-
-				this._scrolled();
-
-			} else {
-				this.ignore = false;
-			}
-
-			this.scrollDeltaVert += Math.abs(scrollTop-this.prevScrollTop);
-			this.scrollDeltaHorz += Math.abs(scrollLeft-this.prevScrollLeft);
-
-			this.prevScrollTop = scrollTop;
-			this.prevScrollLeft = scrollLeft;
-
-			clearTimeout(this.scrollTimeout);
-			this.scrollTimeout = setTimeout(function(){
-				this.scrollDeltaVert = 0;
-				this.scrollDeltaHorz = 0;
-			}.bind(this), 150);
-
-			clearTimeout(this.afterScrolled);
-
-			this.didScroll = false;
-
-		}
-
-		scrolled() {
-
-			this.q.enqueue(function() {
-				this.check();
-			}.bind(this));
-
-			this.emit(EVENTS.MANAGERS.SCROLL, {
-				top: this.scrollTop,
-				left: this.scrollLeft
-			});
-
-			clearTimeout(this.afterScrolled);
-			this.afterScrolled = setTimeout(function () {
-
-				// Don't report scroll if we are about the snap
-				if (this.snapper && this.snapper.supportsTouch && this.snapper.needsSnap()) {
-					return;
-				}
-
-				this.emit(EVENTS.MANAGERS.SCROLLED, {
-					top: this.scrollTop,
-					left: this.scrollLeft
-				});
-
-			}.bind(this), this.settings.afterScrolledTimeout);
-		}
-
-		next(){
-
-			let dir = this.settings.direction;
-			let delta = this.layout.props.name === "pre-paginated" &&
-									this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			if(!this.views.length) return;
-
-			if(this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(delta, 0, true);
-
-			} else {
-
-				this.scrollBy(0, this.layout.height, true);
-
-			}
-
-			this.q.enqueue(function() {
-				this.check();
-			}.bind(this));
-		}
-
-		prev(){
-
-			let dir = this.settings.direction;
-			let delta = this.layout.props.name === "pre-paginated" &&
-									this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-
-			if(!this.views.length) return;
-
-			if(this.isPaginated && this.settings.axis === "horizontal") {
-
-				this.scrollBy(-delta, 0, true);
-
-			} else {
-
-				this.scrollBy(0, -this.layout.height, true);
-
-			}
-
-			this.q.enqueue(function() {
-				this.check();
-			}.bind(this));
-		}
-
-		// updateAxis(axis, forceUpdate){
-		//
-		// 	super.updateAxis(axis, forceUpdate);
-		//
-		// 	if (axis === "vertical") {
-		// 		this.settings.infinite = true;
-		// 	} else {
-		// 		this.settings.infinite = false;
-		// 	}
-		// }
-
-		updateFlow(flow){
-			if (this.rendered && this.snapper) {
-				this.snapper.destroy();
-				this.snapper = undefined;
-			}
-
-			super.updateFlow(flow);
-
-			if (this.rendered && this.isPaginated && this.settings.snap) {
-				this.snapper = new Snap(this, this.settings.snap && (typeof this.settings.snap === "object") && this.settings.snap);
-			}
-		}
-
-		destroy(){
-			super.destroy();
-
-			if (this.snapper) {
-				this.snapper.destroy();
-			}
-		}
-
-	}
-
-	/**
-	 * Displays an Epub as a series of Views for each Section.
-	 * Requires Manager and View class to handle specifics of rendering
-	 * the section content.
-	 * @class
-	 * @param {Book} book
-	 * @param {object} [options]
-	 * @param {number} [options.width]
-	 * @param {number} [options.height]
-	 * @param {string} [options.ignoreClass] class for the cfi parser to ignore
-	 * @param {string | function | object} [options.manager='default']
-	 * @param {string | function} [options.view='iframe']
-	 * @param {string} [options.layout] layout to force
-	 * @param {string} [options.spread] force spread value
-	 * @param {number} [options.minSpreadWidth] overridden by spread: none (never) / both (always)
-	 * @param {string} [options.stylesheet] url of stylesheet to be injected
-	 * @param {boolean} [options.resizeOnOrientationChange] false to disable orientation events
-	 * @param {string} [options.script] url of script to be injected
-	 * @param {boolean | object} [options.snap=false] use snap scrolling
-	 */
-	class Rendition {
-		constructor(book, options) {
-
-			this.settings = extend$1(this.settings || {}, {
-				width: null,
-				height: null,
-				ignoreClass: "",
-				manager: "default",
-				view: "iframe",
-				flow: null,
-				layout: null,
-				spread: null,
-				minSpreadWidth: 800,
-				stylesheet: null,
-				resizeOnOrientationChange: true,
-				script: null,
-				snap: false
-			});
-
-			extend$1(this.settings, options);
-
-			if (typeof(this.settings.manager) === "object") {
-				this.manager = this.settings.manager;
-			}
-
-			this.book = book;
-
-			/**
-			 * Adds Hook methods to the Rendition prototype
-			 * @member {object} hooks
-			 * @property {Hook} hooks.content
-			 * @memberof Rendition
-			 */
-			this.hooks = {};
-			this.hooks.display = new Hook(this);
-			this.hooks.serialize = new Hook(this);
-			this.hooks.content = new Hook(this);
-			this.hooks.unloaded = new Hook(this);
-			this.hooks.layout = new Hook(this);
-			this.hooks.render = new Hook(this);
-			this.hooks.show = new Hook(this);
-
-			this.hooks.content.register(this.handleLinks.bind(this));
-			this.hooks.content.register(this.passEvents.bind(this));
-			this.hooks.content.register(this.adjustImages.bind(this));
-
-			this.injected = {};
-			this.injected['identifier'] = this.injectIdentifier.bind(this);
-			this.book.spine.hooks.content.register(this.injected['identifier']);
-
-			if (this.settings.stylesheet) {
-				this.injected['stylesheet'] = this.injectStylesheet.bind(this);
-				this.book.spine.hooks.content.register(this.injected['stylesheet']);
-			}
-
-			if (this.settings.script) {
-				this.injected['script'] = this.injectScript.bind(this);
-				this.book.spine.hooks.content.register(this.injected['script']);
-			}
-
-			/**
-			 * @member {Themes} themes
-			 * @memberof Rendition
-			 */
-			this.themes = new Themes(this);
-
-			/**
-			 * @member {Annotations} annotations
-			 * @memberof Rendition
-			 */
-			this.annotations = new Annotations(this);
-
-			this.epubcfi = new EpubCFI();
-
-			this.q = new Queue(this);
-
-			/**
-			 * A Rendered Location Range
-			 * @typedef location
-			 * @type {Object}
-			 * @property {object} start
-			 * @property {string} start.index
-			 * @property {string} start.href
-			 * @property {object} start.displayed
-			 * @property {EpubCFI} start.cfi
-			 * @property {number} start.location
-			 * @property {number} start.percentage
-			 * @property {number} start.displayed.page
-			 * @property {number} start.displayed.total
-			 * @property {object} end
-			 * @property {string} end.index
-			 * @property {string} end.href
-			 * @property {object} end.displayed
-			 * @property {EpubCFI} end.cfi
-			 * @property {number} end.location
-			 * @property {number} end.percentage
-			 * @property {number} end.displayed.page
-			 * @property {number} end.displayed.total
-			 * @property {boolean} atStart
-			 * @property {boolean} atEnd
-			 * @memberof Rendition
-			 */
-			this.location = undefined;
-
-			// Hold queue until book is opened
-			this.q.enqueue(this.book.opened);
-
-			this.starting = new defer();
-			/**
-			 * @member {promise} started returns after the rendition has started
-			 * @memberof Rendition
-			 */
-			this.started = this.starting.promise;
-			// Block the queue until rendering is started
-			this.q.enqueue(this.start);
-		}
-
-		/**
-		 * Set the manager function
-		 * @param {function} manager
-		 */
-		setManager(manager) {
-			this.manager = manager;
-		}
-
-		/**
-		 * Require the manager from passed string, or as a class function
-		 * @param  {string|object} manager [description]
-		 * @return {method}
-		 */
-		requireManager(manager) {
-			var viewManager;
-
-			// If manager is a string, try to load from imported managers
-			if (typeof manager === "string" && manager === "default") {
-				viewManager = DefaultViewManager;
-			} else if (typeof manager === "string" && manager === "continuous") {
-				viewManager = ContinuousViewManager;
-			} else {
-				// otherwise, assume we were passed a class function
-				viewManager = manager;
-			}
-
-			return viewManager;
-		}
-
-		/**
-		 * Require the view from passed string, or as a class function
-		 * @param  {string|object} view
-		 * @return {view}
-		 */
-		requireView(view) {
-			var View;
-
-			// If view is a string, try to load from imported views,
-			if (typeof view == "string" && view === "iframe") {
-				View = IframeView;
-			} else {
-				// otherwise, assume we were passed a class function
-				View = view;
-			}
-
-			return View;
-		}
-
-		/**
-		 * Start the rendering
-		 * @return {Promise} rendering has started
-		 */
-		start(){
-
-			if(!this.manager) {
-				this.ViewManager = this.requireManager(this.settings.manager);
-				this.View = this.requireView(this.settings.view);
-
-				this.manager = new this.ViewManager({
-					view: this.View,
-					queue: this.q,
-					request: this.book.load.bind(this.book),
-					settings: this.settings
-				});
-			}
-
-			this.direction(this.book.package.metadata.direction);
->>>>>>> 3352dcc... generate locations with a pagelist
-
-			// Parse metadata to get layout props
-			this.settings.globalLayoutProperties = this.determineLayoutProperties(this.book.package.metadata);
-
-			this.flow(this.settings.globalLayoutProperties.flow);
-
-			this.layout(this.settings.globalLayoutProperties);
-
-			// Listen for displayed views
-			this.manager.on(EVENTS.MANAGERS.ADDED, this.afterDisplayed.bind(this));
-			this.manager.on(EVENTS.MANAGERS.REMOVED, this.afterRemoved.bind(this));
-
-			// Listen for resizing
-			this.manager.on(EVENTS.MANAGERS.RESIZED, this.onResized.bind(this));
-
-<<<<<<< HEAD
 		if (withCredentials) {
 			xhr.withCredentials = true;
 		}
-=======
-			// Listen for rotation
-			this.manager.on(EVENTS.MANAGERS.ORIENTATION_CHANGE, this.onOrientationChange.bind(this));
->>>>>>> 3352dcc... generate locations with a pagelist
 
-			// Listen for scroll changes
-			this.manager.on(EVENTS.MANAGERS.SCROLLED, this.reportLocation.bind(this));
+		xhr.onreadystatechange = handler;
+		xhr.onerror = err;
 
-			/**
-			 * Emit that rendering has started
-			 * @event started
-			 * @memberof Rendition
-			 */
-			this.emit(EVENTS.RENDITION.STARTED);
+		xhr.open("GET", url, true);
 
-<<<<<<< HEAD
 		for (header in headers) {
 			xhr.setRequestHeader(header, headers[header]);
 		}
@@ -26692,55 +23029,14 @@
 
 		if (type$$1 == "binary") {
 			xhr.responseType = "arraybuffer";
-=======
-			// Start processing queue
-			this.starting.resolve();
 		}
 
-		/**
-		 * Call to attach the container to an element in the dom
-		 * Container must be attached before rendering can begin
-		 * @param  {element} element to attach to
-		 * @return {Promise}
-		 */
-		attachTo(element){
+		xhr.send();
 
-			return this.q.enqueue(function () {
-
-				// Start rendering
-				this.manager.render(element, {
-					"width"  : this.settings.width,
-					"height" : this.settings.height
-				});
-
-				/**
-				 * Emit that rendering has attached to an element
-				 * @event attached
-				 * @memberof Rendition
-				 */
-				this.emit(EVENTS.RENDITION.ATTACHED);
-
-			}.bind(this));
-
->>>>>>> 3352dcc... generate locations with a pagelist
+		function err(e) {
+			deferred.reject(e);
 		}
 
-		/**
-		 * Display a point in the book
-		 * The request will be added to the rendering Queue,
-		 * so it will wait until book is opened, rendering started
-		 * and all other rendering tasks have finished to be called.
-		 * @param  {string} target Url or EpubCFI
-		 * @return {Promise}
-		 */
-		display(target){
-			if (this.displaying) {
-				this.displaying.resolve();
-			}
-			return this.q.enqueue(this._display, target);
-		}
-
-<<<<<<< HEAD
 		function handler() {
 			if (this.readyState === XMLHttpRequest.DONE) {
 				var responseXML = false;
@@ -26794,43 +23090,10 @@
 					} else {
 						r = this.response;
 					}
-=======
-		/**
-		 * Tells the manager what to display immediately
-		 * @private
-		 * @param  {string} target Url or EpubCFI
-		 * @return {Promise}
-		 */
-		_display(target){
-			if (!this.book) {
-				return;
-			}
-			var isCfiString = this.epubcfi.isCfiString(target);
-			var displaying = new defer();
-			var displayed = displaying.promise;
-			var section;
 
-			this.displaying = displaying;
+					deferred.resolve(r);
+				} else {
 
-			// Check if this is a book percentage
-			if (this.book.locations.length() && isFloat(target)) {
-				target = this.book.locations.cfiFromPercentage(parseFloat(target));
-			}
-
-			section = this.book.spine.get(target);
-
-			if(!section){
-				displaying.reject(new Error("No Section Found"));
-				return displayed;
-			}
->>>>>>> 3352dcc... generate locations with a pagelist
-
-			this.manager.display(section, target)
-				.then(() => {
-					displaying.resolve(section);
-					this.displaying = undefined;
-
-<<<<<<< HEAD
 					deferred.reject({
 						status: this.status,
 						message: this.response,
@@ -26838,33 +23101,11 @@
 					});
 				}
 			}
-=======
-					/**
-					 * Emit that a section has been displayed
-					 * @event displayed
-					 * @param {Section} section
-					 * @memberof Rendition
-					 */
-					this.emit(EVENTS.RENDITION.DISPLAYED, section);
-					this.reportLocation();
-				}, (err) => {
-					/**
-					 * Emit that has been an error displaying
-					 * @event displayError
-					 * @param {Section} section
-					 * @memberof Rendition
-					 */
-					this.emit(EVENTS.RENDITION.DISPLAY_ERROR, err);
-				});
-
-			return displayed;
->>>>>>> 3352dcc... generate locations with a pagelist
 		}
 
-		/*
-		render(view, show) {
+		return deferred.promise;
+	}
 
-<<<<<<< HEAD
 	var _createClass$r = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck$r(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26882,52 +23123,9 @@
 			this.urlCache = {};
 
 			this.checkRequirements();
-=======
-			// view.onLayout = this.layout.format.bind(this.layout);
-			view.create();
-
-			// Fit to size of the container, apply padding
-			this.manager.resizeView(view);
-
-			// Render Chain
-			return view.section.render(this.book.request)
-				.then(function(contents){
-					return view.load(contents);
-				}.bind(this))
-				.then(function(doc){
-					return this.hooks.content.trigger(view, this);
-				}.bind(this))
-				.then(function(){
-					this.layout.format(view.contents);
-					return this.hooks.layout.trigger(view, this);
-				}.bind(this))
-				.then(function(){
-					return view.display();
-				}.bind(this))
-				.then(function(){
-					return this.hooks.render.trigger(view, this);
-				}.bind(this))
-				.then(function(){
-					if(show !== false) {
-						this.q.enqueue(function(view){
-							view.show();
-						}, view);
-					}
-					// this.map = new Map(view, this.layout);
-					this.hooks.show.trigger(view, this);
-					this.trigger("rendered", view.section);
-
-				}.bind(this))
-				.catch(function(e){
-					this.trigger("loaderror", e);
-				}.bind(this));
-
->>>>>>> 3352dcc... generate locations with a pagelist
 		}
-		*/
 
 		/**
-<<<<<<< HEAD
 	  * Checks to see if JSZip exists in global namspace,
 	  * Requires JSZip if it isn't there
 	  * @private
@@ -27205,313 +23403,20 @@
 			_classCallCheck$s(this, Store);
 
 			this.urlCache = {};
-=======
-		 * Report what section has been displayed
-		 * @private
-		 * @param  {*} view
-		 */
-		afterDisplayed(view){
 
-			view.on(EVENTS.VIEWS.MARK_CLICKED, (cfiRange, data) => this.triggerMarkEvent(cfiRange, data, view));
+			this.storage = undefined;
 
-			this.hooks.render.trigger(view, this)
-				.then(() => {
-					if (view.contents) {
-						this.hooks.content.trigger(view.contents, this).then(() => {
-							/**
-							 * Emit that a section has been rendered
-							 * @event rendered
-							 * @param {Section} section
-							 * @param {View} view
-							 * @memberof Rendition
-							 */
-							this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
-						});
-					} else {
-						this.emit(EVENTS.RENDITION.RENDERED, view.section, view);
-					}
-				});
+			this.name = name;
+			this.requester = requester || request;
+			this.resolver = resolver;
 
+			this.online = true;
+
+			this.checkRequirements();
+
+			this.addListeners();
 		}
 
-		/**
-		 * Report what has been removed
-		 * @private
-		 * @param  {*} view
-		 */
-		afterRemoved(view){
-			this.hooks.unloaded.trigger(view, this).then(() => {
-				/**
-				 * Emit that a section has been removed
-				 * @event removed
-				 * @param {Section} section
-				 * @param {View} view
-				 * @memberof Rendition
-				 */
-				this.emit(EVENTS.RENDITION.REMOVED, view.section, view);
-			});
-		}
-
-		/**
-		 * Report resize events and display the last seen location
-		 * @private
-		 */
-		onResized(size){
-
-			/**
-			 * Emit that the rendition has been resized
-			 * @event resized
-			 * @param {number} width
-			 * @param {height} height
-			 * @memberof Rendition
-			 */
-			this.emit(EVENTS.RENDITION.RESIZED, {
-				width: size.width,
-				height: size.height
-			});
-
-			if (this.location && this.location.start) {
-				this.display(this.location.start.cfi);
-			}
-
-		}
-
-		/**
-		 * Report orientation events and display the last seen location
-		 * @private
-		 */
-		onOrientationChange(orientation){
-			/**
-			 * Emit that the rendition has been rotated
-			 * @event orientationchange
-			 * @param {string} orientation
-			 * @memberof Rendition
-			 */
-			this.emit(EVENTS.RENDITION.ORIENTATION_CHANGE, orientation);
-		}
-
-		/**
-		 * Move the Rendition to a specific offset
-		 * Usually you would be better off calling display()
-		 * @param {object} offset
-		 */
-		moveTo(offset){
-			this.manager.moveTo(offset);
-		}
-
-		/**
-		 * Trigger a resize of the views
-		 * @param {number} [width]
-		 * @param {number} [height]
-		 */
-		resize(width, height){
-			if (width) {
-				this.settings.width = width;
-			}
-			if (height) {
-				this.settings.height = height;
-			}
-			this.manager.resize(width, height);
-		}
-
-		/**
-		 * Clear all rendered views
-		 */
-		clear(){
-			this.manager.clear();
-		}
-
-		/**
-		 * Go to the next "page" in the rendition
-		 * @return {Promise}
-		 */
-		next(){
-			return this.q.enqueue(this.manager.next.bind(this.manager))
-				.then(this.reportLocation.bind(this));
-		}
-
-		/**
-		 * Go to the previous "page" in the rendition
-		 * @return {Promise}
-		 */
-		prev(){
-			return this.q.enqueue(this.manager.prev.bind(this.manager))
-				.then(this.reportLocation.bind(this));
-		}
-
-		//-- http://www.idpf.org/epub/301/spec/epub-publications.html#meta-properties-rendering
-		/**
-		 * Determine the Layout properties from metadata and settings
-		 * @private
-		 * @param  {object} metadata
-		 * @return {object} properties
-		 */
-		determineLayoutProperties(metadata){
-			var properties;
-			var layout = this.settings.layout || metadata.layout || "reflowable";
-			var spread = this.settings.spread || metadata.spread || "auto";
-			var orientation = this.settings.orientation || metadata.orientation || "auto";
-			var flow = this.settings.flow || metadata.flow || "auto";
-			var viewport = metadata.viewport || "";
-			var minSpreadWidth = this.settings.minSpreadWidth || metadata.minSpreadWidth || 800;
-			var direction = this.settings.direction || metadata.direction || "ltr";
-
-			if ((this.settings.width === 0 || this.settings.width > 0) &&
-					(this.settings.height === 0 || this.settings.height > 0)) ;
-
-			properties = {
-				layout : layout,
-				spread : spread,
-				orientation : orientation,
-				flow : flow,
-				viewport : viewport,
-				minSpreadWidth : minSpreadWidth,
-				direction: direction
-			};
-
-			return properties;
-		}
-
-		/**
-		 * Adjust the flow of the rendition to paginated or scrolled
-		 * (scrolled-continuous vs scrolled-doc are handled by different view managers)
-		 * @param  {string} flow
-		 */
-		flow(flow){
-			var _flow = flow;
-			if (flow === "scrolled" ||
-					flow === "scrolled-doc" ||
-					flow === "scrolled-continuous") {
-				_flow = "scrolled";
-			}
-
-			if (flow === "auto" || flow === "paginated") {
-				_flow = "paginated";
-			}
-
-			this.settings.flow = flow;
-
-			if (this._layout) {
-				this._layout.flow(_flow);
-			}
-
-			if (this.manager && this._layout) {
-				this.manager.applyLayout(this._layout);
-			}
-
-			if (this.manager) {
-				this.manager.updateFlow(_flow);
-			}
-
-			if (this.manager && this.manager.isRendered() && this.location) {
-				this.manager.clear();
-				this.display(this.location.start.cfi);
-			}
-		}
-
-		/**
-		 * Adjust the layout of the rendition to reflowable or pre-paginated
-		 * @param  {object} settings
-		 */
-		layout(settings){
-			if (settings) {
-				this._layout = new Layout(settings);
-				this._layout.spread(settings.spread, this.settings.minSpreadWidth);
-
-				// this.mapping = new Mapping(this._layout.props);
-
-				this._layout.on(EVENTS.LAYOUT.UPDATED, (props, changed) => {
-					this.emit(EVENTS.RENDITION.LAYOUT, props, changed);
-				});
-			}
-
-			if (this.manager && this._layout) {
-				this.manager.applyLayout(this._layout);
-			}
-
-			return this._layout;
-		}
-
-		/**
-		 * Adjust if the rendition uses spreads
-		 * @param  {string} spread none | auto (TODO: implement landscape, portrait, both)
-		 * @param  {int} [min] min width to use spreads at
-		 */
-		spread(spread, min){
-
-			this.settings.spread = spread;
-
-			if (min) {
-				this.settings.minSpreadWidth = min;
-			}
-
-			if (this._layout) {
-				this._layout.spread(spread, min);
-			}
-
-			if (this.manager && this.manager.isRendered()) {
-				this.manager.updateLayout();
-			}
-		}
-
-		/**
-		 * Adjust the direction of the rendition
-		 * @param  {string} dir
-		 */
-		direction(dir){
-
-			this.settings.direction = dir || "ltr";
-
-			if (this.manager) {
-				this.manager.direction(this.settings.direction);
-			}
-
-			if (this.manager && this.manager.isRendered() && this.location) {
-				this.manager.clear();
-				this.display(this.location.start.cfi);
-			}
-		}
-
-		/**
-		 * Report the current location
-		 * @fires relocated
-		 * @fires locationChanged
-		 */
-		reportLocation(){
-			return this.q.enqueue(function reportedLocation(){
-				requestAnimationFrame(function reportedLocationAfterRAF() {
-					var location = this.manager.currentLocation();
-					if (location && location.then && typeof location.then === "function") {
-						location.then(function(result) {
-							let located = this.located(result);
-
-							if (!located || !located.start || !located.end) {
-								return;
-							}
->>>>>>> 3352dcc... generate locations with a pagelist
-
-							this.location = located;
-
-							this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
-								index: this.location.start.index,
-								href: this.location.start.href,
-								start: this.location.start.cfi,
-								end: this.location.end.cfi,
-								percentage: this.location.start.percentage
-							});
-
-							this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-						}.bind(this));
-					} else if (location) {
-						let located = this.located(location);
-
-						if (!located || !located.start || !located.end) {
-							return;
-						}
-
-						this.location = located;
-
-<<<<<<< HEAD
 		/**
 	  * Checks to see if localForage exists in global namspace,
 	  * Requires localForage if it isn't there
@@ -27873,307 +23778,8 @@
 				}
 
 				return deferred.promise;
-=======
-						/**
-						 * @event locationChanged
-						 * @deprecated
-						 * @type {object}
-						 * @property {number} index
-						 * @property {string} href
-						 * @property {EpubCFI} start
-						 * @property {EpubCFI} end
-						 * @property {number} percentage
-						 * @memberof Rendition
-						 */
-						this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
-							index: this.location.start.index,
-							href: this.location.start.href,
-							start: this.location.start.cfi,
-							end: this.location.end.cfi,
-							percentage: this.location.start.percentage
-						});
-
-						/**
-						 * @event relocated
-						 * @type {displayedLocation}
-						 * @memberof Rendition
-						 */
-						this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-					}
-				}.bind(this));
-			}.bind(this));
-		}
-
-		/**
-		 * Get the Current Location object
-		 * @return {displayedLocation | promise} location (may be a promise)
-		 */
-		currentLocation(){
-			var location = this.manager.currentLocation();
-			if (location && location.then && typeof location.then === "function") {
-				location.then(function(result) {
-					let located = this.located(result);
-					return located;
-				}.bind(this));
-			} else if (location) {
-				let located = this.located(location);
-				return located;
-			}
-		}
-
-		/**
-		 * Creates a Rendition#locationRange from location
-		 * passed by the Manager
-		 * @returns {displayedLocation}
-		 * @private
-		 */
-		located(location){
-			if (!location.length) {
-				return {};
-			}
-			let start = location[0];
-			let end = location[location.length-1];
-
-			let located = {
-				start: {
-					index: start.index,
-					href: start.href,
-					cfi: start.mapping.start,
-					displayed: {
-						page: start.pages[0] || 1,
-						total: start.totalPages
-					}
-				},
-				end: {
-					index: end.index,
-					href: end.href,
-					cfi: end.mapping.end,
-					displayed: {
-						page: end.pages[end.pages.length-1] || 1,
-						total: end.totalPages
-					}
-				}
-			};
-
-			let locationStart = this.book.locations.locationFromCfi(start.mapping.start);
-			let locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
-
-			if (locationStart != null) {
-				located.start.location = locationStart;
-				located.start.percentage = this.book.locations.percentageFromLocation(locationStart);
-			}
-			if (locationEnd != null) {
-				located.end.location = locationEnd;
-				located.end.percentage = this.book.locations.percentageFromLocation(locationEnd);
 			}
 
-			let pageStart = this.book.pageList.pageFromCfi(start.mapping.start);
-			let pageEnd = this.book.pageList.pageFromCfi(end.mapping.end);
-
-			if (pageStart != -1) {
-				located.start.page = pageStart;
-			}
-			if (pageEnd != -1) {
-				located.end.page = pageEnd;
-			}
-
-			if (end.index === this.book.spine.last().index &&
-					located.end.displayed.page >= located.end.displayed.total) {
-				located.atEnd = true;
-			}
-
-			if (start.index === this.book.spine.first().index &&
-					located.start.displayed.page === 1) {
-				located.atStart = true;
-			}
-
-			return located;
-		}
-
-		/**
-		 * Remove and Clean Up the Rendition
-		 */
-		destroy(){
-			// Clear the queue
-			// this.q.clear();
-			// this.q = undefined;
-
-			this.manager && this.manager.destroy();
-			this.book.spine.hooks.content.deregister(this.injected['identifier']);
-			this.book.spine.hooks.content.deregister(this.injected['script']);
-			this.book.spine.hooks.content.deregister(this.injected['stylesheet']);
-
-			this.book = undefined;
-
-			// this.views = null;
-
-			// this.hooks.display.clear();
-			// this.hooks.serialize.clear();
-			// this.hooks.content.clear();
-			// this.hooks.layout.clear();
-			// this.hooks.render.clear();
-			// this.hooks.show.clear();
-			// this.hooks = {};
-
-			// this.themes.destroy();
-			// this.themes = undefined;
-
-			// this.epubcfi = undefined;
-
-			// this.starting = undefined;
-			// this.started = undefined;
-
-
-		}
-
-		/**
-		 * Pass the events from a view's Contents
-		 * @private
-		 * @param  {Contents} view contents
-		 */
-		passEvents(contents){
-			DOM_EVENTS.forEach((e) => {
-				contents.on(e, (ev) => this.triggerViewEvent(ev, contents));
-			});
-
-			contents.on(EVENTS.CONTENTS.SELECTED, (e) => this.triggerSelectedEvent(e, contents));
-		}
-
-		/**
-		 * Emit events passed by a view
-		 * @private
-		 * @param  {event} e
-		 */
-		triggerViewEvent(e, contents){
-			this.emit(e.type, e, contents);
-		}
-
-		/**
-		 * Emit a selection event's CFI Range passed from a a view
-		 * @private
-		 * @param  {EpubCFI} cfirange
-		 */
-		triggerSelectedEvent(cfirange, contents){
-			/**
-			 * Emit that a text selection has occured
-			 * @event selected
-			 * @param {EpubCFI} cfirange
-			 * @param {Contents} contents
-			 * @memberof Rendition
-			 */
-			this.emit(EVENTS.RENDITION.SELECTED, cfirange, contents);
-		}
-
-		/**
-		 * Emit a markClicked event with the cfiRange and data from a mark
-		 * @private
-		 * @param  {EpubCFI} cfirange
-		 */
-		triggerMarkEvent(cfiRange, data, contents){
-			/**
-			 * Emit that a mark was clicked
-			 * @event markClicked
-			 * @param {EpubCFI} cfirange
-			 * @param {object} data
-			 * @param {Contents} contents
-			 * @memberof Rendition
-			 */
-			this.emit(EVENTS.RENDITION.MARK_CLICKED, cfiRange, data, contents);
-		}
-
-		/**
-		 * Get a Range from a Visible CFI
-		 * @param  {string} cfi EpubCfi String
-		 * @param  {string} ignoreClass
-		 * @return {range}
-		 */
-		getRange(cfi, ignoreClass){
-			var _cfi = new EpubCFI(cfi);
-			var found = this.manager.visible().filter(function (view) {
-				if(_cfi.spinePos === view.index) return true;
-			});
-
-			// Should only every return 1 item
-			if (found.length) {
-				return found[0].contents.range(_cfi, ignoreClass);
-			}
-		}
-
-		/**
-		 * Hook to adjust images to fit in columns
-		 * @param  {Contents} contents
-		 * @private
-		 */
-		adjustImages(contents) {
-
-			if (this._layout.name === "pre-paginated") {
-				return new Promise(function(resolve){
-					resolve();
-				});
-			}
-
-			let computed = contents.window.getComputedStyle(contents.content, null);
-			let height = (contents.content.offsetHeight - (parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom))) * .95;
-			let verticalPadding = parseFloat(computed.verticalPadding);
-
-			contents.addStylesheetRules({
-				"img" : {
-					"max-width": (this._layout.columnWidth ? (this._layout.columnWidth - verticalPadding) + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"object-fit": "contain",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid",
-					"box-sizing": "border-box"
-				},
-				"svg" : {
-					"max-width": (this._layout.columnWidth ? (this._layout.columnWidth - verticalPadding) + "px" : "100%") + "!important",
-					"max-height": height + "px" + "!important",
-					"page-break-inside": "avoid",
-					"break-inside": "avoid"
-				}
-			});
-
-			return new Promise(function(resolve, reject){
-				// Wait to apply
-				setTimeout(function() {
-					resolve();
-				}, 1);
-			});
-		}
-
-		/**
-		 * Get the Contents object of each rendered view
-		 * @returns {Contents[]}
-		 */
-		getContents () {
-			return this.manager ? this.manager.getContents() : [];
-		}
-
-		/**
-		 * Get the views member from the manager
-		 * @returns {Views}
-		 */
-		views () {
-			let views = this.manager ? this.manager.views : undefined;
-			return views || [];
-		}
-
-		/**
-		 * Hook to handle link clicks in rendered content
-		 * @param  {Contents} contents
-		 * @private
-		 */
-		handleLinks(contents) {
-			if (contents) {
-				contents.on(EVENTS.CONTENTS.LINK_CLICKED, (href) => {
-					let relative = this.book.path.relative(href);
-					this.display(relative);
-				});
->>>>>>> 3352dcc... generate locations with a pagelist
-			}
-		}
-
-<<<<<<< HEAD
 			/**
 	   * Revoke Temp Url for a achive item
 	   * @param  {string} url url of the item in the store
@@ -28200,64 +23806,9 @@
 
 		return Store;
 	}();
-=======
-		/**
-		 * Hook to handle injecting stylesheet before
-		 * a Section is serialized
-		 * @param  {document} doc
-		 * @param  {Section} section
-		 * @private
-		 */
-		injectStylesheet(doc, section) {
-			let style = doc.createElement("link");
-			style.setAttribute("type", "text/css");
-			style.setAttribute("rel", "stylesheet");
-			style.setAttribute("href", this.settings.stylesheet);
-			doc.getElementsByTagName("head")[0].appendChild(style);
-		}
 
-		/**
-		 * Hook to handle injecting scripts before
-		 * a Section is serialized
-		 * @param  {document} doc
-		 * @param  {Section} section
-		 * @private
-		 */
-		injectScript(doc, section) {
-			let script = doc.createElement("script");
-			script.setAttribute("type", "text/javascript");
-			script.setAttribute("src", this.settings.script);
-			script.textContent = " "; // Needed to prevent self closing tag
-			doc.getElementsByTagName("head")[0].appendChild(script);
-		}
+	eventEmitter(Store.prototype);
 
-		/**
-		 * Hook to handle the document identifier before
-		 * a Section is serialized
-		 * @param  {document} doc
-		 * @param  {Section} section
-		 * @private
-		 */
-		injectIdentifier(doc, section) {
-			let ident = this.book.packaging.metadata.identifier;
-			let meta = doc.createElement("meta");
-			meta.setAttribute("name", "dc.relation.ispartof");
-			if (ident) {
-				meta.setAttribute("content", ident);
-			}
-			doc.getElementsByTagName("head")[0].appendChild(meta);
-		}
-
-		scale(s) {
-			return this.manager && this.manager.scale(s);
-		}
-	}
->>>>>>> 3352dcc... generate locations with a pagelist
-
-	//-- Enable binding events to Renderer
-	eventEmitter(Rendition.prototype);
-
-<<<<<<< HEAD
 	var _createClass$t = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck$t(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -28303,23 +23854,20 @@
 				options = url;
 				url = undefined;
 			}
-=======
-	function request(url, type$$1, withCredentials, headers) {
-		var supportsURL = (typeof window != "undefined") ? window.URL : false; // TODO: fallback for url if window isn't defined
-		var BLOB_RESPONSE = supportsURL ? "blob" : "arraybuffer";
 
-		var deferred = new defer();
+			this.settings = extend$1(this.settings || {}, {
+				requestMethod: undefined,
+				requestCredentials: undefined,
+				requestHeaders: undefined,
+				encoding: undefined,
+				replacements: undefined,
+				canonical: undefined,
+				openAs: undefined,
+				store: undefined
+			});
 
-		var xhr = new XMLHttpRequest();
->>>>>>> 3352dcc... generate locations with a pagelist
+			extend$1(this.settings, options);
 
-		//-- Check from PDF.js:
-		//   https://github.com/mozilla/pdf.js/blob/master/web/compatibility.js
-		var xhrPrototype = XMLHttpRequest.prototype;
-
-		var header;
-
-<<<<<<< HEAD
 			// Promises
 			this.opening = new defer();
 			/**
@@ -28328,47 +23876,38 @@
 	   */
 			this.opened = this.opening.promise;
 			this.isOpen = false;
-=======
-		if (!("overrideMimeType" in xhrPrototype)) {
-			// IE10 might have response, but not overrideMimeType
-			Object.defineProperty(xhrPrototype, "overrideMimeType", {
-				value: function xmlHttpRequestOverrideMimeType() {}
-			});
-		}
 
-		if(withCredentials) {
-			xhr.withCredentials = true;
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
+			this.loading = {
+				manifest: new defer(),
+				spine: new defer(),
+				metadata: new defer(),
+				cover: new defer(),
+				navigation: new defer(),
+				pageList: new defer(),
+				resources: new defer()
+			};
 
-		xhr.onreadystatechange = handler;
-		xhr.onerror = err;
+			this.loaded = {
+				manifest: this.loading.manifest.promise,
+				spine: this.loading.spine.promise,
+				metadata: this.loading.metadata.promise,
+				cover: this.loading.cover.promise,
+				navigation: this.loading.navigation.promise,
+				pageList: this.loading.pageList.promise,
+				resources: this.loading.resources.promise
+			};
 
-		xhr.open("GET", url, true);
-
-<<<<<<< HEAD
 			/**
 	   * @member {promise} ready returns after the book is loaded and parsed
 	   * @memberof Book
 	   * @private
 	   */
 			this.ready = Promise.all([this.loaded.manifest, this.loaded.spine, this.loaded.metadata, this.loaded.cover, this.loaded.navigation, this.loaded.resources]);
-=======
-		for(header in headers) {
-			xhr.setRequestHeader(header, headers[header]);
-		}
 
-		if(type$$1 == "json") {
-			xhr.setRequestHeader("Accept", "application/json");
-		}
->>>>>>> 3352dcc... generate locations with a pagelist
+			// Queue for methods used before opening
+			this.isRendered = false;
+			// this._q = queue(this);
 
-		// If type isn"t set, determine it from the file extension
-		if(!type$$1) {
-			type$$1 = new Path(url).extension;
-		}
-
-<<<<<<< HEAD
 			/**
 	   * @member {method} request
 	   * @memberof Book
@@ -28462,127 +24001,21 @@
 	   * @private
 	   */
 			this.packaging = undefined;
-=======
-		if(type$$1 == "blob"){
-			xhr.responseType = BLOB_RESPONSE;
-		}
 
+			// this.toc = undefined;
+			if (this.settings.store) {
+				this.store(this.settings.store);
+			}
 
-		if(isXml(type$$1)) {
-			// xhr.responseType = "document";
-			xhr.overrideMimeType("text/xml"); // for OPF parsing
-		}
-
-		if(type$$1 == "binary") {
-			xhr.responseType = "arraybuffer";
-		}
-
-		xhr.send();
-
-		function err(e) {
-			deferred.reject(e);
-		}
-
-		function handler() {
-			if (this.readyState === XMLHttpRequest.DONE) {
-				var responseXML = false;
-
-				if(this.responseType === "" || this.responseType === "document") {
-					responseXML = this.responseXML;
-				}
-
-				if (this.status === 200 || this.status === 0 || responseXML) { //-- Firefox is reporting 0 for blob urls
-					var r;
-
-					if (!this.response && !responseXML) {
-						deferred.reject({
-							status: this.status,
-							message : "Empty Response",
-							stack : new Error().stack
-						});
-						return deferred.promise;
-					}
-
-					if (this.status === 403) {
-						deferred.reject({
-							status: this.status,
-							response: this.response,
-							message : "Forbidden",
-							stack : new Error().stack
-						});
-						return deferred.promise;
-					}
-					if(responseXML){
-						r = this.responseXML;
-					} else
-					if(isXml(type$$1)){
-						// xhr.overrideMimeType("text/xml"); // for OPF parsing
-						// If this.responseXML wasn't set, try to parse using a DOMParser from text
-						r = parse(this.response, "text/xml");
-					}else
-					if(type$$1 == "xhtml"){
-						r = parse(this.response, "application/xhtml+xml");
-					}else
-					if(type$$1 == "html" || type$$1 == "htm"){
-						r = parse(this.response, "text/html");
-					}else
-					if(type$$1 == "json"){
-						r = JSON.parse(this.response);
-					}else
-					if(type$$1 == "blob"){
-
-						if(supportsURL) {
-							r = this.response;
-						} else {
-							//-- Safari doesn't support responseType blob, so create a blob from arraybuffer
-							r = new Blob([this.response]);
-						}
-
-					}else{
-						r = this.response;
-					}
-
-					deferred.resolve(r);
-				} else {
->>>>>>> 3352dcc... generate locations with a pagelist
-
-					deferred.reject({
-						status: this.status,
-						message : this.response,
-						stack : new Error().stack
-					});
-
-<<<<<<< HEAD
 			if (url) {
 				this.open(url, this.settings.openAs).catch(function (error) {
 					var err = new Error("Cannot load book at " + url);
 					_this.emit(EVENTS.BOOK.OPEN_FAILED, err);
 				});
-=======
-				}
->>>>>>> 3352dcc... generate locations with a pagelist
 			}
 		}
 
-		return deferred.promise;
-	}
-
-	/**
-	 * Handles Unzipping a requesting files from an Epub Archive
-	 * @class
-	 */
-	class Archive {
-
-		constructor() {
-			this.zip = undefined;
-			this.urlCache = {};
-
-			this.checkRequirements();
-
-		}
-
 		/**
-<<<<<<< HEAD
 	  * Open a epub or url
 	  * @param {string | ArrayBuffer} input Url, Path or ArrayBuffer
 	  * @param {string} [what="binary", "base64", "epub", "opf", "json", "directory"] force opening as a certain type
@@ -28716,113 +24149,8 @@
 				} else {
 					return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
 				}
-=======
-		 * Checks to see if JSZip exists in global namspace,
-		 * Requires JSZip if it isn't there
-		 * @private
-		 */
-		checkRequirements(){
-			try {
-				if (typeof JSZip === "undefined") {
-					let JSZip = require("jszip");
-					this.zip = new JSZip();
-				} else {
-					this.zip = new JSZip();
-				}
-			} catch (e) {
-				throw new Error("JSZip lib not loaded");
-			}
-		}
-
-		/**
-		 * Open an archive
-		 * @param  {binary} input
-		 * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
-		 * @return {Promise} zipfile
-		 */
-		open(input, isBase64){
-			return this.zip.loadAsync(input, {"base64": isBase64});
-		}
-
-		/**
-		 * Load and Open an archive
-		 * @param  {string} zipUrl
-		 * @param  {boolean} [isBase64] tells JSZip if the input data is base64 encoded
-		 * @return {Promise} zipfile
-		 */
-		openUrl(zipUrl, isBase64){
-			return request(zipUrl, "binary")
-				.then(function(data){
-					return this.zip.loadAsync(data, {"base64": isBase64});
-				}.bind(this));
-		}
-
-		/**
-		 * Request a url from the archive
-		 * @param  {string} url  a url to request from the archive
-		 * @param  {string} [type] specify the type of the returned result
-		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-		 */
-		request(url, type$$1){
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
 			}
 
-			if(type$$1 == "blob"){
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
-			}
-
-			if (response) {
-				response.then(function (r) {
-					let result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
-				}.bind(this));
-			} else {
-				deferred.reject({
-					message : "File not found in the epub: " + url,
-					stack : new Error().stack
-				});
-			}
-			return deferred.promise;
-		}
-
-		/**
-		 * Handle the response from request
-		 * @private
-		 * @param  {any} response
-		 * @param  {string} [type]
-		 * @return {any} the parsed result
-		 */
-		handleResponse(response, type$$1){
-			var r;
-
-			if(type$$1 == "json") {
-				r = JSON.parse(response);
-			}
-			else
-			if(isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			}
-			else
-			if(type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
->>>>>>> 3352dcc... generate locations with a pagelist
-			}
-			else
-			if(type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			 } else {
-				 r = response;
-			 }
-
-<<<<<<< HEAD
 			/**
 	   * Resolve a path to it's absolute position in the Book
 	   * @param  {string} path
@@ -28946,119 +24274,8 @@
 				this.loadNavigation(this.packaging).then(function () {
 					// this.toc = this.navigation.toc;
 					_this6.loading.navigation.resolve(_this6.navigation);
-=======
-			return r;
-		}
-
-		/**
-		 * Get a Blob from Archive by Url
-		 * @param  {string} url
-		 * @param  {string} [mimeType]
-		 * @return {Blob}
-		 */
-		getBlob(url, mimeType){
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if(entry) {
-				mimeType = mimeType || mime.lookup(entry.name);
-				return entry.async("uint8array").then(function(uint8array) {
-					return new Blob([uint8array], {type : mimeType});
-				});
-			}
-		}
-
-		/**
-		 * Get Text from Archive by Url
-		 * @param  {string} url
-		 * @param  {string} [encoding]
-		 * @return {string}
-		 */
-		getText(url, encoding){
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if(entry) {
-				return entry.async("string").then(function(text) {
-					return text;
-				});
-			}
-		}
-
-		/**
-		 * Get a base64 encoded result from Archive by Url
-		 * @param  {string} url
-		 * @param  {string} [mimeType]
-		 * @return {string} base64 encoded
-		 */
-		getBase64(url, mimeType){
-			var decodededUrl = window.decodeURIComponent(url.substr(1)); // Remove first slash
-			var entry = this.zip.file(decodededUrl);
-
-			if(entry) {
-				mimeType = mimeType || mime.lookup(entry.name);
-				return entry.async("base64").then(function(data) {
-					return "data:" + mimeType + ";base64," + data;
-				});
-			}
-		}
-
-		/**
-		 * Create a Url from an unarchived item
-		 * @param  {string} url
-		 * @param  {object} [options.base64] use base64 encoding or blob url
-		 * @return {Promise} url promise with Url string
-		 */
-		createUrl(url, options){
-			var deferred = new defer();
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var tempUrl;
-			var response;
-			var useBase64 = options && options.base64;
-
-			if(url in this.urlCache) {
-				deferred.resolve(this.urlCache[url]);
-				return deferred.promise;
-			}
-
-			if (useBase64) {
-				response = this.getBase64(url);
-
-				if (response) {
-					response.then(function(tempUrl) {
-
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-
-					}.bind(this));
-
-				}
-
-			} else {
-
-				response = this.getBlob(url);
-
-				if (response) {
-					response.then(function(blob) {
-
-						tempUrl = _URL.createObjectURL(blob);
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-
-					}.bind(this));
-
-				}
-			}
-
-
-			if (!response) {
-				deferred.reject({
-					message : "File not found in the epub: " + url,
-					stack : new Error().stack
->>>>>>> 3352dcc... generate locations with a pagelist
 				});
 
-<<<<<<< HEAD
 				if (this.packaging.coverPath) {
 					this.cover = this.resolve(this.packaging.coverPath);
 				}
@@ -29406,1246 +24623,6 @@
 	  }
 
 	  if (hasWorkingUrl) return scope.URL;
-=======
-			return deferred.promise;
-		}
-
-		/**
-		 * Revoke Temp Url for a achive item
-		 * @param  {string} url url of the item in the archive
-		 */
-		revokeUrl(url){
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var fromCache = this.urlCache[url];
-			if(fromCache) _URL.revokeObjectURL(fromCache);
-		}
-
-		destroy() {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			for (let fromCache in this.urlCache) {
-				_URL.revokeObjectURL(fromCache);
-			}
-			this.zip = undefined;
-			this.urlCache = {};
-		}
-	}
-
-	/**
-	 * Handles saving and requesting files from local storage
-	 * @class
-	 * @param {string} name This should be the name of the application for modals
-	 * @param {function} [requester]
-	 * @param {function} [resolver]
-	 */
-	class Store {
-
-		constructor(name, requester, resolver) {
-			this.urlCache = {};
-
-			this.storage = undefined;
-
-			this.name = name;
-			this.requester = requester || request;
-			this.resolver = resolver;
-
-			this.online = true;
-
-			this.checkRequirements();
-
-			this.addListeners();
-		}
-
-		/**
-		 * Checks to see if localForage exists in global namspace,
-		 * Requires localForage if it isn't there
-		 * @private
-		 */
-		checkRequirements(){
-			try {
-				let store;
-				if (typeof localforage === "undefined") {
-					store = require("localforage");
-				} else {
-					store = localforage;
-				}
-				this.storage = store.createInstance({
-						name: this.name
-				});
-			} catch (e) {
-				throw new Error("localForage lib not loaded");
-			}
-		}
-
-		/**
-		 * Add online and offline event listeners
-		 * @private
-		 */
-		addListeners() {
-			this._status = this.status.bind(this);
-			window.addEventListener('online',  this._status);
-		  window.addEventListener('offline', this._status);
-		}
-
-		/**
-		 * Remove online and offline event listeners
-		 * @private
-		 */
-		removeListeners() {
-			window.removeEventListener('online',  this._status);
-		  window.removeEventListener('offline', this._status);
-			this._status = undefined;
-		}
-
-		/**
-		 * Update the online / offline status
-		 * @private
-		 */
-		status(event) {
-			let online = navigator.onLine;
-			this.online = online;
-			if (online) {
-				this.emit("online", this);
-			} else {
-				this.emit("offline", this);
-			}
-		}
-
-		/**
-		 * Add all of a book resources to the store
-		 * @param  {Resources} resources  book resources
-		 * @param  {boolean} [force] force resaving resources
-		 * @return {Promise<object>} store objects
-		 */
-		add(resources, force) {
-			let mapped = resources.resources.map((item) => {
-				let { href } = item;
-				let url = this.resolver(href);
-				let encodedUrl = window.encodeURIComponent(url);
-
-				return this.storage.getItem(encodedUrl).then((item) => {
-					if (!item || force) {
-						return this.requester(url, "binary")
-							.then((data) => {
-								return this.storage.setItem(encodedUrl, data);
-							});
-					} else {
-						return item;
-					}
-				});
-
-			});
-			return Promise.all(mapped);
-		}
-
-		/**
-		 * Put binary data from a url to storage
-		 * @param  {string} url  a url to request from storage
-		 * @param  {boolean} [withCredentials]
-		 * @param  {object} [headers]
-		 * @return {Promise<Blob>}
-		 */
-		put(url, withCredentials, headers) {
-			let encodedUrl = window.encodeURIComponent(url);
-
-			return this.storage.getItem(encodedUrl).then((result) => {
-				if (!result) {
-					return this.requester(url, "binary", withCredentials, headers).then((data) => {
-						return this.storage.setItem(encodedUrl, data);
-					});
-				}
-				return result;
-			});
-		}
-
-		/**
-		 * Request a url
-		 * @param  {string} url  a url to request from storage
-		 * @param  {string} [type] specify the type of the returned result
-		 * @param  {boolean} [withCredentials]
-		 * @param  {object} [headers]
-		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-		 */
-		request(url, type$$1, withCredentials, headers){
-			if (this.online) {
-				// From network
-				return this.requester(url, type$$1, withCredentials, headers).then((data) => {
-					// save to store if not present
-					this.put(url);
-					return data;
-				})
-			} else {
-				// From store
-				return this.retrieve(url, type$$1);
-			}
-
-		}
-
-		/**
-		 * Request a url from storage
-		 * @param  {string} url  a url to request from storage
-		 * @param  {string} [type] specify the type of the returned result
-		 * @return {Promise<Blob | string | JSON | Document | XMLDocument>}
-		 */
-		retrieve(url, type$$1) {
-			var deferred = new defer();
-			var response;
-			var path = new Path(url);
-
-			// If type isn't set, determine it from the file extension
-			if(!type$$1) {
-				type$$1 = path.extension;
-			}
-
-			if(type$$1 == "blob"){
-				response = this.getBlob(url);
-			} else {
-				response = this.getText(url);
-			}
-
-
-			return response.then((r) => {
-				var deferred = new defer();
-				var result;
-				if (r) {
-					result = this.handleResponse(r, type$$1);
-					deferred.resolve(result);
-				} else {
-					deferred.reject({
-						message : "File not found in storage: " + url,
-						stack : new Error().stack
-					});
-				}
-				return deferred.promise;
-			});
-		}
-
-		/**
-		 * Handle the response from request
-		 * @private
-		 * @param  {any} response
-		 * @param  {string} [type]
-		 * @return {any} the parsed result
-		 */
-		handleResponse(response, type$$1){
-			var r;
-
-			if(type$$1 == "json") {
-				r = JSON.parse(response);
-			}
-			else
-			if(isXml(type$$1)) {
-				r = parse(response, "text/xml");
-			}
-			else
-			if(type$$1 == "xhtml") {
-				r = parse(response, "application/xhtml+xml");
-			}
-			else
-			if(type$$1 == "html" || type$$1 == "htm") {
-				r = parse(response, "text/html");
-			 } else {
-				 r = response;
-			 }
-
-			return r;
-		}
-
-		/**
-		 * Get a Blob from Storage by Url
-		 * @param  {string} url
-		 * @param  {string} [mimeType]
-		 * @return {Blob}
-		 */
-		getBlob(url, mimeType){
-			let encodedUrl = window.encodeURIComponent(url);
-
-			return this.storage.getItem(encodedUrl).then(function(uint8array) {
-				if(!uint8array) return;
-
-				mimeType = mimeType || mime.lookup(url);
-
-				return new Blob([uint8array], {type : mimeType});
-			});
-
-		}
-
-		/**
-		 * Get Text from Storage by Url
-		 * @param  {string} url
-		 * @param  {string} [mimeType]
-		 * @return {string}
-		 */
-		getText(url, mimeType){
-			let encodedUrl = window.encodeURIComponent(url);
-
-			mimeType = mimeType || mime.lookup(url);
-
-			return this.storage.getItem(encodedUrl).then(function(uint8array) {
-				var deferred = new defer();
-				var reader = new FileReader();
-				var blob;
-
-				if(!uint8array) return;
->>>>>>> 3352dcc... generate locations with a pagelist
-
-				blob = new Blob([uint8array], {type : mimeType});
-
-				reader.addEventListener("loadend", () => {
-					deferred.resolve(reader.result);
-				});
-
-				reader.readAsText(blob, mimeType);
-
-				return deferred.promise;
-			});
-		}
-
-<<<<<<< HEAD
-	  function IDNAToASCII(h) {
-	    if ('' == h) {
-	      invalid.call(this);
-	    }
-	    // XXX
-	    return h.toLowerCase();
-	  }
-
-	  function percentEscape(c) {
-	    var unicode = c.charCodeAt(0);
-	    if (unicode > 0x20 && unicode < 0x7F &&
-	    // " # < > ? `
-	    [0x22, 0x23, 0x3C, 0x3E, 0x3F, 0x60].indexOf(unicode) == -1) {
-	      return c;
-	    }
-	    return encodeURIComponent(c);
-	  }
-=======
-		/**
-		 * Get a base64 encoded result from Storage by Url
-		 * @param  {string} url
-		 * @param  {string} [mimeType]
-		 * @return {string} base64 encoded
-		 */
-		getBase64(url, mimeType){
-			let encodedUrl = window.encodeURIComponent(url);
-
-			mimeType = mimeType || mime.lookup(url);
->>>>>>> 3352dcc... generate locations with a pagelist
-
-			return this.storage.getItem(encodedUrl).then((uint8array) => {
-				var deferred = new defer();
-				var reader = new FileReader();
-				var blob;
-
-<<<<<<< HEAD
-	    var unicode = c.charCodeAt(0);
-	    if (unicode > 0x20 && unicode < 0x7F &&
-	    // " # < > ` (do not escape '?')
-	    [0x22, 0x23, 0x3C, 0x3E, 0x60].indexOf(unicode) == -1) {
-	      return c;
-	    }
-	    return encodeURIComponent(c);
-	  }
-=======
-				if(!uint8array) return;
->>>>>>> 3352dcc... generate locations with a pagelist
-
-				blob = new Blob([uint8array], {type : mimeType});
-
-				reader.addEventListener("loadend", () => {
-					deferred.resolve(reader.result);
-				});
-				reader.readAsDataURL(blob, mimeType);
-
-				return deferred.promise;
-			});
-		}
-
-		/**
-		 * Create a Url from a stored item
-		 * @param  {string} url
-		 * @param  {object} [options.base64] use base64 encoding or blob url
-		 * @return {Promise} url promise with Url string
-		 */
-		createUrl(url, options){
-			var deferred = new defer();
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var tempUrl;
-			var response;
-			var useBase64 = options && options.base64;
-
-			if(url in this.urlCache) {
-				deferred.resolve(this.urlCache[url]);
-				return deferred.promise;
-			}
-
-			if (useBase64) {
-				response = this.getBase64(url);
-
-<<<<<<< HEAD
-	        case 'no scheme':
-	          if (!base || !isRelativeScheme(base._scheme)) {
-	            invalid.call(this);
-	          } else {
-	            state = 'relative';
-	            continue;
-	          }
-	          break;
-
-	        case 'relative or authority':
-	          if ('/' == c && '/' == input[cursor + 1]) {
-	            state = 'authority ignore slashes';
-	          } else {
-	            state = 'relative';
-	            continue;
-	          }
-	          break;
-
-	        case 'relative':
-	          this._isRelative = true;
-	          if ('file' != this._scheme) this._scheme = base._scheme;
-	          if (EOF == c) {
-	            this._host = base._host;
-	            this._port = base._port;
-	            this._path = base._path.slice();
-	            this._query = base._query;
-	            this._username = base._username;
-	            this._password = base._password;
-	            break loop;
-	          } else if ('/' == c || '\\' == c) {
-	            state = 'relative slash';
-	          } else if ('?' == c) {
-	            this._host = base._host;
-	            this._port = base._port;
-	            this._path = base._path.slice();
-	            this._query = '?';
-	            this._username = base._username;
-	            this._password = base._password;
-	            state = 'query';
-	          } else if ('#' == c) {
-	            this._host = base._host;
-	            this._port = base._port;
-	            this._path = base._path.slice();
-	            this._query = base._query;
-	            this._fragment = '#';
-	            this._username = base._username;
-	            this._password = base._password;
-	            state = 'fragment';
-	          } else {
-	            var nextC = input[cursor + 1];
-	            var nextNextC = input[cursor + 2];
-	            if ('file' != this._scheme || !ALPHA.test(c) || nextC != ':' && nextC != '|' || EOF != nextNextC && '/' != nextNextC && '\\' != nextNextC && '?' != nextNextC && '#' != nextNextC) {
-	              this._host = base._host;
-	              this._port = base._port;
-	              this._username = base._username;
-	              this._password = base._password;
-	              this._path = base._path.slice();
-	              this._path.pop();
-	            }
-	            state = 'relative path';
-	            continue;
-	          }
-	          break;
-=======
-				if (response) {
-					response.then(function(tempUrl) {
-
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-
-					}.bind(this));
->>>>>>> 3352dcc... generate locations with a pagelist
-
-				}
-
-			} else {
-
-				response = this.getBlob(url);
-
-				if (response) {
-					response.then(function(blob) {
-
-						tempUrl = _URL.createObjectURL(blob);
-						this.urlCache[url] = tempUrl;
-						deferred.resolve(tempUrl);
-
-					}.bind(this));
-
-				}
-			}
-
-
-			if (!response) {
-				deferred.reject({
-					message : "File not found in storage: " + url,
-					stack : new Error().stack
-				});
-			}
-
-			return deferred.promise;
-		}
-
-		/**
-		 * Revoke Temp Url for a achive item
-		 * @param  {string} url url of the item in the store
-		 */
-		revokeUrl(url){
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			var fromCache = this.urlCache[url];
-			if(fromCache) _URL.revokeObjectURL(fromCache);
-		}
-
-		destroy() {
-			var _URL = window.URL || window.webkitURL || window.mozURL;
-			for (let fromCache in this.urlCache) {
-				_URL.revokeObjectURL(fromCache);
-			}
-			this.urlCache = {};
-			this.removeListeners();
-		}
-	}
-
-	eventEmitter(Store.prototype);
-
-	const CONTAINER_PATH = "META-INF/container.xml";
-
-	const INPUT_TYPE = {
-		BINARY: "binary",
-		BASE64: "base64",
-		EPUB: "epub",
-		OPF: "opf",
-		MANIFEST: "json",
-		DIRECTORY: "directory"
-	};
-
-	/**
-	 * An Epub representation with methods for the loading, parsing and manipulation
-	 * of its contents.
-	 * @class
-	 * @param {string} [url]
-	 * @param {object} [options]
-	 * @param {method} [options.requestMethod] a request function to use instead of the default
-	 * @param {boolean} [options.requestCredentials=undefined] send the xhr request withCredentials
-	 * @param {object} [options.requestHeaders=undefined] send the xhr request headers
-	 * @param {string} [options.encoding=binary] optional to pass 'binary' or base64' for archived Epubs
-	 * @param {string} [options.replacements=none] use base64, blobUrl, or none for replacing assets in archived Epubs
-	 * @param {method} [options.canonical] optional function to determine canonical urls for a path
-	 * @param {string} [options.openAs] optional string to determine the input type
-	 * @param {string} [options.store=false] cache the contents in local storage, value should be the name of the reader
-	 * @returns {Book}
-	 * @example new Book("/path/to/book.epub", {})
-	 * @example new Book({ replacements: "blobUrl" })
-	 */
-	class Book {
-		constructor(url, options) {
-			// Allow passing just options to the Book
-			if (typeof(options) === "undefined" &&
-				  typeof(url) !== "string" &&
-			    url instanceof Blob === false) {
-				options = url;
-				url = undefined;
-			}
-
-			this.settings = extend$1(this.settings || {}, {
-				requestMethod: undefined,
-				requestCredentials: undefined,
-				requestHeaders: undefined,
-				encoding: undefined,
-				replacements: undefined,
-				canonical: undefined,
-				openAs: undefined,
-				store: undefined
-			});
-
-			extend$1(this.settings, options);
-
-
-			// Promises
-			this.opening = new defer();
-			/**
-			 * @member {promise} opened returns after the book is loaded
-			 * @memberof Book
-			 */
-			this.opened = this.opening.promise;
-			this.isOpen = false;
-
-			this.loading = {
-				manifest: new defer(),
-				spine: new defer(),
-				metadata: new defer(),
-				cover: new defer(),
-				navigation: new defer(),
-				pageList: new defer(),
-				resources: new defer()
-			};
-
-			this.loaded = {
-				manifest: this.loading.manifest.promise,
-				spine: this.loading.spine.promise,
-				metadata: this.loading.metadata.promise,
-				cover: this.loading.cover.promise,
-				navigation: this.loading.navigation.promise,
-				pageList: this.loading.pageList.promise,
-				resources: this.loading.resources.promise
-			};
-
-			/**
-			 * @member {promise} ready returns after the book is loaded and parsed
-			 * @memberof Book
-			 * @private
-			 */
-			this.ready = Promise.all([
-				this.loaded.manifest,
-				this.loaded.spine,
-				this.loaded.metadata,
-				this.loaded.cover,
-				this.loaded.navigation,
-				this.loaded.resources
-			]);
-
-
-			// Queue for methods used before opening
-			this.isRendered = false;
-			// this._q = queue(this);
-
-			/**
-			 * @member {method} request
-			 * @memberof Book
-			 * @private
-			 */
-			this.request = this.settings.requestMethod || request;
-
-			/**
-			 * @member {Spine} spine
-			 * @memberof Book
-			 */
-			this.spine = new Spine();
-
-			/**
-			 * @member {Locations} locations
-			 * @memberof Book
-			 */
-			this.locations = new Locations(this.spine, this.load.bind(this));
-
-			/**
-			 * @member {Navigation} navigation
-			 * @memberof Book
-			 */
-			this.navigation = undefined;
-
-			/**
-			 * @member {PageList} pagelist
-			 * @memberof Book
-			 */
-			this.pageList = undefined;
-
-			/**
-			 * @member {Url} url
-			 * @memberof Book
-			 * @private
-			 */
-			this.url = undefined;
-
-			/**
-			 * @member {Path} path
-			 * @memberof Book
-			 * @private
-			 */
-			this.path = undefined;
-
-			/**
-			 * @member {boolean} archived
-			 * @memberof Book
-			 * @private
-			 */
-			this.archived = false;
-
-			/**
-			 * @member {Archive} archive
-			 * @memberof Book
-			 * @private
-			 */
-			this.archive = undefined;
-
-			/**
-			 * @member {Store} storage
-			 * @memberof Book
-			 * @private
-			 */
-			this.storage = undefined;
-
-			/**
-			 * @member {Resources} resources
-			 * @memberof Book
-			 * @private
-			 */
-			this.resources = undefined;
-
-			/**
-			 * @member {Rendition} rendition
-			 * @memberof Book
-			 * @private
-			 */
-			this.rendition = undefined;
-
-			/**
-			 * @member {Container} container
-			 * @memberof Book
-			 * @private
-			 */
-			this.container = undefined;
-
-			/**
-			 * @member {Packaging} packaging
-			 * @memberof Book
-			 * @private
-			 */
-			this.packaging = undefined;
-
-			// this.toc = undefined;
-			if (this.settings.store) {
-				this.store(this.settings.store);
-			}
-
-			if(url) {
-				this.open(url, this.settings.openAs).catch((error) => {
-					var err = new Error("Cannot load book at "+ url );
-					this.emit(EVENTS.BOOK.OPEN_FAILED, err);
-				});
-			}
-		}
-
-		/**
-		 * Open a epub or url
-		 * @param {string | ArrayBuffer} input Url, Path or ArrayBuffer
-		 * @param {string} [what="binary", "base64", "epub", "opf", "json", "directory"] force opening as a certain type
-		 * @returns {Promise} of when the book has been loaded
-		 * @example book.open("/path/to/book.epub")
-		 */
-		open(input, what) {
-			var opening;
-			var type$$1 = what || this.determineType(input);
-
-			if (type$$1 === INPUT_TYPE.BINARY) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input);
-			} else if (type$$1 === INPUT_TYPE.BASE64) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.openEpub(input, type$$1);
-			} else if (type$$1 === INPUT_TYPE.EPUB) {
-				this.archived = true;
-				this.url = new Url("/", "");
-				opening = this.request(input, "binary", this.settings.requestCredentials)
-					.then(this.openEpub.bind(this));
-			} else if(type$$1 == INPUT_TYPE.OPF) {
-				this.url = new Url(input);
-				opening = this.openPackaging(this.url.Path.toString());
-			} else if(type$$1 == INPUT_TYPE.MANIFEST) {
-				this.url = new Url(input);
-				opening = this.openManifest(this.url.Path.toString());
-			} else {
-				this.url = new Url(input);
-				opening = this.openContainer(CONTAINER_PATH)
-					.then(this.openPackaging.bind(this));
-			}
-
-			return opening;
-		}
-
-		/**
-		 * Open an archived epub
-		 * @private
-		 * @param  {binary} data
-		 * @param  {string} [encoding]
-		 * @return {Promise}
-		 */
-		openEpub(data, encoding) {
-			return this.unarchive(data, encoding || this.settings.encoding)
-				.then(() => {
-					return this.openContainer(CONTAINER_PATH);
-				})
-				.then((packagePath) => {
-					return this.openPackaging(packagePath);
-				});
-		}
-
-		/**
-		 * Open the epub container
-		 * @private
-		 * @param  {string} url
-		 * @return {string} packagePath
-		 */
-		openContainer(url) {
-			return this.load(url)
-				.then((xml) => {
-					this.container = new Container(xml);
-					return this.resolve(this.settings.packagePath || this.container.packagePath);
-					// return this.resolve(this.container.packagePath);
-				});
-		}
-
-		/**
-		 * Open the Open Packaging Format Xml
-		 * @private
-		 * @param  {string} url
-		 * @return {Promise}
-		 */
-		openPackaging(url) {
-			this.path = new Path(url);
-			return this.load(url)
-				.then((xml) => {
-					this.packaging = new Packaging(xml);
-					return this.unpack(this.packaging);
-				});
-		}
-
-		/**
-		 * Open the manifest JSON
-		 * @private
-		 * @param  {string} url
-		 * @return {Promise}
-		 */
-		openManifest(url) {
-			this.path = new Path(url);
-			return this.load(url)
-				.then((json) => {
-					this.packaging = new Packaging();
-					this.packaging.load(json);
-					return this.unpack(this.packaging);
-				});
-		}
-
-		/**
-		 * Load a resource from the Book
-		 * @param  {string} path path to the resource to load
-		 * @return {Promise}     returns a promise with the requested resource
-		 */
-		load(path) {
-			var resolved = this.resolve(path);
-			if(this.archived) {
-				return this.archive.request(resolved);
-			} else {
-				return this.request(resolved, null, this.settings.requestCredentials, this.settings.requestHeaders);
-			}
-		}
-
-		/**
-		 * Resolve a path to it's absolute position in the Book
-		 * @param  {string} path
-		 * @param  {boolean} [absolute] force resolving the full URL
-		 * @return {string}          the resolved path string
-		 */
-		resolve(path, absolute) {
-			if (!path) {
-				return;
-			}
-			var resolved = path;
-			var isAbsolute = (path.indexOf("://") > -1);
-
-			if (isAbsolute) {
-				return path;
-			}
-
-			if (this.path) {
-				resolved = this.path.resolve(path);
-			}
-
-			if(absolute != false && this.url) {
-				resolved = this.url.resolve(resolved);
-			}
-
-			return resolved;
-		}
-
-		/**
-		 * Get a canonical link to a path
-		 * @param  {string} path
-		 * @return {string} the canonical path string
-		 */
-		canonical(path) {
-			var url = path;
-
-			if (!path) {
-				return "";
-			}
-
-			if (this.settings.canonical) {
-				url = this.settings.canonical(path);
-			} else {
-				url = this.resolve(path, true);
-			}
-
-			return url;
-		}
-
-		/**
-		 * Determine the type of they input passed to open
-		 * @private
-		 * @param  {string} input
-		 * @return {string}  binary | directory | epub | opf
-		 */
-		determineType(input) {
-			var url;
-			var path;
-			var extension;
-
-			if (this.settings.encoding === "base64") {
-				return INPUT_TYPE.BASE64;
-			}
-
-			if(typeof(input) != "string") {
-				return INPUT_TYPE.BINARY;
-			}
-
-			url = new Url(input);
-			path = url.path();
-			extension = path.extension;
-
-			if (!extension) {
-				return INPUT_TYPE.DIRECTORY;
-			}
-
-			if(extension === "epub"){
-				return INPUT_TYPE.EPUB;
-			}
-
-			if(extension === "opf"){
-				return INPUT_TYPE.OPF;
-			}
-
-			if(extension === "json"){
-				return INPUT_TYPE.MANIFEST;
-			}
-		}
-
-
-		/**
-		 * unpack the contents of the Books packaging
-		 * @private
-		 * @param {Packaging} packaging object
-		 */
-		unpack(packaging) {
-			this.package = packaging; //TODO: deprecated this
-
-			this.spine.unpack(this.packaging, this.resolve.bind(this), this.canonical.bind(this));
-
-			this.resources = new Resources(this.packaging.manifest, {
-				archive: this.archive,
-				resolver: this.resolve.bind(this),
-				request: this.request.bind(this),
-				replacements: this.settings.replacements || (this.archived ? "blobUrl" : "base64")
-			});
-
-			this.loadNavigation(this.packaging).then(() => {
-				// this.toc = this.navigation.toc;
-				this.loading.navigation.resolve(this.navigation);
-			});
-
-			if (this.packaging.coverPath) {
-				this.cover = this.resolve(this.packaging.coverPath);
-			}
-			// Resolve promises
-			this.loading.manifest.resolve(this.packaging.manifest);
-			this.loading.metadata.resolve(this.packaging.metadata);
-			this.loading.spine.resolve(this.spine);
-			this.loading.cover.resolve(this.cover);
-			this.loading.resources.resolve(this.resources);
-			this.loading.pageList.resolve(this.pageList);
-
-			this.isOpen = true;
-
-			if(this.archived || this.settings.replacements && this.settings.replacements != "none") {
-				this.replacements().then(() => {
-					this.opening.resolve(this);
-				})
-				.catch((err) => {
-					console.error(err);
-				});
-			} else {
-				// Resolve book opened promise
-				this.opening.resolve(this);
-			}
-
-		}
-
-		/**
-		 * Load Navigation and PageList from package
-		 * @private
-		 * @param {Packaging} packaging
-		 */
-		loadNavigation(packaging) {
-			let navPath = packaging.navPath || packaging.ncxPath;
-			let toc = packaging.toc;
-
-			// From json manifest
-			if (toc) {
-				return new Promise((resolve, reject) => {
-					this.navigation = new Navigation(toc);
-
-					if (packaging.pageList) {
-						this.pageList = new PageList(packaging.pageList); // TODO: handle page lists from Manifest
-					}
-
-					resolve(this.navigation);
-				});
-			}
-
-			if (!navPath) {
-				return new Promise((resolve, reject) => {
-					this.navigation = new Navigation();
-					this.pageList = new PageList();
-
-					resolve(this.navigation);
-				});
-			}
-
-			navPath = new Path(this.resolve(navPath));
-			return this.load(navPath.path, "xml")
-				.then((xml) => {
-					this.navigation = new Navigation(xml, navPath, this.canonical.bind(this));
-					this.pageList = new PageList(xml, navPath, this.canonical.bind(this));
-					return this.navigation;
-				});
-		}
-
-		/**
-		 * Gets a Section of the Book from the Spine
-		 * Alias for `book.spine.get`
-		 * @param {string} target
-		 * @return {Section}
-		 */
-		section(target) {
-			return this.spine.get(target);
-		}
-
-		/**
-		 * Sugar to render a book to an element
-		 * @param  {element | string} element element or string to add a rendition to
-		 * @param  {object} [options]
-		 * @return {Rendition}
-		 */
-		renderTo(element, options) {
-			this.rendition = new Rendition(this, options);
-			this.rendition.attachTo(element);
-
-			return this.rendition;
-		}
-
-		/**
-		 * Set if request should use withCredentials
-		 * @param {boolean} credentials
-		 */
-		setRequestCredentials(credentials) {
-			this.settings.requestCredentials = credentials;
-		}
-
-		/**
-		 * Set headers request should use
-		 * @param {object} headers
-		 */
-		setRequestHeaders(headers) {
-			this.settings.requestHeaders = headers;
-		}
-
-		/**
-		 * Unarchive a zipped epub
-		 * @private
-		 * @param  {binary} input epub data
-		 * @param  {string} [encoding]
-		 * @return {Archive}
-		 */
-		unarchive(input, encoding) {
-			this.archive = new Archive();
-			return this.archive.open(input, encoding);
-		}
-
-		/**
-		 * Store the epubs contents
-		 * @private
-		 * @param  {binary} input epub data
-		 * @param  {string} [encoding]
-		 * @return {Store}
-		 */
-		store(name) {
-			// Use "blobUrl" or "base64" for replacements
-			let replacementsSetting = this.settings.replacements && this.settings.replacements !== "none";
-			// Save original url
-			let originalUrl = this.url;
-			// Save original request method
-			let requester = this.settings.requestMethod || request.bind(this);
-			// Create new Store
-			this.storage = new Store(name, requester, this.resolve.bind(this));
-			// Replace request method to go through store
-			this.request = this.storage.request.bind(this.storage);
-
-			this.opened.then(() => {
-				if (this.archived) {
-					this.storage.requester = this.archive.request.bind(this.archive);
-				}
-				// Substitute hook
-				let substituteResources = (output, section) => {
-					section.output = this.resources.substitute(output, section.url);
-				};
-
-				// Set to use replacements
-				this.resources.settings.replacements = replacementsSetting || "blobUrl";
-				// Create replacement urls
-				this.resources.replacements().
-					then(() => {
-						return this.resources.replaceCss();
-					});
-
-				this.storage.on("offline", () => {
-					// Remove url to use relative resolving for hrefs
-					this.url = new Url("/", "");
-					// Add hook to replace resources in contents
-					this.spine.hooks.serialize.register(substituteResources);
-				});
-
-				this.storage.on("online", () => {
-					// Restore original url
-					this.url = originalUrl;
-					// Remove hook
-					this.spine.hooks.serialize.deregister(substituteResources);
-				});
-
-			});
-
-			return this.storage;
-		}
-
-		/**
-		 * Get the cover url
-		 * @return {string} coverUrl
-		 */
-		coverUrl() {
-			var retrieved = this.loaded.cover.
-				then((url) => {
-					if(this.archived) {
-						// return this.archive.createUrl(this.cover);
-						return this.resources.get(this.cover);
-					}else{
-						return this.cover;
-					}
-				});
-
-			return retrieved;
-		}
-
-		/**
-		 * Load replacement urls
-		 * @private
-		 * @return {Promise} completed loading urls
-		 */
-		replacements() {
-			this.spine.hooks.serialize.register((output, section) => {
-				section.output = this.resources.substitute(output, section.url);
-			});
-
-			return this.resources.replacements().
-				then(() => {
-					return this.resources.replaceCss();
-				});
-		}
-
-		/**
-		 * Find a DOM Range for a given CFI Range
-		 * @param  {EpubCFI} cfiRange a epub cfi range
-		 * @return {Range}
-		 */
-		getRange(cfiRange) {
-			var cfi = new EpubCFI(cfiRange);
-			var item = this.spine.get(cfi.spinePos);
-			var _request = this.load.bind(this);
-			if (!item) {
-				return new Promise((resolve, reject) => {
-					reject("CFI could not be found");
-				});
-			}
-			return item.load(_request).then(function (contents) {
-				var range = cfi.toRange(item.document);
-				return range;
-			});
-		}
-
-		/**
-		 * Generates the Book Key using the identifer in the manifest or other string provided
-		 * @param  {string} [identifier] to use instead of metadata identifier
-		 * @return {string} key
-		 */
-		key(identifier) {
-			var ident = identifier || this.packaging.metadata.identifier || this.url.filename;
-			return `epubjs:${EPUBJS_VERSION}:${ident}`;
-		}
-
-		/**
-		 * Destroy the Book and all associated objects
-		 */
-		destroy() {
-			this.opened = undefined;
-			this.loading = undefined;
-			this.loaded = undefined;
-			this.ready = undefined;
-
-			this.isOpen = false;
-			this.isRendered = false;
-
-			this.spine && this.spine.destroy();
-			this.locations && this.locations.destroy();
-			this.pageList && this.pageList.destroy();
-			this.archive && this.archive.destroy();
-			this.resources && this.resources.destroy();
-			this.container && this.container.destroy();
-			this.packaging && this.packaging.destroy();
-			this.rendition && this.rendition.destroy();
-
-			this.spine = undefined;
-			this.locations = undefined;
-			this.pageList = undefined;
-			this.archive = undefined;
-			this.resources = undefined;
-			this.container = undefined;
-			this.packaging = undefined;
-			this.rendition = undefined;
-
-			this.navigation = undefined;
-			this.url = undefined;
-			this.path = undefined;
-			this.archived = false;
-		}
-
-	}
-
-	//-- Enable binding events to book
-	eventEmitter(Book.prototype);
-
-	var urlPolyfill$1 = createCommonjsModule(function (module) {
-	(function (root, factory) {
-	    // Fix for this being undefined in modules
-	    if (!root) {
-	      root = window || commonjsGlobal;
-	    }
-	    if (module.exports) {
-	        // Node
-	        module.exports = factory(root);
-	    } else {
-	        // Browser globals (root is window)
-	        root.URL = factory(root);
-	  }
-	}(commonjsGlobal, function (scope) {
-	  // feature detect for URL constructor
-	  var hasWorkingUrl = false;
-	  if (!scope.forceJURL) {
-	    try {
-	      var u = new URL('b', 'http://a');
-	      u.pathname = 'c%20d';
-	      hasWorkingUrl = u.href === 'http://a/c%20d';
-	    } catch(e) {}
-	  }
-
-	  if (hasWorkingUrl)
-	    return scope.URL;
 
 	  var relative = Object.create(null);
 	  relative['ftp'] = 21;
@@ -30676,16 +24653,14 @@
 	      invalid.call(this);
 	    }
 	    // XXX
-	    return h.toLowerCase()
+	    return h.toLowerCase();
 	  }
 
 	  function percentEscape(c) {
 	    var unicode = c.charCodeAt(0);
-	    if (unicode > 0x20 &&
-	       unicode < 0x7F &&
-	       // " # < > ? `
-	       [0x22, 0x23, 0x3C, 0x3E, 0x3F, 0x60].indexOf(unicode) == -1
-	      ) {
+	    if (unicode > 0x20 && unicode < 0x7F &&
+	    // " # < > ? `
+	    [0x22, 0x23, 0x3C, 0x3E, 0x3F, 0x60].indexOf(unicode) == -1) {
 	      return c;
 	    }
 	    return encodeURIComponent(c);
@@ -30696,11 +24671,9 @@
 	    // convert the bytes one-by-one.
 
 	    var unicode = c.charCodeAt(0);
-	    if (unicode > 0x20 &&
-	       unicode < 0x7F &&
-	       // " # < > ` (do not escape '?')
-	       [0x22, 0x23, 0x3C, 0x3E, 0x60].indexOf(unicode) == -1
-	      ) {
+	    if (unicode > 0x20 && unicode < 0x7F &&
+	    // " # < > ` (do not escape '?')
+	    [0x22, 0x23, 0x3C, 0x3E, 0x60].indexOf(unicode) == -1) {
 	      return c;
 	    }
 	    return encodeURIComponent(c);
@@ -30783,7 +24756,7 @@
 	          break;
 
 	        case 'no scheme':
-	          if (!base || !(isRelativeScheme(base._scheme))) {
+	          if (!base || !isRelativeScheme(base._scheme)) {
 	            invalid.call(this);
 	          } else {
 	            state = 'relative';
@@ -30792,18 +24765,17 @@
 	          break;
 
 	        case 'relative or authority':
-	          if ('/' == c && '/' == input[cursor+1]) {
+	          if ('/' == c && '/' == input[cursor + 1]) {
 	            state = 'authority ignore slashes';
 	          } else {
 	            state = 'relative';
-	            continue
+	            continue;
 	          }
 	          break;
 
 	        case 'relative':
 	          this._isRelative = true;
-	          if ('file' != this._scheme)
-	            this._scheme = base._scheme;
+	          if ('file' != this._scheme) this._scheme = base._scheme;
 	          if (EOF == c) {
 	            this._host = base._host;
 	            this._port = base._port;
@@ -30832,12 +24804,9 @@
 	            this._password = base._password;
 	            state = 'fragment';
 	          } else {
-	            var nextC = input[cursor+1];
-	            var nextNextC = input[cursor+2];
-	            if (
-	              'file' != this._scheme || !ALPHA.test(c) ||
-	              (nextC != ':' && nextC != '|') ||
-	              (EOF != nextNextC && '/' != nextNextC && '\\' != nextNextC && '?' != nextNextC && '#' != nextNextC)) {
+	            var nextC = input[cursor + 1];
+	            var nextNextC = input[cursor + 2];
+	            if ('file' != this._scheme || !ALPHA.test(c) || nextC != ':' && nextC != '|' || EOF != nextNextC && '/' != nextNextC && '\\' != nextNextC && '?' != nextNextC && '#' != nextNextC) {
 	              this._host = base._host;
 	              this._port = base._port;
 	              this._username = base._username;
@@ -30909,7 +24878,7 @@
 	                continue;
 	              }
 	              var tempC = percentEscape(cp);
-	              (null !== this._password) ? this._password += tempC : this._username += tempC;
+	              null !== this._password ? this._password += tempC : this._username += tempC;
 	            }
 	            buffer = '';
 	          } else if (EOF == c || '/' == c || '\\' == c || '?' == c || '#' == c) {
@@ -30996,7 +24965,7 @@
 	          break;
 
 	        case 'relative path':
-	          if (EOF == c || '/' == c || '\\' == c || (!stateOverride && ('?' == c || '#' == c))) {
+	          if (EOF == c || '/' == c || '\\' == c || !stateOverride && ('?' == c || '#' == c)) {
 	            var tmp;
 	            if (tmp = relativePathDotMapping[buffer.toLowerCase()]) {
 	              buffer = tmp;
@@ -31064,8 +25033,7 @@
 	  // Does not process domain names or IP addresses.
 	  // Does not handle encoding for the query parameter.
 	  function jURL(url, base /* , encoding */) {
-	    if (base !== undefined && !(base instanceof jURL))
-	      base = new jURL(String(base));
+	    if (base !== undefined && !(base instanceof jURL)) base = new jURL(String(base));
 
 	    this._url = url;
 	    clear.call(this);
@@ -31077,588 +25045,6 @@
 	  }
 
 	  jURL.prototype = {
-	    toString: function() {
-	      return this.href;
-	    },
-	    get href() {
-	      if (this._isInvalid)
-	        return this._url;
-
-	      var authority = '';
-	      if ('' != this._username || null != this._password) {
-	        authority = this._username +
-	            (null != this._password ? ':' + this._password : '') + '@';
-	      }
-
-	      return this.protocol +
-	          (this._isRelative ? '//' + authority + this.host : '') +
-	          this.pathname + this._query + this._fragment;
-	    },
-	    set href(href) {
-	      clear.call(this);
-	      parse.call(this, href);
-	    },
-
-	    get protocol() {
-	      return this._scheme + ':';
-	    },
-	    set protocol(protocol) {
-	      if (this._isInvalid)
-	        return;
-	      parse.call(this, protocol + ':', 'scheme start');
-	    },
-
-	    get host() {
-	      return this._isInvalid ? '' : this._port ?
-	          this._host + ':' + this._port : this._host;
-	    },
-	    set host(host) {
-	      if (this._isInvalid || !this._isRelative)
-	        return;
-	      parse.call(this, host, 'host');
-	    },
-
-	    get hostname() {
-	      return this._host;
-	    },
-	    set hostname(hostname) {
-	      if (this._isInvalid || !this._isRelative)
-	        return;
-	      parse.call(this, hostname, 'hostname');
-	    },
-
-	    get port() {
-	      return this._port;
-	    },
-	    set port(port) {
-	      if (this._isInvalid || !this._isRelative)
-	        return;
-	      parse.call(this, port, 'port');
-	    },
-
-	    get pathname() {
-	      return this._isInvalid ? '' : this._isRelative ?
-	          '/' + this._path.join('/') : this._schemeData;
-	    },
-	    set pathname(pathname) {
-	      if (this._isInvalid || !this._isRelative)
-	        return;
-	      this._path = [];
-	      parse.call(this, pathname, 'relative path start');
-	    },
-
-	    get search() {
-	      return this._isInvalid || !this._query || '?' == this._query ?
-	          '' : this._query;
-	    },
-	    set search(search) {
-	      if (this._isInvalid || !this._isRelative)
-	        return;
-	      this._query = '?';
-	      if ('?' == search[0])
-	        search = search.slice(1);
-	      parse.call(this, search, 'query');
-	    },
-
-	    get hash() {
-	      return this._isInvalid || !this._fragment || '#' == this._fragment ?
-	          '' : this._fragment;
-	    },
-	    set hash(hash) {
-	      if (this._isInvalid)
-	        return;
-	      this._fragment = '#';
-	      if ('#' == hash[0])
-	        hash = hash.slice(1);
-	      parse.call(this, hash, 'fragment');
-	    },
-
-	    get origin() {
-	      var host;
-	      if (this._isInvalid || !this._scheme) {
-	        return '';
-	      }
-	      // javascript: Gecko returns String(""), WebKit/Blink String("null")
-	      // Gecko throws error for "data://"
-	      // data: Gecko returns "", Blink returns "data://", WebKit returns "null"
-	      // Gecko returns String("") for file: mailto:
-	      // WebKit/Blink returns String("SCHEME://") for file: mailto:
-	      switch (this._scheme) {
-	        case 'file':
-	          return 'file://' // EPUBJS Added
-	        case 'data':
-	        case 'javascript':
-	        case 'mailto':
-	          return 'null';
-	      }
-	      host = this.host;
-	      if (!host) {
-	        return '';
-	      }
-	      return this._scheme + '://' + host;
-	    }
-	  };
-
-	  // Copy over the static methods
-	  var OriginalURL = scope.URL;
-	  if (OriginalURL) {
-	    jURL.createObjectURL = function(blob) {
-	      // IE extension allows a second optional options argument.
-	      // http://msdn.microsoft.com/en-us/library/ie/hh772302(v=vs.85).aspx
-	      return OriginalURL.createObjectURL.apply(OriginalURL, arguments);
-	    };
-	    jURL.revokeObjectURL = function(url) {
-	      OriginalURL.revokeObjectURL(url);
-	    };
-	  }
-
-	  return jURL;
-	}));
-	});
-
-	/**
-	 * Creates a new Book
-	 * @param {string|ArrayBuffer} url URL, Path or ArrayBuffer
-	 * @param {object} options to pass to the book
-	 * @returns {Book} a new Book object
-	 * @example ePub("/path/to/book.epub", {})
-	 */
-	function ePub(url, options) {
-		return new Book(url, options);
-	}
-
-	ePub.VERSION = EPUBJS_VERSION;
-
-	if (typeof(global) !== "undefined") {
-		global.EPUBJS_VERSION = EPUBJS_VERSION;
-	}
-
-	ePub.Book = Book;
-	ePub.Rendition = Rendition;
-	ePub.Contents = Contents$1;
-	ePub.CFI = EpubCFI;
-	ePub.utils = utils;
-
-	if (!process$2) {
-	  var process$2 = {
-	    "cwd" : function () { return '/' }
-	  };
-	}
-
-	function assertPath$1(path) {
-	  if (typeof path !== 'string') {
-	    throw new TypeError('Path must be a string. Received ' + path);
-	  }
-	}
-
-	// Resolves . and .. elements in a path with directory names
-	function normalizeStringPosix$1(path, allowAboveRoot) {
-	  var res = '';
-	  var lastSlash = -1;
-	  var dots = 0;
-	  var code;
-	  for (var i = 0; i <= path.length; ++i) {
-	    if (i < path.length)
-	      code = path.charCodeAt(i);
-	    else if (code === 47/*/*/)
-	      break;
-	    else
-	      code = 47/*/*/;
-	    if (code === 47/*/*/) {
-	      if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
-	        if (res.length < 2 ||
-	            res.charCodeAt(res.length - 1) !== 46/*.*/ ||
-	            res.charCodeAt(res.length - 2) !== 46/*.*/) {
-	          if (res.length > 2) {
-	            var start = res.length - 1;
-	            var j = start;
-	            for (; j >= 0; --j) {
-	              if (res.charCodeAt(j) === 47/*/*/)
-	                break;
-	            }
-<<<<<<< HEAD
-	            seenAt = true;
-	            for (var i = 0; i < buffer.length; i++) {
-	              var cp = buffer[i];
-	              if ('\t' == cp || '\n' == cp || '\r' == cp) {
-	                continue;
-	              }
-	              // XXX check URL code points
-	              if (':' == cp && null === this._password) {
-	                this._password = '';
-	                continue;
-	              }
-	              var tempC = percentEscape(cp);
-	              null !== this._password ? this._password += tempC : this._username += tempC;
-=======
-	            if (j !== start) {
-	              if (j === -1)
-	                res = '';
-	              else
-	                res = res.slice(0, j);
-	              lastSlash = i;
-	              dots = 0;
-	              continue;
->>>>>>> 3352dcc... generate locations with a pagelist
-	            }
-	          } else if (res.length === 2 || res.length === 1) {
-	            res = '';
-	            lastSlash = i;
-	            dots = 0;
-	            continue;
-	          }
-	        }
-	        if (allowAboveRoot) {
-	          if (res.length > 0)
-	            res += '/..';
-	          else
-	            res = '..';
-	        }
-	      } else {
-	        if (res.length > 0)
-	          res += '/' + path.slice(lastSlash + 1, i);
-	        else
-	          res = path.slice(lastSlash + 1, i);
-	      }
-	      lastSlash = i;
-	      dots = 0;
-	    } else if (code === 46/*.*/ && dots !== -1) {
-	      ++dots;
-	    } else {
-	      dots = -1;
-	    }
-	  }
-	  return res;
-	}
-
-	function _format$1(sep, pathObject) {
-	  var dir = pathObject.dir || pathObject.root;
-	  var base = pathObject.base ||
-	    ((pathObject.name || '') + (pathObject.ext || ''));
-	  if (!dir) {
-	    return base;
-	  }
-	  if (dir === pathObject.root) {
-	    return dir + base;
-	  }
-	  return dir + sep + base;
-	}
-
-	var posix$1 = {
-	  // path.resolve([from ...], to)
-	  resolve: function resolve() {
-	    var resolvedPath = '';
-	    var resolvedAbsolute = false;
-	    var cwd;
-
-	    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-	      var path;
-	      if (i >= 0)
-	        path = arguments[i];
-	      else {
-	        if (cwd === undefined)
-	          cwd = process$2.cwd();
-	        path = cwd;
-	      }
-
-	      assertPath$1(path);
-
-	      // Skip empty entries
-	      if (path.length === 0) {
-	        continue;
-	      }
-
-	      resolvedPath = path + '/' + resolvedPath;
-	      resolvedAbsolute = path.charCodeAt(0) === 47/*/*/;
-	    }
-
-	    // At this point the path should be resolved to a full absolute path, but
-	    // handle relative paths to be safe (might happen when process.cwd() fails)
-
-	    // Normalize the path
-	    resolvedPath = normalizeStringPosix$1(resolvedPath, !resolvedAbsolute);
-
-	    if (resolvedAbsolute) {
-	      if (resolvedPath.length > 0)
-	        return '/' + resolvedPath;
-	      else
-	        return '/';
-	    } else if (resolvedPath.length > 0) {
-	      return resolvedPath;
-	    } else {
-	      return '.';
-	    }
-	  },
-
-
-	  normalize: function normalize(path) {
-	    assertPath$1(path);
-
-	    if (path.length === 0)
-	      return '.';
-
-	    var isAbsolute = path.charCodeAt(0) === 47/*/*/;
-	    var trailingSeparator = path.charCodeAt(path.length - 1) === 47/*/*/;
-
-	    // Normalize the path
-	    path = normalizeStringPosix$1(path, !isAbsolute);
-
-	    if (path.length === 0 && !isAbsolute)
-	      path = '.';
-	    if (path.length > 0 && trailingSeparator)
-	      path += '/';
-
-	    if (isAbsolute)
-	      return '/' + path;
-	    return path;
-	  },
-
-
-	  isAbsolute: function isAbsolute(path) {
-	    assertPath$1(path);
-	    return path.length > 0 && path.charCodeAt(0) === 47/*/*/;
-	  },
-
-
-	  join: function join() {
-	    if (arguments.length === 0)
-	      return '.';
-	    var joined;
-	    for (var i = 0; i < arguments.length; ++i) {
-	      var arg = arguments[i];
-	      assertPath$1(arg);
-	      if (arg.length > 0) {
-	        if (joined === undefined)
-	          joined = arg;
-	        else
-	          joined += '/' + arg;
-	      }
-	    }
-	    if (joined === undefined)
-	      return '.';
-	    return posix$1.normalize(joined);
-	  },
-
-
-	  relative: function relative(from, to) {
-	    assertPath$1(from);
-	    assertPath$1(to);
-
-	    if (from === to)
-	      return '';
-
-	    from = posix$1.resolve(from);
-	    to = posix$1.resolve(to);
-
-	    if (from === to)
-	      return '';
-
-	    // Trim any leading backslashes
-	    var fromStart = 1;
-	    for (; fromStart < from.length; ++fromStart) {
-	      if (from.charCodeAt(fromStart) !== 47/*/*/)
-	        break;
-	    }
-	    var fromEnd = from.length;
-	    var fromLen = (fromEnd - fromStart);
-
-	    // Trim any leading backslashes
-	    var toStart = 1;
-	    for (; toStart < to.length; ++toStart) {
-	      if (to.charCodeAt(toStart) !== 47/*/*/)
-	        break;
-	    }
-	    var toEnd = to.length;
-	    var toLen = (toEnd - toStart);
-
-	    // Compare paths to find the longest common path from root
-	    var length = (fromLen < toLen ? fromLen : toLen);
-	    var lastCommonSep = -1;
-	    var i = 0;
-	    for (; i <= length; ++i) {
-	      if (i === length) {
-	        if (toLen > length) {
-	          if (to.charCodeAt(toStart + i) === 47/*/*/) {
-	            // We get here if `from` is the exact base path for `to`.
-	            // For example: from='/foo/bar'; to='/foo/bar/baz'
-	            return to.slice(toStart + i + 1);
-	          } else if (i === 0) {
-	            // We get here if `from` is the root
-	            // For example: from='/'; to='/foo'
-	            return to.slice(toStart + i);
-	          }
-	        } else if (fromLen > length) {
-	          if (from.charCodeAt(fromStart + i) === 47/*/*/) {
-	            // We get here if `to` is the exact base path for `from`.
-	            // For example: from='/foo/bar/baz'; to='/foo/bar'
-	            lastCommonSep = i;
-	          } else if (i === 0) {
-	            // We get here if `to` is the root.
-	            // For example: from='/foo'; to='/'
-	            lastCommonSep = 0;
-	          }
-	        }
-	        break;
-	      }
-	      var fromCode = from.charCodeAt(fromStart + i);
-	      var toCode = to.charCodeAt(toStart + i);
-	      if (fromCode !== toCode)
-	        break;
-	      else if (fromCode === 47/*/*/)
-	        lastCommonSep = i;
-	    }
-
-	    var out = '';
-	    // Generate the relative path based on the path difference between `to`
-	    // and `from`
-	    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
-	      if (i === fromEnd || from.charCodeAt(i) === 47/*/*/) {
-	        if (out.length === 0)
-	          out += '..';
-	        else
-	          out += '/..';
-	      }
-	    }
-
-	    // Lastly, append the rest of the destination (`to`) path that comes after
-	    // the common path parts
-	    if (out.length > 0)
-	      return out + to.slice(toStart + lastCommonSep);
-	    else {
-	      toStart += lastCommonSep;
-	      if (to.charCodeAt(toStart) === 47/*/*/)
-	        ++toStart;
-	      return to.slice(toStart);
-	    }
-	  },
-
-<<<<<<< HEAD
-	        case 'relative path':
-	          if (EOF == c || '/' == c || '\\' == c || !stateOverride && ('?' == c || '#' == c)) {
-	            var tmp;
-	            if (tmp = relativePathDotMapping[buffer.toLowerCase()]) {
-	              buffer = tmp;
-	            }
-	            if ('..' == buffer) {
-	              this._path.pop();
-	              if ('/' != c && '\\' != c) {
-	                this._path.push('');
-	              }
-	            } else if ('.' == buffer && '/' != c && '\\' != c) {
-	              this._path.push('');
-	            } else if ('.' != buffer) {
-	              if ('file' == this._scheme && this._path.length == 0 && buffer.length == 2 && ALPHA.test(buffer[0]) && buffer[1] == '|') {
-	                buffer = buffer[0] + ':';
-	              }
-	              this._path.push(buffer);
-	            }
-	            buffer = '';
-	            if ('?' == c) {
-	              this._query = '?';
-	              state = 'query';
-	            } else if ('#' == c) {
-	              this._fragment = '#';
-	              state = 'fragment';
-	            }
-	          } else if ('\t' != c && '\n' != c && '\r' != c) {
-	            buffer += percentEscape(c);
-	          }
-	          break;
-=======
->>>>>>> 3352dcc... generate locations with a pagelist
-
-	  _makeLong: function _makeLong(path) {
-	    return path;
-	  },
-
-
-	  dirname: function dirname(path) {
-	    assertPath$1(path);
-	    if (path.length === 0)
-	      return '.';
-	    var code = path.charCodeAt(0);
-	    var hasRoot = (code === 47/*/*/);
-	    var end = -1;
-	    var matchedSlash = true;
-	    for (var i = path.length - 1; i >= 1; --i) {
-	      code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        if (!matchedSlash) {
-	          end = i;
-	          break;
-	        }
-	      } else {
-	        // We saw the first non-path separator
-	        matchedSlash = false;
-	      }
-	    }
-
-	    if (end === -1)
-	      return hasRoot ? '/' : '.';
-	    if (hasRoot && end === 1)
-	      return '//';
-	    return path.slice(0, end);
-	  },
-
-<<<<<<< HEAD
-	  // Does not process domain names or IP addresses.
-	  // Does not handle encoding for the query parameter.
-	  function jURL(url, base /* , encoding */) {
-	    if (base !== undefined && !(base instanceof jURL)) base = new jURL(String(base));
-=======
->>>>>>> 3352dcc... generate locations with a pagelist
-
-	  basename: function basename(path, ext) {
-	    if (ext !== undefined && typeof ext !== 'string')
-	      throw new TypeError('"ext" argument must be a string');
-	    assertPath$1(path);
-
-	    var start = 0;
-	    var end = -1;
-	    var matchedSlash = true;
-	    var i;
-
-	    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
-	      if (ext.length === path.length && ext === path)
-	        return '';
-	      var extIdx = ext.length - 1;
-	      var firstNonSlashEnd = -1;
-	      for (i = path.length - 1; i >= 0; --i) {
-	        var code = path.charCodeAt(i);
-	        if (code === 47/*/*/) {
-	          // If we reached a path separator that was not part of a set of path
-	          // separators at the end of the string, stop now
-	          if (!matchedSlash) {
-	            start = i + 1;
-	            break;
-	          }
-	        } else {
-	          if (firstNonSlashEnd === -1) {
-	            // We saw the first non-path separator, remember this index in case
-	            // we need it if the extension ends up not matching
-	            matchedSlash = false;
-	            firstNonSlashEnd = i + 1;
-	          }
-	          if (extIdx >= 0) {
-	            // Try to match the explicit extension
-	            if (code === ext.charCodeAt(extIdx)) {
-	              if (--extIdx === -1) {
-	                // We matched the extension, so mark this as the end of our path
-	                // component
-	                end = i;
-	              }
-	            } else {
-	              // Extension does not match, so our result is the entire path
-	              // component
-	              extIdx = -1;
-	              end = firstNonSlashEnd;
-	            }
-	          }
-	        }
-	      }
-
-<<<<<<< HEAD
-	  jURL.prototype = {
 	    toString: function toString() {
 	      return this.href;
 	    },
@@ -31668,77 +25054,8 @@
 	      var authority = '';
 	      if ('' != this._username || null != this._password) {
 	        authority = this._username + (null != this._password ? ':' + this._password : '') + '@';
-=======
-	      if (start === end)
-	        end = firstNonSlashEnd;
-	      else if (end === -1)
-	        end = path.length;
-	      return path.slice(start, end);
-	    } else {
-	      for (i = path.length - 1; i >= 0; --i) {
-	        if (path.charCodeAt(i) === 47/*/*/) {
-	          // If we reached a path separator that was not part of a set of path
-	          // separators at the end of the string, stop now
-	          if (!matchedSlash) {
-	            start = i + 1;
-	            break;
-	          }
-	        } else if (end === -1) {
-	          // We saw the first non-path separator, mark this as the end of our
-	          // path component
-	          matchedSlash = false;
-	          end = i + 1;
-	        }
 	      }
 
-	      if (end === -1)
-	        return '';
-	      return path.slice(start, end);
-	    }
-	  },
-
-
-	  extname: function extname(path) {
-	    assertPath$1(path);
-	    var startDot = -1;
-	    var startPart = 0;
-	    var end = -1;
-	    var matchedSlash = true;
-	    // Track the state of characters (if any) we see before our first dot and
-	    // after any path separator we find
-	    var preDotState = 0;
-	    for (var i = path.length - 1; i >= 0; --i) {
-	      var code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        // If we reached a path separator that was not part of a set of path
-	        // separators at the end of the string, stop now
-	        if (!matchedSlash) {
-	          startPart = i + 1;
-	          break;
-	        }
-	        continue;
->>>>>>> 3352dcc... generate locations with a pagelist
-	      }
-	      if (end === -1) {
-	        // We saw the first non-path separator, mark this as the end of our
-	        // extension
-	        matchedSlash = false;
-	        end = i + 1;
-	      }
-	      if (code === 46/*.*/) {
-	        // If this is our first dot, mark it as the start of our extension
-	        if (startDot === -1)
-	          startDot = i;
-	        else if (preDotState !== 1)
-	          preDotState = 1;
-	      } else if (startDot !== -1) {
-	        // We saw a non-dot and non-path separator before our dot, so we should
-	        // have a good chance at having a non-empty extension
-	        preDotState = -1;
-	      }
-	    }
-
-<<<<<<< HEAD
 	      return this.protocol + (this._isRelative ? '//' + authority + this.host : '') + this.pathname + this._query + this._fragment;
 	    },
 	    set href(href) {
@@ -33798,129 +27115,6 @@
 
 	    return ReusableIframeView;
 	}(IframeView);
-=======
-	    if (startDot === -1 ||
-	        end === -1 ||
-	        // We saw a non-dot character immediately before the dot
-	        preDotState === 0 ||
-	        // The (right-most) trimmed path component is exactly '..'
-	        (preDotState === 1 &&
-	         startDot === end - 1 &&
-	         startDot === startPart + 1)) {
-	      return '';
-	    }
-	    return path.slice(startDot, end);
-	  },
-
-
-	  format: function format(pathObject) {
-	    if (pathObject === null || typeof pathObject !== 'object') {
-	      throw new TypeError(
-	        'Parameter "pathObject" must be an object, not ' + typeof(pathObject)
-	      );
-	    }
-	    return _format$1('/', pathObject);
-	  },
-
-
-	  parse: function parse(path) {
-	    assertPath$1(path);
-
-	    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
-	    if (path.length === 0)
-	      return ret;
-	    var code = path.charCodeAt(0);
-	    var isAbsolute = (code === 47/*/*/);
-	    var start;
-	    if (isAbsolute) {
-	      ret.root = '/';
-	      start = 1;
-	    } else {
-	      start = 0;
-	    }
-	    var startDot = -1;
-	    var startPart = 0;
-	    var end = -1;
-	    var matchedSlash = true;
-	    var i = path.length - 1;
-
-	    // Track the state of characters (if any) we see before our first dot and
-	    // after any path separator we find
-	    var preDotState = 0;
-
-	    // Get non-dir info
-	    for (; i >= start; --i) {
-	      code = path.charCodeAt(i);
-	      if (code === 47/*/*/) {
-	        // If we reached a path separator that was not part of a set of path
-	        // separators at the end of the string, stop now
-	        if (!matchedSlash) {
-	          startPart = i + 1;
-	          break;
-	        }
-	        continue;
-	      }
-	      if (end === -1) {
-	        // We saw the first non-path separator, mark this as the end of our
-	        // extension
-	        matchedSlash = false;
-	        end = i + 1;
-	      }
-	      if (code === 46/*.*/) {
-	        // If this is our first dot, mark it as the start of our extension
-	        if (startDot === -1)
-	          startDot = i;
-	        else if (preDotState !== 1)
-	          preDotState = 1;
-	      } else if (startDot !== -1) {
-	        // We saw a non-dot and non-path separator before our dot, so we should
-	        // have a good chance at having a non-empty extension
-	        preDotState = -1;
-	      }
-	    }
-
-	    if (startDot === -1 ||
-	        end === -1 ||
-	        // We saw a non-dot character immediately before the dot
-	        preDotState === 0 ||
-	        // The (right-most) trimmed path component is exactly '..'
-	        (preDotState === 1 &&
-	         startDot === end - 1 &&
-	         startDot === startPart + 1)) {
-	      if (end !== -1) {
-	        if (startPart === 0 && isAbsolute)
-	          ret.base = ret.name = path.slice(1, end);
-	        else
-	          ret.base = ret.name = path.slice(startPart, end);
-	      }
-	    } else {
-	      if (startPart === 0 && isAbsolute) {
-	        ret.name = path.slice(1, startDot);
-	        ret.base = path.slice(1, end);
-	      } else {
-	        ret.name = path.slice(startPart, startDot);
-	        ret.base = path.slice(startPart, end);
-	      }
-	      ret.ext = path.slice(startDot, end);
-	    }
-
-	    if (startPart > 0)
-	      ret.dir = path.slice(0, startPart - 1);
-	    else if (isAbsolute)
-	      ret.dir = '/';
-
-	    return ret;
-	  },
-
-
-	  sep: '/',
-	  delimiter: ':',
-	  posix: null
-	};
-
-
-	var path$1 = posix$1;
->>>>>>> 3352dcc... generate locations with a pagelist
 
 	var isImplemented$3 = function () {
 		var assign = Object.assign, obj;
@@ -35907,11 +29101,7 @@
 	                var linkUrl = new Url(href, location);
 	                if (linkUrl) {
 	                  event.preventDefault();
-<<<<<<< HEAD
 	                  reader.display(linkUrl.Path.path + (linkUrl.hash ? linkUrl.hash : ''));
-=======
-	                  reader.display(linkUrl.Path.path + ( linkUrl.hash ? linkUrl.hash : '' ));
->>>>>>> 22ff869... build
 	                }
 	              }
 	            });
@@ -36322,17 +29512,8 @@
 	        };
 
 	        t = setTimeout(f, 100);
-<<<<<<< HEAD
-<<<<<<< HEAD
 	      } else if (self._book.pageList && self._book.pageList.pageList.length && !self._book.pageList.locations.length) {
 	        self._book.locations.generateFromPageList(self._book.pageList).then(function (locations) {
-=======
-	      } else if ( self._book.pageList && ! self._book.pageList.locations.length ) {
-=======
-	      } else if ( self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
->>>>>>> 22ff869... build
-	        self._book.locations.generateFromPageList(self._book.pageList).then(function(locations) {
->>>>>>> 3352dcc... generate locations with a pagelist
 	          console.log("AHOY WUT", locations);
 	          self.fire('updateLocations', locations);
 	        });
@@ -36531,11 +29712,7 @@
 	      }
 	    });
 
-<<<<<<< HEAD
 	    self.display(target, function () {
-=======
-	    self.display(target, function() {
->>>>>>> 22ff869... build
 	      window._loaded = true;
 	      self._initializeReaderStyles();
 
@@ -36545,13 +29722,8 @@
 
 	      self._epubjs_ready = true;
 
-<<<<<<< HEAD
 	      self.display(target, function () {
 	        setTimeout(function () {
-=======
-	      self.display(target, function() {
-	        setTimeout(function() {
->>>>>>> 22ff869... build
 	          self.fire('opened');
 	          self.fire('ready');
 	          self._disableBookLoader();
@@ -36634,11 +29806,7 @@
 	    this._navigate(this._rendition.display(target), undefined);
 	  },
 
-<<<<<<< HEAD
 	  display: function display(target, callback) {
-=======
-	  display: function(target, callback) {
->>>>>>> 22ff869... build
 	    var self = this;
 
 	    var hash;
@@ -36647,11 +29815,7 @@
 	      if (!section) {
 	        // maybe it needs to be resolved
 	        var guessed = target;
-<<<<<<< HEAD
 	        if (guessed.indexOf("://") < 0) {
-=======
-	        if ( guessed.indexOf("://") < 0 ) {
->>>>>>> 3352dcc... generate locations with a pagelist
 	          var path1 = path$1.resolve(this._book.path.directory, this._book.packaging.navPath);
 	          var path2 = path$1.resolve(path$1.dirname(path1), target);
 	          guessed = this._book.canonical(path2);
@@ -36695,20 +29859,12 @@
 	    this._navigate(navigating, callback);
 	  },
 
-<<<<<<< HEAD
 	  gotoPage: function gotoPage(target, callback) {
 	    return this.display(target, callback);
 	  },
 
 
 	  percentageFromCfi: function percentageFromCfi(cfi) {
-=======
-	  gotoPage(target, callback) {
-	    return this.display(target, callback)
-	  },
-
-	  percentageFromCfi: function(cfi) {
->>>>>>> 22ff869... build
 	    return this._book.percentageFromCfi(cfi);
 	  },
 
@@ -37051,11 +30207,7 @@
 	});
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'pageList', {
-<<<<<<< HEAD
 	  get: function get$$1() {
-=======
-	  get: function() {
->>>>>>> 22ff869... build
 	    // return the combined metadata of configured + book metadata
 	    return this._book.pageList.pageList.length > 0 ? this._book.pageList : undefined;
 	  }
@@ -37081,7 +30233,6 @@
 	    this._rendition = rendition;
 	  }
 	});
-
 
 	Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
 	  get: function get$$1() {

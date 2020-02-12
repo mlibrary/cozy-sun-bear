@@ -208,8 +208,10 @@ export var Reader = Evented.extend({
     // NOOP
   },
 
-  display: function(index) {
+  display: function(target) {
+    // backwards compatibility
     // NOOP
+    return this.gotoPage(target);
   },
 
   gotoPage: function(target) {
@@ -444,7 +446,6 @@ export var Reader = Evented.extend({
         }
         self.__last_state_cfi = event.state.cfi;
         if ( event.state == null || event.state.cfi == null ) {
-          $log.innerHTML += `<li>NULL</li>`;
           event.preventDefault();
           return;
         }

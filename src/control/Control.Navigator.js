@@ -68,7 +68,7 @@ export var Navigator = Control.extend({
     this._control.addEventListener("input", function() {
       self._update();
     }, false);
-    this._control.addEventListener("change", function() { self._action(); }, false);
+    this._control.addEventListener("change", function(e) { self._action(); }, false);
     this._control.addEventListener("mousedown", function(){
         self._mouseDown = true;
     }, false);
@@ -85,10 +85,8 @@ export var Navigator = Control.extend({
     this._reader.on('relocated', function(location) {
       if ( ! self._initiated ) { return; }
       if ( ! self._mouseDown ) {
-        var a = location;
-        // location = self._reader.currentLocation();
-        // console.log("AHOY RELOCATED", a, location);
-        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(location.start.cfi) * 100);
+        var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
+        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(cfi) * 100);
         self._update();
       }
     })
@@ -167,7 +165,7 @@ export var Navigator = Control.extend({
     this._initiated = true;
 
     if ( ! this._reader.pageList ) {
-      this._spanCurrentLocation.style.display = 'none';
+      this._spanCurrentPageLabel.style.display = 'none';
     }
 
     this._total = this._reader.locations.total;
