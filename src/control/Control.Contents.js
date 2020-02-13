@@ -50,7 +50,19 @@ export var Contents = Control.extend({
       }, this);
 
       this._modal = this._reader.modal({
-        template: '<ul></ul>',
+        template: `
+<div class="cozy-contents-toolbar button-group" aria-hidden="true">
+  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>
+  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>
+</div>
+<div class="cozy-contents-main">
+  <div class="cozy-contents-contentlist">
+    <ul></ul>
+  </div>
+  <div class="cozy-contents-pagelist" style="display: none">
+    <ul></ul>
+  </div>
+</div>`.trim(),
         title: 'Contents',
         region: 'left',
         className: 'cozy-modal-contents',
@@ -64,11 +76,30 @@ export var Contents = Control.extend({
         }
       }});
 
+      this._display = {};
+      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
+      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
+      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
+
+      this._toolbar.addEventListener('click', (event) => {
+        if ( event.target.dataset.toggle ) {
+          var target = event.target.dataset.toggle;
+          var current = this._toolbar.querySelector('[data-toggle].toggled');
+          if ( current ) {
+            current.classList.remove('toggled');
+            this._display[current.dataset.toggle].style.display = 'none';
+          }
+          event.target.classList.add('toggled');
+          this._display[event.target.dataset.toggle].style.display = 'block';
+          this._reader.updateLiveStatus(`Displaying ${event.target.innerText}`);
+        }
+      });
+
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('data-href');
         this._goto_interval = true;
         this._reader.tracking.action('contents/go/link');
-        this._reader.gotoPage(target);
+        this._reader.display(target);
         return true;
       }.bind(this));
 
@@ -78,19 +109,7 @@ export var Contents = Control.extend({
 
       this._setupSkipLink();
 
-      var parent = self._modal._container.querySelector('ul');
-      // var s = data.toc.filter(function(value) { return value.parent == null }).map(function(value) { return [ value, 0, parent ] });
-      // while ( s.length ) {
-      //   var tuple = s.shift();
-      //   var chapter = tuple[0];
-      //   var tabindex = tuple[1];
-      //   var parent = tuple[2];
-
-      //   var option = self._createOption(chapter, tabindex, parent);
-      //   data.toc.filter(function(value) { return value.parent == chapter.id }).reverse().forEach(function(chapter_) {
-      //     s.unshift([chapter_, tabindex + 1, option]);
-      //   });
-      // }
+      var parent = self._modal._container.querySelector('.cozy-contents-contentlist ul');
       var _process = function(items, tabindex, parent) {
         items.forEach(function(item) {
           var option = self._createOption(item, tabindex, parent);
@@ -100,7 +119,30 @@ export var Contents = Control.extend({
         })
       };
       _process(data.toc, 0, parent);
+
     }.bind(this))
+
+    this._reader.on('updateLocations', (data) => {
+
+      if ( this._reader.pageList ) {
+        // this._toolbar.style.display = 'flex';
+        this._toolbar.setAttribute('aria-hidden', 'false');
+      }
+
+      if ( self._reader.pageList ) {
+        var parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
+        for(var i = 0; i < self._reader.pageList.pages.length; i++) {
+          var pg = self._reader.pageList.pages[i];
+          var info = self._reader.pageList.pageList[i];
+          var cfi = self._reader.pageList.locations[i];
+          var item = { 
+            label: ( info.pageLabel || info.page ),
+            href: cfi
+          };
+          var option = self._createOption(item, 0, parent);
+        }
+      }
+    })
   },
 
   _createOption(chapter, tabindex, parent) {

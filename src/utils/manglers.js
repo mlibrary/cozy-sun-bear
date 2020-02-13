@@ -149,7 +149,7 @@ export function popupTables(reader, contents) {
                 var linkUrl = new Url(href, location);
                 if (linkUrl) {
                   event.preventDefault();
-                  reader.gotoPage(linkUrl.Path.path + ( linkUrl.hash ? linkUrl.hash : '' ));
+                  reader.display(linkUrl.Path.path + ( linkUrl.hash ? linkUrl.hash : '' ));
                 }
               }
             })

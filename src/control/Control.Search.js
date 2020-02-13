@@ -63,7 +63,7 @@ export var Search = Control.extend({
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('href');
         this._reader.tracking.action('search/go/link');
-        this._reader.gotoPage(target);
+        this._reader.display(target);
         return true;
       }.bind(this));
 

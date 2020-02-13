@@ -85,6 +85,11 @@ Reader.EpubJS = Reader.extend({
         }
 
         t = setTimeout(f, 100);
+      } else if ( self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
+        self._book.locations.generateFromPageList(self._book.pageList).then(function(locations) {
+          console.log("AHOY WUT", locations);
+          self.fire('updateLocations', locations);
+        })
       } else {
         self._book.locations.generate(1600).then(function(locations) {
           self.fire('updateLocations', locations);
@@ -280,7 +285,7 @@ Reader.EpubJS = Reader.extend({
 
     })
 
-    self.gotoPage(target, function() {
+    self.display(target, function() {
       window._loaded = true;
       self._initializeReaderStyles();
 
@@ -288,7 +293,7 @@ Reader.EpubJS = Reader.extend({
 
       self._epubjs_ready = true;
 
-      self.gotoPage(target, function() {
+      self.display(target, function() {
         setTimeout(function() {
           self.fire('opened');
           self.fire('ready');
@@ -370,7 +375,7 @@ Reader.EpubJS = Reader.extend({
     this._navigate(this._rendition.display(target), undefined);
   },
 
-  gotoPage: function(target, callback) {
+  display: function(target, callback) {
     var self = this;
 
     var hash;
@@ -421,6 +426,10 @@ Reader.EpubJS = Reader.extend({
       this._rendition.display(target);
     }.bind(this));
     this._navigate(navigating, callback);
+  },
+
+  gotoPage(target, callback) {
+    return this.display(target, callback)
   },
 
   percentageFromCfi: function(cfi) {
@@ -614,6 +623,7 @@ Reader.EpubJS = Reader.extend({
     this._rendition.on("rendered", function(section, view) {
 
       if ( self.settings.flow == 'scrolled-doc' ) { return ; }
+      if ( Browser.ie ) { self.options.disableFocusHandling = true; return ; }
 
       // add focus rules
       focus.setupFocusRules(self);
@@ -758,6 +768,13 @@ Object.defineProperty(Reader.EpubJS.prototype, 'locations', {
   }
 });
 
+Object.defineProperty(Reader.EpubJS.prototype, 'pageList', {
+  get: function() {
+    // return the combined metadata of configured + book metadata
+    return this._book.pageList.pageList.length > 0 ? this._book.pageList : undefined;
+  }
+});
+
 Object.defineProperty(Reader.EpubJS.prototype, 'rendition', {
   get: function() {
     if ( ! this._rendition ) {
@@ -778,6 +795,7 @@ Object.defineProperty(Reader.EpubJS.prototype, 'rendition', {
     this._rendition = rendition;
   }
 })
+
 
 Object.defineProperty(Reader.EpubJS.prototype, 'CFI', {
   get: function() {

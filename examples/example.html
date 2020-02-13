@@ -226,7 +226,7 @@
             var book_id = params.get('url');
             if ( book_id.indexOf('?') > -1 && book_id.indexOf('/?') < 0 ) {
                 book_id = book_id.replace('?', '/?');
-            } else if ( ! book_id.match('/$') ) {
+            } else if ( ! book_id.match('/$') && book_id.indexOf('.epub') < 0 ) {
                 book_id += '/';
             }
 
