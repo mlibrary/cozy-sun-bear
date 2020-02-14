@@ -145,7 +145,11 @@ export var Navigator = Control.extend({
             label = 'pp.';
           }
         }
-        this._spanCurrentPageLabel.innerHTML = ` (${label} ${pageLabels.join('-')})`;
+        var span = '';
+        if ( pageLabels.length ) {
+          span = ` (${label} ${pageLabels.join('-')})`;
+        }
+        this._spanCurrentPageLabel.innerHTML = span;
       }
 
       range.setAttribute('aria-valuenow', value);
