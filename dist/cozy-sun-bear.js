@@ -1,13 +1,5 @@
 /*
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.00024ede, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.0eaa3484, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
- * Cozy Sun Bear 1.0.0cc5025c, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> a437d5f... build
->>>>>>> 1da47cc... build
+ * Cozy Sun Bear 1.0.08831507, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -7985,11 +7977,7 @@
 	  },
 
 	  _createControl: function _createControl(container) {
-<<<<<<< HEAD
-	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>\n    ';
-=======
-	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> \u2022 Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span></div>\n    ';
->>>>>>> 1da47cc... build
+	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> \u2022 </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>\n    ';
 
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while (body.children.length) {
@@ -8003,21 +7991,24 @@
 	    var self = this;
 
 	    this._control.addEventListener("input", function () {
-	      self._update();
+	      self._update(false);
 	    }, false);
-<<<<<<< HEAD
-	    this._control.addEventListener("change", function (e) {
-	      self._action();
-=======
 	    this._control.addEventListener("change", function (event) {
-	      console.log("AHOY NAVIGATOR change", event);self._action();
->>>>>>> 1da47cc... build
+	      if (self._mouseDown) {
+	        return;
+	      }self._action();
 	    }, false);
 	    this._control.addEventListener("mousedown", function (event) {
 	      self._mouseDown = true;
+	      self._container.classList.add('updating');
 	    }, false);
 	    this._control.addEventListener("mouseup", function () {
 	      self._mouseDown = false;
+	      self._container.classList.remove('updating');
+	      self._update();
+	      // self._ignore = false;
+	      console.log("AHOY AHOY MOUSEUP");
+	      // self._action();
 	    }, false);
 	    this._control.addEventListener("keydown", function () {
 	      // console.log("AHOY NAVIGATOR keydown", event);
@@ -8029,7 +8020,8 @@
 	    }, false);
 
 	    this._reader.on('relocated', function (location) {
-	      var value;      if (!self._initiated) {
+	      var value;      console.log("AHOY AHOY RELOCATED");
+	      if (!self._initiated) {
 	        return;
 	      }
 	      if (self._ignore) {
@@ -8038,12 +8030,6 @@
 	      if (!(location && location.start)) {
 	        return;
 	      }
-<<<<<<< HEAD
-	      if (!self._mouseDown) {
-	        var cfi = location.start && location.start.cfi ? location.start.cfi : location.start;
-	        self._control.value = Math.ceil(self._reader.locations.percentageFromCfi(cfi) * 100);
-	        self._update();
-=======
 
 	      var value;
 	      if (location.start && location.end) {
@@ -8060,7 +8046,6 @@
 	        value = self._parseLocation(location);
 	        self._last_value = value;
 	        self._control.value = value;
->>>>>>> 1da47cc... build
 	      }
 
 	      self._update(location);
@@ -8079,12 +8064,8 @@
 	      cfi = locations.cfiFromPercentage(percent);
 	    }
 	    this._reader.tracking.action("navigator/go");
-<<<<<<< HEAD
-	    this._reader.display(cfi);
-=======
 	    this._ignore = true;
 	    this._reader.gotoPage(cfi);
->>>>>>> 1da47cc... build
 	  },
 
 	  _update: function _update(current) {
@@ -8100,50 +8081,52 @@
 	    var value = parseFloat(range.value, 10);
 	    var current_location = value;
 
+	    var max = parseFloat(range.max, 10);
+	    var percentage = value / max * 100.0;
+
+	    rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
+	    percentage = Math.ceil(percentage);
+	    this._spanCurrentPercentage.innerHTML = percentage + '%';
+
+	    if (current === false) {
+	      return;
+	    }
+	    if (!current) {
+	      current = this._reader.currentLocation();
+	    }
+
 	    if (current_location == this._last_reported_location) {
 	      return;
 	    }
 	    this._last_reported_location = current_location;
 
-	    var max = parseFloat(range.max, 10);
-	    var percentage = value / max * 100.0;
-
-	    rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
-
-	    percentage = Math.ceil(percentage);
 	    self._control.setAttribute('data-background-position', percentage);
-	    this._spanCurrentPercentage.innerHTML = percentage + '%';
 	    this._spanCurrentLocation.innerHTML = current_location;
 
-<<<<<<< HEAD
-	      if (this._reader.pageList) {
-	        var pages = this._reader.pageList.pagesFromLocation(current);
-	        var pageLabels = [];
-	        var label = 'p.';
+	    var current_page = '';
+	    if (this._reader.pageList) {
+	      var pages = this._reader.pageList.pagesFromLocation(current);
+	      var pageLabels = [];
+	      var label = 'p.';
+	      if (pages.length) {
+	        var p1 = pages.shift();
+	        pageLabels.push(this._reader.pageList.pageLabel(p1));
 	        if (pages.length) {
-	          var p1 = pages.shift();
-	          pageLabels.push(this._reader.pageList.pageLabel(p1));
-	          if (pages.length) {
-	            var p2 = pages.pop();
-	            pageLabels.push(this._reader.pageList.pageLabel(p2));
-	            label = 'pp.';
-	          }
+	          var p2 = pages.pop();
+	          pageLabels.push(this._reader.pageList.pageLabel(p2));
+	          label = 'pp.';
 	        }
-	        var span = '';
-	        if (pageLabels.length) {
-	          span = ' (' + label + ' ' + pageLabels.join('-') + ')';
-	        }
-	        this._spanCurrentPageLabel.innerHTML = span;
 	      }
+	      if (pageLabels.length) {
+	        current_page = ' (' + label + ' ' + pageLabels.join('-') + ')';
+	      }
+	      this._spanCurrentPageLabel.innerHTML = current_page;
+	    }
 
-	      range.setAttribute('aria-valuenow', value);
-	      range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
-=======
 	    range.setAttribute('aria-valuenow', value);
-	    range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total);
->>>>>>> 1da47cc... build
+	    range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total + current_page);
 
-	    var message = 'Location ' + current_location + '; ' + percentage + '%';
+	    var message = 'Location ' + current_location + '; ' + percentage + '%' + current_page;
 	    this._reader.updateLiveStatus(message);
 	  },
 
@@ -8162,10 +8145,11 @@
 	    this._control.max = max; // setAttribute('max', max);
 	    this._control.min = min; // setAttribute('min', min);
 
-	    var value = this._parseLocation(this._reader.currentLocation());
+	    var current = this._reader.currentLocation();
+	    var value = this._parseLocation(current);
 	    this._control.value = value;
 	    this._last_value = this._control.value;
-	    this._update();
+	    this._update(current);
 
 	    this._spanTotalLocations.innerHTML = this._total;
 

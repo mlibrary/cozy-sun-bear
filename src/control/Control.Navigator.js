@@ -44,7 +44,7 @@ export var Navigator = Control.extend({
         <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
         <div class="cozy-navigator-range__background"></div>
       </div>
-      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span> • Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></div>
+      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> • </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>
     `;
 
     var body = new DOMParser().parseFromString(template, "text/html").body;
@@ -59,19 +59,20 @@ export var Navigator = Control.extend({
     var self = this;
 
     this._control.addEventListener("input", function() {
-      self._update();
+      self._update(false);
     }, false);
-<<<<<<< HEAD
-    this._control.addEventListener("change", function(e) { self._action(); }, false);
-    this._control.addEventListener("mousedown", function(){
-=======
-    this._control.addEventListener("change", function(event) { console.log("AHOY NAVIGATOR change", event); self._action(); }, false);
+    this._control.addEventListener("change", function(event) { if ( self._mouseDown ) { return ; }; self._action(); }, false);
     this._control.addEventListener("mousedown", function(event){
->>>>>>> 8340f58... some bits handling significant navigation
         self._mouseDown = true;
+        self._container.classList.add('updating');
     }, false);
     this._control.addEventListener("mouseup", function(){
         self._mouseDown = false;
+        self._container.classList.remove('updating');
+        self._update();
+        // self._ignore = false;
+        console.log("AHOY AHOY MOUSEUP");
+        // self._action();
     }, false);
     this._control.addEventListener("keydown", function(){
       // console.log("AHOY NAVIGATOR keydown", event);
@@ -84,6 +85,7 @@ export var Navigator = Control.extend({
 
     this._reader.on('relocated', function(location) {
       var value; var percentage;
+      console.log("AHOY AHOY RELOCATED");
       if ( ! self._initiated ) { return ; }
       if ( self._ignore ) { self._ignore = false; console.log("AHOY IGNORING", self._ignore); return; }
       if ( ! ( location && location.start ) ) { return ; }
@@ -136,25 +138,48 @@ export var Navigator = Control.extend({
     var value = parseFloat(range.value, 10);
     var current_location = value;
 
+    var max = parseFloat(range.max, 10);
+    var percentage = (( value / max ) * 100.0)
+
+    rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+    percentage = Math.ceil(percentage);
+    this._spanCurrentPercentage.innerHTML = percentage + '%';
+
+    if ( current === false ) { return; }
+    if ( ! current ) { current = this._reader.currentLocation(); }
+
     if ( current_location == this._last_reported_location ) {
       return;
     }
     this._last_reported_location = current_location;
 
-    var max = parseFloat(range.max, 10);
-    var percentage = (( value / max ) * 100.0)
-
-    rangeBg.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
-
-    percentage = Math.ceil(percentage);
     self._control.setAttribute('data-background-position', percentage);
-    this._spanCurrentPercentage.innerHTML = percentage + '%';
     this._spanCurrentLocation.innerHTML = ( current_location );
 
-    range.setAttribute('aria-valuenow', value);
-    range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}`);
+    var current_page = '';
+    if ( this._reader.pageList ) {
+      var pages = this._reader.pageList.pagesFromLocation(current);
+      var pageLabels = [];
+      var label = 'p.';
+      if ( pages.length ) {
+        var p1 = pages.shift();
+        pageLabels.push(this._reader.pageList.pageLabel(p1));
+        if ( pages.length ) {
+          var p2 = pages.pop();
+          pageLabels.push(this._reader.pageList.pageLabel(p2));
+          label = 'pp.';
+        }
+      }
+      if ( pageLabels.length ) {
+        current_page = ` (${label} ${pageLabels.join('-')})`;
+      }
+      this._spanCurrentPageLabel.innerHTML = current_page;
+    }
 
-    var message = `Location ${current_location}; ${percentage}%`;
+    range.setAttribute('aria-valuenow', value);
+    range.setAttribute('aria-valuetext', `${value}% • Location ${current_location} of ${this._total}${current_page}`);
+
+    var message = `Location ${current_location}; ${percentage}%${current_page}`;
     this._reader.updateLiveStatus(message);
   },
 
@@ -171,10 +196,11 @@ export var Navigator = Control.extend({
     this._control.max = max; // setAttribute('max', max);
     this._control.min = min; // setAttribute('min', min);
 
-    var value = this._parseLocation(this._reader.currentLocation());
+    var current = this._reader.currentLocation();
+    var value = this._parseLocation(current);
     this._control.value = value;
     this._last_value = this._control.value
-    this._update();
+    this._update(current);
 
     this._spanTotalLocations.innerHTML = this._total;
 

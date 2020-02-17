@@ -36,9 +36,21 @@
       opacity: 1.0;
     }
 
+    &.updating {
+      .currentPercentage {
+        background: #000;
+        color: #fff;
+      }
+    }
+
     .cozy-navigator-range__status {
       width: 100%;
       text-align: center;
+
+      & > span {
+        display: inline-block;
+        padding: 0 4px;
+      }
     }
 
     .cozy-navigator-range {
@@ -116,6 +128,11 @@
     }
 
   }
+
+  // .currentPercentage {
+  //   display: inline-block;
+  //   padding: 0 2px;
+  // }
 
 
 }
