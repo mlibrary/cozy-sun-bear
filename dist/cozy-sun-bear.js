@@ -7989,14 +7989,22 @@
 
 	  _bindEvents: function _bindEvents() {
 	    var self = this;
+	    var isIE = window.navigator.userAgent.indexOf("Trident/") > -1;
 
 	    this._control.addEventListener("input", function () {
+	      if (self._keyDown) {
+	        self._keyDown = false;return;
+	      }
 	      self._update(false);
 	    }, false);
 	    this._control.addEventListener("change", function (event) {
 	      if (self._mouseDown) {
+	        if (isIE) {
+	          self._update(false);
+	        }
 	        return;
-	      }self._action();
+	      }
+	      self._action();
 	    }, false);
 	    this._control.addEventListener("mousedown", function (event) {
 	      self._mouseDown = true;
@@ -8005,54 +8013,26 @@
 	    this._control.addEventListener("mouseup", function () {
 	      self._mouseDown = false;
 	      self._container.classList.remove('updating');
+	      if (isIE) {
+	        self._action();return;
+	      }
 	      self._update();
-	      // self._ignore = false;
-	      console.log("AHOY AHOY MOUSEUP");
-	      // self._action();
 	    }, false);
-	    this._control.addEventListener("keydown", function () {
-	      // console.log("AHOY NAVIGATOR keydown", event);
-	      // self._mouseDown = true;
+	    this._control.addEventListener("keydown", function (event) {
+	      if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
+	        // do not fire input events if we're just keying around
+	        self._keyDown = true;
+	      }
 	    }, false);
 	    this._control.addEventListener("keyup", function () {
-	      // console.log("AHOY NAVIGATOR keyup", event);
 	      // self._mouseDown = false;
 	    }, false);
-
-	    this._reader.on('relocated', function (location) {
-	      var value;      console.log("AHOY AHOY RELOCATED");
-	      if (!self._initiated) {
-	        return;
-	      }
-	      if (self._ignore) {
-	        self._ignore = false;console.log("AHOY IGNORING", self._ignore);return;
-	      }
-	      if (!(location && location.start)) {
-	        return;
-	      }
-
-	      var value;
-	      if (location.start && location.end) {
-	        // EPUB
-	        value = parseInt(self._control.value, 10);
-	        var start = parseInt(location.start.location, 10);
-	        var end = parseInt(location.end.location, 10);
-	        console.log("AHOY NAVIGATOR relocated", value, start, end, value < start, value > end);
-	        if (value < start || value > end) {
-	          self._last_value = value;
-	          self._control.value = value < start ? start : end;
-	        }
-	      } else {
-	        value = self._parseLocation(location);
-	        self._last_value = value;
-	        self._control.value = value;
-	      }
-
-	      self._update(location);
-	    });
 	  },
 
 	  _action: function _action() {
+	    var _this = this;
+
+	    console.log("AHOY AHOY ACTION");
 	    var value = parseInt(this._control.value, 10);
 	    var cfi;
 	    var locations = this._reader.locations;
@@ -8064,48 +8044,40 @@
 	      cfi = locations.cfiFromPercentage(percent);
 	    }
 	    this._reader.tracking.action("navigator/go");
-	    this._ignore = true;
+	    // this._ignore = true;
+	    if (this._watching == 'updateLocation') {
+	      setTimeout(function () {
+	        _this._update();
+	      }, 100);
+	    }
 	    this._reader.gotoPage(cfi);
 	  },
 
 	  _update: function _update(current) {
-	    var self = this;
 
-	    if (!this._initiated) {
-	      return;
-	    }
-
-	    var rangeBg = this._background;
-	    var range = self._control;
-
-	    var value = parseFloat(range.value, 10);
+	    var value = parseFloat(this._control.value, 10);
 	    var current_location = value;
 
-	    var max = parseFloat(range.max, 10);
+	    var max = parseFloat(this._control.max, 10);
 	    var percentage = value / max * 100.0;
 
-	    rangeBg.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
+	    this._background.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
 	    percentage = Math.ceil(percentage);
 	    this._spanCurrentPercentage.innerHTML = percentage + '%';
 
-	    if (current === false) {
-	      return;
-	    }
-	    if (!current) {
-	      current = this._reader.currentLocation();
-	    }
-
-	    if (current_location == this._last_reported_location) {
-	      return;
-	    }
-	    this._last_reported_location = current_location;
-
-	    self._control.setAttribute('data-background-position', percentage);
+	    this._control.setAttribute('data-background-position', percentage);
 	    this._spanCurrentLocation.innerHTML = current_location;
 
 	    var current_page = '';
 	    if (this._reader.pageList) {
-	      var pages = this._reader.pageList.pagesFromLocation(current);
+	      // && current !== false
+	      var pages;
+	      if ((typeof current === 'undefined' ? 'undefined' : _typeof$4(current)) != 'object') {
+	        var cfi = this._reader.locations.cfiFromLocation(current_location);
+	        pages = [this._reader.pageList.pageFromCfi(cfi)];
+	      } else {
+	        pages = this._reader.pageList.pagesFromLocation(current);
+	      }
 	      var pageLabels = [];
 	      var label = 'p.';
 	      if (pages.length) {
@@ -8123,14 +8095,16 @@
 	      this._spanCurrentPageLabel.innerHTML = current_page;
 	    }
 
-	    range.setAttribute('aria-valuenow', value);
-	    range.setAttribute('aria-valuetext', value + '% \u2022\xA0Location ' + current_location + ' of ' + this._total + current_page);
+	    this._control.setAttribute('aria-valuenow', value);
+	    this._control.setAttribute('aria-valuetext', percentage + '% \u2022\xA0Location ' + current_location + ' of ' + this._total + current_page);
 
-	    var message = 'Location ' + current_location + '; ' + percentage + '%' + current_page;
-	    this._reader.updateLiveStatus(message);
+	    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
+	    // this._reader.updateLiveStatus(message);
 	  },
 
 	  _initializeNavigator: function _initializeNavigator(locations) {
+	    var self = this;
+
 	    this._initiated = true;
 
 	    if (!this._reader.pageList) {
@@ -8142,8 +8116,8 @@
 	    if (this._reader.locations.spine) {
 	      max -= 1;min -= 1;
 	    }
-	    this._control.max = max; // setAttribute('max', max);
-	    this._control.min = min; // setAttribute('min', min);
+	    this._control.max = max;
+	    this._control.min = min;
 
 	    var current = this._reader.currentLocation();
 	    var value = this._parseLocation(current);
@@ -8153,25 +8127,95 @@
 
 	    this._spanTotalLocations.innerHTML = this._total;
 
+	    if (this._reader.locations.cfiFromLocation) {
+	      this._watching = 'relocated';
+	      this._reader.on('relocated', function (location) {
+	        self._handle_relocated(location);
+	      });
+	    } else {
+	      // BACK COMPATIBILITY
+	      this._watching = 'updateLocation';
+	      this._reader.on('updateLocation', function (location) {
+	        console.log("AHOY NAVIGATOR updateLocation", location);
+	        self._handle_relocated(location);
+	      });
+	    }
+
 	    setTimeout(function () {
 	      addClass(this._container, 'initialized');
 	    }.bind(this), 0);
+	  },
+
+	  _handle_relocated: function _handle_relocated(location) {
+	    var self = this;
+
+	    var value;    if (!self._initiated) {
+	      return;
+	    }
+	    if (!(location && location.start)) {
+	      return;
+	    }
+
+	    var value;
+	    if (location.start && location.end) {
+	      // EPUB
+	      value = parseInt(self._control.value, 10);
+	      var start = parseInt(location.start.location, 10);
+	      var end = parseInt(location.end.location, 10);
+
+	      if (start == this._last_location_start && end == this._last_location_end) {
+	        return;
+	      }
+
+	      this._last_location_start = start;this._last_location_end = end;
+
+	      // console.log("AHOY NAVIGATOR relocated", value, start, end, value < start, value > end);
+	      if (value < start || value > end) {
+	        self._last_value = value;
+	        self._control.value = value < start ? start : end;
+	      }
+	    } else {
+	      value = self._parseLocation(location);
+
+	      if (value == this._last_value) {
+	        return;
+	      }
+
+	      self._last_value = value;
+	      self._control.value = value;
+	    }
+
+	    self._update(location);
+	    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
+	    var message = this._control.getAttribute('aria-valuetext');
+	    this._reader.updateLiveStatus(message);
 	  },
 
 	  _parseLocation: function _parseLocation(location) {
 	    var self = this;
 	    var value;
 
+	    function handle_possible_pdf_location(location) {
+	      var start = location.start.cfi ? location.start.cfi : location.start;
+	      if (typeof start == 'string' && start.indexOf('page=') > -1) {
+	        // dumb
+	        start = start.replace('epubcfi(page=', '').replace(')', '');
+	      }
+	      return start;
+	    }
+
 	    if (_typeof$4(location.start) == 'object') {
 	      if (location.start.location != null) {
 	        value = location.start.location;
 	      } else {
-	        var percentage = self._reader.locations.percentageFromCfi(location.start.cfi);
+	        var start_cfi = handle_possible_pdf_location(location);
+	        var percentage = self._reader.locations.percentageFromCfi(start_cfi);
 	        value = Math.ceil(self._total * percentage);
 	      }
 	    } else {
 	      // PDF bug
-	      value = parseInt(location.start, 10);
+	      var start = handle_possible_pdf_location(location);
+	      value = parseInt(start, 10);
 	    }
 
 	    return value;
