@@ -37,9 +37,11 @@
     }
 
     &.updating {
-      .currentPercentage {
-        background: #000;
-        color: #fff;
+      .cozy-navigator-range__status {
+        & > span {
+          background: #000;
+          color: #fff;
+        }
       }
     }
 
@@ -128,11 +130,5 @@
     }
 
   }
-
-  // .currentPercentage {
-  //   display: inline-block;
-  //   padding: 0 2px;
-  // }
-
 
 }
