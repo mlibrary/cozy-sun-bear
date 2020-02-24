@@ -18355,6 +18355,15 @@
 					this.iframe.src = this.blobUrl;
 					this.element.appendChild(this.iframe);
 				} else if (this.settings.method === "srcdoc") {
+					contents = contents.replace('</body>', '<script>window.addEventListener("load", (e) => { });</script></body>');
+					if (this.settings.prehooks && this.settings.prehooks.head) {
+						var buffer = [];
+						this.settings.prehooks.head.trigger(buffer);
+						buffer.forEach(function (b) {
+							contents = contents.replace('</head>', b + '</head>');
+						});
+						// contents = contents.replace('</head>', this.settings.prehooks.head(this.settings.layout) + '</head>');
+					}
 					this.iframe.srcdoc = contents;
 					this.element.appendChild(this.iframe);
 				} else {
@@ -19994,6 +20003,7 @@
 			extend$1(this.settings, options.settings || {});
 
 			this.viewSettings = {
+				prehooks: this.settings.prehooks,
 				ignoreClass: this.settings.ignoreClass,
 				axis: this.settings.axis,
 				flow: this.settings.flow,
@@ -20242,6 +20252,7 @@
 					if (target) {
 						var _offset2 = view.locationOf(target);
 						this.moveTo(_offset2);
+						view.__target = { target: target, offset: _offset2 };
 					}
 				}.bind(this), function (err) {
 					displaying.reject(err);
@@ -20257,7 +20268,6 @@
 				}.bind(this)).then(function () {
 
 					this.views.show();
-
 					displaying.resolve();
 				}.bind(this));
 				// .then(function(){
@@ -20276,11 +20286,20 @@
 		}, {
 			key: "afterResized",
 			value: function afterResized(view) {
+				if (view.__target) {
+					var offset = view.locationOf(view.__target.target);
+					if (offset.left != view.__target.offset.left && offset.top != view.__target.offset.top) {
+						this.moveTo(offset, false);
+					}
+					view.__target = undefined;
+				}
 				this.emit(EVENTS.MANAGERS.RESIZE, view.section);
 			}
 		}, {
 			key: "moveTo",
 			value: function moveTo(offset) {
+				var silent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
 				var distX = 0,
 				    distY = 0;
 
@@ -20293,7 +20312,7 @@
 						distX = this.container.scrollWidth - this.layout.delta;
 					}
 				}
-				this.scrollTo(distX, distY, true);
+				this.scrollTo(distX, distY, silent);
 			}
 		}, {
 			key: "add",
@@ -27799,7 +27818,7 @@
 	    }, {
 	        key: 'preload',
 	        value: function preload(view, index) {
-	            if (view) {
+	            if (view && !view.preloaded) {
 	                view.preloaded = true;
 	                // console.log("AHOY VIEWS preload", index, ">", view.index);
 	                this.emit("view.preload", { view: view });
@@ -27853,6 +27872,7 @@
 	    extend$1(this.settings, options.settings || {});
 
 	    this.viewSettings = {
+	      prehooks: this.settings.prehooks,
 	      ignoreClass: this.settings.ignoreClass,
 	      axis: this.settings.axis,
 	      flow: this.settings.flow,
@@ -27988,7 +28008,11 @@
 	        this._target = [visible, target];
 	      }
 
-	      visible.element.scrollIntoView();
+	      // --- scrollIntoView is quirkily aggressive on mobile devices
+	      // visible.element.scrollIntoView();
+	      if (visible.element.parentNode) {
+	        visible.element.parentNode.scrollTop = visible.element.offsetTop;
+	      }
 
 	      if (visible == current) {
 	        this.gotoTarget(visible);
@@ -28834,6 +28858,9 @@
 	            var minHeight = this.settings.minHeight || 0;
 	            var maxHeight = this.settings.maxHeight || -1;
 
+	            // try to add some padding in the shortest pages
+	            minHeight *= 0.90;
+
 	            // console.log("AHOY AHOY reframe", this.index, width, height);
 
 	            if (isNumber(width)) {
@@ -28845,10 +28872,7 @@
 	            }
 
 	            if (isNumber(height)) {
-	                var checkMinHeight = false; // not doing this
-	                if (isNumber(width) && width > height) {
-	                    checkMinHeight = false;
-	                }
+	                var checkMinHeight = this.settings.layout.name == 'reflowable';
 	                height = checkMinHeight && height <= minHeight ? minHeight : height;
 
 	                var styles = window.getComputedStyle(this.element);
@@ -28856,7 +28880,6 @@
 	                if (this.iframe) {
 	                    this.iframe.style.height = height + "px";
 	                }
-	                // console.log("AHOY VIEW DISPLAY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
 	                this._height = height;
 	            }
 
@@ -28911,9 +28934,15 @@
 	            var styles = window.getComputedStyle(this.element);
 	            var new_height = height + parseInt(styles.paddingTop, 10) + parseInt(styles.paddingBottom, 10) + parseInt(styles.borderTopWidth, 10) + parseInt(styles.borderBottomWidth, 10);
 	            var current_height = this.element.offsetHeight;
-	            if (new_height < current_height) {
+
+	            // if this is the first re-load and the height doesn't match the current height
+	            // DO NOT alter the height because some override is going to be applied
+	            // which will alter the height.
+	            this.afterResizeCounter += 1;
+	            if (this.unloaded && height != current_height && this.afterResizeCounter == 1) {
 	                return;
 	            }
+
 	            this.element.style.height = new_height + "px";
 	        }
 	    }, {
@@ -28962,6 +28991,7 @@
 	            this.contents.axis = this.settings.axis;
 
 	            this.rendering = false;
+	            this.afterResizeCounter = 0;
 
 	            var link = this.document.querySelector("link[rel='canonical']");
 	            if (link) {
@@ -29028,6 +29058,8 @@
 	                this.stopExpanding = true;
 	                this.element.removeChild(this.iframe);
 	                this.element.style.visibility = "hidden";
+
+	                this.unloaded = true;
 
 	                this.iframe = undefined;
 	                this.contents = undefined;
@@ -29745,7 +29777,10 @@
 	      this.settings.spread = 'none';
 	    }
 
-	    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager) {
+	    if (this.settings.manager == ScrollingContinuousViewManager) {
+	      if (this.metadata.layout != 'pre-paginated' && !this.options.minHeight) {
+	        this.options.minHeight = this._panes['book'].offsetHeight * 0.75;
+	      }
 	      if (this.options.minHeight) {
 	        this.settings.minHeight = this.options.minHeight;
 	      }
@@ -29767,6 +29802,10 @@
 	    // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
 	    self.rendition = new ePub$1.Rendition(self._book, self.settings);
 	    self._book.rendition = self._rendition;
+
+	    this._rendition.settings.prehooks = {};
+	    this._rendition.settings.prehooks.head = new Hook(this);
+
 	    self._updateFontSize();
 	    self._rendition.attachTo(self._panes['epub']);
 
@@ -29802,6 +29841,8 @@
 	      self._rendition.manager.on("built", function () {
 	        self._disableBookLoader(true);
 	      });
+
+	      self.fire('renditionStarted', self._rendition);
 	    });
 
 	    self._rendition.hooks.content.register(function (contents) {
@@ -30009,7 +30050,7 @@
 
 	    // performance hack
 	    if (Object.keys(changed).length == 1 && changed.scale) {
-	      reader.options.scale = options.scale;
+	      this.options.scale = options.scale;
 	      this._updateScale();
 	      return;
 	    }
@@ -30046,25 +30087,35 @@
 
 	    // force 90% height instead of default 60%
 	    if (this.metadata.layout != 'pre-paginated') {
-	      this._rendition.hooks.content.register(function (contents) {
-	        contents.addStylesheetRules({
-	          "img": {
-	            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-	            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
-	            "object-fit": "contain",
-	            "page-break-inside": "avoid"
-	          },
-	          "svg": {
-	            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-	            "max-height": (this._layout.height ? this._layout.height * 0.9 + "px" : "90%") + "!important",
-	            "page-break-inside": "avoid"
-	          },
-	          "body": {
-	            "overflow": "hidden",
-	            "column-rule": "1px solid #ddd"
-	          }
-	        });
-	      }.bind(this._rendition));
+	      if (this.options.flow == 'scrolled-doc') {
+	        // these prehooks are a hack to avoid the contents hooks applying _after_
+	        // the view has been displayed
+	        this._rendition.settings.prehooks.head.register(function (buffer) {
+	          var layout = this.layout;
+	          var retval = '\n<style>\nimg {\n  max-width: ' + (layout.columnWidth ? layout.columnWidth + "px" : "100%") + ' !important;\n  max-height: ' + (layout.height ? layout.height * 0.9 + "px" : "90%") + ' !important;\n  object-fit: contain;\n  page-break-inside: avoid;\n}\nsvg {\n  max-width: ' + (layout.columnWidth ? layout.columnWidth + "px" : "100%") + ' !important;\n  max-height: ' + (layout.height ? layout.height * 0.9 + "px" : "90%") + ' !important;\n  page-break-inside: avoid;\n}\nbody {\n  overflow: hidden;\n  column-rule: 1px solid #ddd;\n}\n</style>\n          ';
+	          buffer.push(retval);
+	        }.bind(this._rendition));
+	      }
+	      // --- KEEP THIS IN CASE WE HAVE TO REVERT THE PREHOOKS
+	      // this._rendition.hooks.content.register(function(contents) {
+	      //   contents.addStylesheetRules({
+	      //     "img" : {
+	      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+	      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+	      //       "object-fit": "contain",
+	      //       "page-break-inside": "avoid"
+	      //     },
+	      //     "svg" : {
+	      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+	      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+	      //       "page-break-inside": "avoid"
+	      //     },
+	      //     "body": {
+	      //       "overflow": "hidden",
+	      //       "column-rule": "1px solid #ddd"
+	      //     }
+	      //   });
+	      // }.bind(this._rendition))
 	    } else {
 	      this._rendition.hooks.content.register(function (contents) {
 	        contents.addStylesheetRules({
@@ -30192,7 +30243,20 @@
 	  _updateFontSize: function _updateFontSize() {
 
 	    var text_size = this.options.text_size || 100; // this.options.modes[this.flow].text_size; // this.options.text_size == 'auto' ? 100 : this.options.text_size;
+	    if (text_size == 100) {
+	      // do not add an unncessary override
+	      if (!this._rendition.themes._overrides['font-size']) {
+	        return;
+	      }
+	    }
 	    this._rendition.themes.fontSize(text_size + '%');
+
+	    // --- prehook avoids jitter but cannot be readily replaced
+	    // --- TODO: if this is the first font-size setting could use prehook
+	    // --- else: use `themes.fontSize`
+	    // this._rendition.settings.prehooks.head.register(function(buffer) {
+	    //   buffer.push(`<style>body { font-size: ${text_size}%; }</style>`);
+	    // })
 	  },
 
 	  _updateScale: function _updateScale() {
@@ -30495,7 +30559,7 @@
 	  mock: createReader$2
 	};
 
-	var reader$1 = function reader(id, options) {
+	var reader = function reader(id, options) {
 	  options = options || {};
 	  var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
 	  var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
@@ -30533,7 +30597,7 @@
 	exports.DomEvent = DomEvent;
 	exports.DomUtil = DomUtil;
 	exports.Reader = Reader;
-	exports.reader = reader$1;
+	exports.reader = reader;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
