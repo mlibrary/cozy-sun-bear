@@ -34,6 +34,7 @@ class ScrollingContinuousViewManager {
     extend(this.settings, options.settings || {});
 
     this.viewSettings = {
+      prehooks: this.settings.prehooks,
       ignoreClass: this.settings.ignoreClass,
       axis: this.settings.axis,
       flow: this.settings.flow,
@@ -163,7 +164,11 @@ class ScrollingContinuousViewManager {
       this._target = [ visible, target ];
     }
 
-    visible.element.scrollIntoView();
+    // --- scrollIntoView is quirkily aggressive on mobile devices
+    // visible.element.scrollIntoView();
+    if ( visible.element.parentNode ) {
+      visible.element.parentNode.scrollTop = visible.element.offsetTop;
+    }
 
     if ( visible == current ) {
       this.gotoTarget(visible);
