@@ -92,7 +92,6 @@ export var Navigator = Control.extend({
   },
 
   _action: function() {
-    console.log("AHOY AHOY ACTION");
     var value = parseInt(this._control.value, 10);
     var cfi;
     var locations = this._reader.locations;
