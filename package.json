@@ -68,7 +68,6 @@
     "babel-preset-es2105": "0.0.0",
     "epubjs": "git+https://github.com/mlibrary/epub.js.git#patched",
     "event-emitter": "^0.3.4",
-    "fsevents": "^1.2.7",
     "intersection-observer": "^0.5.1",
     "lodash": "^4.17.13",
     "mustache": "^2.3.0",
