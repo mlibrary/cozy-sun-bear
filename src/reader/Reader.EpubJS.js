@@ -13,7 +13,7 @@ import ReusableIframeView from '../epubjs/managers/views/iframe';
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
-import { popupTables, handlePopups } from "../utils/manglers";
+import { handlePopups } from "../utils/manglers";
 import * as focus from "../utils/focus";
 
 import debounce from 'lodash/debounce';
