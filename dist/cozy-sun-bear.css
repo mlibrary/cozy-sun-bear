@@ -1036,9 +1036,15 @@
     transition: opacity 0.5s; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator.initialized {
       opacity: 1.0; }
+    .cozy-container .cozy-panel-navigator .cozy-control-navigator.updating .cozy-navigator-range__status > span {
+      background: #000;
+      color: #fff; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range__status {
       width: 100%;
       text-align: center; }
+      .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range__status > span {
+        display: inline-block;
+        padding: 0 4px; }
     .cozy-container .cozy-panel-navigator .cozy-control-navigator .cozy-navigator-range {
       width: 90%;
       height: auto;

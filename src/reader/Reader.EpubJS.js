@@ -216,7 +216,10 @@ Reader.EpubJS = Reader.extend({
         this.settings.spread = 'none';
     }
 
-    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == ScrollingContinuousViewManager ) {
+    if ( this.settings.manager == ScrollingContinuousViewManager ) {
+      if ( this.metadata.layout != 'pre-paginated' && ! this.options.minHeight ) {
+        this.options.minHeight = this._panes['book'].offsetHeight * 0.75;
+      }
       if ( this.options.minHeight ) {
         this.settings.minHeight = this.options.minHeight;
       }
@@ -238,6 +241,10 @@ Reader.EpubJS = Reader.extend({
     // self._rendition = self._book.renderTo(self._panes['epub'], self.settings);
     self.rendition = new ePub.Rendition(self._book, self.settings);
     self._book.rendition = self._rendition;
+
+    this._rendition.settings.prehooks = {};
+    this._rendition.settings.prehooks.head = new Hook(this);
+
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
@@ -271,6 +278,8 @@ Reader.EpubJS = Reader.extend({
       self._rendition.manager.on("built", function() {
         self._disableBookLoader(true);
       })
+
+      self.fire('renditionStarted', self._rendition);
     })
 
     self._rendition.hooks.content.register(function(contents) {
@@ -468,7 +477,7 @@ Reader.EpubJS = Reader.extend({
 
     // performance hack
     if ( Object.keys(changed).length == 1 && changed.scale ) {
-      reader.options.scale = options.scale;
+      this.options.scale = options.scale;
       this._updateScale();
       return;
     }
@@ -512,25 +521,53 @@ Reader.EpubJS = Reader.extend({
 
     // force 90% height instead of default 60%
     if ( this.metadata.layout != 'pre-paginated' ) {
-      this._rendition.hooks.content.register(function(contents) {
-        contents.addStylesheetRules({
-          "img" : {
-            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-            "object-fit": "contain",
-            "page-break-inside": "avoid"
-          },
-          "svg" : {
-            "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-            "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-            "page-break-inside": "avoid"
-          },
-          "body": {
-            "overflow": "hidden",
-            "column-rule": "1px solid #ddd"
-          }
-        });
-      }.bind(this._rendition))
+      if ( this.options.flow == 'scrolled-doc' ) {
+        // these prehooks are a hack to avoid the contents hooks applying _after_
+        // the view has been displayed
+        this._rendition.settings.prehooks.head.register(function(buffer) {
+          var layout = this.layout;
+          var retval = `
+<style>
+img {
+  max-width: ${layout.columnWidth ? layout.columnWidth + "px" : "100%"} !important;
+  max-height: ${(layout.height ? (layout.height * 0.9) + "px" : "90%")} !important;
+  object-fit: contain;
+  page-break-inside: avoid;
+}
+svg {
+  max-width: ${layout.columnWidth ? layout.columnWidth + "px" : "100%"} !important;
+  max-height: ${(layout.height ? (layout.height * 0.9) + "px" : "90%")} !important;
+  page-break-inside: avoid;
+}
+body {
+  overflow: hidden;
+  column-rule: 1px solid #ddd;
+}
+</style>
+          ` 
+          buffer.push(retval);
+        }.bind(this._rendition));
+      }
+      // --- KEEP THIS IN CASE WE HAVE TO REVERT THE PREHOOKS
+      // this._rendition.hooks.content.register(function(contents) {
+      //   contents.addStylesheetRules({
+      //     "img" : {
+      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+      //       "object-fit": "contain",
+      //       "page-break-inside": "avoid"
+      //     },
+      //     "svg" : {
+      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
+      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
+      //       "page-break-inside": "avoid"
+      //     },
+      //     "body": {
+      //       "overflow": "hidden",
+      //       "column-rule": "1px solid #ddd"
+      //     }
+      //   });
+      // }.bind(this._rendition))
     } else {
       this._rendition.hooks.content.register(function(contents) {
         contents.addStylesheetRules({
@@ -655,7 +692,20 @@ Reader.EpubJS = Reader.extend({
     }
 
     var text_size = this.options.text_size || 100; // this.options.modes[this.flow].text_size; // this.options.text_size == 'auto' ? 100 : this.options.text_size;
+    if ( text_size == 100 ) { 
+      // do not add an unncessary override
+      if ( ! this._rendition.themes._overrides['font-size'] ) {
+        return; 
+      }
+    }
     this._rendition.themes.fontSize(`${text_size}%`);
+
+    // --- prehook avoids jitter but cannot be readily replaced
+    // --- TODO: if this is the first font-size setting could use prehook
+    // --- else: use `themes.fontSize`
+    // this._rendition.settings.prehooks.head.register(function(buffer) {
+    //   buffer.push(`<style>body { font-size: ${text_size}%; }</style>`);
+    // })
   },
 
   _updateScale: function() {

@@ -129,6 +129,9 @@ class StickyIframeView extends IframeView {
         var minHeight = this.settings.minHeight || 0;
         var maxHeight = this.settings.maxHeight || -1;
 
+        // try to add some padding in the shortest pages
+        minHeight *= 0.90;
+
         // console.log("AHOY AHOY reframe", this.index, width, height);
 
         if(isNumber(width)){
@@ -140,8 +143,7 @@ class StickyIframeView extends IframeView {
         }
 
         if(isNumber(height)){
-            var checkMinHeight = false; // not doing this
-            if ( isNumber(width) && width > height ) { checkMinHeight = false; }
+            var checkMinHeight = ( this.settings.layout.name == 'reflowable' );
             height = checkMinHeight && ( height <= minHeight ) ? minHeight : height;
 
             var styles = window.getComputedStyle(this.element);
@@ -149,7 +151,6 @@ class StickyIframeView extends IframeView {
             if ( this.iframe ) {
                 this.iframe.style.height = height + "px";
             }
-            // console.log("AHOY VIEW DISPLAY REFRAME", this.index, this.element.style.height, this.iframe && this.iframe.style.height);
             this._height = height;
         }
 
@@ -205,7 +206,15 @@ class StickyIframeView extends IframeView {
             parseInt(styles.borderBottomWidth, 10)
         );
         var current_height = this.element.offsetHeight;
-        if ( new_height < current_height ) { return ; }
+
+        // if this is the first re-load and the height doesn't match the current height
+        // DO NOT alter the height because some override is going to be applied
+        // which will alter the height.
+        this.afterResizeCounter += 1;
+        if ( this.unloaded && height != current_height && this.afterResizeCounter == 1 ) { 
+            return ; 
+        }
+
         this.element.style.height = `${new_height}px`;
     }
 
@@ -253,6 +262,7 @@ class StickyIframeView extends IframeView {
       this.contents.axis = this.settings.axis;
 
       this.rendering = false;
+      this.afterResizeCounter = 0;
 
       var link = this.document.querySelector("link[rel='canonical']");
       if (link) {
@@ -318,6 +328,8 @@ class StickyIframeView extends IframeView {
             this.stopExpanding = true;
             this.element.removeChild(this.iframe);
             this.element.style.visibility = "hidden";
+
+            this.unloaded = true;
 
             this.iframe = undefined;
             this.contents = undefined;

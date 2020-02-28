@@ -268,7 +268,7 @@ class Views {
     }
 
     preload(view, index) {
-        if ( view ) {
+        if ( view && ! view.preloaded ) {
             view.preloaded = true;
             // console.log("AHOY VIEWS preload", index, ">", view.index);
             this.emit("view.preload", { view: view });
