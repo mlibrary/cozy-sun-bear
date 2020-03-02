@@ -1,11 +1,5 @@
 import EventEmitter from "event-emitter";
 
-// import {
-//   ElementObserver,
-//   PositionObserver,
-//   ObserverCollection // Advanced: Used for grouping custom viewport handling
-// } from "viewprt";
-
 import {inVp} from '../../../core/Util';
 window.inVp = inVp;
 
