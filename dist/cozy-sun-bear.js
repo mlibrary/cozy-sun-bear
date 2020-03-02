@@ -1,13 +1,5 @@
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
- * Cozy Sun Bear 1.0.02463d2e, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
-=======
- * Cozy Sun Bear 1.0.08831507, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> de03793... support data-resource-type + refactor
-=======
- * Cozy Sun Bear 1.0.0dd8ff1d, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
->>>>>>> 5fa1597... build
+ * Cozy Sun Bear 1.0.0f208a5f, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -30726,7 +30718,7 @@
 	  mock: createReader$2
 	};
 
-	var reader = function reader(id, options) {
+	var reader$1 = function reader(id, options) {
 	  options = options || {};
 	  var engine = options.engine || window.COZY_EPUB_ENGINE || 'epubjs';
 	  var engine_href = options.engine_href || window.COZY_EPUB_ENGINE_HREF;
@@ -30764,7 +30756,7 @@
 	exports.DomEvent = DomEvent;
 	exports.DomUtil = DomUtil;
 	exports.Reader = Reader;
-	exports.reader = reader;
+	exports.reader = reader$1;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
