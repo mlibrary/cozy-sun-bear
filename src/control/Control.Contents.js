@@ -60,6 +60,12 @@ export var Contents = Control.extend({
     <ul></ul>
   </div>
   <div class="cozy-contents-pagelist" style="display: none">
+    <form>
+      <label for="cozy-contents-pagelist-pagenum">Page Number</label>
+      <input type="text" size="5" id="cozy-contents-pagelist-pagenum" />
+      <button class="button--sm">Go</button>
+      <p class="pagelist-error oi" data-glyph="target" role="alert"></p>
+    </form>
     <ul></ul>
   </div>
 </div>`.trim(),
@@ -80,6 +86,7 @@ export var Contents = Control.extend({
       this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
       this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
       this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
+      this._pageListError = this._modal.container.querySelector('.pagelist-error');
 
       this._toolbar.addEventListener('click', (event) => {
         if ( event.target.dataset.toggle ) {
@@ -95,6 +102,28 @@ export var Contents = Control.extend({
         }
       });
 
+      this._modal.on('click', '.cozy-contents-pagelist form button', function(modal, target) {
+        var form = target.parentNode;
+        var input = form.querySelector('input[type="text"]');
+        var value = input.value.trim();
+        if ( value ) {
+          var pageList = this._reader.pageList;
+          var page = pageList.pageList.find((p) => { return ( p.pageLabel == value ) }) || false;
+          if ( page ) {
+            target = pageList.cfiFromPage(page.page);
+            this._goto_interval = true;
+            this._reader.tracking.action('contents/go/link');
+            this._reader.display(target);
+            return true;
+          } else {
+            var p = this._pageListError; // form.querySelector('.pagelist-error');
+            var p1 = pageList.firstPageLabel;
+            var p2 = pageList.lastPageLabel;
+            p.innerHTML = `Please enter a page number between <strong>${p1}-${p2}</strong>.`;
+          }
+        }        
+      }.bind(this));
+
       this._modal.on('click', 'a[href]', function(modal, target) {
         target = target.getAttribute('data-href');
         this._goto_interval = true;
@@ -104,6 +133,7 @@ export var Contents = Control.extend({
       }.bind(this));
 
       this._modal.on('closed', function() {
+        self._pageListError.innerHTML = '';
         self._reader.tracking.action('contents/close');
       });
 
