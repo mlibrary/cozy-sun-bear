@@ -5,12 +5,6 @@ import { EVENTS } from "epubjs/src/utils/constants";
 
 import {extend, borders, uuid, isNumber, bounds, defer, createBlobUrl, revokeBlobUrl} from "epubjs/src/utils/core";
 
-import {
-  ElementObserver,
-  PositionObserver,
-  ObserverCollection // Advanced: Used for grouping custom viewport handling
-} from "viewprt";
-
 class StickyIframeView extends IframeView {
     constructor(section, options) {
         super(section, options);

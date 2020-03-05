@@ -13,7 +13,7 @@ import ReusableIframeView from '../epubjs/managers/views/iframe';
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
 
-import { popupTables } from "../utils/manglers";
+import { handlePopups } from "../utils/manglers";
 import * as focus from "../utils/focus";
 
 import debounce from 'lodash/debounce';
@@ -286,9 +286,9 @@ Reader.EpubJS = Reader.extend({
       self.fire('ready:contents', contents);
       self.fire('readyContents', contents);
 
-      // check for tables + columns
-      if ( self._rendition.manager.layout.name == 'reflowable' && ! ( Browser.ie || Browser.edge ) ) {
-        popupTables(self, contents);
+      // check for tables + columns + popups
+      if ( self._rendition.manager.layout.name == 'reflowable' ) {
+        handlePopups(self, contents);
       }
 
     })

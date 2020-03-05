@@ -341,7 +341,7 @@ Reader.include({
         region: 'full',
         template: '<div style="height: 100%; width: 100%"></div>',
         fraction: options.fraction || 1.0,
-        actions: [ 
+        actions: [
             { label: 'OK', callback: function(event) { }, close: true },
         ]
       })
@@ -358,6 +358,7 @@ Reader.include({
     iframe = document.createElement('iframe');
     iframe.style.width = '100%';
     iframe.style.height = '100%';
+    iframe.setAttribute('title', options.title);
     iframe = modalDiv.appendChild(iframe);
 
     if ( options.onLoad ) {
