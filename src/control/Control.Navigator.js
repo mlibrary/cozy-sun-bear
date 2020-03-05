@@ -47,6 +47,16 @@ export var Navigator = Control.extend({
       <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> • </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>
     `;
 
+    template = `<div class="cozy-navigator-range">
+      <form>
+        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>
+        <div class="cozy-navigator-range__background">
+          <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% • Location 0 of ?" value="0" data-background-position="0" />
+        </div>
+      </form>
+      </div>
+      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> • </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>`;
+
     var body = new DOMParser().parseFromString(template, "text/html").body;
     while ( body.children.length ) {
       container.appendChild(body.children[0]);
@@ -121,7 +131,10 @@ export var Navigator = Control.extend({
     var max = parseFloat(this._control.max, 10);
     var percentage = (( value / max ) * 100.0)
 
-    this._background.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+    // this._background.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+    var fill = this._fill; // '#2497e3';
+    var end = this._end; // '#ffffff';
+    this._control.style.background = `linear-gradient(to right, ${fill} 0%, ${fill} ${percentage}%, ${end} ${percentage}%, ${end} 100%)`;
     percentage = Math.ceil(percentage);
     this._spanCurrentPercentage.innerHTML = percentage + '%';
 
@@ -165,6 +178,9 @@ export var Navigator = Control.extend({
     var self = this;
 
     this._initiated = true;
+
+    this._fill = window.getComputedStyle(this._background, ':before').getPropertyValue('background-color');
+    this._end = window.getComputedStyle(this._background, ':after').getPropertyValue('background-color');
 
     if ( ! this._reader.pageList ) {
       this._spanCurrentPageLabel.style.display = 'none';

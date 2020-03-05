@@ -697,6 +697,43 @@ div.cozy-panel-footer {
 
 }
 
+.cozy-contents-pagelist form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  // justify-content: center;
+  margin: 1rem;
+  margin-left: 2.2rem; // to align with the ul
+
+  & > * {
+    margin: 0.25rem !important;
+    // margin-right: 0.25rem !important;
+  }
+  input[type=text] {
+    width: auto;
+    font-size: 1rem;
+  }
+  .button--sm {
+    font-size: 1rem;
+    padding-top: 0.625em;
+    padding-bottom: 0.625em;
+  }
+
+  p.pagelist-error {
+    background: $ui-caution;
+    padding: 0.5rem 1rem;
+    width: 100%;
+
+    &::before {
+      margin-right: 0.25rem;
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
 // preferences button
 .cozy-control-preferences {
   button {
