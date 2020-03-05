@@ -1,5 +1,5 @@
 /*
- * Cozy Sun Bear 1.0.051cd8de, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
+ * Cozy Sun Bear 1.0.060d2eed, a JS library for interactive books. http://github.com/mlibrary/cozy-sun-bear
  * (c) 2020 Regents of the University of Michigan
  */
 (function (global, factory) {
@@ -6552,7 +6552,7 @@
 	      }, this);
 
 	      this._modal = this._reader.modal({
-	        template: '\n<div class="cozy-contents-toolbar button-group" aria-hidden="true">\n  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>\n  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>\n</div>\n<div class="cozy-contents-main">\n  <div class="cozy-contents-contentlist">\n    <ul></ul>\n  </div>\n  <div class="cozy-contents-pagelist" style="display: none">\n    <ul></ul>\n  </div>\n</div>'.trim(),
+	        template: '\n<div class="cozy-contents-toolbar button-group" aria-hidden="true">\n  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>\n  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>\n</div>\n<div class="cozy-contents-main">\n  <div class="cozy-contents-contentlist">\n    <ul></ul>\n  </div>\n  <div class="cozy-contents-pagelist" style="display: none">\n    <form>\n      <label for="cozy-contents-pagelist-pagenum">Page Number</label>\n      <input type="text" size="5" id="cozy-contents-pagelist-pagenum" />\n      <button class="button--sm">Go</button>\n      <p class="pagelist-error oi" data-glyph="target" role="alert"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>'.trim(),
 	        title: 'Contents',
 	        region: 'left',
 	        className: 'cozy-modal-contents',
@@ -6570,6 +6570,7 @@
 	      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
 	      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
 	      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
+	      this._pageListError = this._modal.container.querySelector('.pagelist-error');
 
 	      this._toolbar.addEventListener('click', function (event) {
 	        if (event.target.dataset.toggle) {
@@ -6585,6 +6586,30 @@
 	        }
 	      });
 
+	      this._modal.on('click', '.cozy-contents-pagelist form button', function (modal, target) {
+	        var form = target.parentNode;
+	        var input = form.querySelector('input[type="text"]');
+	        var value = input.value.trim();
+	        if (value) {
+	          var pageList = this._reader.pageList;
+	          var page = pageList.pageList.find(function (p) {
+	            return p.pageLabel == value;
+	          }) || false;
+	          if (page) {
+	            target = pageList.cfiFromPage(page.page);
+	            this._goto_interval = true;
+	            this._reader.tracking.action('contents/go/link');
+	            this._reader.display(target);
+	            return true;
+	          } else {
+	            var p = this._pageListError; // form.querySelector('.pagelist-error');
+	            var p1 = pageList.firstPageLabel;
+	            var p2 = pageList.lastPageLabel;
+	            p.innerHTML = 'Please enter a page number between <strong>' + p1 + '-' + p2 + '</strong>.';
+	          }
+	        }
+	      }.bind(this));
+
 	      this._modal.on('click', 'a[href]', function (modal, target) {
 	        target = target.getAttribute('data-href');
 	        this._goto_interval = true;
@@ -6594,6 +6619,7 @@
 	      }.bind(this));
 
 	      this._modal.on('closed', function () {
+	        self._pageListError.innerHTML = '';
 	        self._reader.tracking.action('contents/close');
 	      });
 
@@ -7980,6 +8006,8 @@
 	  _createControl: function _createControl(container) {
 	    var template = '<div class="cozy-navigator-range">\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        <div class="cozy-navigator-range__background"></div>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> \u2022 </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>\n    ';
 
+	    template = '<div class="cozy-navigator-range">\n      <form>\n        <label class="u-screenreader" for="cozy-navigator-range-input">Location: </label>\n        <div class="cozy-navigator-range__background">\n          <input class="cozy-navigator-range__input" id="cozy-navigator-range-input" type="range" name="locations-range-value" min="0" max="100" step="1" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% \u2022\xA0Location 0 of ?" value="0" data-background-position="0" />\n        </div>\n      </form>\n      </div>\n      <div class="cozy-navigator-range__status"><span class="currentPercentage">0%</span><span> \u2022 </span><span>Location <span class="currentLocation">0</span> of <span class="totalLocations">?</span><span class="currentPageLabel"></span></span></div>';
+
 	    var body = new DOMParser().parseFromString(template, "text/html").body;
 	    while (body.children.length) {
 	      container.appendChild(body.children[0]);
@@ -8061,7 +8089,10 @@
 	    var max = parseFloat(this._control.max, 10);
 	    var percentage = value / max * 100.0;
 
-	    this._background.setAttribute('style', 'background-position: ' + -percentage + '% 0%, left top;');
+	    // this._background.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+	    var fill = this._fill; // '#2497e3';
+	    var end = this._end; // '#ffffff';
+	    this._control.style.background = 'linear-gradient(to right, ' + fill + ' 0%, ' + fill + ' ' + percentage + '%, ' + end + ' ' + percentage + '%, ' + end + ' 100%)';
 	    percentage = Math.ceil(percentage);
 	    this._spanCurrentPercentage.innerHTML = percentage + '%';
 
@@ -8106,6 +8137,9 @@
 	    var self = this;
 
 	    this._initiated = true;
+
+	    this._fill = window.getComputedStyle(this._background, ':before').getPropertyValue('background-color');
+	    this._end = window.getComputedStyle(this._background, ':after').getPropertyValue('background-color');
 
 	    if (!this._reader.pageList) {
 	      this._spanCurrentPageLabel.style.display = 'none';
@@ -14461,6 +14495,8 @@
 				this.firstPage = parseInt(this.pages[0]);
 				this.lastPage = parseInt(this.pages[this.pages.length - 1]);
 				this.totalPages = this.lastPage - this.firstPage;
+				this.firstPageLabel = this.pageList[0].pageLabel;
+				this.lastPageLabel = this.pageList[this.pageList.length - 1].pageLabel;
 			}
 
 			/**
