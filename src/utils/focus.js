@@ -59,7 +59,7 @@ function showEverythingVisible(container, range) {
       var bounds = node.getBoundingClientRect();
       var x = bounds.x;
       var x2 = x + container.scrollLeft;
-      // console.log("AHOY NODE BOUNDS", node, x, x2, 
+      // console.log("AHOY NODE BOUNDS", node, x, x2,
       //   "A",
       //   x > container.scrollLeft + container.offsetWidth,
       //   x < container.scrollLeft,
@@ -67,7 +67,7 @@ function showEverythingVisible(container, range) {
       //   x2 > container.scrollLeft + container.offsetWidth,
       //   x2 < container.scrollLeft
       //   )
-      if ( x > container.scrollLeft + container.offsetWidth || 
+      if ( x > container.scrollLeft + container.offsetWidth ||
            x < container.scrollLeft ) {
       } else {
         node.setAttribute('tabindex', 0);
@@ -142,7 +142,7 @@ export function updateFocus(reader, location) {
   if ( reader.settings.flow == 'scrolled-doc' ) { return ; }
   if ( reader.options.disableFocusHandling ) { return ; }
   setTimeout(() => {
-    if ( location.start.cfi == reader._last_location_start_cfi && 
+    if ( location.start.cfi == reader._last_location_start_cfi &&
          location.end.cfi == reader._last_location_end_cfi ) {
       return;
     }
@@ -262,6 +262,47 @@ export function __updateFocus(reader, location) {
       if ( ! isVisible ) { break; }
     }
   }
+
+  if ( reader.__target ) {
+    var possible = contents.document.querySelector(`#${reader.__target}`);
+    if ( possible && ! reader.options.disableFocusTarget ) {
+      possible.focus();
+      correct_drift(reader);
+      // console.log("AHOY FOCUSING", reader.__target, possible);
+    }
+    reader.__target = null;
+  }
+}
+
+var _checkLayout = function(reader) {
+  var scrollLeft = reader._manager.container.scrollLeft;
+  var mod = scrollLeft % parseInt(reader._manager.layout.delta, 10);
+  // console.log("AHOY checkLayout", scrollLeft, reader._manager.layout.delta, mod);
+  return mod;
+}
+
+var correct_drift = function(reader, data={}) {
+  var container = reader._rendition.manager.container;
+
+  var mod;
+  var delta;
+  var x; var xyz;
+  setTimeout(function() {
+    var scrollLeft = container.scrollLeft;
+    // mod = scrollLeft % parseInt(reader._rendition.manager.layout.delta, 10);
+    mod = _checkLayout(reader);
+    // console.log("AHOY AHOY keyDown TRAP", mod, mod / reader._rendition.manager.layout.delta,( mod / reader._rendition.manager.layout.delta ) < 0.99 );
+    if ( mod > 0 && ( mod / reader._rendition.manager.layout.delta ) < 0.99 ) {
+      x = Math.floor(container.scrollLeft / parseInt(reader._rendition.manager.layout.delta, 10));
+      if ( data.shiftKey ) { x -= 0 ; }
+      else { x += 1; }
+      var y = container.scrollLeft;
+      delta = ( x * reader._rendition.manager.layout.delta ) - y;
+      xyz = ( x * reader._rendition.manager.layout.delta );
+      // console.log("AHOY AHOY keyDown SHIFT", mod, reader._rendition.manager.layout.delta, x, delta);
+      reader._rendition.manager.scrollBy(delta);
+    }
+  }, 0);    
 }
 
 export function setupFocusRules(reader) {
@@ -275,7 +316,7 @@ export function setupFocusRules(reader) {
 
   var contents = reader._rendition.getContents();
   contents.forEach( (content) => {
-  
+
     if ( reader.options.debugFocusHandling ) {
       content.addStylesheetRules({
         '[aria-hidden="true"]': {
@@ -303,38 +344,23 @@ export function setupFocusRules(reader) {
         }
       }
     })
+
+    // --- capture internal link clicks?
+    content.on('linkClicked', function(href) {
+      if ( href.indexOf('#') > -1 ) {
+        reader.__target = (href.split('#')[1]);
+      }
+    })
   });
 
+  var __watchInterval;
+  reader._watchLayout = function(delta=1000) {
+    if ( __watchInterval ) { clearInterval(__watchInterval); return; }
+    __watchInterval = setInterval(() => { return reader._checkLayout(reader) }, delta);
+  }
+
   reader.on('keyDown', function(data) {
-    if ( data.keyName == 'Tab' ) {
-      reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
-    }
-
-    if ( data.keyName == 'Tab' && data.inner ) {
-      var container = reader._rendition.manager.container;
-      // container.dataset.scrollLeft = 0;
-
-      var mod;
-      var delta;
-      var x; var xyz;
-      setTimeout(function() {
-        var scrollLeft = container.scrollLeft;
-        mod = scrollLeft % parseInt(reader._rendition.manager.layout.delta, 10);
-        if ( mod > 0 && ( mod / reader._rendition.manager.layout.delta ) < 0.99 ) {
-          // var x = Math.floor(event.target.scrollLeft / parseInt(self._rendition.manager.layout.delta, 10)) + 1;
-          // var delta = ( x * self._rendition.manager.layout.delta) - event.target.scrollLeft;
-          x = Math.floor(container.scrollLeft / parseInt(reader._rendition.manager.layout.delta, 10));
-          if ( data.shiftKey ) { x -= 0 ; }
-          else { x += 1; }
-          var y = container.scrollLeft;
-          delta = ( x * self._rendition.manager.layout.delta ) - y;
-          xyz = ( x * reader._rendition.manager.layout.delta );
-          // if ( data.shiftKey ) { delta *= -1 ; }
-          if ( true || ! data.shiftKey ) {
-            reader._rendition.manager.scrollBy(delta);
-          }
-        }
-      }, 0);
-    }
+    reader._manager.container.dataset.scrollLeft = reader._manager.container.scrollLeft;
+    correct_drift(reader, data);
   })
 }
