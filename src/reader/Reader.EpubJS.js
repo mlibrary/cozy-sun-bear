@@ -633,6 +633,7 @@ body {
 
     this._rendition.on('displayerror', function(err) {
       console.log("AHOY RENDITION DISPLAY ERROR", err);
+      self.fire('displayerror', err);
     })
 
     var locationChanged_handler = debounce(function(location) {
