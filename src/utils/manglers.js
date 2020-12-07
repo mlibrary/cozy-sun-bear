@@ -51,6 +51,10 @@ var TableUpdater = class extends BaseUpdater {
         position: 'relative !important',
         width: '100%'
       },
+      'table.cozy-mangled-clipped thead': {
+        overflow: 'scroll !important',
+        display: 'block !important'
+      },
       'table.cozy-mangled-clipped tr': {
         display: 'block !important'
       },
