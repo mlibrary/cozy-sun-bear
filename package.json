@@ -2,7 +2,8 @@
   "name": "cozy-sun-bear",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/cozy-src.js",
+  "main": "src/cozy.js",
+  "module": "src/cozy.js",
   "scripts": {
     "build": "webpack --progress",
     "rollup": "rollup -c lib/rollup-config.js",
