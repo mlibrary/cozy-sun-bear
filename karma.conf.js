@@ -1,12 +1,14 @@
-// var json = require('rollup-plugin-json');
-// // var buble = require('rollup-plugin-buble'); // ES6 to ES5 transpiler
-// var babel = require('rollup-plugin-babel');
+var path = require("path");
+var os = require("os");
 
-// var commonjs = require('rollup-plugin-commonjs');
-// var nodeResolve = require('rollup-plugin-node-resolve');
-// var polyfill = require('rollup-plugin-polyfill');
-
-var rollupConfig = require('./lib/rollup-config');
+var webpackConfig = require('./webpack.config.js');
+webpackConfig.output = {
+   filename: '[name].js',
+   sourceMapFilename: '[name].map.js',
+   library: "cozy",
+   libraryTarget: "umd",
+   libraryExport: "default",
+};
 
 function getSpecs(specList) {
   if (specList) {
@@ -19,14 +21,13 @@ function getSpecs(specList) {
 // Karma configuration
 module.exports = function (config) {
   var files = [
-    "node_modules/sinon/pkg/sinon.js",
+    //"node_modules/sinon/pkg/sinon.js",
     "node_modules/expect.js/index.js",
     "node_modules/happen/happen.js",
-    "node_modules/prosthetic-hand/dist/prosthetic-hand.js",
+    //"node_modules/prosthetic-hand/dist/prosthetic-hand.js",
     "spec/SpecHelper.js",
     {pattern: 'spec/fixtures/**/*', watched: false, included: false, served: true},
-    {pattern: 'vendor/**/*', watched: false, included: false, served: true}
-    // "spec/**/*Spec.js"
+    {pattern: 'vendor/**/*', watched: false, included: false, served: true},
   ];
 
   if ( process.env.KARMA_USE_DIST ) {
@@ -44,19 +45,17 @@ module.exports = function (config) {
 
     // plugins
     plugins: [
-      'karma-rollup-preprocessor',
+      'karma-webpack',
       'karma-mocha',
       'karma-coverage',
       'karma-coveralls',
       'karma-sourcemap-loader',
-      // 'karma-phantomjs-launcher',
-      // 'karma-jsdom-launcher',
       'karma-chrome-launcher',
       'karma-safari-launcher',
       'karma-firefox-launcher'],
 
     // frameworks to use
-    frameworks: ['mocha'],
+    frameworks: ['mocha', 'webpack'],
 
     // list of files / patterns to load in the browser
     files: files.concat(getSpecs(process.env.KARMA_SPECS)),
@@ -66,20 +65,10 @@ module.exports = function (config) {
 
     // Rollup the ES6 Cozy sources into just one ES5 file, before tests
     preprocessors: {
-      // 'src/cozy.js': ['rollup', 'coverage']
-      'src/*.js': [ 'rollup', 'sourcemap' ]
+      'src/cozy.js': ['webpack', 'sourcemap'],
     },
-    rollupPreprocessor: {
-      plugins: rollupConfig.plugins,
-      output: rollupConfig.output
-      // output: {
-      //   format: 'umd',
-      //   name: 'cozy',
-      //   sourcemap: 'inline'
-      // },
-      // moduleName: 'cozy' //,
-      // sourceMap: 'inline'
-    },
+
+    webpack: webpackConfig,
 
     // test results reporter(s) to use possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['dots', 'coverage', 'coveralls', 'progress'],
