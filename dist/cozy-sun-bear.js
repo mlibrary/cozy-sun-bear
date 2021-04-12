@@ -1060,7 +1060,7 @@ var Title = Control.extend({
 
     this._reader.on('updateTitle', function (data) {
       if (data) {
-        self._title.textContent = data.title || data.bookTitle;
+        self._title.textContent = "TOO " + data.title || 0;
         DomUtil.setOpacity(self._section, 0);
         DomUtil.setOpacity(self._divider, 0);
         DomUtil.setOpacity(h1, 1);
