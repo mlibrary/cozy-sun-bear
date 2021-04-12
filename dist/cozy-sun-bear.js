@@ -1060,7 +1060,7 @@ var Title = Control.extend({
 
     this._reader.on('updateTitle', function (data) {
       if (data) {
-        self._title.textContent = data.title || data.bookTitle;
+        self._title.textContent = "TOO " + data.title || 0;
         DomUtil.setOpacity(self._section, 0);
         DomUtil.setOpacity(self._divider, 0);
         DomUtil.setOpacity(h1, 1);
@@ -6175,23 +6175,24 @@ class EpubCFI {
 	 * Convert CFI to a epubcfi(...) string
 	 * @returns {string} epubcfi
 	 */
-	toString() {
+	toString(cfi) {
+		if ( ! cfi ) { cfi = this; }
 		var cfiString = "epubcfi(";
 
-		cfiString += this.segmentString(this.base);
+		cfiString += this.segmentString(cfi.base);
 
 		cfiString += "!";
-		cfiString += this.segmentString(this.path);
+		cfiString += this.segmentString(cfi.path);
 
 		// Add Range, if present
-		if(this.range && this.start) {
+		if(cfi.range && cfi.start) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.start);
+			cfiString += this.segmentString(cfi.start);
 		}
 
-		if(this.range && this.end) {
+		if(cfi.range && cfi.end) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.end);
+			cfiString += this.segmentString(cfi.end);
 		}
 
 		cfiString += ")";
@@ -7399,6 +7400,7 @@ class Spine {
 	constructor() {
 		this.spineItems = [];
 		this.spineByHref = {};
+		this.spineByAbsoluteHref = {};
 		this.spineById = {};
 
 		this.hooks = {};
@@ -7530,7 +7532,16 @@ class Spine {
 		} else if(typeof target === "string") {
 			// Remove fragments
 			target = target.split("#")[0];
-			index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+			index = this.spineByAbsoluteHref[target] || this.spineByAbsoluteHref[encodeURI(target)] || this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+			if ( ! index ) {
+				// check for relative paths
+				for(var i = 0; i < this.spineItems.length; i++)	{
+					if ( this.spineItems[i].href.indexOf('/' + target) > -1 ) {
+						index = i;
+						break;
+					}
+				}
+			}
 		}
 
 		return this.spineItems[index] || null;
@@ -7551,9 +7562,12 @@ class Spine {
 		// see pr for details: https://github.com/futurepress/epub.js/pull/358
 		this.spineByHref[decodeURI(section.href)] = index;
 		this.spineByHref[encodeURI(section.href)] = index;
+		this.spineByHref[section.href.substring(section.href.lastIndexOf('/')+1)] = index;
 		this.spineByHref[section.href] = index;
 
 		this.spineById[section.idref] = index;
+
+		this.spineByAbsoluteHref[section.url] = index;
 
 		return index;
 	}
@@ -8003,6 +8017,32 @@ class Locations {
 		this.processingTimeout = undefined;
 	}
 
+	generateFromPageList(pageList) {
+
+		this.break = 1600;
+		this.q.pause();
+
+		var i = 0;
+
+		this._pageList = pageList;
+
+		this.spine.each(function(section) {
+			if (section.linear) {
+				this.q.enqueue(this.process.bind(this), section);
+			}
+		}.bind(this));
+
+		return this.q.run().then(function() {
+			this.total = this._locations.length - 1;
+
+			if (this._currentCfi) {
+				this.currentLocation = this._currentCfi;
+			}
+
+			return this._locations;
+		}.bind(this));
+	}
+
 	/**
 	 * Load all of sections in the book to generate locations
 	 * @param  {int} chars how many chars to split on
@@ -8051,6 +8091,21 @@ class Locations {
 				var completed = new core.defer();
 				var locations = this.parse(contents, section.cfiBase);
 				this._locations = this._locations.concat(locations);
+
+				if ( this._pageList ) {
+
+					var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
+
+					pages.forEach((page) => {
+						var item = this._pageList.pageList[page - 1];
+
+						var parts = item.href.split('#');
+						var target = parts[1] ? '#' + parts[1] : 'body';
+						var node = contents.ownerDocument.querySelector(target);
+						var cfi = section.cfiFromElement(node);
+						this._pageList.locations[page - 1] = cfi;
+					})
+				}
 
 				section.unload();
 
@@ -8769,13 +8824,17 @@ class Packaging {
  * @param {document} xml navigation html / xhtml / ncx
  */
 class Navigation {
-	constructor(xml) {
+	constructor(xml, path, canonical) {
 		this.toc = [];
 		this.tocByHref = {};
 		this.tocById = {};
 
 		this.landmarks = [];
 		this.landmarksByType = {};
+
+		this.canonical = canonical;
+
+		this.path = path;
 
 		this.length = 0;
 		if (xml) {
@@ -8955,9 +9014,12 @@ class Navigation {
 			}
 		}
 
+		var path = this.path.resolve(src);
+
 		return {
 			"id": id,
 			"href": src,
+			"canonical": this.canonical(path),
 			"label": text,
 			"html": html,
 			"subitems" : subitems,
@@ -9436,7 +9498,7 @@ class Resources {
  * @param {document} [xml]
  */
 class PageList {
-	constructor(xml) {
+	constructor(xml, path, canonical) {
 		this.pages = [];
 		this.locations = [];
 		this.epubcfi = new epubcfi();
@@ -9445,8 +9507,13 @@ class PageList {
 		this.lastPage = 0;
 		this.totalPages = 0;
 
+		this.pagesByAbsolutePath = {};
+
 		this.toc = undefined;
 		this.ncx = undefined;
+
+		this.path = path;
+		this.canonical = canonical;
 
 		if (xml) {
 			this.pageList = this.parse(xml);
@@ -9491,7 +9558,7 @@ class PageList {
 		if(!navItems || length === 0) return list;
 
 		for (i = 0; i < length; ++i) {
-			item = this.item(navItems[i]);
+			item = this.item(navItems[i], i);
 			list.push(item);
 		}
 
@@ -9504,11 +9571,12 @@ class PageList {
 	 * @param  {node} item
 	 * @return {object} pageListItem
 	 */
-	item(item){
+	item(item, i){
 		var content = (0,core.qs)(item, "a"),
 				href = content.getAttribute("href") || "",
 				text = content.textContent || "",
-				page = parseInt(text),
+				pageLabel = text,
+				page = i + 1, 
 				isCfi = href.indexOf("epubcfi"),
 				split,
 				packageUrl,
@@ -9522,12 +9590,14 @@ class PageList {
 				"cfi" : cfi,
 				"href" : href,
 				"packageUrl" : packageUrl,
-				"page" : page
+				"page" : page,
+				"pageLabel": pageLabel
 			};
 		} else {
 			return {
 				"href" : href,
-				"page" : page
+				"page" : page,
+				"pageLabel": pageLabel
 			};
 		}
 	}
@@ -9543,10 +9613,21 @@ class PageList {
 			if (item.cfi) {
 				this.locations.push(item.cfi);
 			}
+			if ( item.href ) {
+				var href = (item.href.split('#'))[0];
+				var path = this.path.resolve(href);
+				var absolute = this.canonical(path);
+				if ( this.pagesByAbsolutePath[absolute] == null ) {
+					this.pagesByAbsolutePath[absolute] = [];
+				}
+				this.pagesByAbsolutePath[absolute].push(item.page);
+			}
 		}, this);
 		this.firstPage = parseInt(this.pages[0]);
 		this.lastPage = parseInt(this.pages[this.pages.length-1]);
 		this.totalPages = this.lastPage - this.firstPage;
+		this.firstPageLabel = this.pageList[0].pageLabel;
+		this.lastPageLabel = this.pageList[this.pageList.length - 1].pageLabel;
 	}
 
 	/**
@@ -9587,6 +9668,36 @@ class PageList {
 		return pg;
 	}
 
+	pagesFromLocation(location) {
+		var pgs = [];
+
+		// Check if the pageList has not been set yet
+		if(this.locations.length === 0) {
+			return [];
+		}
+
+		var pg = this.pageFromCfi(location.start.cfi);
+		if ( pg == -1 || pg >= this.locations.length ) {
+			return [];
+		}
+
+		pgs.push(pg);
+		pg = this.pageFromCfi(location.end.cfi);
+		if ( pg != pgs[0] ) {
+			pgs.push(pg);
+		}
+
+		return pgs;
+	}
+
+	pageLabel(page) {
+		var item = this.pageList[page];
+		if ( item ) {
+			return item.pageLabel || `#${page}`;
+		}
+		return -1;
+	}
+
 	/**
 	 * Get an EpubCFI from a Page List Item
 	 * @param  {string | number} pg
@@ -9609,6 +9720,14 @@ class PageList {
 		return cfi;
 	}
 
+	cfiFromPageLabel(pageLabel) {
+		var item = this.pageList.find(item => item.pageLabel == pageLabel);
+		if ( item ) {
+			return this.cfiFromPage(item.page);
+		}
+		return -1;
+	}
+
 	/**
 	 * Get a Page from Book percentage
 	 * @param  {number} percent
@@ -9617,6 +9736,16 @@ class PageList {
 	pageFromPercentage(percent){
 		var pg = Math.round(this.totalPages * percent);
 		return pg;
+	}
+
+	itemFromPercentage(percent) {
+		var pg = this.pageFromPercentage(percent);
+		return this.pageList[pg - 1];
+	}
+
+	itemFromCfi(cfi) {
+		var pg = this.pageFromCfi(cfi);
+		return this.pageList[pg - 1];
 	}
 
 	/**
@@ -11443,10 +11572,10 @@ class Contents {
 		if (!styleEl) {
 			styleEl = this.document.createElement("style");
 			styleEl.id = key;
+			// Append style element to head
+			this.document.head.appendChild(styleEl);
 		}
 
-		// Append style element to head
-		this.document.head.appendChild(styleEl);
 
 		// Grab style sheet
 		styleSheet = styleEl.sheet;
@@ -13035,6 +13164,15 @@ class IframeView {
 			this.iframe.src = this.blobUrl;
 			this.element.appendChild(this.iframe);
 		} else if(this.settings.method === "srcdoc"){
+			contents = contents.replace('</body>', '<script>window.addEventListener("load", (e) => { });</script></body>');
+			if ( this.settings.prehooks && this.settings.prehooks.head ) {
+				var buffer = [];
+				this.settings.prehooks.head.trigger(buffer);
+				buffer.forEach((b) => {
+					contents = contents.replace('</head>', b + '</head>');
+				})
+				// contents = contents.replace('</head>', this.settings.prehooks.head(this.settings.layout) + '</head>');
+			}
 			this.iframe.srcdoc = contents;
 			this.element.appendChild(this.iframe);
 		} else {
@@ -14068,6 +14206,7 @@ class DefaultViewManager {
 		(0,core.extend)(this.settings, options.settings || {});
 
 		this.viewSettings = {
+			prehooks: this.settings.prehooks,
 			ignoreClass: this.settings.ignoreClass,
 			axis: this.settings.axis,
 			flow: this.settings.flow,
@@ -14314,6 +14453,7 @@ class DefaultViewManager {
 				if(target) {
 					let offset = view.locationOf(target);
 					this.moveTo(offset);
+					view.__target = { target: target, offset: offset };
 				}
 
 			}.bind(this), (err) => {
@@ -14333,7 +14473,6 @@ class DefaultViewManager {
 			.then(function(){
 
 				this.views.show();
-
 				displaying.resolve();
 
 			}.bind(this));
@@ -14351,10 +14490,17 @@ class DefaultViewManager {
 	}
 
 	afterResized(view){
+		if ( view.__target ) {
+			let offset = view.locationOf(view.__target.target);
+			if ( offset.left != view.__target.offset.left && offset.top != view.__target.offset.top ) {
+				this.moveTo(offset, false);
+			}
+			view.__target = undefined;
+		}
 		this.emit(EVENTS.MANAGERS.RESIZE, view.section);
 	}
 
-	moveTo(offset){
+	moveTo(offset, silent=true){
 		var distX = 0,
 			  distY = 0;
 
@@ -14367,7 +14513,7 @@ class DefaultViewManager {
 				distX = this.container.scrollWidth - this.layout.delta;
 			}
 		}
-		this.scrollTo(distX, distY, true);
+		this.scrollTo(distX, distY, silent);
 	}
 
 	add(section){
@@ -18149,10 +18295,11 @@ class Book {
 			});
 		}
 
-		return this.load(navPath, "xml")
+		navPath = new utils_path/* default */.Z(this.resolve(navPath));
+		return this.load(navPath.path, "xml")
 			.then((xml) => {
-				this.navigation = new navigation(xml);
-				this.pageList = new pagelist(xml);
+				this.navigation = new navigation(xml, navPath, this.canonical.bind(this));
+				this.pageList = new pagelist(xml, navPath, this.canonical.bind(this));
 				return this.navigation;
 			});
 	}
