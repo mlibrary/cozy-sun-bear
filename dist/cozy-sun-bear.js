@@ -5747,8 +5747,8 @@ __webpack_require__.d(__webpack_exports__, {
 var Reader = __webpack_require__(8399);
 // EXTERNAL MODULE: ./src/core/Util.js
 var Util = __webpack_require__(7518);
-// EXTERNAL MODULE: ./node_modules/epubjs/node_modules/event-emitter/index.js
-var event_emitter = __webpack_require__(9297);
+// EXTERNAL MODULE: ./node_modules/event-emitter/index.js
+var event_emitter = __webpack_require__(8370);
 var event_emitter_default = /*#__PURE__*/__webpack_require__.n(event_emitter);
 // EXTERNAL MODULE: ./node_modules/epubjs/src/utils/core.js
 var core = __webpack_require__(6458);
@@ -6175,23 +6175,24 @@ class EpubCFI {
 	 * Convert CFI to a epubcfi(...) string
 	 * @returns {string} epubcfi
 	 */
-	toString() {
+	toString(cfi) {
+		if ( ! cfi ) { cfi = this; }
 		var cfiString = "epubcfi(";
 
-		cfiString += this.segmentString(this.base);
+		cfiString += this.segmentString(cfi.base);
 
 		cfiString += "!";
-		cfiString += this.segmentString(this.path);
+		cfiString += this.segmentString(cfi.path);
 
 		// Add Range, if present
-		if(this.range && this.start) {
+		if(cfi.range && cfi.start) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.start);
+			cfiString += this.segmentString(cfi.start);
 		}
 
-		if(this.range && this.end) {
+		if(cfi.range && cfi.end) {
 			cfiString += ",";
-			cfiString += this.segmentString(this.end);
+			cfiString += this.segmentString(cfi.end);
 		}
 
 		cfiString += ")";
@@ -7399,6 +7400,7 @@ class Spine {
 	constructor() {
 		this.spineItems = [];
 		this.spineByHref = {};
+		this.spineByAbsoluteHref = {};
 		this.spineById = {};
 
 		this.hooks = {};
@@ -7530,7 +7532,16 @@ class Spine {
 		} else if(typeof target === "string") {
 			// Remove fragments
 			target = target.split("#")[0];
-			index = this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+			index = this.spineByAbsoluteHref[target] || this.spineByAbsoluteHref[encodeURI(target)] || this.spineByHref[target] || this.spineByHref[encodeURI(target)];
+			if ( ! index ) {
+				// check for relative paths
+				for(var i = 0; i < this.spineItems.length; i++)	{
+					if ( this.spineItems[i].href.indexOf('/' + target) > -1 ) {
+						index = i;
+						break;
+					}
+				}
+			}
 		}
 
 		return this.spineItems[index] || null;
@@ -7551,9 +7562,12 @@ class Spine {
 		// see pr for details: https://github.com/futurepress/epub.js/pull/358
 		this.spineByHref[decodeURI(section.href)] = index;
 		this.spineByHref[encodeURI(section.href)] = index;
+		this.spineByHref[section.href.substring(section.href.lastIndexOf('/')+1)] = index;
 		this.spineByHref[section.href] = index;
 
 		this.spineById[section.idref] = index;
+
+		this.spineByAbsoluteHref[section.url] = index;
 
 		return index;
 	}
@@ -8003,6 +8017,32 @@ class Locations {
 		this.processingTimeout = undefined;
 	}
 
+	generateFromPageList(pageList) {
+
+		this.break = 1600;
+		this.q.pause();
+
+		var i = 0;
+
+		this._pageList = pageList;
+
+		this.spine.each(function(section) {
+			if (section.linear) {
+				this.q.enqueue(this.process.bind(this), section);
+			}
+		}.bind(this));
+
+		return this.q.run().then(function() {
+			this.total = this._locations.length - 1;
+
+			if (this._currentCfi) {
+				this.currentLocation = this._currentCfi;
+			}
+
+			return this._locations;
+		}.bind(this));
+	}
+
 	/**
 	 * Load all of sections in the book to generate locations
 	 * @param  {int} chars how many chars to split on
@@ -8051,6 +8091,21 @@ class Locations {
 				var completed = new core.defer();
 				var locations = this.parse(contents, section.cfiBase);
 				this._locations = this._locations.concat(locations);
+
+				if ( this._pageList ) {
+
+					var pages = this._pageList.pagesByAbsolutePath[section.canonical] || []; // || 
+
+					pages.forEach((page) => {
+						var item = this._pageList.pageList[page - 1];
+
+						var parts = item.href.split('#');
+						var target = parts[1] ? '#' + parts[1] : 'body';
+						var node = contents.ownerDocument.querySelector(target);
+						var cfi = section.cfiFromElement(node);
+						this._pageList.locations[page - 1] = cfi;
+					})
+				}
 
 				section.unload();
 
@@ -8769,13 +8824,17 @@ class Packaging {
  * @param {document} xml navigation html / xhtml / ncx
  */
 class Navigation {
-	constructor(xml) {
+	constructor(xml, path, canonical) {
 		this.toc = [];
 		this.tocByHref = {};
 		this.tocById = {};
 
 		this.landmarks = [];
 		this.landmarksByType = {};
+
+		this.canonical = canonical;
+
+		this.path = path;
 
 		this.length = 0;
 		if (xml) {
@@ -8955,9 +9014,12 @@ class Navigation {
 			}
 		}
 
+		var path = this.path.resolve(src);
+
 		return {
 			"id": id,
 			"href": src,
+			"canonical": this.canonical(path),
 			"label": text,
 			"html": html,
 			"subitems" : subitems,
@@ -9436,7 +9498,7 @@ class Resources {
  * @param {document} [xml]
  */
 class PageList {
-	constructor(xml) {
+	constructor(xml, path, canonical) {
 		this.pages = [];
 		this.locations = [];
 		this.epubcfi = new epubcfi();
@@ -9445,8 +9507,13 @@ class PageList {
 		this.lastPage = 0;
 		this.totalPages = 0;
 
+		this.pagesByAbsolutePath = {};
+
 		this.toc = undefined;
 		this.ncx = undefined;
+
+		this.path = path;
+		this.canonical = canonical;
 
 		if (xml) {
 			this.pageList = this.parse(xml);
@@ -9491,7 +9558,7 @@ class PageList {
 		if(!navItems || length === 0) return list;
 
 		for (i = 0; i < length; ++i) {
-			item = this.item(navItems[i]);
+			item = this.item(navItems[i], i);
 			list.push(item);
 		}
 
@@ -9504,11 +9571,12 @@ class PageList {
 	 * @param  {node} item
 	 * @return {object} pageListItem
 	 */
-	item(item){
+	item(item, i){
 		var content = (0,core.qs)(item, "a"),
 				href = content.getAttribute("href") || "",
 				text = content.textContent || "",
-				page = parseInt(text),
+				pageLabel = text,
+				page = i + 1, 
 				isCfi = href.indexOf("epubcfi"),
 				split,
 				packageUrl,
@@ -9522,12 +9590,14 @@ class PageList {
 				"cfi" : cfi,
 				"href" : href,
 				"packageUrl" : packageUrl,
-				"page" : page
+				"page" : page,
+				"pageLabel": pageLabel
 			};
 		} else {
 			return {
 				"href" : href,
-				"page" : page
+				"page" : page,
+				"pageLabel": pageLabel
 			};
 		}
 	}
@@ -9543,10 +9613,21 @@ class PageList {
 			if (item.cfi) {
 				this.locations.push(item.cfi);
 			}
+			if ( item.href ) {
+				var href = (item.href.split('#'))[0];
+				var path = this.path.resolve(href);
+				var absolute = this.canonical(path);
+				if ( this.pagesByAbsolutePath[absolute] == null ) {
+					this.pagesByAbsolutePath[absolute] = [];
+				}
+				this.pagesByAbsolutePath[absolute].push(item.page);
+			}
 		}, this);
 		this.firstPage = parseInt(this.pages[0]);
 		this.lastPage = parseInt(this.pages[this.pages.length-1]);
 		this.totalPages = this.lastPage - this.firstPage;
+		this.firstPageLabel = this.pageList[0].pageLabel;
+		this.lastPageLabel = this.pageList[this.pageList.length - 1].pageLabel;
 	}
 
 	/**
@@ -9587,6 +9668,36 @@ class PageList {
 		return pg;
 	}
 
+	pagesFromLocation(location) {
+		var pgs = [];
+
+		// Check if the pageList has not been set yet
+		if(this.locations.length === 0) {
+			return [];
+		}
+
+		var pg = this.pageFromCfi(location.start.cfi);
+		if ( pg == -1 || pg >= this.locations.length ) {
+			return [];
+		}
+
+		pgs.push(pg);
+		pg = this.pageFromCfi(location.end.cfi);
+		if ( pg != pgs[0] ) {
+			pgs.push(pg);
+		}
+
+		return pgs;
+	}
+
+	pageLabel(page) {
+		var item = this.pageList[page];
+		if ( item ) {
+			return item.pageLabel || `#${page}`;
+		}
+		return -1;
+	}
+
 	/**
 	 * Get an EpubCFI from a Page List Item
 	 * @param  {string | number} pg
@@ -9609,6 +9720,14 @@ class PageList {
 		return cfi;
 	}
 
+	cfiFromPageLabel(pageLabel) {
+		var item = this.pageList.find(item => item.pageLabel == pageLabel);
+		if ( item ) {
+			return this.cfiFromPage(item.page);
+		}
+		return -1;
+	}
+
 	/**
 	 * Get a Page from Book percentage
 	 * @param  {number} percent
@@ -9617,6 +9736,16 @@ class PageList {
 	pageFromPercentage(percent){
 		var pg = Math.round(this.totalPages * percent);
 		return pg;
+	}
+
+	itemFromPercentage(percent) {
+		var pg = this.pageFromPercentage(percent);
+		return this.pageList[pg - 1];
+	}
+
+	itemFromCfi(cfi) {
+		var pg = this.pageFromCfi(cfi);
+		return this.pageList[pg - 1];
 	}
 
 	/**
@@ -11443,10 +11572,10 @@ class Contents {
 		if (!styleEl) {
 			styleEl = this.document.createElement("style");
 			styleEl.id = key;
+			// Append style element to head
+			this.document.head.appendChild(styleEl);
 		}
 
-		// Append style element to head
-		this.document.head.appendChild(styleEl);
 
 		// Grab style sheet
 		styleSheet = styleEl.sheet;
@@ -13035,6 +13164,15 @@ class IframeView {
 			this.iframe.src = this.blobUrl;
 			this.element.appendChild(this.iframe);
 		} else if(this.settings.method === "srcdoc"){
+			contents = contents.replace('</body>', '<script>window.addEventListener("load", (e) => { });</script></body>');
+			if ( this.settings.prehooks && this.settings.prehooks.head ) {
+				var buffer = [];
+				this.settings.prehooks.head.trigger(buffer);
+				buffer.forEach((b) => {
+					contents = contents.replace('</head>', b + '</head>');
+				})
+				// contents = contents.replace('</head>', this.settings.prehooks.head(this.settings.layout) + '</head>');
+			}
 			this.iframe.srcdoc = contents;
 			this.element.appendChild(this.iframe);
 		} else {
@@ -14068,6 +14206,7 @@ class DefaultViewManager {
 		(0,core.extend)(this.settings, options.settings || {});
 
 		this.viewSettings = {
+			prehooks: this.settings.prehooks,
 			ignoreClass: this.settings.ignoreClass,
 			axis: this.settings.axis,
 			flow: this.settings.flow,
@@ -14314,6 +14453,7 @@ class DefaultViewManager {
 				if(target) {
 					let offset = view.locationOf(target);
 					this.moveTo(offset);
+					view.__target = { target: target, offset: offset };
 				}
 
 			}.bind(this), (err) => {
@@ -14333,7 +14473,6 @@ class DefaultViewManager {
 			.then(function(){
 
 				this.views.show();
-
 				displaying.resolve();
 
 			}.bind(this));
@@ -14351,10 +14490,17 @@ class DefaultViewManager {
 	}
 
 	afterResized(view){
+		if ( view.__target ) {
+			let offset = view.locationOf(view.__target.target);
+			if ( offset.left != view.__target.offset.left && offset.top != view.__target.offset.top ) {
+				this.moveTo(offset, false);
+			}
+			view.__target = undefined;
+		}
 		this.emit(EVENTS.MANAGERS.RESIZE, view.section);
 	}
 
-	moveTo(offset){
+	moveTo(offset, silent=true){
 		var distX = 0,
 			  distY = 0;
 
@@ -14367,7 +14513,7 @@ class DefaultViewManager {
 				distX = this.container.scrollWidth - this.layout.delta;
 			}
 		}
-		this.scrollTo(distX, distY, true);
+		this.scrollTo(distX, distY, silent);
 	}
 
 	add(section){
@@ -18149,10 +18295,11 @@ class Book {
 			});
 		}
 
-		return this.load(navPath, "xml")
+		navPath = new utils_path/* default */.Z(this.resolve(navPath));
+		return this.load(navPath.path, "xml")
 			.then((xml) => {
-				this.navigation = new navigation(xml);
-				this.pageList = new pagelist(xml);
+				this.navigation = new navigation(xml, navPath, this.canonical.bind(this));
+				this.pageList = new pagelist(xml, navPath, this.canonical.bind(this));
 				return this.navigation;
 			});
 	}
@@ -19858,9 +20005,6 @@ var ReusableIframeView = /*#__PURE__*/function (_IframeView) {
 }(iframe);
 
 /* harmony default export */ const views_iframe = ((/* unused pure expression or super */ null && (ReusableIframeView)));
-// EXTERNAL MODULE: ./node_modules/event-emitter/index.js
-var node_modules_event_emitter = __webpack_require__(8370);
-var node_modules_event_emitter_default = /*#__PURE__*/__webpack_require__.n(node_modules_event_emitter);
 ;// CONCATENATED MODULE: ./src/epubjs/managers/helpers/scrolling_views.js
 function scrolling_views_classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20195,7 +20339,7 @@ var scrolling_views_Views = /*#__PURE__*/function () {
   return Views;
 }();
 
-node_modules_event_emitter_default()(scrolling_views_Views.prototype);
+event_emitter_default()(scrolling_views_Views.prototype);
 /* harmony default export */ const scrolling_views = (scrolling_views_Views);
 ;// CONCATENATED MODULE: ./src/epubjs/managers/continuous/scrolling.js
 function scrolling_classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21020,7 +21164,7 @@ ScrollingContinuousViewManager.toString = function () {
 }; //-- Enable binding events to Manager
 
 
-node_modules_event_emitter_default()(ScrollingContinuousViewManager.prototype);
+event_emitter_default()(ScrollingContinuousViewManager.prototype);
 /* harmony default export */ const scrolling = (ScrollingContinuousViewManager);
 ;// CONCATENATED MODULE: ./src/epubjs/managers/views/sticky.js
 function sticky_typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { sticky_typeof = function _typeof(obj) { return typeof obj; }; } else { sticky_typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return sticky_typeof(obj); }
@@ -24215,444 +24359,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 3479:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var isValue         = __webpack_require__(5618)
-  , isPlainFunction = __webpack_require__(7205)
-  , assign          = __webpack_require__(8600)
-  , normalizeOpts   = __webpack_require__(2135)
-  , contains        = __webpack_require__(7853);
-
-var d = (module.exports = function (dscr, value/*, options*/) {
-	var c, e, w, options, desc;
-	if (arguments.length < 2 || typeof dscr !== "string") {
-		options = value;
-		value = dscr;
-		dscr = null;
-	} else {
-		options = arguments[2];
-	}
-	if (isValue(dscr)) {
-		c = contains.call(dscr, "c");
-		e = contains.call(dscr, "e");
-		w = contains.call(dscr, "w");
-	} else {
-		c = w = true;
-		e = false;
-	}
-
-	desc = { value: value, configurable: c, enumerable: e, writable: w };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-});
-
-d.gs = function (dscr, get, set/*, options*/) {
-	var c, e, options, desc;
-	if (typeof dscr !== "string") {
-		options = set;
-		set = get;
-		get = dscr;
-		dscr = null;
-	} else {
-		options = arguments[3];
-	}
-	if (!isValue(get)) {
-		get = undefined;
-	} else if (!isPlainFunction(get)) {
-		options = get;
-		get = set = undefined;
-	} else if (!isValue(set)) {
-		set = undefined;
-	} else if (!isPlainFunction(set)) {
-		options = set;
-		set = undefined;
-	}
-	if (isValue(dscr)) {
-		c = contains.call(dscr, "c");
-		e = contains.call(dscr, "e");
-	} else {
-		c = true;
-		e = false;
-	}
-
-	desc = { get: get, set: set, configurable: c, enumerable: e };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-};
-
-
-/***/ }),
-
-/***/ 6470:
-/***/ ((module) => {
-
-"use strict";
-
-
-// eslint-disable-next-line no-empty-function
-module.exports = function () {};
-
-
-/***/ }),
-
-/***/ 8600:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-module.exports = __webpack_require__(3606)() ? Object.assign : __webpack_require__(3519);
-
-
-/***/ }),
-
-/***/ 3606:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = function () {
-	var assign = Object.assign, obj;
-	if (typeof assign !== "function") return false;
-	obj = { foo: "raz" };
-	assign(obj, { bar: "dwa" }, { trzy: "trzy" });
-	return obj.foo + obj.bar + obj.trzy === "razdwatrzy";
-};
-
-
-/***/ }),
-
-/***/ 3519:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var keys  = __webpack_require__(7090)
-  , value = __webpack_require__(7456)
-  , max   = Math.max;
-
-module.exports = function (dest, src/*, …srcn*/) {
-	var error, i, length = max(arguments.length, 2), assign;
-	dest = Object(value(dest));
-	assign = function (key) {
-		try {
-			dest[key] = src[key];
-		} catch (e) {
-			if (!error) error = e;
-		}
-	};
-	for (i = 1; i < length; ++i) {
-		src = arguments[i];
-		keys(src).forEach(assign);
-	}
-	if (error !== undefined) throw error;
-	return dest;
-};
-
-
-/***/ }),
-
-/***/ 7113:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var _undefined = __webpack_require__(6470)(); // Support ES3 engines
-
-module.exports = function (val) { return val !== _undefined && val !== null; };
-
-
-/***/ }),
-
-/***/ 7090:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-module.exports = __webpack_require__(633)() ? Object.keys : __webpack_require__(8152);
-
-
-/***/ }),
-
-/***/ 633:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = function () {
-	try {
-		Object.keys("primitive");
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
-
-
-/***/ }),
-
-/***/ 8152:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var isValue = __webpack_require__(7113);
-
-var keys = Object.keys;
-
-module.exports = function (object) { return keys(isValue(object) ? Object(object) : object); };
-
-
-/***/ }),
-
-/***/ 2135:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var isValue = __webpack_require__(7113);
-
-var forEach = Array.prototype.forEach, create = Object.create;
-
-var process = function (src, obj) {
-	var key;
-	for (key in src) obj[key] = src[key];
-};
-
-// eslint-disable-next-line no-unused-vars
-module.exports = function (opts1/*, …options*/) {
-	var result = create(null);
-	forEach.call(arguments, function (options) {
-		if (!isValue(options)) return;
-		process(Object(options), result);
-	});
-	return result;
-};
-
-
-/***/ }),
-
-/***/ 2005:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = function (fn) {
-	if (typeof fn !== "function") throw new TypeError(fn + " is not a function");
-	return fn;
-};
-
-
-/***/ }),
-
-/***/ 7456:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-var isValue = __webpack_require__(7113);
-
-module.exports = function (value) {
-	if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
-	return value;
-};
-
-
-/***/ }),
-
-/***/ 7853:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-
-
-module.exports = __webpack_require__(4487)() ? String.prototype.contains : __webpack_require__(8277);
-
-
-/***/ }),
-
-/***/ 4487:
-/***/ ((module) => {
-
-"use strict";
-
-
-var str = "razdwatrzy";
-
-module.exports = function () {
-	if (typeof str.contains !== "function") return false;
-	return str.contains("dwa") === true && str.contains("foo") === false;
-};
-
-
-/***/ }),
-
-/***/ 8277:
-/***/ ((module) => {
-
-"use strict";
-
-
-var indexOf = String.prototype.indexOf;
-
-module.exports = function (searchString/*, position*/) {
-	return indexOf.call(this, searchString, arguments[1]) > -1;
-};
-
-
-/***/ }),
-
-/***/ 9297:
-/***/ ((module, exports, __webpack_require__) => {
-
-"use strict";
-
-
-var d        = __webpack_require__(3479)
-  , callable = __webpack_require__(2005)
-
-  , apply = Function.prototype.apply, call = Function.prototype.call
-  , create = Object.create, defineProperty = Object.defineProperty
-  , defineProperties = Object.defineProperties
-  , hasOwnProperty = Object.prototype.hasOwnProperty
-  , descriptor = { configurable: true, enumerable: false, writable: true }
-
-  , on, once, off, emit, methods, descriptors, base;
-
-on = function (type, listener) {
-	var data;
-
-	callable(listener);
-
-	if (!hasOwnProperty.call(this, '__ee__')) {
-		data = descriptor.value = create(null);
-		defineProperty(this, '__ee__', descriptor);
-		descriptor.value = null;
-	} else {
-		data = this.__ee__;
-	}
-	if (!data[type]) data[type] = listener;
-	else if (typeof data[type] === 'object') data[type].push(listener);
-	else data[type] = [data[type], listener];
-
-	return this;
-};
-
-once = function (type, listener) {
-	var once, self;
-
-	callable(listener);
-	self = this;
-	on.call(this, type, once = function () {
-		off.call(self, type, once);
-		apply.call(listener, this, arguments);
-	});
-
-	once.__eeOnceListener__ = listener;
-	return this;
-};
-
-off = function (type, listener) {
-	var data, listeners, candidate, i;
-
-	callable(listener);
-
-	if (!hasOwnProperty.call(this, '__ee__')) return this;
-	data = this.__ee__;
-	if (!data[type]) return this;
-	listeners = data[type];
-
-	if (typeof listeners === 'object') {
-		for (i = 0; (candidate = listeners[i]); ++i) {
-			if ((candidate === listener) ||
-					(candidate.__eeOnceListener__ === listener)) {
-				if (listeners.length === 2) data[type] = listeners[i ? 0 : 1];
-				else listeners.splice(i, 1);
-			}
-		}
-	} else {
-		if ((listeners === listener) ||
-				(listeners.__eeOnceListener__ === listener)) {
-			delete data[type];
-		}
-	}
-
-	return this;
-};
-
-emit = function (type) {
-	var i, l, listener, listeners, args;
-
-	if (!hasOwnProperty.call(this, '__ee__')) return;
-	listeners = this.__ee__[type];
-	if (!listeners) return;
-
-	if (typeof listeners === 'object') {
-		l = arguments.length;
-		args = new Array(l - 1);
-		for (i = 1; i < l; ++i) args[i - 1] = arguments[i];
-
-		listeners = listeners.slice();
-		for (i = 0; (listener = listeners[i]); ++i) {
-			apply.call(listener, this, args);
-		}
-	} else {
-		switch (arguments.length) {
-		case 1:
-			call.call(listeners, this);
-			break;
-		case 2:
-			call.call(listeners, this, arguments[1]);
-			break;
-		case 3:
-			call.call(listeners, this, arguments[1], arguments[2]);
-			break;
-		default:
-			l = arguments.length;
-			args = new Array(l - 1);
-			for (i = 1; i < l; ++i) {
-				args[i - 1] = arguments[i];
-			}
-			apply.call(listeners, this, args);
-		}
-	}
-};
-
-methods = {
-	on: on,
-	once: once,
-	off: off,
-	emit: emit
-};
-
-descriptors = {
-	on: d(on),
-	once: d(once),
-	off: d(off),
-	emit: d(emit)
-};
-
-base = defineProperties({}, descriptors);
-
-module.exports = exports = function (o) {
-	return (o == null) ? create(base) : defineProperties(Object(o), descriptors);
-};
-exports.methods = methods;
-
-
-/***/ }),
-
 /***/ 6458:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -26250,7 +25956,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
 /*!
     localForage -- Offline Storage, Improved
-    Version 1.7.3
+    Version 1.9.0
     https://localforage.github.io/localForage
     (c) 2013-2017 Mozilla, Apache License 2.0
 */
@@ -26626,7 +26332,7 @@ function isIndexedDBValid() {
     try {
         // Initialize IndexedDB; fall back to vendor-prefixed versions
         // if needed.
-        if (!idb) {
+        if (!idb || !idb.open) {
             return false;
         }
         // We mimic PouchDB here;
@@ -26637,8 +26343,12 @@ function isIndexedDBValid() {
 
         var hasFetch = typeof fetch === 'function' && fetch.toString().indexOf('[native code') !== -1;
 
-        // Safari <10.1 does not meet our requirements for IDB support (#5572)
-        // since Safari 10.1 shipped with fetch, we can use that to detect it
+        // Safari <10.1 does not meet our requirements for IDB support
+        // (see: https://github.com/pouchdb/pouchdb/issues/5572).
+        // Safari 10.1 shipped with fetch, we can use that to detect it.
+        // Note: this creates issues with `window.fetch` polyfills and
+        // overrides; see:
+        // https://github.com/localForage/localForage/issues/856
         return (!isSafari || hasFetch) && typeof indexedDB !== 'undefined' &&
         // some outdated implementations of IDB that appear on Samsung
         // and HTC Android devices <4.4 are missing IDBKeyRange
@@ -27224,7 +26934,7 @@ function iterate(iterator, callback) {
                             }
                             var result = iterator(value, cursor.key, iterationNumber++);
 
-                            // when the iterator callback retuns any
+                            // when the iterator callback returns any
                             // (non-`undefined`) value, then we stop
                             // the iteration immediately
                             if (result !== void 0) {
@@ -27446,7 +27156,7 @@ function key(n, callback) {
                 try {
                     var store = transaction.objectStore(self._dbInfo.storeName);
                     var advanced = false;
-                    var req = store.openCursor();
+                    var req = store.openKeyCursor();
 
                     req.onsuccess = function () {
                         var cursor = req.result;
@@ -27500,7 +27210,7 @@ function keys(callback) {
 
                 try {
                     var store = transaction.objectStore(self._dbInfo.storeName);
-                    var req = store.openCursor();
+                    var req = store.openKeyCursor();
                     var keys = [];
 
                     req.onsuccess = function () {
