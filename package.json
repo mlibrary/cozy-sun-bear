@@ -54,7 +54,7 @@
     "event-emitter": "^0.3.5",
     "intersection-observer": "^0.5.1",
     "jszip": "^3.4.0",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.19",
     "mustache": "^2.3.0",
     "path-webpack": "0.0.3"
   },
