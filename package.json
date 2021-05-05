@@ -56,7 +56,8 @@
     "jszip": "^3.7.0",
     "lodash": "^4.17.21",
     "mustache": "^2.3.0",
-    "path-webpack": "0.0.3"
+    "path-webpack": "0.0.3",
+    "portfinder": "^1.0.28"
   },
   "style": "dist/cozy.css"
 }
