@@ -2556,7 +2556,17 @@ var Navigator = Control.extend({
       return start;
     }
 
-    if (_typeof(location.start) == 'object') {
+    if (typeof location.start == 'undefined') {
+      // If the window is being resized while the reader is still loading an EPUB chapter, then...
+      // `location.start` will be undefined here. This causes the reader to appear to load forever.
+      // I _think_ this is going to be a rarity in the wild, although clicking the full screen...
+      // button too soon will also cause it. Also, it's actually very likely to happen when a ...
+      // developer opens a "docked" dev tools dialog while CSB is loading a complex chapter.
+      // In this event starting from scratch with a page reload seems like the best move.
+      // Anything else causes a recursive, asynchronous mess.
+      console.log("AHOY NAVIGATOR location lost. Window resized while loading? Reloading page.");
+      window.location.reload(); // errors may still appear in the console before the reload occurs
+    } else if (_typeof(location.start) == 'object') {
       if (location.start.location != null) {
         value = location.start.location;
       } else {
