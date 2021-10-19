@@ -63,7 +63,7 @@ var TableUpdater = class extends BaseUpdater {
         display: 'block',
         break: 'all'
       },
-      '.cozy-mangled-popup--container': {
+      '.cozy-mangled-popup-table--container': {
         position: 'absolute',
         display: 'flex',
         'align-items': 'center',
@@ -114,7 +114,7 @@ var TableUpdater = class extends BaseUpdater {
     table.classList.add('cozy-mangled-clipped');
 
     var div = document.createElement('div');
-    div.classList.add('cozy-mangled-popup--container');
+    div.classList.add('cozy-mangled-popup-table--container');
     table.querySelector('tbody').appendChild(div);
 
     var button = document.createElement('button');
@@ -180,13 +180,22 @@ var EnhancedFigureUpdater = class extends BaseUpdater {
     this.selector = '[data-resource-type]';
   }
 
+  stylesheet() {
+    return {
+      '.cozy-mangled-popup-figure--container': {
+        'text-align': 'center !important',
+        'padding': '16px !important'
+      }
+    }
+  }
+
   update(element) {
     var button = document.createElement('button');
     button.classList.add('cozy-mangled-popup--action');
     button.innerText = `Open ${element.dataset.resourceType.replace(/-/g, ' ')}`;
 
     var div = document.createElement('div');
-    div.classList.add('cozy-mangled-popup--container');
+    div.classList.add('cozy-mangled-popup-figure--container');
     var target = element.querySelector('[data-resource-trigger]');
     if ( target ) {
       // parent.innerHTML = '';
@@ -246,10 +255,6 @@ export function handlePopups(reader, contents) {
   reader._originalHTML = reader._originalHTML || {};
 
   contents.addStylesheetRules({
-    '.cozy-mangled-popup--container': {
-      'text-align': 'center !important',
-      'padding': '16px !important'
-    },
     '.cozy-mangled-popup--action': {
       cursor: 'pointer',
       'background-color': '#000000',
