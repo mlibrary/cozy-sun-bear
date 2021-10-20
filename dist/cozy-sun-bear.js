@@ -21656,7 +21656,7 @@ var TableUpdater = /*#__PURE__*/function (_BaseUpdater) {
           display: 'block',
           "break": 'all'
         },
-        '.cozy-mangled-popup--container': {
+        '.cozy-mangled-popup-table--container': {
           position: 'absolute',
           display: 'flex',
           'align-items': 'center',
@@ -21713,7 +21713,7 @@ var TableUpdater = /*#__PURE__*/function (_BaseUpdater) {
       var tableHTML = table.outerHTML;
       table.classList.add('cozy-mangled-clipped');
       var div = document.createElement('div');
-      div.classList.add('cozy-mangled-popup--container');
+      div.classList.add('cozy-mangled-popup-table--container');
       table.querySelector('tbody').appendChild(div);
       var button = document.createElement('button');
       button.classList.add('cozy-mangled-popup--action');
@@ -21793,13 +21793,23 @@ var EnhancedFigureUpdater = /*#__PURE__*/function (_BaseUpdater2) {
   }
 
   manglers_createClass(EnhancedFigureUpdater, [{
+    key: "stylesheet",
+    value: function stylesheet() {
+      return {
+        '.cozy-mangled-popup-figure--container': {
+          'text-align': 'center !important',
+          'padding': '16px !important'
+        }
+      };
+    }
+  }, {
     key: "update",
     value: function update(element) {
       var button = document.createElement('button');
       button.classList.add('cozy-mangled-popup--action');
       button.innerText = "Open ".concat(element.dataset.resourceType.replace(/-/g, ' '));
       var div = document.createElement('div');
-      div.classList.add('cozy-mangled-popup--container');
+      div.classList.add('cozy-mangled-popup-figure--container');
       var target = element.querySelector('[data-resource-trigger]');
 
       if (target) {
@@ -21868,10 +21878,6 @@ function handlePopups(reader, contents) {
   contents._initialized = {};
   reader._originalHTML = reader._originalHTML || {};
   contents.addStylesheetRules({
-    '.cozy-mangled-popup--container': {
-      'text-align': 'center !important',
-      'padding': '16px !important'
-    },
     '.cozy-mangled-popup--action': {
       cursor: 'pointer',
       'background-color': '#000000',
