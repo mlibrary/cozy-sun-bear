@@ -342,7 +342,7 @@ Reader.include({
         template: '<div style="height: 100%; width: 100%"></div>',
         fraction: options.fraction || 1.0,
         actions: [
-            { label: 'OK', callback: function(event) { }, close: true },
+            { label: 'Close', callback: function(event) { }, close: true },
         ]
       })
     } else {
