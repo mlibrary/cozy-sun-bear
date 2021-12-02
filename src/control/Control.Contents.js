@@ -52,8 +52,8 @@ export var Contents = Control.extend({
       this._modal = this._reader.modal({
         template: `
 <div class="cozy-contents-toolbar button-group" aria-hidden="true">
-  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>
-  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>
+  <button class="cozy-control button--lg toggled" aria-label="table of contents" data-toggle="contentlist">Table of Contents</button>
+  <button class="cozy-control button--lg" aria-label="page list" data-toggle="pagelist">Page List</button>
 </div>
 <div class="cozy-contents-main">
   <div class="cozy-contents-contentlist">
