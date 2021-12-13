@@ -240,7 +240,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
         <p>
           <span>Text Size: </span>
           <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--inline" style="margin-left: 8px">Reset</button> 
+          <button id="x${this._id}-reset" class="reset button--lg" style="margin-left: 8px">Reset to 100%</button> 
         </p>
       </fieldset>`;
   },
