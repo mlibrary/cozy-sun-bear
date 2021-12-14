@@ -78,7 +78,7 @@ export var Modal = Class.extend({
       for(var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_cls = action.className || 'button--default';
-        panelHTML += `<button id="action-${this._id}-${i}" class="button button--lg ${button_cls}">${action.label}</button>`;
+        panelHTML += `<button id="action-${this._id}-${i}" class="button button--inline ${button_cls}">${action.label}</button>`;
       }
       panelHTML += '</footer>';
     }

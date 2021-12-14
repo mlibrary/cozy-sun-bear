@@ -448,7 +448,7 @@ var Modal = Class/* Class.extend */.w.extend({
       for (var i in this.options.actions) {
         var action = this.options.actions[i];
         var button_cls = action.className || 'button--default';
-        panelHTML += "<button id=\"action-".concat(this._id, "-").concat(i, "\" class=\"button button--lg ").concat(button_cls, "\">").concat(action.label, "</button>");
+        panelHTML += "<button id=\"action-".concat(this._id, "-").concat(i, "\" class=\"button button--inline ").concat(button_cls, "\">").concat(action.label, "</button>");
       }
 
       panelHTML += '</footer>';
@@ -720,7 +720,7 @@ Reader/* Reader.include */.E.include({
         template: '<div style="height: 100%; width: 100%"></div>',
         fraction: options.fraction || 1.0,
         actions: [{
-          label: 'OK',
+          label: 'Close',
           callback: function callback(event) {},
           close: true
         }]
@@ -1364,7 +1364,7 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     // return ( this._input.value != this._current.text_size );
   },
   template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_size\">\n        <legend>Text Size</legend>\n        <div class=\"preview--text_size\" id=\"x".concat(this._id, "-preview\">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style=\"white-space: no-wrap\">\n          <span>T-</span>\n          <input name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-reset\" class=\"reset button--inline\" style=\"margin-left: 8px\">Reset</button> \n        </p>\n      </fieldset>");
+    return "<fieldset class=\"cozy-fieldset-text_size\">\n        <legend>Text Size</legend>\n        <div class=\"preview--text_size\" id=\"x".concat(this._id, "-preview\">\n          \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n        </div>\n        <p style=\"white-space: no-wrap\">\n          <span>T-</span>\n          <input name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" />\n          <span>T+</span>\n        </p>\n        <p>\n          <span>Text Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-reset\" class=\"reset button--lg\" style=\"margin-left: 8px\">Reset to 100%</button> \n        </p>\n      </fieldset>");
   },
   _updatePreview: function _updatePreview() {
     this._preview.style.fontSize = "".concat(parseInt(this._input.value, 10) / 100, "em");
