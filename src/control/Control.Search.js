@@ -60,11 +60,15 @@ export var Search = Control.extend({
 
       this._article = this._modal._container.querySelector('article');
 
-      this._modal.on('click', 'a[href]', function(modal, target) {
+      this._modal.on('click', 'a[class="search-result"]', function(modal, target) {
         target = target.getAttribute('href');
         this._reader.tracking.action('search/go/link');
         this._reader.display(target);
         return true;
+      }.bind(this));
+
+      this._modal.on('click', 'a[class="feedback-link"]', function(modal, target) {
+        window.open(target.href, '_blank');
       }.bind(this));
 
       this._modal.on('closed', function() {
@@ -182,7 +186,19 @@ export var Search = Control.extend({
   _buildResults: function() {
     var self = this;
     var content;
-
+    var no_results;
+    var feedback;
+    var results_list;
+    var feedback_link = document.createElement('a');
+    feedback_link.target = '_blank';
+    feedback_link.href = 'https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=' + self._reader.metadata.press_subdomain + '&noid=' + self._reader.metadata.noid + '&title=' + self._reader.metadata.title + '&url=' + window.location.href + '&search_location=ereader&q=' + self.searchString;
+    feedback_link.innerText = 'Share your feedback.';
+    feedback_link.setAttribute("class", "feedback-link");
+    var feedback_text = 'Not finding what you\'re looking for? '
+    feedback = DomUtil.create("p")
+    feedback.textContent = feedback_text;
+    feedback.appendChild(feedback_link); 
+    
     this._processing = false;
 
     self._emptyArticle();
@@ -195,9 +211,16 @@ export var Search = Control.extend({
       if (this._data.highlight_off == "yes") {
         highlight = false;
       }
-      if ( this._data.search_results.length ) {
-        content = DomUtil.create('ol');
+      content = DomUtil.create('div');
+      if ( this._data.search_results.length == 0) {
+        no_results = DomUtil.create("p")
+        no_results.textContent = 'No results found for"' + self.searchString + '"';
+        content.appendChild(no_results);
+        content.appendChild(feedback);
+      } else {
+        content.appendChild(feedback);
 
+        results_list = DomUtil.create('ol'); 
         this._data.search_results.forEach(function(result) {
           var option = DomUtil.create('li');
           var anchor = DomUtil.create('a', null, option);
@@ -221,21 +244,20 @@ export var Search = Control.extend({
             anchor.appendChild(document.createTextNode(result.snippet));
 
             anchor.setAttribute("href", cfiRange);
-            content.appendChild(option);
+            anchor.setAttribute("class", 'search-result');
+            results_list.appendChild(option);
           }
           if (highlight) {
             reader.annotations.highlight(cfiRange, {}, null, 'epubjs-search-hl');
           }
         });
-      } else {
-        content = DomUtil.create("p")
-        content.textContent = 'No results found for "' + self.searchString + '"';
-      }
+        content.appendChild(results_list);
+      } 
     } else {
       content = DomUtil.create("p")
       content.textContent = 'There was a problem processing this query.';
     }
-
+    
     self._article.appendChild(content);
   },
 
