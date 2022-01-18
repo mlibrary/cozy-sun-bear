@@ -1866,7 +1866,10 @@ var Search = Control.extend({
 
         this._reader.tracking.action('search/go/link');
 
-        this._reader.display(target);
+        this._reader.display(target, function () {
+          // return focus to epub iframe, CSB-259
+          document.getElementsByTagName("iframe")[0].focus();
+        });
 
         return true;
       }.bind(this));
