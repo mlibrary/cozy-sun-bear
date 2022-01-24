@@ -84,6 +84,7 @@ export var Citation = Control.extend({
       actions: [
         {
           label: 'Copy Citation',
+          close: true,
           callback: function(event) {
             document.designMode = "on";
             var formatted = self._modal._container.querySelector("#formatted");
