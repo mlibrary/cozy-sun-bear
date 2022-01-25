@@ -1989,7 +1989,7 @@ var Search = Control.extend({
     var results_list;
     var feedback_link = document.createElement('a');
     feedback_link.target = '_blank';
-    feedback_link.href = 'https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=' + self._reader.metadata.press_subdomain + '&noid=' + self._reader.metadata.noid + '&title=' + self._reader.metadata.title + '&url=' + window.location.href + '&search_location=ereader&q=' + self.searchString;
+    feedback_link.href = 'https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=' + self._reader.metadata.press_subdomain + '&noid=' + self._reader.metadata.noid + '&title=' + self._reader.metadata.title + '&search_location=ereader&q=' + self.searchString + '&url=' + window.location.href;
     feedback_link.innerText = 'Share your feedback.';
     feedback_link.setAttribute("class", "feedback-link");
     var feedback_text = 'Not finding what you\'re looking for? ';
@@ -2014,7 +2014,7 @@ var Search = Control.extend({
 
       if (this._data.search_results.length == 0) {
         no_results = DomUtil.create("p");
-        no_results.textContent = 'No results found for"' + self.searchString + '"';
+        no_results.textContent = 'No results found for "' + self.searchString + '"';
         content.appendChild(no_results);
         content.appendChild(feedback);
       } else {
