@@ -435,11 +435,9 @@ $grid-padding:       1rem;
 
   .epub-view {
       margin-bottom: 2rem;
-      box-shadow: 0px 10px 13px -7px #000000, 0px 6px 15px 5px rgba(0,0,0,0);
       padding: 40px 0;
       margin-left: auto;
       margin-right: auto;
-      border: 1px solid #ddd;
 
       &.epub-view---loading::before {
         display: block;
