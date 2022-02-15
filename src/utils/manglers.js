@@ -25,7 +25,7 @@ var TableUpdater = class extends BaseUpdater {
 
   constructor(options={}) {
     super(options);
-    this.selector = 'table';
+    this.selector = 'table:not([data-fulcrum-table="false"])';
   }
 
   test(element) {
