@@ -772,6 +772,8 @@ body {
     if ( title && view.iframe ) {
       view.iframe.title = `Contents: ${title}` ;
     }
+    // Ugly hijack to enable hotjar HELIO-4198
+    view.iframe.setAttribute("data-hj-allow-iframe", "true");
   },
 
   EOT: true

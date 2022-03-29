@@ -11,7 +11,7 @@ export var Search = Control.extend({
 
   defaultTemplate: `<form class="search">
     <label class="u-screenreader" for="cozy-search-string">Search in this text</label>
-    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..."/>
+    <input id="cozy-search-string" name="search" type="text" placeholder="Search in this text..." data-hj-allow="true" />
     <button class="button--sm" data-toggle="open" aria-label="Search"><i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i></button>
   </form>`,
 
