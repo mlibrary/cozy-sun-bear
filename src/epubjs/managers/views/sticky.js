@@ -10,7 +10,7 @@ class StickyIframeView extends IframeView {
         super(section, options);
 
         this.element.style.height = `${this.layout.height}px`;
-        this.element.style.width = `${this.layout.width}px`;
+        this.element.style.width = '100%'; // `${this.layout.width}px`;
         this.element.style.visibility = "hidden";
 
         // console.log("AHOY sticky NEW", this.layout.height);
@@ -29,12 +29,24 @@ class StickyIframeView extends IframeView {
 
         // this.element.style.minHeight = "100px";
         element.style.height = "0px";
-        element.style.width = "0px";
+        element.style.width = `100%`; // "0px";
         element.style.overflow = "hidden";
         element.style.position = "relative";
         element.style.display = "block";
 
         element.setAttribute('ref', this.index);
+
+        let svg = `<svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+          <defs>
+            <pattern id="Text${this.index}" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+              <text x="10" y="25" style="font-family: monospace; font-size: 2rem; stroke: #ddd; opacity: 0.4">
+                ${this.index}
+              </text>
+            </pattern>
+          </defs>
+          <rect fill="url(#Text${this.index})" stroke="#444" width="100%" height="100%"/>
+        </svg>`;
+        element.innerHTML = svg;
 
         if(axis && axis == "horizontal"){
             element.style.flex = "none";
@@ -46,6 +58,8 @@ class StickyIframeView extends IframeView {
     }
 
     create() {
+
+        var self = this;
 
         if(this.iframe) {
             return this.iframe;
@@ -73,6 +87,15 @@ class StickyIframeView extends IframeView {
         // Back up if seamless isn't supported
         this.iframe.style.border = "none";
 
+        // this.settings.onIframeLoad(event);
+        // console.log("IFRAME LOAD", this.iframe.contentWindow.document.documentElement.dataset.viewId);
+
+        // this.iframe.addEventListener('load', (event) => {
+        //     console.log("-- sticky iframe load", this.__viewId);
+        //     let doc = this.iframe.contentDocument || this.iframe.contentWindow.document;
+        //     console.log("-- sticky iframe load", doc.URL, doc.readyState);
+        // })
+
         this.iframe.setAttribute("enable-annotation", "true");
 
         this.resizing = true;
@@ -82,7 +105,7 @@ class StickyIframeView extends IframeView {
         this.iframe.style.visibility = "hidden";
         this.element.classList.add('epub-view---loading');
 
-        this.iframe.style.width = "0";
+        this.iframe.style.width = `100%`; // "0";
         this.iframe.style.height = "0";
         this._width = 0;
         this._height = 0;
@@ -129,9 +152,9 @@ class StickyIframeView extends IframeView {
         // console.log("AHOY AHOY reframe", this.index, width, height);
 
         if(isNumber(width)){
-            this.element.style.width = width + "px";
+            this.element.style.width = `100%`; // width + "px";
             if ( this.iframe ) {
-                this.iframe.style.width = width + "px";
+                this.iframe.style.width = `100%`; // width + "px";
             }
             this._width = width;
         }
@@ -189,7 +212,10 @@ class StickyIframeView extends IframeView {
     }
 
     reframeElement() {
+        this.delta = 0;
+
         if ( ! this.iframe ) { return; }
+
         var height = this.iframe.offsetHeight;
         var styles = window.getComputedStyle(this.element);
         var new_height = ( 
@@ -208,6 +234,9 @@ class StickyIframeView extends IframeView {
         if ( this.unloaded && height != current_height && this.afterResizeCounter == 1 ) { 
             return ; 
         }
+
+        this.delta = new_height - current_height;
+        console.log("-- resize sticky reframeElement", this.index, height, current_height, new_height);
 
         this.element.style.height = `${new_height}px`;
     }
@@ -274,6 +303,7 @@ class StickyIframeView extends IframeView {
           if (this.contents) {
             // console.log("AHOY EXPAND", this.index, this.layout.columnWidth, this.layout.height);
             this.layout.format(this.contents);
+            this.contents.width('100%');
           }
         }
       });
@@ -284,11 +314,72 @@ class StickyIframeView extends IframeView {
           if (this.contents) {
             // console.log("AHOY RESIZE", this.index, this.layout.columnWidth, this.layout.height);
             this.layout.format(this.contents);
+            this.contents.width('100%');
           }
         }
       });
 
+      this.window.addEventListener('DOMContentLoaded', (event) => {
+          // all the content has been loaded
+          console.log("-- sticky onLoad DOMContentLoaded", this.__viewId);
+      })
+
+      this.window.addEventListener('realized', (event) => {
+        console.log("AHOY FULLY REALIZED");
+      })
+
+      // this.settings.onIframeLoad(event);
+      // console.log("IFRAME LOAD", this.iframe.contentWindow.document.documentElement.dataset.viewId);
+
+
       promise.resolve(this.contents);
+    }
+
+    loadXXX(contents) {
+      var loading = new defer();
+      var loaded = loading.promise;
+
+      if (!this.iframe) {
+        loading.reject(new Error("No Iframe Available"));
+        return loaded;
+      }
+
+      this.iframe.onload = function (event) {
+
+        console.log('ifame loaded');
+        this.iframe.contentWindow.addEventListener('realized', (event) => {
+          console.log("AHOY WUT?");
+        })
+        this.onLoad(event, loading);
+
+      }.bind(this);
+
+      // contents = contents.replace('</body>', '<script>window.addEventListener("load", (e) => { });</script></body>');
+      contents = contents.replace('</body>', `
+        <script>
+          window.addEventListener('load', (e) => {});
+          window.addEventListener('DOMContentLoaded', (e) => {
+            var event = document.createEvent('Event');
+            event.initEvent('realized', true, true);
+            window.dispatchEvent(event)
+            console.log("AHOY LOADED", event);
+          })
+        </script>
+        </body>
+      `);
+      if (this.settings.prehooks && this.settings.prehooks.head) {
+        var buffer = [];
+        this.settings.prehooks.head.trigger(buffer);
+        buffer.forEach((b) => {
+          contents = contents.replace('</head>', b + '</head>');
+        })
+        // contents = contents.replace('</head>', this.settings.prehooks.head(this.settings.layout) + '</head>');
+      }
+      this.iframe.srcdoc = contents;
+      this.element.appendChild(this.iframe);
+
+      return loaded;
+
     }
 
     unload() {

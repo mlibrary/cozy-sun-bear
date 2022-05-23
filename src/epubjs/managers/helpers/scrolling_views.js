@@ -15,6 +15,44 @@ class Views {
             rootMargin: '0px',
             threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
         });
+
+        this._viewMap = {};
+        let timer;
+
+        this.resizeRO = new ResizeObserver((resizeList) => {
+            let scrollTop = this.container.scrollTop;
+            let delta = 0;
+            resizeList.forEach((event) => {
+                const cr = event.contentRect;
+                const element = event.target;
+                const viewId = element.dataset.viewId;
+                const view = this._viewMap[viewId];
+                if ( ! view.iframe ) { return ; }
+                console.log("-- view resize", view, element);
+            })
+        })
+
+        // this.iframeRO = new ResizeObserver((resizeList) => {
+        //     let scrollTop = this.container.scrollTop;
+        //     let delta = 0;
+        //     resizeList.forEach((event) => {
+        //         const cr = event.contentRect;
+        //         const viewId = event.target.ownerDocument.documentElement.dataset.viewId;
+        //         const view = this._viewMap[viewId];
+        //         let oldHeight = view.offsetHeight;
+        //         let newHeight = cr.height + (4 * 16);
+        //         console.log("-- resizeObserver gah", viewId, oldHeight, newHeight, newHeight < 489);
+        //         if ( newHeight < 489 ) { return; }
+        //         view.style.height = `${newHeight}px`;
+        //         delta += ( view.offsetHeight - oldHeight );
+        //         console.log("-- resizeObserver", event.target, viewId, oldHeight, view.offsetHeight);
+        //     })
+        //     clearTimeout(timer);
+        //     setTimeout(() => {
+        //         console.log("-- resizeObserver scroll", scrollTop, delta);
+        //         this.container.scrollTop = scrollTop + delta;
+        //     }, 100);
+        // })
     }
 
     all() {
@@ -55,7 +93,20 @@ class Views {
     }
 
     append(view){
+        const self = this;
+        console.log("AHOY views -> append", view);
         this._views.push(view);
+        view.__viewId = self._views.length;
+        this._viewMap[view.__viewId] = view;
+        view.element.dataset.viewId = view.__viewId;
+        this.resizeRO.observe(view.element);
+        // view.settings.onIframeLoad = function(event) {
+        //     let iframe = view.element.querySelector('iframe');
+        //     iframe.contentWindow.document.documentElement.dataset.viewId = view.__viewId;
+        //     self._viewMap[view.__viewId] = view.element;
+        //     view.element.height = ( iframe.contentWindow.document.body.offsetHeight + ( 4 * 16 ) ) + 'px';
+        //     self.iframeRO.observe(iframe.contentWindow.document.body);
+        // }
         if(this.container){
             this.container.appendChild(view.element);
             var threshold = {};
@@ -245,6 +296,7 @@ class Views {
 
     onEnter(view, el, viewportState) {
         // console.log("AHOY VIEWS onEnter", view.index, view.preloaded, view.displayed);
+
         var preload = ! view.displayed || view.preloaded;
         if ( ! view.displayed ) {
             // console.log("AHOY SHOULD BE SHOWING", view);
@@ -272,7 +324,16 @@ class Views {
     onExit(view, el, viewportState) {
         // console.log("AHOY VIEWS onExit", view.index, view.preloaded);
         if ( view.preloaded ) { return ; }
-        view.unload();
+
+        view.unloadTimer = setTimeout(() => {
+            if ( this.displayed().indexOf(view) > -1 ) { 
+                console.log("-- scrolling resize cancel unload", view.index); 
+                return; 
+            }
+            view.unload();
+            // we're not realy in a hurry here
+        }, 1000);
+        // view.unload();
     }
 }
 

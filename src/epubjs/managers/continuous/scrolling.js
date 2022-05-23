@@ -51,6 +51,24 @@ class ScrollingContinuousViewManager {
 
     this.fraction = 0.8;
     // this.settings.maxWidth = 1024;
+
+    this.resizeRO = new ResizeObserver((resizeList) => {
+      resizeList.forEach((event) => {
+        const cr = event.contentRect;
+        if ( this.container.__resizeWidth ) {
+          if ( this.container.__resizeWidth != cr.width ) {
+            this.__trackResizeShifts = true;
+            this.__current = this.rendition.currentLocation();
+            window.xx = this.__current.start.cfi;
+            console.log("-- scrolling resize observer", cr.width, this.container.__resizeWidth);
+          }
+          this.container.__resizeWidth = cr.width;
+        } else {
+          console.log("-- scrolling resize observer setting", cr.width);
+          this.container.__resizeWidth = cr.width;
+        }
+      });
+    })
   }
 
   render(element, size){
@@ -92,12 +110,13 @@ class ScrollingContinuousViewManager {
     // Calculate Stage Size
     this._bounds = this.bounds();
     this._stageSize = this.stage.size();
+    this._stageSize.width = '100%';
 
     var ar = this._stageSize.width / this._stageSize.height;
     // console.log("AHOY STAGE", this._stageSize.width, this._stageSize.height, ">", ar);
 
     // Set the dimensions for views
-    this.viewSettings.width = this._stageSize.width;
+    this.viewSettings.width = `100%`; // this._stageSize.width;
     this.viewSettings.height = this._stageSize.height;
 
     // Function to handle a resize event.
@@ -174,6 +193,8 @@ class ScrollingContinuousViewManager {
       this.gotoTarget(visible);
     }
 
+    this.__currentPosition = this.currentLocation();
+
     displaying.resolve();
     return displayed;
   }
@@ -209,6 +230,8 @@ class ScrollingContinuousViewManager {
     //   this.moveTo(offset);
     //   this._target = null;
     // }
+    this.__currentPosition = this.currentLocation();
+
     this.emit(EVENTS.MANAGERS.ADDED, view);
   }
 
@@ -222,13 +245,18 @@ class ScrollingContinuousViewManager {
     // view.element.dataset.resizable = "true"
     view.reframeElement();
 
-    var delta;
-    if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
-      requestAnimationFrame(function afterDisplayedAfterRAF() {
-        delta = view.element.getBoundingClientRect().height - rect.height;
-        // console.log("AHOY afterResized", view.index, view.element.getBoundingClientRect().height, rect.height, delta);
-        this.container.scrollTop += Math.ceil(delta);        
-      }.bind(this));
+    // var delta;
+    // if ( rect.bottom <= bounds.bottom && rect.top < 0 ) {
+    //   requestAnimationFrame(function afterDisplayedAfterRAF() {
+    //     delta = view.element.getBoundingClientRect().height - rect.height;
+    //     // console.log("AHOY afterResized", view.index, view.element.getBoundingClientRect().height, rect.height, delta);
+    //     this.container.scrollTop += Math.ceil(delta);        
+    //   }.bind(this));
+    // }
+
+    console.log("-- scrolling resize afterResized", view.index, view.delta);
+    if ( this.__trackResizeShifts ) {
+      this._adjustScroll(view.delta);
     }
 
     // the default manager emits EVENTS.MANAGERS.RESIZE when the view is resized
@@ -236,6 +264,33 @@ class ScrollingContinuousViewManager {
     // since we've (in theory) adjusted that during the paint frame
     // don't emit
     // -- this.emit(EVENTS.MANAGERS.RESIZE, view.section);
+  }
+
+  _adjustScroll(delta) {
+    this._delta = this._delta || [];
+    this._delta.push(delta);
+    if ( this._deltaTimer ) {
+      console.log("-- scrolling resize adjustScroll EXITED");
+      clearTimeout(this._deltaTimer);
+    }
+    this._deltaTimer = setTimeout(() => {
+      if ( this._delta.length == 0 ) { return ; }
+      let delta = this._delta.reduce((x,y) => x + y);
+      let currentPosition = this.__currentPosition;
+      console.log("-- scrolling resize delta", this.container.scrollTop, delta, this._delta);
+      if (currentPosition && currentPosition[0] ) {
+        console.log("-- scrolling resize goto", currentPosition[0].mapping.start);
+        this.q.enqueue(function() {
+          this.rendition.display(currentPosition[0].mapping.start);
+        }.bind(this));
+        // setTimeout(() => {
+        //   this.rendition.display(currentPosition[0].mapping.start);
+        // }, 100);
+      }
+      // this.container.scrollTop += delta;
+      this._delta = [];
+      this.__trackResizeShifts = false;
+    }, 100);
   }
 
   moveTo(offset) {
@@ -340,6 +395,9 @@ class ScrollingContinuousViewManager {
   }
 
   resize(width, height){
+
+    console.log("-- scrolling resize", this.container.scrollTop);
+
     let stageSize = this.stage.size(width, height);
     if ( this.resizeTimeout ) {
       clearTimeout(this.resizeTimeout);
@@ -347,6 +405,7 @@ class ScrollingContinuousViewManager {
     }
 
     this.ignore = true;
+    this.views.ignoreUnload = true;
 
     // For Safari, wait for orientation to catch up
     // if the window is a square
@@ -376,7 +435,7 @@ class ScrollingContinuousViewManager {
     //   }
     // }
 
-    this.clear();
+    // this.clear();
 
     // Update for new views
     this.viewSettings.width = this._stageSize.width;
@@ -553,6 +612,8 @@ class ScrollingContinuousViewManager {
 
       clearTimeout(this.afterScrolled);
       this.afterScrolled = setTimeout(function () {
+        this.__currentPosition = this.currentLocation();
+        console.log("-- scrolling not resize position", this.__currentPosition);
         this.emit(EVENTS.MANAGERS.SCROLLED, {
           top: this.scrollTop,
           left: this.scrollLeft
@@ -587,7 +648,7 @@ class ScrollingContinuousViewManager {
     // this.layout.width = this.container.offsetWidth * 0.80;
 
     // Set the dimensions for views
-    this.viewSettings.width = this.layout.width; //  * this.settings.scale;
+    this.viewSettings.width = `100%`; // this.layout.width; //  * this.settings.scale;
     this.viewSettings.height = this.calculateHeight(this.layout.height);
     this.viewSettings.minHeight = this.viewSettings.height; // * this.settings.scale;
 
@@ -595,6 +656,7 @@ class ScrollingContinuousViewManager {
   }
 
   setLayout(layout){
+    var self = this;
 
     this.viewSettings.layout = layout;
 
@@ -603,14 +665,14 @@ class ScrollingContinuousViewManager {
     if(this.views) {
 
      this.views._views.forEach(function(view) {
-        var viewSettings = Object.assign({}, this.viewSettings);
-        viewSettings.layout = Object.assign( Object.create( Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-        if ( this.layout.name == 'pre-paginated' ) {
-          viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
-          viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
-          viewSettings.minHeight *= this.settings.xscale;
-          viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
-          viewSettings.height = viewSettings.height * this.settings.xscale;
+       var viewSettings = Object.assign({}, self.viewSettings);
+       viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(self.viewSettings.layout)), self.viewSettings.layout);
+        if ( self.layout.name == 'pre-paginated' ) {
+          viewSettings.layout.columnWidth = self.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
+          viewSettings.layout.width = self.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
+          viewSettings.minHeight *= self.settings.xscale;
+          viewSettings.maxHeight = viewSettings.height * self.settings.xscale;
+          viewSettings.height = viewSettings.height * self.settings.xscale;
           viewSettings.layout.height = viewSettings.height;
         }
 
@@ -645,6 +707,8 @@ class ScrollingContinuousViewManager {
 
     this._onScroll = this.onScroll.bind(this);
     scroller.addEventListener("scroll", this._onScroll);
+
+    this.resizeRO.observe(this.container);
 
   }
 

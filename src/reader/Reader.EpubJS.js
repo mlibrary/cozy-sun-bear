@@ -266,6 +266,7 @@ Reader.EpubJS = Reader.extend({
     var status_index = 0;
     self._rendition.on('started', function() {
       self._manager = self._rendition.manager;
+      self._manager.rendition = self._rendition;
 
       self._rendition.manager.on("building", function(status) {
         if ( status ) {
