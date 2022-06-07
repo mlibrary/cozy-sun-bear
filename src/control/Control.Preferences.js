@@ -14,7 +14,7 @@ export var Preferences = Control.extend({
     hasThemes: false
   },
 
-  defaultTemplate: `<button class="button--sm cozy-preferences oi" data-toggle="open" data-glyph="cog" aria-label="Preferences and Settings"></button>`,
+  defaultTemplate: `<button class="button--sm cozy-preferences" data-toggle="open" aria-label="Text display preferences and settings">Aa</button>`,
 
   onAdd: function(reader) {
     var self = this;

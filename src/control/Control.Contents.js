@@ -6,7 +6,7 @@ import * as DomEvent from '../dom/DomEvent';
 
 export var Contents = Control.extend({
 
-  defaultTemplate: `<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-menu oi" data-glyph="menu" title="Table of Contents" aria-hidden="true"></i></button>`,
+  defaultTemplate: `<button class="button--sm" data-toggle="open" aria-label="Table of Contents"><i class="icon-align-left oi" data-glyph="align-left" title="Table of Contents" aria-hidden="true"></i></button>`,
 
   onAdd: function(reader) {
     var self = this;
@@ -52,8 +52,8 @@ export var Contents = Control.extend({
       this._modal = this._reader.modal({
         template: `
 <div class="cozy-contents-toolbar button-group" aria-hidden="true">
-  <button class="cozy-control button--lg toggled" data-toggle="contentlist">Table of Contents</button>
-  <button class="cozy-control button--lg" data-toggle="pagelist">Page List</button>
+  <button class="cozy-control button toggled" data-toggle="contentlist">Table of Contents</button>
+  <button class="cozy-control button" data-toggle="pagelist">Page List</button>
 </div>
 <div class="cozy-contents-main">
   <div class="cozy-contents-contentlist">

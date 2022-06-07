@@ -11,7 +11,7 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5782:
+/***/ 7948:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -777,7 +777,7 @@ Reader/* Reader.include */.E.include({
 
 
 var Contents = Control.extend({
-  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Table of Contents\"><i class=\"icon-menu oi\" data-glyph=\"menu\" title=\"Table of Contents\" aria-hidden=\"true\"></i></button>",
+  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Table of Contents\"><i class=\"icon-align-left oi\" data-glyph=\"align-left\" title=\"Table of Contents\" aria-hidden=\"true\"></i></button>",
   onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
@@ -824,7 +824,7 @@ var Contents = Control.extend({
         self._modal.activate();
       }, this);
       this._modal = this._reader.modal({
-        template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button--lg toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button--lg\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
+        template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
         title: 'Contents',
         region: 'left',
         className: 'cozy-modal-contents',
@@ -1024,6 +1024,148 @@ var Contents = Control.extend({
 var contents = function contents(options) {
   return new Contents(options);
 };
+;// CONCATENATED MODULE: ./src/control/Control.Notes.js
+
+
+
+
+
+var Notes = Control.extend({
+  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Notes\">Notes</button>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+          options = this.options;
+
+      container = DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+
+    this._control = container.querySelector("[data-toggle=open]");
+
+    this._control.setAttribute('id', 'action-' + this._id);
+
+    container.style.position = 'relative';
+
+    this._bindEvents();
+
+    return container;
+  },
+  _bindEvents: function _bindEvents() {
+    var self = this;
+
+    this._reader.on('updateContents', function (data) {
+      DomEvent.on(this._control, 'click', function (event) {
+        event.preventDefault();
+        self._goto_interval = false;
+
+        self._reader.tracking.action('contents/open');
+
+        self._modal.activate();
+      }, this);
+      this._modal = this._reader.modal({
+        template: "\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n</div>".trim(),
+        title: 'Notes',
+        region: 'left',
+        className: 'cozy-modal-contents',
+        callbacks: {
+          onShow: function onShow() {},
+          onClose: function onClose(modal) {
+            if (self._goto_interval) {
+              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+
+              self._reader.rendition.manager.container.focus();
+            }
+          }
+        }
+      });
+      this._display = {};
+      this._display.noteslist = this._modal._container.querySelector(section[role = "doc-endnotes"]);
+
+      this._modal.on('click', 'a[href]', function (modal, target) {
+        target = target.getAttribute('data-href');
+        this._goto_interval = true;
+
+        this._reader.tracking.action('contents/go/link');
+
+        this._reader.display(target);
+
+        return true;
+      }.bind(this));
+
+      this._modal.on('closed', function () {
+        self._reader.tracking.action('contents/close');
+      });
+
+      var parent = self._modal._container.querySelector('section[role=doc-endnotes] ol');
+
+      var _process = function _process(items, tabindex, parent) {
+        items.forEach(function (item) {
+          var option = self._createOption(item, tabindex, parent);
+
+          if (item.subitems && item.subitems.length) {
+            _process(item.subitems, tabindex + 1, option);
+          }
+        });
+      };
+
+      _process(data.toc, 0, parent);
+    }.bind(this));
+  },
+  _createOption: function _createOption(chapter, tabindex, parent) {
+    function pad(value, length) {
+      return value.toString().length < length ? pad("-" + value, length) : value;
+    }
+
+    var option = DomUtil.create('li');
+
+    if (chapter.href) {
+      var anchor = DomUtil.create('a', null, option);
+
+      if (chapter.html) {
+        anchor.innerHTML = chapter.html;
+      } else {
+        anchor.textContent = chapter.label;
+      } // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+      // option.textContent = tab + chapter.label;
+
+
+      anchor.setAttribute('href', chapter.href);
+      anchor.setAttribute('data-href', chapter.href);
+    } else {
+      var span = DomUtil.create('span', null, option);
+      span.textContent = chapter.label;
+    }
+
+    if (parent.tagName === 'LI') {
+      // need to nest
+      var tmp = parent.querySelector('ol');
+
+      if (!tmp) {
+        tmp = DomUtil.create('ol', null, parent);
+      }
+
+      parent = tmp;
+    }
+
+    parent.appendChild(option);
+    return option;
+  },
+  EOT: true
+});
+var notes = function notes(options) {
+  return new Notes(options);
+};
 ;// CONCATENATED MODULE: ./src/control/Control.Title.js
 
 
@@ -1157,7 +1299,7 @@ var Preferences = Control.extend({
     label: 'Preferences',
     hasThemes: false
   },
-  defaultTemplate: "<button class=\"button--sm cozy-preferences oi\" data-toggle=\"open\" data-glyph=\"cog\" aria-label=\"Preferences and Settings\"></button>",
+  defaultTemplate: "<button class=\"button--sm cozy-preferences\" data-toggle=\"open\" aria-label=\"Text display preferences and settings\">Aa</button>",
   onAdd: function onAdd(reader) {
     var self = this;
 
@@ -1664,7 +1806,7 @@ var widget = {
 
 var Citation = Control.extend({
   options: {
-    label: 'Citation',
+    label: 'Cite',
     html: '<span class="citation" aria-label="Get Citation"></span>'
   },
   defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
@@ -1817,7 +1959,7 @@ var Search = Control.extend({
     label: 'Search',
     html: '<span>Search</span>'
   },
-  defaultTemplate: "<form class=\"search\">\n    <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n    <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n    <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n  </form>",
+  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>",
   onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
@@ -1837,79 +1979,97 @@ var Search = Control.extend({
       }
     }
 
+    this._reader.on('updateContents', function (data) {
+      self._createPanel();
+    });
+
     this._control = container.querySelector("[data-toggle=open]");
-    container.style.position = 'relative';
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+
+      self._modal.activate();
+    }, this);
+    return container;
+  },
+  _createPanel: function _createPanel() {
+    var self = this;
     this._data = null;
     this._canceled = false;
     this._processing = false;
     this._addLocation = false;
+    this._modal = this._reader.modal({
+      template: "\n  <div class=\"cozy-search\">\n    <form class=\"search\">\n      <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n      <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n      <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\" type=\"submit\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n    </form>\n  </div>\n<article></article>",
+      title: 'Search',
+      className: {
+        container: 'cozy-modal-search'
+      },
+      actions: [{
+        label: 'Search',
+        callback: function callback(event) {
+          var searchString = self._form.querySelector("#cozy-search-string").value;
 
-    this._reader.on('ready', function () {
-      this._modal = this._reader.modal({
-        template: '<article></article>',
-        title: 'Search Results',
-        className: {
-          container: 'cozy-modal-search'
-        },
-        region: 'left'
+          searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
+
+          if (!searchString) {
+            // just punt
+            return;
+          }
+
+          if (searchString == this.searchString) {
+            // cached results
+            self.openModalResults();
+          } else {
+            this.searchString = searchString;
+            self.openModalWaiting();
+            self.submitQuery();
+          }
+        }
+      }],
+      region: 'left'
+    });
+    this._form = this._modal._container.querySelector('form');
+
+    this._modal.callbacks.onClose = function () {
+      if (self._processing) {
+        self._canceled = true;
+      }
+    };
+
+    this._article = this._modal._container.querySelector('article');
+
+    this._modal.on('click', 'a[class="search-result"]', function (modal, target) {
+      target = target.getAttribute('href');
+
+      this._reader.tracking.action('search/go/link');
+
+      this._reader.display(target, function () {
+        // return focus to epub iframe, CSB-259
+        document.getElementsByTagName("iframe")[0].focus();
       });
 
-      this._modal.callbacks.onClose = function () {
-        if (self._processing) {
-          self._canceled = true;
-        }
-      };
+      return true;
+    }.bind(this));
 
-      this._article = this._modal._container.querySelector('article');
+    this._modal.on('click', 'a[class="feedback-link"]', function (modal, target) {
+      window.open(target.href, '_blank');
+    }.bind(this));
 
-      this._modal.on('click', 'a[class="search-result"]', function (modal, target) {
-        target = target.getAttribute('href');
-
-        this._reader.tracking.action('search/go/link');
-
-        this._reader.display(target, function () {
-          // return focus to epub iframe, CSB-259
-          document.getElementsByTagName("iframe")[0].focus();
-        });
-
-        return true;
-      }.bind(this));
-
-      this._modal.on('click', 'a[class="feedback-link"]', function (modal, target) {
-        window.open(target.href, '_blank');
-      }.bind(this));
-
-      this._modal.on('closed', function () {
-        this._reader.tracking.action('contents/close');
-      }.bind(this));
+    this._modal.on('closed', function () {
+      this._reader.tracking.action('contents/close');
     }.bind(this)); // only add locations when they've been processed
 
 
     this._reader.on('updateLocations', function () {
       this._addLocation = true;
-    }.bind(this));
+    }.bind(this)); // open search modal
+    //DomEvent.on(this._control, 'click', function(event) {
+    //  event.preventDefault();
+    //  self._goto_interval = false;
+    //  self._reader.tracking.action('contents/open');
+    //  self._modal.activate();
+    //}, this);
 
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
 
-      var searchString = this._container.querySelector("#cozy-search-string").value;
-
-      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
-
-      if (!searchString) {
-        // just punt
-        return;
-      }
-
-      if (searchString == this.searchString) {
-        // cached results
-        self.openModalResults();
-      } else {
-        this.searchString = searchString;
-        self.openModalWaiting();
-        self.submitQuery();
-      }
-    }, this);
     window.addEventListener('keydown', function (evt) {
       var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
 
@@ -1930,9 +2090,7 @@ var Search = Control.extend({
     this._emptyArticle();
 
     var value = this.searchString;
-    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate();
-
-    this._modal.activate();
+    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate(); //this._modal.activate();
   },
   openModalResults: function openModalResults() {
     if (this._canceled) {
@@ -1940,9 +2098,8 @@ var Search = Control.extend({
       return;
     }
 
-    this._buildResults();
+    this._buildResults(); //this._modal.activate();
 
-    this._modal.activate();
 
     this._reader.tracking.action("search/open");
   },
@@ -2082,7 +2239,7 @@ var BibliographicInformation = Control.extend({
     direction: 'left',
     html: '<span class="oi" data-glyph="info">Info</span>'
   },
-  defaultTemplate: "<button class=\"button--sm cozy-bib-info oi\" data-glyph=\"info\" data-toggle=\"open\" aria-label=\"Bibliographic Information\"> Info</button>",
+  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Bibliographic Information\"><i class=\"icon-info oi\" data-glyph=\"info\" title=\"Book Information\" aria-hidden=\"true\"></i></button>",
   onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
@@ -2705,6 +2862,7 @@ var fullscreen = function fullscreen(options) {
 
 
 
+
  // import {Zoom, zoom} from './Control.Zoom';
 // import {Attribution, attribution} from './Control.Attribution';
 
@@ -2718,6 +2876,8 @@ control.pageFirst = pageFirst;
 control.pageLast = pageLast;
 Control.Contents = Contents;
 control.contents = contents;
+Control.Notes = Notes;
+control.notes = notes;
 Control.Title = Title;
 control.title = title;
 Control.PublicationMetadata = PublicationMetadata;
@@ -3824,7 +3984,7 @@ var cozy = {}; // cozy.reader = reader;
 
 
 
-var control = __webpack_require__(5782);
+var control = __webpack_require__(7948);
 
 var core = __webpack_require__(5123);
 

@@ -14,7 +14,6 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/url-search-params/0.10.0/url-search-params.js"></script>
     <link rel="stylesheet" type="text/css" href="../dist/cozy-sun-bear.css" />
-
     <style type="text/css">
 
         body {
@@ -87,13 +86,11 @@
         }
 
         .cozy-module-book[data-manager=continuous][data-layout=reflowable] .epub-view {
-            margin-bottom: 2rem;
-            box-shadow: 0px 10px 13px -7px #000000, 0px 6px 15px 5px rgba(0,0,0,0);
+            margin-bottom: 2rem;            
             padding: 40px 0;
             /*width: 80%;*/
             margin-left: auto;
-            margin-right: auto;
-            border: 1px solid #ddd;
+            margin-right: auto;            
         }
 
         @media only screen and (min-device-width : 320px) and (max-device-width : 600px) {
@@ -108,10 +105,8 @@
         }
 
     </style>
-
 </head>
 <body>
-
     <div class="skip"></div>
 
     <form class="select-book">
@@ -331,7 +326,9 @@
                     region: 'left.sidebar',
                     searchUrl: '/cozy-sun-bear/epub_search' + book_id + '?q='
                 }).addTo(reader);
-
+                cozy.control.bibliographicInformation({ region: 'left.sidebar' }).addTo(reader);
+                
+                cozy.control.notes({ region: 'left.sidebar' }).addTo(reader);
 
 
 
@@ -341,15 +338,7 @@
                 cozy.control.pageNext({ region: 'bottom.navigator.right' }).addTo(reader);
 
                 cozy.control.preferences({ region: 'bottom.navigator.right' }).addTo(reader);    
-                cozy.control.widget.button({
-                    className: 'cozy-container-fullscreen',
-                    region: 'bottom.navigator.right',
-                    template: '<button class="button--sm" data-toggle="button" data-slot="label" aria-label="Fullscreen mode"></button>',
-                    data: { label: '<i id="fullscreen" class="icon-fullscreen-enter oi" data-glyph="fullscreen-enter" title="Fullscreen Mode" aria-hidden="true"></i>' },
-                    onClick: function() {
-                        reader.requestFullscreen();
-                    }
-                }).addTo(reader);
+
                 cozy.control.citation({
                     region: 'bottom.navigator.right',
                     citations: [

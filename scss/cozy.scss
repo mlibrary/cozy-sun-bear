@@ -108,18 +108,24 @@ $grid-padding:       1rem;
   ///////////////////////////////////
   // icons
   ///////////////////////////////////
-  i[class^='icon-'] {
-    font-size: 2em;
+  
+  .icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  i[class^='icon-'] { 
+    font-size: 1.2em;
   }
 
   i[class^='icon-chevron-'] {
-    color: $gray-3;
-    font-size: 2.5rem;
+    color: $dark-2;
+    font-size: 2rem;
     transition: 0.2s ease-in;
   }
 
   i[class^='icon-chevron-']:hover {
-    color: $brand-color;
+    color: $dark-1;
     transition: 0.2s ease-in;
   }
 
@@ -184,20 +190,20 @@ $grid-padding:       1rem;
     display: inline-block;
     border-bottom: none;
     border-radius: $radius;
-    color: $white;
-    background: $accent-color;
-    background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%);
-    background-position: -100%;
-    background-size: 201%;
-    background-repeat: no-repeat;
-    text-shadow: none;
+    color: $dark-2;
+    background: transparent;
+    /* background-image: linear-gradient(to right, $brand-color 50%, $accent-color 50%); */
+    /* background-position: -100%; */
+    /* background-size: 201%; */
+    /* background-repeat: no-repeat; */
+    /* text-shadow: none; */
     text-decoration: none;
     transition: 0.2s ease-in;
     line-height: normal;
 
     &:hover, &:active {
-      color: $white;
-      background-position: 0;
+      color: $dark-1;
+      /* background-position: 0; */
       transition: 0.2s ease-in;
     }
 
@@ -479,11 +485,11 @@ $grid-padding:       1rem;
 
   .epub-view {
       margin-bottom: 2rem;
-      box-shadow: 0px 10px 13px -7px #000000, 0px 6px 15px 5px rgba(0,0,0,0);
+      /* box-shadow: 0px 10px 13px -7px #000000, 0px 6px 15px 5px rgba(0,0,0,0); */
       padding: 0;
       margin-left: auto;
       margin-right: auto;
-      border: 1px solid #ddd;
+      /* border: 1px solid #ddd; */
 
       &.epub-view---loading::before {
         display: block;
@@ -536,9 +542,11 @@ div[class^='cozy-panel-'] {
 
 .cozy-panel-sidebar {
   display: flex;
-  justify-content: center;
   align-items: center;
+  flex-direction: column;
   height: 100%;
+  border-right: 1px solid $gray-2;
+  background-color: $gray-1;
 }
 
 div.cozy-panel-footer {
@@ -579,7 +587,7 @@ div.cozy-panel-footer {
     // height: 100%;
     border-radius: 0;
     padding: .5em 1em;
-    text-transform: uppercase;
+    // text-transform: uppercase;
 
     i {
       display: flex;
@@ -677,7 +685,7 @@ div.cozy-panel-footer {
 }
 
 .cozy-control button.button--sm.cozy-citation.citation::after {
-  content: 'Get Citation';
+  content: 'Cite';
 }
 
 // search widget
@@ -879,11 +887,11 @@ div.cozy-panel-footer {
   }
 
   .cozy-container i[class^="icon-"] {
-    font-size: 1.5em;
+    font-size: 1.2em;
   }
 
   .cozy-container i[class^="icon-chevron-"] {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
   }
 
   .cozy-control-preferences button {

@@ -31,24 +31,20 @@ export var Search = Control.extend({
       }
     }
 
-    this._reader.on('updateContents', function(data) {
-      self._createPanel();
-    });
-
     this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function(event) {
-      event.preventDefault();
-      self._modal.activate();
-    }, this)
+    // open with search button
+    this._control.setAttribute('id', 'action-' + this._id);
+    container.style.position = 'relative';
 
-    return container;
-  },
+    this._data = null;
+    this._canceled = false;
+    this._processing = false;
+    this._addLocation = false;
 
-  _createPanel: function() {
-    var self = this;
+    this._reader.on('ready', function() {
 
-    this._modal = this._reader.modal({
-      template: `
+      this._modal = this._reader.modal({
+        template: `
   <div class="cozy-search">
     <form class="search">
       <label class="u-screenreader" for="cozy-search-string">Search in this text</label>
@@ -57,64 +53,38 @@ export var Search = Control.extend({
     </form>
   </div>
 <article></article>`,
-      title: 'Search',
-      className: { container: 'cozy-modal-search' },
-      actions: [
-        {
-          label: 'Search',
-          callback: function(event) {
-            this._data = null;
-            this._canceled = false;
-            this._processing = false;
-            this._addLocation = false;
-            this._form = this._container.querySelector('form');
-
-            var searchString = self._form.querySelector('#cozy-search-string').value;
-            searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
-
-            if ( ! searchString ) {
-              // just punt
-              return;
-            }
-
-            if ( searchString == this.searchString ) {
-              // cached results
-              self.openModalResults();
-            } else {
-              this.searchString = searchString;
-              self.openModalWaiting();
-              self.submitQuery();
-            }
-          }
-        } ],
-      region: 'left',
-    });
-
-    this._modal.callbacks.onClose = function() {
-      if ( self._processing ) {
-        self._canceled = true;
-      }
-    };
-
-    this._article = this._modal._container.querySelector('article');
-
-    this._modal.on('click', 'a[class="search-result"]', function(modal, target) {
-      target = target.getAttribute('href');
-      this._reader.tracking.action('search/go/link');
-      this._reader.display(target, function() {
-        // return focus to epub iframe, CSB-259
-        document.getElementsByTagName("iframe")[0].focus();
+        title: 'Search',
+        className: { container: 'cozy-modal-search' },
+        region: 'left',
       });
-      return true;
-    }.bind(this));
 
-    this._modal.on('click', 'a[class="feedback-link"]', function(modal, target) {
-      window.open(target.href, '_blank');
-    }.bind(this));
+      this._modal.callbacks.onClose = function() {
+        if ( self._processing ) {
+          self._canceled = true;
+        }
+      };
 
-    this._modal.on('closed', function() {
-      this._reader.tracking.action('contents/close');
-    }.bind(this))
+      this._article = this._modal._container.querySelector('article');
+
+      this._modal.on('click', 'a[class="search-result"]', function(modal, target) {
+        target = target.getAttribute('href');
+        this._reader.tracking.action('search/go/link');
+        this._reader.display(target, function() {
+          // return focus to epub iframe, CSB-259
+          document.getElementsByTagName("iframe")[0].focus();
+        });
+        return true;
+      }.bind(this));
+
+      this._modal.on('click', 'a[class="feedback-link"]', function(modal, target) {
+        window.open(target.href, '_blank');
+      }.bind(this));
+
+      this._modal.on('closed', function() {
+        this._reader.tracking.action('contents/close');
+      }.bind(this))
+
+    }.bind(this));
 
     // only add locations when they've been processed
     this._reader.on('updateLocations', function() {
@@ -122,12 +92,35 @@ export var Search = Control.extend({
     }.bind(this));
 
     // open search modal
-    //DomEvent.on(this._control, 'click', function(event) {
-    //  event.preventDefault();
-    //  self._goto_interval = false;
-    //  self._reader.tracking.action('contents/open');
-    //  self._modal.activate();
-    //}, this);
+    DomEvent.on(this._control, 'click', function(event) {
+      event.preventDefault();
+      self._goto_interval = false;
+      self._reader.tracking.action('contents/open');
+      self._modal.activate();
+    }, this);
+
+    // get and perform search
+    function getSearch(event) {
+      event.preventDefault();
+      var searchString = this._modal.querySelector("#cozy-search-string").value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
+
+      if ( ! searchString ) {
+        // just punt
+          return;
+      }
+
+      if ( searchString == this.searchString ) {
+      // cached results
+        self.openModalResults();
+        } else {
+          this.searchString = searchString;
+          self.openModalWaiting();
+          self.submitQuery();
+        }
+    }
+
+    window.addEventListener('submit', getSearch.bind(this));
 
     window.addEventListener('keydown', function(evt) {
       let cmd = (evt.ctrlKey ? 1 : 0) |
@@ -144,6 +137,7 @@ export var Search = Control.extend({
       }
     }.bind(this));
 
+    return container;
   },
 
   openModalWaiting: function() {
