@@ -28,7 +28,7 @@ export var Contents = Control.extend({
       }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]");
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
@@ -49,6 +49,7 @@ export var Contents = Control.extend({
         self._modal.activate();
       }, this);
 
+      console.log("-- control.contents modal", self.options);
       this._modal = this._reader.modal({
         template: `
 <div class="cozy-contents-toolbar button-group" aria-hidden="true">
@@ -75,12 +76,15 @@ export var Contents = Control.extend({
         callbacks: {
           onShow: function() {},
           onClose: function (modal) {
-          if (self._goto_interval) {
-            self._reader.rendition.manager.container.setAttribute("tabindex", 0);
-            self._reader.rendition.manager.container.focus();
-          }
-        }
-      }});
+            if (self._goto_interval) {
+              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+              self._reader.rendition.manager.container.focus();
+            }
+          },
+        },
+        modalContainer: self.options.modalContainer,
+        seirously: 'wtf'
+      });
 
       this._display = {};
       this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
@@ -239,5 +243,6 @@ export var Contents = Control.extend({
 });
 
 export var contents = function(options) {
+  console.log("-- control.contents", options);
   return new Contents(options);
 };

@@ -19,14 +19,20 @@ export var Preferences = Control.extend({
   onAdd: function(reader) {
     var self = this;
     var className = this._className();
-    var container = DomUtil.create('div', className);
-    var template = this.options.template || this.defaultTemplate;
-    var body = new DOMParser().parseFromString(template, "text/html").body;
-    while ( body.children.length ) {
-      container.appendChild(body.children[0]);
+    // var container = DomUtil.create('div', className);
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      container = DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]");
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
       self.activate();

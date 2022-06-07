@@ -420,7 +420,8 @@ var Modal = Class/* Class.extend */.w.extend({
       onShow: function onShow() {},
       onClose: function onClose() {}
     },
-    handlers: {}
+    handlers: {},
+    modalContainer: null
   },
   initialize: function initialize(options) {
     options = Util.setOptions(this, options);
@@ -435,6 +436,8 @@ var Modal = Class/* Class.extend */.w.extend({
         container: this.options.className
       };
     }
+
+    console.log("-- modal: initialize", this.options);
   },
   addTo: function addTo(reader) {
     var self = this;
@@ -456,7 +459,8 @@ var Modal = Class/* Class.extend */.w.extend({
 
     panelHTML += '</div></div></div></div>';
     var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
-    this.modal = reader._container.appendChild(body.children[0]);
+    var container = reader.options.modalContainer ? reader.options.modalContainer : self.options.modalContainer ? self.options.modalContainer : reader._container;
+    this.modal = container.appendChild(body.children[0]);
     this._container = this.modal; // compatibility
 
     this.container = this.modal.querySelector('.modal__container');
@@ -511,11 +515,22 @@ var Modal = Class/* Class.extend */.w.extend({
     }
 
     this.callbacks.onClose(this.modal);
+    this._reader._container.dataset.modalActivated = false;
+
+    if (this.options.modalContainer) {
+      this.options.modalContainer.dataset.modalActived = false;
+    }
   },
   showModal: function showModal() {
     this.activeElement = document.activeElement;
 
     this._resize();
+
+    this._reader._container.dataset.modalActivated = true;
+
+    if (this.options.modalContainer) {
+      this.options.modalContainer.dataset.modalActived = true;
+    }
 
     this.modal.setAttribute('aria-hidden', 'false');
     this.setFocusToFirstNode();
@@ -704,6 +719,7 @@ var Modal = Class/* Class.extend */.w.extend({
 });
 Reader/* Reader.include */.E.include({
   modal: function modal(options) {
+    console.log("-- seriously", options);
     var modal = new Modal(options);
     return modal.addTo(this); // return this;
   },
@@ -797,7 +813,7 @@ var Contents = Control.extend({
       }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]");
 
     this._control.setAttribute('id', 'action-' + this._id);
 
@@ -823,6 +839,7 @@ var Contents = Control.extend({
 
         self._modal.activate();
       }, this);
+      console.log("-- control.contents modal", self.options);
       this._modal = this._reader.modal({
         template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button--lg toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button--lg\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
         title: 'Contents',
@@ -837,7 +854,9 @@ var Contents = Control.extend({
               self._reader.rendition.manager.container.focus();
             }
           }
-        }
+        },
+        modalContainer: self.options.modalContainer,
+        seirously: 'wtf'
       });
       this._display = {};
       this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
@@ -1022,6 +1041,7 @@ var Contents = Control.extend({
   EOT: true
 });
 var contents = function contents(options) {
+  console.log("-- control.contents", options);
   return new Contents(options);
 };
 ;// CONCATENATED MODULE: ./src/control/Control.Title.js
@@ -1161,17 +1181,24 @@ var Preferences = Control.extend({
   onAdd: function onAdd(reader) {
     var self = this;
 
-    var className = this._className();
+    var className = this._className(); // var container = DomUtil.create('div', className);
 
-    var container = DomUtil.create('div', className);
-    var template = this.options.template || this.defaultTemplate;
-    var body = new DOMParser().parseFromString(template, "text/html").body;
 
-    while (body.children.length) {
-      container.appendChild(body.children[0]);
+    var container = this._container;
+
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      container = DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]");
     DomEvent.on(this._control, 'click', function (event) {
       event.preventDefault();
       self.activate();
