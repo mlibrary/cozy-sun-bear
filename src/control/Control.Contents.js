@@ -12,7 +12,7 @@ export var Contents = Control.extend({
     var self = this;
     var container = this._container;
     if ( container ) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+      // this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
       var className = this._className(),
@@ -28,7 +28,7 @@ export var Contents = Control.extend({
       }
     }
 
-    this._control = container.closest("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
@@ -133,6 +133,9 @@ export var Contents = Control.extend({
         this._goto_interval = true;
         this._reader.tracking.action('contents/go/link');
         this._reader.display(target);
+        if ( this.options.closePanel === false ) {
+          return false;
+        }
         return true;
       }.bind(this));
 

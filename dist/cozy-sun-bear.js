@@ -798,8 +798,7 @@ var Contents = Control.extend({
     var self = this;
     var container = this._container;
 
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    if (container) {// this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
       var className = this._className(),
           options = this.options;
@@ -813,7 +812,7 @@ var Contents = Control.extend({
       }
     }
 
-    this._control = container.closest("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
 
     this._control.setAttribute('id', 'action-' + this._id);
 
@@ -919,6 +918,10 @@ var Contents = Control.extend({
         this._reader.tracking.action('contents/go/link');
 
         this._reader.display(target);
+
+        if (this.options.closePanel === false) {
+          return false;
+        }
 
         return true;
       }.bind(this));
@@ -1198,7 +1201,7 @@ var Preferences = Control.extend({
       }
     }
 
-    this._control = container.closest("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     DomEvent.on(this._control, 'click', function (event) {
       event.preventDefault();
       self.activate();

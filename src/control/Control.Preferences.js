@@ -32,7 +32,7 @@ export var Preferences = Control.extend({
       }
     }
 
-    this._control = container.closest("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
       self.activate();

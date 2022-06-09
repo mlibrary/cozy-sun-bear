@@ -177,9 +177,15 @@
     var reader;
     var controls = {};
 
-    var book_href = '/epub3-local/using-blocks-in-ruby/';
+    // var book_href = '/epub3-local/using-blocks-in-ruby/';
+    // reader = cozy.reader('reader', {
+    //   href: book_href
+    // });
+
+    var book_href = '/epub3-local/9781643150383/';
     reader = cozy.reader('reader', {
-      href: book_href
+      href: book_href,
+      flow: 'scrolled-doc'
     });
 
     cozy.control.pagePrevious({ region: 'left.sidebar' }).addTo(reader);
@@ -188,7 +194,8 @@
 
     controls.contents = cozy.control.contents({ 
       container: actions.contents,
-      modalContainer: $panels
+      modalContainer: $panels,
+      closePanel: false
     }).addTo(reader);
 
     cozy.control.preferences({ container: document.querySelector('#action-preferences') }).addTo(reader);
