@@ -41,7 +41,8 @@ export var Modal = Class.extend({
     className: {},
     actions: null,
     callbacks: { onShow: function() {}, onClose: function() {} },
-    handlers: {}
+    handlers: {},
+    modalContainer: null
   },
 
   initialize: function (options) {
@@ -54,6 +55,7 @@ export var Modal = Class.extend({
     if ( typeof(this.options.className) == 'string' ) {
       this.options.className = { container: this.options.className };
     }
+    console.log("-- modal: initialize", this.options);
   },
 
   addTo: function(reader) {
@@ -87,7 +89,10 @@ export var Modal = Class.extend({
 
     var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
 
-    this.modal = reader._container.appendChild(body.children[0]);
+    let container = reader.options.modalContainer ? 
+      reader.options.modalContainer 
+      : self.options.modalContainer ? self.options.modalContainer : reader._container;
+    this.modal = container.appendChild(body.children[0]);
     this._container = this.modal; // compatibility
 
     this.container = this.modal.querySelector('.modal__container');
@@ -135,11 +140,15 @@ export var Modal = Class.extend({
       this.activeElement.focus();
     }
     this.callbacks.onClose(this.modal);
+    this._reader._container.dataset.modalActivated = false;
+    if (this.options.modalContainer) { this.options.modalContainer.dataset.modalActived = false; }
   },
 
   showModal: function() {
     this.activeElement = document.activeElement
     this._resize();
+    this._reader._container.dataset.modalActivated = true;
+    if ( this.options.modalContainer ) { this.options.modalContainer.dataset.modalActived = true; }
     this.modal.setAttribute('aria-hidden', 'false')
     this.setFocusToFirstNode()
     this.addEventListeners()
@@ -266,6 +275,7 @@ export var Modal = Class.extend({
     }
 
     if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
+    //if (target.hasAttribute('data-modal-close')) this.closeModal();
 
     event.preventDefault();
   },

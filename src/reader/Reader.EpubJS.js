@@ -773,7 +773,8 @@ body {
       view.iframe.title = `Contents: ${title}` ;
     }
     // Ugly hijack to enable hotjar HELIO-4198
-    view.iframe.setAttribute("data-hj-allow-iframe", "true");
+    // turning off hotjar in this experimental version of csb
+    // view.iframe.setAttribute("data-hj-allow-iframe", "true");
   },
 
   EOT: true

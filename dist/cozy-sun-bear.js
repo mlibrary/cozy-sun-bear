@@ -420,7 +420,8 @@ var Modal = Class/* Class.extend */.w.extend({
       onShow: function onShow() {},
       onClose: function onClose() {}
     },
-    handlers: {}
+    handlers: {},
+    modalContainer: null
   },
   initialize: function initialize(options) {
     options = Util.setOptions(this, options);
@@ -435,6 +436,8 @@ var Modal = Class/* Class.extend */.w.extend({
         container: this.options.className
       };
     }
+
+    console.log("-- modal: initialize", this.options);
   },
   addTo: function addTo(reader) {
     var self = this;
@@ -456,7 +459,8 @@ var Modal = Class/* Class.extend */.w.extend({
 
     panelHTML += '</div></div></div></div>';
     var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
-    this.modal = reader._container.appendChild(body.children[0]);
+    var container = reader.options.modalContainer ? reader.options.modalContainer : self.options.modalContainer ? self.options.modalContainer : reader._container;
+    this.modal = container.appendChild(body.children[0]);
     this._container = this.modal; // compatibility
 
     this.container = this.modal.querySelector('.modal__container');
@@ -511,11 +515,22 @@ var Modal = Class/* Class.extend */.w.extend({
     }
 
     this.callbacks.onClose(this.modal);
+    this._reader._container.dataset.modalActivated = false;
+
+    if (this.options.modalContainer) {
+      this.options.modalContainer.dataset.modalActived = false;
+    }
   },
   showModal: function showModal() {
     this.activeElement = document.activeElement;
 
     this._resize();
+
+    this._reader._container.dataset.modalActivated = true;
+
+    if (this.options.modalContainer) {
+      this.options.modalContainer.dataset.modalActived = true;
+    }
 
     this.modal.setAttribute('aria-hidden', 'false');
     this.setFocusToFirstNode();
@@ -647,7 +662,8 @@ var Modal = Class/* Class.extend */.w.extend({
       }
     }
 
-    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
+    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal(); //if (target.hasAttribute('data-modal-close')) this.closeModal();
+
     event.preventDefault();
   },
   onModalTransition: function onModalTransition(event) {
@@ -797,9 +813,11 @@ var Contents = Control.extend({
       }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
 
     this._control.setAttribute('id', 'action-' + this._id);
+
+    this._control.setAttribute("data-modal-open", "");
 
     container.style.position = 'relative';
 
@@ -823,6 +841,7 @@ var Contents = Control.extend({
 
         self._modal.activate();
       }, this);
+      console.log("-- control.contents modal", self.options);
       this._modal = this._reader.modal({
         template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
         title: 'Contents',
@@ -837,7 +856,9 @@ var Contents = Control.extend({
               self._reader.rendition.manager.container.focus();
             }
           }
-        }
+        },
+        modalContainer: self.options.modalContainer,
+        seriously: 'wtf'
       });
       this._display = {};
       this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
@@ -895,11 +916,13 @@ var Contents = Control.extend({
 
       this._modal.on('click', 'a[href]', function (modal, target) {
         target = target.getAttribute('data-href');
-        this._goto_interval = true;
-
-        this._reader.tracking.action('contents/go/link');
+        this._goto_interval = true; //this._reader.tracking.action('contents/go/link');
 
         this._reader.display(target);
+
+        if (this.options.closePanel === false) {
+          return false;
+        }
 
         return true;
       }.bind(this));
@@ -1022,6 +1045,7 @@ var Contents = Control.extend({
   EOT: true
 });
 var contents = function contents(options) {
+  console.log("-- control.contents", options);
   return new Contents(options);
 };
 ;// CONCATENATED MODULE: ./src/control/Control.Notes.js
@@ -1964,8 +1988,7 @@ var Search = Control.extend({
     var self = this;
     var container = this._container;
 
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    if (container) {//this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
       var className = this._className(),
           options = this.options;
@@ -1983,7 +2006,7 @@ var Search = Control.extend({
       self._createPanel();
     });
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     DomEvent.on(this._control, 'click', function (event) {
       event.preventDefault();
 
@@ -1993,41 +2016,17 @@ var Search = Control.extend({
   },
   _createPanel: function _createPanel() {
     var self = this;
-    this._data = null;
-    this._canceled = false;
-    this._processing = false;
-    this._addLocation = false;
+    console.log("-- control.contents modal", self.options);
     this._modal = this._reader.modal({
       template: "\n  <div class=\"cozy-search\">\n    <form class=\"search\">\n      <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n      <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n      <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\" type=\"submit\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n    </form>\n  </div>\n<article></article>",
       title: 'Search',
       className: {
         container: 'cozy-modal-search'
       },
-      actions: [{
-        label: 'Search',
-        callback: function callback(event) {
-          var searchString = self._form.querySelector("#cozy-search-string").value;
-
-          searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
-
-          if (!searchString) {
-            // just punt
-            return;
-          }
-
-          if (searchString == this.searchString) {
-            // cached results
-            self.openModalResults();
-          } else {
-            this.searchString = searchString;
-            self.openModalWaiting();
-            self.submitQuery();
-          }
-        }
-      }],
-      region: 'left'
+      region: 'left',
+      modalContainer: self.options.modalContainer,
+      seriously: 'wtf'
     });
-    this._form = this._modal._container.querySelector('form');
 
     this._modal.callbacks.onClose = function () {
       if (self._processing) {
@@ -2036,6 +2035,26 @@ var Search = Control.extend({
     };
 
     this._article = this._modal._container.querySelector('article');
+
+    this._modal.on('click', '.cozy-search form button', function (modal, target) {
+      var form = target.parentNode;
+      var searchString = form.querySelector('input[type="text"]').value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
+
+      if (!searchString) {
+        // just punt
+        return;
+      }
+
+      if (searchString == this.searchString) {
+        // cached results
+        self.openModalResults();
+      } else {
+        this.searchString = searchString;
+        self.openModalWaiting();
+        self.submitQuery(searchString);
+      }
+    }.bind(this));
 
     this._modal.on('click', 'a[class="search-result"]', function (modal, target) {
       target = target.getAttribute('href');
@@ -2046,6 +2065,10 @@ var Search = Control.extend({
         // return focus to epub iframe, CSB-259
         document.getElementsByTagName("iframe")[0].focus();
       });
+
+      if (this.options.closePanel === false) {
+        return false;
+      }
 
       return true;
     }.bind(this));
@@ -2082,7 +2105,6 @@ var Search = Control.extend({
         }
       }
     }.bind(this));
-    return container;
   },
   openModalWaiting: function openModalWaiting() {
     this._processing = true;
@@ -2225,6 +2247,7 @@ var Search = Control.extend({
   EOT: true
 });
 var search = function search(options) {
+  console.log("-- control.contents", options);
   return new Search(options);
 };
 ;// CONCATENATED MODULE: ./src/control/Control.BibliographicInformation.js
@@ -23390,9 +23413,9 @@ Reader/* Reader.EpubJS */.E.EpubJS = Reader/* Reader.extend */.E.extend({
     if (title && view.iframe) {
       view.iframe.title = "Contents: ".concat(title);
     } // Ugly hijack to enable hotjar HELIO-4198
+    // turning off hotjar in this experimental version of csb
+    // view.iframe.setAttribute("data-hj-allow-iframe", "true");
 
-
-    view.iframe.setAttribute("data-hj-allow-iframe", "true");
   },
   EOT: true
 });

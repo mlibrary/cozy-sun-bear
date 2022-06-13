@@ -15,7 +15,7 @@ export var Search = Control.extend({
     var self = this;
     var container = this._container;
     if ( container ) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+      //this._control = container.querySelector("[data-target=" + this.options.direction + "]");
     } else {
 
       var className = this._className(),
@@ -35,7 +35,7 @@ export var Search = Control.extend({
       self._createPanel();
     });
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     DomEvent.on(this._control, 'click', function(event) {
       event.preventDefault();
       self._modal.activate();
@@ -47,6 +47,7 @@ export var Search = Control.extend({
   _createPanel: function() {
     var self = this;
 
+    console.log("-- control.contents modal", self.options);
     this._modal = this._reader.modal({
       template: `
   <div class="cozy-search">
@@ -59,35 +60,9 @@ export var Search = Control.extend({
 <article></article>`,
       title: 'Search',
       className: { container: 'cozy-modal-search' },
-      actions: [
-        {
-          label: 'Search',
-          callback: function(event) {
-            this._data = null;
-            this._canceled = false;
-            this._processing = false;
-            this._addLocation = false;
-            this._form = this._container.querySelector('form');
-
-            var searchString = self._form.querySelector('#cozy-search-string').value;
-            searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
-
-            if ( ! searchString ) {
-              // just punt
-              return;
-            }
-
-            if ( searchString == this.searchString ) {
-              // cached results
-              self.openModalResults();
-            } else {
-              this.searchString = searchString;
-              self.openModalWaiting();
-              self.submitQuery();
-            }
-          }
-        } ],
       region: 'left',
+      modalContainer: self.options.modalContainer,
+      seriously: 'wtf'
     });
 
     this._modal.callbacks.onClose = function() {
@@ -98,6 +73,26 @@ export var Search = Control.extend({
 
     this._article = this._modal._container.querySelector('article');
 
+    this._modal.on('click', '.cozy-search form button', function(modal, target) {
+
+      var form = target.parentNode;
+      var searchString = form.querySelector('input[type="text"]').value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
+      if ( ! searchString ) {
+        // just punt
+        return;
+      }
+
+      if ( searchString == this.searchString ) {
+        // cached results
+        self.openModalResults();
+      } else {
+        this.searchString = searchString;
+        self.openModalWaiting();
+        self.submitQuery(searchString);
+      }
+    }.bind(this));
+    
     this._modal.on('click', 'a[class="search-result"]', function(modal, target) {
       target = target.getAttribute('href');
       this._reader.tracking.action('search/go/link');
@@ -105,6 +100,9 @@ export var Search = Control.extend({
         // return focus to epub iframe, CSB-259
         document.getElementsByTagName("iframe")[0].focus();
       });
+      if ( this.options.closePanel === false ) {
+        return false;
+      }
       return true;
     }.bind(this));
 
@@ -290,5 +288,6 @@ export var Search = Control.extend({
 });
 
 export var search = function(options) {
+  console.log("-- control.contents", options);
   return new Search(options);
 }

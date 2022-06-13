@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PdeC No Modals</title>
+
+  <link rel="stylesheet" type="text/css" href="../dist/cozy-sun-bear.css" />
+  <script src="../dist/cozy-sun-bear.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/url-search-params/0.10.0/url-search-params.js"></script>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👾</text></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+
+  <style>
+
+    *, *::after, *::before {
+      box-sizing: border-box;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: 1fr;
+      /* grid-template-columns: min-content minmax(0, min-content) 1fr; */
+      grid-template-columns: min-content min-content 1fr;
+      grid-gap: 0;
+
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .nm--toolbar {
+      background: #f1f1f1;
+      min-height: 0;
+      min-width: 0;
+
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .nm--reader {
+      /* background: #666; */
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .nm--panels {
+      background: #f1f1f1;
+      min-height: 0;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+      width: 25vw;
+    }
+
+    .nm--actions {
+      position: fixed;
+      bottom: 1rem;
+      right: 0;
+      background: rgba(0,0,0,0.25);
+      padding: 1rem;
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+
+      z-index: 500;
+    }
+
+    .nm--panels[data-modal-actived="false"] {
+      width: 0;
+    }
+
+    .nm--panels .cozy-modal {
+      min-height: 0;
+      grid-row: 1/2;
+      /* padding: 1rem; */
+    }
+
+    .nm--panels .cozy-modal[aria-hidden="true"] {
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      overflow: hidden;
+      position: absolute !important;
+      width: 1px;
+      display: none;;
+    }
+
+    .nm--panels .modal__overlay {
+        position: static;
+    }
+
+    .nm--panels .modal__container {
+        width: 100%;
+    }
+
+    .nm--panels .modal-slide.left[aria-hidden="false"] .modal__container {
+      animation: none;
+    }
+
+
+    .cozy-container {
+      width: 100%;
+    }
+
+    .nm--panels .modal__container div[role="document"] {
+      height: 100%;
+    }
+
+    .nm--panels .modal__content {
+      height: 88% !important;
+    }
+
+  </style>
+
+</head>
+<body>
+  
+  <div class="nm--toolbar">
+    <button id="action-contents" data-toggle="open" class="button--sm">
+        <i class="icon-align-left oi" data-glyph="align-left" title="Table of Contents" aria-hidden="true"></i>
+    </button>
+
+    <button id="action-search" class="button--sm" data-toggle="open" aria-label="Search">
+        <i class="icon-magnifying-glass oi" data-glyph="magnifying-glass" title="Search" aria-hidden="true"></i>
+    </button>
+
+    <button id="action-notes" class="button--sm" data-toggle="open" aria-label="Notes">
+        Notes
+    </button>
+  </div>
+
+  <div class="nm--panels" data-modal-actived="false"></div>
+
+  <div class="nm--reader" id="reader"></div>
+
+  <!-- <div class="nm--actions" data-active="false">
+    <button id="action-preferences" data-toggle="open">
+      <i class="bi bi-sliders"></i>
+    </button>
+  </div> -->
+
+  <script>
+    var actions = {}; var panels = {};
+    var $panels = document.querySelector('.nm--panels');
+
+    panels.contents = document.querySelector('.panel--contents');
+    panels.search = document.querySelector('.panel--search');
+
+    actions.contents = document.querySelector('#action-contents');
+    actions.search = document.querySelector('#action-search');
+
+    let fn;
+    actions.contents.addEventListener('click', (event) => {
+      // panels.contents.setAttribute('aria-hidden',
+      //   !(panels.contents.getAttribute('aria-hidden') == 'true'));
+
+      console.log("??", fn);
+      if ( fn === undefined ) {
+        fn = controls.contents._modal.callbacks.onClose;
+        controls.contents._modal.callbacks.onClose = function (modal) {
+          console.log("??", fn);
+          fn(modal);
+          setTimeout(function () {
+            console.log("-- should be resizing");
+            window.dispatchEvent(new Event('resize'));
+          }, 100);
+        }
+      }
+    
+      setTimeout(function () {
+        window.dispatchEvent(new Event('resize'));
+      }, 0);
+
+    })
+
+    actions.search.addEventListener('click', (event) => {
+      // panels.search.setAttribute('aria-hidden',
+      //   !(panels.search.getAttribute('aria-hidden') == 'true'));
+
+      console.log("??", fn);
+      if ( fn === undefined ) {
+        fn = controls.contents._modal.callbacks.onClose;
+        controls.contents._modal.callbacks.onClose = function (modal) {
+          console.log("??", fn);
+          fn(modal);
+          setTimeout(function () {
+            console.log("-- should be resizing");
+            window.dispatchEvent(new Event('resize'));
+          }, 100);
+        }
+      }
+    
+      setTimeout(function () {
+        window.dispatchEvent(new Event('resize'));
+      }, 0);
+
+    })
+
+  </script>
+
+  <script>
+    var reader;
+    var controls = {};
+
+    var book_href = '/epub3-local/PdeC/';
+    reader = cozy.reader('reader', {
+      href: book_href
+    });
+
+    cozy.control.navigator({ region: 'bottom.navigator' }).addTo(reader);
+    cozy.control.pagePrevious({ region: 'bottom.navigator.right' }).addTo(reader);
+    cozy.control.pageNext({ region: 'bottom.navigator.right' }).addTo(reader);
+    cozy.control.preferences({ region: 'bottom.navigator.right' }).addTo(reader);
+    cozy.control.citation({
+                    region: 'bottom.navigator.right',
+                    citations: [
+                      { format: 'MLA', text: "Mock, Alex. <em>The Mock Life</em>. University Press, 2017." },
+                      { format: 'APA', text: "Mock, A. (2017). <em>The Mock Life</em>. Ann Arbor, MI: University Press." },
+                      { format: 'Chicago', text: "Mock, Alex. <em>The Mock Life</em>. Ann Arbor, MI: University Press, 2017." }
+                    ]
+                }).addTo(reader);
+
+    controls.contents = cozy.control.contents({ 
+      container: actions.contents,
+      modalContainer: $panels,
+      closePanel: false
+    }).addTo(reader);
+
+    controls.search = cozy.control.search({ 
+      container: actions.search,
+      modalContainer: $panels,
+      closePanel: false
+    }).addTo(reader);
+
+    //cozy.control.preferences({ container: document.querySelector('#action-preferences') }).addTo(reader);
+
+    reader.start(function () {
+      console.log('-- started');
+    });
+
+    reader.on('resized', function () {
+      console.log(":: resize detected");
+    })
+
+
+  </script>
+
+</body>
+</html>
