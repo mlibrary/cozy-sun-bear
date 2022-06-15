@@ -788,7 +788,7 @@ div.cozy-panel-footer {
   flex-direction: column;
   gap: 1rem;
 
-  button {
+  button, a {
     cursor: pointer;
     position: relative;
     border: none;
@@ -808,7 +808,10 @@ div.cozy-panel-footer {
 
   button:active,
   button:hover,
-  button[data-modal-open] {
+  button[data-modal-closed],
+  a:active,
+  a:hover,
+  a:focus {
     cursor: pointer;
 
     i {

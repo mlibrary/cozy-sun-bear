@@ -2089,7 +2089,7 @@ div.cozy-panel-footer {
   flex-direction: column;
   gap: 1rem;
 }
-.nm--toolbar button {
+.nm--toolbar button, .nm--toolbar a {
   cursor: pointer;
   position: relative;
   border: none;
@@ -2097,7 +2097,7 @@ div.cozy-panel-footer {
   padding-bottom: 1em;
   font-size: 1em;
 }
-.nm--toolbar button i {
+.nm--toolbar button i, .nm--toolbar a i {
   padding: 8px;
 }
 .nm--toolbar button:first-child {
@@ -2105,12 +2105,18 @@ div.cozy-panel-footer {
 }
 .nm--toolbar button:active,
 .nm--toolbar button:hover,
-.nm--toolbar button[data-modal-open] {
+.nm--toolbar button[data-modal-closed],
+.nm--toolbar a:active,
+.nm--toolbar a:hover,
+.nm--toolbar a:focus {
   cursor: pointer;
 }
 .nm--toolbar button:active i,
 .nm--toolbar button:hover i,
-.nm--toolbar button[data-modal-open] i {
+.nm--toolbar button[data-modal-closed] i,
+.nm--toolbar a:active i,
+.nm--toolbar a:hover i,
+.nm--toolbar a:focus i {
   background-color: #a3a3a3;
 }
 

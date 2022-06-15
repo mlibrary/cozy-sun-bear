@@ -37,7 +37,7 @@
       width: 100vw;
       overflow: hidden;
     }
-
+/*
     .nm--toolbar {
       background: #f1f1f1;
       min-height: 0;
@@ -49,7 +49,7 @@
     }
 
     .nm--reader {
-      /* background: #666; */
+      /* background: #666; /
       min-height: 0;
       min-width: 0;
     }
@@ -84,7 +84,7 @@
     .nm--panels .cozy-modal {
       min-height: 0;
       grid-row: 1/2;
-      /* padding: 1rem; */
+      /* padding: 1rem; /
     }
 
     .nm--panels .cozy-modal[aria-hidden="true"] {
@@ -119,7 +119,7 @@
 
     .nm--panels .modal__content {
       height: 88% !important;
-    }
+    } */
 
   </style>
 
@@ -127,6 +127,12 @@
 <body>
   
   <div class="nm--toolbar">
+    <div id="action-close" class="cozy-control cozy-panel-close button--sm">
+        <a class="cozy-close" href="../examples/" title="Close reader and return to previous page" data-toggle="button" data-slot="label" aria-label="Close reader">
+          <i class="icon-x oi" data-glyph="x" aria-hidden="true"></i>
+        </a>
+    </div>
+
     <button id="action-contents" data-toggle="open" class="button--sm">
         <i class="icon-align-left oi" data-glyph="align-left" title="Table of Contents" aria-hidden="true"></i>
     </button>
@@ -141,7 +147,7 @@
 
     <div id="action-help" class="cozy-control cozy-panel-feedback">
         <a href="https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=&url=" target="_blank" title="Report a problem or share feedback">
-            <i class="icon-comment-square oi" data-glyph="comment-square" aria-hidden="true"></i>
+            <i class="icon-question-mark oi" data-glyph="question-mark" aria-hidden="true"></i>
         </a>
     </div>
   </div>
@@ -266,11 +272,7 @@
       closePanel: false
     }).addTo(reader);
 
-    controls.help = cozy.control.widget.panel({
-          container: actions.help,
-          className: 'cozy-panel-feedback',
-          template: '<a href="https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=&url=" target="_blank" title="Report a problem or share feedback"><i class="icon-comment-square oi" data-glyph="comment-square" aria-hidden="true"></i></a>',
-        }).addTo(reader);
+   // controls.help = 
 
     //cozy.control.preferences({ container: document.querySelector('#action-preferences') }).addTo(reader);
 
