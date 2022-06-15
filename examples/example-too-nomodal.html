@@ -138,6 +138,12 @@
     <button id="action-notes" class="button--sm" data-toggle="open" aria-label="Notes">
         Notes
     </button>
+
+    <div id="action-help" class="cozy-control cozy-panel-feedback">
+        <a href="https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=&url=" target="_blank" title="Report a problem or share feedback">
+            <i class="icon-comment-square oi" data-glyph="comment-square" aria-hidden="true"></i>
+        </a>
+    </div>
   </div>
 
   <div class="nm--panels" data-modal-actived="false"></div>
@@ -156,14 +162,31 @@
 
     panels.contents = document.querySelector('.panel--contents');
     panels.search = document.querySelector('.panel--search');
+    panels.help = document.querySelector('.panel--help');
 
     actions.contents = document.querySelector('#action-contents');
     actions.search = document.querySelector('#action-search');
+    actions.help = document.querySelector('#action-help')
+    //action.contents.setAttribute("data-modal-open", "");
 
     let fn;
     actions.contents.addEventListener('click', (event) => {
       // panels.contents.setAttribute('aria-hidden',
       //   !(panels.contents.getAttribute('aria-hidden') == 'true'));
+
+      // check to see if button action is open or closed
+      if ( actions.contents.hasAttribute("data-modal-open") ) {
+        actions.contents.setAttribute("data-modal-close", "");
+        actions.contents.removeAttribute("data-modal-open");
+      } else {
+        actions.contents.setAttribute("data-modal-open", "");
+        actions.contents.removeAttribute("data-modal-close");
+      }
+
+      if ( actions.contents.hasAttribute("data-modal-close") ) {
+          //this.closePanel;
+      }
+      
 
       console.log("??", fn);
       if ( fn === undefined ) {
@@ -242,6 +265,12 @@
       modalContainer: $panels,
       closePanel: false
     }).addTo(reader);
+
+    controls.help = cozy.control.widget.panel({
+          container: actions.help,
+          className: 'cozy-panel-feedback',
+          template: '<a href="https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=&url=" target="_blank" title="Report a problem or share feedback"><i class="icon-comment-square oi" data-glyph="comment-square" aria-hidden="true"></i></a>',
+        }).addTo(reader);
 
     //cozy.control.preferences({ container: document.querySelector('#action-preferences') }).addTo(reader);
 

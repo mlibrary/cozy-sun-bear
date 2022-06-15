@@ -2007,6 +2007,12 @@ var Search = Control.extend({
     });
 
     this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
+
+    this._control.setAttribute('id', 'action-' + this._id);
+
+    this._control.setAttribute("data-modal-open", "");
+
+    container.style.position = 'relative';
     DomEvent.on(this._control, 'click', function (event) {
       event.preventDefault();
 

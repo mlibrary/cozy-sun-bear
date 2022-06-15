@@ -1920,7 +1920,7 @@ div.cozy-panel-footer {
   display: flex;
   flex: 1 1 auto;
   border-radius: 0;
-  padding: 0.5em 1em;
+  padding: 10px;
 }
 .cozy-control button.button--sm i {
   display: flex;
@@ -2079,6 +2079,110 @@ div.cozy-panel-footer {
 .cozy-modal main label {
   display: block;
   margin: 1em 0;
+}
+
+.nm--toolbar {
+  background: #f1f1f1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.nm--toolbar button {
+  cursor: pointer;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding-bottom: 1em;
+  font-size: 1em;
+}
+.nm--toolbar button i {
+  padding: 8px;
+}
+.nm--toolbar button:first-child {
+  padding-top: 1em;
+}
+.nm--toolbar button:active,
+.nm--toolbar button:hover,
+.nm--toolbar button[data-modal-open] {
+  cursor: pointer;
+}
+.nm--toolbar button:active i,
+.nm--toolbar button:hover i,
+.nm--toolbar button[data-modal-open] i {
+  background-color: #a3a3a3;
+}
+
+.nm--reader {
+  /* background: #666; */
+  min-height: 0;
+  min-width: 0;
+}
+
+.nm--panels {
+  background: #f1f1f1;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  width: 25vw;
+}
+
+.nm--actions {
+  position: fixed;
+  bottom: 1rem;
+  right: 0;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  z-index: 500;
+}
+
+.nm--panels[data-modal-actived=false] {
+  width: 0;
+}
+
+.nm--panels .cozy-modal {
+  min-height: 0;
+  grid-row: 1/2;
+  /* padding: 1rem; */
+}
+
+.nm--panels .cozy-modal[aria-hidden=true] {
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  position: absolute !important;
+  width: 1px;
+  display: none;
+}
+
+.nm--panels .modal__overlay {
+  position: static;
+}
+
+.nm--panels .modal__container {
+  width: 100%;
+}
+
+.nm--panels .modal-slide.left[aria-hidden=false] .modal__container {
+  animation: none;
+}
+
+.cozy-container {
+  width: 100%;
+}
+
+.nm--panels .modal__container div[role=document] {
+  height: 100%;
+}
+
+.nm--panels .modal__content {
+  height: 88% !important;
 }
 
 .cozy-container.cozy-engine-readium .book-frame.reflowable-book-frame {
