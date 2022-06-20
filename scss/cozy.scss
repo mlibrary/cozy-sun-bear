@@ -125,7 +125,7 @@ $grid-padding:       1rem;
   }
 
   i[class^='icon-chevron-']:hover {
-    color: $dark-1;
+    color: #8A96A1;
     transition: 0.2s ease-in;
   }
 
@@ -288,6 +288,8 @@ $grid-padding:       1rem;
       box-shadow: 0 0 0 6px rgba($brand-color, .75);
     }
   }
+
+
 
   ///////////////////////////////////
   // fields
@@ -610,7 +612,7 @@ div.cozy-panel-footer {
   float: right;
 }
 
-// previous, next buttons
+// previous, next buttons (old)
 .cozy-panel-sidebar .cozy-control a {
   width: auto;
   display: inline-block;
@@ -740,6 +742,20 @@ div.cozy-panel-footer {
   }
 }
 
+// bottom right panel
+.cozy-panel-navigator {
+  .cozy-panel-right {
+    padding-top: 9px;
+    padding-right: 10px;
+  }
+}
+
+// next previous
+.cozy-control-next,
+.cozy-control-previous {
+  padding-right: 10px;
+}
+
 // preferences button
 .cozy-control-preferences {
   button {
@@ -778,15 +794,38 @@ div.cozy-panel-footer {
 
 }
 
-// no-modal styles - HELIO-4803
+// no-modal panel and button styles - HELIO-4803
 .nm--toolbar {
   background: #f1f1f1;
+  border-right: 1px solid $gray-2;
   min-height: 0;
   min-width: 0;
-
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  /* flex-direction: column; */
   gap: 1rem;
+  grid-template-rows: min-content min-content min-content min-content min-content min-content min-content;
+
+  .cozy-control {
+    display: initial;
+  }
+
+  #action-help,
+  #action-close,
+  #action-resources,
+  #action-map
+  {
+    justify-self: center;
+  }
+
+  #action-help {
+    align-self: end;
+    padding-bottom: 1em;
+  }
+
+  #action-map, #action-resources  {
+    padding-bottom: 16px;
+  }
+
 
   button, a {
     cursor: pointer;
@@ -795,15 +834,18 @@ div.cozy-panel-footer {
     background: transparent;
     padding-bottom: 1em; 
     font-size: 1em;
+    justify-self: center;
     
     i {
       padding: 8px;
+      color: $dark-2;
     }
   
   }
 
-  button:first-child {
-    padding-top: 1em;
+  button:focus-visible,
+  a:focus-visible {
+    outline: none;
   }
 
   button:active,
@@ -815,10 +857,88 @@ div.cozy-panel-footer {
     cursor: pointer;
 
     i {
-      background-color: #a3a3a3;
+      background-color: white;
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba($brand-color, .25);
+    }
+  }
+
+  button:focus,
+  a:focus {
+
+    i {
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba($brand-color, .25);
+    }
+    
+  }
+
+
+  button:active,
+  a:active {
+    border: none;
+
+    i {
+      box-shadow: inset 0 1px 12px $shadow;
+    }
+  }
+
+  #action-close {
+    padding: 14px;
+    width: 100%;
+    text-align: center;
+    background-color: $dark-2;
+    cursor: pointer;
+  
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: #637381;
+      transition: 0.2s ease-in;
+      outline: 0;
+      box-shadow: 0 0 0 6px rgba($brand-color, .25);
     }
 
+    a {
+      padding: 0;
+      cursor: pointer;
+      &:hover,
+      &:active,
+      &:focus {
+        transition: none;
+        outline: 0;
+        box-shadow: none;
+      }
+    }
+
+    a i {
+      color: $gray-1;
+      padding: 0;
+      &:hover,
+      &:active,
+      &:focus {
+        transition: none;
+        outline: 0;
+        box-shadow: none;
+      }
+
+    
   }
+
+  
+
+  a:active,
+  a:hover,
+  a:focus {
+    i {
+      background-color: #637381;
+    }
+  }
+
+  }
+
 
 }
 
@@ -894,6 +1014,95 @@ div.cozy-panel-footer {
   height: 88% !important;
 }
 
+// text tools
+.cozy-text-tools {
+  display: flex;
+  border-bottom: 1px solid $gray-2;
+  background-color: #E5E9ED;
+  font-size: 12px;
+  justify-content: space-between;
+
+  .versions, .tools {
+    
+    div {
+      padding-right: 10px;
+    }
+
+    fieldset {
+      display: flex;
+      border: none;
+    
+      label {
+        font-size: 10px;
+      
+        &:before {
+          content: "";
+          display: inline-block;
+          vertical-align: text-bottom;
+          width: 14px;
+          height: 14px;
+          border: 2px solid #c5c5c5;
+          margin-right: 0px;
+        }
+      }
+    
+    }
+
+    .checkbox--svg input:checked + .svg {
+      &:before {
+          background: #637381;
+          border-color: #637381;
+      }
+  
+      .path {
+          stroke: #fff;
+          stroke-dashoffset: 0;
+      }
+    }
+  
+    .svg {
+      padding-left: 10px;
+  
+      &:before {
+          position: relative;
+          left: 0;
+          top: -1px;
+          width: 14px;
+          height: 14px;
+          transition: all 0.35s ease-out;
+      }
+  
+      svg {
+          position: relative;
+          left: -13px;
+          top: 1.5px;
+          width: 12px;
+          height: 12px;
+      }
+  
+      .path {
+          stroke-dashoffset: 111.46px;
+          stroke-dasharray: 111.46px;
+          stroke: #637381;
+          transition: all 0.35s ease-out;
+      }
+    }
+  
+  }
+
+
+}
+
+// hide element visually
+.sr-only {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
 
 // engine-specific
 .cozy-container.cozy-engine-readium {

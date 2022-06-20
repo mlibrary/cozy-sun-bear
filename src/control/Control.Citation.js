@@ -111,7 +111,7 @@ export var Citation = Control.extend({
           }
         }
       ],
-      region: 'left',
+      region: 'right',
       fraction: 1.0
     });
 

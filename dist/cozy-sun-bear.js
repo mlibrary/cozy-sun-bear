@@ -1075,7 +1075,7 @@ var Notes = Control.extend({
       }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
 
     this._control.setAttribute('id', 'action-' + this._id);
 
@@ -1915,7 +1915,7 @@ var Citation = Control.extend({
           document.designMode = "off";
         }
       }],
-      region: 'left',
+      region: 'right',
       fraction: 1.0
     });
     this._form = this._modal._container.querySelector('form');
@@ -2292,7 +2292,11 @@ var BibliographicInformation = Control.extend({
       self._createPanel();
     });
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
+
+    this._control.setAttribute('id', 'action-' + this._id);
+
+    container.style.position = 'relative';
     DomEvent.on(this._control, 'click', function (event) {
       event.preventDefault();
 
@@ -2307,7 +2311,8 @@ var BibliographicInformation = Control.extend({
       template: template,
       title: 'Info',
       region: 'left',
-      fraction: 1.0
+      fraction: 1.0,
+      className: 'cozy-modal-contents'
     });
 
     var dl = this._modal._container.querySelector('dl');

@@ -28,7 +28,7 @@ export var Notes = Control.extend({
       }
     }
 
-    this._control = container.querySelector("[data-toggle=open]");
+    this._control = container.closest("[data-toggle=open]") || container.querySelector('[data-toggle="open"]');
     this._control.setAttribute('id', 'action-' + this._id);
     container.style.position = 'relative';
 
