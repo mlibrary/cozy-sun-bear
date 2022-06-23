@@ -2306,14 +2306,14 @@ div.cozy-panel-footer {
 .cozy-text-tools .versions div, .cozy-text-tools .tools div {
   padding-right: 10px;
 }
-.cozy-text-tools .versions fieldset, .cozy-text-tools .tools fieldset {
+.cozy-text-tools .versions fieldset.text-tools, .cozy-text-tools .tools fieldset.text-tools {
   display: flex;
   border: none;
 }
-.cozy-text-tools .versions fieldset label, .cozy-text-tools .tools fieldset label {
+.cozy-text-tools .versions fieldset.text-tools label, .cozy-text-tools .tools fieldset.text-tools label {
   font-size: 10px;
 }
-.cozy-text-tools .versions fieldset label:before, .cozy-text-tools .tools fieldset label:before {
+.cozy-text-tools .versions fieldset.text-tools label:before, .cozy-text-tools .tools fieldset.text-tools label:before {
   content: "";
   display: inline-block;
   vertical-align: text-bottom;
