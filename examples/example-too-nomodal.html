@@ -1821,18 +1821,15 @@
     actions.info = document.querySelector('#action-info');
 
     let fn;
-    const contentsButton = document.querySelector('.contents-button');
-    const contentsPanel = document.querySelector('')
-    contentsButton.addEventListener('click', (event) => {
+    //const contentsButton = document.querySelector('.contents-button');
+    //const contentsPanel = document.querySelector('.cozy-modal-contents');
+    actions.contents.addEventListener('click', (event) => {
 
-      if (contentsPanel.hasAttribute('aria-hidden', 'false')) {
-        closeModal();
-      } else {
-        showModal();
-      }
-    }
-      
-      
+    //  if (contentsPanel.hasAttribute('aria-hidden', 'false')) {
+    //    closeModal();
+    //  } else {
+    //    showModal();
+     // }
       
 
       console.log("??", fn);
@@ -1913,43 +1910,7 @@
       closePanel: false
     }).addTo(reader);
 
-    //controls.notes = cozy.control.widget.toggle({
-    //  container: actions.notes,
-    //  template: '<button class="button--sm" id="webgl" data-toggle="button" aria-label="3D Model">3D Model</button>',
-    //  closePanel: false,
-
-    //})
-
-// 3D model toggler
-//var panel_toggle = cozy.control.widget.toggle({
-///  region: 'top.toolbar.left',
-//  template: '<button class="button--sm" id="webgl" data-toggle="button" aria-label="3D Model">3D Model</button>',
- // states: [{
- //   stateName: 'open-webgl',
- //   onClick: function(btn, reader) {
- //     open_panel();
-  //    btn.state('close-webgl');
- ///   }
- /// },
-  //  {
-  //    stateName: 'close-webgl',
-  //    onClick: function(btn, reader) {
-  //      close_panel();
- //       btn.state('open-webgl');
- //     }
- //   }],
-//})
-//panel_toggle.addTo(reader);
-
-
-    
-
     cozy.control.bibliographicInformation({ container: document.querySelector('#action-info')}).addTo(reader);
-
-
-   // controls.help = 
-
-    //cozy.control.preferences({ container: document.querySelector('#action-preferences') }).addTo(reader);
 
     // notes
     // add notes panel container to DOM and format
@@ -2257,6 +2218,7 @@ var click_handler = function(event) {
         setTimeout(function() {
             window.dispatchEvent(new Event('resize'));
         }, 0);
+        notesButton.focus();
     }
 
 
