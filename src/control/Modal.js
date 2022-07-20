@@ -142,6 +142,7 @@ export var Modal = Class.extend({
     this.callbacks.onClose(this.modal);
     this._reader._container.dataset.modalActivated = false;
     if (this.options.modalContainer) { this.options.modalContainer.dataset.modalActived = false; }
+    window.dispatchEvent(new Event('resize'));
   },
 
   showModal: function() {
@@ -153,6 +154,7 @@ export var Modal = Class.extend({
     this.setFocusToFirstNode()
     this.addEventListeners()
     this.callbacks.onShow(this.modal)
+    window.dispatchEvent(new Event('resize'));
   },
 
   activate: function() {

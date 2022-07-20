@@ -1,7 +1,6 @@
 import {Control, control} from './Control';
 import {PageNext, PagePrevious, pageNext, pagePrevious, PageFirst, pageFirst, PageLast, pageLast} from './Control.Paging';
 import {Contents, contents} from './Control.Contents';
-import {Notes, notes} from './Control.Notes';
 import {Title, title} from './Control.Title';
 import {PublicationMetadata, publicationMetadata} from './Control.PublicationMetadata';
 import {Preferences, preferences} from './Control.Preferences';
@@ -27,9 +26,6 @@ control.pageLast = pageLast;
 
 Control.Contents = Contents;
 control.contents = contents;
-
-Control.Notes = Notes;
-control.notes = notes;
 
 Control.Title = Title;
 control.title = title;
