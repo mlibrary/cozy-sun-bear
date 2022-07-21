@@ -45,6 +45,20 @@ export var Contents = Control.extend({
 
       DomEvent.on(this._control, 'click', function(event) {
         event.preventDefault();
+        // HELIO-4287 "action" modal-opening buttons should both open *and* close their associated modal, and close others when opening.
+        // use ariaHidden to check open/close status of this modal. Seems weird but I think it's used this way elsewhere also.
+        if(self._modal.modal.ariaHidden == 'false') {
+          // if it's visible, close it and return
+          this._modal.deactivate();
+          return;
+        } else {
+          // we're going to open this modal. Look for any currently-open modals to close first.
+          var open_modals_close_buttons = self._modal.container.ownerDocument.querySelectorAll('.cozy-modal[aria-hidden="false"] button[data-modal-close]');
+          console.log(open_modals_close_buttons);
+          open_modals_close_buttons.forEach((button) => {
+            button.click();
+          });
+        }
         self._goto_interval = false;
         self._reader.tracking.action('contents/open');
         self._modal.activate();
