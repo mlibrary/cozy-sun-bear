@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-var	argv = require('optimist').argv;
+// var	argv = require('optimist').argv;
+var argv = require('minimist')(process.argv.slice(2));
 var server_js = argv._[0] || './serve.js';
 var server = require(server_js);
 
