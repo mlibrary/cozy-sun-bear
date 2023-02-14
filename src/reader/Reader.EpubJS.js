@@ -192,10 +192,16 @@ Reader.EpubJS = Reader.extend({
       this._panes['epub'].style.overflow = 'auto';
       if ( this.settings.manager == 'default' ) {
         // this.settings.manager = 'continuous';
-        this.settings.manager = ScrollingContinuousViewManager;
-        this.settings.view = StickyIframeView;
+        // CSB-272 - this is Gabii 2's isbn
+        if ( this.metadata.identifier === "9780472999064") {
+          this.settings.manager = 'default';
+        } else {
+          this.settings.manager = ScrollingContinuousViewManager;
+          this.settings.view = StickyIframeView;
+        }
         this.settings.width = '100%'; // 100%?
         this.settings.spine = this._book.spine;
+
       }
     }
 
