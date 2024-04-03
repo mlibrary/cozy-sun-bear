@@ -192,8 +192,9 @@ Reader.EpubJS = Reader.extend({
       this._panes['epub'].style.overflow = 'auto';
       if ( this.settings.manager == 'default' ) {
         // this.settings.manager = 'continuous';
-        // CSB-272 - this is Gabii 2's isbn
-        if ( this.metadata.identifier === "9780472999064") {
+        // CSB-272, CSB-277 - continuous scroll "exclude list" by ISBN (Gabii 2, Mittell...)
+        const no_continuous_scroll_isbns = ['9780472999064', '9781643150611'];
+        if ( no_continuous_scroll_isbns.includes(this.metadata.identifier) ) {
           this.settings.manager = 'default';
         } else {
           this.settings.manager = ScrollingContinuousViewManager;
