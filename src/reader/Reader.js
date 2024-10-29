@@ -286,6 +286,7 @@ export var Reader = Evented.extend({
     DomUtil.addClass(container, 'cozy-container');
     panes['live-status'] = DomUtil.create('div', prefix + 'live-status u-screenreader', container);
     panes['live-status'].setAttribute('aria-live', 'polite');
+    panes['live-status'].setAttribute('role', 'status'); // possibily redundant with 'aria-live' already there
     panes['top'] = DomUtil.create('div', prefix + 'top', container);
     panes['main'] = DomUtil.create('div', prefix + 'main', container);
     panes['bottom'] = DomUtil.create('div', prefix + 'bottom', container);
@@ -622,6 +623,10 @@ export var Reader = Evented.extend({
     }
     self._loader_timeout = setTimeout(function() {
       self._panes['loader'].style.display = 'block';
+      // CSB-279 broadcast "Loading..." during the spinner for screenreaders.
+      // When locations start coming in for the bottom drag navigation they
+      // will override our message.
+      self.updateLiveStatus("Loading...");
     }, delay);
   },
 
