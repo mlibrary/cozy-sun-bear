@@ -7,11 +7,11 @@
 		exports["cozy"] = factory(require("xmldom"));
 	else
 		root["cozy"] = factory(root["xmldom"]);
-})(self, (__WEBPACK_EXTERNAL_MODULE__3787__) => {
+})(self, function(__WEBPACK_EXTERNAL_MODULE__5348__) {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 8427:
+/***/ 5782:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20,18 +20,18 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  Control: () => (/* reexport */ Control),
-  control: () => (/* reexport */ control)
+  "Control": () => (/* reexport */ Control),
+  "control": () => (/* reexport */ control)
 });
 
 // EXTERNAL MODULE: ./src/core/Class.js
-var Class = __webpack_require__(260);
+var Class = __webpack_require__(7573);
 // EXTERNAL MODULE: ./src/reader/Reader.js + 1 modules
-var Reader = __webpack_require__(6218);
+var Reader = __webpack_require__(8399);
 // EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
+var Util = __webpack_require__(7518);
 // EXTERNAL MODULE: ./src/dom/DomUtil.js
-var DomUtil = __webpack_require__(8029);
+var DomUtil = __webpack_require__(9542);
 ;// CONCATENATED MODULE: ./src/control/Control.js
 
 
@@ -46,7 +46,7 @@ var DomUtil = __webpack_require__(8029);
  * All other controls extend from this class.
  */
 
-var Control = Class/* Class */.X.extend({
+var Control = Class/* Class.extend */.w.extend({
   // @section
   // @aka Control options
   options: {// @option region: String = 'topright'
@@ -172,7 +172,7 @@ var control = function control(options) {
  * @section Methods for Layers and Controls
  */
 
-Reader/* Reader */.m.include({
+Reader/* Reader.include */.E.include({
   // @method addControl(control: Control): this
   // Adds the given control to the reader
   addControl: function addControl(control) {
@@ -275,7 +275,7 @@ Reader/* Reader */.m.include({
   }
 });
 // EXTERNAL MODULE: ./src/dom/DomEvent.js + 2 modules
-var DomEvent = __webpack_require__(7606);
+var DomEvent = __webpack_require__(975);
 ;// CONCATENATED MODULE: ./src/control/Control.Paging.js
 
 
@@ -393,7 +393,7 @@ var pageLast = function pageLast(options) {
   return new PageLast(options);
 };
 // EXTERNAL MODULE: ./node_modules/lodash/assign.js
-var lodash_assign = __webpack_require__(6139);
+var lodash_assign = __webpack_require__(8583);
 var assign_default = /*#__PURE__*/__webpack_require__.n(lodash_assign);
 ;// CONCATENATED MODULE: ./src/control/Modal.js
 
@@ -407,7 +407,7 @@ var dismissModalListener = false; // from https://github.com/ghosh/micromodal/bl
 
 var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
 var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
-var Modal = Class/* Class */.X.extend({
+var Modal = Class/* Class.extend */.w.extend({
   options: {
     // @option region: String = 'topright'
     // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
@@ -702,7 +702,7 @@ var Modal = Class/* Class */.X.extend({
   },
   EOT: true
 });
-Reader/* Reader */.m.include({
+Reader/* Reader.include */.E.include({
   modal: function modal(options) {
     var modal = new Modal(options);
     return modal.addTo(this); // return this;
@@ -1142,7 +1142,7 @@ var publicationMetadata = function publicationMetadata(options) {
   return new PublicationMetadata(options);
 };
 // EXTERNAL MODULE: ./node_modules/lodash/keys.js
-var keys = __webpack_require__(5950);
+var keys = __webpack_require__(3674);
 ;// CONCATENATED MODULE: ./src/control/Control.Preferences.js
 
 
@@ -1316,7 +1316,7 @@ var Preferences = Control.extend({
   EOT: true
 });
 Preferences.fieldset = {};
-var Fieldset = Class/* Class */.X.extend({
+var Fieldset = Class/* Class.extend */.w.extend({
   options: {},
   initialize: function initialize(control, options) {
     Util.setOptions(this, options);
@@ -2742,43 +2742,43 @@ control.fullscreen = fullscreen;
 
 /***/ }),
 
-/***/ 4084:
+/***/ 8643:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   android: () => (/* binding */ android),
-/* harmony export */   android23: () => (/* binding */ android23),
-/* harmony export */   any3d: () => (/* binding */ any3d),
-/* harmony export */   canvas: () => (/* binding */ canvas),
-/* harmony export */   chrome: () => (/* binding */ chrome),
-/* harmony export */   classList: () => (/* binding */ classList),
-/* harmony export */   columnCount: () => (/* binding */ columnCount),
-/* harmony export */   edge: () => (/* binding */ edge),
-/* harmony export */   gecko: () => (/* binding */ gecko),
-/* harmony export */   gecko3d: () => (/* binding */ gecko3d),
-/* harmony export */   ie: () => (/* binding */ ie),
-/* harmony export */   ie3d: () => (/* binding */ ie3d),
-/* harmony export */   ielt9: () => (/* binding */ ielt9),
-/* harmony export */   mobile: () => (/* binding */ mobile),
-/* harmony export */   mobileGecko: () => (/* binding */ mobileGecko),
-/* harmony export */   mobileOpera: () => (/* binding */ mobileOpera),
-/* harmony export */   mobileWebkit: () => (/* binding */ mobileWebkit),
-/* harmony export */   mobileWebkit3d: () => (/* binding */ mobileWebkit3d),
-/* harmony export */   msPointer: () => (/* binding */ msPointer),
-/* harmony export */   opera: () => (/* binding */ opera),
-/* harmony export */   opera12: () => (/* binding */ opera12),
-/* harmony export */   phantom: () => (/* binding */ phantom),
-/* harmony export */   pointer: () => (/* binding */ pointer),
-/* harmony export */   retina: () => (/* binding */ retina),
-/* harmony export */   safari: () => (/* binding */ safari),
-/* harmony export */   svg: () => (/* binding */ svg),
-/* harmony export */   touch: () => (/* binding */ touch),
-/* harmony export */   vml: () => (/* binding */ vml),
-/* harmony export */   webkit: () => (/* binding */ webkit),
-/* harmony export */   webkit3d: () => (/* binding */ webkit3d),
-/* harmony export */   win: () => (/* binding */ win)
+/* harmony export */   "ie": () => (/* binding */ ie),
+/* harmony export */   "ielt9": () => (/* binding */ ielt9),
+/* harmony export */   "edge": () => (/* binding */ edge),
+/* harmony export */   "webkit": () => (/* binding */ webkit),
+/* harmony export */   "android": () => (/* binding */ android),
+/* harmony export */   "android23": () => (/* binding */ android23),
+/* harmony export */   "opera": () => (/* binding */ opera),
+/* harmony export */   "chrome": () => (/* binding */ chrome),
+/* harmony export */   "gecko": () => (/* binding */ gecko),
+/* harmony export */   "safari": () => (/* binding */ safari),
+/* harmony export */   "phantom": () => (/* binding */ phantom),
+/* harmony export */   "opera12": () => (/* binding */ opera12),
+/* harmony export */   "win": () => (/* binding */ win),
+/* harmony export */   "ie3d": () => (/* binding */ ie3d),
+/* harmony export */   "webkit3d": () => (/* binding */ webkit3d),
+/* harmony export */   "gecko3d": () => (/* binding */ gecko3d),
+/* harmony export */   "any3d": () => (/* binding */ any3d),
+/* harmony export */   "mobile": () => (/* binding */ mobile),
+/* harmony export */   "mobileWebkit": () => (/* binding */ mobileWebkit),
+/* harmony export */   "mobileWebkit3d": () => (/* binding */ mobileWebkit3d),
+/* harmony export */   "msPointer": () => (/* binding */ msPointer),
+/* harmony export */   "pointer": () => (/* binding */ pointer),
+/* harmony export */   "touch": () => (/* binding */ touch),
+/* harmony export */   "mobileOpera": () => (/* binding */ mobileOpera),
+/* harmony export */   "mobileGecko": () => (/* binding */ mobileGecko),
+/* harmony export */   "retina": () => (/* binding */ retina),
+/* harmony export */   "canvas": () => (/* binding */ canvas),
+/* harmony export */   "svg": () => (/* binding */ svg),
+/* harmony export */   "vml": () => (/* binding */ vml),
+/* harmony export */   "columnCount": () => (/* binding */ columnCount),
+/* harmony export */   "classList": () => (/* binding */ classList)
 /* harmony export */ });
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
@@ -2892,14 +2892,14 @@ function userAgentContains(str) {
 
 /***/ }),
 
-/***/ 260:
+/***/ 7573:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   X: () => (/* binding */ Class)
+/* harmony export */   "w": () => (/* binding */ Class)
 /* harmony export */ });
-/* harmony import */ var _Util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1538);
+/* harmony import */ var _Util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7518);
  // @class Class
 // @aka L.Class
 // @section
@@ -3019,15 +3019,15 @@ function checkDeprecatedMixinEvents(includes) {
 
 /***/ }),
 
-/***/ 139:
+/***/ 1146:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   a: () => (/* binding */ Evented)
+/* harmony export */   "c": () => (/* binding */ Evented)
 /* harmony export */ });
-/* harmony import */ var _Class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(260);
-/* harmony import */ var _Util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1538);
+/* harmony import */ var _Class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7573);
+/* harmony import */ var _Util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7518);
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 
@@ -3057,7 +3057,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" =
  * ```
  */
 
-var Evented = _Class__WEBPACK_IMPORTED_MODULE_0__/* .Class */ .X.extend({
+var Evented = _Class__WEBPACK_IMPORTED_MODULE_0__/* .Class.extend */ .w.extend({
   /* @method on(type: String, fn: Function, context?: Object): this
    * Adds a listener function (`fn`) to a particular event type of the object. You can optionally specify the context of the listener (object the this keyword will point to). You can also pass several space-separated types (e.g. `'click dblclick'`).
    *
@@ -3316,36 +3316,36 @@ proto.hasEventListeners = proto.listens;
 
 /***/ }),
 
-/***/ 1538:
+/***/ 7518:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   bind: () => (/* binding */ bind),
-/* harmony export */   cancelAnimFrame: () => (/* binding */ cancelAnimFrame),
-/* harmony export */   cancelFn: () => (/* binding */ cancelFn),
-/* harmony export */   create: () => (/* binding */ create),
-/* harmony export */   emptyImageUrl: () => (/* binding */ emptyImageUrl),
-/* harmony export */   extend: () => (/* binding */ extend),
-/* harmony export */   falseFn: () => (/* binding */ falseFn),
-/* harmony export */   formatNum: () => (/* binding */ formatNum),
-/* harmony export */   getParamString: () => (/* binding */ getParamString),
-/* harmony export */   inVp: () => (/* binding */ inVp),
-/* harmony export */   indexOf: () => (/* binding */ indexOf),
-/* harmony export */   isArray: () => (/* binding */ isArray),
-/* harmony export */   isNumeric: () => (/* binding */ isNumeric),
-/* harmony export */   lastId: () => (/* binding */ lastId),
-/* harmony export */   loader: () => (/* binding */ loader),
-/* harmony export */   requestAnimFrame: () => (/* binding */ requestAnimFrame),
-/* harmony export */   requestFn: () => (/* binding */ requestFn),
-/* harmony export */   setOptions: () => (/* binding */ setOptions),
-/* harmony export */   splitWords: () => (/* binding */ splitWords),
-/* harmony export */   stamp: () => (/* binding */ stamp),
-/* harmony export */   template: () => (/* binding */ template),
-/* harmony export */   throttle: () => (/* binding */ throttle),
-/* harmony export */   trim: () => (/* binding */ trim),
-/* harmony export */   wrapNum: () => (/* binding */ wrapNum)
+/* harmony export */   "extend": () => (/* binding */ extend),
+/* harmony export */   "create": () => (/* binding */ create),
+/* harmony export */   "bind": () => (/* binding */ bind),
+/* harmony export */   "lastId": () => (/* binding */ lastId),
+/* harmony export */   "stamp": () => (/* binding */ stamp),
+/* harmony export */   "throttle": () => (/* binding */ throttle),
+/* harmony export */   "wrapNum": () => (/* binding */ wrapNum),
+/* harmony export */   "falseFn": () => (/* binding */ falseFn),
+/* harmony export */   "formatNum": () => (/* binding */ formatNum),
+/* harmony export */   "isNumeric": () => (/* binding */ isNumeric),
+/* harmony export */   "trim": () => (/* binding */ trim),
+/* harmony export */   "splitWords": () => (/* binding */ splitWords),
+/* harmony export */   "setOptions": () => (/* binding */ setOptions),
+/* harmony export */   "getParamString": () => (/* binding */ getParamString),
+/* harmony export */   "template": () => (/* binding */ template),
+/* harmony export */   "isArray": () => (/* binding */ isArray),
+/* harmony export */   "indexOf": () => (/* binding */ indexOf),
+/* harmony export */   "emptyImageUrl": () => (/* binding */ emptyImageUrl),
+/* harmony export */   "requestFn": () => (/* binding */ requestFn),
+/* harmony export */   "cancelFn": () => (/* binding */ cancelFn),
+/* harmony export */   "requestAnimFrame": () => (/* binding */ requestAnimFrame),
+/* harmony export */   "cancelAnimFrame": () => (/* binding */ cancelAnimFrame),
+/* harmony export */   "inVp": () => (/* binding */ inVp),
+/* harmony export */   "loader": () => (/* binding */ loader)
 /* harmony export */ });
 /*
  * @namespace Util
@@ -3735,7 +3735,7 @@ var loader = {
 
 /***/ }),
 
-/***/ 9241:
+/***/ 5123:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3744,30 +3744,30 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  Browser: () => (/* reexport */ Browser),
-  Class: () => (/* reexport */ Class/* Class */.X),
-  Evented: () => (/* reexport */ Events/* Evented */.a),
-  Mixin: () => (/* binding */ Mixin),
-  Util: () => (/* reexport */ Util),
-  bind: () => (/* reexport */ Util.bind),
-  bus: () => (/* reexport */ bus),
-  extend: () => (/* reexport */ Util.extend),
-  inVp: () => (/* reexport */ Util.inVp),
-  setOptions: () => (/* reexport */ Util.setOptions),
-  stamp: () => (/* reexport */ Util.stamp)
+  "Browser": () => (/* reexport */ Browser),
+  "Class": () => (/* reexport */ Class/* Class */.w),
+  "Evented": () => (/* reexport */ Events/* Evented */.c),
+  "Mixin": () => (/* binding */ Mixin),
+  "Util": () => (/* reexport */ Util),
+  "bind": () => (/* reexport */ Util.bind),
+  "bus": () => (/* reexport */ bus),
+  "extend": () => (/* reexport */ Util.extend),
+  "inVp": () => (/* reexport */ Util.inVp),
+  "setOptions": () => (/* reexport */ Util.setOptions),
+  "stamp": () => (/* reexport */ Util.stamp)
 });
 
 // EXTERNAL MODULE: ./src/core/Browser.js
-var Browser = __webpack_require__(4084);
+var Browser = __webpack_require__(8643);
 // EXTERNAL MODULE: ./src/core/Class.js
-var Class = __webpack_require__(260);
+var Class = __webpack_require__(7573);
 // EXTERNAL MODULE: ./src/core/Events.js
-var Events = __webpack_require__(139);
+var Events = __webpack_require__(1146);
 // EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
+var Util = __webpack_require__(7518);
 ;// CONCATENATED MODULE: ./src/core/Bus.js
 
-var Bus = Events/* Evented */.a.extend({});
+var Bus = Events/* Evented.extend */.c.extend({});
 var instance;
 var bus = function bus() {
   return instance || (instance = new Bus());
@@ -3779,7 +3779,7 @@ var bus = function bus() {
 
 
 var Mixin = {
-  Events: Events/* Evented */.a.prototype
+  Events: Events/* Evented.prototype */.c.prototype
 };
 
 
@@ -3788,7 +3788,60 @@ var Mixin = {
 
 /***/ }),
 
-/***/ 7606:
+/***/ 5324:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* binding */ src_cozy)
+});
+
+// UNUSED EXPORTS: noConflict
+
+;// CONCATENATED MODULE: ./package.json
+const package_namespaceObject = {};
+;// CONCATENATED MODULE: ./src/cozy.js
+// import {version} from '../package.json';
+// export {version};
+// // control
+// export * from './control/index';
+// // core
+// export * from './core/index';
+// // dom
+// export * from './dom/index';
+// // reader
+// import {reader} from './reader/index';
+// export * from './reader/index';
+// misc
+var oldCozy = window.cozy;
+function noConflict() {
+  window.cozy = oldCozy;
+  return this;
+}
+var cozy = {}; // cozy.reader = reader;
+
+
+
+var control = __webpack_require__(5782);
+
+var core = __webpack_require__(5123);
+
+var dom = __webpack_require__(9804);
+
+var reader = __webpack_require__(4789);
+
+[control, core, dom, reader].forEach(function (m) {
+  Object.keys(m).forEach(function (key) {
+    cozy[key] = m[key];
+  });
+});
+/* harmony default export */ const src_cozy = (cozy);
+
+/***/ }),
+
+/***/ 975:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -3797,28 +3850,28 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  addListener: () => (/* binding */ on),
-  disableClickPropagation: () => (/* binding */ disableClickPropagation),
-  disableScrollPropagation: () => (/* binding */ disableScrollPropagation),
-  fakeStop: () => (/* binding */ fakeStop),
-  getMousePosition: () => (/* binding */ getMousePosition),
-  getWheelDelta: () => (/* binding */ getWheelDelta),
-  isExternalTarget: () => (/* binding */ isExternalTarget),
-  off: () => (/* binding */ off),
-  on: () => (/* binding */ on),
-  preventDefault: () => (/* binding */ preventDefault),
-  removeListener: () => (/* binding */ off),
-  skipped: () => (/* binding */ skipped),
-  stop: () => (/* binding */ stop),
-  stopPropagation: () => (/* binding */ stopPropagation)
+  "addListener": () => (/* binding */ on),
+  "disableClickPropagation": () => (/* binding */ disableClickPropagation),
+  "disableScrollPropagation": () => (/* binding */ disableScrollPropagation),
+  "fakeStop": () => (/* binding */ fakeStop),
+  "getMousePosition": () => (/* binding */ getMousePosition),
+  "getWheelDelta": () => (/* binding */ getWheelDelta),
+  "isExternalTarget": () => (/* binding */ isExternalTarget),
+  "off": () => (/* binding */ off),
+  "on": () => (/* binding */ on),
+  "preventDefault": () => (/* binding */ preventDefault),
+  "removeListener": () => (/* binding */ off),
+  "skipped": () => (/* binding */ skipped),
+  "stop": () => (/* binding */ stop),
+  "stopPropagation": () => (/* binding */ stopPropagation)
 });
 
 // EXTERNAL MODULE: ./src/geometry/Point.js
-var Point = __webpack_require__(7661);
+var Point = __webpack_require__(9583);
 // EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
+var Util = __webpack_require__(7518);
 // EXTERNAL MODULE: ./src/core/Browser.js
-var Browser = __webpack_require__(4084);
+var Browser = __webpack_require__(8643);
 ;// CONCATENATED MODULE: ./src/dom/DomEvent.Pointer.js
 
 
@@ -4238,11 +4291,11 @@ function stop(e) {
 
 function getMousePosition(e, container) {
   if (!container) {
-    return new Point/* Point */.b(e.clientX, e.clientY);
+    return new Point/* Point */.E(e.clientX, e.clientY);
   }
 
   var rect = container.getBoundingClientRect();
-  return new Point/* Point */.b(e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop);
+  return new Point/* Point */.E(e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop);
 } // Chrome on Win scrolls double the pixels as in other platforms (see #4538),
 // and Firefox scrolls device pixels, not CSS pixels
 
@@ -4319,44 +4372,44 @@ function filterClick(e, handler) {
 
 /***/ }),
 
-/***/ 8029:
+/***/ 9542:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   TRANSFORM: () => (/* binding */ TRANSFORM),
-/* harmony export */   TRANSITION: () => (/* binding */ TRANSITION),
-/* harmony export */   TRANSITION_END: () => (/* binding */ TRANSITION_END),
-/* harmony export */   addClass: () => (/* binding */ addClass),
-/* harmony export */   create: () => (/* binding */ create),
-/* harmony export */   disableImageDrag: () => (/* binding */ disableImageDrag),
-/* harmony export */   disableTextSelection: () => (/* binding */ disableTextSelection),
-/* harmony export */   empty: () => (/* binding */ empty),
-/* harmony export */   enableImageDrag: () => (/* binding */ enableImageDrag),
-/* harmony export */   enableTextSelection: () => (/* binding */ enableTextSelection),
-/* harmony export */   get: () => (/* binding */ get),
-/* harmony export */   getClass: () => (/* binding */ getClass),
-/* harmony export */   getPosition: () => (/* binding */ getPosition),
-/* harmony export */   getStyle: () => (/* binding */ getStyle),
-/* harmony export */   hasClass: () => (/* binding */ hasClass),
-/* harmony export */   isPropertySupported: () => (/* binding */ isPropertySupported),
-/* harmony export */   preventOutline: () => (/* binding */ preventOutline),
-/* harmony export */   remove: () => (/* binding */ remove),
-/* harmony export */   removeClass: () => (/* binding */ removeClass),
-/* harmony export */   restoreOutline: () => (/* binding */ restoreOutline),
-/* harmony export */   setClass: () => (/* binding */ setClass),
-/* harmony export */   setOpacity: () => (/* binding */ setOpacity),
-/* harmony export */   setPosition: () => (/* binding */ setPosition),
-/* harmony export */   setTransform: () => (/* binding */ setTransform),
-/* harmony export */   testProp: () => (/* binding */ testProp),
-/* harmony export */   toBack: () => (/* binding */ toBack),
-/* harmony export */   toFront: () => (/* binding */ toFront)
+/* harmony export */   "TRANSFORM": () => (/* binding */ TRANSFORM),
+/* harmony export */   "TRANSITION": () => (/* binding */ TRANSITION),
+/* harmony export */   "TRANSITION_END": () => (/* binding */ TRANSITION_END),
+/* harmony export */   "get": () => (/* binding */ get),
+/* harmony export */   "getStyle": () => (/* binding */ getStyle),
+/* harmony export */   "create": () => (/* binding */ create),
+/* harmony export */   "remove": () => (/* binding */ remove),
+/* harmony export */   "empty": () => (/* binding */ empty),
+/* harmony export */   "toFront": () => (/* binding */ toFront),
+/* harmony export */   "toBack": () => (/* binding */ toBack),
+/* harmony export */   "hasClass": () => (/* binding */ hasClass),
+/* harmony export */   "addClass": () => (/* binding */ addClass),
+/* harmony export */   "removeClass": () => (/* binding */ removeClass),
+/* harmony export */   "setClass": () => (/* binding */ setClass),
+/* harmony export */   "getClass": () => (/* binding */ getClass),
+/* harmony export */   "setOpacity": () => (/* binding */ setOpacity),
+/* harmony export */   "testProp": () => (/* binding */ testProp),
+/* harmony export */   "isPropertySupported": () => (/* binding */ isPropertySupported),
+/* harmony export */   "setTransform": () => (/* binding */ setTransform),
+/* harmony export */   "setPosition": () => (/* binding */ setPosition),
+/* harmony export */   "getPosition": () => (/* binding */ getPosition),
+/* harmony export */   "disableTextSelection": () => (/* binding */ disableTextSelection),
+/* harmony export */   "enableTextSelection": () => (/* binding */ enableTextSelection),
+/* harmony export */   "disableImageDrag": () => (/* binding */ disableImageDrag),
+/* harmony export */   "enableImageDrag": () => (/* binding */ enableImageDrag),
+/* harmony export */   "preventOutline": () => (/* binding */ preventOutline),
+/* harmony export */   "restoreOutline": () => (/* binding */ restoreOutline)
 /* harmony export */ });
-/* harmony import */ var _DomEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7606);
-/* harmony import */ var _core_Util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1538);
-/* harmony import */ var _geometry_Point__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(7661);
-/* harmony import */ var _core_Browser__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4084);
+/* harmony import */ var _DomEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(975);
+/* harmony import */ var _core_Util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7518);
+/* harmony import */ var _geometry_Point__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(9583);
+/* harmony import */ var _core_Browser__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8643);
 
 
 
@@ -4556,7 +4609,7 @@ function isPropertySupported(prop) {
 // browser doesn't support 3D CSS transforms.
 
 function setTransform(el, offset, scale) {
-  var pos = offset || new _geometry_Point__WEBPACK_IMPORTED_MODULE_2__/* .Point */ .b(0, 0);
+  var pos = offset || new _geometry_Point__WEBPACK_IMPORTED_MODULE_2__/* .Point */ .E(0, 0);
   el.style[TRANSFORM] = (_core_Browser__WEBPACK_IMPORTED_MODULE_3__.ie3d ? 'translate(' + pos.x + 'px,' + pos.y + 'px)' : 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)') + (scale ? ' scale(' + scale + ')' : '');
 } // @function setPosition(el: HTMLElement, position: Point)
 // Sets the position of `el` to coordinates specified by `position`,
@@ -4580,7 +4633,7 @@ function setPosition(el, point) {
 function getPosition(el) {
   // this method is only used for elements previously positioned using setPosition,
   // so it's safe to cache the position for performance
-  return el._leaflet_pos || new _geometry_Point__WEBPACK_IMPORTED_MODULE_2__/* .Point */ .b(0, 0);
+  return el._leaflet_pos || new _geometry_Point__WEBPACK_IMPORTED_MODULE_2__/* .Point */ .E(0, 0);
 } // @function disableTextSelection()
 // Prevents the user from generating `selectstart` DOM events, usually generated
 // when the user drags the mouse through a page with text. Used internally
@@ -4670,17 +4723,17 @@ function restoreOutline() {
 
 /***/ }),
 
-/***/ 2057:
+/***/ 9804:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   DomEvent: () => (/* reexport module object */ _DomEvent__WEBPACK_IMPORTED_MODULE_0__),
-/* harmony export */   DomUtil: () => (/* reexport module object */ _DomUtil__WEBPACK_IMPORTED_MODULE_1__)
+/* harmony export */   "DomEvent": () => (/* reexport module object */ _DomEvent__WEBPACK_IMPORTED_MODULE_0__),
+/* harmony export */   "DomUtil": () => (/* reexport module object */ _DomUtil__WEBPACK_IMPORTED_MODULE_1__)
 /* harmony export */ });
-/* harmony import */ var _DomEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7606);
-/* harmony import */ var _DomUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8029);
+/* harmony import */ var _DomEvent__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(975);
+/* harmony import */ var _DomUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9542);
 
 
 
@@ -4688,15 +4741,15 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ 7661:
+/***/ 9583:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   b: () => (/* binding */ Point)
+/* harmony export */   "E": () => (/* binding */ Point)
 /* harmony export */ });
 /* unused harmony export toPoint */
-/* harmony import */ var _core_Util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1538);
+/* harmony import */ var _core_Util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7518);
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 
@@ -4874,32 +4927,32 @@ function toPoint(x, y, round) {
 
 /***/ }),
 
-/***/ 6218:
+/***/ 8399:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  m: () => (/* binding */ Reader)
+  "E": () => (/* binding */ Reader)
 });
 
 // UNUSED EXPORTS: createReader
 
 // EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
+var Util = __webpack_require__(7518);
 // EXTERNAL MODULE: ./src/core/Events.js
-var Events = __webpack_require__(139);
+var Events = __webpack_require__(1146);
 // EXTERNAL MODULE: ./src/core/Browser.js
-var Browser = __webpack_require__(4084);
+var Browser = __webpack_require__(8643);
 // EXTERNAL MODULE: ./src/dom/DomEvent.js + 2 modules
-var DomEvent = __webpack_require__(7606);
+var DomEvent = __webpack_require__(975);
 // EXTERNAL MODULE: ./src/dom/DomUtil.js
-var DomUtil = __webpack_require__(8029);
+var DomUtil = __webpack_require__(9542);
 // EXTERNAL MODULE: ./node_modules/lodash/debounce.js
-var debounce = __webpack_require__(8221);
+var debounce = __webpack_require__(3279);
 // EXTERNAL MODULE: ./node_modules/lodash/assign.js
-var lodash_assign = __webpack_require__(6139);
+var lodash_assign = __webpack_require__(8583);
 var assign_default = /*#__PURE__*/__webpack_require__.n(lodash_assign);
 ;// CONCATENATED MODULE: ./src/screenfull.js
 var screenfull_document = typeof window !== 'undefined' && typeof window.document !== 'undefined' ? window.document : {};
@@ -5030,7 +5083,7 @@ Object.defineProperties(screenfull, {
  */
 
 var _padding = 1.0;
-var Reader = Events/* Evented */.a.extend({
+var Reader = Events/* Evented.extend */.c.extend({
   options: {
     regions: ['header', 'toolbar.top', 'toolbar.left', 'main', 'toolbar.right', 'toolbar.bottom', 'footer'],
     metadata: {},
@@ -5721,7 +5774,7 @@ function createReader(id, options) {
 
 /***/ }),
 
-/***/ 3480:
+/***/ 4789:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -5730,23 +5783,23 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  Reader: () => (/* reexport */ Reader/* Reader */.m),
-  reader: () => (/* binding */ reader_reader)
+  "Reader": () => (/* reexport */ Reader/* Reader */.E),
+  "reader": () => (/* binding */ reader_reader)
 });
 
 // EXTERNAL MODULE: ./src/reader/Reader.js + 1 modules
-var Reader = __webpack_require__(6218);
+var Reader = __webpack_require__(8399);
 // EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
+var Util = __webpack_require__(7518);
 // EXTERNAL MODULE: ./node_modules/event-emitter/index.js
-var event_emitter = __webpack_require__(3068);
+var event_emitter = __webpack_require__(8370);
 var event_emitter_default = /*#__PURE__*/__webpack_require__.n(event_emitter);
 // EXTERNAL MODULE: ./node_modules/epubjs/src/utils/core.js
-var core = __webpack_require__(4064);
+var core = __webpack_require__(6458);
 // EXTERNAL MODULE: ./node_modules/epubjs/src/utils/path.js
-var utils_path = __webpack_require__(3912);
+var utils_path = __webpack_require__(5233);
 // EXTERNAL MODULE: ./node_modules/path-webpack/path.js
-var path = __webpack_require__(6841);
+var path = __webpack_require__(9294);
 var path_default = /*#__PURE__*/__webpack_require__.n(path);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/utils/url.js
 
@@ -5801,13 +5854,13 @@ class Url {
 				this.Url = undefined;
 				// resolve the pathname from the base
 				if (this.base) {
-					basePath = new utils_path/* default */.A(this.base);
+					basePath = new utils_path/* default */.Z(this.base);
 					pathname = basePath.resolve(pathname);
 				}
 			}
 		}
 
-		this.Path = new utils_path/* default */.A(pathname);
+		this.Path = new utils_path/* default */.Z(pathname);
 
 		this.directory = this.Path.directory;
 		this.filename = this.Path.filename;
@@ -7173,7 +7226,7 @@ class Section {
 	 * @return {document} a promise with the xml document
 	 */
 	load(_request){
-		var request = _request || this.request || __webpack_require__(4526);
+		var request = _request || this.request || __webpack_require__(5817);
 		var loading = new core.defer();
 		var loaded = loading.promise;
 
@@ -9155,7 +9208,7 @@ class Navigation {
 /* harmony default export */ const navigation = (Navigation);
 
 // EXTERNAL MODULE: ./node_modules/epubjs/libs/mime/mime.js
-var mime = __webpack_require__(1300);
+var mime = __webpack_require__(1597);
 var mime_default = /*#__PURE__*/__webpack_require__.n(mime);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/resources.js
 
@@ -9377,7 +9430,7 @@ class Resources {
 		// Get asset links relative to css file
 		var relUrls = this.urls.map( (assetHref) => {
 			var resolved = this.settings.resolver(assetHref);
-			var relative = new utils_path/* default */.A(absolute).relative(resolved);
+			var relative = new utils_path/* default */.Z(absolute).relative(resolved);
 
 			return relative;
 		});
@@ -9423,7 +9476,7 @@ class Resources {
 		return this.urls.
 			map(function(href) {
 				var resolved = resolver(href);
-				var relative = new utils_path/* default */.A(absolute).relative(resolved);
+				var relative = new utils_path/* default */.Z(absolute).relative(resolved);
 				return relative;
 			}.bind(this));
 	}
@@ -12783,7 +12836,7 @@ function marks_contains(rect1, rect2) {
 
 
 
-class iframe_IframeView {
+class IframeView {
 	constructor(section, options) {
 		this.settings = (0,core.extend)({
 			ignoreClass : "",
@@ -13597,12 +13650,12 @@ class iframe_IframeView {
 	}
 }
 
-event_emitter_default()(iframe_IframeView.prototype);
+event_emitter_default()(IframeView.prototype);
 
-/* harmony default export */ const iframe = (iframe_IframeView);
+/* harmony default export */ const iframe = (IframeView);
 
 // EXTERNAL MODULE: ./node_modules/lodash/throttle.js
-var throttle = __webpack_require__(7350);
+var throttle = __webpack_require__(3493);
 var throttle_default = /*#__PURE__*/__webpack_require__.n(throttle);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/managers/helpers/stage.js
 
@@ -15482,7 +15535,7 @@ event_emitter_default()(Snap.prototype);
 /* harmony default export */ const snap = (Snap);
 
 // EXTERNAL MODULE: ./node_modules/lodash/debounce.js
-var debounce = __webpack_require__(8221);
+var debounce = __webpack_require__(3279);
 var debounce_default = /*#__PURE__*/__webpack_require__.n(debounce);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/managers/continuous/index.js
 
@@ -17124,7 +17177,7 @@ event_emitter_default()(Rendition.prototype);
 /* harmony default export */ const rendition = (Rendition);
 
 // EXTERNAL MODULE: ./node_modules/epubjs/src/utils/request.js
-var request = __webpack_require__(4526);
+var request = __webpack_require__(5817);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/archive.js
 
 
@@ -17153,7 +17206,7 @@ class Archive {
 	checkRequirements(){
 		try {
 			if (typeof JSZip === "undefined") {
-				let JSZip = __webpack_require__(1710);
+				let JSZip = __webpack_require__(5733);
 				this.zip = new JSZip();
 			} else {
 				this.zip = new JSZip();
@@ -17180,7 +17233,7 @@ class Archive {
 	 * @return {Promise} zipfile
 	 */
 	openUrl(zipUrl, isBase64){
-		return (0,request["default"])(zipUrl, "binary")
+		return (0,request.default)(zipUrl, "binary")
 			.then(function(data){
 				return this.zip.loadAsync(data, {"base64": isBase64});
 			}.bind(this));
@@ -17195,7 +17248,7 @@ class Archive {
 	request(url, type){
 		var deferred = new core.defer();
 		var response;
-		var path = new utils_path/* default */.A(url);
+		var path = new utils_path/* default */.Z(url);
 
 		// If type isn't set, determine it from the file extension
 		if(!type) {
@@ -17408,7 +17461,7 @@ class Store {
 		this.storage = undefined;
 
 		this.name = name;
-		this.requester = requester || request["default"];
+		this.requester = requester || request.default;
 		this.resolver = resolver;
 
 		this.online = true;
@@ -17427,7 +17480,7 @@ class Store {
 		try {
 			let store;
 			if (typeof localforage === "undefined") {
-				store = __webpack_require__(3790);
+				store = __webpack_require__(9483);
 			} else {
 				store = localforage;
 			}
@@ -17552,7 +17605,7 @@ class Store {
 	retrieve(url, type) {
 		var deferred = new core.defer();
 		var response;
-		var path = new utils_path/* default */.A(url);
+		var path = new utils_path/* default */.Z(url);
 
 		// If type isn't set, determine it from the file extension
 		if(!type) {
@@ -17898,7 +17951,7 @@ class Book {
 		 * @memberof Book
 		 * @private
 		 */
-		this.request = this.settings.requestMethod || request["default"];
+		this.request = this.settings.requestMethod || request.default;
 
 		/**
 		 * @member {Spine} spine
@@ -18078,7 +18131,7 @@ class Book {
 	 * @return {Promise}
 	 */
 	openPackaging(url) {
-		this.path = new utils_path/* default */.A(url);
+		this.path = new utils_path/* default */.Z(url);
 		return this.load(url)
 			.then((xml) => {
 				this.packaging = new packaging(xml);
@@ -18093,7 +18146,7 @@ class Book {
 	 * @return {Promise}
 	 */
 	openManifest(url) {
-		this.path = new utils_path/* default */.A(url);
+		this.path = new utils_path/* default */.Z(url);
 		return this.load(url)
 			.then((json) => {
 				this.packaging = new packaging();
@@ -18286,7 +18339,7 @@ class Book {
 			});
 		}
 
-		navPath = new utils_path/* default */.A(this.resolve(navPath));
+		navPath = new utils_path/* default */.Z(this.resolve(navPath));
 		return this.load(navPath.path, "xml")
 			.then((xml) => {
 				this.navigation = new navigation(xml, navPath, this.canonical.bind(this));
@@ -18359,7 +18412,7 @@ class Book {
 		// Save original url
 		let originalUrl = this.url;
 		// Save original request method
-		let requester = this.settings.requestMethod || request["default"].bind(this);
+		let requester = this.settings.requestMethod || request.default.bind(this);
 		// Create new Store
 		this.storage = new store(name, requester, this.resolve.bind(this));
 		// Replace request method to go through store
@@ -18509,7 +18562,7 @@ event_emitter_default()(Book.prototype);
 /* harmony default export */ const book = (Book);
 
 // EXTERNAL MODULE: ./node_modules/epubjs/libs/url/url-polyfill.js
-var url_polyfill = __webpack_require__(8584);
+var url_polyfill = __webpack_require__(5749);
 ;// CONCATENATED MODULE: ./node_modules/epubjs/src/epub.js
 
 
@@ -18560,9 +18613,9 @@ epub_ePub.utils = core;
 
 
 // EXTERNAL MODULE: ./src/dom/DomUtil.js
-var DomUtil = __webpack_require__(8029);
+var DomUtil = __webpack_require__(9542);
 // EXTERNAL MODULE: ./src/core/Browser.js
-var Browser = __webpack_require__(4084);
+var Browser = __webpack_require__(8643);
 ;// CONCATENATED MODULE: ./src/epubjs/managers/helpers/prefab.js
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -19889,7 +19942,7 @@ function iframe_getPrototypeOf(o) { iframe_getPrototypeOf = Object.setPrototypeO
 
 
 
-var ReusableIframeView = /*#__PURE__*/(/* unused pure expression or super */ null && (function (_IframeView) {
+var ReusableIframeView = /*#__PURE__*/function (_IframeView) {
   iframe_inherits(ReusableIframeView, _IframeView);
 
   var _super = iframe_createSuper(ReusableIframeView);
@@ -19970,7 +20023,7 @@ var ReusableIframeView = /*#__PURE__*/(/* unused pure expression or super */ nul
       this.element.setAttribute("data-href", this.section.href); // this.element.appendChild(this.iframe);
 
       this.added = true;
-      this.elementBounds = bounds(this.element); // if(width || height){
+      this.elementBounds = (0,core.bounds)(this.element); // if(width || height){
       //   this.resize(width, height);
       // } else if(this.width && this.height){
       //   this.resize(this.width, this.height);
@@ -19993,7 +20046,7 @@ var ReusableIframeView = /*#__PURE__*/(/* unused pure expression or super */ nul
   }]);
 
   return ReusableIframeView;
-}(IframeView)));
+}(iframe);
 
 /* harmony default export */ const views_iframe = ((/* unused pure expression or super */ null && (ReusableIframeView)));
 ;// CONCATENATED MODULE: ./src/epubjs/managers/helpers/scrolling_views.js
@@ -22384,9 +22437,9 @@ window.ePub = src;
 
 
 
-Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
+Reader/* Reader.EpubJS */.E.EpubJS = Reader/* Reader.extend */.E.extend({
   initialize: function initialize(id, options) {
-    Reader/* Reader */.m.prototype.initialize.apply(this, arguments);
+    Reader/* Reader.prototype.initialize.apply */.E.prototype.initialize.apply(this, arguments);
     this._epubjs_ready = false;
     window.xpath = (path_default());
   },
@@ -22624,6 +22677,10 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     self._book.rendition = self._rendition;
     this._rendition.settings.prehooks = {};
     this._rendition.settings.prehooks.head = new hook(this);
+
+    self._updateTheme();
+
+    self._selectTheme(true);
 
     self._updateFontSize();
 
@@ -23199,7 +23256,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
   },
   EOT: true
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'metadata', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'metadata', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     return this._metadata;
@@ -23208,7 +23265,7 @@ Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'metadata', {
     this._metadata = Util.extend({}, data, this.options.metadata);
   }
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'annotations', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'annotations', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     if (Browser.ie) {
@@ -23236,19 +23293,19 @@ Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'annotations', {
     return this._rendition.annotations;
   }
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'locations', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'locations', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     return this._book.locations;
   }
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'pageList', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'pageList', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     return this._book.pageList.pageList.length > 0 ? this._book.pageList : undefined;
   }
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'rendition', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'rendition', {
   get: function get() {
     if (!this._rendition) {
       this._rendition = {
@@ -23271,22 +23328,22 @@ Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'rendition', {
     this._rendition = rendition;
   }
 });
-Object.defineProperty(Reader/* Reader */.m.EpubJS.prototype, 'CFI', {
+Object.defineProperty(Reader/* Reader.EpubJS.prototype */.E.EpubJS.prototype, 'CFI', {
   get: function get() {
     return src.CFI;
   }
 });
-window.Reader = Reader/* Reader */.m;
+window.Reader = Reader/* Reader */.E;
 function createReader(id, options) {
-  return new Reader/* Reader */.m.EpubJS(id, options);
+  return new Reader/* Reader.EpubJS */.E.EpubJS(id, options);
 }
 ;// CONCATENATED MODULE: ./src/reader/Reader.Mock.js
 
 
 
-Reader/* Reader */.m.Mock = Reader/* Reader */.m.extend({
+Reader/* Reader.Mock */.E.Mock = Reader/* Reader.extend */.E.extend({
   initialize: function initialize(id, options) {
-    Reader/* Reader */.m.prototype.initialize.apply(this, arguments);
+    Reader/* Reader.prototype.initialize.apply */.E.prototype.initialize.apply(this, arguments);
   },
   open: function open(target, callback) {
     var self = this;
@@ -23417,7 +23474,7 @@ Reader/* Reader */.m.Mock = Reader/* Reader */.m.extend({
   _updateTheme: function _updateTheme() {},
   EOT: true
 });
-Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'metadata', {
+Object.defineProperty(Reader/* Reader.Mock.prototype */.E.Mock.prototype, 'metadata', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     return this._metadata;
@@ -23426,7 +23483,7 @@ Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'metadata', {
     this._metadata = Util.extend({}, data, this.options.metadata);
   }
 });
-Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'locations', {
+Object.defineProperty(Reader/* Reader.Mock.prototype */.E.Mock.prototype, 'locations', {
   get: function get() {
     // return the combined metadata of configured + book metadata
     var self = this;
@@ -23446,7 +23503,7 @@ Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'locations', {
     };
   }
 });
-Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'annotations', {
+Object.defineProperty(Reader/* Reader.Mock.prototype */.E.Mock.prototype, 'annotations', {
   get: function get() {
     return {
       reset: function reset() {},
@@ -23455,7 +23512,7 @@ Object.defineProperty(Reader/* Reader */.m.Mock.prototype, 'annotations', {
   }
 });
 function Reader_Mock_createReader(id, options) {
-  return new Reader/* Reader */.m.Mock(id, options);
+  return new Reader/* Reader.Mock */.E.Mock(id, options);
 }
 ;// CONCATENATED MODULE: ./src/reader/index.js
 
@@ -23481,17 +23538,17 @@ var reader_reader = function reader(id, options) {
 
 /***/ }),
 
-/***/ 8263:
+/***/ 1804:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isValue         = __webpack_require__(8175)
-  , isPlainFunction = __webpack_require__(6873)
-  , assign          = __webpack_require__(6596)
-  , normalizeOpts   = __webpack_require__(148)
-  , contains        = __webpack_require__(214);
+var isValue         = __webpack_require__(5618)
+  , isPlainFunction = __webpack_require__(7205)
+  , assign          = __webpack_require__(7191)
+  , normalizeOpts   = __webpack_require__(5516)
+  , contains        = __webpack_require__(9981);
 
 var d = (module.exports = function (dscr, value/*, options*/) {
 	var c, e, w, options, desc;
@@ -23551,7 +23608,7 @@ d.gs = function (dscr, get, set/*, options*/) {
 
 /***/ }),
 
-/***/ 1300:
+/***/ 1597:
 /***/ ((module) => {
 
 /*
@@ -23729,7 +23786,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 8584:
+/***/ 5749:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24369,52 +24426,52 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 4064:
+/***/ 6458:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   RangeObject: () => (/* binding */ RangeObject),
-/* harmony export */   blob2base64: () => (/* binding */ blob2base64),
-/* harmony export */   borders: () => (/* binding */ borders),
-/* harmony export */   bounds: () => (/* binding */ bounds),
-/* harmony export */   createBase64Url: () => (/* binding */ createBase64Url),
-/* harmony export */   createBlob: () => (/* binding */ createBlob),
-/* harmony export */   createBlobUrl: () => (/* binding */ createBlobUrl),
-/* harmony export */   defaults: () => (/* binding */ defaults),
-/* harmony export */   defer: () => (/* binding */ defer),
-/* harmony export */   documentHeight: () => (/* binding */ documentHeight),
-/* harmony export */   extend: () => (/* binding */ extend),
-/* harmony export */   filterChildren: () => (/* binding */ filterChildren),
-/* harmony export */   findChildren: () => (/* binding */ findChildren),
-/* harmony export */   getParentByTagName: () => (/* binding */ getParentByTagName),
-/* harmony export */   indexOfElementNode: () => (/* binding */ indexOfElementNode),
-/* harmony export */   indexOfNode: () => (/* binding */ indexOfNode),
-/* harmony export */   indexOfSorted: () => (/* binding */ indexOfSorted),
-/* harmony export */   indexOfTextNode: () => (/* binding */ indexOfTextNode),
-/* harmony export */   insert: () => (/* binding */ insert),
-/* harmony export */   isElement: () => (/* binding */ isElement),
-/* harmony export */   isFloat: () => (/* binding */ isFloat),
-/* harmony export */   isNumber: () => (/* binding */ isNumber),
-/* harmony export */   isXml: () => (/* binding */ isXml),
-/* harmony export */   locationOf: () => (/* binding */ locationOf),
-/* harmony export */   nodeBounds: () => (/* binding */ nodeBounds),
-/* harmony export */   parents: () => (/* binding */ parents),
-/* harmony export */   parse: () => (/* binding */ parse),
-/* harmony export */   prefixed: () => (/* binding */ prefixed),
-/* harmony export */   qs: () => (/* binding */ qs),
-/* harmony export */   qsa: () => (/* binding */ qsa),
-/* harmony export */   qsp: () => (/* binding */ qsp),
-/* harmony export */   querySelectorByType: () => (/* binding */ querySelectorByType),
-/* harmony export */   requestAnimationFrame: () => (/* binding */ requestAnimationFrame),
-/* harmony export */   revokeBlobUrl: () => (/* binding */ revokeBlobUrl),
-/* harmony export */   sprint: () => (/* binding */ sprint),
-/* harmony export */   treeWalker: () => (/* binding */ treeWalker),
-/* harmony export */   type: () => (/* binding */ type),
-/* harmony export */   uuid: () => (/* binding */ uuid),
-/* harmony export */   walk: () => (/* binding */ walk),
-/* harmony export */   windowBounds: () => (/* binding */ windowBounds)
+/* harmony export */   "requestAnimationFrame": () => (/* binding */ requestAnimationFrame),
+/* harmony export */   "uuid": () => (/* binding */ uuid),
+/* harmony export */   "documentHeight": () => (/* binding */ documentHeight),
+/* harmony export */   "isElement": () => (/* binding */ isElement),
+/* harmony export */   "isNumber": () => (/* binding */ isNumber),
+/* harmony export */   "isFloat": () => (/* binding */ isFloat),
+/* harmony export */   "prefixed": () => (/* binding */ prefixed),
+/* harmony export */   "defaults": () => (/* binding */ defaults),
+/* harmony export */   "extend": () => (/* binding */ extend),
+/* harmony export */   "insert": () => (/* binding */ insert),
+/* harmony export */   "locationOf": () => (/* binding */ locationOf),
+/* harmony export */   "indexOfSorted": () => (/* binding */ indexOfSorted),
+/* harmony export */   "bounds": () => (/* binding */ bounds),
+/* harmony export */   "borders": () => (/* binding */ borders),
+/* harmony export */   "nodeBounds": () => (/* binding */ nodeBounds),
+/* harmony export */   "windowBounds": () => (/* binding */ windowBounds),
+/* harmony export */   "indexOfNode": () => (/* binding */ indexOfNode),
+/* harmony export */   "indexOfTextNode": () => (/* binding */ indexOfTextNode),
+/* harmony export */   "indexOfElementNode": () => (/* binding */ indexOfElementNode),
+/* harmony export */   "isXml": () => (/* binding */ isXml),
+/* harmony export */   "createBlob": () => (/* binding */ createBlob),
+/* harmony export */   "createBlobUrl": () => (/* binding */ createBlobUrl),
+/* harmony export */   "revokeBlobUrl": () => (/* binding */ revokeBlobUrl),
+/* harmony export */   "createBase64Url": () => (/* binding */ createBase64Url),
+/* harmony export */   "type": () => (/* binding */ type),
+/* harmony export */   "parse": () => (/* binding */ parse),
+/* harmony export */   "qs": () => (/* binding */ qs),
+/* harmony export */   "qsa": () => (/* binding */ qsa),
+/* harmony export */   "qsp": () => (/* binding */ qsp),
+/* harmony export */   "sprint": () => (/* binding */ sprint),
+/* harmony export */   "treeWalker": () => (/* binding */ treeWalker),
+/* harmony export */   "walk": () => (/* binding */ walk),
+/* harmony export */   "blob2base64": () => (/* binding */ blob2base64),
+/* harmony export */   "defer": () => (/* binding */ defer),
+/* harmony export */   "querySelectorByType": () => (/* binding */ querySelectorByType),
+/* harmony export */   "findChildren": () => (/* binding */ findChildren),
+/* harmony export */   "parents": () => (/* binding */ parents),
+/* harmony export */   "filterChildren": () => (/* binding */ filterChildren),
+/* harmony export */   "getParentByTagName": () => (/* binding */ getParentByTagName),
+/* harmony export */   "RangeObject": () => (/* binding */ RangeObject)
 /* harmony export */ });
 /**
  * Core Utilities and Helpers
@@ -24894,7 +24951,7 @@ function parse(markup, mime, forceXMLDom) {
 	var Parser;
 
 	if (typeof DOMParser === "undefined" || forceXMLDom) {
-		Parser = (__webpack_require__(3787).DOMParser);
+		Parser = __webpack_require__(5348).DOMParser;
 	} else {
 		Parser = DOMParser;
 	}
@@ -25295,14 +25352,14 @@ class RangeObject {
 
 /***/ }),
 
-/***/ 3912:
+/***/ 5233:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */   "Z": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6841);
+/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9294);
 /* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path_webpack__WEBPACK_IMPORTED_MODULE_0__);
 
 
@@ -25410,7 +25467,7 @@ class Path {
 
 /***/ }),
 
-/***/ 4526:
+/***/ 5817:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -25418,8 +25475,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4064);
-/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3912);
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6458);
+/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5233);
 
 
 
@@ -25463,7 +25520,7 @@ function request(url, type, withCredentials, headers) {
 
 	// If type isn"t set, determine it from the file extension
 	if(!type) {
-		type = new _path__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .A(url).extension;
+		type = new _path__WEBPACK_IMPORTED_MODULE_1__/* .default */ .Z(url).extension;
 	}
 
 	if(type == "blob"){
@@ -25574,7 +25631,7 @@ function request(url, type, withCredentials, headers) {
 
 /***/ }),
 
-/***/ 6011:
+/***/ 430:
 /***/ ((module) => {
 
 "use strict";
@@ -25586,18 +25643,18 @@ module.exports = function () {};
 
 /***/ }),
 
-/***/ 6596:
+/***/ 7191:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-module.exports = __webpack_require__(5339)() ? Object.assign : __webpack_require__(3595);
+module.exports = __webpack_require__(2429)() ? Object.assign : __webpack_require__(7346);
 
 
 /***/ }),
 
-/***/ 5339:
+/***/ 2429:
 /***/ ((module) => {
 
 "use strict";
@@ -25614,17 +25671,17 @@ module.exports = function () {
 
 /***/ }),
 
-/***/ 3595:
+/***/ 7346:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var keys  = __webpack_require__(2093)
-  , value = __webpack_require__(7134)
+var keys  = __webpack_require__(5103)
+  , value = __webpack_require__(2745)
   , max   = Math.max;
 
-module.exports = function (dest, src /*, …srcn*/) {
+module.exports = function (dest, src/*, …srcn*/) {
 	var error, i, length = max(arguments.length, 2), assign;
 	dest = Object(value(dest));
 	assign = function (key) {
@@ -25645,31 +25702,31 @@ module.exports = function (dest, src /*, …srcn*/) {
 
 /***/ }),
 
-/***/ 9762:
+/***/ 6914:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var _undefined = __webpack_require__(6011)(); // Support ES3 engines
+var _undefined = __webpack_require__(430)(); // Support ES3 engines
 
 module.exports = function (val) { return val !== _undefined && val !== null; };
 
 
 /***/ }),
 
-/***/ 2093:
+/***/ 5103:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-module.exports = __webpack_require__(3380)() ? Object.keys : __webpack_require__(4232);
+module.exports = __webpack_require__(7446)() ? Object.keys : __webpack_require__(6137);
 
 
 /***/ }),
 
-/***/ 3380:
+/***/ 7446:
 /***/ ((module) => {
 
 "use strict";
@@ -25687,13 +25744,13 @@ module.exports = function () {
 
 /***/ }),
 
-/***/ 4232:
+/***/ 6137:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isValue = __webpack_require__(9762);
+var isValue = __webpack_require__(6914);
 
 var keys = Object.keys;
 
@@ -25702,13 +25759,13 @@ module.exports = function (object) { return keys(isValue(object) ? Object(object
 
 /***/ }),
 
-/***/ 148:
+/***/ 5516:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isValue = __webpack_require__(9762);
+var isValue = __webpack_require__(6914);
 
 var forEach = Array.prototype.forEach, create = Object.create;
 
@@ -25718,7 +25775,7 @@ var process = function (src, obj) {
 };
 
 // eslint-disable-next-line no-unused-vars
-module.exports = function (opts1 /*, …options*/) {
+module.exports = function (opts1/*, …options*/) {
 	var result = create(null);
 	forEach.call(arguments, function (options) {
 		if (!isValue(options)) return;
@@ -25730,7 +25787,7 @@ module.exports = function (opts1 /*, …options*/) {
 
 /***/ }),
 
-/***/ 5499:
+/***/ 1290:
 /***/ ((module) => {
 
 "use strict";
@@ -25744,13 +25801,13 @@ module.exports = function (fn) {
 
 /***/ }),
 
-/***/ 7134:
+/***/ 2745:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isValue = __webpack_require__(9762);
+var isValue = __webpack_require__(6914);
 
 module.exports = function (value) {
 	if (!isValue(value)) throw new TypeError("Cannot use null or undefined");
@@ -25760,18 +25817,18 @@ module.exports = function (value) {
 
 /***/ }),
 
-/***/ 214:
+/***/ 9981:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-module.exports = __webpack_require__(525)() ? String.prototype.contains : __webpack_require__(1521);
+module.exports = __webpack_require__(3591)() ? String.prototype.contains : __webpack_require__(6042);
 
 
 /***/ }),
 
-/***/ 525:
+/***/ 3591:
 /***/ ((module) => {
 
 "use strict";
@@ -25787,7 +25844,7 @@ module.exports = function () {
 
 /***/ }),
 
-/***/ 1521:
+/***/ 6042:
 /***/ ((module) => {
 
 "use strict";
@@ -25795,21 +25852,21 @@ module.exports = function () {
 
 var indexOf = String.prototype.indexOf;
 
-module.exports = function (searchString /*, position*/) {
+module.exports = function (searchString/*, position*/) {
 	return indexOf.call(this, searchString, arguments[1]) > -1;
 };
 
 
 /***/ }),
 
-/***/ 3068:
+/***/ 8370:
 /***/ ((module, exports, __webpack_require__) => {
 
 "use strict";
 
 
-var d        = __webpack_require__(8263)
-  , callable = __webpack_require__(5499)
+var d        = __webpack_require__(1804)
+  , callable = __webpack_require__(1290)
 
   , apply = Function.prototype.apply, call = Function.prototype.call
   , create = Object.create, defineProperty = Object.defineProperty
@@ -25942,7 +25999,7 @@ exports.methods = methods;
 
 /***/ }),
 
-/***/ 1710:
+/***/ 5733:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /*!
@@ -25961,7 +26018,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
 /***/ }),
 
-/***/ 3790:
+/***/ 9483:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /*!
@@ -28784,10 +28841,10 @@ module.exports = localforage_js;
 
 /***/ }),
 
-/***/ 1873:
+/***/ 2705:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var root = __webpack_require__(9325);
+var root = __webpack_require__(5639);
 
 /** Built-in value references. */
 var Symbol = root.Symbol;
@@ -28797,7 +28854,7 @@ module.exports = Symbol;
 
 /***/ }),
 
-/***/ 1033:
+/***/ 6874:
 /***/ ((module) => {
 
 /**
@@ -28825,15 +28882,15 @@ module.exports = apply;
 
 /***/ }),
 
-/***/ 695:
+/***/ 4636:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseTimes = __webpack_require__(8096),
-    isArguments = __webpack_require__(2428),
-    isArray = __webpack_require__(6449),
-    isBuffer = __webpack_require__(3656),
-    isIndex = __webpack_require__(361),
-    isTypedArray = __webpack_require__(7167);
+var baseTimes = __webpack_require__(2545),
+    isArguments = __webpack_require__(5694),
+    isArray = __webpack_require__(1469),
+    isBuffer = __webpack_require__(4144),
+    isIndex = __webpack_require__(5776),
+    isTypedArray = __webpack_require__(6719);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -28881,11 +28938,11 @@ module.exports = arrayLikeKeys;
 
 /***/ }),
 
-/***/ 6547:
+/***/ 4865:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseAssignValue = __webpack_require__(3360),
-    eq = __webpack_require__(5288);
+var baseAssignValue = __webpack_require__(9465),
+    eq = __webpack_require__(7813);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -28916,10 +28973,10 @@ module.exports = assignValue;
 
 /***/ }),
 
-/***/ 3360:
+/***/ 9465:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var defineProperty = __webpack_require__(3243);
+var defineProperty = __webpack_require__(8777);
 
 /**
  * The base implementation of `assignValue` and `assignMergeValue` without
@@ -28948,12 +29005,12 @@ module.exports = baseAssignValue;
 
 /***/ }),
 
-/***/ 2552:
+/***/ 4239:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var Symbol = __webpack_require__(1873),
-    getRawTag = __webpack_require__(659),
-    objectToString = __webpack_require__(9350);
+var Symbol = __webpack_require__(2705),
+    getRawTag = __webpack_require__(9607),
+    objectToString = __webpack_require__(2333);
 
 /** `Object#toString` result references. */
 var nullTag = '[object Null]',
@@ -28983,11 +29040,11 @@ module.exports = baseGetTag;
 
 /***/ }),
 
-/***/ 7534:
+/***/ 9454:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseGetTag = __webpack_require__(2552),
-    isObjectLike = __webpack_require__(346);
+var baseGetTag = __webpack_require__(4239),
+    isObjectLike = __webpack_require__(7005);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
@@ -29008,13 +29065,13 @@ module.exports = baseIsArguments;
 
 /***/ }),
 
-/***/ 5083:
+/***/ 8458:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var isFunction = __webpack_require__(1882),
-    isMasked = __webpack_require__(7296),
-    isObject = __webpack_require__(3805),
-    toSource = __webpack_require__(7473);
+var isFunction = __webpack_require__(3560),
+    isMasked = __webpack_require__(5346),
+    isObject = __webpack_require__(3218),
+    toSource = __webpack_require__(346);
 
 /**
  * Used to match `RegExp`
@@ -29062,12 +29119,12 @@ module.exports = baseIsNative;
 
 /***/ }),
 
-/***/ 4901:
+/***/ 8749:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseGetTag = __webpack_require__(2552),
-    isLength = __webpack_require__(294),
-    isObjectLike = __webpack_require__(346);
+var baseGetTag = __webpack_require__(4239),
+    isLength = __webpack_require__(1780),
+    isObjectLike = __webpack_require__(7005);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -29129,11 +29186,11 @@ module.exports = baseIsTypedArray;
 
 /***/ }),
 
-/***/ 8984:
+/***/ 280:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var isPrototype = __webpack_require__(5527),
-    nativeKeys = __webpack_require__(3650);
+var isPrototype = __webpack_require__(5726),
+    nativeKeys = __webpack_require__(6916);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -29166,12 +29223,12 @@ module.exports = baseKeys;
 
 /***/ }),
 
-/***/ 9302:
+/***/ 5976:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var identity = __webpack_require__(3488),
-    overRest = __webpack_require__(6757),
-    setToString = __webpack_require__(2865);
+var identity = __webpack_require__(6557),
+    overRest = __webpack_require__(5357),
+    setToString = __webpack_require__(61);
 
 /**
  * The base implementation of `_.rest` which doesn't validate or coerce arguments.
@@ -29190,12 +29247,12 @@ module.exports = baseRest;
 
 /***/ }),
 
-/***/ 9570:
+/***/ 6560:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var constant = __webpack_require__(7334),
-    defineProperty = __webpack_require__(3243),
-    identity = __webpack_require__(3488);
+var constant = __webpack_require__(5703),
+    defineProperty = __webpack_require__(8777),
+    identity = __webpack_require__(6557);
 
 /**
  * The base implementation of `setToString` without support for hot loop shorting.
@@ -29219,7 +29276,7 @@ module.exports = baseSetToString;
 
 /***/ }),
 
-/***/ 8096:
+/***/ 2545:
 /***/ ((module) => {
 
 /**
@@ -29246,10 +29303,10 @@ module.exports = baseTimes;
 
 /***/ }),
 
-/***/ 4128:
+/***/ 7561:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var trimmedEndIndex = __webpack_require__(1800);
+var trimmedEndIndex = __webpack_require__(7990);
 
 /** Used to match leading whitespace. */
 var reTrimStart = /^\s+/;
@@ -29272,7 +29329,7 @@ module.exports = baseTrim;
 
 /***/ }),
 
-/***/ 7301:
+/***/ 1717:
 /***/ ((module) => {
 
 /**
@@ -29293,11 +29350,11 @@ module.exports = baseUnary;
 
 /***/ }),
 
-/***/ 1791:
+/***/ 8363:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var assignValue = __webpack_require__(6547),
-    baseAssignValue = __webpack_require__(3360);
+var assignValue = __webpack_require__(4865),
+    baseAssignValue = __webpack_require__(9465);
 
 /**
  * Copies properties of `source` to `object`.
@@ -29340,10 +29397,10 @@ module.exports = copyObject;
 
 /***/ }),
 
-/***/ 5481:
+/***/ 4429:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var root = __webpack_require__(9325);
+var root = __webpack_require__(5639);
 
 /** Used to detect overreaching core-js shims. */
 var coreJsData = root['__core-js_shared__'];
@@ -29353,11 +29410,11 @@ module.exports = coreJsData;
 
 /***/ }),
 
-/***/ 999:
+/***/ 1463:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseRest = __webpack_require__(9302),
-    isIterateeCall = __webpack_require__(6800);
+var baseRest = __webpack_require__(5976),
+    isIterateeCall = __webpack_require__(6612);
 
 /**
  * Creates a function like `_.assign`.
@@ -29397,10 +29454,10 @@ module.exports = createAssigner;
 
 /***/ }),
 
-/***/ 3243:
+/***/ 8777:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var getNative = __webpack_require__(6110);
+var getNative = __webpack_require__(852);
 
 var defineProperty = (function() {
   try {
@@ -29415,7 +29472,7 @@ module.exports = defineProperty;
 
 /***/ }),
 
-/***/ 4840:
+/***/ 1957:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /** Detect free variable `global` from Node.js. */
@@ -29426,11 +29483,11 @@ module.exports = freeGlobal;
 
 /***/ }),
 
-/***/ 6110:
+/***/ 852:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseIsNative = __webpack_require__(5083),
-    getValue = __webpack_require__(392);
+var baseIsNative = __webpack_require__(8458),
+    getValue = __webpack_require__(7801);
 
 /**
  * Gets the native function at `key` of `object`.
@@ -29450,10 +29507,10 @@ module.exports = getNative;
 
 /***/ }),
 
-/***/ 659:
+/***/ 9607:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var Symbol = __webpack_require__(1873);
+var Symbol = __webpack_require__(2705);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -29503,7 +29560,7 @@ module.exports = getRawTag;
 
 /***/ }),
 
-/***/ 392:
+/***/ 7801:
 /***/ ((module) => {
 
 /**
@@ -29523,7 +29580,7 @@ module.exports = getValue;
 
 /***/ }),
 
-/***/ 361:
+/***/ 5776:
 /***/ ((module) => {
 
 /** Used as references for various `Number` constants. */
@@ -29555,13 +29612,13 @@ module.exports = isIndex;
 
 /***/ }),
 
-/***/ 6800:
+/***/ 6612:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var eq = __webpack_require__(5288),
-    isArrayLike = __webpack_require__(4894),
-    isIndex = __webpack_require__(361),
-    isObject = __webpack_require__(3805);
+var eq = __webpack_require__(7813),
+    isArrayLike = __webpack_require__(8612),
+    isIndex = __webpack_require__(5776),
+    isObject = __webpack_require__(3218);
 
 /**
  * Checks if the given arguments are from an iteratee call.
@@ -29592,10 +29649,10 @@ module.exports = isIterateeCall;
 
 /***/ }),
 
-/***/ 7296:
+/***/ 5346:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var coreJsData = __webpack_require__(5481);
+var coreJsData = __webpack_require__(4429);
 
 /** Used to detect methods masquerading as native. */
 var maskSrcKey = (function() {
@@ -29619,7 +29676,7 @@ module.exports = isMasked;
 
 /***/ }),
 
-/***/ 5527:
+/***/ 5726:
 /***/ ((module) => {
 
 /** Used for built-in method references. */
@@ -29644,10 +29701,10 @@ module.exports = isPrototype;
 
 /***/ }),
 
-/***/ 3650:
+/***/ 6916:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var overArg = __webpack_require__(4335);
+var overArg = __webpack_require__(5569);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeKeys = overArg(Object.keys, Object);
@@ -29657,11 +29714,11 @@ module.exports = nativeKeys;
 
 /***/ }),
 
-/***/ 6009:
+/***/ 1167:
 /***/ ((module, exports, __webpack_require__) => {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
-var freeGlobal = __webpack_require__(4840);
+var freeGlobal = __webpack_require__(1957);
 
 /** Detect free variable `exports`. */
 var freeExports =  true && exports && !exports.nodeType && exports;
@@ -29695,7 +29752,7 @@ module.exports = nodeUtil;
 
 /***/ }),
 
-/***/ 9350:
+/***/ 2333:
 /***/ ((module) => {
 
 /** Used for built-in method references. */
@@ -29724,7 +29781,7 @@ module.exports = objectToString;
 
 /***/ }),
 
-/***/ 4335:
+/***/ 5569:
 /***/ ((module) => {
 
 /**
@@ -29746,10 +29803,10 @@ module.exports = overArg;
 
 /***/ }),
 
-/***/ 6757:
+/***/ 5357:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var apply = __webpack_require__(1033);
+var apply = __webpack_require__(6874);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
@@ -29789,10 +29846,10 @@ module.exports = overRest;
 
 /***/ }),
 
-/***/ 9325:
+/***/ 5639:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var freeGlobal = __webpack_require__(4840);
+var freeGlobal = __webpack_require__(1957);
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -29805,11 +29862,11 @@ module.exports = root;
 
 /***/ }),
 
-/***/ 2865:
+/***/ 61:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseSetToString = __webpack_require__(9570),
-    shortOut = __webpack_require__(1811);
+var baseSetToString = __webpack_require__(6560),
+    shortOut = __webpack_require__(1275);
 
 /**
  * Sets the `toString` method of `func` to return `string`.
@@ -29826,7 +29883,7 @@ module.exports = setToString;
 
 /***/ }),
 
-/***/ 1811:
+/***/ 1275:
 /***/ ((module) => {
 
 /** Used to detect hot functions by number of calls within a span of milliseconds. */
@@ -29870,7 +29927,7 @@ module.exports = shortOut;
 
 /***/ }),
 
-/***/ 7473:
+/***/ 346:
 /***/ ((module) => {
 
 /** Used for built-in method references. */
@@ -29903,7 +29960,7 @@ module.exports = toSource;
 
 /***/ }),
 
-/***/ 1800:
+/***/ 7990:
 /***/ ((module) => {
 
 /** Used to match a single whitespace character. */
@@ -29929,15 +29986,15 @@ module.exports = trimmedEndIndex;
 
 /***/ }),
 
-/***/ 6139:
+/***/ 8583:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var assignValue = __webpack_require__(6547),
-    copyObject = __webpack_require__(1791),
-    createAssigner = __webpack_require__(999),
-    isArrayLike = __webpack_require__(4894),
-    isPrototype = __webpack_require__(5527),
-    keys = __webpack_require__(5950);
+var assignValue = __webpack_require__(4865),
+    copyObject = __webpack_require__(8363),
+    createAssigner = __webpack_require__(1463),
+    isArrayLike = __webpack_require__(8612),
+    isPrototype = __webpack_require__(5726),
+    keys = __webpack_require__(3674);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -29994,7 +30051,7 @@ module.exports = assign;
 
 /***/ }),
 
-/***/ 7334:
+/***/ 5703:
 /***/ ((module) => {
 
 /**
@@ -30027,12 +30084,12 @@ module.exports = constant;
 
 /***/ }),
 
-/***/ 8221:
+/***/ 3279:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var isObject = __webpack_require__(3805),
-    now = __webpack_require__(124),
-    toNumber = __webpack_require__(9374);
+var isObject = __webpack_require__(3218),
+    now = __webpack_require__(7771),
+    toNumber = __webpack_require__(4841);
 
 /** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -30225,7 +30282,7 @@ module.exports = debounce;
 
 /***/ }),
 
-/***/ 5288:
+/***/ 7813:
 /***/ ((module) => {
 
 /**
@@ -30269,7 +30326,7 @@ module.exports = eq;
 
 /***/ }),
 
-/***/ 3488:
+/***/ 6557:
 /***/ ((module) => {
 
 /**
@@ -30297,11 +30354,11 @@ module.exports = identity;
 
 /***/ }),
 
-/***/ 2428:
+/***/ 5694:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseIsArguments = __webpack_require__(7534),
-    isObjectLike = __webpack_require__(346);
+var baseIsArguments = __webpack_require__(9454),
+    isObjectLike = __webpack_require__(7005);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -30340,7 +30397,7 @@ module.exports = isArguments;
 
 /***/ }),
 
-/***/ 6449:
+/***/ 1469:
 /***/ ((module) => {
 
 /**
@@ -30373,11 +30430,11 @@ module.exports = isArray;
 
 /***/ }),
 
-/***/ 4894:
+/***/ 8612:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var isFunction = __webpack_require__(1882),
-    isLength = __webpack_require__(294);
+var isFunction = __webpack_require__(3560),
+    isLength = __webpack_require__(1780);
 
 /**
  * Checks if `value` is array-like. A value is considered array-like if it's
@@ -30413,12 +30470,12 @@ module.exports = isArrayLike;
 
 /***/ }),
 
-/***/ 3656:
+/***/ 4144:
 /***/ ((module, exports, __webpack_require__) => {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
-var root = __webpack_require__(9325),
-    stubFalse = __webpack_require__(9935);
+var root = __webpack_require__(5639),
+    stubFalse = __webpack_require__(5062);
 
 /** Detect free variable `exports`. */
 var freeExports =  true && exports && !exports.nodeType && exports;
@@ -30459,11 +30516,11 @@ module.exports = isBuffer;
 
 /***/ }),
 
-/***/ 1882:
+/***/ 3560:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseGetTag = __webpack_require__(2552),
-    isObject = __webpack_require__(3805);
+var baseGetTag = __webpack_require__(4239),
+    isObject = __webpack_require__(3218);
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
@@ -30503,7 +30560,7 @@ module.exports = isFunction;
 
 /***/ }),
 
-/***/ 294:
+/***/ 1780:
 /***/ ((module) => {
 
 /** Used as references for various `Number` constants. */
@@ -30545,7 +30602,7 @@ module.exports = isLength;
 
 /***/ }),
 
-/***/ 3805:
+/***/ 3218:
 /***/ ((module) => {
 
 /**
@@ -30583,7 +30640,7 @@ module.exports = isObject;
 
 /***/ }),
 
-/***/ 346:
+/***/ 7005:
 /***/ ((module) => {
 
 /**
@@ -30619,11 +30676,11 @@ module.exports = isObjectLike;
 
 /***/ }),
 
-/***/ 4394:
+/***/ 3448:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseGetTag = __webpack_require__(2552),
-    isObjectLike = __webpack_require__(346);
+var baseGetTag = __webpack_require__(4239),
+    isObjectLike = __webpack_require__(7005);
 
 /** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
@@ -30655,12 +30712,12 @@ module.exports = isSymbol;
 
 /***/ }),
 
-/***/ 7167:
+/***/ 6719:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseIsTypedArray = __webpack_require__(4901),
-    baseUnary = __webpack_require__(7301),
-    nodeUtil = __webpack_require__(6009);
+var baseIsTypedArray = __webpack_require__(8749),
+    baseUnary = __webpack_require__(1717),
+    nodeUtil = __webpack_require__(1167);
 
 /* Node.js helper references. */
 var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -30689,12 +30746,12 @@ module.exports = isTypedArray;
 
 /***/ }),
 
-/***/ 5950:
+/***/ 3674:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var arrayLikeKeys = __webpack_require__(695),
-    baseKeys = __webpack_require__(8984),
-    isArrayLike = __webpack_require__(4894);
+var arrayLikeKeys = __webpack_require__(4636),
+    baseKeys = __webpack_require__(280),
+    isArrayLike = __webpack_require__(8612);
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -30733,10 +30790,10 @@ module.exports = keys;
 
 /***/ }),
 
-/***/ 124:
+/***/ 7771:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var root = __webpack_require__(9325);
+var root = __webpack_require__(5639);
 
 /**
  * Gets the timestamp of the number of milliseconds that have elapsed since
@@ -30763,7 +30820,7 @@ module.exports = now;
 
 /***/ }),
 
-/***/ 9935:
+/***/ 5062:
 /***/ ((module) => {
 
 /**
@@ -30788,11 +30845,11 @@ module.exports = stubFalse;
 
 /***/ }),
 
-/***/ 7350:
+/***/ 3493:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var debounce = __webpack_require__(8221),
-    isObject = __webpack_require__(3805);
+var debounce = __webpack_require__(3279),
+    isObject = __webpack_require__(3218);
 
 /** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -30864,12 +30921,12 @@ module.exports = throttle;
 
 /***/ }),
 
-/***/ 9374:
+/***/ 4841:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-var baseTrim = __webpack_require__(4128),
-    isObject = __webpack_require__(3805),
-    isSymbol = __webpack_require__(4394);
+var baseTrim = __webpack_require__(7561),
+    isObject = __webpack_require__(3218),
+    isSymbol = __webpack_require__(3448);
 
 /** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
@@ -30935,7 +30992,7 @@ module.exports = toNumber;
 
 /***/ }),
 
-/***/ 6841:
+/***/ 9294:
 /***/ ((module) => {
 
 "use strict";
@@ -31497,13 +31554,13 @@ module.exports = posix;
 
 /***/ }),
 
-/***/ 4080:
+/***/ 372:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isPrototype = __webpack_require__(9202);
+var isPrototype = __webpack_require__(6060);
 
 module.exports = function (value) {
 	if (typeof value !== "function") return false;
@@ -31524,13 +31581,13 @@ module.exports = function (value) {
 
 /***/ }),
 
-/***/ 181:
+/***/ 3940:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isValue = __webpack_require__(8175);
+var isValue = __webpack_require__(5618);
 
 // prettier-ignore
 var possibleTypes = { "object": true, "function": true, "undefined": true /* document.all */ };
@@ -31543,13 +31600,13 @@ module.exports = function (value) {
 
 /***/ }),
 
-/***/ 6873:
+/***/ 7205:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isFunction = __webpack_require__(4080);
+var isFunction = __webpack_require__(372);
 
 var classRe = /^\s*class[\s{/}]/, functionToString = Function.prototype.toString;
 
@@ -31562,13 +31619,13 @@ module.exports = function (value) {
 
 /***/ }),
 
-/***/ 9202:
+/***/ 6060:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 
 
-var isObject = __webpack_require__(181);
+var isObject = __webpack_require__(3940);
 
 module.exports = function (value) {
 	if (!isObject(value)) return false;
@@ -31583,7 +31640,7 @@ module.exports = function (value) {
 
 /***/ }),
 
-/***/ 8175:
+/***/ 5618:
 /***/ ((module) => {
 
 "use strict";
@@ -31597,11 +31654,11 @@ module.exports = function (value) { return value !== _undefined && value !== nul
 
 /***/ }),
 
-/***/ 3787:
+/***/ 5348:
 /***/ ((module) => {
 
 "use strict";
-module.exports = __WEBPACK_EXTERNAL_MODULE__3787__;
+module.exports = __WEBPACK_EXTERNAL_MODULE__5348__;
 
 /***/ })
 
@@ -31613,9 +31670,8 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__3787__;
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
+/******/ 		if(__webpack_module_cache__[moduleId]) {
+/******/ 			return __webpack_module_cache__[moduleId].exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -31697,61 +31753,11 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__3787__;
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "default": () => (/* binding */ src_cozy)
-});
-
-// UNUSED EXPORTS: noConflict
-
-;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {};
-;// CONCATENATED MODULE: ./src/cozy.js
-// import {version} from '../package.json';
-// export {version};
-// // control
-// export * from './control/index';
-// // core
-// export * from './core/index';
-// // dom
-// export * from './dom/index';
-// // reader
-// import {reader} from './reader/index';
-// export * from './reader/index';
-// misc
-var oldCozy = window.cozy;
-function noConflict() {
-  window.cozy = oldCozy;
-  return this;
-}
-var cozy_cozy = {}; // cozy.reader = reader;
-
-
-
-var control = __webpack_require__(8427);
-
-var core = __webpack_require__(9241);
-
-var dom = __webpack_require__(2057);
-
-var cozy_reader = __webpack_require__(3480);
-
-[control, core, dom, cozy_reader].forEach(function (m) {
-  Object.keys(m).forEach(function (key) {
-    cozy_cozy[key] = m[key];
-  });
-});
-/* harmony default export */ const src_cozy = (cozy_cozy);
-})();
-
-__webpack_exports__ = __webpack_exports__["default"];
-/******/ 	return __webpack_exports__;
+/******/ 	// module exports must be returned from runtime so entry inlining is disabled
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(5324);
 /******/ })()
-;
+.default;
 });
 //# sourceMappingURL=cozy-sun-bear.js.map
