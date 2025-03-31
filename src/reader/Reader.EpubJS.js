@@ -252,6 +252,8 @@ Reader.EpubJS = Reader.extend({
     this._rendition.settings.prehooks = {};
     this._rendition.settings.prehooks.head = new Hook(this);
 
+    self._updateTheme();
+    self._selectTheme(true);
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
