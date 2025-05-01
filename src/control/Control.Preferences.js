@@ -228,19 +228,22 @@ Preferences.fieldset.TextSize = Fieldset.extend({
 
   template: function() {
     return `<fieldset class="cozy-fieldset-text_size">
-        <legend>Text Size</legend>
-        <div class="preview--text_size" id="x${this._id}-preview">
-          ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
+        <legend>Text</legend>
+        <div>
+          <span id="font-size">Adjust Font Size</span>
+          <div class="preview--text_size" id="x${this._id}-preview" style="font-size: 1em;">
+            ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
+          </div>
+          <p style="white-space: no-wrap">
+            <span>-</span>
+              <input aria-labelledby="font-size" name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" aria-valuenow="100" aria-valuetext="100 percent" class="">
+            <span>+</span>
+          </p>
         </div>
-        <p style="white-space: no-wrap">
-          <span>T-</span>
-          <input name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" />
-          <span>T+</span>
-        </p>
         <p>
-          <span>Text Size: </span>
-          <span id="x${this._id}-output">100</span>
-          <button id="x${this._id}-reset" class="reset button--lg" style="margin-left: 8px">Reset to 100%</button> 
+          <span>Font Size: </span>
+          <span id="x${this._id}-output">100%</span>
+          <button id="x${this._id}-reset" style="margin-left: 8px" class="reset button--lg">Reset to 100%</button> 
         </p>
       </fieldset>`;
   },
