@@ -9,3 +9,5 @@
 /spec/reports/
 /tmp/
 /.idea/
+# Ignore OS X Desktop Services Store files
+.DS_Store

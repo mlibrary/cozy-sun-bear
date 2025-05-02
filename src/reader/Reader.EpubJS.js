@@ -158,6 +158,12 @@ Reader.EpubJS = Reader.extend({
 
     // var key = `${flow}/${self.metadata.layout}`;
     if ( self._cozyOptions[key] ) {
+      // useful dev output if you're adding/changing saved preferences
+      // console.log('self._cozyOptions[key]: ' + JSON.stringify(self._cozyOptions[key], null, 4));
+
+      if ( self._cozyOptions[key].font ) {
+        self.options.font = self._cozyOptions[key].font;
+      }
       if ( self._cozyOptions[key].text_size ) {
         self.options.text_size = self._cozyOptions[key].text_size;
       }
@@ -254,6 +260,7 @@ Reader.EpubJS = Reader.extend({
 
     self._updateTheme();
     self._selectTheme(true);
+    self._updateFont();
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
@@ -596,6 +603,7 @@ body {
       }.bind(this._rendition));
     }
 
+    this._updateFont();
     this._updateFontSize();
 
     if ( custom_stylesheet_rules.length ) {
@@ -693,6 +701,22 @@ body {
   _selectTheme: function(refresh) {
     var theme = this.options.theme || 'default';
     this._rendition.themes.select(theme);
+  },
+
+  _updateFont: function() {
+    if ( false && this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginated
+      return;
+    }
+
+    var font = this.options.font || 'default';
+    if ( font == 'default' ) {
+      // do not add an unncessary override
+      if ( ! this._rendition.themes._overrides['font'] ) {
+        return;
+      }
+    }
+    this._rendition.themes.font(`${font}`);
   },
 
   _updateFontSize: function() {

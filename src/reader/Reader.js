@@ -167,8 +167,12 @@ export var Reader = Evented.extend({
 
     // var key = `${this.flow}/${this.metadata.layout}`;
     // var key = this.metadata.layout;
-    if ( saved_options.text_size || saved_options.scale ) {
+    if (saved_options.font || saved_options.text_size || saved_options.scale ) {
       saved_options[key] = {};
+      if ( saved_options.font ) {
+        saved_options[key].font = saved_options.font;
+        delete saved_options.font;
+      }
       if ( saved_options.text_size ) {
         saved_options[key].text_size = saved_options.text_size;
         delete saved_options.text_size;
@@ -716,6 +720,9 @@ Object.defineProperty(Reader.prototype, 'flowOptions', {
     var flow = this.flow;
     if ( ! this.options.flowOptions[flow] ) {
       this.options.flowOptions[flow] = {};
+    }
+    if ( ! this.options.flowOptions[flow].font ) {
+      this.options.flowOptions[flow].font = this.options.font;
     }
     if ( ! this.options.flowOptions[flow].text_size ) {
       this.options.flowOptions[flow].text_size = this.options.text_size;
