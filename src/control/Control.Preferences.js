@@ -68,7 +68,7 @@ export var Preferences = Control.extend({
       // different panel
       possible_fieldsets.push('Scale');
     } else {
-      possible_fieldsets.push('TextSize');
+      possible_fieldsets.push('Text');
     }
     possible_fieldsets.push('Display');
 
@@ -163,6 +163,8 @@ export var Preferences = Control.extend({
     this._modal.deactivate();
 
     setTimeout(function() {
+      // useful dev output if you're adding/changing saved preferences
+      // console.log('savable_options: ' + JSON.stringify(saveable_options, null, 4));
       this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
@@ -193,7 +195,7 @@ var Fieldset = Class.extend({
 
 });
 
-Preferences.fieldset.TextSize = Fieldset.extend({
+Preferences.fieldset.Text = Fieldset.extend({
 
   initializeForm: function(form) {
     if ( ! this._input ) {
@@ -201,9 +203,11 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       this._output = form.querySelector(`#x${this._id}-output`);
       this._preview = form.querySelector(`#x${this._id}-preview`);
       this._actionReset = form.querySelector(`#x${this._id}-reset`);
+      this._font = form.querySelector(`#x${this._id}-font`);
 
       this._input.addEventListener('input', this._updatePreview.bind(this));
       this._input.addEventListener('change', this._updatePreview.bind(this));
+      this._font.addEventListener('change', this._updatePreview.bind(this));
 
       this._actionReset.addEventListener('click', function(event) {
         event.preventDefault();
@@ -212,24 +216,44 @@ Preferences.fieldset.TextSize = Fieldset.extend({
       }.bind(this));
     }
 
+    var font_input = this._control._reader.options.font || this._control._reader.metadata.font || 'default';
+    this._current.text_size = font_input;
+    this._font.value = font_input;
+
     var text_size = this._control._reader.options.text_size || 100;
     if ( text_size == 'auto' ) { text_size = 100; }
     this._current.text_size = text_size;
     this._input.value = text_size;
+
     this._updatePreview();
   },
 
   updateForm: function(form, options, saveable) {
-    // return { text_size: this._input.value };
+    options.font = saveable.font = this._font.value;
     options.text_size = saveable.text_size = this._input.value;
-    // options.text_size = this._input.value;
-    // return ( this._input.value != this._current.text_size );
   },
 
   template: function() {
-    return `<fieldset class="cozy-fieldset-text_size">
+    return `<fieldset class="cozy-fieldset-text_options">
         <legend>Text</legend>
         <div>
+          <span id="change-font">Change Font</span>
+            <select aria-labelledby="change-font" name="font" id="x${this._id}-font">
+              <option value="default">Default</option>
+              <optgroup label="Serif Fonts">
+                <option value="Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif">Palatino</option>
+                <option value="TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif">Times New Roman</option>
+              </optgroup>
+              <optgroup label="Sans Serif Fonts">
+                <option value="Arial,Helvetica Neue,Helvetica,sans-serif">Arial</option>
+                <option value="Verdana,Geneva,sans-serif">Verdana</option>
+              </optgroup>
+              <optgroup label="Monospace Fonts">
+                <option value="Consolas,monaco,monospace">Consolas</option>
+              </optgroup>
+            </select>
+          <br/>
+          <br/>
           <span id="font-size">Adjust Font Size</span>
           <div class="preview--text_size" id="x${this._id}-preview" style="font-size: 1em;">
             ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
@@ -249,6 +273,13 @@ Preferences.fieldset.TextSize = Fieldset.extend({
   },
 
   _updatePreview: function() {
+    if (this._font.value != 'default') {
+      this._preview.style.fontFamily = this._font.value;
+    } else {
+      // When we clear the preview box's font it goes back to inheriting `@mixin open-sans-book` from `cozy-container`.
+      // This is not the same as the EPUB's <body> font, but it will represent the "default" setting, as it always has.
+      this._preview.style.fontFamily = null;
+    }
     this._preview.style.fontSize = `${( parseInt(this._input.value, 10) / 100 )}em`;
     this._output.innerHTML = `${this._input.value}%`;
     this._input.setAttribute('aria-valuenow',`${this._input.value}`);
@@ -408,7 +439,7 @@ Preferences.fieldset.Scale = Fieldset.extend({
   },
 
   template: function() {
-    return `<fieldset class="cozy-fieldset-text_size">
+    return `<fieldset class="cozy-fieldset-text_options">
         <legend>Zoom In/Out</legend>
         <div class="preview--scale" id="x${this._id}-preview" style="overflow: hidden; height: 5rem">
           <div>

@@ -18325,6 +18325,12 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
 
     // var key = `${flow}/${self.metadata.layout}`;
     if (self._cozyOptions[key]) {
+      // useful dev output if you're adding/changing saved preferences
+      // console.log('self._cozyOptions[key]: ' + JSON.stringify(self._cozyOptions[key], null, 4));
+
+      if (self._cozyOptions[key].font) {
+        self.options.font = self._cozyOptions[key].font;
+      }
       if (self._cozyOptions[key].text_size) {
         self.options.text_size = self._cozyOptions[key].text_size;
       }
@@ -18412,6 +18418,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._rendition.settings.prehooks.head = new hook(this);
     self._updateTheme();
     self._selectTheme(true);
+    self._updateFont();
     self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
     self._bindEvents();
@@ -18714,6 +18721,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
         });
       }.bind(this._rendition));
     }
+    this._updateFont();
     this._updateFontSize();
     if (custom_stylesheet_rules.length) {
       this._rendition.hooks.content.register(function (view) {
@@ -18807,6 +18815,17 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
   _selectTheme: function _selectTheme(refresh) {
     var theme = this.options.theme || 'default';
     this._rendition.themes.select(theme);
+  },
+  _updateFont: function _updateFont() {
+    if (false) {}
+    var font = this.options.font || 'default';
+    if (font == 'default') {
+      // do not add an unncessary override
+      if (!this._rendition.themes._overrides['font']) {
+        return;
+      }
+    }
+    this._rendition.themes.font("".concat(font));
   },
   _updateFontSize: function _updateFontSize() {
     if (false) {}
@@ -24389,8 +24408,12 @@ var Reader = Events/* Evented */.a.extend({
 
     // var key = `${this.flow}/${this.metadata.layout}`;
     // var key = this.metadata.layout;
-    if (saved_options.text_size || saved_options.scale) {
+    if (saved_options.font || saved_options.text_size || saved_options.scale) {
       saved_options[key] = {};
+      if (saved_options.font) {
+        saved_options[key].font = saved_options.font;
+        delete saved_options.font;
+      }
       if (saved_options.text_size) {
         saved_options[key].text_size = saved_options.text_size;
         delete saved_options.text_size;
@@ -24875,6 +24898,9 @@ Object.defineProperty(Reader.prototype, 'flowOptions', {
     var flow = this.flow;
     if (!this.options.flowOptions[flow]) {
       this.options.flowOptions[flow] = {};
+    }
+    if (!this.options.flowOptions[flow].font) {
+      this.options.flowOptions[flow].font = this.options.font;
     }
     if (!this.options.flowOptions[flow].text_size) {
       this.options.flowOptions[flow].text_size = this.options.text_size;
@@ -28322,7 +28348,7 @@ var Preferences = Control.extend({
       // different panel
       possible_fieldsets.push('Scale');
     } else {
-      possible_fieldsets.push('TextSize');
+      possible_fieldsets.push('Text');
     }
     possible_fieldsets.push('Display');
     if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
@@ -28404,6 +28430,8 @@ var Preferences = Control.extend({
     }
     this._modal.deactivate();
     setTimeout(function () {
+      // useful dev output if you're adding/changing saved preferences
+      // console.log('savable_options: ' + JSON.stringify(saveable_options, null, 4));
       this._reader.saveOptions(saveable_options);
       this._reader.reopen(new_options);
     }.bind(this), 100);
@@ -28422,21 +28450,26 @@ var Fieldset = Class/* Class */.X.extend({
   template: function template() {},
   EOT: true
 });
-Preferences.fieldset.TextSize = Fieldset.extend({
+Preferences.fieldset.Text = Fieldset.extend({
   initializeForm: function initializeForm(form) {
     if (!this._input) {
       this._input = form.querySelector("#x".concat(this._id, "-input"));
       this._output = form.querySelector("#x".concat(this._id, "-output"));
       this._preview = form.querySelector("#x".concat(this._id, "-preview"));
       this._actionReset = form.querySelector("#x".concat(this._id, "-reset"));
+      this._font = form.querySelector("#x".concat(this._id, "-font"));
       this._input.addEventListener('input', this._updatePreview.bind(this));
       this._input.addEventListener('change', this._updatePreview.bind(this));
+      this._font.addEventListener('change', this._updatePreview.bind(this));
       this._actionReset.addEventListener('click', function (event) {
         event.preventDefault();
         this._input.value = 100;
         this._updatePreview();
       }.bind(this));
     }
+    var font_input = this._control._reader.options.font || this._control._reader.metadata.font || 'default';
+    this._current.text_size = font_input;
+    this._font.value = font_input;
     var text_size = this._control._reader.options.text_size || 100;
     if (text_size == 'auto') {
       text_size = 100;
@@ -28446,15 +28479,20 @@ Preferences.fieldset.TextSize = Fieldset.extend({
     this._updatePreview();
   },
   updateForm: function updateForm(form, options, saveable) {
-    // return { text_size: this._input.value };
+    options.font = saveable.font = this._font.value;
     options.text_size = saveable.text_size = this._input.value;
-    // options.text_size = this._input.value;
-    // return ( this._input.value != this._current.text_size );
   },
   template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_size\">\n        <legend>Text</legend>\n        <div>\n          <span id=\"font-size\">Adjust Font Size</span>\n          <div class=\"preview--text_size\" id=\"x".concat(this._id, "-preview\" style=\"font-size: 1em;\">\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n          <p style=\"white-space: no-wrap\">\n            <span>-</span>\n              <input aria-labelledby=\"font-size\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" aria-valuenow=\"100\" aria-valuetext=\"100 percent\" class=\"\">\n            <span>+</span>\n          </p>\n        </div>\n        <p>\n          <span>Font Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100%</span>\n          <button id=\"x").concat(this._id, "-reset\" style=\"margin-left: 8px\" class=\"reset button--lg\">Reset to 100%</button> \n        </p>\n      </fieldset>");
+    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Text</legend>\n        <div>\n          <span id=\"change-font\">Change Font</span>\n            <select aria-labelledby=\"change-font\" name=\"font\" id=\"x".concat(this._id, "-font\">\n              <option value=\"default\">Default</option>\n              <optgroup label=\"Serif Fonts\">\n                <option value=\"Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif\">Palatino</option>\n                <option value=\"TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif\">Times New Roman</option>\n              </optgroup>\n              <optgroup label=\"Sans Serif Fonts\">\n                <option value=\"Arial,Helvetica Neue,Helvetica,sans-serif\">Arial</option>\n                <option value=\"Verdana,Geneva,sans-serif\">Verdana</option>\n              </optgroup>\n              <optgroup label=\"Monospace Fonts\">\n                <option value=\"Consolas,monaco,monospace\">Consolas</option>\n              </optgroup>\n            </select>\n          <br/>\n          <br/>\n          <span id=\"font-size\">Adjust Font Size</span>\n          <div class=\"preview--text_size\" id=\"x").concat(this._id, "-preview\" style=\"font-size: 1em;\">\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n          <p style=\"white-space: no-wrap\">\n            <span>-</span>\n              <input aria-labelledby=\"font-size\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" aria-valuenow=\"100\" aria-valuetext=\"100 percent\" class=\"\">\n            <span>+</span>\n          </p>\n        </div>\n        <p>\n          <span>Font Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100%</span>\n          <button id=\"x").concat(this._id, "-reset\" style=\"margin-left: 8px\" class=\"reset button--lg\">Reset to 100%</button> \n        </p>\n      </fieldset>");
   },
   _updatePreview: function _updatePreview() {
+    if (this._font.value != 'default') {
+      this._preview.style.fontFamily = this._font.value;
+    } else {
+      // When we clear the preview box's font it goes back to inheriting `@mixin open-sans-book` from `cozy-container`.
+      // This is not the same as the EPUB's <body> font, but it will represent the "default" setting, as it always has.
+      this._preview.style.fontFamily = null;
+    }
     this._preview.style.fontSize = "".concat(parseInt(this._input.value, 10) / 100, "em");
     this._output.innerHTML = "".concat(this._input.value, "%");
     this._input.setAttribute('aria-valuenow', "".concat(this._input.value));
@@ -28570,7 +28608,7 @@ Preferences.fieldset.Scale = Fieldset.extend({
     // return ( this._input.value != this._current.text_size );
   },
   template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_size\">\n        <legend>Zoom In/Out</legend>\n        <div class=\"preview--scale\" id=\"x".concat(this._id, "-preview\" style=\"overflow: hidden; height: 5rem\">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style=\"white-space: no-wrap\">\n          <span style=\"font-size: 150%\">\u2296<span class=\"u-screenreader\"> Zoom Out</span></span>\n          <input name=\"scale\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" style=\"width: 75%; display: inline-block\" />\n          <span style=\"font-size: 150%\">\u2295<span class=\"u-screenreader\">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-reset\" class=\"reset button--inline\" style=\"margin-left: 8px\">Reset</button> \n        </p>\n      </fieldset>");
+    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Zoom In/Out</legend>\n        <div class=\"preview--scale\" id=\"x".concat(this._id, "-preview\" style=\"overflow: hidden; height: 5rem\">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style=\"white-space: no-wrap\">\n          <span style=\"font-size: 150%\">\u2296<span class=\"u-screenreader\"> Zoom Out</span></span>\n          <input name=\"scale\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" style=\"width: 75%; display: inline-block\" />\n          <span style=\"font-size: 150%\">\u2295<span class=\"u-screenreader\">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-reset\" class=\"reset button--inline\" style=\"margin-left: 8px\">Reset</button> \n        </p>\n      </fieldset>");
   },
   _updatePreview: function _updatePreview() {
     this._preview.style.transform = "scale(".concat(parseInt(this._input.value, 10) / 100, ") translate(0,0)");
