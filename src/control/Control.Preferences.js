@@ -248,6 +248,9 @@ Preferences.fieldset.Text = Fieldset.extend({
                 <option value="Arial,Helvetica Neue,Helvetica,sans-serif">Arial</option>
                 <option value="Verdana,Geneva,sans-serif">Verdana</option>
               </optgroup>
+              <optgroup label="Dyslexic Fonts">
+                <option value="OpenDyslexic">Open Dyslexic</option>
+              </optgroup>
               <optgroup label="Monospace Fonts">
                 <option value="Consolas,monaco,monospace">Consolas</option>
               </optgroup>
