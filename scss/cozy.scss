@@ -1,6 +1,11 @@
 ///////////////////////////////////
 // imports
 ///////////////////////////////////
+//
+// This include of OpenDyslexic is for the preferences dialog *only*. For the EPUB iframe itself it needs to be...
+// injected, which right now is done from heliotrope via `injectStylesheet: '/assets/css/fulcrum_enhanced_display.css'`
+// Note that using a CDN seems to work better with browsers' font-fingerprinting blocking than serving from the app.
+@import url('https://fonts.cdnfonts.com/css/opendyslexic');
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600|Scope+One');
 @import 'open-iconic';
 @import 'modals';

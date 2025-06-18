@@ -1,3 +1,8 @@
+// The local open-iconic files specified here do get fingerprinted by Webpacker's media bundling and end up in...
+// heliotrope's public/packs/media/fonts/ directory. It seems like they should only be used from there.
+// However CSB does not load in heliotrope at all without the open-iconic files that are commited in its repo here:
+// https://github.com/mlibrary/heliotrope/tree/master/app/javascript/packs/cozy-sun-bear/fonts
+// At some point we might want to look into why that is, or clean this all up when it goes on to use The Next ThingTM
 @font-face {
   font-family: 'Icons';
   src: font-url('fonts/open-iconic.eot');
