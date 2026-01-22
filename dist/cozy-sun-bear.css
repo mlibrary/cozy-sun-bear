@@ -1646,6 +1646,15 @@ div.cozy-panel-footer {
 #change-font {
   margin-right: 10px; }
 
+#text-preview {
+  position: sticky;
+  border: none;
+  padding: 0;
+  margin: 0;
+  top: 0px;
+  z-index: 1000;
+  background: #e0e0e0; }
+
 .cozy-modal fieldset.cozy-fieldset-text_options p {
   width: 90%;
   margin: 0 auto;
@@ -1653,9 +1662,7 @@ div.cozy-panel-footer {
 
 .preview--text_size {
   width: 90%;
-  height: 8rem;
-  margin: 1rem auto;
-  border: 1px dotted #666;
+  height: 12rem;
   padding: 1rem;
   overflow: hidden; }
 

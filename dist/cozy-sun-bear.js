@@ -28327,6 +28327,11 @@ var Preferences = Control.extend({
         callback: function callback(event) {
           self.updatePreferences(event);
         }
+      }, {
+        label: 'Set Defaults',
+        callback: function callback(event) {
+          self.resetPreferencesToDefault(event);
+        }
       }],
       region: 'right'
     });
@@ -28407,6 +28412,31 @@ var Preferences = Control.extend({
       fieldset.initializeForm(this._form);
     }.bind(this));
   },
+  resetPreferencesToDefault: function resetPreferencesToDefault() {
+    var fontDropdown = document.querySelector('[name="font"]');
+    if (fontDropdown) fontDropdown.value = "default";
+    var fontSizeSlider = document.querySelector('[name="text_size"]');
+    if (fontSizeSlider) fontSizeSlider.value = 100;
+
+    // This is the span that displays the current font size percentage. Awkward object-ID-substring lookup, but it works.
+    var textOptionsFieldset = document.querySelector('fieldset.cozy-fieldset-text_options');
+    var outputSpan = textOptionsFieldset.querySelector('span[id$="-output"]');
+    if (outputSpan) outputSpan.innerHTML = "100%";
+
+    // set Display mode radio buttons to "Auto"
+    var textDisplayModePanel = document.querySelector('#text-display-mode');
+    if (textDisplayModePanel) {
+      var autoRadio = textDisplayModePanel.querySelector('input[type="radio"][value="auto"]');
+      if (autoRadio) autoRadio.checked = true;
+    }
+    if (Array.isArray(this._fieldsets)) {
+      this._fieldsets.forEach(function (fieldset) {
+        if (typeof fieldset._updatePreview === "function") {
+          fieldset._updatePreview();
+        }
+      });
+    }
+  },
   updatePreferences: function updatePreferences(event) {
     event.preventDefault();
     var doUpdate = false;
@@ -28483,7 +28513,8 @@ Preferences.fieldset.Text = Fieldset.extend({
     options.text_size = saveable.text_size = this._input.value;
   },
   template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Text</legend>\n        <div>\n          <span id=\"change-font\">Change Font</span>\n            <select aria-labelledby=\"change-font\" name=\"font\" id=\"x".concat(this._id, "-font\">\n              <option value=\"default\">Default</option>\n              <optgroup label=\"Serif Fonts\">\n                <option value=\"Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif\">Palatino</option>\n                <option value=\"TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif\">Times New Roman</option>\n              </optgroup>\n              <optgroup label=\"Sans Serif Fonts\">\n                <option value=\"Arial,Helvetica Neue,Helvetica,sans-serif\">Arial</option>\n                <option value=\"Verdana,Geneva,sans-serif\">Verdana</option>\n              </optgroup>\n              <optgroup label=\"Dyslexic Fonts\">\n                <option value=\"OpenDyslexic\">Open Dyslexic</option>\n              </optgroup>\n              <optgroup label=\"Monospace Fonts\">\n                <option value=\"Consolas,monaco,monospace\">Consolas</option>\n              </optgroup>\n            </select>\n          <br/>\n          <br/>\n          <span id=\"font-size\">Adjust Font Size</span>\n          <div class=\"preview--text_size\" id=\"x").concat(this._id, "-preview\" style=\"font-size: 1em;\">\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n          <p style=\"white-space: no-wrap\">\n            <span>-</span>\n              <input aria-labelledby=\"font-size\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" aria-valuenow=\"100\" aria-valuetext=\"100 percent\" class=\"\">\n            <span>+</span>\n          </p>\n        </div>\n        <p>\n          <span>Font Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100%</span>\n          <button id=\"x").concat(this._id, "-reset\" style=\"margin-left: 8px\" class=\"reset button--lg\">Reset to 100%</button> \n        </p>\n      </fieldset>");
+    // adding some paragraphs in here so that paragraph spacing can be observed.
+    return "\n<fieldset id=\"text-preview\">\n        <legend>Preview</legend>\n          <div class=\"preview--text_size\" id=\"x".concat(this._id, "-preview\" style=\"font-size: 1em;\">\n            <p>\u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019</p>\n            <p>\u2018Then you keep moving round, I suppose?\u2019 said Alice.</p>\n            <p>\u2018Exactly so,\u2019 said the Hatter: \u2018as the things get used up.\u2019</p>\n          </div>\n          </fieldset>\n<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Text</legend>\n        <div>\n          <span id=\"change-font\">Change Font</span>\n            <select aria-labelledby=\"change-font\" name=\"font\" id=\"x").concat(this._id, "-font\">\n              <option value=\"default\">Default</option>\n              <optgroup label=\"Serif Fonts\">\n                <option value=\"Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif\">Palatino</option>\n                <option value=\"TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif\">Times New Roman</option>\n              </optgroup>\n              <optgroup label=\"Sans Serif Fonts\">\n                <option value=\"Arial,Helvetica Neue,Helvetica,sans-serif\">Arial</option>\n                <option value=\"Verdana,Geneva,sans-serif\">Verdana</option>\n              </optgroup>\n              <optgroup label=\"Dyslexic Fonts\">\n                <option value=\"OpenDyslexic\">Open Dyslexic</option>\n              </optgroup>\n              <optgroup label=\"Monospace Fonts\">\n                <option value=\"Consolas,monaco,monospace\">Consolas</option>\n              </optgroup>\n            </select>\n          <br/>\n          <br/>\n          <span id=\"font-size\">Adjust Font Size</span>\n          <p style=\"white-space: no-wrap\">\n            <span>-</span>\n              <input aria-labelledby=\"font-size\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" aria-valuenow=\"100\" aria-valuetext=\"100 percent\" class=\"\">\n            <span>+</span>\n          </p>\n        </div>\n        <p>\n          <span>Font Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100%</span>\n          <button aria-label=\"Reset text size to 100%\" id=\"x").concat(this._id, "-reset\" style=\"margin-left: 8px\" class=\"reset button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button> \n        </p>\n      </fieldset>");
   },
   _updatePreview: function _updatePreview() {
     if (this._font.value != 'default') {
@@ -28526,7 +28557,7 @@ Preferences.fieldset.Display = Fieldset.extend({
     if (this._control._reader.metadata.layout != 'pre-paginated') {
       scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
     }
-    return "<fieldset>\n            <legend>Display</legend>\n            <label><input name=\"x".concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-auto\" value=\"auto\" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-paginated\" value=\"paginated\" /> Page-by-Page</label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-scrolled-doc\" value=\"scrolled-doc\" /> Scroll").concat(scrolled_help, "</label>\n          </fieldset>");
+    return "<fieldset id=\"text-display-mode\">\n            <legend>Display</legend>\n            <label><input name=\"x".concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-auto\" value=\"auto\" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-paginated\" value=\"paginated\" /> Page-by-Page</label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-scrolled-doc\" value=\"scrolled-doc\" /> Scroll").concat(scrolled_help, "</label>\n          </fieldset>");
   },
   EOT: true
 });
