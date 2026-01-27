@@ -43,6 +43,12 @@ export var Preferences = Control.extend({
           callback: function(event) {
             self.updatePreferences(event);
           }
+        },
+        {
+          label: 'Set Defaults',
+          callback: function(event) {
+            self.resetPreferencesToDefault(event);
+          }
         }
       ],
       region: 'right'
@@ -134,6 +140,34 @@ export var Preferences = Control.extend({
     this._fieldsets.forEach(function(fieldset) {
       fieldset.initializeForm(this._form);
     }.bind(this));
+  },
+
+  resetPreferencesToDefault: function() {
+    var fontDropdown = document.querySelector('[name="font"]');
+    if (fontDropdown) fontDropdown.value = "default";
+
+    var fontSizeSlider = document.querySelector('[name="text_size"]');
+    if (fontSizeSlider) fontSizeSlider.value = 100;
+
+    // This is the span that displays the current font size percentage. Awkward object-ID-substring lookup, but it works.
+    var textOptionsFieldset = document.querySelector('fieldset.cozy-fieldset-text_options');
+    var outputSpan = textOptionsFieldset.querySelector('span[id$="-output"]');
+    if (outputSpan) outputSpan.innerHTML = "100%";
+
+    // set Display mode radio buttons to "Auto"
+    var textDisplayModePanel = document.querySelector('#text-display-mode');
+    if (textDisplayModePanel) {
+      var autoRadio = textDisplayModePanel.querySelector('input[type="radio"][value="auto"]');
+      if (autoRadio) autoRadio.checked = true;
+    }
+
+    if (Array.isArray(this._fieldsets)) {
+      this._fieldsets.forEach(function(fieldset) {
+        if (typeof fieldset._updatePreview === "function") {
+          fieldset._updatePreview();
+        }
+      });
+    }
   },
 
   updatePreferences: function(event) {
@@ -234,7 +268,17 @@ Preferences.fieldset.Text = Fieldset.extend({
   },
 
   template: function() {
-    return `<fieldset class="cozy-fieldset-text_options">
+    // adding some paragraphs in here so that paragraph spacing can be observed.
+    return `
+<fieldset id="text-preview">
+        <legend>Preview</legend>
+          <div class="preview--text_size" id="x${this._id}-preview" style="font-size: 1em;">
+            <p>‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’</p>
+            <p>‘Then you keep moving round, I suppose?’ said Alice.</p>
+            <p>‘Exactly so,’ said the Hatter: ‘as the things get used up.’</p>
+          </div>
+          </fieldset>
+<fieldset class="cozy-fieldset-text_options">
         <legend>Text</legend>
         <div>
           <span id="change-font">Change Font</span>
@@ -258,9 +302,6 @@ Preferences.fieldset.Text = Fieldset.extend({
           <br/>
           <br/>
           <span id="font-size">Adjust Font Size</span>
-          <div class="preview--text_size" id="x${this._id}-preview" style="font-size: 1em;">
-            ‘Yes, that’s it,’ said the Hatter with a sigh: ‘it’s always tea-time, and we’ve no time to wash the things between whiles.’
-          </div>
           <p style="white-space: no-wrap">
             <span>-</span>
               <input aria-labelledby="font-size" name="text_size" type="range" id="x${this._id}-input" value="100" min="50" max="400" step="10" aria-valuemin="50" aria-valuemax="400" style="width: 75%; display: inline-block" aria-valuenow="100" aria-valuetext="100 percent" class="">
@@ -270,7 +311,7 @@ Preferences.fieldset.Text = Fieldset.extend({
         <p>
           <span>Font Size: </span>
           <span id="x${this._id}-output">100%</span>
-          <button id="x${this._id}-reset" style="margin-left: 8px" class="reset button--lg">Reset to 100%</button> 
+          <button aria-label="Reset text size to 100%" id="x${this._id}-reset" style="margin-left: 8px" class="reset button--sm"><i class="icon-action-undo oi" data-glyph="action-undo" aria-hidden="true"></i></button> 
         </p>
       </fieldset>`;
   },
@@ -323,7 +364,7 @@ Preferences.fieldset.Display = Fieldset.extend({
     if ( this._control._reader.metadata.layout != 'pre-paginated' ) {
       scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
     }
-    return `<fieldset>
+    return `<fieldset id="text-display-mode">
             <legend>Display</legend>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-auto" value="auto" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>
             <label><input name="x${this._id}-flow" type="radio" id="x${this._id}-input-paginated" value="paginated" /> Page-by-Page</label>
