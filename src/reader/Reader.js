@@ -163,12 +163,13 @@ export var Reader = Evented.extend({
       delete saved_options.flow;
       flow = this.metadata.flow || 'paginated';
     }
-    // key += '/' + flow;
 
-    // var key = `${this.flow}/${this.metadata.layout}`;
-    // var key = this.metadata.layout;
-    if (saved_options.font || saved_options.text_size || saved_options.scale ) {
+    // Create layout-specific settings object if any saveable options exist
+    if (saved_options.font || saved_options.text_size || saved_options.scale ||
+      saved_options.word_spacing || saved_options.letter_spacing ||
+      saved_options.line_height || saved_options.margins || saved_options.paragraph_spacing) {
       saved_options[key] = {};
+
       if ( saved_options.font ) {
         saved_options[key].font = saved_options.font;
         delete saved_options.font;
@@ -185,11 +186,30 @@ export var Reader = Evented.extend({
         saved_options[key].flow = saved_options.flow;
         delete saved_options.flow;
       }
+
+      // Save the 5 new text options
+      if ( saved_options.word_spacing ) {
+        saved_options[key].word_spacing = saved_options.word_spacing;
+        delete saved_options.word_spacing;
+      }
+      if ( saved_options.letter_spacing ) {
+        saved_options[key].letter_spacing = saved_options.letter_spacing;
+        delete saved_options.letter_spacing;
+      }
+      if ( saved_options.line_height ) {
+        saved_options[key].line_height = saved_options.line_height;
+        delete saved_options.line_height;
+      }
+      if ( saved_options.margins ) {
+        saved_options[key].margins = saved_options.margins;
+        delete saved_options.margins;
+      }
+      if ( saved_options.paragraph_spacing ) {
+        saved_options[key].paragraph_spacing = saved_options.paragraph_spacing;
+        delete saved_options.paragraph_spacing;
+      }
     }
 
-    // saved_options[this.flow] = {}
-    // if ( saved_options.text_size ) {
-    // }
     localStorage.setItem('cozy.options', JSON.stringify(saved_options));
     this._cozyOptions = saved_options;
   },
@@ -729,6 +749,22 @@ Object.defineProperty(Reader.prototype, 'flowOptions', {
     }
     if ( ! this.options.flowOptions[flow].scale ) {
       this.options.flowOptions[flow].scale = this.options.scale;
+    }
+    // Add the 5 new text options
+    if ( ! this.options.flowOptions[flow].word_spacing ) {
+      this.options.flowOptions[flow].word_spacing = this.options.word_spacing || 'auto';
+    }
+    if ( ! this.options.flowOptions[flow].letter_spacing ) {
+      this.options.flowOptions[flow].letter_spacing = this.options.letter_spacing || 'auto';
+    }
+    if ( ! this.options.flowOptions[flow].line_height ) {
+      this.options.flowOptions[flow].line_height = this.options.line_height || 'auto';
+    }
+    if ( ! this.options.flowOptions[flow].margins ) {
+      this.options.flowOptions[flow].margins = this.options.margins || 'auto';
+    }
+    if ( ! this.options.flowOptions[flow].paragraph_spacing ) {
+      this.options.flowOptions[flow].paragraph_spacing = this.options.paragraph_spacing || 'auto';
     }
 
     return this.options.flowOptions[flow]
