@@ -45,7 +45,7 @@
     "node-sass": "^7.0.3",
     "portfinder": "^1.0.32",
     "serve-static": "^1.16.2",
-    "webpack": "^5.94.0",
+    "webpack": "^5.104.1",
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
