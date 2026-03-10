@@ -49,7 +49,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "ajv": "^6.12.6",
+    "ajv": "^8.18.0",
     "core-js": "^3.6.5",
     "epubjs": "git+https://github.com/mlibrary/epub.js.git#patched",
     "event-emitter": "^0.3.5",
