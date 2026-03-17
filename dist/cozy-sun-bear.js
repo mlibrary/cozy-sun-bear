@@ -18433,8 +18433,6 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._rendition.settings.prehooks.head = new hook(this);
     self._updateTheme();
     self._selectTheme(true);
-    self._updateFont();
-    self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
     self._bindEvents();
     self._drawn = true;
@@ -18691,24 +18689,40 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       this._rendition.settings.prehooks.head.register(function (buffer) {
         var layout = this.layout;
 
-        // Build text spacing styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
-        var textSpacingCSS = '';
+        // Build text spacing and font styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
+        var fontAndSpacingCSS = '';
         var word_spacing = self.options.word_spacing || 'auto';
         var letter_spacing = self.options.letter_spacing || 'auto';
         var line_height = self.options.line_height || 'auto';
-        if (word_spacing !== 'auto' || letter_spacing !== 'auto' || line_height !== 'auto') {
-          var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
-          var textRules = [];
-          if (word_spacing !== 'auto') {
-            textRules.push("word-spacing: ".concat(word_spacing, " !important"));
-          }
-          if (letter_spacing !== 'auto') {
-            textRules.push("letter-spacing: ".concat(letter_spacing, " !important"));
-          }
-          if (line_height !== 'auto') {
-            textRules.push("line-height: ".concat(line_height, " !important"));
-          }
-          textSpacingCSS = "".concat(textElements, " { ").concat(textRules.join('; '), "; }");
+        var text_size = self.options.text_size || 100;
+        var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
+        var textRules = [];
+        var font = self.options.font || 'default';
+        // Add font family if not default
+        if (font !== 'default') {
+          textRules.push("font-family: ".concat(font, " !important"));
+        }
+
+        // Add spacing rules
+        if (word_spacing !== 'auto') {
+          textRules.push("word-spacing: ".concat(word_spacing, " !important"));
+        }
+        if (letter_spacing !== 'auto') {
+          textRules.push("letter-spacing: ".concat(letter_spacing, " !important"));
+        }
+        if (line_height !== 'auto') {
+          textRules.push("line-height: ".concat(line_height, " !important"));
+        }
+
+        // Build CSS for text elements (font-family and spacing)
+        if (textRules.length > 0) {
+          fontAndSpacingCSS = "".concat(textElements, " { ").concat(textRules.join('; '), "; }");
+        }
+
+        // Font size should only be applied to html element to avoid compounding on nested elements
+        var fontSizeCSS = '';
+        if (text_size != 100) {
+          fontSizeCSS = "html { font-size: ".concat(text_size, "% !important; }");
         }
 
         // Build paragraph styles
@@ -18731,7 +18745,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
         if (self.options.flow == 'scrolled-doc') {
           scrollModeStyles = "\nimg {\n  max-width: ".concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  object-fit: contain;\n  page-break-inside: avoid;\n}\nsvg {\n  max-width: ").concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  page-break-inside: avoid;\n}\nbody {\n  overflow: hidden;\n  column-rule: 1px solid #ddd;\n}");
         }
-        var retval = "\n<style>\n".concat(scrollModeStyles, "\n").concat(textSpacingCSS, "\n").concat(paragraphStylesCSS, "\n</style>\n        ");
+        var retval = "\n<style>\n".concat(scrollModeStyles, "\n").concat(fontSizeCSS, "\n").concat(fontAndSpacingCSS, "\n").concat(paragraphStylesCSS, "\n</style>\n        ");
         buffer.push(retval);
       }.bind(this._rendition));
     } else {
@@ -18811,12 +18825,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     });
     this._rendition.on("rendered", function (section, view) {
       self._updateFrameTitle(section, view);
-      // Apply styles after the content is rendered to ensure we override EPUB styles
-      self._updateFont();
-      self._updateFontSize();
-      self._updateFont();
-      self._updateFontSize();
-      // Text spacing (word, letter, line height) and paragraph styles are handled via prehook
+      // Font, font size, text spacing, and paragraph styles are all handled via prehook
     });
     this._rendition.on("rendered", function (section, view) {
       if (self.settings.flow == 'scrolled-doc') {
