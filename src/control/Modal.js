@@ -69,9 +69,9 @@ export var Modal = Class.extend({
               <h3 class="modal__title" id="modal-${this._id}-title">${this.options.title}</h3>
               <button class="modal__close" aria-label="Close modal" aria-controls="modal-${this._id}-container" data-modal-close></button>
             </header>
-            <main class="modal__content ${this.options.className.main ? this.options.className.main : ''}" id="modal-${this._id}-content">
-              ${template}
-            </main>`;
+          <main class="modal__content ${this.options.className.main ? this.options.className.main : ''}" id="modal-${this._id}-content">
+            ${template}
+          </main>`;
 
     if ( this.options.actions ) {
       panelHTML += '<footer class="modal__footer">'
@@ -200,16 +200,41 @@ export var Modal = Class.extend({
   },
 
   getFocusableNodes: function() {
-    const nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
-    return Object.keys(nodes).map((key) => nodes[key]);
+    // Query only within the modal container, not the entire modal (which includes the overlay)
+    const nodes = this.container.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+    // Filter to only include elements that are actually tabbable (visible and not tabindex="-1")
+    const tabbableNodes = Array.from(nodes).filter(function(node) {
+      // Check if element is visible
+      if (node.offsetParent === null && node.tagName !== 'AREA') {
+        return false;
+      }
+
+      // Check if element has tabindex="-1"
+      if (node.getAttribute('tabindex') === '-1') {
+        return false;
+      }
+
+      return true;
+    });
+
+    return tabbableNodes;
   },
 
   setFocusToFirstNode: function() {
     var focusableNodes = this.getFocusableNodes();
     if ( focusableNodes.length ) {
       focusableNodes[0].focus();
+      this._lastFocusedIndex = 0;
     } else {
-      activeModal._container.focus();
+      var fallbackContainer = this._container;
+      if (fallbackContainer) {
+        if (!fallbackContainer.hasAttribute('tabindex')) {
+          fallbackContainer.setAttribute('tabindex', '-1');
+        }
+        fallbackContainer.focus();
+      }
+      this._lastFocusedIndex = -1;
     }
   },
 
@@ -298,13 +323,68 @@ export var Modal = Class.extend({
   maintainFocus: function(event) {
     var focusableNodes = this.getFocusableNodes();
     var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
+
+    // Handle the case where focus has escaped or is on a non-focusable element
+    // This happens in Firefox when the <main> element itself gets focused
+    if (focusedItemIndex === -1) {
+      if (focusableNodes.length === 0) {
+        // No focusable nodes available; fall back to the modal container
+        var fallbackContainer = this._container;
+        if (fallbackContainer) {
+          if (!fallbackContainer.hasAttribute('tabindex')) {
+            fallbackContainer.setAttribute('tabindex', '-1');
+          }
+          fallbackContainer.focus();
+        }
+        event.preventDefault();
+        return;
+      }
+
+      // Check if we have a previous focus index stored
+      var targetIndex = 0; // default to first element
+
+      if (this._lastFocusedIndex !== undefined && this._lastFocusedIndex >= 0) {
+        // Use tab direction to determine next element
+        if (event.shiftKey) {
+          // Shift+Tab - go to previous element
+          targetIndex = this._lastFocusedIndex - 1;
+          if (targetIndex < 0) {
+            targetIndex = focusableNodes.length - 1; // wrap to last
+          }
+        } else {
+          // Tab - go to next element
+          targetIndex = this._lastFocusedIndex + 1;
+          if (targetIndex >= focusableNodes.length) {
+            targetIndex = 0; // wrap to first
+          }
+        }
+      } else {
+        // No previous index, use direction to decide
+        if (event.shiftKey) {
+          targetIndex = focusableNodes.length - 1; // Shift+Tab goes to last
+        } else {
+          targetIndex = 0; // Tab goes to first
+        }
+      }
+
+      focusableNodes[targetIndex].focus();
+      this._lastFocusedIndex = targetIndex;
+      event.preventDefault();
+      return;
+    }
+
+    // Store the current valid focus index for next time
+    this._lastFocusedIndex = focusedItemIndex;
+
     if (event.shiftKey && focusedItemIndex === 0) {
       focusableNodes[focusableNodes.length - 1].focus()
+      this._lastFocusedIndex = focusableNodes.length - 1;
       event.preventDefault()
     }
 
     if (!event.shiftKey && focusedItemIndex === focusableNodes.length - 1) {
       focusableNodes[0].focus()
+      this._lastFocusedIndex = 0;
       event.preventDefault()
     }
   },

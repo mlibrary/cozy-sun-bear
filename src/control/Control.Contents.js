@@ -16,7 +16,7 @@ export var Contents = Control.extend({
     } else {
 
       var className = this._className(),
-          options = this.options;
+        options = this.options;
 
       container = DomUtil.create('div', className);
 
@@ -39,7 +39,7 @@ export var Contents = Control.extend({
 
   _bindEvents() {
     var self = this;
-    
+
     this._reader.on('updateContents', function(data) {
 
       DomEvent.on(this._control, 'click', function(event) {
@@ -75,12 +75,12 @@ export var Contents = Control.extend({
         callbacks: {
           onShow: function() {},
           onClose: function (modal) {
-          if (self._goto_interval) {
-            self._reader.rendition.manager.container.setAttribute("tabindex", 0);
-            self._reader.rendition.manager.container.focus();
+            if (self._goto_interval) {
+              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+              self._reader.rendition.manager.container.focus();
+            }
           }
-        }
-      }});
+        }});
 
       this._display = {};
       this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
@@ -121,7 +121,7 @@ export var Contents = Control.extend({
             var p2 = pageList.lastPageLabel;
             p.innerHTML = `Please enter a page number between <strong>${p1}-${p2}</strong>.`;
           }
-        }        
+        }
       }.bind(this));
 
       this._modal.on('click', 'a[href]', function(modal, target) {
@@ -165,7 +165,7 @@ export var Contents = Control.extend({
           var pg = self._reader.pageList.pages[i];
           var info = self._reader.pageList.pageList[i];
           var cfi = self._reader.pageList.locations[i];
-          var item = { 
+          var item = {
             label: ( info.pageLabel || info.page ),
             href: cfi
           };
@@ -178,7 +178,7 @@ export var Contents = Control.extend({
   _createOption(chapter, tabindex, parent) {
 
     function pad(value, length) {
-        return (value.toString().length < length) ? pad("-"+value, length):value;
+      return (value.toString().length < length) ? pad("-"+value, length):value;
     }
     var option = DomUtil.create('li');
     if ( chapter.href ) {
@@ -212,7 +212,7 @@ export var Contents = Control.extend({
 
   _setupSkipLink: function() {
     if ( ! this.options.skipLink ) { return; }
-      
+
     var target = document.querySelector(this.options.skipLink);
     if ( ! target ) { return; }
 
