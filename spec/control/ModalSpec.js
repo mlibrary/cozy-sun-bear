@@ -123,6 +123,118 @@ describe("Modal", function () {
       modal.showModal();
   	})
 
+    describe("maintainFocus with escaped focus", function() {
+      function makeTabEvent(shiftKey) {
+        var prevented = false;
+        return {
+          keyCode: 9,
+          shiftKey: !!shiftKey,
+          preventDefault: function() { prevented = true; },
+          wasPrevented: function() { return prevented; }
+        };
+      }
+
+      function makeFakeNodes(count) {
+        var focused = null;
+        var nodes = [];
+        for (var i = 0; i < count; i++) {
+          (function(index) {
+            nodes.push({ focus: function() { focused = nodes[index]; } });
+          })(i);
+        }
+        return { nodes: nodes, getFocused: function() { return focused; } };
+      }
+
+      beforeEach(function() {
+        document.body.appendChild(reader._container);
+      });
+
+      afterEach(function() {
+        if (reader._container && reader._container.parentNode) {
+          reader._container.parentNode.removeChild(reader._container);
+        }
+      });
+
+      it("Tab redirects to first focusable node when focus has escaped the modal", function() {
+        modal.callbacks.onShow = function() {
+          var fake = makeFakeNodes(3);
+          modal.getFocusableNodes = function() { return fake.nodes; };
+          modal._lastFocusedIndex = undefined; // Ensure deterministic: no previous focus position
+
+          var event = makeTabEvent(false);
+          modal.maintainFocus(event);
+
+          expect(fake.getFocused()).to.be(fake.nodes[0]);
+          expect(event.wasPrevented()).to.be(true);
+        };
+        modal.showModal();
+      });
+
+      it("Shift+Tab redirects to last focusable node when focus has escaped the modal", function() {
+        modal.callbacks.onShow = function() {
+          var fake = makeFakeNodes(3);
+          modal.getFocusableNodes = function() { return fake.nodes; };
+          modal._lastFocusedIndex = undefined; // Ensure deterministic: no previous focus position
+
+          var event = makeTabEvent(true);
+          modal.maintainFocus(event);
+
+          expect(fake.getFocused()).to.be(fake.nodes[2]);
+          expect(event.wasPrevented()).to.be(true);
+        };
+        modal.showModal();
+      });
+
+      it("Tab uses _lastFocusedIndex to advance focus when focus has escaped", function() {
+        modal.callbacks.onShow = function() {
+          var fake = makeFakeNodes(3);
+          modal.getFocusableNodes = function() { return fake.nodes; };
+          modal._lastFocusedIndex = 0;
+
+          var event = makeTabEvent(false);
+          modal.maintainFocus(event);
+
+          expect(fake.getFocused()).to.be(fake.nodes[1]);
+          expect(event.wasPrevented()).to.be(true);
+        };
+        modal.showModal();
+      });
+
+      it("Shift+Tab uses _lastFocusedIndex to go back when focus has escaped", function() {
+        modal.callbacks.onShow = function() {
+          var fake = makeFakeNodes(3);
+          modal.getFocusableNodes = function() { return fake.nodes; };
+          modal._lastFocusedIndex = 2;
+
+          var event = makeTabEvent(true);
+          modal.maintainFocus(event);
+
+          expect(fake.getFocused()).to.be(fake.nodes[1]);
+          expect(event.wasPrevented()).to.be(true);
+        };
+        modal.showModal();
+      });
+
+      it("focuses modal container when there are no focusable nodes", function() {
+        modal.callbacks.onShow = function() {
+          modal.getFocusableNodes = function() { return []; };
+
+          var containerFocused = false;
+          var origFocus = modal._container.focus ? modal._container.focus.bind(modal._container) : function() {};
+          modal._container.focus = function() { containerFocused = true; origFocus(); };
+
+          var event = makeTabEvent(false);
+          modal.maintainFocus(event);
+
+          expect(containerFocused).to.be(true);
+          expect(event.wasPrevented()).to.be(true);
+
+          modal._container.focus = origFocus;
+        };
+        modal.showModal();
+      });
+    });
+
   })
 
   describe("event behaviors", function() {
