@@ -170,6 +170,21 @@ Reader.EpubJS = Reader.extend({
       if ( self._cozyOptions[key].scale ) {
         self.options.scale = self._cozyOptions[key].scale;
       }
+      if ( self._cozyOptions[key].word_spacing ) {
+        self.options.word_spacing = self._cozyOptions[key].word_spacing;
+      }
+      if ( self._cozyOptions[key].letter_spacing ) {
+        self.options.letter_spacing = self._cozyOptions[key].letter_spacing;
+      }
+      if ( self._cozyOptions[key].line_height ) {
+        self.options.line_height = self._cozyOptions[key].line_height;
+      }
+      if ( self._cozyOptions[key].margins ) {
+        self.options.margins = self._cozyOptions[key].margins;
+      }
+      if ( self._cozyOptions[key].paragraph_spacing ) {
+        self.options.paragraph_spacing = self._cozyOptions[key].paragraph_spacing;
+      }
     }
 
     this.settings = { flow: flow, stylesheet: this.options.injectStylesheet };
@@ -260,8 +275,6 @@ Reader.EpubJS = Reader.extend({
 
     self._updateTheme();
     self._selectTheme(true);
-    self._updateFont();
-    self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
 
     self._bindEvents();
@@ -533,17 +546,71 @@ Reader.EpubJS = Reader.extend({
       add_max_img_styles = true;
     }
 
-    var custom_stylesheet_rules = [];
-
-    // force 90% height instead of default 60%
     if ( this.metadata.layout != 'pre-paginated' ) {
-      if ( this.options.flow == 'scrolled-doc' ) {
-        // these prehooks are a hack to avoid the contents hooks applying _after_
-        // the view has been displayed
-        this._rendition.settings.prehooks.head.register(function(buffer) {
-          var layout = this.layout;
-          var retval = `
-<style>
+      // these prehooks are a hack to avoid the contents hooks applying _after_
+      // the view has been displayed
+      this._rendition.settings.prehooks.head.register(function(buffer) {
+        var layout = this.layout;
+
+        // Build text spacing and font styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
+        var fontAndSpacingCSS = '';
+        var word_spacing = self.options.word_spacing || 'auto';
+        var letter_spacing = self.options.letter_spacing || 'auto';
+        var line_height = self.options.line_height || 'auto';
+        var text_size = self.options.text_size || 100;
+
+        var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
+        var textRules = [];
+
+        var font = self.options.font || 'default';
+        // Add font family if not default
+        if ( font !== 'default' ) {
+          textRules.push(`font-family: ${font} !important`);
+        }
+        
+        // Add spacing rules
+        if ( word_spacing !== 'auto' ) {
+          textRules.push(`word-spacing: ${word_spacing} !important`);
+        }
+        if ( letter_spacing !== 'auto' ) {
+          textRules.push(`letter-spacing: ${letter_spacing} !important`);
+        }
+        if ( line_height !== 'auto' ) {
+          textRules.push(`line-height: ${line_height} !important`);
+        }
+        
+        // Build CSS for text elements (font-family and spacing)
+        if ( textRules.length > 0 ) {
+          fontAndSpacingCSS = `${textElements} { ${textRules.join('; ')}; }`;
+        }
+        
+        // Font size should only be applied to html element to avoid compounding on nested elements
+        var fontSizeCSS = '';
+        if ( text_size != 100 ) {
+          fontSizeCSS = `html { font-size: ${text_size}% !important; }`;
+        }
+
+        // Build paragraph styles
+        var paragraphStylesCSS = '';
+        var margins = self.options.margins || 'auto';
+        var paragraph_spacing = self.options.paragraph_spacing || 'auto';
+
+        if ( margins !== 'auto' || paragraph_spacing !== 'auto' ) {
+          var paragraphRules = [];
+          if ( margins !== 'auto' ) {
+            paragraphRules.push(`margin-left: ${margins} !important`);
+            paragraphRules.push(`margin-right: ${margins} !important`);
+          }
+          if ( paragraph_spacing !== 'auto' ) {
+            paragraphRules.push(`margin-bottom: ${paragraph_spacing} !important`);
+            paragraphRules.push(`margin-top: 0 !important`);
+          }
+          paragraphStylesCSS = `p { ${paragraphRules.join('; ')}; }`;
+        }
+
+        var scrollModeStyles = '';
+        if ( self.options.flow == 'scrolled-doc' ) {
+          scrollModeStyles = `
 img {
   max-width: ${layout.columnWidth ? layout.columnWidth + "px" : "100%"} !important;
   max-height: ${(layout.height ? (layout.height * 0.9) + "px" : "90%")} !important;
@@ -558,33 +625,21 @@ svg {
 body {
   overflow: hidden;
   column-rule: 1px solid #ddd;
-}
+}`;
+        }
+
+        var retval = `
+<style>
+${scrollModeStyles}
+${fontSizeCSS}
+${fontAndSpacingCSS}
+${paragraphStylesCSS}
 </style>
-          ` 
-          buffer.push(retval);
-        }.bind(this._rendition));
-      }
-      // --- KEEP THIS IN CASE WE HAVE TO REVERT THE PREHOOKS
-      // this._rendition.hooks.content.register(function(contents) {
-      //   contents.addStylesheetRules({
-      //     "img" : {
-      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-      //       "object-fit": "contain",
-      //       "page-break-inside": "avoid"
-      //     },
-      //     "svg" : {
-      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-      //       "page-break-inside": "avoid"
-      //     },
-      //     "body": {
-      //       "overflow": "hidden",
-      //       "column-rule": "1px solid #ddd"
-      //     }
-      //   });
-      // }.bind(this._rendition))
+        `
+        buffer.push(retval);
+      }.bind(this._rendition));
     } else {
+      // Pre-paginated layout
       this._rendition.hooks.content.register(function(contents) {
         contents.addStylesheetRules({
           "img" : {
@@ -601,15 +656,6 @@ body {
           }
         });
       }.bind(this._rendition));
-    }
-
-    this._updateFont();
-    this._updateFontSize();
-
-    if ( custom_stylesheet_rules.length ) {
-      this._rendition.hooks.content.register(function(view) {
-        view.addStylesheetRules(custom_stylesheet_rules);
-      })
     }
 
     this._rendition.on('resized', function(box) {
@@ -672,6 +718,7 @@ body {
 
     this._rendition.on("rendered", function(section, view) {
       self._updateFrameTitle(section, view);
+      // Font, font size, text spacing, and paragraph styles are all handled via prehook
     });
 
     this._rendition.on("rendered", function(section, view) {
@@ -704,7 +751,7 @@ body {
   },
 
   _updateFont: function() {
-    if ( false && this.metadata.layout == 'pre-paginated') {
+    if ( this.metadata.layout == 'pre-paginated') {
       // we're not doing font changes for pre-paginated
       return;
     }
@@ -720,7 +767,7 @@ body {
   },
 
   _updateFontSize: function() {
-    if ( false && this.metadata.layout == 'pre-paginated') {
+    if ( this.metadata.layout == 'pre-paginated') {
       // we're not doing font changes for pre-paginated
       return;
     }
@@ -741,6 +788,9 @@ body {
     //   buffer.push(`<style>body { font-size: ${text_size}%; }</style>`);
     // })
   },
+
+
+
 
   _updateScale: function() {
     if ( this.metadata.layout != 'pre-paginated') {

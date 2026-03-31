@@ -18337,6 +18337,21 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       if (self._cozyOptions[key].scale) {
         self.options.scale = self._cozyOptions[key].scale;
       }
+      if (self._cozyOptions[key].word_spacing) {
+        self.options.word_spacing = self._cozyOptions[key].word_spacing;
+      }
+      if (self._cozyOptions[key].letter_spacing) {
+        self.options.letter_spacing = self._cozyOptions[key].letter_spacing;
+      }
+      if (self._cozyOptions[key].line_height) {
+        self.options.line_height = self._cozyOptions[key].line_height;
+      }
+      if (self._cozyOptions[key].margins) {
+        self.options.margins = self._cozyOptions[key].margins;
+      }
+      if (self._cozyOptions[key].paragraph_spacing) {
+        self.options.paragraph_spacing = self._cozyOptions[key].paragraph_spacing;
+      }
     }
     this.settings = {
       flow: flow,
@@ -18418,8 +18433,6 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._rendition.settings.prehooks.head = new hook(this);
     self._updateTheme();
     self._selectTheme(true);
-    self._updateFont();
-    self._updateFontSize();
     self._rendition.attachTo(self._panes['epub']);
     self._bindEvents();
     self._drawn = true;
@@ -18670,40 +18683,73 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     } else if (this.options.flow == 'auto' || this.options.flow == 'paginated') {
       add_max_img_styles = true;
     }
-    var custom_stylesheet_rules = [];
-
-    // force 90% height instead of default 60%
     if (this.metadata.layout != 'pre-paginated') {
-      if (this.options.flow == 'scrolled-doc') {
-        // these prehooks are a hack to avoid the contents hooks applying _after_
-        // the view has been displayed
-        this._rendition.settings.prehooks.head.register(function (buffer) {
-          var layout = this.layout;
-          var retval = "\n<style>\nimg {\n  max-width: ".concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  object-fit: contain;\n  page-break-inside: avoid;\n}\nsvg {\n  max-width: ").concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  page-break-inside: avoid;\n}\nbody {\n  overflow: hidden;\n  column-rule: 1px solid #ddd;\n}\n</style>\n          ");
-          buffer.push(retval);
-        }.bind(this._rendition));
-      }
-      // --- KEEP THIS IN CASE WE HAVE TO REVERT THE PREHOOKS
-      // this._rendition.hooks.content.register(function(contents) {
-      //   contents.addStylesheetRules({
-      //     "img" : {
-      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-      //       "object-fit": "contain",
-      //       "page-break-inside": "avoid"
-      //     },
-      //     "svg" : {
-      //       "max-width": (this._layout.columnWidth ? this._layout.columnWidth + "px" : "100%") + "!important",
-      //       "max-height": (this._layout.height ? (this._layout.height * 0.9) + "px" : "90%") + "!important",
-      //       "page-break-inside": "avoid"
-      //     },
-      //     "body": {
-      //       "overflow": "hidden",
-      //       "column-rule": "1px solid #ddd"
-      //     }
-      //   });
-      // }.bind(this._rendition))
+      // these prehooks are a hack to avoid the contents hooks applying _after_
+      // the view has been displayed
+      this._rendition.settings.prehooks.head.register(function (buffer) {
+        var layout = this.layout;
+
+        // Build text spacing and font styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
+        var fontAndSpacingCSS = '';
+        var word_spacing = self.options.word_spacing || 'auto';
+        var letter_spacing = self.options.letter_spacing || 'auto';
+        var line_height = self.options.line_height || 'auto';
+        var text_size = self.options.text_size || 100;
+        var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
+        var textRules = [];
+        var font = self.options.font || 'default';
+        // Add font family if not default
+        if (font !== 'default') {
+          textRules.push("font-family: ".concat(font, " !important"));
+        }
+
+        // Add spacing rules
+        if (word_spacing !== 'auto') {
+          textRules.push("word-spacing: ".concat(word_spacing, " !important"));
+        }
+        if (letter_spacing !== 'auto') {
+          textRules.push("letter-spacing: ".concat(letter_spacing, " !important"));
+        }
+        if (line_height !== 'auto') {
+          textRules.push("line-height: ".concat(line_height, " !important"));
+        }
+
+        // Build CSS for text elements (font-family and spacing)
+        if (textRules.length > 0) {
+          fontAndSpacingCSS = "".concat(textElements, " { ").concat(textRules.join('; '), "; }");
+        }
+
+        // Font size should only be applied to html element to avoid compounding on nested elements
+        var fontSizeCSS = '';
+        if (text_size != 100) {
+          fontSizeCSS = "html { font-size: ".concat(text_size, "% !important; }");
+        }
+
+        // Build paragraph styles
+        var paragraphStylesCSS = '';
+        var margins = self.options.margins || 'auto';
+        var paragraph_spacing = self.options.paragraph_spacing || 'auto';
+        if (margins !== 'auto' || paragraph_spacing !== 'auto') {
+          var paragraphRules = [];
+          if (margins !== 'auto') {
+            paragraphRules.push("margin-left: ".concat(margins, " !important"));
+            paragraphRules.push("margin-right: ".concat(margins, " !important"));
+          }
+          if (paragraph_spacing !== 'auto') {
+            paragraphRules.push("margin-bottom: ".concat(paragraph_spacing, " !important"));
+            paragraphRules.push("margin-top: 0 !important");
+          }
+          paragraphStylesCSS = "p { ".concat(paragraphRules.join('; '), "; }");
+        }
+        var scrollModeStyles = '';
+        if (self.options.flow == 'scrolled-doc') {
+          scrollModeStyles = "\nimg {\n  max-width: ".concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  object-fit: contain;\n  page-break-inside: avoid;\n}\nsvg {\n  max-width: ").concat(layout.columnWidth ? layout.columnWidth + "px" : "100%", " !important;\n  max-height: ").concat(layout.height ? layout.height * 0.9 + "px" : "90%", " !important;\n  page-break-inside: avoid;\n}\nbody {\n  overflow: hidden;\n  column-rule: 1px solid #ddd;\n}");
+        }
+        var retval = "\n<style>\n".concat(scrollModeStyles, "\n").concat(fontSizeCSS, "\n").concat(fontAndSpacingCSS, "\n").concat(paragraphStylesCSS, "\n</style>\n        ");
+        buffer.push(retval);
+      }.bind(this._rendition));
     } else {
+      // Pre-paginated layout
       this._rendition.hooks.content.register(function (contents) {
         contents.addStylesheetRules({
           "img": {
@@ -18720,13 +18766,6 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
           }
         });
       }.bind(this._rendition));
-    }
-    this._updateFont();
-    this._updateFontSize();
-    if (custom_stylesheet_rules.length) {
-      this._rendition.hooks.content.register(function (view) {
-        view.addStylesheetRules(custom_stylesheet_rules);
-      });
     }
     this._rendition.on('resized', function (box) {
       self.fire('resized', box);
@@ -18786,6 +18825,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     });
     this._rendition.on("rendered", function (section, view) {
       self._updateFrameTitle(section, view);
+      // Font, font size, text spacing, and paragraph styles are all handled via prehook
     });
     this._rendition.on("rendered", function (section, view) {
       if (self.settings.flow == 'scrolled-doc') {
@@ -18817,7 +18857,10 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._rendition.themes.select(theme);
   },
   _updateFont: function _updateFont() {
-    if (false) {}
+    if (this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginated
+      return;
+    }
     var font = this.options.font || 'default';
     if (font == 'default') {
       // do not add an unncessary override
@@ -18828,7 +18871,10 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._rendition.themes.font("".concat(font));
   },
   _updateFontSize: function _updateFontSize() {
-    if (false) {}
+    if (this.metadata.layout == 'pre-paginated') {
+      // we're not doing font changes for pre-paginated
+      return;
+    }
     var text_size = this.options.text_size || 100; // this.options.modes[this.flow].text_size; // this.options.text_size == 'auto' ? 100 : this.options.text_size;
     if (text_size == 100) {
       // do not add an unncessary override
@@ -24404,11 +24450,9 @@ var Reader = Events/* Evented */.a.extend({
       delete saved_options.flow;
       flow = this.metadata.flow || 'paginated';
     }
-    // key += '/' + flow;
 
-    // var key = `${this.flow}/${this.metadata.layout}`;
-    // var key = this.metadata.layout;
-    if (saved_options.font || saved_options.text_size || saved_options.scale) {
+    // Create layout-specific settings object if any saveable options exist
+    if (saved_options.font || saved_options.text_size || saved_options.scale || saved_options.word_spacing || saved_options.letter_spacing || saved_options.line_height || saved_options.margins || saved_options.paragraph_spacing) {
       saved_options[key] = {};
       if (saved_options.font) {
         saved_options[key].font = saved_options.font;
@@ -24426,11 +24470,29 @@ var Reader = Events/* Evented */.a.extend({
         saved_options[key].flow = saved_options.flow;
         delete saved_options.flow;
       }
-    }
 
-    // saved_options[this.flow] = {}
-    // if ( saved_options.text_size ) {
-    // }
+      // Save the 5 new text options
+      if (saved_options.word_spacing) {
+        saved_options[key].word_spacing = saved_options.word_spacing;
+        delete saved_options.word_spacing;
+      }
+      if (saved_options.letter_spacing) {
+        saved_options[key].letter_spacing = saved_options.letter_spacing;
+        delete saved_options.letter_spacing;
+      }
+      if (saved_options.line_height) {
+        saved_options[key].line_height = saved_options.line_height;
+        delete saved_options.line_height;
+      }
+      if (saved_options.margins) {
+        saved_options[key].margins = saved_options.margins;
+        delete saved_options.margins;
+      }
+      if (saved_options.paragraph_spacing) {
+        saved_options[key].paragraph_spacing = saved_options.paragraph_spacing;
+        delete saved_options.paragraph_spacing;
+      }
+    }
     localStorage.setItem('cozy.options', JSON.stringify(saved_options));
     this._cozyOptions = saved_options;
   },
@@ -24907,6 +24969,22 @@ Object.defineProperty(Reader.prototype, 'flowOptions', {
     }
     if (!this.options.flowOptions[flow].scale) {
       this.options.flowOptions[flow].scale = this.options.scale;
+    }
+    // Add the 5 new text options
+    if (!this.options.flowOptions[flow].word_spacing) {
+      this.options.flowOptions[flow].word_spacing = this.options.word_spacing || 'auto';
+    }
+    if (!this.options.flowOptions[flow].letter_spacing) {
+      this.options.flowOptions[flow].letter_spacing = this.options.letter_spacing || 'auto';
+    }
+    if (!this.options.flowOptions[flow].line_height) {
+      this.options.flowOptions[flow].line_height = this.options.line_height || 'auto';
+    }
+    if (!this.options.flowOptions[flow].margins) {
+      this.options.flowOptions[flow].margins = this.options.margins || 'auto';
+    }
+    if (!this.options.flowOptions[flow].paragraph_spacing) {
+      this.options.flowOptions[flow].paragraph_spacing = this.options.paragraph_spacing || 'auto';
     }
     return this.options.flowOptions[flow];
   }
@@ -25653,6 +25731,2885 @@ module.exports = function (value) {
 	if (classRe.test(functionToString.call(value))) return false;
 	return true;
 };
+
+
+/***/ }),
+
+/***/ 7115:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  Control: () => (/* reexport */ Control),
+  control: () => (/* reexport */ control)
+});
+
+// EXTERNAL MODULE: ./src/core/Class.js
+var Class = __webpack_require__(260);
+// EXTERNAL MODULE: ./src/reader/Reader.js + 1 modules
+var Reader = __webpack_require__(6218);
+// EXTERNAL MODULE: ./src/core/Util.js
+var Util = __webpack_require__(1538);
+// EXTERNAL MODULE: ./src/dom/DomUtil.js
+var dom_DomUtil = __webpack_require__(8029);
+;// ./src/control/Control.js
+
+
+
+
+
+/*
+ * @class Control
+ * @aka L.Control
+ * @inherits Class
+ *
+ * L.Control is a base class for implementing reader controls. Handles regioning.
+ * All other controls extend from this class.
+ */
+
+var Control = Class/* Class */.X.extend({
+  // @section
+  // @aka Control options
+  options: {
+    // @option region: String = 'topright'
+    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+    // `'topright'`, `'bottomleft'` or `'bottomright'`
+  },
+  initialize: function initialize(options) {
+    Util.setOptions(this, options);
+    if (options.container) {
+      this._container = options.container;
+      this._locked = true;
+    }
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+  },
+  /* @section
+   * Classes extending L.Control will inherit the following methods:
+   *
+   * @method getRegion: string
+   * Returns the region of the control.
+   */
+  getRegion: function getRegion() {
+    return this.options.region;
+  },
+  // @method setRegion(region: string): this
+  // Sets the region of the control.
+  setRegion: function setRegion(region) {
+    var reader = this._reader;
+    if (reader) {
+      reader.removeControl(this);
+    }
+    this.options.region = region;
+    if (reader) {
+      reader.addControl(this);
+    }
+    return this;
+  },
+  // @method getContainer: HTMLElement
+  // Returns the HTMLElement that contains the control.
+  getContainer: function getContainer() {
+    return this._container;
+  },
+  // @method addTo(reader: Map): this
+  // Adds the control to the given reader.
+  addTo: function addTo(reader) {
+    this.remove();
+    this._reader = reader;
+    var container = this._container = this.onAdd(reader);
+    dom_DomUtil.addClass(container, 'cozy-control');
+    if (!this._locked) {
+      var region = this.getRegion();
+      var area = reader.getControlRegion(region);
+      area.appendChild(container);
+    }
+    return this;
+  },
+  // @method remove: this
+  // Removes the control from the reader it is currently active on.
+  remove: function remove() {
+    if (!this._reader) {
+      return this;
+    }
+    if (!this._container) {
+      return this;
+    }
+    if (!this._locked) {
+      dom_DomUtil.remove(this._container);
+    }
+    if (this.onRemove) {
+      this.onRemove(this._reader);
+    }
+    this._reader = null;
+    return this;
+  },
+  _refocusOnMap: function _refocusOnMap(e) {
+    // if reader exists and event is not a keyboard event
+    if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
+      this._reader.getContainer().focus();
+    }
+  },
+  _className: function _className(widget) {
+    var className = ['cozy-control'];
+    if (this.options.direction) {
+      className.push('cozy-control-' + this.options.direction);
+    }
+    if (widget) {
+      className.push('cozy-control-' + widget);
+    }
+    return className.join(' ');
+  }
+});
+var control = function control(options) {
+  return new Control(options);
+};
+
+/* @section Extension methods
+ * @uninheritable
+ *
+ * Every control should extend from `L.Control` and (re-)implement the following methods.
+ *
+ * @method onAdd(reader: Map): HTMLElement
+ * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
+ *
+ * @method onRemove(reader: Map)
+ * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
+ */
+
+/* @namespace Map
+ * @section Methods for Layers and Controls
+ */
+Reader/* Reader */.m.include({
+  // @method addControl(control: Control): this
+  // Adds the given control to the reader
+  addControl: function addControl(control) {
+    control.addTo(this);
+    return this;
+  },
+  // @method removeControl(control: Control): this
+  // Removes the given control from the reader
+  removeControl: function removeControl(control) {
+    control.remove();
+    return this;
+  },
+  getControlContainer: function getControlContainer() {
+    var l = 'cozy-';
+    if (!this._controlContainer) {
+      this._controlContainer = dom_DomUtil.create('div', l + 'control-container', this._container);
+    }
+    return this._controlContainer;
+  },
+  getControlRegion: function getControlRegion(target) {
+    if (!this._panes[target]) {
+      // target is dot-delimited string
+      // first dot is the panel
+      var parts = target.split('.');
+      var tmp = [];
+      var parent = this._container;
+      var x = 0;
+      while (parts.length) {
+        var slug = parts.shift();
+        tmp.push(slug);
+        var panel = tmp.join(".");
+        var className = 'cozy-panel-' + slug;
+        if (!this._panes[panel]) {
+          this._panes[panel] = dom_DomUtil.create('div', className, parent);
+        }
+        parent = this._panes[panel];
+        x += 1;
+        if (x > 100) {
+          break;
+        }
+      }
+    }
+    return this._panes[target];
+  },
+  getControlRegion_1: function getControlRegion_1(target) {
+    var tmp = target.split('.');
+    var region = tmp.shift();
+    var slot = tmp.pop() || '-slot';
+    var container = this._panes[region];
+    if (!this._panes[target]) {
+      var className = 'cozy-' + region + '--item cozy-slot-' + slot;
+      if (!this._panes[region + '.' + slot]) {
+        var div = dom_DomUtil.create('div', className);
+        if (slot == 'left' || slot == 'bottom') {
+          var childElement = this._panes[region].firstChild;
+          this._panes[region].insertBefore(div, childElement);
+        } else {
+          this._panes[region].appendChild(div);
+        }
+        this._panes[region + '.' + slot] = div;
+      }
+      className = this._classify(tmp);
+      this._panes[target] = dom_DomUtil.create('div', className, this._panes[region + '.' + slot]);
+    }
+    return this._panes[target];
+  },
+  _classify: function _classify(tmp) {
+    var l = 'cozy-';
+    var className = [];
+    for (var i in tmp) {
+      className.push(l + tmp[i]);
+    }
+    className = className.join(' ');
+    return className;
+  },
+  _clearControlRegion: function _clearControlRegion() {
+    for (var i in this._controlRegions) {
+      dom_DomUtil.remove(this._controlRegions[i]);
+    }
+    dom_DomUtil.remove(this._controlContainer);
+    delete this._controlRegions;
+    delete this._controlContainer;
+  }
+});
+// EXTERNAL MODULE: ./src/dom/DomEvent.js + 2 modules
+var DomEvent = __webpack_require__(7606);
+;// ./src/control/Control.Paging.js
+
+
+
+
+var PageControl = Control.extend({
+  onAdd: function onAdd(reader) {
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
+    }
+    this._bindEvents();
+    return container;
+  },
+  _createButton: function _createButton(html, title, className, container) {
+    var link = dom_DomUtil.create('a', className, container);
+    link.innerHTML = html;
+    link.href = '#';
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+    return link;
+  },
+  _bindEvents: function _bindEvents() {
+    var self = this;
+    DomEvent.disableClickPropagation(this._control);
+    DomEvent.on(this._control, 'click', DomEvent.stop);
+    DomEvent.on(this._control, 'click', this._action, this);
+    this._reader.on('reopen', function (data) {
+      // update the button text / titles
+      var html = self.options.html || self.options.label;
+      self._control.innerHTML = self._fill(html);
+      self._control.setAttribute('title', self._fill(self.options.label));
+      self._control.setAttribute('aria-label', self._fill(self.options.label));
+    });
+  },
+  _unit: function _unit() {
+    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
+  },
+  _fill: function _fill(s) {
+    var unit = this._unit();
+    return s.replace(/\$\{unit\}/g, unit);
+  },
+  _label: function _label() {
+    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
+  },
+  EOT: true
+});
+var PagePrevious = PageControl.extend({
+  options: {
+    region: 'edge.left',
+    direction: 'previous',
+    label: 'Previous ${unit}',
+    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
+  },
+  _action: function _action(e) {
+    this._reader.prev();
+  }
+});
+var PageNext = PageControl.extend({
+  options: {
+    region: 'edge.right',
+    direction: 'next',
+    label: 'Next ${unit}',
+    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
+  },
+  _action: function _action(e) {
+    this._reader.next();
+  }
+});
+var PageFirst = PageControl.extend({
+  options: {
+    direction: 'first',
+    label: 'First ${unit}'
+  },
+  _action: function _action(e) {
+    this._reader.first();
+  }
+});
+var PageLast = PageControl.extend({
+  options: {
+    direction: 'last',
+    label: 'Last ${unit}'
+  },
+  _action: function _action(e) {
+    this._reader.last();
+  }
+});
+var pageNext = function pageNext(options) {
+  return new PageNext(options);
+};
+var pagePrevious = function pagePrevious(options) {
+  return new PagePrevious(options);
+};
+var pageFirst = function pageFirst(options) {
+  return new PageFirst(options);
+};
+var pageLast = function pageLast(options) {
+  return new PageLast(options);
+};
+// EXTERNAL MODULE: ./node_modules/lodash/assign.js
+var lodash_assign = __webpack_require__(6139);
+var assign_default = /*#__PURE__*/__webpack_require__.n(lodash_assign);
+;// ./src/control/Modal.js
+
+
+
+
+
+
+var activeModal;
+var dismissModalListener = false;
+
+// from https://github.com/ghosh/micromodal/blob/master/src/index.js
+var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
+var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
+var Modal = Class/* Class */.X.extend({
+  options: {
+    // @option region: String = 'topright'
+    // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
+    region: 'left',
+    fraction: 0,
+    width: null,
+    className: {},
+    actions: null,
+    callbacks: {
+      onShow: function onShow() {},
+      onClose: function onClose() {}
+    },
+    handlers: {}
+  },
+  initialize: function initialize(options) {
+    options = Util.setOptions(this, options);
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+    this._initializedEvents = false;
+    this.callbacks = assign_default()({}, this.options.callbacks);
+    this.actions = this.options.actions ? assign_default()({}, this.options.actions) : null;
+    this.handlers = assign_default()({}, this.options.handlers);
+    if (typeof this.options.className == 'string') {
+      this.options.className = {
+        container: this.options.className
+      };
+    }
+  },
+  addTo: function addTo(reader) {
+    var self = this;
+    this._reader = reader;
+    var template = this.options.template;
+    var panelHTML = "<div class=\"cozy-modal modal-slide ".concat(this.options.region || 'left', "\" id=\"modal-").concat(this._id, "\" aria-labelledby=\"modal-").concat(this._id, "-title\" role=\"dialog\" aria-describedby=\"modal-").concat(this._id, "-content\" aria-hidden=\"true\">\n      <div class=\"modal__overlay\" tabindex=\"-1\" data-modal-close>\n        <div class=\"modal__container ").concat(this.options.className.container ? this.options.className.container : '', "\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"modal-").concat(this._id, "-title\" aria-describedby=\"modal-").concat(this._id, "-content\" id=\"modal-").concat(this._id, "-container\">\n          <div role=\"document\">\n            <header class=\"modal__header\">\n              <h3 class=\"modal__title\" id=\"modal-").concat(this._id, "-title\">").concat(this.options.title, "</h3>\n              <button class=\"modal__close\" aria-label=\"Close modal\" aria-controls=\"modal-").concat(this._id, "-container\" data-modal-close></button>\n            </header>\n          <main class=\"modal__content ").concat(this.options.className.main ? this.options.className.main : '', "\" id=\"modal-").concat(this._id, "-content\">\n            ").concat(template, "\n          </main>");
+    if (this.options.actions) {
+      panelHTML += '<footer class="modal__footer">';
+      for (var i in this.options.actions) {
+        var action = this.options.actions[i];
+        var button_cls = action.className || 'button--default';
+        panelHTML += "<button id=\"action-".concat(this._id, "-").concat(i, "\" class=\"button button--inline ").concat(button_cls, "\">").concat(action.label, "</button>");
+      }
+      panelHTML += '</footer>';
+    }
+    panelHTML += '</div></div></div></div>';
+    var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
+    this.modal = reader._container.appendChild(body.children[0]);
+    this._container = this.modal; // compatibility
+
+    this.container = this.modal.querySelector('.modal__container');
+    this._bindEvents();
+    return this;
+  },
+  _bindEvents: function _bindEvents() {
+    var _this = this;
+    var self = this;
+    this.onClick = this.onClick.bind(this);
+    this.onKeydown = this.onKeydown.bind(this);
+    this.onModalTransition = this.onModalTransition.bind(this);
+    this.modal.addEventListener('transitionend', function () {}.bind(this));
+
+    // bind any actions
+    if (this.actions) {
+      var _loop = function _loop() {
+        var action = _this.actions[i];
+        var button_id = '#action-' + _this._id + '-' + i;
+        var button = _this.modal.querySelector(button_id);
+        if (button) {
+          DomEvent.on(button, 'click', function (event) {
+            event.preventDefault();
+            action.callback(event);
+            if (action.close) {
+              self.closeModal();
+            }
+          });
+        }
+      };
+      for (var i in this.actions) {
+        _loop();
+      }
+    }
+  },
+  deactivate: function deactivate() {
+    this.closeModal();
+  },
+  closeModal: function closeModal() {
+    var self = this;
+    this.modal.setAttribute('aria-hidden', 'true');
+    this.removeEventListeners();
+    if (this.activeElement) {
+      this.activeElement.focus();
+    }
+    this.callbacks.onClose(this.modal);
+  },
+  showModal: function showModal() {
+    this.activeElement = document.activeElement;
+    this._resize();
+    this.modal.setAttribute('aria-hidden', 'false');
+    this.setFocusToFirstNode();
+    this.addEventListeners();
+    this.callbacks.onShow(this.modal);
+  },
+  activate: function activate() {
+    return this.showModal();
+    var self = this;
+    activeModal = this;
+    DomUtil.addClass(self._reader._container, 'st-modal-activating');
+    this._resize();
+    DomUtil.addClass(this._reader._container, 'st-modal-open');
+    setTimeout(function () {
+      DomUtil.addClass(self._container, 'active');
+      DomUtil.removeClass(self._reader._container, 'st-modal-activating');
+      self._container.setAttribute('aria-hidden', 'false');
+      self.setFocusToFirstNode();
+    }, 25);
+  },
+  addEventListeners: function addEventListeners() {
+    // --- do we need touch listeners?
+    // this.modal.addEventListener('touchstart', this.onClick)
+    // this.modal.addEventListener('touchend', this.onClick)
+    this.modal.addEventListener('click', this.onClick);
+    document.addEventListener('keydown', this.onKeydown);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.addEventListener(event, this.onModalTransition);
+    }.bind(this));
+  },
+  removeEventListeners: function removeEventListeners() {
+    this.modal.removeEventListener('touchstart', this.onClick);
+    this.modal.removeEventListener('click', this.onClick);
+    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
+      this.modal.removeEventListener(event, this.onModalTransition);
+    }.bind(this));
+    document.removeEventListener('keydown', this.onKeydown);
+  },
+  _resize: function _resize() {
+    var container = this._reader._container;
+    this.container.style.height = container.offsetHeight + 'px';
+    // console.log("AHOY MODAL", this.container.style.height);
+    if (!this.options.className.container) {
+      this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
+    }
+    var header = this.container.querySelector('header');
+    var footer = this.container.querySelector('footer');
+    var main = this.container.querySelector('main');
+    var height = this.container.clientHeight - header.clientHeight;
+    if (footer) {
+      height -= footer.clientHeight;
+    }
+    main.style.height = height + 'px';
+  },
+  getFocusableNodes: function getFocusableNodes() {
+    // Query only within the modal container, not the entire modal (which includes the overlay)
+    var nodes = this.container.querySelectorAll(FOCUSABLE_ELEMENTS);
+
+    // Filter to only include elements that are actually tabbable (visible and not tabindex="-1")
+    var tabbableNodes = Array.from(nodes).filter(function (node) {
+      // Check if element is visible
+      if (node.offsetParent === null && node.tagName !== 'AREA') {
+        return false;
+      }
+
+      // Check if element has tabindex="-1"
+      if (node.getAttribute('tabindex') === '-1') {
+        return false;
+      }
+      return true;
+    });
+    return tabbableNodes;
+  },
+  setFocusToFirstNode: function setFocusToFirstNode() {
+    var focusableNodes = this.getFocusableNodes();
+    if (focusableNodes.length) {
+      focusableNodes[0].focus();
+      this._lastFocusedIndex = 0;
+    } else {
+      var fallbackContainer = this._container;
+      if (fallbackContainer) {
+        if (!fallbackContainer.hasAttribute('tabindex')) {
+          fallbackContainer.setAttribute('tabindex', '-1');
+        }
+        fallbackContainer.focus();
+      }
+      this._lastFocusedIndex = -1;
+    }
+  },
+  getActionableNodes: function getActionableNodes() {
+    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
+    return Object.keys(nodes).map(function (key) {
+      return nodes[key];
+    });
+  },
+  onKeydown: function onKeydown(event) {
+    if (event.keyCode == 27) {
+      this.closeModal();
+    }
+    if (event.keyCode == 9) {
+      this.maintainFocus(event);
+    }
+  },
+  onClick: function onClick(event) {
+    var closeAfterAction = false;
+    var target = event.target;
+
+    // As far as I can tell, the code below isn't catching direct clicks on
+    // items with class='data-modal-close' as they're not ACTIONABLE_ELEMENTS.
+    // Adding them to ACTIONABLE_ELEMENTS causes undesirable behavior where
+    // their child items also close the modal thanks to the loop below.
+    // Children of .modal__overlay include the modal header, border area and
+    // padding. We don't want clicks on these closing the modal.
+    // Just close the modal now for direct clicks on a '.data-modal-close'.
+    if (target.hasAttribute('data-modal-close')) {
+      this.fire('closed');
+      this.closeModal();
+      return;
+    }
+
+    // if the target isn't an actionable type, walk the DOM until
+    // one is found
+    var actionableNodes = this.getActionableNodes();
+    while (actionableNodes.indexOf(target) < 0 && target != this.modal) {
+      target = target.parentElement;
+    }
+
+    // no target found, punt
+    if (actionableNodes.indexOf(target) < 0) {
+      return;
+    }
+    if (this.handlers.click) {
+      var did_match = false;
+      for (var selector in this.handlers.click) {
+        if (target.matches(selector)) {
+          closeAfterAction = this.handlers.click[selector](this, target);
+          break;
+        }
+      }
+    }
+    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
+    event.preventDefault();
+  },
+  onModalTransition: function onModalTransition(event) {
+    if (this.modal.getAttribute('aria-hidden') == 'true') {
+      this._reader.fire('modal-closed');
+    } else {
+      this._reader.fire('modal-opened');
+    }
+  },
+  on: function on(event, selector, handler) {
+    if (!this.handlers[event]) {
+      this.handlers[event] = {};
+    }
+    if (typeof selector == 'function') {
+      handler = selector;
+      selector = '*';
+    }
+    this.handlers[event][selector] = handler;
+  },
+  fire: function fire(event) {
+    if (this.handlers[event] && this.handlers[event]['*']) {
+      this.handlers[event]['*'](this);
+    }
+  },
+  maintainFocus: function maintainFocus(event) {
+    var focusableNodes = this.getFocusableNodes();
+    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
+
+    // Handle the case where focus has escaped or is on a non-focusable element
+    // This happens in Firefox when the <main> element itself gets focused
+    if (focusedItemIndex === -1) {
+      if (focusableNodes.length === 0) {
+        // No focusable nodes available; fall back to the modal container
+        var fallbackContainer = this._container;
+        if (fallbackContainer) {
+          if (!fallbackContainer.hasAttribute('tabindex')) {
+            fallbackContainer.setAttribute('tabindex', '-1');
+          }
+          fallbackContainer.focus();
+        }
+        event.preventDefault();
+        return;
+      }
+
+      // Check if we have a previous focus index stored
+      var targetIndex = 0; // default to first element
+
+      if (this._lastFocusedIndex !== undefined && this._lastFocusedIndex >= 0) {
+        // Use tab direction to determine next element
+        if (event.shiftKey) {
+          // Shift+Tab - go to previous element
+          targetIndex = this._lastFocusedIndex - 1;
+          if (targetIndex < 0) {
+            targetIndex = focusableNodes.length - 1; // wrap to last
+          }
+        } else {
+          // Tab - go to next element
+          targetIndex = this._lastFocusedIndex + 1;
+          if (targetIndex >= focusableNodes.length) {
+            targetIndex = 0; // wrap to first
+          }
+        }
+      } else {
+        // No previous index, use direction to decide
+        if (event.shiftKey) {
+          targetIndex = focusableNodes.length - 1; // Shift+Tab goes to last
+        } else {
+          targetIndex = 0; // Tab goes to first
+        }
+      }
+      focusableNodes[targetIndex].focus();
+      this._lastFocusedIndex = targetIndex;
+      event.preventDefault();
+      return;
+    }
+
+    // Store the current valid focus index for next time
+    this._lastFocusedIndex = focusedItemIndex;
+    if (event.shiftKey && focusedItemIndex === 0) {
+      focusableNodes[focusableNodes.length - 1].focus();
+      this._lastFocusedIndex = focusableNodes.length - 1;
+      event.preventDefault();
+    }
+    if (!event.shiftKey && focusedItemIndex === focusableNodes.length - 1) {
+      focusableNodes[0].focus();
+      this._lastFocusedIndex = 0;
+      event.preventDefault();
+    }
+  },
+  update: function update(options) {
+    if (options.title) {
+      this.options.title = options.title;
+      var titleEl = this.container.querySelector('.modal__title');
+      titleEl.innerText = options.title;
+    }
+    if (options.fraction) {
+      this.options.fraction = options.fraction;
+      this.container.style.width = parseInt(this.container.offsetWidth * this.options.fraction) + 'px';
+    }
+  },
+  EOT: true
+});
+Reader/* Reader */.m.include({
+  modal: function modal(options) {
+    var modal = new Modal(options);
+    return modal.addTo(this);
+    // return this;
+  },
+  popup: function popup(options) {
+    options = assign_default()({
+      title: 'Info',
+      fraction: 1.0
+    }, options);
+    if (!this._popupModal) {
+      this._popupModal = this.modal({
+        title: options.title,
+        region: 'full',
+        template: '<div style="height: 100%; width: 100%"></div>',
+        fraction: options.fraction || 1.0,
+        actions: [{
+          label: 'Close',
+          callback: function callback(event) {},
+          close: true
+        }]
+      });
+    } else {
+      this._popupModal.update({
+        title: options.title,
+        fraction: options.fraction
+      });
+    }
+    var iframe;
+    var modalDiv = this._popupModal.container.querySelector('main > div');
+    var iframe = modalDiv.querySelector('iframe');
+    if (iframe) {
+      modalDiv.removeChild(iframe);
+    }
+    iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.setAttribute('title', options.title);
+    iframe = modalDiv.appendChild(iframe);
+    if (options.onLoad) {
+      iframe.addEventListener('load', function () {
+        options.onLoad(iframe.contentDocument, this._popupModal);
+      }.bind(this));
+    }
+    if (options.srcdoc) {
+      if ("srcdoc" in iframe) {
+        iframe.srcdoc = options.srcdoc;
+      } else {
+        iframe.contentDocument.open();
+        iframe.contentDocument.write(options.srcdoc);
+        iframe.contentDocument.close();
+      }
+    } else if (options.href) {
+      iframe.setAttribute('src', options.href);
+    }
+    this._popupModal.activate();
+  },
+  EOT: true
+});
+;// ./src/control/Control.Contents.js
+
+
+
+
+
+var Contents = Control.extend({
+  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Table of Contents\"><i class=\"icon-menu oi\" data-glyph=\"menu\" title=\"Table of Contents\" aria-hidden=\"true\"></i></button>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._control = container.querySelector("[data-toggle=open]");
+    this._control.setAttribute('id', 'action-' + this._id);
+    container.style.position = 'relative';
+    this._bindEvents();
+    return container;
+  },
+  _bindEvents: function _bindEvents() {
+    var _this2 = this;
+    var self = this;
+    this._reader.on('updateContents', function (data) {
+      var _this = this;
+      DomEvent.on(this._control, 'click', function (event) {
+        event.preventDefault();
+        self._goto_interval = false;
+        self._reader.tracking.action('contents/open');
+        self._modal.activate();
+      }, this);
+      this._modal = this._reader.modal({
+        template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button--lg toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button--lg\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
+        title: 'Contents',
+        region: 'left',
+        className: 'cozy-modal-contents',
+        callbacks: {
+          onShow: function onShow() {},
+          onClose: function onClose(modal) {
+            if (self._goto_interval) {
+              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
+              self._reader.rendition.manager.container.focus();
+            }
+          }
+        }
+      });
+      this._display = {};
+      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
+      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
+      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
+      this._pageListError = this._modal.container.querySelector('.pagelist-error');
+      this._toolbar.addEventListener('click', function (event) {
+        if (event.target.dataset.toggle) {
+          var target = event.target.dataset.toggle;
+          var current = _this._toolbar.querySelector('[data-toggle].toggled');
+          if (current) {
+            current.classList.remove('toggled');
+            _this._display[current.dataset.toggle].style.display = 'none';
+          }
+          event.target.classList.add('toggled');
+          _this._display[event.target.dataset.toggle].style.display = 'block';
+          _this._reader.updateLiveStatus("Displaying ".concat(event.target.innerText));
+        }
+      });
+      this._modal.on('click', '.cozy-contents-pagelist form button', function (modal, target) {
+        var form = target.parentNode;
+        var input = form.querySelector('input[type="text"]');
+        var value = input.value.trim();
+        if (value) {
+          var pageList = this._reader.pageList;
+          var page = pageList.pageList.find(function (p) {
+            return p.pageLabel == value;
+          }) || false;
+          if (page) {
+            target = pageList.cfiFromPage(page.page);
+            this._goto_interval = true;
+            this._reader.tracking.action('contents/go/link');
+            this._reader.display(target);
+            return true;
+          } else {
+            var p = this._pageListError; // form.querySelector('.pagelist-error');
+            var p1 = pageList.firstPageLabel;
+            var p2 = pageList.lastPageLabel;
+            p.innerHTML = "Please enter a page number between <strong>".concat(p1, "-").concat(p2, "</strong>.");
+          }
+        }
+      }.bind(this));
+      this._modal.on('click', 'a[href]', function (modal, target) {
+        target = target.getAttribute('data-href');
+        this._goto_interval = true;
+        this._reader.tracking.action('contents/go/link');
+        this._reader.display(target);
+        return true;
+      }.bind(this));
+      this._modal.on('closed', function () {
+        self._pageListError.innerHTML = '';
+        self._reader.tracking.action('contents/close');
+      });
+      this._setupSkipLink();
+      var parent = self._modal._container.querySelector('.cozy-contents-contentlist ul');
+      var _process2 = function _process(items, tabindex, parent) {
+        items.forEach(function (item) {
+          var option = self._createOption(item, tabindex, parent);
+          if (item.subitems && item.subitems.length) {
+            _process2(item.subitems, tabindex + 1, option);
+          }
+        });
+      };
+      _process2(data.toc, 0, parent);
+    }.bind(this));
+    this._reader.on('updateLocations', function (data) {
+      if (_this2._reader.pageList) {
+        // this._toolbar.style.display = 'flex';
+        _this2._toolbar.setAttribute('aria-hidden', 'false');
+      }
+      if (self._reader.pageList) {
+        var parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
+        for (var i = 0; i < self._reader.pageList.pages.length; i++) {
+          var pg = self._reader.pageList.pages[i];
+          var info = self._reader.pageList.pageList[i];
+          var cfi = self._reader.pageList.locations[i];
+          var item = {
+            label: info.pageLabel || info.page,
+            href: cfi
+          };
+          var option = self._createOption(item, 0, parent);
+        }
+      }
+    });
+  },
+  _createOption: function _createOption(chapter, tabindex, parent) {
+    function pad(value, length) {
+      return value.toString().length < length ? pad("-" + value, length) : value;
+    }
+    var option = dom_DomUtil.create('li');
+    if (chapter.href) {
+      var anchor = dom_DomUtil.create('a', null, option);
+      if (chapter.html) {
+        anchor.innerHTML = chapter.html;
+      } else {
+        anchor.textContent = chapter.label;
+      }
+      // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
+      // option.textContent = tab + chapter.label;
+      anchor.setAttribute('href', chapter.href);
+      anchor.setAttribute('data-href', chapter.href);
+    } else {
+      var span = dom_DomUtil.create('span', null, option);
+      span.textContent = chapter.label;
+    }
+    if (parent.tagName === 'LI') {
+      // need to nest
+      var tmp = parent.querySelector('ul');
+      if (!tmp) {
+        tmp = dom_DomUtil.create('ul', null, parent);
+      }
+      parent = tmp;
+    }
+    parent.appendChild(option);
+    return option;
+  },
+  _setupSkipLink: function _setupSkipLink() {
+    if (!this.options.skipLink) {
+      return;
+    }
+    var target = document.querySelector(this.options.skipLink);
+    if (!target) {
+      return;
+    }
+    var link = document.createElement('a');
+    link.textContent = 'Skip to contents';
+    link.setAttribute('href', '#action-' + this._id);
+    var ul = target.querySelector('ul');
+    if (ul) {
+      // add to list
+      target = document.createElement('li');
+      ul.appendChild(target);
+    }
+    target.appendChild(link);
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      this._control.click();
+    }.bind(this));
+  },
+  EOT: true
+});
+var contents = function contents(options) {
+  return new Contents(options);
+};
+;// ./src/control/Control.Title.js
+
+
+
+
+
+// Title + Chapter
+
+var Title = Control.extend({
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var className = this._className(),
+      container = dom_DomUtil.create('div', className),
+      options = this.options;
+
+    // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
+    // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
+
+    var h1 = dom_DomUtil.create('h1', 'cozy-h1', container);
+    dom_DomUtil.setOpacity(h1, 0);
+    this._title = dom_DomUtil.create('span', 'cozy-title', h1);
+    this._divider = dom_DomUtil.create('span', 'cozy-divider', h1);
+    this._divider.textContent = " · ";
+    this._section = dom_DomUtil.create('span', 'cozy-section', h1);
+
+    // --- TODO: disable until we can work out how to 
+    // --- more reliably match the current section to the contents
+    // this._reader.on('updateSection', function(data) {
+    //   if ( data && data.label ) {
+    //     self._section.textContent = data.label;
+    //     DomUtil.setOpacity(self._section, 1.0);
+    //     DomUtil.setOpacity(self._divider, 1.0);
+    //   } else {
+    //     DomUtil.setOpacity(self._section, 0);
+    //     DomUtil.setOpacity(self._divider, 0);
+    //   }
+    // })
+
+    this._reader.on('updateTitle', function (data) {
+      if (data) {
+        self._title.textContent = data.title || data.bookTitle;
+        dom_DomUtil.setOpacity(self._section, 0);
+        dom_DomUtil.setOpacity(self._divider, 0);
+        dom_DomUtil.setOpacity(h1, 1);
+      }
+    });
+    return container;
+  },
+  _createButton: function _createButton(html, title, className, container, fn) {
+    var link = dom_DomUtil.create('a', className, container);
+    link.innerHTML = html;
+    link.href = '#';
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+    DomEvent.disableClickPropagation(link);
+    DomEvent.on(link, 'click', DomEvent.stop);
+    DomEvent.on(link, 'click', fn, this);
+    // DomEvent.on(link, 'click', this._refocusOnMap, this);
+
+    return link;
+  },
+  EOT: true
+});
+var title = function title(options) {
+  return new Title(options);
+};
+;// ./src/control/Control.PublicationMetadata.js
+
+
+
+
+
+// Title + Chapter
+
+var PublicationMetadata = Control.extend({
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var className = this._className(),
+      container = dom_DomUtil.create('div', className),
+      options = this.options;
+
+    // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
+    // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
+
+    this._publisher = dom_DomUtil.create('div', 'cozy-publisher', container);
+    this._rights = dom_DomUtil.create('div', 'cozy-rights', container);
+    this._reader.on('updateTitle', function (data) {
+      if (data) {
+        self._publisher.textContent = data.publisher;
+        self._rights.textContent = data.rights;
+      }
+    });
+    return container;
+  },
+  _createButton: function _createButton(html, title, className, container, fn) {
+    var link = dom_DomUtil.create('a', className, container);
+    link.innerHTML = html;
+    link.href = '#';
+    link.title = title;
+
+    /*
+     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
+     */
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+    DomEvent.disableClickPropagation(link);
+    DomEvent.on(link, 'click', DomEvent.stop);
+    DomEvent.on(link, 'click', fn, this);
+    // DomEvent.on(link, 'click', this._refocusOnMap, this);
+
+    return link;
+  },
+  EOT: true
+});
+var publicationMetadata = function publicationMetadata(options) {
+  return new PublicationMetadata(options);
+};
+;// ./src/utils/slider-control.js
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var SliderControl = /*#__PURE__*/function () {
+  function SliderControl(input, values, label) {
+    _classCallCheck(this, SliderControl);
+    this.input = input;
+    this.label = label || 'value';
+    this.values = values; // Array of discrete values
+    this.currentIndex = 0;
+
+    // Find the initial index based on the input's value
+    var initialValue = this.input.value;
+    this.currentIndex = this.values.findIndex(function (v) {
+      return String(v) === initialValue;
+    });
+    if (this.currentIndex === -1) {
+      this.currentIndex = 0; // Default to first value (auto)
+    }
+    this.wrap();
+  }
+  return _createClass(SliderControl, [{
+    key: "wrap",
+    value: function wrap() {
+      var _this = this;
+      var wrapper = document.createElement('div');
+      wrapper.className = 'slider-control';
+
+      // Find the existing reset button (it's a sibling in the same parent)
+      var resetBtn = this.input.previousElementSibling;
+      var decreaseBtn = document.createElement('button');
+      decreaseBtn.className = 'slider-button button--sm';
+      decreaseBtn.innerHTML = '<i class="icon-minus oi" data-glyph="minus" aria-hidden="true"></i>';
+      decreaseBtn.type = 'button';
+      decreaseBtn.setAttribute('aria-label', "Decrease ".concat(this.label));
+      var increaseBtn = document.createElement('button');
+      increaseBtn.className = 'slider-button button--sm';
+      increaseBtn.innerHTML = '<i class="icon-plus oi" data-glyph="plus" aria-hidden="true"></i>';
+      increaseBtn.type = 'button';
+      increaseBtn.setAttribute('aria-label', "Increase ".concat(this.label));
+
+      // Convert the input to a range slider
+      this.input.type = 'range';
+      this.input.min = '0';
+      this.input.max = String(this.values.length - 1);
+      this.input.step = '1';
+      this.input.value = String(this.currentIndex);
+
+      // Insert wrapper before the input
+      this.input.parentNode.insertBefore(wrapper, this.input);
+
+      // Add elements in order: reset, minus, slider, plus
+      if (resetBtn && resetBtn.classList.contains('reset-text-options')) {
+        wrapper.appendChild(resetBtn);
+      }
+      wrapper.appendChild(decreaseBtn);
+      wrapper.appendChild(this.input);
+      wrapper.appendChild(increaseBtn);
+      decreaseBtn.addEventListener('click', function () {
+        return _this.decrease();
+      });
+      increaseBtn.addEventListener('click', function () {
+        return _this.increase();
+      });
+
+      // Update when slider changes
+      this.input.addEventListener('input', function () {
+        _this.currentIndex = parseInt(_this.input.value);
+        _this.updateDisplay();
+      });
+
+      // Initial display update
+      this.updateDisplay();
+    }
+  }, {
+    key: "decrease",
+    value: function decrease() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+        this.input.value = String(this.currentIndex);
+        this.updateDisplay();
+        this.input.dispatchEvent(new Event('input', {
+          bubbles: true
+        }));
+        this.input.dispatchEvent(new Event('change', {
+          bubbles: true
+        }));
+      }
+    }
+  }, {
+    key: "increase",
+    value: function increase() {
+      if (this.currentIndex < this.values.length - 1) {
+        this.currentIndex++;
+        this.input.value = String(this.currentIndex);
+        this.updateDisplay();
+        this.input.dispatchEvent(new Event('input', {
+          bubbles: true
+        }));
+        this.input.dispatchEvent(new Event('change', {
+          bubbles: true
+        }));
+      }
+    }
+  }, {
+    key: "updateDisplay",
+    value: function updateDisplay() {
+      // Store the actual value as a data attribute
+      this.input.dataset.actualValue = this.values[this.currentIndex];
+
+      // Update aria attributes
+      this.input.setAttribute('aria-valuenow', String(this.currentIndex));
+      this.input.setAttribute('aria-valuetext', String(this.values[this.currentIndex]));
+    }
+  }, {
+    key: "getValue",
+    value: function getValue() {
+      return this.values[this.currentIndex];
+    }
+  }]);
+}();
+
+// EXTERNAL MODULE: ./node_modules/lodash/keys.js
+var keys = __webpack_require__(5950);
+;// ./src/control/Control.Preferences.js
+
+
+
+
+
+
+
+
+
+var Preferences = Control.extend({
+  options: {
+    label: 'Preferences',
+    hasThemes: false
+  },
+  defaultTemplate: "<button class=\"button--sm cozy-preferences oi\" data-toggle=\"open\" data-glyph=\"cog\" aria-label=\"Preferences and Settings\"></button>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var className = this._className();
+    var container = dom_DomUtil.create('div', className);
+    var template = this.options.template || this.defaultTemplate;
+    var body = new DOMParser().parseFromString(template, "text/html").body;
+    while (body.children.length) {
+      container.appendChild(body.children[0]);
+    }
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      self.activate();
+    }, this);
+
+    // Build actions array (footer buttons) conditionally
+    var actions = [{
+      label: 'Save Changes',
+      callback: function callback(event) {
+        self.updatePreferences(event);
+      }
+    }];
+
+    // For now at least, we only want the overarching "Set Defaults" button for reflowable layouts
+    if (this._reader.metadata.layout != 'pdf' && this._reader.metadata.layout != 'pre-paginated') {
+      actions.push({
+        label: 'Set Defaults',
+        callback: function callback(event) {
+          self.resetPreferencesToDefault(event);
+        }
+      });
+    }
+    this._modal = this._reader.modal({
+      title: 'Preferences',
+      className: this._reader.metadata.layout == 'reflowable' ? 'cozy-modal-preferences' : 'cozy-modal-preferences',
+      actions: actions,
+      region: 'right'
+    });
+    return container;
+  },
+  activate: function activate() {
+    var self = this;
+    self.initializeForm();
+    self._modal.activate();
+  },
+  _createPanel: function _createPanel() {
+    var self = this;
+    if (this._modal._container.querySelector('form')) {
+      return;
+    }
+    var template = '';
+    var possible_fieldsets = [];
+    if (this._reader.metadata.layout == 'pre-paginated') {
+      // different panel
+      possible_fieldsets.push('Scale');
+    } else {
+      possible_fieldsets.push('Font');
+      possible_fieldsets.push('Spacing');
+    }
+    possible_fieldsets.push('Display');
+    if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
+      // this.options.hasPackagePaths = true;
+      possible_fieldsets.push('Rendition');
+    }
+    if (this._reader.options.themes && this._reader.options.themes.length > 0) {
+      this.options.hasThemes = true;
+      possible_fieldsets.push('Theme');
+    }
+    this._fieldsets = [];
+    possible_fieldsets.forEach(function (cls) {
+      var fieldset = new Preferences.fieldset[cls](this);
+      template += fieldset.template();
+      // Dumb as it seems, we're closing <div id="text-preferences-scrolling-area"> here which, in theory, is...
+      // dynamically/conditionally added. I'm OK with this. This file is very clunky in its attempt to support...
+      // generalized use of cozy-sun-bear, which never happened. Might all be refactored "soon"?! :-D
+      if (cls === 'Display') template += '</div>';
+      this._fieldsets.push(fieldset);
+    }.bind(this));
+    if (this.options.fields) {
+      this.options.hasFields = true;
+      for (var i in this.options.fields) {
+        var field = this.options.fields[i];
+        var id = "preferences-custom-" + i;
+        template += "<fieldset class=\"custom-field\">\n          <legend>".concat(field.label, "</legend>\n        ");
+        for (var j in field.inputs) {
+          var input = field.inputs[j];
+          var checked = input.value == field.value ? ' checked="checked"' : '';
+          template += "<label><input id=\"preferences-custom-".concat(i, "-").concat(j, "\" type=\"radio\" name=\"x").concat(field.name, "\" value=\"").concat(input.value, "\" ").concat(checked, "/>").concat(input.label, "</label>");
+        }
+        if (field.hint) {
+          template += "<p class=\"hint\" style=\"font-size: 90%\">".concat(field.hint, "</p>");
+        }
+      }
+    }
+    template = '<form>' + template + '</form>';
+
+    // this._modal = this._reader.modal({
+    //   template: template,
+    //   title: 'Preferences',
+    //   className: 'cozy-modal-preferences',
+    //   actions: [
+    //     {
+    //       label: 'Save Changes',
+    //       callback: function(event) {
+    //         self.updatePreferences(event);
+    //       }
+    //     }
+    //   ],
+    //   region: 'right'
+    // });
+
+    this._modal._container.querySelector('main').innerHTML = template;
+    this._form = this._modal._container.querySelector('form');
+  },
+  initializeForm: function initializeForm() {
+    this._createPanel();
+    this._fieldsets.forEach(function (fieldset) {
+      fieldset.initializeForm(this._form);
+    }.bind(this));
+  },
+  // this method is run on click of the "Set Defaults" footer button, for both reflowable EPUB and pdf ebooks, so...
+  // element existence checks are key!
+  resetPreferencesToDefault: function resetPreferencesToDefault() {
+    // this is the only option that targets the PDF reader's Zoom In/Out option, resetting it to "Automatic Zoom"
+    // see heliotrope's app/views/e_pubs/show_pdf.html.erb
+    var pdf_scale_radio_buttons = document.querySelector('ul[id$="-list"]');
+    if (pdf_scale_radio_buttons) pdf_scale_radio_buttons.querySelector('input[value="auto"]').checked = true;
+
+    // the rest of these target the options available for reflowable EPUBs
+    var fontDropdown = document.querySelector('[name="font"]');
+    if (fontDropdown) fontDropdown.value = "default";
+
+    // Reset text size to index for 100% (index 5 in the 50-400 range with 10% steps)
+    var fontSizeSlider = document.querySelector('[name="text_size"]');
+    if (fontSizeSlider) {
+      // Values are 50, 60, 70, 80, 90, 100, ... so 100 is at index 5
+      fontSizeSlider.value = 5;
+      // Dispatch event to update display
+      fontSizeSlider.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+
+    // Reset the 5 new text options
+    var wordSpacingInput = document.querySelector('input[id$="-word-spacing"]');
+    if (wordSpacingInput) {
+      wordSpacingInput.value = 0;
+      wordSpacingInput.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+    var letterSpacingInput = document.querySelector('input[id$="-letter-spacing"]');
+    if (letterSpacingInput) {
+      letterSpacingInput.value = 0;
+      letterSpacingInput.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+    var lineHeightInput = document.querySelector('input[id$="-line-height"]');
+    if (lineHeightInput) {
+      lineHeightInput.value = 0;
+      lineHeightInput.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+    var marginsInput = document.querySelector('input[id$="-margins"]');
+    if (marginsInput) {
+      marginsInput.value = 0;
+      marginsInput.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+    var paragraphSpacingInput = document.querySelector('input[id$="-paragraph-spacing"]');
+    if (paragraphSpacingInput) {
+      paragraphSpacingInput.value = 0;
+      paragraphSpacingInput.dispatchEvent(new Event('input', {
+        bubbles: true
+      }));
+    }
+
+    // set Display mode radio buttons to "Auto"
+    var textDisplayModePanel = document.querySelector('#text-display-mode');
+    if (textDisplayModePanel) {
+      var autoRadio = textDisplayModePanel.querySelector('input[type="radio"][value="auto"]');
+      if (autoRadio) autoRadio.checked = true;
+    }
+    if (Array.isArray(this._fieldsets)) {
+      this._fieldsets.forEach(function (fieldset) {
+        if (typeof fieldset._updatePreview === "function") {
+          fieldset._updatePreview();
+        }
+      });
+    }
+  },
+  updatePreferences: function updatePreferences(event) {
+    event.preventDefault();
+    var doUpdate = false;
+    var new_options = {};
+    var saveable_options = {};
+    this._fieldsets.forEach(function (fieldset) {
+      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
+      // assign(new_options, fieldset.updateForm(this._form));
+      fieldset.updateForm(this._form, new_options, saveable_options);
+    }.bind(this));
+    if (this.options.hasFields) {
+      for (var i in this.options.fields) {
+        var field = this.options.fields[i];
+        var id = "preferences-custom-" + i;
+        var input = this._form.querySelector("input[name=\"x".concat(field.name, "\"]:checked"));
+        if (input.value != field.value) {
+          field.value = input.value;
+          field.callback(field.value);
+        }
+      }
+    }
+    this._modal.deactivate();
+    setTimeout(function () {
+      // useful dev output if you're adding/changing saved preferences
+      // console.log('savable_options: ' + JSON.stringify(saveable_options, null, 4));
+      this._reader.saveOptions(saveable_options);
+      console.log('new_options: ' + JSON.stringify(new_options, null, 4));
+      this._reader.reopen(new_options);
+    }.bind(this), 100);
+  },
+  EOT: true
+});
+Preferences.fieldset = {};
+var Fieldset = Class/* Class */.X.extend({
+  options: {},
+  initialize: function initialize(control, options) {
+    Util.setOptions(this, options);
+    this._control = control;
+    this._current = {};
+    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
+  },
+  template: function template() {},
+  EOT: true
+});
+Preferences.fieldset.Font = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    if (!this._input) {
+      this._input = form.querySelector("#x".concat(this._id, "-input"));
+      this._output = form.querySelector("#x".concat(this._id, "-output"));
+      this._preview = form.querySelector("#x".concat(this._id, "-preview"));
+      this._font = form.querySelector("#x".concat(this._id, "-font"));
+
+      // Reset button reference
+      this._actionResetTextSize = form.querySelector("#x".concat(this._id, "-text-size-reset"));
+
+      // Define discrete values for text size (50% to 400% in 10% increments)
+      this._textSizeValues = [];
+      for (var i = 50; i <= 400; i += 10) {
+        this._textSizeValues.push(String(i));
+      }
+
+      // Initialize slider control with contextual aria-label
+      this._textSizeSlider = new SliderControl(this._input, this._textSizeValues, 'font size');
+      this._input.addEventListener('input', this._updatePreview.bind(this));
+      this._input.addEventListener('change', this._updatePreview.bind(this));
+      this._font.addEventListener('change', this._updatePreview.bind(this));
+
+      // Reset button event listener
+      this._actionResetTextSize.addEventListener('click', function (event) {
+        event.preventDefault();
+        // Find index of 100 in text size values (50, 60, 70, ... 100 is at index 5)
+        var resetIndex = this._textSizeValues.indexOf('100');
+        this._input.value = String(resetIndex);
+        this._textSizeSlider.currentIndex = resetIndex;
+        this._textSizeSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+    }
+    var font_input = this._control._reader.options.font || this._control._reader.metadata.font || 'default';
+    this._current.font = font_input;
+    this._font.value = font_input;
+    var text_size = this._control._reader.options.text_size || 100;
+    if (text_size == 'auto') {
+      text_size = 100;
+    }
+    this._current.text_size = text_size;
+    // Find index for text size value
+    var textSizeIndex = this._textSizeValues.indexOf(String(text_size));
+    if (textSizeIndex === -1) textSizeIndex = this._textSizeValues.indexOf('100'); // Default to 100%
+    this._input.value = String(textSizeIndex);
+    this._textSizeSlider.currentIndex = textSizeIndex;
+    this._updatePreview();
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    options.font = saveable.font = this._font.value;
+    options.text_size = saveable.text_size = this._textSizeSlider.getValue();
+  },
+  template: function template() {
+    return "\n<div id=\"text-preview\" role=\"region\" aria-labelledby=\"text-preview-heading\">\n  <h4 id=\"text-preview-heading\" class=\"preview-heading\">Preview</h4>\n  <div class=\"preview--text_preferences\" id=\"x".concat(this._id, "-preview\" style=\"font-size: 1em;\">\n    <p>'Yes, that's it,' said the Hatter with a sigh: 'it's always tea-time, and we've no time to wash the things between whiles.'</p>\n    <p>'Then you keep moving round, I suppose?' said Alice.</p>\n    <p>'Exactly so,' said the Hatter: 'as the things get used up.'</p>\n  </div>\n</div>\n<div id=\"text-preferences-scrolling-area\">\n<fieldset class=\"cozy-fieldset-font_options\">\n  <legend>Font</legend>\n  <div>\n    <span id=\"change-font\">Change Font</span>\n    <select aria-labelledby=\"change-font\" name=\"font\" id=\"x").concat(this._id, "-font\">\n      <option value=\"default\">Default</option>\n      <optgroup label=\"Serif Fonts\">\n        <option value=\"Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif\">Palatino</option>\n        <option value=\"TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif\">Times New Roman</option>\n      </optgroup>\n      <optgroup label=\"Sans Serif Fonts\">\n        <option value=\"Arial,Helvetica Neue,Helvetica,sans-serif\">Arial</option>\n        <option value=\"Verdana,Geneva,sans-serif\">Verdana</option>\n      </optgroup>\n      <optgroup label=\"Dyslexic Fonts\">\n        <option value=\"OpenDyslexic\">Open Dyslexic</option>\n      </optgroup>\n      <optgroup label=\"Monospace Fonts\">\n        <option value=\"Consolas,monaco,monospace\">Consolas</option>\n      </optgroup>\n    </select>\n  </div>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x").concat(this._id, "-text-size-label\" for=\"x").concat(this._id, "-input\">Adjust Font Size</label>\n      <span id=\"x").concat(this._id, "-output\" class=\"slider-value\">100%</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset text size to 100%\" id=\"x").concat(this._id, "-text-size-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-text-size-label\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\">\n    </div>\n  </div>\n</fieldset>");
+  },
+  _updatePreview: function _updatePreview() {
+    if (this._font.value != 'default') {
+      this._preview.style.fontFamily = this._font.value;
+    } else {
+      this._preview.style.fontFamily = null;
+    }
+
+    // Get text size value from slider
+    var textSizeValue = parseInt(this._textSizeSlider.getValue(), 10);
+    this._preview.style.fontSize = "".concat(textSizeValue / 100, "em");
+
+    // Update text size display
+    this._output.textContent = "".concat(textSizeValue, "%");
+  },
+  EOT: true
+});
+Preferences.fieldset.Spacing = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    if (!this._initialized) {
+      // Query by class since the preview is created by Font fieldset with a different ID
+      this._preview = form.querySelector('.preview--text_preferences');
+
+      // Reset button references
+      this._actionResetWordSpacing = form.querySelector("#x".concat(this._id, "-word-spacing-reset"));
+      this._actionResetLetterSpacing = form.querySelector("#x".concat(this._id, "-letter-spacing-reset"));
+      this._actionResetLineHeight = form.querySelector("#x".concat(this._id, "-line-height-reset"));
+      this._actionResetMargins = form.querySelector("#x".concat(this._id, "-margins-reset"));
+      this._actionResetParagraphSpacing = form.querySelector("#x".concat(this._id, "-paragraph-spacing-reset"));
+
+      // New spacing inputs
+      this._wordSpacing = form.querySelector("#x".concat(this._id, "-word-spacing"));
+      this._letterSpacing = form.querySelector("#x".concat(this._id, "-letter-spacing"));
+      this._lineHeight = form.querySelector("#x".concat(this._id, "-line-height"));
+      this._margins = form.querySelector("#x".concat(this._id, "-margins"));
+      this._paragraphSpacing = form.querySelector("#x".concat(this._id, "-paragraph-spacing"));
+
+      // Value display spans
+      this._wordSpacingValue = form.querySelector("#x".concat(this._id, "-word-spacing-value"));
+      this._letterSpacingValue = form.querySelector("#x".concat(this._id, "-letter-spacing-value"));
+      this._lineHeightValue = form.querySelector("#x".concat(this._id, "-line-height-value"));
+      this._marginsValue = form.querySelector("#x".concat(this._id, "-margins-value"));
+      this._paragraphSpacingValue = form.querySelector("#x".concat(this._id, "-paragraph-spacing-value"));
+
+      // Define discrete values for each slider
+      this._wordSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem', '1rem'];
+      this._letterSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem'];
+      this._lineHeightValues = ['auto', '1', '1.125', '1.25', '1.35', '1.5', '1.65', '1.75', '2'];
+      this._marginsValues = ['auto', '.5rem', '.75rem', '1rem', '1.25rem', '1.5rem', '1.75rem', '2rem'];
+      this._paragraphSpacingValues = ['auto', '.5rem', '1rem', '1.25rem', '1.5rem', '2rem', '2.5rem', '3rem'];
+
+      // Initialize slider controls with contextual aria-labels
+      this._wordSpacingSlider = new SliderControl(this._wordSpacing, this._wordSpacingValues, 'word spacing');
+      this._letterSpacingSlider = new SliderControl(this._letterSpacing, this._letterSpacingValues, 'letter spacing');
+      this._lineHeightSlider = new SliderControl(this._lineHeight, this._lineHeightValues, 'line height');
+      this._marginsSlider = new SliderControl(this._margins, this._marginsValues, 'margins');
+      this._paragraphSpacingSlider = new SliderControl(this._paragraphSpacing, this._paragraphSpacingValues, 'paragraph spacing');
+
+      // Add listeners for spacing inputs
+      [this._wordSpacing, this._letterSpacing, this._lineHeight, this._margins, this._paragraphSpacing].forEach(function (input) {
+        input.addEventListener('input', this._updatePreview.bind(this));
+        input.addEventListener('change', this._updatePreview.bind(this));
+      }.bind(this));
+
+      // Reset button event listeners
+      this._actionResetWordSpacing.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._wordSpacing.value = '0';
+        this._wordSpacingSlider.currentIndex = 0;
+        this._wordSpacingSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+      this._actionResetLetterSpacing.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._letterSpacing.value = '0';
+        this._letterSpacingSlider.currentIndex = 0;
+        this._letterSpacingSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+      this._actionResetLineHeight.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._lineHeight.value = '0';
+        this._lineHeightSlider.currentIndex = 0;
+        this._lineHeightSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+      this._actionResetMargins.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._margins.value = '0';
+        this._marginsSlider.currentIndex = 0;
+        this._marginsSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+      this._actionResetParagraphSpacing.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._paragraphSpacing.value = '0';
+        this._paragraphSpacingSlider.currentIndex = 0;
+        this._paragraphSpacingSlider.updateDisplay();
+        this._updatePreview();
+      }.bind(this));
+      this._initialized = true;
+    }
+
+    // Ensure preview is available even if not in initialization block
+    // Use a generic selector since the preview is created by the Font fieldset with its own ID
+    if (!this._preview) {
+      this._preview = form.querySelector('.preview--text_preferences');
+    }
+
+    // Initialize spacing options - find index or default to 0 (auto)
+    this._current.word_spacing = this._control._reader.options.word_spacing || 'auto';
+    var wordSpacingIndex = this._wordSpacingValues.indexOf(this._current.word_spacing);
+    if (wordSpacingIndex === -1) wordSpacingIndex = 0;
+    this._wordSpacing.value = String(wordSpacingIndex);
+    this._wordSpacingSlider.currentIndex = wordSpacingIndex;
+    this._current.letter_spacing = this._control._reader.options.letter_spacing || 'auto';
+    var letterSpacingIndex = this._letterSpacingValues.indexOf(this._current.letter_spacing);
+    if (letterSpacingIndex === -1) letterSpacingIndex = 0;
+    this._letterSpacing.value = String(letterSpacingIndex);
+    this._letterSpacingSlider.currentIndex = letterSpacingIndex;
+    this._current.line_height = this._control._reader.options.line_height || 'auto';
+    var lineHeightIndex = this._lineHeightValues.indexOf(this._current.line_height);
+    if (lineHeightIndex === -1) lineHeightIndex = 0;
+    this._lineHeight.value = String(lineHeightIndex);
+    this._lineHeightSlider.currentIndex = lineHeightIndex;
+    this._current.margins = this._control._reader.options.margins || 'auto';
+    var marginsIndex = this._marginsValues.indexOf(this._current.margins);
+    if (marginsIndex === -1) marginsIndex = 0;
+    this._margins.value = String(marginsIndex);
+    this._marginsSlider.currentIndex = marginsIndex;
+    this._current.paragraph_spacing = this._control._reader.options.paragraph_spacing || 'auto';
+    var paragraphSpacingIndex = this._paragraphSpacingValues.indexOf(this._current.paragraph_spacing);
+    if (paragraphSpacingIndex === -1) paragraphSpacingIndex = 0;
+    this._paragraphSpacing.value = String(paragraphSpacingIndex);
+    this._paragraphSpacingSlider.currentIndex = paragraphSpacingIndex;
+    this._updatePreview();
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    options.word_spacing = saveable.word_spacing = this._wordSpacingSlider.getValue();
+    options.letter_spacing = saveable.letter_spacing = this._letterSpacingSlider.getValue();
+    options.line_height = saveable.line_height = this._lineHeightSlider.getValue();
+    options.margins = saveable.margins = this._marginsSlider.getValue();
+    options.paragraph_spacing = saveable.paragraph_spacing = this._paragraphSpacingSlider.getValue();
+  },
+  template: function template() {
+    return "\n<fieldset class=\"cozy-fieldset-spacing_options\">\n  <legend>Spacing</legend>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x".concat(this._id, "-word-spacing-label\" for=\"x").concat(this._id, "-word-spacing\">Word Spacing</label>\n      <span id=\"x").concat(this._id, "-word-spacing-value\" class=\"slider-value\">auto</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset word spacing to auto\" id=\"x").concat(this._id, "-word-spacing-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-word-spacing-label\" type=\"range\" id=\"x").concat(this._id, "-word-spacing\" value=\"auto\">\n    </div>\n  </div>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x").concat(this._id, "-letter-spacing-label\" for=\"x").concat(this._id, "-letter-spacing\">Letter Spacing</label>\n      <span id=\"x").concat(this._id, "-letter-spacing-value\" class=\"slider-value\">auto</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset letter spacing to auto\" id=\"x").concat(this._id, "-letter-spacing-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-letter-spacing-label\" type=\"range\" id=\"x").concat(this._id, "-letter-spacing\" value=\"auto\">\n    </div>\n  </div>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x").concat(this._id, "-line-height-label\" for=\"x").concat(this._id, "-line-height\">Line Height</label>\n      <span id=\"x").concat(this._id, "-line-height-value\" class=\"slider-value\">auto</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset line height to auto\" id=\"x").concat(this._id, "-line-height-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-line-height-label\" type=\"range\" id=\"x").concat(this._id, "-line-height\" value=\"auto\">\n    </div>\n  </div>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x").concat(this._id, "-margins-label\" for=\"x").concat(this._id, "-margins\">Margins</label>\n      <span id=\"x").concat(this._id, "-margins-value\" class=\"slider-value\">auto</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset margins to auto\" id=\"x").concat(this._id, "-margins-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-margins-label\" type=\"range\" id=\"x").concat(this._id, "-margins\" value=\"auto\">\n    </div>\n  </div>\n  <div class=\"slider-option\">\n    <div class=\"slider-label-row\">\n      <label id=\"x").concat(this._id, "-paragraph-spacing-label\" for=\"x").concat(this._id, "-paragraph-spacing\">Paragraph Spacing</label>\n      <span id=\"x").concat(this._id, "-paragraph-spacing-value\" class=\"slider-value\">auto</span>\n    </div>\n    <div class=\"slider-control-row\">\n      <button aria-label=\"Reset paragraph spacing to auto\" id=\"x").concat(this._id, "-paragraph-spacing-reset\" class=\"reset-text-options button--sm\"><i class=\"icon-action-undo oi\" data-glyph=\"action-undo\" aria-hidden=\"true\"></i></button>\n      <input aria-labelledby=\"x").concat(this._id, "-paragraph-spacing-label\" type=\"range\" id=\"x").concat(this._id, "-paragraph-spacing\" value=\"auto\">\n    </div>\n  </div>\n</fieldset>");
+  },
+  _updatePreview: function _updatePreview() {
+    // Get actual values from sliders
+    var wordSpacingValue = this._wordSpacingSlider.getValue();
+    var letterSpacingValue = this._letterSpacingSlider.getValue();
+    var lineHeightValue = this._lineHeightSlider.getValue();
+    var marginsValue = this._marginsSlider.getValue();
+    var paragraphSpacingValue = this._paragraphSpacingSlider.getValue();
+
+    // Update display spans
+    this._wordSpacingValue.textContent = wordSpacingValue;
+    this._letterSpacingValue.textContent = letterSpacingValue;
+    this._lineHeightValue.textContent = lineHeightValue;
+    this._marginsValue.textContent = marginsValue;
+    this._paragraphSpacingValue.textContent = paragraphSpacingValue;
+
+    // Apply styles to preview
+    if (wordSpacingValue !== 'auto') {
+      this._preview.style.wordSpacing = wordSpacingValue;
+    } else {
+      this._preview.style.wordSpacing = null;
+    }
+    if (letterSpacingValue !== 'auto') {
+      this._preview.style.letterSpacing = letterSpacingValue;
+    } else {
+      this._preview.style.letterSpacing = null;
+    }
+    if (lineHeightValue !== 'auto') {
+      this._preview.style.lineHeight = lineHeightValue;
+    } else {
+      this._preview.style.lineHeight = null;
+    }
+    if (marginsValue !== 'auto') {
+      this._preview.style.margin = marginsValue;
+    } else {
+      this._preview.style.margin = null;
+    }
+    var paragraphs = this._preview.querySelectorAll('p');
+    if (paragraphSpacingValue !== 'auto') {
+      paragraphs.forEach(function (p) {
+        p.style.marginBottom = paragraphSpacingValue;
+      });
+    } else {
+      paragraphs.forEach(function (p) {
+        p.style.marginBottom = null;
+      });
+    }
+  },
+  EOT: true
+});
+Preferences.fieldset.Display = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
+    // if ( flow == 'auto' ) { flow = 'paginated'; }
+
+    var input = form.querySelector("#x".concat(this._id, "-input-").concat(flow));
+    input.checked = true;
+    this._current.flow = flow;
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    var input = form.querySelector("input[name=\"x".concat(this._id, "-flow\"]:checked"));
+    options.flow = input.value;
+    if (options.flow != 'auto') {
+      saveable.flow = options.flow;
+    }
+    // if ( input.value == 'auto' ) {
+    //   // we do NOT want to save flow as a preference
+    //   return {};
+    // }
+    // return { flow: input.value };
+  },
+  template: function template() {
+    var scrolled_help = '';
+    if (this._control._reader.metadata.layout != 'pre-paginated') {
+      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
+    }
+    return "<fieldset id=\"text-display-mode\">\n            <legend>Display</legend>\n            <label><input name=\"x".concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-auto\" value=\"auto\" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-paginated\" value=\"paginated\" /> Page-by-Page</label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-scrolled-doc\" value=\"scrolled-doc\" /> Scroll").concat(scrolled_help, "</label>\n          </fieldset>");
+  },
+  EOT: true
+});
+Preferences.fieldset.Theme = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    var theme = this._control._reader.options.theme || 'default';
+    var input = form.querySelector("#x".concat(this._id, "-input-theme-").concat(theme));
+    input.checked = true;
+    this._current.theme = theme;
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    var input = form.querySelector("input[name=\"x".concat(this._id, "-theme\"]:checked"));
+    options.theme = saveable.theme = input.value;
+    // return { theme: input.value };
+  },
+  template: function template() {
+    var template = "<fieldset>\n            <legend>Theme</legend>\n            <label><input name=\"x".concat(this._id, "-theme\" type=\"radio\" id=\"x").concat(this._id, "-input-theme-default\" value=\"default\" />Default</label>");
+    this._control._reader.options.themes.forEach(function (theme) {
+      template += "<label><input name=\"x".concat(this._id, "-theme\" type=\"radio\" id=\"x").concat(this._id, "-input-theme-").concat(theme.klass, "\" value=\"").concat(theme.klass, "\" />").concat(theme.name, "</label>");
+    }.bind(this));
+    template += '</fieldset>';
+    return template;
+  },
+  EOT: true
+});
+Preferences.fieldset.Rendition = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    var rootfiles = this._control._reader.rootfiles;
+    var rootfilePath = this._control._reader.options.rootfilePath;
+    var expr = rootfilePath ? "[value=\"".concat(rootfilePath, "\"]") : ":first-child";
+    var input = form.querySelector("input[name=\"x".concat(this._id, "-rootfilePath\"]").concat(expr));
+    input.checked = true;
+    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    var input = form.querySelector("input[name=\"x".concat(this._id, "-rootfilePath\"]:checked"));
+    if (input.value != this._current.rootfilePath) {
+      options.rootfilePath = input.value;
+      this._current.rootfilePath = input.value;
+    }
+  },
+  template: function template() {
+    var template = "<fieldset>\n            <legend>Rendition</legend>\n    ";
+    this._control._reader.rootfiles.forEach(function (rootfile, i) {
+      template += "<label><input name=\"x".concat(this._id, "-rootfilePath\" type=\"radio\" id=\"x").concat(this._id, "-input-rootfilePath-").concat(i, "\" value=\"").concat(rootfile.rootfilePath, "\" />").concat(rootfile.label || rootfile.accessMode || rootfile.rootfilePath, "</label>");
+    }.bind(this));
+    template += '</fieldset>';
+    return template;
+  },
+  EOT: true
+});
+Preferences.fieldset.Scale = Fieldset.extend({
+  initializeForm: function initializeForm(form) {
+    if (!this._input) {
+      this._input = form.querySelector("#x".concat(this._id, "-input"));
+      this._output = form.querySelector("#x".concat(this._id, "-output"));
+      this._preview = form.querySelector("#x".concat(this._id, "-preview > div"));
+      this._actionResetTextSize = form.querySelector("#x".concat(this._id, "-text-size-reset"));
+      this._input.addEventListener('input', this._updatePreview.bind(this));
+      this._input.addEventListener('change', this._updatePreview.bind(this));
+      this._actionResetTextSize.addEventListener('click', function (event) {
+        event.preventDefault();
+        this._input.value = 100;
+        this._updatePreview();
+      }.bind(this));
+    }
+    var scale = this._control._reader.options.scale || 100;
+    if (!scale) {
+      scale = 100;
+    }
+    this._current.scale = scale;
+    this._input.value = scale;
+    this._updatePreview();
+  },
+  updateForm: function updateForm(form, options, saveable) {
+    // return { text_size: this._input.value };
+    options.scale = saveable.scale = this._input.value;
+    // options.text_size = this._input.value;
+    // return ( this._input.value != this._current.text_size );
+  },
+  template: function template() {
+    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Zoom In/Out</legend>\n        <p style=\"white-space: nowrap\">\n          <span style=\"font-size: 150%\">\u2296<span class=\"u-screenreader\"> Zoom Out</span></span>\n          <input name=\"scale\" type=\"range\" id=\"x".concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" style=\"width: 75%; display: inline-block\" />\n          <span style=\"font-size: 150%\">\u2295<span class=\"u-screenreader\">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-text-size-reset\" class=\"reset button--inline\" style=\"margin-left: 8px\">Reset</button> \n        </p>\n      </fieldset>");
+  },
+  _updatePreview: function _updatePreview() {
+    this._preview.style.transform = "scale(".concat(parseInt(this._input.value, 10) / 100, ") translate(0,0)");
+    this._output.innerHTML = "".concat(this._input.value, "%");
+  },
+  EOT: true
+});
+var preferences = function preferences(options) {
+  return new Preferences(options);
+};
+;// ./src/control/Control.Widget.js
+
+
+
+
+var Widget = Control.extend({
+  options: {
+    // @option region: String = 'topright'
+    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
+    // `'topright'`, `'bottomleft'` or `'bottomright'`
+  },
+  onAdd: function onAdd(reader) {
+    var container = this._container;
+    if (container) {
+      // NOOP
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._onAddExtra(container);
+    this._updateTemplate(container);
+    this._updateClass(container);
+    this._bindEvents(container);
+    return container;
+  },
+  _updateTemplate: function _updateTemplate(container) {
+    var data = this.data();
+    for (var slot in data) {
+      if (data.hasOwnProperty(slot)) {
+        var value = data[slot];
+        if (typeof value == "function") {
+          value = value();
+        }
+        var node = container.querySelector("[data-slot=".concat(slot, "]"));
+        if (node) {
+          if (node.hasAttribute('value')) {
+            node.setAttribute('value', value);
+          } else {
+            node.innerHTML = value;
+          }
+        }
+      }
+    }
+  },
+  _updateClass: function _updateClass(container) {
+    if (this.options.className) {
+      dom_DomUtil.addClass(container, this.options.className);
+    }
+  },
+  _onAddExtra: function _onAddExtra() {},
+  _bindEvents: function _bindEvents(container) {
+    var control = container.querySelector("[data-toggle=button]");
+    if (!control) {
+      return;
+    }
+    DomEvent.disableClickPropagation(control);
+    DomEvent.on(control, 'click', DomEvent.stop);
+    DomEvent.on(control, 'click', this._action, this);
+  },
+  _action: function _action() {},
+  data: function data() {
+    return this.options.data || {};
+  },
+  EOT: true
+});
+Widget.Button = Widget.extend({
+  defaultTemplate: "<button data-toggle=\"button\" data-slot=\"label\"></button>",
+  _action: function _action() {
+    this.options.onClick(this, this._reader);
+  },
+  EOT: true
+});
+Widget.Panel = Widget.extend({
+  defaultTemplate: "<div><span data-slot=\"text\"></span></div>",
+  EOT: true
+});
+Widget.Toggle = Widget.extend({
+  defaultTemplate: "<button data-toggle=\"button\" data-slot=\"label\"></button>",
+  _onAddExtra: function _onAddExtra(container) {
+    this.state(this.options.states[0].stateName, container);
+    return container;
+  },
+  state: function state(stateName, container) {
+    container = container || this._container;
+    this._resetState(container);
+    this._state = this.options.states.filter(function (s) {
+      return s.stateName == stateName;
+    })[0];
+    this._updateClass(container);
+    this._updateTemplate(container);
+  },
+  _resetState: function _resetState(container) {
+    if (!this._state) {
+      return;
+    }
+    if (this._state.className) {
+      dom_DomUtil.removeClass(container, this._state.className);
+    }
+  },
+  _updateClass: function _updateClass(container) {
+    if (this._state.className) {
+      dom_DomUtil.addClass(container, this._state.className);
+    }
+  },
+  _action: function _action() {
+    this._state.onClick(this, this._reader);
+  },
+  data: function data() {
+    return this._state.data || {};
+  },
+  EOT: true
+});
+
+// export var widget = function(options) {
+//   return new Widget(options);
+// }
+
+var widget = {
+  button: function button(options) {
+    return new Widget.Button(options);
+  },
+  panel: function panel(options) {
+    return new Widget.Panel(options);
+  },
+  toggle: function toggle(options) {
+    return new Widget.Toggle(options);
+  }
+};
+;// ./src/control/Control.Citation.js
+
+
+
+
+var Citation = Control.extend({
+  options: {
+    label: 'Citation',
+    html: '<span class="citation" aria-label="Get Citation"></span>'
+  },
+  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._reader.on('updateContents', function (data) {
+      self._createPanel();
+    });
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      self._modal.activate();
+    }, this);
+    return container;
+  },
+  _action: function _action() {
+    var self = this;
+    self._modal.activate();
+  },
+  _createButton: function _createButton(html, title, className, container, fn) {
+    var link = dom_DomUtil.create('button', className, container);
+    link.innerHTML = html;
+    link.title = title;
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-label', title);
+    DomEvent.disableClickPropagation(link);
+    DomEvent.on(link, 'click', DomEvent.stop);
+    DomEvent.on(link, 'click', fn, this);
+    return link;
+  },
+  _createPanel: function _createPanel() {
+    var self = this;
+    var template = "<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n      </fieldset>\n    </form>\n    <blockquote id=\"formatted\" style=\"padding: 8px; border-left: 4px solid black; background-color: #fff\"></blockquote>\n    <div class=\"alert alert-info\" id=\"message\" style=\"display: none\"></div>";
+    this._modal = this._reader.modal({
+      template: template,
+      title: 'Copy Citation to Clipboard',
+      className: 'cozy-modal-citation',
+      actions: [{
+        label: 'Copy Citation',
+        close: true,
+        callback: function callback(event) {
+          document.designMode = "on";
+          var formatted = self._modal._container.querySelector("#formatted");
+          var range = document.createRange();
+          range.selectNode(formatted);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+
+          // formatted.select();
+
+          try {
+            var flag = document.execCommand('copy');
+          } catch (err) {
+            console.log("AHOY COPY FAILED", err);
+          }
+          self._message.innerHTML = 'Success! Citation copied to your clipboard.';
+          self._message.style.display = 'block';
+          sel.removeAllRanges();
+          range.detach();
+          document.designMode = "off";
+        }
+      }],
+      region: 'left',
+      fraction: 1.0
+    });
+    this._form = this._modal._container.querySelector('form');
+    var fieldset = this._form.querySelector('fieldset');
+    var citations = this.options.citations || this._reader.metadata.citations;
+    citations.forEach(function (citation, index) {
+      var label = dom_DomUtil.create('label', null, fieldset);
+      var input = dom_DomUtil.create('input', null, label);
+      input.setAttribute('name', 'format');
+      input.setAttribute('value', citation.format);
+      input.setAttribute('type', 'radio');
+      if (index == 0) {
+        input.setAttribute('checked', 'checked');
+      }
+      var text = document.createTextNode(" " + citation.format);
+      label.appendChild(text);
+      input.setAttribute('data-text', citation.text);
+    });
+    this._formatted = this._modal._container.querySelector("#formatted");
+    this._message = this._modal._container.querySelector("#message");
+    DomEvent.on(this._form, 'change', function (event) {
+      var target = event.target;
+      if (target.tagName == 'INPUT') {
+        this._initializeForm();
+      }
+    }, this);
+    this._initializeForm();
+  },
+  _initializeForm: function _initializeForm() {
+    var formatted = this._formatCitation();
+    this._formatted.innerHTML = formatted;
+    this._message.style.display = 'none';
+    this._message.innerHTML = '';
+  },
+  _formatCitation: function _formatCitation(format) {
+    if (format == null) {
+      var selected = this._form.querySelector("input:checked");
+      format = selected.value;
+    }
+    var selected = this._form.querySelector("input[value=" + format + "]");
+    return selected.getAttribute('data-text');
+    // return selected.dataset.text;
+  },
+  EOT: true
+});
+var citation = function citation(options) {
+  return new Citation(options);
+};
+;// ./src/control/Control.Search.js
+
+
+
+
+var Search = Control.extend({
+  options: {
+    label: 'Search',
+    html: '<span>Search</span>'
+  },
+  defaultTemplate: "<form class=\"search\">\n    <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n    <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n    <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n  </form>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._control = container.querySelector("[data-toggle=open]");
+    container.style.position = 'relative';
+    this._data = null;
+    this._canceled = false;
+    this._processing = false;
+    this._addLocation = false;
+    this._reader.on('ready', function () {
+      this._modal = this._reader.modal({
+        template: '<article></article>',
+        title: 'Search Results',
+        className: {
+          container: 'cozy-modal-search'
+        },
+        region: 'left'
+      });
+      this._modal.callbacks.onClose = function () {
+        if (self._processing) {
+          self._canceled = true;
+        }
+      };
+      this._article = this._modal._container.querySelector('article');
+      this._modal.on('click', 'a[class="search-result"]', function (modal, target) {
+        target = target.getAttribute('href');
+        this._reader.tracking.action('search/go/link');
+        this._reader.display(target, function () {
+          // return focus to epub iframe, CSB-259
+          document.getElementsByTagName("iframe")[0].focus();
+        });
+        return true;
+      }.bind(this));
+      this._modal.on('click', 'a[class="feedback-link"]', function (modal, target) {
+        window.open(target.href, '_blank');
+      }.bind(this));
+      this._modal.on('closed', function () {
+        this._reader.tracking.action('contents/close');
+      }.bind(this));
+    }.bind(this));
+
+    // only add locations when they've been processed
+    this._reader.on('updateLocations', function () {
+      this._addLocation = true;
+    }.bind(this));
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      var searchString = this._container.querySelector("#cozy-search-string").value;
+      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
+      if (!searchString) {
+        // just punt
+        return;
+      }
+      if (searchString == this.searchString) {
+        // cached results
+        self.openModalResults();
+      } else {
+        this.searchString = searchString;
+        self.openModalWaiting();
+        self.submitQuery();
+      }
+    }, this);
+    window.addEventListener('keydown', function (evt) {
+      var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
+      if (cmd === 1 || cmd === 8 || cmd === 5 || cmd === 12) {
+        if (evt.keyCode == '70') {
+          // command/control-F
+          evt.preventDefault();
+          this._container.querySelector("#cozy-search-string").focus();
+        }
+      }
+    }.bind(this));
+    return container;
+  },
+  openModalWaiting: function openModalWaiting() {
+    this._processing = true;
+    this._emptyArticle();
+    var value = this.searchString;
+    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate();
+    this._modal.activate();
+  },
+  openModalResults: function openModalResults() {
+    if (this._canceled) {
+      this._canceled = false;
+      return;
+    }
+    this._buildResults();
+    this._modal.activate();
+    this._reader.tracking.action("search/open");
+  },
+  submitQuery: function submitQuery() {
+    var self = this;
+    var url = this.options.searchUrl + encodeURIComponent(this.searchString);
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.onload = function () {
+      if (this.status >= 200 && this.status < 400) {
+        // Success!
+        var data = JSON.parse(this.response);
+        console.log("SEARCH DATA", data);
+        self._data = data;
+      } else {
+        // We reached our target server, but it returned an error
+
+        self._data = null;
+        console.log(this.response);
+      }
+      self._reader.tracking.action("search/submitQuery");
+      self.openModalResults();
+    };
+    request.onerror = function () {
+      // There was a connection error of some sort
+      self._data = null;
+      self.openModalResults();
+    };
+    request.send();
+  },
+  _emptyArticle: function _emptyArticle() {
+    while (this._article && this._article.hasChildNodes()) {
+      this._article.removeChild(this._article.lastChild);
+    }
+  },
+  _buildResults: function _buildResults() {
+    var self = this;
+    var content;
+    var no_results;
+    var feedback;
+    var results_list;
+    var feedback_link = document.createElement('a');
+    feedback_link.target = '_blank';
+    feedback_link.href = 'https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=' + self._reader.metadata.press_subdomain + '&noid=' + self._reader.metadata.noid + '&title=' + self._reader.metadata.title + '&search_location=ereader&q=' + self.searchString + '&url=' + window.location.href;
+    feedback_link.innerText = 'Share your feedback.';
+    feedback_link.setAttribute("class", "feedback-link");
+    var feedback_text = 'Not finding what you\'re looking for? ';
+    feedback = dom_DomUtil.create("p");
+    feedback.textContent = feedback_text;
+    feedback.appendChild(feedback_link);
+    this._processing = false;
+    self._emptyArticle();
+    var reader = this._reader;
+    reader.annotations.reset();
+    if (this._data) {
+      var highlight = true;
+      if (this._data.highlight_off == "yes") {
+        highlight = false;
+      }
+      content = dom_DomUtil.create('div');
+      if (this._data.search_results.length == 0) {
+        no_results = dom_DomUtil.create("p");
+        no_results.textContent = 'No results found for "' + self.searchString + '"';
+        content.appendChild(no_results);
+        content.appendChild(feedback);
+      } else {
+        content.appendChild(feedback);
+        results_list = dom_DomUtil.create('ol');
+        this._data.search_results.forEach(function (result) {
+          var option = dom_DomUtil.create('li');
+          var anchor = dom_DomUtil.create('a', null, option);
+          var cfiRange = "epubcfi(" + result.cfi + ")";
+          if (result.snippet) {
+            // results for epubs
+            if (self._addLocation) {
+              var loc = reader.locations.locationFromCfi(cfiRange);
+              var locText = "Location " + loc + " • ";
+              if (cfiRange.match(/^epubcfi\(page/)) {
+                // results for pdfs
+                // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
+                loc = cfiRange.split("=")[1];
+                locText = "Page " + loc.slice(0, -1) + " • ";
+              }
+              var locElement = dom_DomUtil.create('i');
+              locElement.textContent = locText;
+              anchor.appendChild(locElement);
+            }
+            anchor.appendChild(document.createTextNode(result.snippet));
+            anchor.setAttribute("href", cfiRange);
+            anchor.setAttribute("class", 'search-result');
+            results_list.appendChild(option);
+          }
+          if (highlight) {
+            reader.annotations.highlight(cfiRange, {}, null, 'epubjs-search-hl');
+          }
+        });
+        content.appendChild(results_list);
+      }
+    } else {
+      content = dom_DomUtil.create("p");
+      content.textContent = 'There was a problem processing this query.';
+    }
+    self._article.appendChild(content);
+  },
+  EOT: true
+});
+var search = function search(options) {
+  return new Search(options);
+};
+;// ./src/control/Control.BibliographicInformation.js
+
+
+
+
+
+// Title + Chapter
+
+var BibliographicInformation = Control.extend({
+  options: {
+    label: 'Info',
+    direction: 'left',
+    html: '<span class="oi" data-glyph="info">Info</span>'
+  },
+  defaultTemplate: "<button class=\"button--sm cozy-bib-info oi\" data-glyph=\"info\" data-toggle=\"open\" aria-label=\"Bibliographic Information\"> Info</button>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._reader.on('updateContents', function (data) {
+      self._createPanel();
+    });
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      self._modal.activate();
+    }, this);
+    return container;
+  },
+  _createPanel: function _createPanel() {
+    var self = this;
+    var template = "<dl>\n    </dl>";
+    this._modal = this._reader.modal({
+      template: template,
+      title: 'Info',
+      region: 'left',
+      fraction: 1.0
+    });
+    var dl = this._modal._container.querySelector('dl');
+    var metadata_fields = [['title', 'Title'], ['creator', 'Author'], ['pubdate', 'Publication Date'], ['modified_date', 'Modified Date'], ['publisher', 'Publisher'], ['rights', 'Rights'], ['doi', 'DOI'], ['description', 'Description']];
+    var metadata_fields_seen = {};
+    var metadata = this._reader.metadata;
+    for (var idx in metadata_fields) {
+      var key = metadata_fields[idx][0];
+      var label = metadata_fields[idx][1];
+      if (metadata[key]) {
+        var value = metadata[key];
+        if (key == 'pubdate' || key == 'modified_date') {
+          value = this._formatDate(value);
+          if (!value) {
+            continue;
+          }
+          // value = d.toISOString().slice(0,10); // for YYYY-MM-DD
+        }
+        metadata_fields_seen[key] = true;
+        var dt = dom_DomUtil.create('dt', 'cozy-bib-info-label', dl);
+        dt.innerHTML = label;
+        var dd = dom_DomUtil.create('dd', 'cozy-bib-info-value cozy-bib-info-value-' + key, dl);
+        dd.innerHTML = value;
+      }
+    }
+  },
+  _formatDate: function _formatDate(value) {
+    var match = value.match(/\d{4}/);
+    if (match) {
+      return match[0];
+    }
+    return null;
+  },
+  EOT: true
+});
+var bibliographicInformation = function bibliographicInformation(options) {
+  return new BibliographicInformation(options);
+};
+;// ./src/control/Control.Download.js
+
+
+
+
+var Download = Control.extend({
+  options: {
+    label: 'Download Book',
+    html: '<span>Download Book</span>'
+  },
+  defaultTemplate: "<button class=\"button--sm cozy-download oi\" data-toggle=\"open\" data-glyph=\"data-transfer-download\"> Download Book</button>",
+  onAdd: function onAdd(reader) {
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._reader.on('updateContents', function (data) {
+      self._createPanel();
+    });
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      self._modal.activate();
+    }, this);
+    return container;
+  },
+  _createPanel: function _createPanel() {
+    var self = this;
+    var template = "<form>\n      <fieldset>\n        <legend>Choose File Format</legend>\n      </fieldset>\n    </form>";
+    this._modal = this._reader.modal({
+      template: template,
+      title: 'Download Book',
+      className: 'cozy-modal-download',
+      actions: [{
+        label: 'Download',
+        callback: function callback(event) {
+          var selected = self._form.querySelector("input:checked");
+          var href = selected.getAttribute('data-href');
+          self._configureDownloadForm(href);
+          self._form.submit();
+        }
+      }],
+      region: 'left',
+      fraction: 1.0
+    });
+    this._form = this._modal._container.querySelector('form');
+    var fieldset = this._form.querySelector('fieldset');
+    this._reader.options.download_links.forEach(function (link, index) {
+      var label = dom_DomUtil.create('label', null, fieldset);
+      var input = dom_DomUtil.create('input', null, label);
+      input.setAttribute('name', 'format');
+      input.setAttribute('value', link.format);
+      input.setAttribute('data-href', link.href);
+      input.setAttribute('type', 'radio');
+      if (index == 0) {
+        input.setAttribute('checked', 'checked');
+      }
+      var text = link.format;
+      if (link.size) {
+        text += " (" + link.size + ")";
+      }
+      var text = document.createTextNode(" " + text);
+      label.appendChild(text);
+    });
+  },
+  _configureDownloadForm: function _configureDownloadForm(href) {
+    var self = this;
+    self._form.setAttribute('method', 'GET');
+    self._form.setAttribute('action', href);
+    self._form.setAttribute('target', '_blank');
+  },
+  EOT: true
+});
+var download = function download(options) {
+  return new Download(options);
+};
+;// ./src/control/Control.Navigator.js
+function Control_Navigator_typeof(o) { "@babel/helpers - typeof"; return Control_Navigator_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, Control_Navigator_typeof(o); }
+
+
+
+
+var Navigator = Control.extend({
+  onAdd: function onAdd(reader) {
+    var container = this._container;
+    if (container) {} else {
+      var className = this._className('navigator'),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+    }
+    this._setup(container);
+    this._reader.on('updateLocations', function (locations) {
+      this._initializeNavigator(locations);
+    }.bind(this));
+    return container;
+  },
+  _setup: function _setup(container) {
+    this._control = container.querySelector("input[type=range]");
+    if (!this._control) {
+      this._createControl(container);
+    }
+    this._background = container.querySelector(".cozy-navigator-range__background");
+    this._status = container.querySelector(".cozy-navigator-range__status");
+    this._spanCurrentPercentage = container.querySelector(".currentPercentage");
+    this._spanCurrentLocation = container.querySelector(".currentLocation");
+    this._spanTotalLocations = container.querySelector(".totalLocations");
+    this._spanCurrentPageLabel = container.querySelector('.currentPageLabel');
+    this._bindEvents();
+  },
+  _createControl: function _createControl(container) {
+    var template = "<div class=\"cozy-navigator-range\">\n        <label class=\"u-screenreader\" for=\"cozy-navigator-range-input\">Location: </label>\n        <input class=\"cozy-navigator-range__input\" id=\"cozy-navigator-range-input\" type=\"range\" name=\"locations-range-value\" min=\"0\" max=\"100\" step=\"1\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"0% \u2022\xA0Location 0 of ?\" value=\"0\" data-background-position=\"0\" />\n        <div class=\"cozy-navigator-range__background\"></div>\n      </div>\n      <div class=\"cozy-navigator-range__status\"><span class=\"currentPercentage\">0%</span><span> \u2022 </span><span>Location <span class=\"currentLocation\">0</span> of <span class=\"totalLocations\">?</span><span class=\"currentPageLabel\"></span></span></div>\n    ";
+    template = "<div class=\"cozy-navigator-range\">\n      <form>\n        <label class=\"u-screenreader\" for=\"cozy-navigator-range-input\">Location: </label>\n        <div class=\"cozy-navigator-range__background\">\n          <input class=\"cozy-navigator-range__input\" id=\"cozy-navigator-range-input\" type=\"range\" name=\"locations-range-value\" min=\"0\" max=\"100\" step=\"1\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"0% \u2022\xA0Location 0 of ?\" value=\"0\" data-background-position=\"0\" />\n        </div>\n      </form>\n      </div>\n      <div class=\"cozy-navigator-range__status\"><span class=\"currentPercentage\">0%</span><span> \u2022 </span><span>Location <span class=\"currentLocation\">0</span> of <span class=\"totalLocations\">?</span><span class=\"currentPageLabel\"></span></span></div>";
+    var body = new DOMParser().parseFromString(template, "text/html").body;
+    while (body.children.length) {
+      container.appendChild(body.children[0]);
+    }
+    this._control = container.querySelector("input[type=range]");
+  },
+  _bindEvents: function _bindEvents() {
+    var self = this;
+    var isIE = window.navigator.userAgent.indexOf("Trident/") > -1;
+    this._control.addEventListener("input", function () {
+      if (self._keyDown) {
+        self._keyDown = false;
+        return;
+      }
+      self._update(false);
+    }, false);
+    this._control.addEventListener("change", function (event) {
+      if (self._mouseDown) {
+        if (isIE) {
+          self._update(false);
+        }
+        return;
+      }
+      self._action();
+    }, false);
+    this._control.addEventListener("mousedown", function (event) {
+      self._mouseDown = true;
+      self._container.classList.add('updating');
+    }, false);
+    this._control.addEventListener("mouseup", function () {
+      self._mouseDown = false;
+      self._container.classList.remove('updating');
+      if (isIE) {
+        self._action();
+        return;
+      }
+      self._update();
+    }, false);
+    this._control.addEventListener("keydown", function (event) {
+      if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
+        // do not fire input events if we're just keying around
+        self._keyDown = true;
+      }
+    }, false);
+    this._control.addEventListener("keyup", function () {
+      // self._mouseDown = false;
+    }, false);
+  },
+  _action: function _action() {
+    var _this = this;
+    var value = parseInt(this._control.value, 10);
+    var cfi;
+    var locations = this._reader.locations;
+    if (locations.cfiFromLocation) {
+      cfi = locations.cfiFromLocation(value);
+    } else {
+      // hopefully short-term compatibility
+      var percent = value / this._total;
+      cfi = locations.cfiFromPercentage(percent);
+    }
+    this._reader.tracking.action("navigator/go");
+    // this._ignore = true;
+    if (this._watching == 'updateLocation') {
+      setTimeout(function () {
+        _this._update();
+      }, 100);
+    }
+    this._reader.gotoPage(cfi);
+  },
+  _update: function _update(current) {
+    var self = this;
+    var value = parseFloat(this._control.value, 10);
+    var current_location = value;
+    var max = parseFloat(this._control.max, 10);
+    var percentage = value / max * 100.0;
+
+    // this._background.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
+    var fill = this._fill; // '#2497e3';
+    var end = this._end; // '#ffffff';
+    this._control.style.background = "linear-gradient(to right, ".concat(fill, " 0%, ").concat(fill, " ").concat(percentage, "%, ").concat(end, " ").concat(percentage, "%, ").concat(end, " 100%)");
+    percentage = Math.ceil(percentage);
+    this._spanCurrentPercentage.innerHTML = percentage + '%';
+    this._control.setAttribute('data-background-position', percentage);
+    this._spanCurrentLocation.innerHTML = current_location;
+    var current_page = '';
+    if (this._reader.pageList) {
+      // && current !== false
+      var pages;
+      if (Control_Navigator_typeof(current) != 'object') {
+        var cfi = this._reader.locations.cfiFromLocation(current_location);
+        pages = [this._reader.pageList.pageFromCfi(cfi)];
+      } else {
+        pages = this._reader.pageList.pagesFromLocation(current);
+      }
+      var pageLabels = [];
+      var label = 'p.';
+      if (pages.length) {
+        var p1 = pages.shift();
+        pageLabels.push(this._reader.pageList.pageLabel(p1));
+        if (pages.length) {
+          var p2 = pages.pop();
+          pageLabels.push(this._reader.pageList.pageLabel(p2));
+          label = 'pp.';
+        }
+      }
+      if (pageLabels.length) {
+        current_page = " (".concat(label, " ").concat(pageLabels.join('-'), ")");
+      }
+      this._spanCurrentPageLabel.innerHTML = current_page;
+    }
+    this._control.setAttribute('aria-valuenow', value);
+    this._control.setAttribute('aria-valuetext', "".concat(percentage, "% \u2022\xA0Location ").concat(current_location, " of ").concat(this._total).concat(current_page));
+
+    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
+    // this._reader.updateLiveStatus(message);
+  },
+  _initializeNavigator: function _initializeNavigator(locations) {
+    var self = this;
+    this._initiated = true;
+    this._fill = window.getComputedStyle(this._background, ':before').getPropertyValue('background-color');
+    this._end = window.getComputedStyle(this._background, ':after').getPropertyValue('background-color');
+    if (!this._reader.pageList) {
+      this._spanCurrentPageLabel.style.display = 'none';
+    }
+    this._total = this._reader.locations.total;
+    var max = this._total;
+    var min = 1;
+    if (this._reader.locations.spine) {
+      max -= 1;
+      min -= 1;
+    }
+    this._control.max = max;
+    this._control.min = min;
+    var current = this._reader.currentLocation();
+    var value = this._parseLocation(current);
+    this._control.value = value;
+    this._last_value = this._control.value;
+    this._update(current);
+    this._spanTotalLocations.innerHTML = this._total;
+    if (this._reader.locations.cfiFromLocation) {
+      this._watching = 'relocated';
+      this._reader.on('relocated', function (location) {
+        self._handle_relocated(location);
+      });
+    } else {
+      // BACK COMPATIBILITY
+      this._watching = 'updateLocation';
+      this._reader.on('updateLocation', function (location) {
+        console.log("AHOY NAVIGATOR updateLocation", location);
+        self._handle_relocated(location);
+      });
+    }
+    setTimeout(function () {
+      dom_DomUtil.addClass(this._container, 'initialized');
+    }.bind(this), 0);
+  },
+  _handle_relocated: function _handle_relocated(location) {
+    var self = this;
+    var value;
+    var percentage;
+    if (!self._initiated) {
+      return;
+    }
+    if (!(location && location.start)) {
+      return;
+    }
+    var value;
+    if (location.start && location.end) {
+      // EPUB
+      value = parseInt(self._control.value, 10);
+      var start = parseInt(location.start.location, 10);
+      var end = parseInt(location.end.location, 10);
+      if (start == this._last_location_start && end == this._last_location_end) {
+        return;
+      }
+      this._last_location_start = start;
+      this._last_location_end = end;
+
+      // console.log("AHOY NAVIGATOR relocated", value, start, end, value < start, value > end);
+      if (value < start || value > end) {
+        self._last_value = value;
+        self._control.value = value < start ? start : end;
+      }
+    } else {
+      value = self._parseLocation(location);
+      if (value == this._last_value) {
+        return;
+      }
+      self._last_value = value;
+      self._control.value = value;
+    }
+    self._update(location);
+    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
+    var message = this._control.getAttribute('aria-valuetext');
+    this._reader.updateLiveStatus(message);
+  },
+  _parseLocation: function _parseLocation(location) {
+    var self = this;
+    var value;
+    function handle_possible_pdf_location(location) {
+      var start = location.start.cfi ? location.start.cfi : location.start;
+      if (typeof start == 'string' && start.indexOf('page=') > -1) {
+        // dumb
+        start = start.replace('epubcfi(page=', '').replace(')', '');
+      }
+      return start;
+    }
+    if (typeof location.start == 'undefined') {
+      // If the window is being resized while the reader is still loading an EPUB chapter, then...
+      // `location.start` will be undefined here. This causes the reader to appear to load forever.
+      // I _think_ this is going to be a rarity in the wild, although clicking the full screen...
+      // button too soon will also cause it. Also, it's actually very likely to happen when a ...
+      // developer opens a "docked" dev tools dialog while CSB is loading a complex chapter.
+      // In this event starting from scratch with a page reload seems like the best move.
+      // Anything else causes a recursive, asynchronous mess.
+      console.log("AHOY NAVIGATOR location lost. Window resized while loading? Reloading page.");
+      window.location.reload(); // errors may still appear in the console before the reload occurs
+    } else if (Control_Navigator_typeof(location.start) == 'object') {
+      if (location.start.location != null) {
+        value = location.start.location;
+      } else {
+        var start_cfi = handle_possible_pdf_location(location);
+        var percentage = self._reader.locations.percentageFromCfi(start_cfi);
+        value = Math.ceil(self._total * percentage);
+      }
+    } else {
+      // PDF bug
+      var start = handle_possible_pdf_location(location);
+      value = parseInt(start, 10);
+    }
+    return value;
+  },
+  EOT: true
+});
+var Control_Navigator_navigator = function navigator(options) {
+  return new Navigator(options);
+};
+;// ./src/control/Control.Fullscreen.js
+
+
+
+
+var Fullscreen = Control.extend({
+  options: {
+    label: 'View Fullscreen',
+    html: '<span>View Fullscreen</span>'
+  },
+  defaultTemplate: "<button class=\"button--sm cozy-fullscreen oi\" data-toggle=\"open\" data-glyph=\"fullscreen-enter\" aria-label=\"Enter Fullscreen\"></button>",
+  onAdd: function onAdd(reader) {
+    var _this = this;
+    var self = this;
+    var container = this._container;
+    if (container) {
+      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
+    } else {
+      var className = this._className(),
+        options = this.options;
+      container = dom_DomUtil.create('div', className);
+      var template = this.options.template || this.defaultTemplate;
+      var body = new DOMParser().parseFromString(template, "text/html").body;
+      while (body.children.length) {
+        container.appendChild(body.children[0]);
+      }
+    }
+    this._control = container.querySelector("[data-toggle=open]");
+    DomEvent.on(this._control, 'click', function (event) {
+      event.preventDefault();
+      self.activate();
+    }, this);
+
+    // // fullscreenchange is not standard across all browsers
+    // document.addEventListener('fullscreenchange', (event) => {
+    //   // document.fullscreenElement will point to the element that
+    //   // is in fullscreen mode if there is one. If there isn't one,
+    //   // the value of the property is null.    
+    //   this._fullscreenchangeHandler();
+    // });
+
+    this._reader.on('fullscreenchange', function (data) {
+      _this._fullscreenchangeHandler(data.isFullscreen);
+    });
+    return container;
+  },
+  activate: function activate() {
+    if (!document.fullscreenElement) {
+      this._reader.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  },
+  _fullscreenchangeHandler: function _fullscreenchangeHandler(isFullscreen) {
+    if (isFullscreen) {
+      this._control.dataset.glyph = 'fullscreen-exit';
+      this._control.setAttribute('aria-label', 'Exit Fullscreen');
+    } else {
+      this._control.dataset.glyph = 'fullscreen-enter';
+      this._control.setAttribute('aria-label', 'Enter Fullscreen');
+    }
+  },
+  EOT: true
+});
+var fullscreen = function fullscreen(options) {
+  return new Fullscreen(options);
+};
+;// ./src/control/index.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import {Zoom, zoom} from './Control.Zoom';
+// import {Attribution, attribution} from './Control.Attribution';
+
+Control.PageNext = PageNext;
+Control.PagePrevious = PagePrevious;
+Control.PageFirst = PageFirst;
+Control.PageLast = PageLast;
+control.pagePrevious = pagePrevious;
+control.pageNext = pageNext;
+control.pageFirst = pageFirst;
+control.pageLast = pageLast;
+Control.Contents = Contents;
+control.contents = contents;
+Control.Title = Title;
+control.title = title;
+Control.PublicationMetadata = PublicationMetadata;
+control.publicationMetadata = publicationMetadata;
+Control.Preferences = Preferences;
+control.preferences = preferences;
+Control.Widget = Widget;
+control.widget = widget;
+Control.Citation = Citation;
+control.citation = citation;
+Control.Search = Search;
+control.search = search;
+Control.BibliographicInformation = BibliographicInformation;
+control.bibliographicInformation = bibliographicInformation;
+Control.Download = Download;
+control.download = download;
+Control.Navigator = Navigator;
+control.navigator = Control_Navigator_navigator;
+Control.Fullscreen = Fullscreen;
+control.fullscreen = fullscreen;
 
 
 /***/ }),
@@ -27283,2393 +30240,6 @@ d.gs = function (dscr, get, set/*, options*/) {
 
 /***/ }),
 
-/***/ 8427:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-// ESM COMPAT FLAG
-__webpack_require__.r(__webpack_exports__);
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  Control: () => (/* reexport */ Control),
-  control: () => (/* reexport */ control)
-});
-
-// EXTERNAL MODULE: ./src/core/Class.js
-var Class = __webpack_require__(260);
-// EXTERNAL MODULE: ./src/reader/Reader.js + 1 modules
-var Reader = __webpack_require__(6218);
-// EXTERNAL MODULE: ./src/core/Util.js
-var Util = __webpack_require__(1538);
-// EXTERNAL MODULE: ./src/dom/DomUtil.js
-var dom_DomUtil = __webpack_require__(8029);
-;// ./src/control/Control.js
-
-
-
-
-
-/*
- * @class Control
- * @aka L.Control
- * @inherits Class
- *
- * L.Control is a base class for implementing reader controls. Handles regioning.
- * All other controls extend from this class.
- */
-
-var Control = Class/* Class */.X.extend({
-  // @section
-  // @aka Control options
-  options: {
-    // @option region: String = 'topright'
-    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-    // `'topright'`, `'bottomleft'` or `'bottomright'`
-  },
-  initialize: function initialize(options) {
-    Util.setOptions(this, options);
-    if (options.container) {
-      this._container = options.container;
-      this._locked = true;
-    }
-    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
-  },
-  /* @section
-   * Classes extending L.Control will inherit the following methods:
-   *
-   * @method getRegion: string
-   * Returns the region of the control.
-   */
-  getRegion: function getRegion() {
-    return this.options.region;
-  },
-  // @method setRegion(region: string): this
-  // Sets the region of the control.
-  setRegion: function setRegion(region) {
-    var reader = this._reader;
-    if (reader) {
-      reader.removeControl(this);
-    }
-    this.options.region = region;
-    if (reader) {
-      reader.addControl(this);
-    }
-    return this;
-  },
-  // @method getContainer: HTMLElement
-  // Returns the HTMLElement that contains the control.
-  getContainer: function getContainer() {
-    return this._container;
-  },
-  // @method addTo(reader: Map): this
-  // Adds the control to the given reader.
-  addTo: function addTo(reader) {
-    this.remove();
-    this._reader = reader;
-    var container = this._container = this.onAdd(reader);
-    dom_DomUtil.addClass(container, 'cozy-control');
-    if (!this._locked) {
-      var region = this.getRegion();
-      var area = reader.getControlRegion(region);
-      area.appendChild(container);
-    }
-    return this;
-  },
-  // @method remove: this
-  // Removes the control from the reader it is currently active on.
-  remove: function remove() {
-    if (!this._reader) {
-      return this;
-    }
-    if (!this._container) {
-      return this;
-    }
-    if (!this._locked) {
-      dom_DomUtil.remove(this._container);
-    }
-    if (this.onRemove) {
-      this.onRemove(this._reader);
-    }
-    this._reader = null;
-    return this;
-  },
-  _refocusOnMap: function _refocusOnMap(e) {
-    // if reader exists and event is not a keyboard event
-    if (this._reader && e && e.screenX > 0 && e.screenY > 0) {
-      this._reader.getContainer().focus();
-    }
-  },
-  _className: function _className(widget) {
-    var className = ['cozy-control'];
-    if (this.options.direction) {
-      className.push('cozy-control-' + this.options.direction);
-    }
-    if (widget) {
-      className.push('cozy-control-' + widget);
-    }
-    return className.join(' ');
-  }
-});
-var control = function control(options) {
-  return new Control(options);
-};
-
-/* @section Extension methods
- * @uninheritable
- *
- * Every control should extend from `L.Control` and (re-)implement the following methods.
- *
- * @method onAdd(reader: Map): HTMLElement
- * Should return the container DOM element for the control and add listeners on relevant reader events. Called on [`control.addTo(reader)`](#control-addTo).
- *
- * @method onRemove(reader: Map)
- * Optional method. Should contain all clean up code that removes the listeners previously added in [`onAdd`](#control-onadd). Called on [`control.remove()`](#control-remove).
- */
-
-/* @namespace Map
- * @section Methods for Layers and Controls
- */
-Reader/* Reader */.m.include({
-  // @method addControl(control: Control): this
-  // Adds the given control to the reader
-  addControl: function addControl(control) {
-    control.addTo(this);
-    return this;
-  },
-  // @method removeControl(control: Control): this
-  // Removes the given control from the reader
-  removeControl: function removeControl(control) {
-    control.remove();
-    return this;
-  },
-  getControlContainer: function getControlContainer() {
-    var l = 'cozy-';
-    if (!this._controlContainer) {
-      this._controlContainer = dom_DomUtil.create('div', l + 'control-container', this._container);
-    }
-    return this._controlContainer;
-  },
-  getControlRegion: function getControlRegion(target) {
-    if (!this._panes[target]) {
-      // target is dot-delimited string
-      // first dot is the panel
-      var parts = target.split('.');
-      var tmp = [];
-      var parent = this._container;
-      var x = 0;
-      while (parts.length) {
-        var slug = parts.shift();
-        tmp.push(slug);
-        var panel = tmp.join(".");
-        var className = 'cozy-panel-' + slug;
-        if (!this._panes[panel]) {
-          this._panes[panel] = dom_DomUtil.create('div', className, parent);
-        }
-        parent = this._panes[panel];
-        x += 1;
-        if (x > 100) {
-          break;
-        }
-      }
-    }
-    return this._panes[target];
-  },
-  getControlRegion_1: function getControlRegion_1(target) {
-    var tmp = target.split('.');
-    var region = tmp.shift();
-    var slot = tmp.pop() || '-slot';
-    var container = this._panes[region];
-    if (!this._panes[target]) {
-      var className = 'cozy-' + region + '--item cozy-slot-' + slot;
-      if (!this._panes[region + '.' + slot]) {
-        var div = dom_DomUtil.create('div', className);
-        if (slot == 'left' || slot == 'bottom') {
-          var childElement = this._panes[region].firstChild;
-          this._panes[region].insertBefore(div, childElement);
-        } else {
-          this._panes[region].appendChild(div);
-        }
-        this._panes[region + '.' + slot] = div;
-      }
-      className = this._classify(tmp);
-      this._panes[target] = dom_DomUtil.create('div', className, this._panes[region + '.' + slot]);
-    }
-    return this._panes[target];
-  },
-  _classify: function _classify(tmp) {
-    var l = 'cozy-';
-    var className = [];
-    for (var i in tmp) {
-      className.push(l + tmp[i]);
-    }
-    className = className.join(' ');
-    return className;
-  },
-  _clearControlRegion: function _clearControlRegion() {
-    for (var i in this._controlRegions) {
-      dom_DomUtil.remove(this._controlRegions[i]);
-    }
-    dom_DomUtil.remove(this._controlContainer);
-    delete this._controlRegions;
-    delete this._controlContainer;
-  }
-});
-// EXTERNAL MODULE: ./src/dom/DomEvent.js + 2 modules
-var DomEvent = __webpack_require__(7606);
-;// ./src/control/Control.Paging.js
-
-
-
-
-var PageControl = Control.extend({
-  onAdd: function onAdd(reader) {
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className), this._control = this._createButton(this._fill(options.html || options.label), this._fill(options.label), className, container);
-    }
-    this._bindEvents();
-    return container;
-  },
-  _createButton: function _createButton(html, title, className, container) {
-    var link = dom_DomUtil.create('a', className, container);
-    link.innerHTML = html;
-    link.href = '#';
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-    return link;
-  },
-  _bindEvents: function _bindEvents() {
-    var self = this;
-    DomEvent.disableClickPropagation(this._control);
-    DomEvent.on(this._control, 'click', DomEvent.stop);
-    DomEvent.on(this._control, 'click', this._action, this);
-    this._reader.on('reopen', function (data) {
-      // update the button text / titles
-      var html = self.options.html || self.options.label;
-      self._control.innerHTML = self._fill(html);
-      self._control.setAttribute('title', self._fill(self.options.label));
-      self._control.setAttribute('aria-label', self._fill(self.options.label));
-    });
-  },
-  _unit: function _unit() {
-    return this._reader.options.flow == 'scrolled-doc' ? 'Section' : 'Page';
-  },
-  _fill: function _fill(s) {
-    var unit = this._unit();
-    return s.replace(/\$\{unit\}/g, unit);
-  },
-  _label: function _label() {
-    return this.options.label + " " + (this._reader.options.flow == 'scrolled-doc') ? 'Section' : 'Page';
-  },
-  EOT: true
-});
-var PagePrevious = PageControl.extend({
-  options: {
-    region: 'edge.left',
-    direction: 'previous',
-    label: 'Previous ${unit}',
-    html: '<i class="icon-chevron-left oi" data-glyph="chevron-left" title="Previous ${unit}" aria-hidden="true"></i>'
-  },
-  _action: function _action(e) {
-    this._reader.prev();
-  }
-});
-var PageNext = PageControl.extend({
-  options: {
-    region: 'edge.right',
-    direction: 'next',
-    label: 'Next ${unit}',
-    html: '<i class="icon-chevron-right oi" data-glyph="chevron-right" title="Next ${unit}" aria-hidden="true"></i>'
-  },
-  _action: function _action(e) {
-    this._reader.next();
-  }
-});
-var PageFirst = PageControl.extend({
-  options: {
-    direction: 'first',
-    label: 'First ${unit}'
-  },
-  _action: function _action(e) {
-    this._reader.first();
-  }
-});
-var PageLast = PageControl.extend({
-  options: {
-    direction: 'last',
-    label: 'Last ${unit}'
-  },
-  _action: function _action(e) {
-    this._reader.last();
-  }
-});
-var pageNext = function pageNext(options) {
-  return new PageNext(options);
-};
-var pagePrevious = function pagePrevious(options) {
-  return new PagePrevious(options);
-};
-var pageFirst = function pageFirst(options) {
-  return new PageFirst(options);
-};
-var pageLast = function pageLast(options) {
-  return new PageLast(options);
-};
-// EXTERNAL MODULE: ./node_modules/lodash/assign.js
-var lodash_assign = __webpack_require__(6139);
-var assign_default = /*#__PURE__*/__webpack_require__.n(lodash_assign);
-;// ./src/control/Modal.js
-
-
-
-
-
-
-var activeModal;
-var dismissModalListener = false;
-
-// from https://github.com/ghosh/micromodal/blob/master/src/index.js
-var FOCUSABLE_ELEMENTS = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
-var ACTIONABLE_ELEMENTS = ['a[href]', 'area[href]', 'input[type="submit"]:not([disabled])', 'button:not([disabled])'];
-var Modal = Class/* Class */.X.extend({
-  options: {
-    // @option region: String = 'topright'
-    // The region of the control (one of the reader edges). Possible values are `'left' ad 'right'`
-    region: 'left',
-    fraction: 0,
-    width: null,
-    className: {},
-    actions: null,
-    callbacks: {
-      onShow: function onShow() {},
-      onClose: function onClose() {}
-    },
-    handlers: {}
-  },
-  initialize: function initialize(options) {
-    options = Util.setOptions(this, options);
-    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
-    this._initializedEvents = false;
-    this.callbacks = assign_default()({}, this.options.callbacks);
-    this.actions = this.options.actions ? assign_default()({}, this.options.actions) : null;
-    this.handlers = assign_default()({}, this.options.handlers);
-    if (typeof this.options.className == 'string') {
-      this.options.className = {
-        container: this.options.className
-      };
-    }
-  },
-  addTo: function addTo(reader) {
-    var self = this;
-    this._reader = reader;
-    var template = this.options.template;
-    var panelHTML = "<div class=\"cozy-modal modal-slide ".concat(this.options.region || 'left', "\" id=\"modal-").concat(this._id, "\" aria-labelledby=\"modal-").concat(this._id, "-title\" role=\"dialog\" aria-describedby=\"modal-").concat(this._id, "-content\" aria-hidden=\"true\">\n      <div class=\"modal__overlay\" tabindex=\"-1\" data-modal-close>\n        <div class=\"modal__container ").concat(this.options.className.container ? this.options.className.container : '', "\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"modal-").concat(this._id, "-title\" aria-describedby=\"modal-").concat(this._id, "-content\" id=\"modal-").concat(this._id, "-container\">\n          <div role=\"document\">\n            <header class=\"modal__header\">\n              <h3 class=\"modal__title\" id=\"modal-").concat(this._id, "-title\">").concat(this.options.title, "</h3>\n              <button class=\"modal__close\" aria-label=\"Close modal\" aria-controls=\"modal-").concat(this._id, "-container\" data-modal-close></button>\n            </header>\n            <main class=\"modal__content ").concat(this.options.className.main ? this.options.className.main : '', "\" id=\"modal-").concat(this._id, "-content\">\n              ").concat(template, "\n            </main>");
-    if (this.options.actions) {
-      panelHTML += '<footer class="modal__footer">';
-      for (var i in this.options.actions) {
-        var action = this.options.actions[i];
-        var button_cls = action.className || 'button--default';
-        panelHTML += "<button id=\"action-".concat(this._id, "-").concat(i, "\" class=\"button button--inline ").concat(button_cls, "\">").concat(action.label, "</button>");
-      }
-      panelHTML += '</footer>';
-    }
-    panelHTML += '</div></div></div></div>';
-    var body = new DOMParser().parseFromString(panelHTML, "text/html").body;
-    this.modal = reader._container.appendChild(body.children[0]);
-    this._container = this.modal; // compatibility
-
-    this.container = this.modal.querySelector('.modal__container');
-    this._bindEvents();
-    return this;
-  },
-  _bindEvents: function _bindEvents() {
-    var _this = this;
-    var self = this;
-    this.onClick = this.onClick.bind(this);
-    this.onKeydown = this.onKeydown.bind(this);
-    this.onModalTransition = this.onModalTransition.bind(this);
-    this.modal.addEventListener('transitionend', function () {}.bind(this));
-
-    // bind any actions
-    if (this.actions) {
-      var _loop = function _loop() {
-        var action = _this.actions[i];
-        var button_id = '#action-' + _this._id + '-' + i;
-        var button = _this.modal.querySelector(button_id);
-        if (button) {
-          DomEvent.on(button, 'click', function (event) {
-            event.preventDefault();
-            action.callback(event);
-            if (action.close) {
-              self.closeModal();
-            }
-          });
-        }
-      };
-      for (var i in this.actions) {
-        _loop();
-      }
-    }
-  },
-  deactivate: function deactivate() {
-    this.closeModal();
-  },
-  closeModal: function closeModal() {
-    var self = this;
-    this.modal.setAttribute('aria-hidden', 'true');
-    this.removeEventListeners();
-    if (this.activeElement) {
-      this.activeElement.focus();
-    }
-    this.callbacks.onClose(this.modal);
-  },
-  showModal: function showModal() {
-    this.activeElement = document.activeElement;
-    this._resize();
-    this.modal.setAttribute('aria-hidden', 'false');
-    this.setFocusToFirstNode();
-    this.addEventListeners();
-    this.callbacks.onShow(this.modal);
-  },
-  activate: function activate() {
-    return this.showModal();
-    var self = this;
-    activeModal = this;
-    DomUtil.addClass(self._reader._container, 'st-modal-activating');
-    this._resize();
-    DomUtil.addClass(this._reader._container, 'st-modal-open');
-    setTimeout(function () {
-      DomUtil.addClass(self._container, 'active');
-      DomUtil.removeClass(self._reader._container, 'st-modal-activating');
-      self._container.setAttribute('aria-hidden', 'false');
-      self.setFocusToFirstNode();
-    }, 25);
-  },
-  addEventListeners: function addEventListeners() {
-    // --- do we need touch listeners?
-    // this.modal.addEventListener('touchstart', this.onClick)
-    // this.modal.addEventListener('touchend', this.onClick)
-    this.modal.addEventListener('click', this.onClick);
-    document.addEventListener('keydown', this.onKeydown);
-    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
-      this.modal.addEventListener(event, this.onModalTransition);
-    }.bind(this));
-  },
-  removeEventListeners: function removeEventListeners() {
-    this.modal.removeEventListener('touchstart', this.onClick);
-    this.modal.removeEventListener('click', this.onClick);
-    'webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend'.split(' ').forEach(function (event) {
-      this.modal.removeEventListener(event, this.onModalTransition);
-    }.bind(this));
-    document.removeEventListener('keydown', this.onKeydown);
-  },
-  _resize: function _resize() {
-    var container = this._reader._container;
-    this.container.style.height = container.offsetHeight + 'px';
-    // console.log("AHOY MODAL", this.container.style.height);
-    if (!this.options.className.container) {
-      this.container.style.width = this.options.width || parseInt(container.offsetWidth * this.options.fraction) + 'px';
-    }
-    var header = this.container.querySelector('header');
-    var footer = this.container.querySelector('footer');
-    var main = this.container.querySelector('main');
-    var height = this.container.clientHeight - header.clientHeight;
-    if (footer) {
-      height -= footer.clientHeight;
-    }
-    main.style.height = height + 'px';
-  },
-  getFocusableNodes: function getFocusableNodes() {
-    var nodes = this.modal.querySelectorAll(FOCUSABLE_ELEMENTS);
-    return Object.keys(nodes).map(function (key) {
-      return nodes[key];
-    });
-  },
-  setFocusToFirstNode: function setFocusToFirstNode() {
-    var focusableNodes = this.getFocusableNodes();
-    if (focusableNodes.length) {
-      focusableNodes[0].focus();
-    } else {
-      activeModal._container.focus();
-    }
-  },
-  getActionableNodes: function getActionableNodes() {
-    var nodes = this.modal.querySelectorAll(ACTIONABLE_ELEMENTS);
-    return Object.keys(nodes).map(function (key) {
-      return nodes[key];
-    });
-  },
-  onKeydown: function onKeydown(event) {
-    if (event.keyCode == 27) {
-      this.closeModal();
-    }
-    if (event.keyCode == 9) {
-      this.maintainFocus(event);
-    }
-  },
-  onClick: function onClick(event) {
-    var closeAfterAction = false;
-    var target = event.target;
-
-    // As far as I can tell, the code below isn't catching direct clicks on
-    // items with class='data-modal-close' as they're not ACTIONABLE_ELEMENTS.
-    // Adding them to ACTIONABLE_ELEMENTS causes undesirable behavior where
-    // their child items also close the modal thanks to the loop below.
-    // Children of .modal__overlay include the modal header, border area and
-    // padding. We don't want clicks on these closing the modal.
-    // Just close the modal now for direct clicks on a '.data-modal-close'.
-    if (target.hasAttribute('data-modal-close')) {
-      this.fire('closed');
-      this.closeModal();
-      return;
-    }
-
-    // if the target isn't an actionable type, walk the DOM until
-    // one is found
-    var actionableNodes = this.getActionableNodes();
-    while (actionableNodes.indexOf(target) < 0 && target != this.modal) {
-      target = target.parentElement;
-    }
-
-    // no target found, punt
-    if (actionableNodes.indexOf(target) < 0) {
-      return;
-    }
-    if (this.handlers.click) {
-      var did_match = false;
-      for (var selector in this.handlers.click) {
-        if (target.matches(selector)) {
-          closeAfterAction = this.handlers.click[selector](this, target);
-          break;
-        }
-      }
-    }
-    if (closeAfterAction || target.hasAttribute('data-modal-close')) this.closeModal();
-    event.preventDefault();
-  },
-  onModalTransition: function onModalTransition(event) {
-    if (this.modal.getAttribute('aria-hidden') == 'true') {
-      this._reader.fire('modal-closed');
-    } else {
-      this._reader.fire('modal-opened');
-    }
-  },
-  on: function on(event, selector, handler) {
-    if (!this.handlers[event]) {
-      this.handlers[event] = {};
-    }
-    if (typeof selector == 'function') {
-      handler = selector;
-      selector = '*';
-    }
-    this.handlers[event][selector] = handler;
-  },
-  fire: function fire(event) {
-    if (this.handlers[event] && this.handlers[event]['*']) {
-      this.handlers[event]['*'](this);
-    }
-  },
-  maintainFocus: function maintainFocus(event) {
-    var focusableNodes = this.getFocusableNodes();
-    var focusedItemIndex = focusableNodes.indexOf(document.activeElement);
-    if (event.shiftKey && focusedItemIndex === 0) {
-      focusableNodes[focusableNodes.length - 1].focus();
-      event.preventDefault();
-    }
-    if (!event.shiftKey && focusedItemIndex === focusableNodes.length - 1) {
-      focusableNodes[0].focus();
-      event.preventDefault();
-    }
-  },
-  update: function update(options) {
-    if (options.title) {
-      this.options.title = options.title;
-      var titleEl = this.container.querySelector('.modal__title');
-      titleEl.innerText = options.title;
-    }
-    if (options.fraction) {
-      this.options.fraction = options.fraction;
-      this.container.style.width = parseInt(this.container.offsetWidth * this.options.fraction) + 'px';
-    }
-  },
-  EOT: true
-});
-Reader/* Reader */.m.include({
-  modal: function modal(options) {
-    var modal = new Modal(options);
-    return modal.addTo(this);
-    // return this;
-  },
-  popup: function popup(options) {
-    options = assign_default()({
-      title: 'Info',
-      fraction: 1.0
-    }, options);
-    if (!this._popupModal) {
-      this._popupModal = this.modal({
-        title: options.title,
-        region: 'full',
-        template: '<div style="height: 100%; width: 100%"></div>',
-        fraction: options.fraction || 1.0,
-        actions: [{
-          label: 'Close',
-          callback: function callback(event) {},
-          close: true
-        }]
-      });
-    } else {
-      this._popupModal.update({
-        title: options.title,
-        fraction: options.fraction
-      });
-    }
-    var iframe;
-    var modalDiv = this._popupModal.container.querySelector('main > div');
-    var iframe = modalDiv.querySelector('iframe');
-    if (iframe) {
-      modalDiv.removeChild(iframe);
-    }
-    iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.setAttribute('title', options.title);
-    iframe = modalDiv.appendChild(iframe);
-    if (options.onLoad) {
-      iframe.addEventListener('load', function () {
-        options.onLoad(iframe.contentDocument, this._popupModal);
-      }.bind(this));
-    }
-    if (options.srcdoc) {
-      if ("srcdoc" in iframe) {
-        iframe.srcdoc = options.srcdoc;
-      } else {
-        iframe.contentDocument.open();
-        iframe.contentDocument.write(options.srcdoc);
-        iframe.contentDocument.close();
-      }
-    } else if (options.href) {
-      iframe.setAttribute('src', options.href);
-    }
-    this._popupModal.activate();
-  },
-  EOT: true
-});
-;// ./src/control/Control.Contents.js
-
-
-
-
-
-var Contents = Control.extend({
-  defaultTemplate: "<button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Table of Contents\"><i class=\"icon-menu oi\" data-glyph=\"menu\" title=\"Table of Contents\" aria-hidden=\"true\"></i></button>",
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._control = container.querySelector("[data-toggle=open]");
-    this._control.setAttribute('id', 'action-' + this._id);
-    container.style.position = 'relative';
-    this._bindEvents();
-    return container;
-  },
-  _bindEvents: function _bindEvents() {
-    var _this2 = this;
-    var self = this;
-    this._reader.on('updateContents', function (data) {
-      var _this = this;
-      DomEvent.on(this._control, 'click', function (event) {
-        event.preventDefault();
-        self._goto_interval = false;
-        self._reader.tracking.action('contents/open');
-        self._modal.activate();
-      }, this);
-      this._modal = this._reader.modal({
-        template: "\n<div class=\"cozy-contents-toolbar button-group\" aria-hidden=\"true\">\n  <button class=\"cozy-control button--lg toggled\" data-toggle=\"contentlist\">Table of Contents</button>\n  <button class=\"cozy-control button--lg\" data-toggle=\"pagelist\">Page List</button>\n</div>\n<div class=\"cozy-contents-main\">\n  <div class=\"cozy-contents-contentlist\">\n    <ul></ul>\n  </div>\n  <div class=\"cozy-contents-pagelist\" style=\"display: none\">\n    <form>\n      <label for=\"cozy-contents-pagelist-pagenum\">Page Number</label>\n      <input type=\"text\" size=\"5\" id=\"cozy-contents-pagelist-pagenum\" />\n      <button class=\"button--sm\">Go</button>\n      <p class=\"pagelist-error oi\" data-glyph=\"target\" role=\"alert\"></p>\n    </form>\n    <ul></ul>\n  </div>\n</div>".trim(),
-        title: 'Contents',
-        region: 'left',
-        className: 'cozy-modal-contents',
-        callbacks: {
-          onShow: function onShow() {},
-          onClose: function onClose(modal) {
-            if (self._goto_interval) {
-              self._reader.rendition.manager.container.setAttribute("tabindex", 0);
-              self._reader.rendition.manager.container.focus();
-            }
-          }
-        }
-      });
-      this._display = {};
-      this._display.contentlist = this._modal._container.querySelector('.cozy-contents-contentlist');
-      this._display.pagelist = this._modal._container.querySelector('.cozy-contents-pagelist');
-      this._toolbar = this._modal._container.querySelector('.cozy-contents-toolbar');
-      this._pageListError = this._modal.container.querySelector('.pagelist-error');
-      this._toolbar.addEventListener('click', function (event) {
-        if (event.target.dataset.toggle) {
-          var target = event.target.dataset.toggle;
-          var current = _this._toolbar.querySelector('[data-toggle].toggled');
-          if (current) {
-            current.classList.remove('toggled');
-            _this._display[current.dataset.toggle].style.display = 'none';
-          }
-          event.target.classList.add('toggled');
-          _this._display[event.target.dataset.toggle].style.display = 'block';
-          _this._reader.updateLiveStatus("Displaying ".concat(event.target.innerText));
-        }
-      });
-      this._modal.on('click', '.cozy-contents-pagelist form button', function (modal, target) {
-        var form = target.parentNode;
-        var input = form.querySelector('input[type="text"]');
-        var value = input.value.trim();
-        if (value) {
-          var pageList = this._reader.pageList;
-          var page = pageList.pageList.find(function (p) {
-            return p.pageLabel == value;
-          }) || false;
-          if (page) {
-            target = pageList.cfiFromPage(page.page);
-            this._goto_interval = true;
-            this._reader.tracking.action('contents/go/link');
-            this._reader.display(target);
-            return true;
-          } else {
-            var p = this._pageListError; // form.querySelector('.pagelist-error');
-            var p1 = pageList.firstPageLabel;
-            var p2 = pageList.lastPageLabel;
-            p.innerHTML = "Please enter a page number between <strong>".concat(p1, "-").concat(p2, "</strong>.");
-          }
-        }
-      }.bind(this));
-      this._modal.on('click', 'a[href]', function (modal, target) {
-        target = target.getAttribute('data-href');
-        this._goto_interval = true;
-        this._reader.tracking.action('contents/go/link');
-        this._reader.display(target);
-        return true;
-      }.bind(this));
-      this._modal.on('closed', function () {
-        self._pageListError.innerHTML = '';
-        self._reader.tracking.action('contents/close');
-      });
-      this._setupSkipLink();
-      var parent = self._modal._container.querySelector('.cozy-contents-contentlist ul');
-      var _process2 = function _process(items, tabindex, parent) {
-        items.forEach(function (item) {
-          var option = self._createOption(item, tabindex, parent);
-          if (item.subitems && item.subitems.length) {
-            _process2(item.subitems, tabindex + 1, option);
-          }
-        });
-      };
-      _process2(data.toc, 0, parent);
-    }.bind(this));
-    this._reader.on('updateLocations', function (data) {
-      if (_this2._reader.pageList) {
-        // this._toolbar.style.display = 'flex';
-        _this2._toolbar.setAttribute('aria-hidden', 'false');
-      }
-      if (self._reader.pageList) {
-        var parent = self._modal._container.querySelector('.cozy-contents-pagelist ul');
-        for (var i = 0; i < self._reader.pageList.pages.length; i++) {
-          var pg = self._reader.pageList.pages[i];
-          var info = self._reader.pageList.pageList[i];
-          var cfi = self._reader.pageList.locations[i];
-          var item = {
-            label: info.pageLabel || info.page,
-            href: cfi
-          };
-          var option = self._createOption(item, 0, parent);
-        }
-      }
-    });
-  },
-  _createOption: function _createOption(chapter, tabindex, parent) {
-    function pad(value, length) {
-      return value.toString().length < length ? pad("-" + value, length) : value;
-    }
-    var option = dom_DomUtil.create('li');
-    if (chapter.href) {
-      var anchor = dom_DomUtil.create('a', null, option);
-      if (chapter.html) {
-        anchor.innerHTML = chapter.html;
-      } else {
-        anchor.textContent = chapter.label;
-      }
-      // var tab = pad('', tabindex); tab = tab.length ? tab + ' ' : '';
-      // option.textContent = tab + chapter.label;
-      anchor.setAttribute('href', chapter.href);
-      anchor.setAttribute('data-href', chapter.href);
-    } else {
-      var span = dom_DomUtil.create('span', null, option);
-      span.textContent = chapter.label;
-    }
-    if (parent.tagName === 'LI') {
-      // need to nest
-      var tmp = parent.querySelector('ul');
-      if (!tmp) {
-        tmp = dom_DomUtil.create('ul', null, parent);
-      }
-      parent = tmp;
-    }
-    parent.appendChild(option);
-    return option;
-  },
-  _setupSkipLink: function _setupSkipLink() {
-    if (!this.options.skipLink) {
-      return;
-    }
-    var target = document.querySelector(this.options.skipLink);
-    if (!target) {
-      return;
-    }
-    var link = document.createElement('a');
-    link.textContent = 'Skip to contents';
-    link.setAttribute('href', '#action-' + this._id);
-    var ul = target.querySelector('ul');
-    if (ul) {
-      // add to list
-      target = document.createElement('li');
-      ul.appendChild(target);
-    }
-    target.appendChild(link);
-    link.addEventListener('click', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      this._control.click();
-    }.bind(this));
-  },
-  EOT: true
-});
-var contents = function contents(options) {
-  return new Contents(options);
-};
-;// ./src/control/Control.Title.js
-
-
-
-
-
-// Title + Chapter
-
-var Title = Control.extend({
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var className = this._className(),
-      container = dom_DomUtil.create('div', className),
-      options = this.options;
-
-    // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
-    // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-
-    var h1 = dom_DomUtil.create('h1', 'cozy-h1', container);
-    dom_DomUtil.setOpacity(h1, 0);
-    this._title = dom_DomUtil.create('span', 'cozy-title', h1);
-    this._divider = dom_DomUtil.create('span', 'cozy-divider', h1);
-    this._divider.textContent = " · ";
-    this._section = dom_DomUtil.create('span', 'cozy-section', h1);
-
-    // --- TODO: disable until we can work out how to 
-    // --- more reliably match the current section to the contents
-    // this._reader.on('updateSection', function(data) {
-    //   if ( data && data.label ) {
-    //     self._section.textContent = data.label;
-    //     DomUtil.setOpacity(self._section, 1.0);
-    //     DomUtil.setOpacity(self._divider, 1.0);
-    //   } else {
-    //     DomUtil.setOpacity(self._section, 0);
-    //     DomUtil.setOpacity(self._divider, 0);
-    //   }
-    // })
-
-    this._reader.on('updateTitle', function (data) {
-      if (data) {
-        self._title.textContent = data.title || data.bookTitle;
-        dom_DomUtil.setOpacity(self._section, 0);
-        dom_DomUtil.setOpacity(self._divider, 0);
-        dom_DomUtil.setOpacity(h1, 1);
-      }
-    });
-    return container;
-  },
-  _createButton: function _createButton(html, title, className, container, fn) {
-    var link = dom_DomUtil.create('a', className, container);
-    link.innerHTML = html;
-    link.href = '#';
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-    DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop);
-    DomEvent.on(link, 'click', fn, this);
-    // DomEvent.on(link, 'click', this._refocusOnMap, this);
-
-    return link;
-  },
-  EOT: true
-});
-var title = function title(options) {
-  return new Title(options);
-};
-;// ./src/control/Control.PublicationMetadata.js
-
-
-
-
-
-// Title + Chapter
-
-var PublicationMetadata = Control.extend({
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var className = this._className(),
-      container = dom_DomUtil.create('div', className),
-      options = this.options;
-
-    // var template = '<h1><span class="cozy-title">Contents: </span><select size="1" name="contents"></select></label>';
-    // var control = new DOMParser().parseFromString(template, "text/html").body.firstChild;
-
-    this._publisher = dom_DomUtil.create('div', 'cozy-publisher', container);
-    this._rights = dom_DomUtil.create('div', 'cozy-rights', container);
-    this._reader.on('updateTitle', function (data) {
-      if (data) {
-        self._publisher.textContent = data.publisher;
-        self._rights.textContent = data.rights;
-      }
-    });
-    return container;
-  },
-  _createButton: function _createButton(html, title, className, container, fn) {
-    var link = dom_DomUtil.create('a', className, container);
-    link.innerHTML = html;
-    link.href = '#';
-    link.title = title;
-
-    /*
-     * Will force screen readers like VoiceOver to read this as "Zoom in - button"
-     */
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-    DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop);
-    DomEvent.on(link, 'click', fn, this);
-    // DomEvent.on(link, 'click', this._refocusOnMap, this);
-
-    return link;
-  },
-  EOT: true
-});
-var publicationMetadata = function publicationMetadata(options) {
-  return new PublicationMetadata(options);
-};
-// EXTERNAL MODULE: ./node_modules/lodash/keys.js
-var keys = __webpack_require__(5950);
-;// ./src/control/Control.Preferences.js
-
-
-
-
-
-
-
-
-var Preferences = Control.extend({
-  options: {
-    label: 'Preferences',
-    hasThemes: false
-  },
-  defaultTemplate: "<button class=\"button--sm cozy-preferences oi\" data-toggle=\"open\" data-glyph=\"cog\" aria-label=\"Preferences and Settings\"></button>",
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var className = this._className();
-    var container = dom_DomUtil.create('div', className);
-    var template = this.options.template || this.defaultTemplate;
-    var body = new DOMParser().parseFromString(template, "text/html").body;
-    while (body.children.length) {
-      container.appendChild(body.children[0]);
-    }
-    this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      self.activate();
-    }, this);
-
-    // self.initializeForm();
-    this._modal = this._reader.modal({
-      // template: '<form></form>',
-      title: 'Preferences',
-      className: 'cozy-modal-preferences',
-      actions: [{
-        label: 'Save Changes',
-        callback: function callback(event) {
-          self.updatePreferences(event);
-        }
-      }],
-      region: 'right'
-    });
-    return container;
-  },
-  activate: function activate() {
-    var self = this;
-    self.initializeForm();
-    self._modal.activate();
-  },
-  _createPanel: function _createPanel() {
-    var self = this;
-    if (this._modal._container.querySelector('form')) {
-      return;
-    }
-    var template = '';
-    var possible_fieldsets = [];
-    if (this._reader.metadata.layout == 'pre-paginated') {
-      // different panel
-      possible_fieldsets.push('Scale');
-    } else {
-      possible_fieldsets.push('Text');
-    }
-    possible_fieldsets.push('Display');
-    if (this._reader.rootfiles && this._reader.rootfiles.length > 1) {
-      // this.options.hasPackagePaths = true;
-      possible_fieldsets.push('Rendition');
-    }
-    if (this._reader.options.themes && this._reader.options.themes.length > 0) {
-      this.options.hasThemes = true;
-      possible_fieldsets.push('Theme');
-    }
-    this._fieldsets = [];
-    possible_fieldsets.forEach(function (cls) {
-      var fieldset = new Preferences.fieldset[cls](this);
-      template += fieldset.template();
-      this._fieldsets.push(fieldset);
-    }.bind(this));
-    if (this.options.fields) {
-      this.options.hasFields = true;
-      for (var i in this.options.fields) {
-        var field = this.options.fields[i];
-        var id = "preferences-custom-" + i;
-        template += "<fieldset class=\"custom-field\">\n          <legend>".concat(field.label, "</legend>\n        ");
-        for (var j in field.inputs) {
-          var input = field.inputs[j];
-          var checked = input.value == field.value ? ' checked="checked"' : '';
-          template += "<label><input id=\"preferences-custom-".concat(i, "-").concat(j, "\" type=\"radio\" name=\"x").concat(field.name, "\" value=\"").concat(input.value, "\" ").concat(checked, "/>").concat(input.label, "</label>");
-        }
-        if (field.hint) {
-          template += "<p class=\"hint\" style=\"font-size: 90%\">".concat(field.hint, "</p>");
-        }
-      }
-    }
-    template = '<form>' + template + '</form>';
-
-    // this._modal = this._reader.modal({
-    //   template: template,
-    //   title: 'Preferences',
-    //   className: 'cozy-modal-preferences',
-    //   actions: [
-    //     {
-    //       label: 'Save Changes',
-    //       callback: function(event) {
-    //         self.updatePreferences(event);
-    //       }
-    //     }
-    //   ],
-    //   region: 'right'
-    // });
-
-    this._modal._container.querySelector('main').innerHTML = template;
-    this._form = this._modal._container.querySelector('form');
-  },
-  initializeForm: function initializeForm() {
-    this._createPanel();
-    this._fieldsets.forEach(function (fieldset) {
-      fieldset.initializeForm(this._form);
-    }.bind(this));
-  },
-  updatePreferences: function updatePreferences(event) {
-    event.preventDefault();
-    var doUpdate = false;
-    var new_options = {};
-    var saveable_options = {};
-    this._fieldsets.forEach(function (fieldset) {
-      // doUpdate = doUpdate || fieldset.updateForm(this._form, new_options);
-      // assign(new_options, fieldset.updateForm(this._form));
-      fieldset.updateForm(this._form, new_options, saveable_options);
-    }.bind(this));
-    if (this.options.hasFields) {
-      for (var i in this.options.fields) {
-        var field = this.options.fields[i];
-        var id = "preferences-custom-" + i;
-        var input = this._form.querySelector("input[name=\"x".concat(field.name, "\"]:checked"));
-        if (input.value != field.value) {
-          field.value = input.value;
-          field.callback(field.value);
-        }
-      }
-    }
-    this._modal.deactivate();
-    setTimeout(function () {
-      // useful dev output if you're adding/changing saved preferences
-      // console.log('savable_options: ' + JSON.stringify(saveable_options, null, 4));
-      this._reader.saveOptions(saveable_options);
-      this._reader.reopen(new_options);
-    }.bind(this), 100);
-  },
-  EOT: true
-});
-Preferences.fieldset = {};
-var Fieldset = Class/* Class */.X.extend({
-  options: {},
-  initialize: function initialize(control, options) {
-    Util.setOptions(this, options);
-    this._control = control;
-    this._current = {};
-    this._id = new Date().getTime() + '-' + parseInt(Math.random(new Date().getTime()) * 1000, 10);
-  },
-  template: function template() {},
-  EOT: true
-});
-Preferences.fieldset.Text = Fieldset.extend({
-  initializeForm: function initializeForm(form) {
-    if (!this._input) {
-      this._input = form.querySelector("#x".concat(this._id, "-input"));
-      this._output = form.querySelector("#x".concat(this._id, "-output"));
-      this._preview = form.querySelector("#x".concat(this._id, "-preview"));
-      this._actionReset = form.querySelector("#x".concat(this._id, "-reset"));
-      this._font = form.querySelector("#x".concat(this._id, "-font"));
-      this._input.addEventListener('input', this._updatePreview.bind(this));
-      this._input.addEventListener('change', this._updatePreview.bind(this));
-      this._font.addEventListener('change', this._updatePreview.bind(this));
-      this._actionReset.addEventListener('click', function (event) {
-        event.preventDefault();
-        this._input.value = 100;
-        this._updatePreview();
-      }.bind(this));
-    }
-    var font_input = this._control._reader.options.font || this._control._reader.metadata.font || 'default';
-    this._current.text_size = font_input;
-    this._font.value = font_input;
-    var text_size = this._control._reader.options.text_size || 100;
-    if (text_size == 'auto') {
-      text_size = 100;
-    }
-    this._current.text_size = text_size;
-    this._input.value = text_size;
-    this._updatePreview();
-  },
-  updateForm: function updateForm(form, options, saveable) {
-    options.font = saveable.font = this._font.value;
-    options.text_size = saveable.text_size = this._input.value;
-  },
-  template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Text</legend>\n        <div>\n          <span id=\"change-font\">Change Font</span>\n            <select aria-labelledby=\"change-font\" name=\"font\" id=\"x".concat(this._id, "-font\">\n              <option value=\"default\">Default</option>\n              <optgroup label=\"Serif Fonts\">\n                <option value=\"Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif\">Palatino</option>\n                <option value=\"TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif\">Times New Roman</option>\n              </optgroup>\n              <optgroup label=\"Sans Serif Fonts\">\n                <option value=\"Arial,Helvetica Neue,Helvetica,sans-serif\">Arial</option>\n                <option value=\"Verdana,Geneva,sans-serif\">Verdana</option>\n              </optgroup>\n              <optgroup label=\"Dyslexic Fonts\">\n                <option value=\"OpenDyslexic\">Open Dyslexic</option>\n              </optgroup>\n              <optgroup label=\"Monospace Fonts\">\n                <option value=\"Consolas,monaco,monospace\">Consolas</option>\n              </optgroup>\n            </select>\n          <br/>\n          <br/>\n          <span id=\"font-size\">Adjust Font Size</span>\n          <div class=\"preview--text_size\" id=\"x").concat(this._id, "-preview\" style=\"font-size: 1em;\">\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n          <p style=\"white-space: no-wrap\">\n            <span>-</span>\n              <input aria-labelledby=\"font-size\" name=\"text_size\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" aria-valuemin=\"50\" aria-valuemax=\"400\" style=\"width: 75%; display: inline-block\" aria-valuenow=\"100\" aria-valuetext=\"100 percent\" class=\"\">\n            <span>+</span>\n          </p>\n        </div>\n        <p>\n          <span>Font Size: </span>\n          <span id=\"x").concat(this._id, "-output\">100%</span>\n          <button id=\"x").concat(this._id, "-reset\" style=\"margin-left: 8px\" class=\"reset button--lg\">Reset to 100%</button> \n        </p>\n      </fieldset>");
-  },
-  _updatePreview: function _updatePreview() {
-    if (this._font.value != 'default') {
-      this._preview.style.fontFamily = this._font.value;
-    } else {
-      // When we clear the preview box's font it goes back to inheriting `@mixin open-sans-book` from `cozy-container`.
-      // This is not the same as the EPUB's <body> font, but it will represent the "default" setting, as it always has.
-      this._preview.style.fontFamily = null;
-    }
-    this._preview.style.fontSize = "".concat(parseInt(this._input.value, 10) / 100, "em");
-    this._output.innerHTML = "".concat(this._input.value, "%");
-    this._input.setAttribute('aria-valuenow', "".concat(this._input.value));
-    this._input.setAttribute('aria-valuetext', "".concat(this._input.value, " percent"));
-  },
-  EOT: true
-});
-Preferences.fieldset.Display = Fieldset.extend({
-  initializeForm: function initializeForm(form) {
-    var flow = this._control._reader.options.flow || this._control._reader.metadata.flow || 'auto';
-    // if ( flow == 'auto' ) { flow = 'paginated'; }
-
-    var input = form.querySelector("#x".concat(this._id, "-input-").concat(flow));
-    input.checked = true;
-    this._current.flow = flow;
-  },
-  updateForm: function updateForm(form, options, saveable) {
-    var input = form.querySelector("input[name=\"x".concat(this._id, "-flow\"]:checked"));
-    options.flow = input.value;
-    if (options.flow != 'auto') {
-      saveable.flow = options.flow;
-    }
-    // if ( input.value == 'auto' ) {
-    //   // we do NOT want to save flow as a preference
-    //   return {};
-    // }
-    // return { flow: input.value };
-  },
-  template: function template() {
-    var scrolled_help = '';
-    if (this._control._reader.metadata.layout != 'pre-paginated') {
-      scrolled_help = "<br /><small>This is an experimental feature that may cause display and loading issues for the book when enabled.</small>";
-    }
-    return "<fieldset>\n            <legend>Display</legend>\n            <label><input name=\"x".concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-auto\" value=\"auto\" /> Auto<br /><small>Let the reader determine display mode based on your browser dimensions and the type of content you're reading</small></label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-paginated\" value=\"paginated\" /> Page-by-Page</label>\n            <label><input name=\"x").concat(this._id, "-flow\" type=\"radio\" id=\"x").concat(this._id, "-input-scrolled-doc\" value=\"scrolled-doc\" /> Scroll").concat(scrolled_help, "</label>\n          </fieldset>");
-  },
-  EOT: true
-});
-Preferences.fieldset.Theme = Fieldset.extend({
-  initializeForm: function initializeForm(form) {
-    var theme = this._control._reader.options.theme || 'default';
-    var input = form.querySelector("#x".concat(this._id, "-input-theme-").concat(theme));
-    input.checked = true;
-    this._current.theme = theme;
-  },
-  updateForm: function updateForm(form, options, saveable) {
-    var input = form.querySelector("input[name=\"x".concat(this._id, "-theme\"]:checked"));
-    options.theme = saveable.theme = input.value;
-    // return { theme: input.value };
-  },
-  template: function template() {
-    var template = "<fieldset>\n            <legend>Theme</legend>\n            <label><input name=\"x".concat(this._id, "-theme\" type=\"radio\" id=\"x").concat(this._id, "-input-theme-default\" value=\"default\" />Default</label>");
-    this._control._reader.options.themes.forEach(function (theme) {
-      template += "<label><input name=\"x".concat(this._id, "-theme\" type=\"radio\" id=\"x").concat(this._id, "-input-theme-").concat(theme.klass, "\" value=\"").concat(theme.klass, "\" />").concat(theme.name, "</label>");
-    }.bind(this));
-    template += '</fieldset>';
-    return template;
-  },
-  EOT: true
-});
-Preferences.fieldset.Rendition = Fieldset.extend({
-  initializeForm: function initializeForm(form) {
-    var rootfiles = this._control._reader.rootfiles;
-    var rootfilePath = this._control._reader.options.rootfilePath;
-    var expr = rootfilePath ? "[value=\"".concat(rootfilePath, "\"]") : ":first-child";
-    var input = form.querySelector("input[name=\"x".concat(this._id, "-rootfilePath\"]").concat(expr));
-    input.checked = true;
-    this._current.rootfilePath = rootfilePath || rootfiles[0].rootfilePath;
-  },
-  updateForm: function updateForm(form, options, saveable) {
-    var input = form.querySelector("input[name=\"x".concat(this._id, "-rootfilePath\"]:checked"));
-    if (input.value != this._current.rootfilePath) {
-      options.rootfilePath = input.value;
-      this._current.rootfilePath = input.value;
-    }
-  },
-  template: function template() {
-    var template = "<fieldset>\n            <legend>Rendition</legend>\n    ";
-    this._control._reader.rootfiles.forEach(function (rootfile, i) {
-      template += "<label><input name=\"x".concat(this._id, "-rootfilePath\" type=\"radio\" id=\"x").concat(this._id, "-input-rootfilePath-").concat(i, "\" value=\"").concat(rootfile.rootfilePath, "\" />").concat(rootfile.label || rootfile.accessMode || rootfile.rootfilePath, "</label>");
-    }.bind(this));
-    template += '</fieldset>';
-    return template;
-  },
-  EOT: true
-});
-Preferences.fieldset.Scale = Fieldset.extend({
-  initializeForm: function initializeForm(form) {
-    if (!this._input) {
-      this._input = form.querySelector("#x".concat(this._id, "-input"));
-      this._output = form.querySelector("#x".concat(this._id, "-output"));
-      this._preview = form.querySelector("#x".concat(this._id, "-preview > div"));
-      this._actionReset = form.querySelector("#x".concat(this._id, "-reset"));
-      this._input.addEventListener('input', this._updatePreview.bind(this));
-      this._input.addEventListener('change', this._updatePreview.bind(this));
-      this._actionReset.addEventListener('click', function (event) {
-        event.preventDefault();
-        this._input.value = 100;
-        this._updatePreview();
-      }.bind(this));
-    }
-    var scale = this._control._reader.options.scale || 100;
-    if (!scale) {
-      scale = 100;
-    }
-    this._current.scale = scale;
-    this._input.value = scale;
-    this._updatePreview();
-  },
-  updateForm: function updateForm(form, options, saveable) {
-    // return { text_size: this._input.value };
-    options.scale = saveable.scale = this._input.value;
-    // options.text_size = this._input.value;
-    // return ( this._input.value != this._current.text_size );
-  },
-  template: function template() {
-    return "<fieldset class=\"cozy-fieldset-text_options\">\n        <legend>Zoom In/Out</legend>\n        <div class=\"preview--scale\" id=\"x".concat(this._id, "-preview\" style=\"overflow: hidden; height: 5rem\">\n          <div>\n            \u2018Yes, that\u2019s it,\u2019 said the Hatter with a sigh: \u2018it\u2019s always tea-time, and we\u2019ve no time to wash the things between whiles.\u2019\n          </div>\n        </div>\n        <p style=\"white-space: no-wrap\">\n          <span style=\"font-size: 150%\">\u2296<span class=\"u-screenreader\"> Zoom Out</span></span>\n          <input name=\"scale\" type=\"range\" id=\"x").concat(this._id, "-input\" value=\"100\" min=\"50\" max=\"400\" step=\"10\" style=\"width: 75%; display: inline-block\" />\n          <span style=\"font-size: 150%\">\u2295<span class=\"u-screenreader\">Zoom In </span></span>\n        </p>\n        <p>\n          <span>Scale: </span>\n          <span id=\"x").concat(this._id, "-output\">100</span>\n          <button id=\"x").concat(this._id, "-reset\" class=\"reset button--inline\" style=\"margin-left: 8px\">Reset</button> \n        </p>\n      </fieldset>");
-  },
-  _updatePreview: function _updatePreview() {
-    this._preview.style.transform = "scale(".concat(parseInt(this._input.value, 10) / 100, ") translate(0,0)");
-    this._output.innerHTML = "".concat(this._input.value, "%");
-  },
-  EOT: true
-});
-var preferences = function preferences(options) {
-  return new Preferences(options);
-};
-;// ./src/control/Control.Widget.js
-
-
-
-
-var Widget = Control.extend({
-  options: {
-    // @option region: String = 'topright'
-    // The region of the control (one of the reader corners). Possible values are `'topleft'`,
-    // `'topright'`, `'bottomleft'` or `'bottomright'`
-  },
-  onAdd: function onAdd(reader) {
-    var container = this._container;
-    if (container) {
-      // NOOP
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._onAddExtra(container);
-    this._updateTemplate(container);
-    this._updateClass(container);
-    this._bindEvents(container);
-    return container;
-  },
-  _updateTemplate: function _updateTemplate(container) {
-    var data = this.data();
-    for (var slot in data) {
-      if (data.hasOwnProperty(slot)) {
-        var value = data[slot];
-        if (typeof value == "function") {
-          value = value();
-        }
-        var node = container.querySelector("[data-slot=".concat(slot, "]"));
-        if (node) {
-          if (node.hasAttribute('value')) {
-            node.setAttribute('value', value);
-          } else {
-            node.innerHTML = value;
-          }
-        }
-      }
-    }
-  },
-  _updateClass: function _updateClass(container) {
-    if (this.options.className) {
-      dom_DomUtil.addClass(container, this.options.className);
-    }
-  },
-  _onAddExtra: function _onAddExtra() {},
-  _bindEvents: function _bindEvents(container) {
-    var control = container.querySelector("[data-toggle=button]");
-    if (!control) {
-      return;
-    }
-    DomEvent.disableClickPropagation(control);
-    DomEvent.on(control, 'click', DomEvent.stop);
-    DomEvent.on(control, 'click', this._action, this);
-  },
-  _action: function _action() {},
-  data: function data() {
-    return this.options.data || {};
-  },
-  EOT: true
-});
-Widget.Button = Widget.extend({
-  defaultTemplate: "<button data-toggle=\"button\" data-slot=\"label\"></button>",
-  _action: function _action() {
-    this.options.onClick(this, this._reader);
-  },
-  EOT: true
-});
-Widget.Panel = Widget.extend({
-  defaultTemplate: "<div><span data-slot=\"text\"></span></div>",
-  EOT: true
-});
-Widget.Toggle = Widget.extend({
-  defaultTemplate: "<button data-toggle=\"button\" data-slot=\"label\"></button>",
-  _onAddExtra: function _onAddExtra(container) {
-    this.state(this.options.states[0].stateName, container);
-    return container;
-  },
-  state: function state(stateName, container) {
-    container = container || this._container;
-    this._resetState(container);
-    this._state = this.options.states.filter(function (s) {
-      return s.stateName == stateName;
-    })[0];
-    this._updateClass(container);
-    this._updateTemplate(container);
-  },
-  _resetState: function _resetState(container) {
-    if (!this._state) {
-      return;
-    }
-    if (this._state.className) {
-      dom_DomUtil.removeClass(container, this._state.className);
-    }
-  },
-  _updateClass: function _updateClass(container) {
-    if (this._state.className) {
-      dom_DomUtil.addClass(container, this._state.className);
-    }
-  },
-  _action: function _action() {
-    this._state.onClick(this, this._reader);
-  },
-  data: function data() {
-    return this._state.data || {};
-  },
-  EOT: true
-});
-
-// export var widget = function(options) {
-//   return new Widget(options);
-// }
-
-var widget = {
-  button: function button(options) {
-    return new Widget.Button(options);
-  },
-  panel: function panel(options) {
-    return new Widget.Panel(options);
-  },
-  toggle: function toggle(options) {
-    return new Widget.Toggle(options);
-  }
-};
-;// ./src/control/Control.Citation.js
-
-
-
-
-var Citation = Control.extend({
-  options: {
-    label: 'Citation',
-    html: '<span class="citation" aria-label="Get Citation"></span>'
-  },
-  defaultTemplate: '<button class="button--sm cozy-citation citation" data-toggle="open" aria-label="Get Citation"></button>',
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._reader.on('updateContents', function (data) {
-      self._createPanel();
-    });
-    this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      self._modal.activate();
-    }, this);
-    return container;
-  },
-  _action: function _action() {
-    var self = this;
-    self._modal.activate();
-  },
-  _createButton: function _createButton(html, title, className, container, fn) {
-    var link = dom_DomUtil.create('button', className, container);
-    link.innerHTML = html;
-    link.title = title;
-    link.setAttribute('role', 'button');
-    link.setAttribute('aria-label', title);
-    DomEvent.disableClickPropagation(link);
-    DomEvent.on(link, 'click', DomEvent.stop);
-    DomEvent.on(link, 'click', fn, this);
-    return link;
-  },
-  _createPanel: function _createPanel() {
-    var self = this;
-    var template = "<form>\n      <fieldset>\n        <legend>Select Citation Format</legend>\n      </fieldset>\n    </form>\n    <blockquote id=\"formatted\" style=\"padding: 8px; border-left: 4px solid black; background-color: #fff\"></blockquote>\n    <div class=\"alert alert-info\" id=\"message\" style=\"display: none\"></div>";
-    this._modal = this._reader.modal({
-      template: template,
-      title: 'Copy Citation to Clipboard',
-      className: 'cozy-modal-citation',
-      actions: [{
-        label: 'Copy Citation',
-        close: true,
-        callback: function callback(event) {
-          document.designMode = "on";
-          var formatted = self._modal._container.querySelector("#formatted");
-          var range = document.createRange();
-          range.selectNode(formatted);
-          var sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-
-          // formatted.select();
-
-          try {
-            var flag = document.execCommand('copy');
-          } catch (err) {
-            console.log("AHOY COPY FAILED", err);
-          }
-          self._message.innerHTML = 'Success! Citation copied to your clipboard.';
-          self._message.style.display = 'block';
-          sel.removeAllRanges();
-          range.detach();
-          document.designMode = "off";
-        }
-      }],
-      region: 'left',
-      fraction: 1.0
-    });
-    this._form = this._modal._container.querySelector('form');
-    var fieldset = this._form.querySelector('fieldset');
-    var citations = this.options.citations || this._reader.metadata.citations;
-    citations.forEach(function (citation, index) {
-      var label = dom_DomUtil.create('label', null, fieldset);
-      var input = dom_DomUtil.create('input', null, label);
-      input.setAttribute('name', 'format');
-      input.setAttribute('value', citation.format);
-      input.setAttribute('type', 'radio');
-      if (index == 0) {
-        input.setAttribute('checked', 'checked');
-      }
-      var text = document.createTextNode(" " + citation.format);
-      label.appendChild(text);
-      input.setAttribute('data-text', citation.text);
-    });
-    this._formatted = this._modal._container.querySelector("#formatted");
-    this._message = this._modal._container.querySelector("#message");
-    DomEvent.on(this._form, 'change', function (event) {
-      var target = event.target;
-      if (target.tagName == 'INPUT') {
-        this._initializeForm();
-      }
-    }, this);
-    this._initializeForm();
-  },
-  _initializeForm: function _initializeForm() {
-    var formatted = this._formatCitation();
-    this._formatted.innerHTML = formatted;
-    this._message.style.display = 'none';
-    this._message.innerHTML = '';
-  },
-  _formatCitation: function _formatCitation(format) {
-    if (format == null) {
-      var selected = this._form.querySelector("input:checked");
-      format = selected.value;
-    }
-    var selected = this._form.querySelector("input[value=" + format + "]");
-    return selected.getAttribute('data-text');
-    // return selected.dataset.text;
-  },
-  EOT: true
-});
-var citation = function citation(options) {
-  return new Citation(options);
-};
-;// ./src/control/Control.Search.js
-
-
-
-
-var Search = Control.extend({
-  options: {
-    label: 'Search',
-    html: '<span>Search</span>'
-  },
-  defaultTemplate: "<form class=\"search\">\n    <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n    <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n    <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n  </form>",
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._control = container.querySelector("[data-toggle=open]");
-    container.style.position = 'relative';
-    this._data = null;
-    this._canceled = false;
-    this._processing = false;
-    this._addLocation = false;
-    this._reader.on('ready', function () {
-      this._modal = this._reader.modal({
-        template: '<article></article>',
-        title: 'Search Results',
-        className: {
-          container: 'cozy-modal-search'
-        },
-        region: 'left'
-      });
-      this._modal.callbacks.onClose = function () {
-        if (self._processing) {
-          self._canceled = true;
-        }
-      };
-      this._article = this._modal._container.querySelector('article');
-      this._modal.on('click', 'a[class="search-result"]', function (modal, target) {
-        target = target.getAttribute('href');
-        this._reader.tracking.action('search/go/link');
-        this._reader.display(target, function () {
-          // return focus to epub iframe, CSB-259
-          document.getElementsByTagName("iframe")[0].focus();
-        });
-        return true;
-      }.bind(this));
-      this._modal.on('click', 'a[class="feedback-link"]', function (modal, target) {
-        window.open(target.href, '_blank');
-      }.bind(this));
-      this._modal.on('closed', function () {
-        this._reader.tracking.action('contents/close');
-      }.bind(this));
-    }.bind(this));
-
-    // only add locations when they've been processed
-    this._reader.on('updateLocations', function () {
-      this._addLocation = true;
-    }.bind(this));
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      var searchString = this._container.querySelector("#cozy-search-string").value;
-      searchString = searchString.replace(/^\s*/, '').replace(/\s*$/, '');
-      if (!searchString) {
-        // just punt
-        return;
-      }
-      if (searchString == this.searchString) {
-        // cached results
-        self.openModalResults();
-      } else {
-        this.searchString = searchString;
-        self.openModalWaiting();
-        self.submitQuery();
-      }
-    }, this);
-    window.addEventListener('keydown', function (evt) {
-      var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
-      if (cmd === 1 || cmd === 8 || cmd === 5 || cmd === 12) {
-        if (evt.keyCode == '70') {
-          // command/control-F
-          evt.preventDefault();
-          this._container.querySelector("#cozy-search-string").focus();
-        }
-      }
-    }.bind(this));
-    return container;
-  },
-  openModalWaiting: function openModalWaiting() {
-    this._processing = true;
-    this._emptyArticle();
-    var value = this.searchString;
-    this._article.innerHTML = '<p>Submitting query for <em>' + value + '</em>...</p>' + this._reader.loaderTemplate();
-    this._modal.activate();
-  },
-  openModalResults: function openModalResults() {
-    if (this._canceled) {
-      this._canceled = false;
-      return;
-    }
-    this._buildResults();
-    this._modal.activate();
-    this._reader.tracking.action("search/open");
-  },
-  submitQuery: function submitQuery() {
-    var self = this;
-    var url = this.options.searchUrl + encodeURIComponent(this.searchString);
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.onload = function () {
-      if (this.status >= 200 && this.status < 400) {
-        // Success!
-        var data = JSON.parse(this.response);
-        console.log("SEARCH DATA", data);
-        self._data = data;
-      } else {
-        // We reached our target server, but it returned an error
-
-        self._data = null;
-        console.log(this.response);
-      }
-      self._reader.tracking.action("search/submitQuery");
-      self.openModalResults();
-    };
-    request.onerror = function () {
-      // There was a connection error of some sort
-      self._data = null;
-      self.openModalResults();
-    };
-    request.send();
-  },
-  _emptyArticle: function _emptyArticle() {
-    while (this._article && this._article.hasChildNodes()) {
-      this._article.removeChild(this._article.lastChild);
-    }
-  },
-  _buildResults: function _buildResults() {
-    var self = this;
-    var content;
-    var no_results;
-    var feedback;
-    var results_list;
-    var feedback_link = document.createElement('a');
-    feedback_link.target = '_blank';
-    feedback_link.href = 'https://umich.qualtrics.com/jfe/form/SV_3KSLynPij0fqrD7?publisher=' + self._reader.metadata.press_subdomain + '&noid=' + self._reader.metadata.noid + '&title=' + self._reader.metadata.title + '&search_location=ereader&q=' + self.searchString + '&url=' + window.location.href;
-    feedback_link.innerText = 'Share your feedback.';
-    feedback_link.setAttribute("class", "feedback-link");
-    var feedback_text = 'Not finding what you\'re looking for? ';
-    feedback = dom_DomUtil.create("p");
-    feedback.textContent = feedback_text;
-    feedback.appendChild(feedback_link);
-    this._processing = false;
-    self._emptyArticle();
-    var reader = this._reader;
-    reader.annotations.reset();
-    if (this._data) {
-      var highlight = true;
-      if (this._data.highlight_off == "yes") {
-        highlight = false;
-      }
-      content = dom_DomUtil.create('div');
-      if (this._data.search_results.length == 0) {
-        no_results = dom_DomUtil.create("p");
-        no_results.textContent = 'No results found for "' + self.searchString + '"';
-        content.appendChild(no_results);
-        content.appendChild(feedback);
-      } else {
-        content.appendChild(feedback);
-        results_list = dom_DomUtil.create('ol');
-        this._data.search_results.forEach(function (result) {
-          var option = dom_DomUtil.create('li');
-          var anchor = dom_DomUtil.create('a', null, option);
-          var cfiRange = "epubcfi(" + result.cfi + ")";
-          if (result.snippet) {
-            // results for epubs
-            if (self._addLocation) {
-              var loc = reader.locations.locationFromCfi(cfiRange);
-              var locText = "Location " + loc + " • ";
-              if (cfiRange.match(/^epubcfi\(page/)) {
-                // results for pdfs
-                // see heliotrope: app/views/e_pubs/show_pdf.html.erb, _gatherResults()
-                loc = cfiRange.split("=")[1];
-                locText = "Page " + loc.slice(0, -1) + " • ";
-              }
-              var locElement = dom_DomUtil.create('i');
-              locElement.textContent = locText;
-              anchor.appendChild(locElement);
-            }
-            anchor.appendChild(document.createTextNode(result.snippet));
-            anchor.setAttribute("href", cfiRange);
-            anchor.setAttribute("class", 'search-result');
-            results_list.appendChild(option);
-          }
-          if (highlight) {
-            reader.annotations.highlight(cfiRange, {}, null, 'epubjs-search-hl');
-          }
-        });
-        content.appendChild(results_list);
-      }
-    } else {
-      content = dom_DomUtil.create("p");
-      content.textContent = 'There was a problem processing this query.';
-    }
-    self._article.appendChild(content);
-  },
-  EOT: true
-});
-var search = function search(options) {
-  return new Search(options);
-};
-;// ./src/control/Control.BibliographicInformation.js
-
-
-
-
-
-// Title + Chapter
-
-var BibliographicInformation = Control.extend({
-  options: {
-    label: 'Info',
-    direction: 'left',
-    html: '<span class="oi" data-glyph="info">Info</span>'
-  },
-  defaultTemplate: "<button class=\"button--sm cozy-bib-info oi\" data-glyph=\"info\" data-toggle=\"open\" aria-label=\"Bibliographic Information\"> Info</button>",
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._reader.on('updateContents', function (data) {
-      self._createPanel();
-    });
-    this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      self._modal.activate();
-    }, this);
-    return container;
-  },
-  _createPanel: function _createPanel() {
-    var self = this;
-    var template = "<dl>\n    </dl>";
-    this._modal = this._reader.modal({
-      template: template,
-      title: 'Info',
-      region: 'left',
-      fraction: 1.0
-    });
-    var dl = this._modal._container.querySelector('dl');
-    var metadata_fields = [['title', 'Title'], ['creator', 'Author'], ['pubdate', 'Publication Date'], ['modified_date', 'Modified Date'], ['publisher', 'Publisher'], ['rights', 'Rights'], ['doi', 'DOI'], ['description', 'Description']];
-    var metadata_fields_seen = {};
-    var metadata = this._reader.metadata;
-    for (var idx in metadata_fields) {
-      var key = metadata_fields[idx][0];
-      var label = metadata_fields[idx][1];
-      if (metadata[key]) {
-        var value = metadata[key];
-        if (key == 'pubdate' || key == 'modified_date') {
-          value = this._formatDate(value);
-          if (!value) {
-            continue;
-          }
-          // value = d.toISOString().slice(0,10); // for YYYY-MM-DD
-        }
-        metadata_fields_seen[key] = true;
-        var dt = dom_DomUtil.create('dt', 'cozy-bib-info-label', dl);
-        dt.innerHTML = label;
-        var dd = dom_DomUtil.create('dd', 'cozy-bib-info-value cozy-bib-info-value-' + key, dl);
-        dd.innerHTML = value;
-      }
-    }
-  },
-  _formatDate: function _formatDate(value) {
-    var match = value.match(/\d{4}/);
-    if (match) {
-      return match[0];
-    }
-    return null;
-  },
-  EOT: true
-});
-var bibliographicInformation = function bibliographicInformation(options) {
-  return new BibliographicInformation(options);
-};
-;// ./src/control/Control.Download.js
-
-
-
-
-var Download = Control.extend({
-  options: {
-    label: 'Download Book',
-    html: '<span>Download Book</span>'
-  },
-  defaultTemplate: "<button class=\"button--sm cozy-download oi\" data-toggle=\"open\" data-glyph=\"data-transfer-download\"> Download Book</button>",
-  onAdd: function onAdd(reader) {
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._reader.on('updateContents', function (data) {
-      self._createPanel();
-    });
-    this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      self._modal.activate();
-    }, this);
-    return container;
-  },
-  _createPanel: function _createPanel() {
-    var self = this;
-    var template = "<form>\n      <fieldset>\n        <legend>Choose File Format</legend>\n      </fieldset>\n    </form>";
-    this._modal = this._reader.modal({
-      template: template,
-      title: 'Download Book',
-      className: 'cozy-modal-download',
-      actions: [{
-        label: 'Download',
-        callback: function callback(event) {
-          var selected = self._form.querySelector("input:checked");
-          var href = selected.getAttribute('data-href');
-          self._configureDownloadForm(href);
-          self._form.submit();
-        }
-      }],
-      region: 'left',
-      fraction: 1.0
-    });
-    this._form = this._modal._container.querySelector('form');
-    var fieldset = this._form.querySelector('fieldset');
-    this._reader.options.download_links.forEach(function (link, index) {
-      var label = dom_DomUtil.create('label', null, fieldset);
-      var input = dom_DomUtil.create('input', null, label);
-      input.setAttribute('name', 'format');
-      input.setAttribute('value', link.format);
-      input.setAttribute('data-href', link.href);
-      input.setAttribute('type', 'radio');
-      if (index == 0) {
-        input.setAttribute('checked', 'checked');
-      }
-      var text = link.format;
-      if (link.size) {
-        text += " (" + link.size + ")";
-      }
-      var text = document.createTextNode(" " + text);
-      label.appendChild(text);
-    });
-  },
-  _configureDownloadForm: function _configureDownloadForm(href) {
-    var self = this;
-    self._form.setAttribute('method', 'GET');
-    self._form.setAttribute('action', href);
-    self._form.setAttribute('target', '_blank');
-  },
-  EOT: true
-});
-var download = function download(options) {
-  return new Download(options);
-};
-;// ./src/control/Control.Navigator.js
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-
-
-
-
-var Navigator = Control.extend({
-  onAdd: function onAdd(reader) {
-    var container = this._container;
-    if (container) {} else {
-      var className = this._className('navigator'),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-    }
-    this._setup(container);
-    this._reader.on('updateLocations', function (locations) {
-      this._initializeNavigator(locations);
-    }.bind(this));
-    return container;
-  },
-  _setup: function _setup(container) {
-    this._control = container.querySelector("input[type=range]");
-    if (!this._control) {
-      this._createControl(container);
-    }
-    this._background = container.querySelector(".cozy-navigator-range__background");
-    this._status = container.querySelector(".cozy-navigator-range__status");
-    this._spanCurrentPercentage = container.querySelector(".currentPercentage");
-    this._spanCurrentLocation = container.querySelector(".currentLocation");
-    this._spanTotalLocations = container.querySelector(".totalLocations");
-    this._spanCurrentPageLabel = container.querySelector('.currentPageLabel');
-    this._bindEvents();
-  },
-  _createControl: function _createControl(container) {
-    var template = "<div class=\"cozy-navigator-range\">\n        <label class=\"u-screenreader\" for=\"cozy-navigator-range-input\">Location: </label>\n        <input class=\"cozy-navigator-range__input\" id=\"cozy-navigator-range-input\" type=\"range\" name=\"locations-range-value\" min=\"0\" max=\"100\" step=\"1\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"0% \u2022\xA0Location 0 of ?\" value=\"0\" data-background-position=\"0\" />\n        <div class=\"cozy-navigator-range__background\"></div>\n      </div>\n      <div class=\"cozy-navigator-range__status\"><span class=\"currentPercentage\">0%</span><span> \u2022 </span><span>Location <span class=\"currentLocation\">0</span> of <span class=\"totalLocations\">?</span><span class=\"currentPageLabel\"></span></span></div>\n    ";
-    template = "<div class=\"cozy-navigator-range\">\n      <form>\n        <label class=\"u-screenreader\" for=\"cozy-navigator-range-input\">Location: </label>\n        <div class=\"cozy-navigator-range__background\">\n          <input class=\"cozy-navigator-range__input\" id=\"cozy-navigator-range-input\" type=\"range\" name=\"locations-range-value\" min=\"0\" max=\"100\" step=\"1\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\" aria-valuetext=\"0% \u2022\xA0Location 0 of ?\" value=\"0\" data-background-position=\"0\" />\n        </div>\n      </form>\n      </div>\n      <div class=\"cozy-navigator-range__status\"><span class=\"currentPercentage\">0%</span><span> \u2022 </span><span>Location <span class=\"currentLocation\">0</span> of <span class=\"totalLocations\">?</span><span class=\"currentPageLabel\"></span></span></div>";
-    var body = new DOMParser().parseFromString(template, "text/html").body;
-    while (body.children.length) {
-      container.appendChild(body.children[0]);
-    }
-    this._control = container.querySelector("input[type=range]");
-  },
-  _bindEvents: function _bindEvents() {
-    var self = this;
-    var isIE = window.navigator.userAgent.indexOf("Trident/") > -1;
-    this._control.addEventListener("input", function () {
-      if (self._keyDown) {
-        self._keyDown = false;
-        return;
-      }
-      self._update(false);
-    }, false);
-    this._control.addEventListener("change", function (event) {
-      if (self._mouseDown) {
-        if (isIE) {
-          self._update(false);
-        }
-        return;
-      }
-      self._action();
-    }, false);
-    this._control.addEventListener("mousedown", function (event) {
-      self._mouseDown = true;
-      self._container.classList.add('updating');
-    }, false);
-    this._control.addEventListener("mouseup", function () {
-      self._mouseDown = false;
-      self._container.classList.remove('updating');
-      if (isIE) {
-        self._action();
-        return;
-      }
-      self._update();
-    }, false);
-    this._control.addEventListener("keydown", function (event) {
-      if (event.key == 'ArrowLeft' || event.key == 'ArrowRight') {
-        // do not fire input events if we're just keying around
-        self._keyDown = true;
-      }
-    }, false);
-    this._control.addEventListener("keyup", function () {
-      // self._mouseDown = false;
-    }, false);
-  },
-  _action: function _action() {
-    var _this = this;
-    var value = parseInt(this._control.value, 10);
-    var cfi;
-    var locations = this._reader.locations;
-    if (locations.cfiFromLocation) {
-      cfi = locations.cfiFromLocation(value);
-    } else {
-      // hopefully short-term compatibility
-      var percent = value / this._total;
-      cfi = locations.cfiFromPercentage(percent);
-    }
-    this._reader.tracking.action("navigator/go");
-    // this._ignore = true;
-    if (this._watching == 'updateLocation') {
-      setTimeout(function () {
-        _this._update();
-      }, 100);
-    }
-    this._reader.gotoPage(cfi);
-  },
-  _update: function _update(current) {
-    var self = this;
-    var value = parseFloat(this._control.value, 10);
-    var current_location = value;
-    var max = parseFloat(this._control.max, 10);
-    var percentage = value / max * 100.0;
-
-    // this._background.setAttribute('style', 'background-position: ' + (-percentage) + '% 0%, left top;');
-    var fill = this._fill; // '#2497e3';
-    var end = this._end; // '#ffffff';
-    this._control.style.background = "linear-gradient(to right, ".concat(fill, " 0%, ").concat(fill, " ").concat(percentage, "%, ").concat(end, " ").concat(percentage, "%, ").concat(end, " 100%)");
-    percentage = Math.ceil(percentage);
-    this._spanCurrentPercentage.innerHTML = percentage + '%';
-    this._control.setAttribute('data-background-position', percentage);
-    this._spanCurrentLocation.innerHTML = current_location;
-    var current_page = '';
-    if (this._reader.pageList) {
-      // && current !== false
-      var pages;
-      if (_typeof(current) != 'object') {
-        var cfi = this._reader.locations.cfiFromLocation(current_location);
-        pages = [this._reader.pageList.pageFromCfi(cfi)];
-      } else {
-        pages = this._reader.pageList.pagesFromLocation(current);
-      }
-      var pageLabels = [];
-      var label = 'p.';
-      if (pages.length) {
-        var p1 = pages.shift();
-        pageLabels.push(this._reader.pageList.pageLabel(p1));
-        if (pages.length) {
-          var p2 = pages.pop();
-          pageLabels.push(this._reader.pageList.pageLabel(p2));
-          label = 'pp.';
-        }
-      }
-      if (pageLabels.length) {
-        current_page = " (".concat(label, " ").concat(pageLabels.join('-'), ")");
-      }
-      this._spanCurrentPageLabel.innerHTML = current_page;
-    }
-    this._control.setAttribute('aria-valuenow', value);
-    this._control.setAttribute('aria-valuetext', "".concat(percentage, "% \u2022\xA0Location ").concat(current_location, " of ").concat(this._total).concat(current_page));
-
-    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
-    // this._reader.updateLiveStatus(message);
-  },
-  _initializeNavigator: function _initializeNavigator(locations) {
-    var self = this;
-    this._initiated = true;
-    this._fill = window.getComputedStyle(this._background, ':before').getPropertyValue('background-color');
-    this._end = window.getComputedStyle(this._background, ':after').getPropertyValue('background-color');
-    if (!this._reader.pageList) {
-      this._spanCurrentPageLabel.style.display = 'none';
-    }
-    this._total = this._reader.locations.total;
-    var max = this._total;
-    var min = 1;
-    if (this._reader.locations.spine) {
-      max -= 1;
-      min -= 1;
-    }
-    this._control.max = max;
-    this._control.min = min;
-    var current = this._reader.currentLocation();
-    var value = this._parseLocation(current);
-    this._control.value = value;
-    this._last_value = this._control.value;
-    this._update(current);
-    this._spanTotalLocations.innerHTML = this._total;
-    if (this._reader.locations.cfiFromLocation) {
-      this._watching = 'relocated';
-      this._reader.on('relocated', function (location) {
-        self._handle_relocated(location);
-      });
-    } else {
-      // BACK COMPATIBILITY
-      this._watching = 'updateLocation';
-      this._reader.on('updateLocation', function (location) {
-        console.log("AHOY NAVIGATOR updateLocation", location);
-        self._handle_relocated(location);
-      });
-    }
-    setTimeout(function () {
-      dom_DomUtil.addClass(this._container, 'initialized');
-    }.bind(this), 0);
-  },
-  _handle_relocated: function _handle_relocated(location) {
-    var self = this;
-    var value;
-    var percentage;
-    if (!self._initiated) {
-      return;
-    }
-    if (!(location && location.start)) {
-      return;
-    }
-    var value;
-    if (location.start && location.end) {
-      // EPUB
-      value = parseInt(self._control.value, 10);
-      var start = parseInt(location.start.location, 10);
-      var end = parseInt(location.end.location, 10);
-      if (start == this._last_location_start && end == this._last_location_end) {
-        return;
-      }
-      this._last_location_start = start;
-      this._last_location_end = end;
-
-      // console.log("AHOY NAVIGATOR relocated", value, start, end, value < start, value > end);
-      if (value < start || value > end) {
-        self._last_value = value;
-        self._control.value = value < start ? start : end;
-      }
-    } else {
-      value = self._parseLocation(location);
-      if (value == this._last_value) {
-        return;
-      }
-      self._last_value = value;
-      self._control.value = value;
-    }
-    self._update(location);
-    // var message = `Location ${current_location}; ${percentage}%${current_page}`;
-    var message = this._control.getAttribute('aria-valuetext');
-    this._reader.updateLiveStatus(message);
-  },
-  _parseLocation: function _parseLocation(location) {
-    var self = this;
-    var value;
-    function handle_possible_pdf_location(location) {
-      var start = location.start.cfi ? location.start.cfi : location.start;
-      if (typeof start == 'string' && start.indexOf('page=') > -1) {
-        // dumb
-        start = start.replace('epubcfi(page=', '').replace(')', '');
-      }
-      return start;
-    }
-    if (typeof location.start == 'undefined') {
-      // If the window is being resized while the reader is still loading an EPUB chapter, then...
-      // `location.start` will be undefined here. This causes the reader to appear to load forever.
-      // I _think_ this is going to be a rarity in the wild, although clicking the full screen...
-      // button too soon will also cause it. Also, it's actually very likely to happen when a ...
-      // developer opens a "docked" dev tools dialog while CSB is loading a complex chapter.
-      // In this event starting from scratch with a page reload seems like the best move.
-      // Anything else causes a recursive, asynchronous mess.
-      console.log("AHOY NAVIGATOR location lost. Window resized while loading? Reloading page.");
-      window.location.reload(); // errors may still appear in the console before the reload occurs
-    } else if (_typeof(location.start) == 'object') {
-      if (location.start.location != null) {
-        value = location.start.location;
-      } else {
-        var start_cfi = handle_possible_pdf_location(location);
-        var percentage = self._reader.locations.percentageFromCfi(start_cfi);
-        value = Math.ceil(self._total * percentage);
-      }
-    } else {
-      // PDF bug
-      var start = handle_possible_pdf_location(location);
-      value = parseInt(start, 10);
-    }
-    return value;
-  },
-  EOT: true
-});
-var Control_Navigator_navigator = function navigator(options) {
-  return new Navigator(options);
-};
-;// ./src/control/Control.Fullscreen.js
-
-
-
-
-var Fullscreen = Control.extend({
-  options: {
-    label: 'View Fullscreen',
-    html: '<span>View Fullscreen</span>'
-  },
-  defaultTemplate: "<button class=\"button--sm cozy-fullscreen oi\" data-toggle=\"open\" data-glyph=\"fullscreen-enter\" aria-label=\"Enter Fullscreen\"></button>",
-  onAdd: function onAdd(reader) {
-    var _this = this;
-    var self = this;
-    var container = this._container;
-    if (container) {
-      this._control = container.querySelector("[data-target=" + this.options.direction + "]");
-    } else {
-      var className = this._className(),
-        options = this.options;
-      container = dom_DomUtil.create('div', className);
-      var template = this.options.template || this.defaultTemplate;
-      var body = new DOMParser().parseFromString(template, "text/html").body;
-      while (body.children.length) {
-        container.appendChild(body.children[0]);
-      }
-    }
-    this._control = container.querySelector("[data-toggle=open]");
-    DomEvent.on(this._control, 'click', function (event) {
-      event.preventDefault();
-      self.activate();
-    }, this);
-
-    // // fullscreenchange is not standard across all browsers
-    // document.addEventListener('fullscreenchange', (event) => {
-    //   // document.fullscreenElement will point to the element that
-    //   // is in fullscreen mode if there is one. If there isn't one,
-    //   // the value of the property is null.    
-    //   this._fullscreenchangeHandler();
-    // });
-
-    this._reader.on('fullscreenchange', function (data) {
-      _this._fullscreenchangeHandler(data.isFullscreen);
-    });
-    return container;
-  },
-  activate: function activate() {
-    if (!document.fullscreenElement) {
-      this._reader.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  },
-  _fullscreenchangeHandler: function _fullscreenchangeHandler(isFullscreen) {
-    if (isFullscreen) {
-      this._control.dataset.glyph = 'fullscreen-exit';
-      this._control.setAttribute('aria-label', 'Exit Fullscreen');
-    } else {
-      this._control.dataset.glyph = 'fullscreen-enter';
-      this._control.setAttribute('aria-label', 'Enter Fullscreen');
-    }
-  },
-  EOT: true
-});
-var fullscreen = function fullscreen(options) {
-  return new Fullscreen(options);
-};
-;// ./src/control/index.js
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import {Zoom, zoom} from './Control.Zoom';
-// import {Attribution, attribution} from './Control.Attribution';
-
-Control.PageNext = PageNext;
-Control.PagePrevious = PagePrevious;
-Control.PageFirst = PageFirst;
-Control.PageLast = PageLast;
-control.pagePrevious = pagePrevious;
-control.pageNext = pageNext;
-control.pageFirst = pageFirst;
-control.pageLast = pageLast;
-Control.Contents = Contents;
-control.contents = contents;
-Control.Title = Title;
-control.title = title;
-Control.PublicationMetadata = PublicationMetadata;
-control.publicationMetadata = publicationMetadata;
-Control.Preferences = Preferences;
-control.preferences = preferences;
-Control.Widget = Widget;
-control.widget = widget;
-Control.Citation = Citation;
-control.citation = citation;
-Control.Search = Search;
-control.search = search;
-Control.BibliographicInformation = BibliographicInformation;
-control.bibliographicInformation = bibliographicInformation;
-Control.Download = Download;
-control.download = download;
-Control.Navigator = Navigator;
-control.navigator = Control_Navigator_navigator;
-Control.Fullscreen = Fullscreen;
-control.fullscreen = fullscreen;
-
-
-/***/ }),
-
 /***/ 8584:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -30762,7 +31332,7 @@ var cozy_cozy = {};
 // cozy.reader = reader;
 
 
-var control = __webpack_require__(8427);
+var control = __webpack_require__(7115);
 var core = __webpack_require__(9241);
 var dom = __webpack_require__(2057);
 var cozy_reader = __webpack_require__(3480);
