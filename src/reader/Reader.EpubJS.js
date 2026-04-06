@@ -4,6 +4,7 @@ import ePub from 'epubjs';
 window.ePub = ePub;
 import * as DomUtil from '../dom/DomUtil';
 import * as Browser from '../core/Browser';
+import { PreferencesConfig, sanitizePreference, sanitizePreferences } from '../config/PreferencesConfig';
 
 import path from "path-webpack";
 
@@ -135,7 +136,7 @@ Reader.EpubJS = Reader.extend({
     var key = self.metadata.layout || 'reflowable';
     var flow = this.options.flow;
     if ( self._cozyOptions[key] && self._cozyOptions[key].flow ) {
-      flow = self._cozyOptions[key].flow;
+      flow = sanitizePreference('flow', self._cozyOptions[key].flow);
       this.options.flow = flow; // restore from stored preferences
     }
 
@@ -161,29 +162,32 @@ Reader.EpubJS = Reader.extend({
       // useful dev output if you're adding/changing saved preferences
       // console.log('self._cozyOptions[key]: ' + JSON.stringify(self._cozyOptions[key], null, 4));
 
-      if ( self._cozyOptions[key].font ) {
-        self.options.font = self._cozyOptions[key].font;
+      // Sanitize stored preferences before applying them
+      var sanitized = sanitizePreferences(self._cozyOptions[key]);
+
+      if ( sanitized.font ) {
+        self.options.font = sanitized.font;
       }
-      if ( self._cozyOptions[key].text_size ) {
-        self.options.text_size = self._cozyOptions[key].text_size;
+      if ( sanitized.text_size ) {
+        self.options.text_size = sanitized.text_size;
       }
-      if ( self._cozyOptions[key].scale ) {
-        self.options.scale = self._cozyOptions[key].scale;
+      if ( sanitized.scale ) {
+        self.options.scale = sanitized.scale;
       }
-      if ( self._cozyOptions[key].word_spacing ) {
-        self.options.word_spacing = self._cozyOptions[key].word_spacing;
+      if ( sanitized.word_spacing ) {
+        self.options.word_spacing = sanitized.word_spacing;
       }
-      if ( self._cozyOptions[key].letter_spacing ) {
-        self.options.letter_spacing = self._cozyOptions[key].letter_spacing;
+      if ( sanitized.letter_spacing ) {
+        self.options.letter_spacing = sanitized.letter_spacing;
       }
-      if ( self._cozyOptions[key].line_height ) {
-        self.options.line_height = self._cozyOptions[key].line_height;
+      if ( sanitized.line_height ) {
+        self.options.line_height = sanitized.line_height;
       }
-      if ( self._cozyOptions[key].margins ) {
-        self.options.margins = self._cozyOptions[key].margins;
+      if ( sanitized.margins ) {
+        self.options.margins = sanitized.margins;
       }
-      if ( self._cozyOptions[key].paragraph_spacing ) {
-        self.options.paragraph_spacing = self._cozyOptions[key].paragraph_spacing;
+      if ( sanitized.paragraph_spacing ) {
+        self.options.paragraph_spacing = sanitized.paragraph_spacing;
       }
     }
 
@@ -491,13 +495,17 @@ Reader.EpubJS = Reader.extend({
 
     var doUpdate = false;
     if ( options === true ) { doUpdate = true; options = {}; }
+
+    // Sanitize incoming options before processing
+    var sanitizedOptions = sanitizePreferences(options);
+
     var changed = {};
-    Object.keys(options).forEach(function(key) {
-      if ( options[key] != this.options[key] ) {
+    Object.keys(sanitizedOptions).forEach(function(key) {
+      if ( sanitizedOptions[key] != this.options[key] ) {
         doUpdate = true;
         changed[key] = true;
       }
-      // doUpdate = doUpdate || ( options[key] != this.options[key] );
+      // doUpdate = doUpdate || ( sanitizedOptions[key] != this.options[key] );
     }.bind(this));
 
     if ( ! doUpdate ) {
@@ -506,19 +514,19 @@ Reader.EpubJS = Reader.extend({
 
     // performance hack
     if ( Object.keys(changed).length == 1 && changed.scale ) {
-      this.options.scale = options.scale;
+      this.options.scale = sanitizedOptions.scale;
       this._updateScale();
       return;
     }
 
-    if ( options.rootfilePath && options.rootfilePath != this.options.rootfilePath ) {
+    if ( sanitizedOptions.rootfilePath && sanitizedOptions.rootfilePath != this.options.rootfilePath ) {
       // we need to REOPEN THE DANG BOOK
-      sessionStorage.setItem('rootfilePath', options.rootfilePath);
+      sessionStorage.setItem('rootfilePath', sanitizedOptions.rootfilePath);
       location.reload();
       return;
     }
 
-    Util.extend(this.options, options);
+    Util.extend(this.options, sanitizedOptions);
 
     this.draw(target, function() {
       // this._updateFontSize();
@@ -554,15 +562,19 @@ Reader.EpubJS = Reader.extend({
 
         // Build text spacing and font styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
         var fontAndSpacingCSS = '';
-        var word_spacing = self.options.word_spacing || 'auto';
-        var letter_spacing = self.options.letter_spacing || 'auto';
-        var line_height = self.options.line_height || 'auto';
-        var text_size = self.options.text_size || 100;
+
+        // Use the config sanitizer as the single source of truth for all preference values
+        var sanitizedPreferences = sanitizePreferences(self.options || {});
+        var word_spacing = sanitizedPreferences.word_spacing || 'auto';
+        var letter_spacing = sanitizedPreferences.letter_spacing || 'auto';
+        var line_height = sanitizedPreferences.line_height || 'auto';
+        var text_size = sanitizedPreferences.text_size || 100;
 
         var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
         var textRules = [];
 
-        var font = self.options.font || 'default';
+        var font = sanitizedPreferences.font || 'default';
+
         // Add font family if not default
         if ( font !== 'default' ) {
           textRules.push(`font-family: ${font} !important`);
@@ -592,8 +604,8 @@ Reader.EpubJS = Reader.extend({
 
         // Build paragraph styles
         var paragraphStylesCSS = '';
-        var margins = self.options.margins || 'auto';
-        var paragraph_spacing = self.options.paragraph_spacing || 'auto';
+        var margins = sanitizedPreferences.margins || 'auto';
+        var paragraph_spacing = sanitizedPreferences.paragraph_spacing || 'auto';
 
         if ( margins !== 'auto' || paragraph_spacing !== 'auto' ) {
           var paragraphRules = [];
@@ -800,7 +812,9 @@ ${paragraphStylesCSS}
     // var scale = this.options.modes[this.flow].scale;
     var scale = this.options.scale;
     if ( scale ) {
-      this.settings.scale = parseInt(scale, 10) / 100.0;
+      // Sanitize scale value using the centralized sanitizer
+      var scaleNum = sanitizePreferences({ scale: scale }).scale || PreferencesConfig.scale.default;
+      this.settings.scale = scaleNum / 100.0;
       this._queueScale();
     }
   },
