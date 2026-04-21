@@ -14795,6 +14795,8 @@ epub_ePub.utils = core;
 var DomUtil = __webpack_require__(8029);
 // EXTERNAL MODULE: ./src/core/Browser.js
 var Browser = __webpack_require__(4084);
+// EXTERNAL MODULE: ./src/config/PreferencesConfig.js
+var PreferencesConfig = __webpack_require__(6897);
 ;// ./src/epubjs/managers/helpers/prefab.js
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
@@ -18201,6 +18203,7 @@ window.ePub = src;
 
 
 
+
 Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
   initialize: function initialize(id, options) {
     Reader/* Reader */.m.prototype.initialize.apply(this, arguments);
@@ -18303,7 +18306,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     var key = self.metadata.layout || 'reflowable';
     var flow = this.options.flow;
     if (self._cozyOptions[key] && self._cozyOptions[key].flow) {
-      flow = self._cozyOptions[key].flow;
+      flow = (0,PreferencesConfig/* sanitizePreference */.Lo)('flow', self._cozyOptions[key].flow);
       this.options.flow = flow; // restore from stored preferences
     }
     if (flow == 'auto') {
@@ -18328,29 +18331,31 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       // useful dev output if you're adding/changing saved preferences
       // console.log('self._cozyOptions[key]: ' + JSON.stringify(self._cozyOptions[key], null, 4));
 
-      if (self._cozyOptions[key].font) {
-        self.options.font = self._cozyOptions[key].font;
+      // Sanitize stored preferences before applying them
+      var sanitized = (0,PreferencesConfig/* sanitizePreferences */.W)(self._cozyOptions[key]);
+      if (sanitized.font) {
+        self.options.font = sanitized.font;
       }
-      if (self._cozyOptions[key].text_size) {
-        self.options.text_size = self._cozyOptions[key].text_size;
+      if (sanitized.text_size) {
+        self.options.text_size = sanitized.text_size;
       }
-      if (self._cozyOptions[key].scale) {
-        self.options.scale = self._cozyOptions[key].scale;
+      if (sanitized.scale) {
+        self.options.scale = sanitized.scale;
       }
-      if (self._cozyOptions[key].word_spacing) {
-        self.options.word_spacing = self._cozyOptions[key].word_spacing;
+      if (sanitized.word_spacing) {
+        self.options.word_spacing = sanitized.word_spacing;
       }
-      if (self._cozyOptions[key].letter_spacing) {
-        self.options.letter_spacing = self._cozyOptions[key].letter_spacing;
+      if (sanitized.letter_spacing) {
+        self.options.letter_spacing = sanitized.letter_spacing;
       }
-      if (self._cozyOptions[key].line_height) {
-        self.options.line_height = self._cozyOptions[key].line_height;
+      if (sanitized.line_height) {
+        self.options.line_height = sanitized.line_height;
       }
-      if (self._cozyOptions[key].margins) {
-        self.options.margins = self._cozyOptions[key].margins;
+      if (sanitized.margins) {
+        self.options.margins = sanitized.margins;
       }
-      if (self._cozyOptions[key].paragraph_spacing) {
-        self.options.paragraph_spacing = self._cozyOptions[key].paragraph_spacing;
+      if (sanitized.paragraph_spacing) {
+        self.options.paragraph_spacing = sanitized.paragraph_spacing;
       }
     }
     this.settings = {
@@ -18635,13 +18640,16 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       doUpdate = true;
       options = {};
     }
+
+    // Sanitize incoming options before processing
+    var sanitizedOptions = (0,PreferencesConfig/* sanitizePreferences */.W)(options);
     var changed = {};
-    Object.keys(options).forEach(function (key) {
-      if (options[key] != this.options[key]) {
+    Object.keys(sanitizedOptions).forEach(function (key) {
+      if (sanitizedOptions[key] != this.options[key]) {
         doUpdate = true;
         changed[key] = true;
       }
-      // doUpdate = doUpdate || ( options[key] != this.options[key] );
+      // doUpdate = doUpdate || ( sanitizedOptions[key] != this.options[key] );
     }.bind(this));
     if (!doUpdate) {
       return;
@@ -18649,17 +18657,17 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
 
     // performance hack
     if (Object.keys(changed).length == 1 && changed.scale) {
-      this.options.scale = options.scale;
+      this.options.scale = sanitizedOptions.scale;
       this._updateScale();
       return;
     }
-    if (options.rootfilePath && options.rootfilePath != this.options.rootfilePath) {
+    if (sanitizedOptions.rootfilePath && sanitizedOptions.rootfilePath != this.options.rootfilePath) {
       // we need to REOPEN THE DANG BOOK
-      sessionStorage.setItem('rootfilePath', options.rootfilePath);
+      sessionStorage.setItem('rootfilePath', sanitizedOptions.rootfilePath);
       location.reload();
       return;
     }
-    Util.extend(this.options, options);
+    Util.extend(this.options, sanitizedOptions);
     this.draw(target, function () {
       // this._updateFontSize();
       this._updateScale();
@@ -18691,13 +18699,17 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
 
         // Build text spacing and font styles to inject - when done in the prehooks it works for both scroll and page-by-page modes
         var fontAndSpacingCSS = '';
-        var word_spacing = self.options.word_spacing || 'auto';
-        var letter_spacing = self.options.letter_spacing || 'auto';
-        var line_height = self.options.line_height || 'auto';
-        var text_size = self.options.text_size || 100;
+
+        // Use the config sanitizer as the single source of truth for all preference values
+        var sanitizedPreferences = (0,PreferencesConfig/* sanitizePreferences */.W)(self.options || {});
+        var word_spacing = sanitizedPreferences.word_spacing || 'auto';
+        var letter_spacing = sanitizedPreferences.letter_spacing || 'auto';
+        var line_height = sanitizedPreferences.line_height || 'auto';
+        var text_size = sanitizedPreferences.text_size || 100;
         var textElements = 'body, table, td, th, h1, h2, h3, h4, h5, h6, p, li, span, b, i, strong, em, a, div, blockquote, figure, figcaption';
         var textRules = [];
-        var font = self.options.font || 'default';
+        var font = sanitizedPreferences.font || 'default';
+
         // Add font family if not default
         if (font !== 'default') {
           textRules.push("font-family: ".concat(font, " !important"));
@@ -18727,8 +18739,8 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
 
         // Build paragraph styles
         var paragraphStylesCSS = '';
-        var margins = self.options.margins || 'auto';
-        var paragraph_spacing = self.options.paragraph_spacing || 'auto';
+        var margins = sanitizedPreferences.margins || 'auto';
+        var paragraph_spacing = sanitizedPreferences.paragraph_spacing || 'auto';
         if (margins !== 'auto' || paragraph_spacing !== 'auto') {
           var paragraphRules = [];
           if (margins !== 'auto') {
@@ -18899,7 +18911,11 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     // var scale = this.options.modes[this.flow].scale;
     var scale = this.options.scale;
     if (scale) {
-      this.settings.scale = parseInt(scale, 10) / 100.0;
+      // Sanitize scale value using the centralized sanitizer
+      var scaleNum = (0,PreferencesConfig/* sanitizePreferences */.W)({
+        scale: scale
+      }).scale || PreferencesConfig/* PreferencesConfig */.pn.scale["default"];
+      this.settings.scale = scaleNum / 100.0;
       this._queueScale();
     }
   },
@@ -25735,6 +25751,188 @@ module.exports = function (value) {
 
 /***/ }),
 
+/***/ 6897:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Lo: () => (/* binding */ sanitizePreference),
+/* harmony export */   W: () => (/* binding */ sanitizePreferences),
+/* harmony export */   pn: () => (/* binding */ PreferencesConfig)
+/* harmony export */ });
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+/**
+ * Shared configuration for user preferences
+ * Contains valid values for all preference options
+ */
+
+var PreferencesConfig = {
+  // Font options
+  fonts: {
+    valid: ['default', 'Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif', 'TimesNewRoman,Times New Roman,Times,Baskerville,Georgia,serif', 'Arial,Helvetica Neue,Helvetica,sans-serif', 'Verdana,Geneva,sans-serif', 'OpenDyslexic', 'Consolas,monaco,monospace'],
+    "default": 'default'
+  },
+  // Text size values (50% to 400% in 10% increments)
+  textSize: {
+    valid: function () {
+      var values = [];
+      for (var i = 50; i <= 400; i += 10) {
+        values.push(i);
+      }
+      return values;
+    }(),
+    "default": 100,
+    min: 50,
+    max: 400
+  },
+  // Scale values for pre-paginated layouts (50% to 400% in 10% increments)
+  scale: {
+    valid: function () {
+      var values = [];
+      for (var i = 50; i <= 400; i += 10) {
+        values.push(i);
+      }
+      return values;
+    }(),
+    "default": 100,
+    min: 50,
+    max: 400
+  },
+  // Word spacing values
+  wordSpacing: {
+    valid: ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem', '1rem'],
+    "default": 'auto'
+  },
+  // Letter spacing values
+  letterSpacing: {
+    valid: ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem'],
+    "default": 'auto'
+  },
+  // Line height values
+  lineHeight: {
+    valid: ['auto', '1', '1.125', '1.25', '1.35', '1.5', '1.65', '1.75', '2'],
+    "default": 'auto'
+  },
+  // Margins values
+  margins: {
+    valid: ['auto', '.5rem', '.75rem', '1rem', '1.25rem', '1.5rem', '1.75rem', '2rem'],
+    "default": 'auto'
+  },
+  // Paragraph spacing values
+  paragraphSpacing: {
+    valid: ['auto', '.5rem', '1rem', '1.25rem', '1.5rem', '2rem', '2.5rem', '3rem'],
+    "default": 'auto'
+  },
+  // Flow/display mode values
+  flow: {
+    valid: ['auto', 'paginated', 'scrolled-doc'],
+    "default": 'auto'
+  },
+  // Theme values (default only - custom themes added dynamically)
+  theme: {
+    valid: ['default'],
+    "default": 'default'
+  }
+};
+
+/**
+ * Sanitize a preference value by checking if it's valid
+ * @param {string} preference - The preference type (e.g., 'fonts', 'textSize', 'wordSpacing')
+ * @param {*} value - The value to sanitize
+ * @returns {*} - The sanitized value (valid value or default)
+ */
+function sanitizePreference(preference, value) {
+  var config = PreferencesConfig[preference];
+  if (!config) {
+    console.warn('Unknown preference type: ' + preference);
+    return value;
+  }
+
+  // Handle numeric values (textSize, scale)
+  if (preference === 'textSize' || preference === 'scale') {
+    if (value === null || value === undefined) {
+      return config["default"];
+    }
+    var numValue = typeof value === 'string' ? parseInt(value, 10) : value;
+
+    // Check if it's a valid number
+    if (isNaN(numValue)) {
+      return config["default"];
+    }
+
+    // Return immediately if already an explicitly valid value
+    if (config.valid.includes(numValue)) {
+      return numValue;
+    }
+
+    // Clamp to min/max range and then snap to nearest valid step
+    var validNumericValues = config.valid.filter(function (v) {
+      return typeof v === 'number';
+    });
+    if (validNumericValues.length === 0) {
+      return config["default"];
+    }
+    var normalizedValue = numValue;
+    if (config.min !== undefined && config.max !== undefined) {
+      normalizedValue = Math.max(config.min, Math.min(config.max, numValue));
+    }
+    return validNumericValues.reduce(function (closest, current) {
+      return Math.abs(current - normalizedValue) < Math.abs(closest - normalizedValue) ? current : closest;
+    });
+  }
+
+  // Handle string values (all other preferences) - strict whitelist only
+  var stringValue = String(value);
+  if (config.valid.includes(stringValue)) {
+    return stringValue;
+  }
+  console.warn('Invalid value for ' + preference + ': ' + value + ', using default: ' + config["default"]);
+  return config["default"];
+}
+
+/**
+ * Sanitize multiple preferences at once
+ * @param {Object} preferences - Object containing preference key-value pairs
+ * @returns {Object} - Sanitized preferences object
+ */
+function sanitizePreferences(preferences) {
+  if (!preferences || _typeof(preferences) !== 'object') {
+    return {};
+  }
+
+  // Use Object.create(null) to avoid prototype pollution from user-controlled keys
+  var sanitized = Object.create(null);
+  var keyMap = {
+    'font': 'fonts',
+    'text_size': 'textSize',
+    'word_spacing': 'wordSpacing',
+    'letter_spacing': 'letterSpacing',
+    'line_height': 'lineHeight',
+    'paragraph_spacing': 'paragraphSpacing'
+  };
+
+  // Skip keys that could trigger prototype mutation
+  var dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+  var keys = Object.keys(preferences);
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if (dangerousKeys.indexOf(key) !== -1) {
+      continue;
+    }
+    var value = preferences[key];
+    var configKey = keyMap[key] || key;
+    if (PreferencesConfig[configKey]) {
+      sanitized[key] = sanitizePreference(configKey, value);
+    } else {
+      // Pass through values that don't have config (e.g., rootfilePath)
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
+/***/ }),
+
 /***/ 7115:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -26937,9 +27135,12 @@ var SliderControl = /*#__PURE__*/function () {
   }]);
 }();
 
+// EXTERNAL MODULE: ./src/config/PreferencesConfig.js
+var PreferencesConfig = __webpack_require__(6897);
 // EXTERNAL MODULE: ./node_modules/lodash/keys.js
 var keys = __webpack_require__(5950);
 ;// ./src/control/Control.Preferences.js
+
 
 
 
@@ -27204,11 +27405,8 @@ Preferences.fieldset.Font = Fieldset.extend({
       // Reset button reference
       this._actionResetTextSize = form.querySelector("#x".concat(this._id, "-text-size-reset"));
 
-      // Define discrete values for text size (50% to 400% in 10% increments)
-      this._textSizeValues = [];
-      for (var i = 50; i <= 400; i += 10) {
-        this._textSizeValues.push(String(i));
-      }
+      // Use shared config for text size values
+      this._textSizeValues = PreferencesConfig/* PreferencesConfig */.pn.textSize.valid.map(String);
 
       // Initialize slider control with contextual aria-label
       this._textSizeSlider = new SliderControl(this._input, this._textSizeValues, 'font size');
@@ -27292,12 +27490,12 @@ Preferences.fieldset.Spacing = Fieldset.extend({
       this._marginsValue = form.querySelector("#x".concat(this._id, "-margins-value"));
       this._paragraphSpacingValue = form.querySelector("#x".concat(this._id, "-paragraph-spacing-value"));
 
-      // Define discrete values for each slider
-      this._wordSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem', '1rem'];
-      this._letterSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem'];
-      this._lineHeightValues = ['auto', '1', '1.125', '1.25', '1.35', '1.5', '1.65', '1.75', '2'];
-      this._marginsValues = ['auto', '.5rem', '.75rem', '1rem', '1.25rem', '1.5rem', '1.75rem', '2rem'];
-      this._paragraphSpacingValues = ['auto', '.5rem', '1rem', '1.25rem', '1.5rem', '2rem', '2.5rem', '3rem'];
+      // Use shared config for spacing values
+      this._wordSpacingValues = PreferencesConfig/* PreferencesConfig */.pn.wordSpacing.valid;
+      this._letterSpacingValues = PreferencesConfig/* PreferencesConfig */.pn.letterSpacing.valid;
+      this._lineHeightValues = PreferencesConfig/* PreferencesConfig */.pn.lineHeight.valid;
+      this._marginsValues = PreferencesConfig/* PreferencesConfig */.pn.margins.valid;
+      this._paragraphSpacingValues = PreferencesConfig/* PreferencesConfig */.pn.paragraphSpacing.valid;
 
       // Initialize slider controls with contextual aria-labels
       this._wordSpacingSlider = new SliderControl(this._wordSpacing, this._wordSpacingValues, 'word spacing');
@@ -31131,6 +31329,21 @@ module.exports = toNumber;
 
 /***/ }),
 
+/***/ 9521:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   PreferencesConfig: () => (/* reexport safe */ _PreferencesConfig__WEBPACK_IMPORTED_MODULE_0__.pn),
+/* harmony export */   sanitizePreference: () => (/* reexport safe */ _PreferencesConfig__WEBPACK_IMPORTED_MODULE_0__.Lo),
+/* harmony export */   sanitizePreferences: () => (/* reexport safe */ _PreferencesConfig__WEBPACK_IMPORTED_MODULE_0__.W)
+/* harmony export */ });
+/* harmony import */ var _PreferencesConfig__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6897);
+
+
+/***/ }),
+
 /***/ 9570:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -31336,7 +31549,8 @@ var control = __webpack_require__(7115);
 var core = __webpack_require__(9241);
 var dom = __webpack_require__(2057);
 var cozy_reader = __webpack_require__(3480);
-[control, core, dom, cozy_reader].forEach(function (m) {
+var config = __webpack_require__(9521);
+[control, core, dom, cozy_reader, config].forEach(function (m) {
   Object.keys(m).forEach(function (key) {
     cozy_cozy[key] = m[key];
   });
