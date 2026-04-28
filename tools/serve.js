@@ -4,7 +4,6 @@ var http = require('http');
 var fs = require('fs');
 var serveStatic = require('serve-static');
 var morgan  = require('morgan');
-var colors = require('colors');
 // var	argv = require('optimist').argv;
 var argv = require('minimist')(process.argv.slice(2));
 var	portfinder = require('portfinder');
@@ -162,16 +161,16 @@ function listen(options) {
 
   server.listen(options.port, options.address);
 
-  log('Starting up Server, serving '.yellow
-    + __dirname.replace("tools", '').green
-    + ' on port: '.yellow
-    + `${options.address}:${options.port}`.cyan);
+  log('Starting up Server, serving '
+    + __dirname.replace("tools", '')
+    + ' on port: '
+    + `${options.address}:${options.port}`);
   log('Hit CTRL-C to stop the server');
 
 }
 
 process.on('SIGINT', function () {
-  log('Server stopped.'.red);
+  log('Server stopped.');
   process.exit();
 });
 
