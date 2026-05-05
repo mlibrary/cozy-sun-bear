@@ -3,6 +3,16 @@
 // However CSB does not load in heliotrope at all without the open-iconic files that are commited in its repo here:
 // https://github.com/mlibrary/heliotrope/tree/master/app/javascript/packs/cozy-sun-bear/fonts
 // At some point we might want to look into why that is, or clean this all up when it goes on to use The Next ThingTM
+
+// Font URL function for Dart Sass compatibility
+@function font-url($filename, $only-path: false) {
+  @if $only-path {
+    @return $filename;
+  } @else {
+    @return url($filename);
+  }
+}
+
 @font-face {
   font-family: 'Icons';
   src: font-url('fonts/open-iconic.eot');
