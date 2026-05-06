@@ -33,8 +33,9 @@ var control = require('./control/index');
 var core = require('./core/index');
 var dom = require('./dom/index');
 var reader = require('./reader/index');
+var config = require('./config/index');
 
-[ control, core, dom, reader ].forEach((m) => {
+[ control, core, dom, reader, config ].forEach((m) => {
   Object.keys(m).forEach((key) => {
     cozy[key] = m[key];
   })
