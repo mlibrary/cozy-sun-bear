@@ -5,6 +5,7 @@ import * as DomUtil from '../dom/DomUtil';
 import * as DomEvent from '../dom/DomEvent';
 import * as Util from '../core/Util';
 import SliderControl from '../utils/slider-control';
+import { PreferencesConfig } from '../config/PreferencesConfig';
 
 import assign from 'lodash/assign';
 import keys from 'lodash/keys';
@@ -293,11 +294,8 @@ Preferences.fieldset.Font = Fieldset.extend({
       // Reset button reference
       this._actionResetTextSize = form.querySelector(`#x${this._id}-text-size-reset`);
 
-      // Define discrete values for text size (50% to 400% in 10% increments)
-      this._textSizeValues = [];
-      for (let i = 50; i <= 400; i += 10) {
-        this._textSizeValues.push(String(i));
-      }
+      // Use shared config for text size values
+      this._textSizeValues = PreferencesConfig.textSize.valid.map(String);
 
       // Initialize slider control with contextual aria-label
       this._textSizeSlider = new SliderControl(this._input, this._textSizeValues, 'font size');
@@ -432,12 +430,12 @@ Preferences.fieldset.Spacing = Fieldset.extend({
       this._marginsValue = form.querySelector(`#x${this._id}-margins-value`);
       this._paragraphSpacingValue = form.querySelector(`#x${this._id}-paragraph-spacing-value`);
 
-      // Define discrete values for each slider
-      this._wordSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem', '1rem'];
-      this._letterSpacingValues = ['auto', '.0675rem', '.125rem', '.1875rem', '.25rem', '.3125rem', '.375rem', '.4375rem', '.5rem'];
-      this._lineHeightValues = ['auto', '1', '1.125', '1.25', '1.35', '1.5', '1.65', '1.75', '2'];
-      this._marginsValues = ['auto', '.5rem', '.75rem', '1rem', '1.25rem', '1.5rem', '1.75rem', '2rem'];
-      this._paragraphSpacingValues = ['auto', '.5rem', '1rem', '1.25rem', '1.5rem', '2rem', '2.5rem', '3rem'];
+      // Use shared config for spacing values
+      this._wordSpacingValues = PreferencesConfig.wordSpacing.valid;
+      this._letterSpacingValues = PreferencesConfig.letterSpacing.valid;
+      this._lineHeightValues = PreferencesConfig.lineHeight.valid;
+      this._marginsValues = PreferencesConfig.margins.valid;
+      this._paragraphSpacingValues = PreferencesConfig.paragraphSpacing.valid;
 
       // Initialize slider controls with contextual aria-labels
       this._wordSpacingSlider = new SliderControl(this._wordSpacing, this._wordSpacingValues, 'word spacing');
