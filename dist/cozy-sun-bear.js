@@ -7860,7 +7860,7 @@ var Search = Control.extend({
     label: 'Search',
     html: '<span>Search</span>'
   },
-  defaultTemplate: "<form class=\"search\">\n    <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n    <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" data-hj-allow=\"true\" />\n    <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n  </form>",
+  defaultTemplate: "<form class=\"search\">\n    <label class=\"u-screenreader\" for=\"cozy-search-string\">Search in this text</label>\n    <input id=\"cozy-search-string\" name=\"search\" type=\"text\" placeholder=\"Search in this text...\" />\n    <button class=\"button--sm\" data-toggle=\"open\" aria-label=\"Search\"><i class=\"icon-magnifying-glass oi\" data-glyph=\"magnifying-glass\" title=\"Search\" aria-hidden=\"true\"></i></button>\n  </form>",
   onAdd: function onAdd(reader) {
     var self = this;
     var container = this._container;
@@ -30616,8 +30616,6 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     if (title && view.iframe) {
       view.iframe.title = "Contents: ".concat(title);
     }
-    // Ugly hijack to enable hotjar HELIO-4198
-    view.iframe.setAttribute("data-hj-allow-iframe", "true");
   },
   EOT: true
 });
