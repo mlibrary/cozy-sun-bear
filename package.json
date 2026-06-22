@@ -16,7 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.18.10",
-    "@babel/core": "^7.19.0",
+    "@babel/core": "^7.29.6",
     "@babel/plugin-external-helpers": "^7.12.13",
     "@babel/plugin-proposal-export-default-from": "^7.10.1",
     "@babel/plugin-proposal-export-namespace-from": "^7.10.1",
