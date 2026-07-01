@@ -5636,7 +5636,7 @@ var PreferencesConfig = {
   },
   // Theme values (default only - custom themes added dynamically)
   theme: {
-    valid: ['default'],
+    valid: ['default', 'dark', 'sepia'],
     "default": 'default'
   }
 };
