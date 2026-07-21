@@ -8,8 +8,6 @@ import { PreferencesConfig, sanitizePreference, sanitizePreferences } from '../c
 
 import path from "path-webpack";
 
-import PrePaginatedContinuousViewManager from '../epubjs/managers/continuous/prepaginated';
-import ReusableIframeView from '../epubjs/managers/views/iframe';
 
 import ScrollingContinuousViewManager from '../epubjs/managers/continuous/scrolling';
 import StickyIframeView from '../epubjs/managers/views/sticky';
@@ -64,29 +62,7 @@ Reader.EpubJS = Reader.extend({
 
       self.draw(target, callback);
 
-      if ( self.metadata.layout == 'pre-paginated' ) {
-        // fake it with the spine
-        var locations = [];
-        self._book.spine.each(function(item) {
-          locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
-          self.locations._locations.push(`epubcfi(${item.cfiBase}!/4/2)`);
-        });
-        self.locations.total = locations.length;
-        var t;
-        var f = function() {
-          if ( self._rendition && self._rendition.manager && self._rendition.manager.stage ) {
-            var location = self._rendition.currentLocation();
-            if ( location && location.start) {
-              self.fire('updateLocations', locations);
-              clearTimeout(t);
-              return;
-            }
-          }
-          t = setTimeout(f, 100);
-        }
-
-        t = setTimeout(f, 100);
-      } else if ( self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
+      if ( self._book.pageList && self._book.pageList.pageList.length && ! self._book.pageList.locations.length ) {
         self._book.locations.generateFromPageList(self._book.pageList).then(function(locations) {
           self.fire('updateLocations', locations);
         })
@@ -151,11 +127,6 @@ Reader.EpubJS = Reader.extend({
       }
     }
 
-    // if ( flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ){
-    //     flow = 'scrolled-doc';
-    //   }
-    // }
 
     // var key = `${flow}/${self.metadata.layout}`;
     if ( self._cozyOptions[key] ) {
@@ -194,40 +165,27 @@ Reader.EpubJS = Reader.extend({
     this.settings = { flow: flow, stylesheet: this.options.injectStylesheet };
     this.settings.manager = this.options.manager || 'default';
 
-    // if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-    //   // dumb check to see if the window is _tall_ enough to put
-    //   // two pages side by side
-    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
-    //     this.settings.flow = 'scrolled-doc';
-
-    //     // this.settings.manager = PrePaginatedContinuousViewManager;
-    //     // this.settings.view = ReusableIframeView;
-
-    //     this.settings.manager = ScrollingContinuousViewManager;
-    //     this.settings.view = StickyIframeView;
-    //     this.settings.width = '100%'; // 100%?
-    //     this.settings.spine = this._book.spine;
-    //   }
-    // }
-
     if ( this.settings.flow == 'auto' || this.settings.flow == 'paginated' ) {
       this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
       this.settings.manager = 'default';
     } else {
       this._panes['epub'].style.overflow = 'auto';
       if ( this.settings.manager == 'default' ) {
-        // this.settings.manager = 'continuous';
-        // CSB-272, CSB-277 - continuous scroll "exclude list" by ISBN (Gabii 2, Mittell...)
-        const no_continuous_scroll_isbns = ['9780472999064', '9781643150611'];
-        if ( no_continuous_scroll_isbns.includes(this.metadata.identifier) ) {
-          this.settings.manager = 'default';
+        if ( this.metadata.layout == 'pre-paginated' ) {
+          // fixed-layout scroll uses epub.js's native continuous manager
+          this.settings.manager = 'continuous';
         } else {
-          this.settings.manager = ScrollingContinuousViewManager;
-          this.settings.view = StickyIframeView;
+          // CSB-272, CSB-277 - continuous scroll "exclude list" by ISBN (Gabii 2, Mittell...)
+          const no_continuous_scroll_isbns = ['9780472999064', '9781643150611'];
+          if ( no_continuous_scroll_isbns.includes(this.metadata.identifier) ) {
+            this.settings.manager = 'default';
+          } else {
+            this.settings.manager = ScrollingContinuousViewManager;
+            this.settings.view = StickyIframeView;
+          }
+          this.settings.width = '100%'; // 100%?
+          this.settings.spine = this._book.spine;
         }
-        this.settings.width = '100%'; // 100%?
-        this.settings.spine = this._book.spine;
-
       }
     }
 
@@ -239,22 +197,11 @@ Reader.EpubJS = Reader.extend({
     self.settings.width = '100%';
     self.settings['ignoreClass'] = 'annotator-hl';
 
-    if ( this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous' ) {
-        // this.settings.manager = 'prepaginated';
-        // this.settings.manager = PrePaginatedContinuousViewManager;
-        // this.settings.view = ReusableIframeView;
-        this.settings.manager = ScrollingContinuousViewManager;
-        this.settings.view = StickyIframeView;
-        this.settings.spread = 'none';
-    }
-
     if ( this.settings.manager == ScrollingContinuousViewManager ) {
-      if ( this.metadata.layout != 'pre-paginated' && ! this.options.minHeight ) {
+      if ( ! this.options.minHeight ) {
         this.options.minHeight = this._panes['book'].offsetHeight * 0.75;
       }
-      if ( this.options.minHeight ) {
-        this.settings.minHeight = this.options.minHeight;
-      }
+      this.settings.minHeight = this.options.minHeight;
     }
 
     if ( self.options.scale != '100' ) {
