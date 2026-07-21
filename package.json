@@ -41,7 +41,7 @@
     "karma-webpack": "^5.0.0",
     "minimist": "^1.2.6",
     "mocha": "^11.0.0",
-    "morgan": "^1.10.1",
+    "morgan": "^1.11.0",
     "sass": "^1.77.0",
     "portfinder": "^1.0.32",
     "serve-static": "^2.0.0",
