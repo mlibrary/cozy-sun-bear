@@ -11531,7 +11531,7 @@ function createReader(id, options) {
 
 /***/ },
 
-/***/ 2116
+/***/ 6107
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -11551,7 +11551,7 @@ __webpack_require__.d(core_namespaceObject, {
   RangeObject: () => (RangeObject),
   blob2base64: () => (blob2base64),
   borders: () => (borders),
-  bounds: () => (core_bounds),
+  bounds: () => (bounds),
   createBase64Url: () => (createBase64Url),
   createBlob: () => (createBlob),
   createBlobUrl: () => (createBlobUrl),
@@ -11848,7 +11848,7 @@ function indexOfSorted(item, array, compareFunction, _start, _end) {
  * @returns {{ width: Number, height: Number}}
  * @memberof Core
  */
-function core_bounds(el) {
+function bounds(el) {
 
 	var style = window.getComputedStyle(el);
 	var widthProps = ["width", "paddingRight", "paddingLeft", "marginRight", "marginLeft", "borderRightWidth", "borderLeftWidth"];
@@ -20431,7 +20431,7 @@ class IframeView {
 
 		this.added = true;
 
-		this.elementBounds = core_bounds(this.element);
+		this.elementBounds = bounds(this.element);
 
 		// if(width || height){
 		//   this.resize(width, height);
@@ -20697,7 +20697,7 @@ class IframeView {
 
 		this.prevBounds = size;
 
-		this.elementBounds = core_bounds(this.element);
+		this.elementBounds = bounds(this.element);
 
 	}
 
@@ -20929,7 +20929,7 @@ class IframeView {
 
 	bounds(force) {
 		if(force || !this.elementBounds) {
-			this.elementBounds = core_bounds(this.element);
+			this.elementBounds = bounds(this.element);
 		}
 
 		return this.elementBounds;
@@ -26443,1293 +26443,20 @@ var DomUtil = __webpack_require__(8029);
 var Browser = __webpack_require__(4084);
 // EXTERNAL MODULE: ./src/config/PreferencesConfig.js
 var PreferencesConfig = __webpack_require__(6897);
-;// ./src/epubjs/managers/helpers/prefab.js
+;// ./src/epubjs/managers/helpers/scrolling_views.js
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-var PrefabViews = /*#__PURE__*/function () {
-  function PrefabViews(container) {
-    _classCallCheck(this, PrefabViews);
-    this.container = container;
-    this._views = [];
-    this.length = 0;
-    this.hidden = false;
-  }
-  return _createClass(PrefabViews, [{
-    key: "all",
-    value: function all() {
-      return this._views;
-    }
-  }, {
-    key: "first",
-    value: function first() {
-      return this._views[0];
-    }
-  }, {
-    key: "last",
-    value: function last() {
-      return this._views[this._views.length - 1];
-    }
-  }, {
-    key: "indexOf",
-    value: function indexOf(view) {
-      return this._views.indexOf(view);
-    }
-  }, {
-    key: "slice",
-    value: function slice() {
-      return this._views.slice.apply(this._views, arguments);
-    }
-  }, {
-    key: "get",
-    value: function get(i) {
-      return this._views[i];
-    }
-  }, {
-    key: "append",
-    value: function append(view) {
-      var check = false;
-      this.forEach(function (v) {
-        if (v.section.href == view.section.href) {
-          check = true;
-        }
-      });
-      if (check) {
-        return view;
-      }
-      // if ( check ) { console.log("AHOY views.append WUT", view.section.href)}
-      this._views.push(view);
-      this._views.sort(function (a, b) {
-        return a.section.href > b.section.href ? 1 : b.section.href > a.section.href ? -1 : 0;
-      });
-      if (this.container && view.element.dataset.reused != 'true') {
-        this.container.appendChild(view.element);
-      }
-      this.length++;
-      return view;
-    }
-  }, {
-    key: "dump",
-    value: function dump() {
-      return this._views.map(function (v) {
-        return v.section.href;
-      });
-    }
-  }, {
-    key: "prepend",
-    value: function prepend(view) {
-      this._views.unshift(view);
-      if (this.container && view.element.dataset.reused != 'true') {
-        this.container.insertBefore(view.element, this.container.firstChild);
-      }
-      this.length++;
-      return view;
-    }
-  }, {
-    key: "insert",
-    value: function insert(view, index) {
-      this._views.splice(index, 0, view);
-      if (this.container && view.element.dataset.reused != 'true') {
-        if (index < this.container.children.length) {
-          this.container.insertBefore(view.element, this.container.children[index]);
-        } else {
-          this.container.appendChild(view.element);
-        }
-      }
-      this.length++;
-      return view;
-    }
-  }, {
-    key: "remove",
-    value: function remove(view) {
-      var index = this._views.indexOf(view);
-      if (index > -1) {
-        this._views.splice(index, 1);
-      }
-      this.destroy(view);
-      this.length--;
-    }
-  }, {
-    key: "destroy",
-    value: function destroy(view) {
-      if (view.displayed) {
-        view.destroy();
-      }
-
-      // if(this.container && view.element.dataset.reused != 'true'){
-      // 	 this.container.removeChild(view.element);
-      // }
-      view = null;
-    }
-
-    // Iterators
-  }, {
-    key: "forEach",
-    value: function forEach() {
-      return this._views.forEach.apply(this._views, arguments);
-    }
-  }, {
-    key: "clear",
-    value: function clear() {
-      // Remove all views
-      var view;
-      var len = this.length;
-      if (!this.length) return;
-      for (var i = 0; i < len; i++) {
-        view = this._views[i];
-        this.destroy(view);
-      }
-      this._views = [];
-      this.length = 0;
-    }
-  }, {
-    key: "find",
-    value: function find(section) {
-      var view;
-      var len = this.length;
-      for (var i = 0; i < len; i++) {
-        view = this._views[i];
-        if (view.displayed && view.section.index == section.index) {
-          return view;
-        }
-      }
-    }
-  }, {
-    key: "displayed",
-    value: function displayed() {
-      var displayed = [];
-      var view;
-      var len = this.length;
-      for (var i = 0; i < len; i++) {
-        view = this._views[i];
-        if (view.displayed) {
-          displayed.push(view);
-        }
-      }
-      return displayed;
-    }
-  }, {
-    key: "show",
-    value: function show() {
-      var view;
-      var len = this.length;
-      for (var i = 0; i < len; i++) {
-        view = this._views[i];
-        if (view.displayed) {
-          view.show();
-        }
-      }
-      this.hidden = false;
-    }
-  }, {
-    key: "hide",
-    value: function hide() {
-      var view;
-      var len = this.length;
-      for (var i = 0; i < len; i++) {
-        view = this._views[i];
-        if (view.displayed) {
-          view.hide();
-        }
-      }
-      this.hidden = true;
-    }
-  }]);
-}();
-/* harmony default export */ const prefab = (PrefabViews);
-;// ./src/epubjs/managers/continuous/prepaginated.js
-function prepaginated_typeof(o) { "@babel/helpers - typeof"; return prepaginated_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, prepaginated_typeof(o); }
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-function prepaginated_classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function prepaginated_defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, prepaginated_toPropertyKey(o.key), o); } }
-function prepaginated_createClass(e, r, t) { return r && prepaginated_defineProperties(e.prototype, r), t && prepaginated_defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function prepaginated_toPropertyKey(t) { var i = prepaginated_toPrimitive(t, "string"); return "symbol" == prepaginated_typeof(i) ? i : i + ""; }
-function prepaginated_toPrimitive(t, r) { if ("object" != prepaginated_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != prepaginated_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
-function _possibleConstructorReturn(t, e) { if (e && ("object" == prepaginated_typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
-function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
-function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
-function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
-function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
-function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
-
-
-
-
-
-
-var PrePaginatedContinuousViewManager = /*#__PURE__*/function (_ContinuousViewManage) {
-  function PrePaginatedContinuousViewManager(options) {
-    var _this;
-    prepaginated_classCallCheck(this, PrePaginatedContinuousViewManager);
-    _this = _callSuper(this, PrePaginatedContinuousViewManager, [options]);
-    _this.name = "prepaginated";
-    _this._manifest = null;
-    _this._spine = [];
-    _this.settings.scale = _this.settings.scale || 1.0;
-    return _this;
-  }
-  _inherits(PrePaginatedContinuousViewManager, _ContinuousViewManage);
-  return prepaginated_createClass(PrePaginatedContinuousViewManager, [{
-    key: "render",
-    value: function render(element, size) {
-      var scale = this.settings.scale;
-      this.settings.scale = null; // we don't want the stage to scale
-      continuous.prototype.render.call(this, element, size);
-      // Views array methods
-      // use prefab views
-      this.settings.scale = scale;
-      this.views = new prefab(this.container);
-    }
-  }, {
-    key: "onResized",
-    value: function onResized(e) {
-      if (this.resizeTimeout) {
-        clearTimeout(this.resizeTimeout);
-      }
-      console.log("AHOY PREPAGINATED onResized queued");
-      this.resizeTimeout = setTimeout(function () {
-        this.resize();
-        console.log("AHOY PREPAGINATED onResized actual");
-        this.resizeTimeout = null;
-      }.bind(this), 500);
-      // this.resize();
-    }
-  }, {
-    key: "resize",
-    value: function resize(width, height) {
-      var self = this;
-      continuous.prototype.resize.call(this, width, height);
-      this._redrawViews();
-    }
-  }, {
-    key: "_redrawViews",
-    value: function _redrawViews() {
-      var self = this;
-      for (var i = 0; i < self._spine.length; i++) {
-        var href = self._spine[i];
-        // // console.log("AHOY DRAWING", href);
-        var section_ = self._manifest[href];
-        // // var r = self.container.offsetWidth / section_.viewport.width;
-        // // var h = Math.floor(dim.height * r);
-        // var w = self.layout.columnWidth + ( self.layout.columnWidth * 0.10 );
-        // var r = w / section_.viewport.width;
-        // var h = Math.floor(section_.viewport.height * r);
-
-        var h, w;
-        var _self$sizeToViewport = self.sizeToViewport(section_);
-        var _self$sizeToViewport2 = _slicedToArray(_self$sizeToViewport, 2);
-        w = _self$sizeToViewport2[0];
-        h = _self$sizeToViewport2[1];
-        var div = self.container.querySelector("div.epub-view[ref=\"".concat(section_.index, "\"]"));
-        div.style.width = "".concat(w, "px");
-        div.style.height = "".concat(h, "px");
-        div.setAttribute('original-height', h);
-        div.setAttribute('layout-height', h);
-        var view = this.views.find(section_);
-        if (view) {
-          view.size(w, h);
-        }
-      }
-    }
-
-    // RRE - debugging
-  }, {
-    key: "createView",
-    value: function createView(section) {
-      var view = this.views.find(section);
-      if (view) {
-        return view;
-      }
-      var w, h;
-      var _this$sizeToViewport = this.sizeToViewport(section);
-      var _this$sizeToViewport2 = _slicedToArray(_this$sizeToViewport, 2);
-      w = _this$sizeToViewport2[0];
-      h = _this$sizeToViewport2[1];
-      var viewSettings = Object.assign({}, this.viewSettings);
-      viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-      viewSettings.layout.height = h;
-      viewSettings.layout.columnWidth = w;
-      var view = new this.View(section, viewSettings);
-      return view;
-    }
-  }, {
-    key: "display",
-    value: function display(section, target) {
-      var self = this;
-      var promises = [];
-      this.q.clear();
-      var display = new defer();
-      var promises = [];
-      this.faking = {};
-      if (!this._manifest) {
-        this.emit("building");
-        self._manifest = {};
-        var _buildManifest = function _buildManifest(section_) {
-          self._manifest[section_.href] = false;
-          if (self.settings.viewports && self.settings.viewports[section_.href]) {
-            section_.viewport = self.settings.viewports[section_.href];
-            self._manifest[section_.href] = section_;
-          } else {
-            self.q.enqueue(function () {
-              section_.load(self.request).then(function (contents) {
-                var meta = contents.querySelector('meta[name="viewport"]');
-                var value = meta.getAttribute('content');
-                var tmp = value.split(",");
-                var key = section_.href;
-                var idx = self._spine.indexOf(key);
-                self.emit("building", {
-                  index: idx + 1,
-                  total: self._spine.length
-                });
-                section_.viewport = {};
-                self._manifest[key] = section_;
-                // self._manifest[key] = { viewport : {} };
-                // self._manifest[key].index = section_.index;
-                // self._manifest[key].href = section_.href;
-                var viewport_width = tmp[0].replace('width=', '');
-                var viewport_height = tmp[1].replace('height=', '');
-                if (!viewport_height.match(/^\d+$/)) {
-                  viewport_width = viewport_height = 'auto';
-                } else {
-                  viewport_width = parseInt(viewport_width, 10);
-                  viewport_height = parseInt(viewport_height, 10);
-                }
-                self._manifest[key].viewport.width = viewport_width;
-                self._manifest[key].viewport.height = viewport_height;
-                self.faking[key] = self._manifest[key].viewport;
-              });
-            });
-          }
-        };
-
-        // can we build a manifest here?
-        var prev_ = section.prev();
-        while (prev_) {
-          self._spine.unshift(prev_.href);
-          _buildManifest(prev_);
-          prev_ = prev_.prev();
-        }
-        self._spine.push(section.href);
-        _buildManifest(section);
-        var next_ = section.next();
-        while (next_) {
-          self._spine.push(next_.href);
-          _buildManifest(next_);
-          next_ = next_.next();
-        }
-        console.log("AHOY PRE-PAGINATED", promises.length);
-      }
-      var _display = function () {
-        var check = document.querySelector('.epub-view');
-        if (!check) {
-          self._max_height = self._max_viewport_height = 0;
-          self._max_width = self._max_viewport_width = 0;
-          console.log("AHOY DRAWING", self._spine.length);
-          for (var i = 0; i < self._spine.length; i++) {
-            var href = self._spine[i];
-            var section_ = self._manifest[href];
-            var w, h;
-            var _self$sizeToViewport3 = self.sizeToViewport(section_);
-            var _self$sizeToViewport4 = _slicedToArray(_self$sizeToViewport3, 2);
-            w = _self$sizeToViewport4[0];
-            h = _self$sizeToViewport4[1];
-            self.container.innerHTML += "<div class=\"epub-view\" ref=\"".concat(section_.index, "\" data-href=\"").concat(section_.href, "\" style=\"width: ").concat(w, "px; height: ").concat(h, "px; text-align: center; margin-left: auto; margin-right: auto\"></div>");
-            var div = self.container.querySelector("div.epub-view[ref=\"".concat(section_.index, "\"]"));
-            // div.setAttribute('use-')
-            div.setAttribute('original-height', h);
-            div.setAttribute('layout-height', h);
-            if (window.debugManager) {
-              div.style.backgroundImage = "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 32' width='300' height='32'%3e%3cstyle%3e.small %7b fill: rgba(0,0,0,0.3);%7d%3c/style%3e%3ctext x='0' y='25' class='small'%3e".concat(section_.href, "%3c/text%3e%3c/svg%3e\")");
-              var colorR = Math.floor(Math.random() * 100).toString();
-              var colorG = Math.floor(Math.random() * 100).toString();
-              var colorB = Math.floor(Math.random() * 100).toString();
-              div.style.backgroundColor = "#".concat(colorR).concat(colorG).concat(colorB);
-            }
-          }
-        }
-
-        // find the <div> with this section
-        // console.log("AHOY continuous.display START", section.href);
-        var div = self.container.querySelector("div.epub-view[ref=\"".concat(section.index, "\"]"));
-        div.scrollIntoView();
-
-        // this.q.clear();
-        // return check ? this.update() : this.check();
-        // var retval = check ? this.update() : this.check();
-        var retval = this.check();
-        console.log("AHOY DISPLAY", check ? "UPDATE" : "CHECK", retval);
-        retval.then(function () {
-          this.q.clear();
-          console.log("AHOY MANAGER BUILT");
-          this.emit("built");
-          return display.resolve();
-        }.bind(this));
-
-        // return DefaultViewManager.prototype.display.call(this, section, target)
-        //  .then(function () {
-        //    return this.fill();
-        //  }.bind(this));
-
-        return retval;
-      }.bind(this);
-
-      // // promises.push(_display);
-      // while(promises.length) {
-      //  this.q.enqueue(promises.shift);
-      // }
-
-      // console.log("AHOY PREPAGINATED", this.q._q.length);
-      // this.q.enqueue().then((result) => {
-      //  display.resolve();
-      // })
-
-      var q = function () {
-        return this.q.enqueue(function (result) {
-          var waiting = 0;
-          for (var i = 0; i < self._spine.length; i++) {
-            var href = self._spine[i];
-            var has_section = self._manifest[href];
-            if (has_section == false) {
-              waiting += 1;
-            }
-          }
-          // console.log("AHOY PRE-PAGINATED WAITING", waiting);
-          if (waiting == 0) {
-            return _display();
-          } else {
-            q();
-          }
-        });
-      }.bind(this);
-      return q();
-      // removed by dead control flow
-
-    }
-  }, {
-    key: "_checkStillLoading",
-    value: function _checkStillLoading() {
-      this.q.enqueue(function (result) {
-        var waiting = 0;
-        for (var i = 0; i < self._spine.length; i++) {
-          var href = self._spine[i];
-          var has_section = self._manifest[href];
-          if (has_section == false) {
-            waiting += 1;
-          }
-        }
-        console.log("AHOY PRE-PAGINATED WAITING", waiting);
-        if (waiting == 0) {
-          return _display();
-        } else {
-          q();
-        }
-      });
-    }
-  }, {
-    key: "fill",
-    value: function fill(_full) {
-      var _this2 = this;
-      var full = _full || new defer();
-      this.q.enqueue(function () {
-        return _this2._checkStillLoading();
-      }).then(function (result) {
-        if (result) {
-          _this2.fill(full);
-        } else {
-          full.resolve();
-        }
-      });
-      return full.promise;
-    }
-  }, {
-    key: "fillXX",
-    value: function fillXX(_full) {
-      var _this3 = this;
-      var full = _full || new defer();
-      this.q.enqueue(function () {
-        return _this3.check();
-      }).then(function (result) {
-        if (result) {
-          _this3.fill(full);
-        } else {
-          full.resolve();
-        }
-      });
-      return full.promise;
-    }
-  }, {
-    key: "moveTo",
-    value: function moveTo(offset) {
-      // var bounds = this.stage.bounds();
-      // var dist = Math.floor(offset.top / bounds.height) * bounds.height;
-      var distX = 0,
-        distY = 0;
-      var offsetX = 0,
-        offsetY = 0;
-      if (!this.isPaginated) {
-        distY = offset.top;
-        offsetY = offset.top + this.settings.offset;
-      } else {
-        distX = Math.floor(offset.left / this.layout.delta) * this.layout.delta;
-        offsetX = distX + this.settings.offset;
-      }
-      if (distX > 0 || distY > 0) {
-        this.scrollBy(distX, distY, true);
-      }
-    }
-  }, {
-    key: "afterResized",
-    value: function afterResized(view) {
-      this.emit(EVENTS.MANAGERS.RESIZE, view.section);
-    }
-
-    // Remove Previous Listeners if present
-  }, {
-    key: "removeShownListeners",
-    value: function removeShownListeners(view) {
-      // view.off("shown", this.afterDisplayed);
-      // view.off("shown", this.afterDisplayedAbove);
-      view.onDisplayed = function () {};
-    }
-  }, {
-    key: "add",
-    value: function add(section) {
-      var _this4 = this;
-      var view = this.createView(section);
-      this.views.append(view);
-      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
-        view.expanded = true;
-      });
-      view.on(EVENTS.VIEWS.AXIS, function (axis) {
-        _this4.updateAxis(axis);
-      });
-
-      // view.on(EVENTS.VIEWS.SHOWN, this.afterDisplayed.bind(this));
-      view.onDisplayed = this.afterDisplayed.bind(this);
-      view.onResize = this.afterResized.bind(this);
-      return view.display(this.request);
-    }
-  }, {
-    key: "append",
-    value: function append(section) {
-      var view = this.createView(section);
-      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
-        view.expanded = true;
-        // do not do this
-        // this.counter(bounds); // RRE
-      });
-
-      /*
-      view.on(EVENTS.VIEWS.AXIS, (axis) => {
-        this.updateAxis(axis);
-      });
-      */
-
-      this.views.append(view);
-      view.onDisplayed = this.afterDisplayed.bind(this);
-      return view;
-    }
-  }, {
-    key: "prepend",
-    value: function prepend(section) {
-      var _this5 = this;
-      var view = this.createView(section);
-      view.on(EVENTS.VIEWS.RESIZED, function (bounds) {
-        _this5.counter(bounds);
-        view.expanded = true;
-      });
-
-      /*
-      view.on(EVENTS.VIEWS.AXIS, (axis) => {
-        this.updateAxis(axis);
-      });
-      */
-
-      this.views.prepend(view);
-      view.onDisplayed = this.afterDisplayed.bind(this);
-      return view;
-    }
-  }, {
-    key: "counter",
-    value: function counter(bounds) {
-      // return;
-      if (this.settings.axis === "vertical") {
-        // if ( ! this._timer ) {
-        //  this._timer = setTimeout(function() {
-        //    this._timer = null;
-        //    console.log("AHOY USING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-        //    this.scrollBy(0, bounds.heightDelta, true);
-        //    this.x1(`COUNTER ${bounds.heightDelta}`);
-        //  }.bind(this), 500);
-        // } else {
-        //  console.log("AHOY SKIPPING counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-        // }
-        // console.log("AHOY counter.scrollBy : top was =", this.__top, "/ top is =", this.container.scrollTop, "/ delta =", bounds.heightDelta);
-        this.scrollBy(0, bounds.heightDelta, true);
-      } else {
-        this.scrollBy(bounds.widthDelta, 0, true);
-      }
-    }
-  }, {
-    key: "updateXXX",
-    value: function updateXXX(_offset) {
-      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-      var visibleLength = horizontal ? bounds.width : bounds.height;
-      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-      var divs = document.querySelectorAll('.epub-view');
-      var visible = [];
-      for (var i = 0; i < divs.length; i++) {
-        var div = divs[i];
-        var rect = div.getBoundingClientRect();
-        var marker = '';
-        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-          marker = '**';
-          var section = this._manifest[div.dataset.href];
-          visible.push(section);
-          // if ( ! div.querySelector('iframe') ) {
-          //  newViews.push(this.append(section))
-          // }
-          // var idx = this._spine.indexOf(section.href);
-          // if ( idx > 0 ) {
-          //  visible.push(this._manifest[this._spine[idx - 1]]);
-          // }
-          // if ( idx < this._spine.length - 1 ) {
-          //  visible.push(this._manifest[this._spine[idx + 1]]);
-          // }
-        }
-        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-      }
-    }
-  }, {
-    key: "update",
-    value: function update(_offset) {
-      var container = this.bounds();
-      var views = this.views.all();
-      var viewsLength = views.length;
-      var visible = [];
-      var offset = typeof _offset != "undefined" ? _offset : this.settings.offset || 0;
-      var isVisible;
-      var view;
-      var updating = new defer();
-      var promises = [];
-      var queued = {};
-      for (var i = 0; i < viewsLength; i++) {
-        view = views[i];
-        isVisible = this.isVisible(view, offset, offset, container);
-        if (isVisible === true) {
-          queued[i] = true;
-        }
-      }
-      for (var i = 0; i < viewsLength; i++) {
-        view = views[i];
-        var isVisible = queued[i];
-        if (isVisible === true) {
-          // console.log("visible " + view.index);
-
-          if (!view.displayed) {
-            // console.log("AHOY continuous.update !displayed", view.section.href);
-            var displayed = view.display(this.request).then(function (view) {
-              view.show();
-            }, function (err) {
-              // console.log("AHOY continuous.update ERROR", err);
-              view.hide();
-            });
-            promises.push(displayed);
-          } else {
-            // console.log("AHOY continuous.update show", view.section.href);
-            view.show();
-          }
-          visible.push(view);
-        } else {
-          this.q.enqueue(view.destroy.bind(view));
-          // console.log("hidden " + view.index);
-
-          clearTimeout(this.trimTimeout);
-          this.trimTimeout = setTimeout(function () {
-            this.q.enqueue(this.trim.bind(this));
-          }.bind(this), 250);
-        }
-      }
-      if (promises.length) {
-        return Promise.all(promises)["catch"](function (err) {
-          updating.reject(err);
-        });
-      } else {
-        updating.resolve();
-        return updating.promise;
-      }
-    }
-  }, {
-    key: "check",
-    value: function check(_offsetLeft, _offsetTop) {
-      var _this6 = this;
-      var checking = new defer();
-      var newViews = [];
-      var horizontal = this.settings.axis === "horizontal";
-      var delta = this.settings.offset || 0;
-      if (_offsetLeft && horizontal) {
-        delta = _offsetLeft;
-      }
-      if (_offsetTop && !horizontal) {
-        delta = _offsetTop;
-      }
-      var bounds = this._bounds; // bounds saved this until resize
-
-      var rtl = this.settings.direction === "rtl";
-      var dir = horizontal && rtl ? -1 : 1; //RTL reverses scrollTop
-
-      var offset = horizontal ? this.scrollLeft : this.scrollTop * dir;
-      var visibleLength = horizontal ? bounds.width : bounds.height;
-      var contentLength = horizontal ? this.container.scrollWidth : this.container.scrollHeight;
-      var prePaginated = this.layout.props.name == 'pre-paginated';
-
-      // console.log("continuous.check prePaginated =", prePaginated, "offset=",
-      //  offset, "visibleLength =", visibleLength, "delta=", delta, ` (${offset + visibleLength + delta})`, " >= contentLength =", contentLength,
-      //  " == ", offset + visibleLength + delta >= contentLength,
-      //  " || ", offset - delta, "<", 0, " == ", offset - delta < 0 );
-
-      var prepend = function prepend() {
-        var first = _this6.views.first();
-        var prev = first && first.section.prev();
-        if (prev) {
-          newViews.push(_this6.prepend(prev));
-        }
-      };
-      var append = function append() {
-        var last = _this6.views.last();
-        var next = last && last.section.next();
-        if (next) {
-          newViews.push(_this6.append(next));
-        }
-      };
-      var adjusted_top = offset - bounds.height * 8;
-      var adjusted_end = offset + bounds.height * 8;
-      // console.log("AHOY check", offset, "-", offset + bounds.height, "/", adjusted_top, "-", adjusted_end);
-
-      // need to figure out which divs are viewable
-      var divs = document.querySelectorAll('.epub-view');
-      var visible = [];
-      for (var i = 0; i < divs.length; i++) {
-        var div = divs[i];
-        var rect = div.getBoundingClientRect();
-        var marker = '';
-        // if ( rect.top > offset + bounds.height && ( rect.top + rect.height ) <= offset ) {
-        // if ( adjusted_top < ( div.offsetTop + rect.height ) && adjusted_end > div.offsetTop ) {
-        if (offset < div.offsetTop + rect.height && offset + bounds.height > div.offsetTop) {
-          marker = '**';
-          var section = this._manifest[div.dataset.href];
-          visible.push(section);
-          // if ( ! div.querySelector('iframe') ) {
-          //  newViews.push(this.append(section))
-          // }
-          // var idx = this._spine.indexOf(section.href);
-          // if ( idx > 0 ) {
-          //  visible.push(this._manifest[this._spine[idx - 1]]);
-          // }
-          // if ( idx < this._spine.length - 1 ) {
-          //  visible.push(this._manifest[this._spine[idx + 1]]);
-          // }
-        }
-        // console.log("AHOY", div.dataset.href, rect.top, rect.height, "/", div.offsetTop, div.offsetHeight, "/", offset, bounds.height, marker);
-      }
-      this.__check_visible = visible;
-      var section = visible[0];
-      if (section && section.index > 0) {
-        visible.unshift(this._manifest[this._spine[section.index - 1]]);
-      }
-      if (section) {
-        var tmp = this._spine[section.index + 1];
-        if (tmp) {
-          visible.push(this._manifest[tmp]);
-        }
-      }
-      // if ( section && section.prev() ) {
-      //  visible.unshift(section.prev());
-      // }
-      // section = visible[visible.length - 1];
-      // if (section && section.next() ) {
-      //  visible.push(section.next());
-      // }
-
-      for (var i = 0; i < visible.length; i++) {
-        var section = visible[i];
-        // var div = document.querySelector(`.epub-view[ref="${section.index}"]`);
-        // if ( div.querySelector('iframe') ) {
-        //  continue;
-        // }
-        newViews.push(this.append(section));
-      }
-
-      // let promises = newViews.map((view) => {
-      //  return view.displayed;
-      // });
-
-      var promises = [];
-      for (var i = 0; i < newViews.length; i++) {
-        if (newViews[i]) {
-          promises.push(newViews[i]);
-        }
-      }
-      if (newViews.length) {
-        return Promise.all(promises).then(function () {
-          // return this.check();
-          // if (this.layout.name === "pre-paginated" && this.layout.props.spread && this.layout.flow() != 'scrolled') {
-          //   // console.log("AHOY check again");
-          //   return this.check();
-          // }
-        }).then(function () {
-          // Check to see if anything new is on screen after rendering
-          // console.log("AHOY update again");
-          return _this6.update(delta);
-        }, function (err) {
-          return err;
-        });
-      } else {
-        this.q.enqueue(function () {
-          this.update();
-        }.bind(this));
-        checking.resolve(false);
-        return checking.promise;
-      }
-    }
-  }, {
-    key: "trim",
-    value: function trim() {
-      var task = new defer();
-      var displayed = this.views.displayed();
-      var first = displayed[0];
-      var last = displayed[displayed.length - 1];
-      var firstIndex = this.views.indexOf(first);
-      var lastIndex = this.views.indexOf(last);
-      var above = this.views.slice(0, firstIndex);
-      var below = this.views.slice(lastIndex + 1);
-
-      // Erase all but last above
-      for (var i = 0; i < above.length - 3; i++) {
-        if (above[i]) {
-          // console.log("AHOY trim > above", first.section.href, ":", above[i].section.href);
-          this.erase(above[i], above);
-        }
-      }
-
-      // Erase all except first below
-      for (var j = 3; j < below.length; j++) {
-        if (below[j]) {
-          // console.log("AHOY trim > below", last.section.href, ":", below[j].section.href);
-          this.erase(below[j]);
-        }
-      }
-      task.resolve();
-      return task.promise;
-    }
-  }, {
-    key: "erase",
-    value: function erase(view, above) {
-      //Trim
-
-      var prevTop;
-      var prevLeft;
-      if (this.settings.height) {
-        prevTop = this.container.scrollTop;
-        prevLeft = this.container.scrollLeft;
-      } else {
-        prevTop = window.scrollY;
-        prevLeft = window.scrollX;
-      }
-      var bounds = view.bounds();
-
-      // console.log("AHOY erase", view.section.href, above);
-      this.views.remove(view);
-      if (above) {
-        if (this.settings.axis === "vertical") {
-          // this.scrollTo(0, prevTop - bounds.height, true);
-        } else {
-          this.scrollTo(prevLeft - bounds.width, 0, true);
-        }
-      }
-    }
-  }, {
-    key: "addEventListeners",
-    value: function addEventListeners(stage) {
-      window.addEventListener("unload", function (e) {
-        this.ignore = true;
-        // this.scrollTo(0,0);
-        this.destroy();
-      }.bind(this));
-      this.addScrollListeners();
-    }
-  }, {
-    key: "addScrollListeners",
-    value: function addScrollListeners() {
-      var scroller;
-      this.tick = core_requestAnimationFrame;
-      if (this.settings.height) {
-        this.prevScrollTop = this.container.scrollTop;
-        this.prevScrollLeft = this.container.scrollLeft;
-      } else {
-        this.prevScrollTop = window.scrollY;
-        this.prevScrollLeft = window.scrollX;
-      }
-      this.scrollDeltaVert = 0;
-      this.scrollDeltaHorz = 0;
-      if (this.settings.height) {
-        scroller = this.container;
-        this.scrollTop = this.container.scrollTop;
-        this.scrollLeft = this.container.scrollLeft;
-      } else {
-        scroller = window;
-        this.scrollTop = window.scrollY;
-        this.scrollLeft = window.scrollX;
-      }
-      scroller.addEventListener("scroll", this.onScroll.bind(this));
-      this._scrolled = debounce_default()(this.scrolled.bind(this), 30);
-      // this.tick.call(window, this.onScroll.bind(this));
-
-      this.didScroll = false;
-    }
-  }, {
-    key: "removeEventListeners",
-    value: function removeEventListeners() {
-      var scroller;
-      if (this.settings.height) {
-        scroller = this.container;
-      } else {
-        scroller = window;
-      }
-      scroller.removeEventListener("scroll", this.onScroll.bind(this));
-    }
-  }, {
-    key: "onScroll",
-    value: function onScroll() {
-      var scrollTop;
-      var scrollLeft;
-      var dir = this.settings.direction === "rtl" ? -1 : 1;
-      if (this.settings.height) {
-        scrollTop = this.container.scrollTop;
-        scrollLeft = this.container.scrollLeft;
-      } else {
-        scrollTop = window.scrollY * dir;
-        scrollLeft = window.scrollX * dir;
-      }
-      this.scrollTop = scrollTop;
-      this.scrollLeft = scrollLeft;
-      if (!this.ignore) {
-        this._scrolled();
-      } else {
-        this.ignore = false;
-      }
-      this.scrollDeltaVert += Math.abs(scrollTop - this.prevScrollTop);
-      this.scrollDeltaHorz += Math.abs(scrollLeft - this.prevScrollLeft);
-      this.prevScrollTop = scrollTop;
-      this.prevScrollLeft = scrollLeft;
-      clearTimeout(this.scrollTimeout);
-      this.scrollTimeout = setTimeout(function () {
-        this.scrollDeltaVert = 0;
-        this.scrollDeltaHorz = 0;
-      }.bind(this), 150);
-      this.didScroll = false;
-    }
-  }, {
-    key: "scrolled",
-    value: function scrolled() {
-      this.q.enqueue(function () {
-        this.check();
-        this.recenter();
-        setTimeout(function () {
-          this.emit(EVENTS.MANAGERS.SCROLLED, {
-            top: this.scrollTop,
-            left: this.scrollLeft
-          });
-        }.bind(this), 500);
-      }.bind(this));
-      this.emit(EVENTS.MANAGERS.SCROLL, {
-        top: this.scrollTop,
-        left: this.scrollLeft
-      });
-      clearTimeout(this.afterScrolled);
-      this.afterScrolled = setTimeout(function () {
-        this.emit(EVENTS.MANAGERS.SCROLLED, {
-          top: this.scrollTop,
-          left: this.scrollLeft
-        });
-      }.bind(this));
-    }
-  }, {
-    key: "next",
-    value: function next() {
-      var dir = this.settings.direction;
-      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-      delta = this.container.offsetHeight / this.settings.scale;
-      if (!this.views.length) return;
-      if (this.isPaginated && this.settings.axis === "horizontal") {
-        this.scrollBy(delta, 0, true);
-      } else {
-        // this.scrollBy(0, this.layout.height, true);
-        this.scrollBy(0, delta, true);
-      }
-      this.q.enqueue(function () {
-        this.check();
-      }.bind(this));
-    }
-  }, {
-    key: "prev",
-    value: function prev() {
-      var dir = this.settings.direction;
-      var delta = this.layout.props.name === "pre-paginated" && this.layout.props.spread ? this.layout.props.delta * 2 : this.layout.props.delta;
-      if (!this.views.length) return;
-      if (this.isPaginated && this.settings.axis === "horizontal") {
-        this.scrollBy(-delta, 0, true);
-      } else {
-        this.scrollBy(0, -this.layout.height, true);
-      }
-      this.q.enqueue(function () {
-        this.check();
-      }.bind(this));
-    }
-  }, {
-    key: "updateAxis",
-    value: function updateAxis(axis, forceUpdate) {
-      if (!this.isPaginated) {
-        axis = "vertical";
-      }
-      if (!forceUpdate && axis === this.settings.axis) {
-        return;
-      }
-      this.settings.axis = axis;
-      this.stage && this.stage.axis(axis);
-      this.viewSettings.axis = axis;
-      if (this.mapping) {
-        this.mapping.axis(axis);
-      }
-      if (this.layout) {
-        if (axis === "vertical") {
-          this.layout.spread("none");
-        } else {
-          this.layout.spread(this.layout.settings.spread);
-        }
-      }
-      if (axis === "vertical") {
-        this.settings.infinite = true;
-      } else {
-        this.settings.infinite = false;
-      }
-    }
-  }, {
-    key: "recenter",
-    value: function recenter() {
-      var wrapper = this.container.parentElement;
-      var w3 = wrapper.scrollWidth / 2 - wrapper.offsetWidth / 2;
-      wrapper.scrollLeft = w3;
-    }
-  }, {
-    key: "sizeToViewport",
-    value: function sizeToViewport(section) {
-      var h = this.layout.height;
-      // reduce to 80% to avoid hacking epubjs/layout.js
-      var w = this.layout.columnWidth * 0.8 * this.settings.scale;
-      if (section.viewport.height != 'auto') {
-        if (this.layout.columnWidth > section.viewport.width) {
-          w = section.viewport.width * this.settings.scale;
-        }
-        var r = w / section.viewport.width;
-        h = Math.floor(section.viewport.height * r);
-      }
-      return [w, h];
-    }
-  }, {
-    key: "sizeToViewport_X",
-    value: function sizeToViewport_X(section) {
-      var h = this.layout.height;
-      var w = this.layout.columnWidth * 0.80;
-      if (section.viewport.height != 'auto') {
-        var r = w / section.viewport.width;
-        h = section.viewport.height * r;
-        var f = 1 / 0.60;
-        var m = Math.min(f * this.layout.height / h, 1.0);
-        console.log("AHOY SHRINKING", "( ".concat(f, " * ").concat(this.layout.height, " ) / ").concat(h, " = ").concat(m, " :: ").concat(h * m));
-        h *= m;
-        h *= this.settings.scale;
-        if (h > section.viewport.height) {
-          h = section.viewport.height;
-        }
-        r = h / section.viewport.height;
-        w = section.viewport.width * r;
-        h = Math.floor(h);
-        w = Math.floor(w);
-      }
-      return [w, h];
-    }
-  }, {
-    key: "scale",
-    value: function scale(_scale) {
-      var self = this;
-      this.settings.scale = _scale;
-      var current = this.currentLocation();
-      var index = -1;
-      if (current[0]) {
-        index = current[0].index;
-      }
-      this.views.hide();
-      this.views.clear();
-      this._redrawViews();
-      this.views.show();
-      setTimeout(function () {
-        console.log("AHOY JUMPING TO", index);
-        if (index > -1) {
-          var div = self.container.querySelector("div.epub-view[ref=\"".concat(index, "\"]"));
-          div.scrollIntoView(true);
-        }
-        this.check().then(function () {
-          this.onScroll();
-        }.bind(this));
-      }.bind(this), 0);
-    }
-  }, {
-    key: "resetScale",
-    value: function resetScale() {
-      // NOOP
-    }
-  }]);
-}(continuous);
-PrePaginatedContinuousViewManager.toString = function () {
-  return 'prepaginated';
-};
-/* harmony default export */ const prepaginated = ((/* unused pure expression or super */ null && (PrePaginatedContinuousViewManager)));
-;// ./src/epubjs/managers/views/iframe.js
-/* unused harmony import specifier */ var iframe_IframeView;
-/* unused harmony import specifier */ var iframe_bounds;
-function iframe_typeof(o) { "@babel/helpers - typeof"; return iframe_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, iframe_typeof(o); }
-function iframe_classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function iframe_defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, iframe_toPropertyKey(o.key), o); } }
-function iframe_createClass(e, r, t) { return r && iframe_defineProperties(e.prototype, r), t && iframe_defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function iframe_toPropertyKey(t) { var i = iframe_toPrimitive(t, "string"); return "symbol" == iframe_typeof(i) ? i : i + ""; }
-function iframe_toPrimitive(t, r) { if ("object" != iframe_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != iframe_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function iframe_callSuper(t, o, e) { return o = iframe_getPrototypeOf(o), iframe_possibleConstructorReturn(t, iframe_isNativeReflectConstruct() ? Reflect.construct(o, e || [], iframe_getPrototypeOf(t).constructor) : o.apply(t, e)); }
-function iframe_possibleConstructorReturn(t, e) { if (e && ("object" == iframe_typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return iframe_assertThisInitialized(t); }
-function iframe_assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
-function iframe_isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (iframe_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
-function iframe_getPrototypeOf(t) { return iframe_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, iframe_getPrototypeOf(t); }
-function iframe_inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && iframe_setPrototypeOf(t, e); }
-function iframe_setPrototypeOf(t, e) { return iframe_setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, iframe_setPrototypeOf(t, e); }
-
-
-var ReusableIframeView = /*#__PURE__*/(/* unused pure expression or super */ null && (function (_IframeView) {
-  function ReusableIframeView(section, options) {
-    iframe_classCallCheck(this, ReusableIframeView);
-    return iframe_callSuper(this, ReusableIframeView, [section, options]); // this._layout.height = null;
-  }
-  iframe_inherits(ReusableIframeView, _IframeView);
-  return iframe_createClass(ReusableIframeView, [{
-    key: "container",
-    value: function container(axis) {
-      var check = document.querySelector("div[ref='".concat(this.index, "']"));
-      if (check) {
-        check.dataset.reused = 'true';
-        return check;
-      }
-      var element = document.createElement("div");
-      element.classList.add("epub-view");
-
-      // this.element.style.minHeight = "100px";
-      element.style.height = "0px";
-      element.style.width = "0px";
-      element.style.overflow = "hidden";
-      element.style.position = "relative";
-      element.style.display = "block";
-      if (axis && axis == "horizontal") {
-        element.style.flex = "none";
-      } else {
-        element.style.flex = "initial";
-      }
-      return element;
-    }
-  }, {
-    key: "create",
-    value: function create() {
-      if (this.iframe) {
-        return this.iframe;
-      }
-      if (!this.element) {
-        this.element = this.createContainer();
-      }
-      if (this.element.hasAttribute('layout-height')) {
-        var height = parseInt(this.element.getAttribute('layout-height'), 10);
-        this._layout_height = height;
-      }
-      this.iframe = this.element.querySelector("iframe");
-      if (this.iframe) {
-        return this.iframe;
-      }
-      this.iframe = document.createElement("iframe");
-      this.iframe.id = this.id;
-      this.iframe.scrolling = "no"; // Might need to be removed: breaks ios width calculations
-      this.iframe.style.overflow = "hidden";
-      this.iframe.seamless = "seamless";
-      // Back up if seamless isn't supported
-      this.iframe.style.border = "none";
-      this.iframe.setAttribute("enable-annotation", "true");
-      this.resizing = true;
-
-      // this.iframe.style.display = "none";
-      this.element.style.visibility = "hidden";
-      this.iframe.style.visibility = "hidden";
-      this.iframe.style.width = "0";
-      this.iframe.style.height = "0";
-      this._width = 0;
-      this._height = 0;
-      this.element.setAttribute("ref", this.index);
-      this.element.setAttribute("data-href", this.section.href);
-
-      // this.element.appendChild(this.iframe);
-      this.added = true;
-      this.elementBounds = iframe_bounds(this.element);
-
-      // if(width || height){
-      //   this.resize(width, height);
-      // } else if(this.width && this.height){
-      //   this.resize(this.width, this.height);
-      // } else {
-      //   this.iframeBounds = bounds(this.iframe);
-      // }
-
-      if ("srcdoc" in this.iframe) {
-        this.supportsSrcdoc = true;
-      } else {
-        this.supportsSrcdoc = false;
-      }
-      if (!this.settings.method) {
-        this.settings.method = this.supportsSrcdoc ? "srcdoc" : "write";
-      }
-      return this.iframe;
-    }
-  }]);
-}(iframe_IframeView)));
-/* harmony default export */ const views_iframe = ((/* unused pure expression or super */ null && (ReusableIframeView)));
-;// ./src/epubjs/managers/helpers/scrolling_views.js
-function scrolling_views_typeof(o) { "@babel/helpers - typeof"; return scrolling_views_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, scrolling_views_typeof(o); }
-function scrolling_views_classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function scrolling_views_defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, scrolling_views_toPropertyKey(o.key), o); } }
-function scrolling_views_createClass(e, r, t) { return r && scrolling_views_defineProperties(e.prototype, r), t && scrolling_views_defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function scrolling_views_toPropertyKey(t) { var i = scrolling_views_toPrimitive(t, "string"); return "symbol" == scrolling_views_typeof(i) ? i : i + ""; }
-function scrolling_views_toPrimitive(t, r) { if ("object" != scrolling_views_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != scrolling_views_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 
 
 window.inVp = Util.inVp;
 var scrolling_views_Views = /*#__PURE__*/function () {
   function Views(container) {
     var preloading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    scrolling_views_classCallCheck(this, Views);
+    _classCallCheck(this, Views);
     this.container = container;
     this._views = [];
     this.length = 0;
@@ -27741,7 +26468,7 @@ var scrolling_views_Views = /*#__PURE__*/function () {
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     });
   }
-  return scrolling_views_createClass(Views, [{
+  return _createClass(Views, [{
     key: "all",
     value: function all() {
       return this._views;
@@ -28078,8 +26805,6 @@ var ScrollingContinuousViewManager = /*#__PURE__*/function () {
     this.rendered = false;
     this.settings.scale = this.settings.scale || 1.0;
     this.settings.xscale = this.settings.scale;
-    this.fraction = 0.8;
-    // this.settings.maxWidth = 1024;
   }
   return scrolling_createClass(ScrollingContinuousViewManager, [{
     key: "render",
@@ -28111,7 +26836,7 @@ var ScrollingContinuousViewManager = /*#__PURE__*/function () {
       this.container = this.stage.getContainer();
 
       // Views array methods
-      this.views = new scrolling_views(this.container, this.layout.name == 'pre-paginated');
+      this.views = new scrolling_views(this.container);
 
       // Calculate Stage Size
       this._bounds = this.bounds();
@@ -28296,28 +27021,8 @@ var ScrollingContinuousViewManager = /*#__PURE__*/function () {
 
       this.settings.spine.each(function (section) {
         var _this = this;
-        // if ( this.layout.name == 'pre-paginated' ) {
-        //   // do something
-        //   // viewSettings.layout.height = h;
-        //   // viewSettings.layout.columnWidth = w;
-
-        //   var r = this.layout.height / this.layout.columnWidth;
-
-        //   viewSettings.layout.columnWidth = this.layout.columnWidth * 0.8;
-        //   viewSettings.layout.height = this.layout.height * ( this.layout.columnWidth)
-
-        // }
         var viewSettings = Object.assign({}, this.viewSettings);
         viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-        if (this.layout.name == 'pre-paginated') {
-          viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
-          viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
-          viewSettings.minHeight *= this.settings.xscale;
-          viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
-          viewSettings.height = viewSettings.height * this.settings.xscale;
-          viewSettings.layout.height = viewSettings.height;
-          // console.log("AHOY new view", section.index, viewSettings.height);
-        }
         var view = new this.View(section, viewSettings);
         view.onDisplayed = this.afterDisplayed.bind(this);
         view.onResize = this.afterResized.bind(this);
@@ -28602,14 +27307,6 @@ var ScrollingContinuousViewManager = /*#__PURE__*/function () {
         this.views._views.forEach(function (view) {
           var viewSettings = Object.assign({}, this.viewSettings);
           viewSettings.layout = Object.assign(Object.create(Object.getPrototypeOf(this.viewSettings.layout)), this.viewSettings.layout);
-          if (this.layout.name == 'pre-paginated') {
-            viewSettings.layout.columnWidth = this.calcuateWidth(viewSettings.layout.columnWidth); // *= ( this.fraction * this.settings.xscale );
-            viewSettings.layout.width = this.calcuateWidth(viewSettings.layout.width); // *= ( this.fraction * this.settings.xscale );
-            viewSettings.minHeight *= this.settings.xscale;
-            viewSettings.maxHeight = viewSettings.height * this.settings.xscale;
-            viewSettings.height = viewSettings.height * this.settings.xscale;
-            viewSettings.layout.height = viewSettings.height;
-          }
           view.size(viewSettings.layout.width, viewSettings.layout.height);
           view.reframe(viewSettings.layout.width, viewSettings.layout.height);
           view.setLayout(viewSettings.layout);
@@ -28788,19 +27485,9 @@ var ScrollingContinuousViewManager = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "calcuateWidth",
-    value: function calcuateWidth(width) {
-      var retval = width * this.fraction * this.settings.xscale;
-      // if ( retval > this.settings.maxWidth * this.settings.xscale ) {
-      //   retval = this.settings.maxWidth * this.settings.xscale;
-      // }
-      return retval;
-    }
-  }, {
     key: "calculateHeight",
     value: function calculateHeight(height) {
-      var minHeight = this.layout.name == 'xxpre-paginated' ? 0 : this.settings.minHeight;
-      return height > minHeight ? this.layout.height : this.settings.minHeight;
+      return height > this.settings.minHeight ? this.layout.height : this.settings.minHeight;
     }
   }]);
 }();
@@ -28818,16 +27505,16 @@ function sticky_defineProperties(e, r) { for (var t = 0; t < r.length; t++) { va
 function sticky_createClass(e, r, t) { return r && sticky_defineProperties(e.prototype, r), t && sticky_defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function sticky_toPropertyKey(t) { var i = sticky_toPrimitive(t, "string"); return "symbol" == sticky_typeof(i) ? i : i + ""; }
 function sticky_toPrimitive(t, r) { if ("object" != sticky_typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != sticky_typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function sticky_callSuper(t, o, e) { return o = sticky_getPrototypeOf(o), sticky_possibleConstructorReturn(t, sticky_isNativeReflectConstruct() ? Reflect.construct(o, e || [], sticky_getPrototypeOf(t).constructor) : o.apply(t, e)); }
-function sticky_possibleConstructorReturn(t, e) { if (e && ("object" == sticky_typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return sticky_assertThisInitialized(t); }
-function sticky_assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
-function sticky_isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (sticky_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
-function _superPropGet(t, o, e, r) { var p = _get(sticky_getPrototypeOf(1 & r ? t.prototype : t), o, e); return 2 & r && "function" == typeof p ? function (t) { return p.apply(e, t); } : p; }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == sticky_typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _superPropGet(t, o, e, r) { var p = _get(_getPrototypeOf(1 & r ? t.prototype : t), o, e); return 2 & r && "function" == typeof p ? function (t) { return p.apply(e, t); } : p; }
 function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
-function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = sticky_getPrototypeOf(t));); return t; }
-function sticky_getPrototypeOf(t) { return sticky_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, sticky_getPrototypeOf(t); }
-function sticky_inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && sticky_setPrototypeOf(t, e); }
-function sticky_setPrototypeOf(t, e) { return sticky_setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, sticky_setPrototypeOf(t, e); }
+function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));); return t; }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 
 
 
@@ -28836,7 +27523,7 @@ var StickyIframeView = /*#__PURE__*/function (_IframeView) {
   function StickyIframeView(section, options) {
     var _this;
     sticky_classCallCheck(this, StickyIframeView);
-    _this = sticky_callSuper(this, StickyIframeView, [section, options]);
+    _this = _callSuper(this, StickyIframeView, [section, options]);
     _this.element.style.height = "".concat(_this.layout.height, "px");
     _this.element.style.width = "".concat(_this.layout.width, "px");
     _this.element.style.visibility = "hidden";
@@ -28844,7 +27531,7 @@ var StickyIframeView = /*#__PURE__*/function (_IframeView) {
     // console.log("AHOY sticky NEW", this.layout.height);
     return _this;
   }
-  sticky_inherits(StickyIframeView, _IframeView);
+  _inherits(StickyIframeView, _IframeView);
   return sticky_createClass(StickyIframeView, [{
     key: "container",
     value: function container(axis) {
@@ -28910,7 +27597,7 @@ var StickyIframeView = /*#__PURE__*/function (_IframeView) {
 
       // this.element.appendChild(this.iframe);
       this.added = true;
-      this.elementBounds = core_bounds(this.element);
+      this.elementBounds = bounds(this.element);
 
       // if(width || height){
       //   this.resize(width, height);
@@ -28981,7 +27668,7 @@ var StickyIframeView = /*#__PURE__*/function (_IframeView) {
       this.onResize(this, size);
       this.emit(EVENTS.VIEWS.RESIZED, size);
       this.prevBounds = size;
-      this.elementBounds = core_bounds(this.element);
+      this.elementBounds = bounds(this.element);
     }
   }, {
     key: "queryReframeElement",
@@ -29129,12 +27816,12 @@ var StickyIframeView = /*#__PURE__*/function (_IframeView) {
 /* harmony default export */ const sticky = (StickyIframeView);
 ;// ./src/utils/manglers.js
 function manglers_typeof(o) { "@babel/helpers - typeof"; return manglers_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, manglers_typeof(o); }
-function manglers_slicedToArray(r, e) { return manglers_arrayWithHoles(r) || manglers_iterableToArrayLimit(r, e) || manglers_unsupportedIterableToArray(r, e) || manglers_nonIterableRest(); }
-function manglers_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function manglers_unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return manglers_arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? manglers_arrayLikeToArray(r, a) : void 0; } }
-function manglers_arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function manglers_iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function manglers_arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function manglers_callSuper(t, o, e) { return o = manglers_getPrototypeOf(o), manglers_possibleConstructorReturn(t, manglers_isNativeReflectConstruct() ? Reflect.construct(o, e || [], manglers_getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function manglers_possibleConstructorReturn(t, e) { if (e && ("object" == manglers_typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return manglers_assertThisInitialized(t); }
 function manglers_assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
@@ -29431,7 +28118,7 @@ function handlePopups(reader, contents) {
   });
   var initialized = {};
   queue.forEach(function (_ref) {
-    var _ref2 = manglers_slicedToArray(_ref, 2),
+    var _ref2 = _slicedToArray(_ref, 2),
       element = _ref2[0],
       updater = _ref2[1];
     if (!initialized[updater.selector]) {
@@ -29848,8 +28535,6 @@ window.ePub = src;
 
 
 
-
-
 Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
   initialize: function initialize(id, options) {
     Reader/* Reader */.m.prototype.initialize.apply(this, arguments);
@@ -29886,28 +28571,7 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     this._book.ready.then(function () {
       self.parseRootfiles();
       self.draw(target, callback);
-      if (self.metadata.layout == 'pre-paginated') {
-        // fake it with the spine
-        var locations = [];
-        self._book.spine.each(function (item) {
-          locations.push("epubcfi(".concat(item.cfiBase, "!/4/2)"));
-          self.locations._locations.push("epubcfi(".concat(item.cfiBase, "!/4/2)"));
-        });
-        self.locations.total = locations.length;
-        var t;
-        var _f = function f() {
-          if (self._rendition && self._rendition.manager && self._rendition.manager.stage) {
-            var location = self._rendition.currentLocation();
-            if (location && location.start) {
-              self.fire('updateLocations', locations);
-              clearTimeout(t);
-              return;
-            }
-          }
-          t = setTimeout(_f, 100);
-        };
-        t = setTimeout(_f, 100);
-      } else if (self._book.pageList && self._book.pageList.pageList.length && !self._book.pageList.locations.length) {
+      if (self._book.pageList && self._book.pageList.pageList.length && !self._book.pageList.locations.length) {
         self._book.locations.generateFromPageList(self._book.pageList).then(function (locations) {
           self.fire('updateLocations', locations);
         });
@@ -29966,12 +28630,6 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       }
     }
 
-    // if ( flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ){
-    //     flow = 'scrolled-doc';
-    //   }
-    // }
-
     // var key = `${flow}/${self.metadata.layout}`;
     if (self._cozyOptions[key]) {
       // useful dev output if you're adding/changing saved preferences
@@ -30009,40 +28667,27 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
       stylesheet: this.options.injectStylesheet
     };
     this.settings.manager = this.options.manager || 'default';
-
-    // if ( this.settings.flow == 'auto' && this.metadata.layout == 'pre-paginated' ) {
-    //   // dumb check to see if the window is _tall_ enough to put
-    //   // two pages side by side
-    //   if ( this._container.offsetHeight <= this.options.forceScrolledDocHeight ) {
-    //     this.settings.flow = 'scrolled-doc';
-
-    //     // this.settings.manager = PrePaginatedContinuousViewManager;
-    //     // this.settings.view = ReusableIframeView;
-
-    //     this.settings.manager = ScrollingContinuousViewManager;
-    //     this.settings.view = StickyIframeView;
-    //     this.settings.width = '100%'; // 100%?
-    //     this.settings.spine = this._book.spine;
-    //   }
-    // }
-
     if (this.settings.flow == 'auto' || this.settings.flow == 'paginated') {
       this._panes['epub'].style.overflow = this.metadata.layout == 'pre-paginated' ? 'auto' : 'hidden';
       this.settings.manager = 'default';
     } else {
       this._panes['epub'].style.overflow = 'auto';
       if (this.settings.manager == 'default') {
-        // this.settings.manager = 'continuous';
-        // CSB-272, CSB-277 - continuous scroll "exclude list" by ISBN (Gabii 2, Mittell...)
-        var no_continuous_scroll_isbns = ['9780472999064', '9781643150611'];
-        if (no_continuous_scroll_isbns.includes(this.metadata.identifier)) {
-          this.settings.manager = 'default';
+        if (this.metadata.layout == 'pre-paginated') {
+          // fixed-layout scroll uses epub.js's native continuous manager
+          this.settings.manager = 'continuous';
         } else {
-          this.settings.manager = scrolling;
-          this.settings.view = sticky;
+          // CSB-272, CSB-277 - continuous scroll "exclude list" by ISBN (Gabii 2, Mittell...)
+          var no_continuous_scroll_isbns = ['9780472999064', '9781643150611'];
+          if (no_continuous_scroll_isbns.includes(this.metadata.identifier)) {
+            this.settings.manager = 'default';
+          } else {
+            this.settings.manager = scrolling;
+            this.settings.view = sticky;
+          }
+          this.settings.width = '100%'; // 100%?
+          this.settings.spine = this._book.spine;
         }
-        this.settings.width = '100%'; // 100%?
-        this.settings.spine = this._book.spine;
       }
     }
     if (!callback) {
@@ -30051,21 +28696,11 @@ Reader/* Reader */.m.EpubJS = Reader/* Reader */.m.extend({
     self.settings.height = '100%';
     self.settings.width = '100%';
     self.settings['ignoreClass'] = 'annotator-hl';
-    if (this.metadata.layout == 'pre-paginated' && this.settings.manager == 'continuous') {
-      // this.settings.manager = 'prepaginated';
-      // this.settings.manager = PrePaginatedContinuousViewManager;
-      // this.settings.view = ReusableIframeView;
-      this.settings.manager = scrolling;
-      this.settings.view = sticky;
-      this.settings.spread = 'none';
-    }
     if (this.settings.manager == scrolling) {
-      if (this.metadata.layout != 'pre-paginated' && !this.options.minHeight) {
+      if (!this.options.minHeight) {
         this.options.minHeight = this._panes['book'].offsetHeight * 0.75;
       }
-      if (this.options.minHeight) {
-        this.settings.minHeight = this.options.minHeight;
-      }
+      this.settings.minHeight = this.options.minHeight;
     }
     if (self.options.scale != '100') {
       self.settings.scale = parseInt(self.options.scale, 10) / 100;
@@ -37111,7 +35746,7 @@ var cozy_cozy = {};
 var control = __webpack_require__(7115);
 var core = __webpack_require__(9241);
 var dom = __webpack_require__(2057);
-var cozy_reader = __webpack_require__(2116);
+var cozy_reader = __webpack_require__(6107);
 var config = __webpack_require__(9521);
 [control, core, dom, cozy_reader, config].forEach(function (m) {
   Object.keys(m).forEach(function (key) {
